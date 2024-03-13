@@ -1,6 +1,6 @@
 <?php
 
-namespace Controllers\Repo\Operation\Metadata;
+namespace Controllers\Task\Repo\Metadata;
 
 use Exception;
 
@@ -34,16 +34,16 @@ trait Create
          */
         try {
             if ($this->repo->getPackageType() == 'rpm') {
-                $mymetadata = new \Controllers\Repo\Operation\Metadata\Rpm();
-                $mymetadata->setPid($this->operation->getPid());
+                $mymetadata = new \Controllers\Task\Repo\Metadata\Rpm();
+                $mymetadata->setPid($this->task->getPid());
                 $mymetadata->setRoot($repoPath);
                 $mymetadata->setLogfile($this->log->getSteplog());
                 $mymetadata->create();
             }
 
             if ($this->repo->getPackageType() == 'deb') {
-                $mymetadata = new \Controllers\Repo\Operation\Metadata\Deb();
-                $mymetadata->setPid($this->operation->getPid());
+                $mymetadata = new \Controllers\Task\Repo\Metadata\Deb();
+                $mymetadata->setPid($this->task->getPid());
                 $mymetadata->setRoot($repoPath);
                 $mymetadata->setRepo($this->repo->getName());
                 $mymetadata->setDist($this->repo->getDist());
@@ -68,7 +68,7 @@ trait Create
             /**
              *  Delete everything to make sure the operation can be relaunched (except if action is 'rebuild')
              */
-            if ($this->operation->getAction() != "rebuild") {
+            if ($this->task->getAction() != "rebuild") {
                 if ($this->repo->getPackageType() == 'rpm') {
                     if (!\Controllers\Filesystem\Directory::deleteRecursive($repoPath)) {
                         throw new Exception('Repo creation has failed and directory cannot be cleaned: ' . $repoPath);
@@ -99,7 +99,7 @@ trait Create
          *  Create symbolic link (environment)
          *  Only if user has specified to point an environment to the created snapshot
          */
-        if ($this->operation->getAction() == "new" or $this->operation->getAction() == "update") {
+        if ($this->task->getAction() == "new" or $this->task->getAction() == "update") {
             if (!empty($this->repo->getTargetEnv())) {
                 if ($this->repo->getPackageType() == 'rpm') {
                     $targetFile = $this->repo->getTargetDateFormatted() . '_' . $this->repo->getName();

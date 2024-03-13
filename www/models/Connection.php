@@ -432,8 +432,8 @@ class Connection extends SQLite3
         Target_snap_id INTEGER,
         Target_env_id INTEGER,
         Group_id INTEGER,
-        Gpg_check CHAR(3),
-        Gpg_sign CHAR(3),
+        Gpg_check CHAR(5), /* true, false */
+        Gpg_sign CHAR(5), /* true, false */
         Pid INTEGER NOT NULL,
         Task_pool_id INTEGER NOT NULL,
         Logfile VARCHAR(255) NOT NULL,

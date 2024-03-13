@@ -1,26 +1,31 @@
 <?php
 
-namespace Controllers\Repo\Operation;
+namespace Controllers\Task\Repo;
 
 use Exception;
 
-class Rebuild extends Operation
+class Rebuild
 {
+    use \Controllers\Task\Param;
     use Package\Sign;
     use Metadata\Create;
+
+    private $repo;
+    private $task;
+    private $log;
 
     public function __construct(string $poolId, array $taskParams)
     {
         $this->repo = new \Controllers\Repo\Repo();
-        $this->operation = new \Controllers\Operation\Operation();
-        $this->log = new \Controllers\Log\OperationLog('repomanager', $this->operation->getPid());
+        $this->task = new \Controllers\Task\Task();
+        $this->log = new \Controllers\Log\OperationLog('repomanager', $this->task->getPid());
 
         /**
          *  Check and set snapId parameter
          */
         $requiredParams = array('snapId');
-        $this->operationParamsCheck('Rebuild repo metadata', $taskParams, $requiredParams);
-        $this->operationParamsSet($taskParams, $requiredParams);
+        $this->taskParamsCheck('Rebuild repo metadata', $taskParams, $requiredParams);
+        $this->taskParamsSet($taskParams, $requiredParams);
 
         /**
          *  Getting all repo details from its snapshot Id
@@ -37,19 +42,19 @@ class Rebuild extends Operation
          *  Check and set others operation parameters
          */
         $requiredParams = array('targetGpgResign', 'targetDate', 'targetArch');
-        $this->operationParamsCheck('Rebuild repo', $taskParams, $requiredParams);
-        $this->operationParamsSet($taskParams, $requiredParams, null);
+        $this->taskParamsCheck('Rebuild repo', $taskParams, $requiredParams);
+        $this->taskParamsSet($taskParams, $requiredParams, null);
 
         /**
          *  Set operation details
          */
-        $this->operation->setAction('rebuild');
-        $this->operation->setType('manual');
-        $this->operation->setPoolId($poolId);
-        $this->operation->setTargetSnapId($this->repo->getSnapId());
-        $this->operation->setGpgResign($this->repo->getTargetGpgResign());
-        $this->operation->setLogfile($this->log->getName());
-        $this->operation->start();
+        $this->task->setAction('rebuild');
+        $this->task->setType('manual');
+        $this->task->setPoolId($poolId);
+        $this->task->setTargetSnapId($this->repo->getSnapId());
+        $this->task->setGpgResign($this->repo->getTargetGpgResign());
+        $this->task->setLogfile($this->log->getName());
+        $this->task->start();
     }
 
     /**
@@ -65,7 +70,7 @@ class Rebuild extends Operation
         /**
          *  Launch external script that will build the main log file from the small log files of each step
          */
-        $this->log->runLogBuilder($this->operation->getPid(), $this->log->getLocation());
+        $this->log->runLogBuilder($this->task->getPid(), $this->log->getLocation());
 
         /**
          *  Set snapshot metadata rebuild state in database
@@ -103,7 +108,7 @@ class Rebuild extends Operation
             /**
              *  Set operation status to done
              */
-            $this->operation->setStatus('done');
+            $this->task->setStatus('done');
         } catch (\Exception $e) {
             /**
              *  Print a red error message in the log file
@@ -113,8 +118,8 @@ class Rebuild extends Operation
             /**
              *  Set operation status to error
              */
-            $this->operation->setStatus('error');
-            $this->operation->setError($e->getMessage());
+            $this->task->setStatus('error');
+            $this->task->setError($e->getMessage());
 
             /**
              *  Set snapshot metadata rebuild state in database
@@ -125,12 +130,12 @@ class Rebuild extends Operation
         /**
          *  Get total duration
          */
-        $duration = $this->operation->getDuration();
+        $duration = $this->task->getDuration();
 
         /**
          *  Close operation
          */
         $this->log->stepDuration($duration);
-        $this->operation->close();
+        $this->task->close();
     }
 }

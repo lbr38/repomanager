@@ -1,6 +1,6 @@
 <?php
 
-namespace Controllers\Repo\Operation\Metadata;
+namespace Controllers\Task\Repo\Metadata;
 
 use Exception;
 
@@ -10,11 +10,11 @@ class Rpm
     private $createrepo = '/usr/bin/createrepo_c';
     private $logfile;
     private $pid;
-    private $operation;
+    private $task;
 
     public function __construct()
     {
-        $this->operation = new \Controllers\Operation\Operation(false);
+        $this->task = new \Controllers\Task\Task(false);
     }
 
     public function setRoot(string $root)
@@ -47,7 +47,7 @@ class Rpm
         /**
          *  Set operation pid to the main pid passed
          */
-        $this->operation->setPid($this->pid);
+        $this->task->setPid($this->pid);
 
         /**
          *  Check if root path exists
@@ -67,7 +67,7 @@ class Rpm
          *  Retrieve PID of the launched process
          *  Then write PID to main PID file
          */
-        $this->operation->addsubpid($myprocess->getPid());
+        $this->task->addsubpid($myprocess->getPid());
 
         /**
          *  Print output to logfile

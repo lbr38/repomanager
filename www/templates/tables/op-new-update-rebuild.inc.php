@@ -5,7 +5,7 @@
 <div class="div-generic-blue">
     <table class="op-table">
         <?php
-        if ($this->operation->getAction() != 'rebuild') {
+        if ($this->task->getAction() != 'rebuild') {
             if (!empty($this->repo->getSource())) {
                 echo '<tr><th>SOURCE REPO</th><td><span class="label-white">' . $this->repo->getSource() . '</span></td></tr>';
             }
@@ -101,7 +101,7 @@
             <?php
         endif;
 
-        if ($this->operation->getAction() == 'update') :
+        if ($this->task->getAction() == 'update') :
             if (!empty($this->repo->getOnlySyncDifference())) : ?>
                 <tr>
                     <th>ONLY SYNC THE DIFFERENCE</th>

@@ -1,25 +1,30 @@
 <?php
 
-namespace Controllers\Repo\Operation;
+namespace Controllers\Task\Repo;
 
 use Exception;
 
-class Duplicate extends Operation
+class Duplicate
 {
+    use \Controllers\Task\Param;
     use Metadata\Create;
+
+    private $repo;
+    private $task;
+    private $log;
 
     public function __construct(string $poolId, array $taskParams)
     {
         $this->repo = new \Controllers\Repo\Repo();
-        $this->operation = new \Controllers\Operation\Operation();
-        $this->log = new \Controllers\Log\OperationLog('repomanager', $this->operation->getPid());
+        $this->task = new \Controllers\Task\Task();
+        $this->log = new \Controllers\Log\OperationLog('repomanager', $this->task->getPid());
 
         /**
          *  Check and set snapId parameter
          */
         $requiredParams = array('snapId');
-        $this->operationParamsCheck('Duplicate repo', $taskParams, $requiredParams);
-        $this->operationParamsSet($taskParams, $requiredParams);
+        $this->taskParamsCheck('Duplicate repo', $taskParams, $requiredParams);
+        $this->taskParamsSet($taskParams, $requiredParams);
 
         /**
          *  Getting all repo details from its snapshot Id
@@ -38,22 +43,22 @@ class Duplicate extends Operation
          */
         $requiredParams = array('snapId', 'targetName', 'targetGpgResign', 'targetArch');
         $optionnalParams = array('targetGroup', 'targetDescription', 'targetEnv', 'targetPackageTranslation');
-        $this->operationParamsCheck('Duplicate repo', $taskParams, $requiredParams);
-        $this->operationParamsSet($taskParams, $requiredParams, $optionnalParams);
+        $this->taskParamsCheck('Duplicate repo', $taskParams, $requiredParams);
+        $this->taskParamsSet($taskParams, $requiredParams, $optionnalParams);
 
         /**
          *  Set operation details
          */
-        $this->operation->setAction('duplicate');
-        $this->operation->setType('manual');
-        $this->operation->setPoolId($poolId);
-        $this->operation->setSourceSnapId($this->repo->getSnapId());
-        $this->operation->setRepoName($this->repo->getTargetName());
+        $this->task->setAction('duplicate');
+        $this->task->setType('manual');
+        $this->task->setPoolId($poolId);
+        $this->task->setSourceSnapId($this->repo->getSnapId());
+        $this->task->setRepoName($this->repo->getTargetName());
         if ($this->repo->getPackageType() == 'deb') {
-            $this->operation->setRepoName($this->repo->getTargetName() . '|' . $this->repo->getDist() . '|' . $this->repo->getSection());
+            $this->task->setRepoName($this->repo->getTargetName() . '|' . $this->repo->getDist() . '|' . $this->repo->getSection());
         }
-        $this->operation->setLogfile($this->log->getName());
-        $this->operation->start();
+        $this->task->setLogfile($this->log->getName());
+        $this->task->start();
     }
 
     /**
@@ -69,7 +74,7 @@ class Duplicate extends Operation
         /**
          *  Launch external script that will build the main log file from the small log files of each step
          */
-        $this->log->runLogBuilder($this->operation->getPid(), $this->log->getLocation());
+        $this->log->runLogBuilder($this->task->getPid(), $this->log->getLocation());
 
         try {
             ob_start();
@@ -275,7 +280,7 @@ class Duplicate extends Operation
             /**
              *  Set operation status to done
              */
-            $this->operation->setStatus('done');
+            $this->task->setStatus('done');
         } catch (\Exception $e) {
             /**
              *  Print a red error message in the log file
@@ -285,19 +290,19 @@ class Duplicate extends Operation
             /**
              *  Set operation status to error
              */
-            $this->operation->setStatus('error');
-            $this->operation->setError($e->getMessage());
+            $this->task->setStatus('error');
+            $this->task->setError($e->getMessage());
         }
 
         /**
          *  Get total duration
          */
-        $duration = $this->operation->getDuration();
+        $duration = $this->task->getDuration();
 
         /**
          *  Close operation
          */
         $this->log->stepDuration($duration);
-        $this->operation->close();
+        $this->task->close();
     }
 }

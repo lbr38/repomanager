@@ -1,23 +1,29 @@
 <?php
 
-namespace Controllers\Repo\Operation;
+namespace Controllers\Task\Repo;
 
 use Exception;
 
-class Delete extends Operation
+class Delete
 {
+    use \Controllers\Task\Param;
+
+    private $repo;
+    private $task;
+    private $log;
+
     public function __construct(string $poolId, array $taskParams)
     {
         $this->repo = new \Controllers\Repo\Repo();
-        $this->operation = new \Controllers\Operation\Operation();
-        $this->log = new \Controllers\Log\OperationLog('repomanager', $this->operation->getPid());
+        $this->task = new \Controllers\Task\Task();
+        $this->log = new \Controllers\Log\OperationLog('repomanager', $this->task->getPid());
 
         /**
          *  Check and set operation parameters
          */
         $requiredParams = array('snapId');
-        $this->operationParamsCheck('Delete repo snapshot', $taskParams, $requiredParams);
-        $this->operationParamsSet($taskParams, $requiredParams);
+        $this->taskParamsCheck('Delete repo snapshot', $taskParams, $requiredParams);
+        $this->taskParamsSet($taskParams, $requiredParams);
 
         /**
          *  Getting all repo details from its snapshot Id
@@ -27,12 +33,12 @@ class Delete extends Operation
         /**
          *  Set operation details
          */
-        $this->operation->setAction('delete');
-        $this->operation->setType('manual');
-        $this->operation->setPoolId($poolId);
-        $this->operation->setTargetSnapId($this->repo->getSnapId());
-        $this->operation->setLogfile($this->log->getName());
-        $this->operation->start();
+        $this->task->setAction('delete');
+        $this->task->setType('manual');
+        $this->task->setPoolId($poolId);
+        $this->task->setTargetSnapId($this->repo->getSnapId());
+        $this->task->setLogfile($this->log->getName());
+        $this->task->start();
     }
 
     /**
@@ -48,7 +54,7 @@ class Delete extends Operation
         /**
          *  Launch external script that will build the main log file from the small log files of each step
          */
-        $this->log->runLogBuilder($this->operation->getPid(), $this->log->getLocation());
+        $this->log->runLogBuilder($this->task->getPid(), $this->log->getLocation());
 
         try {
             ob_start();
@@ -130,7 +136,7 @@ class Delete extends Operation
             /**
              *  Set operation status to 'done'
              */
-            $this->operation->setStatus('done');
+            $this->task->setStatus('done');
         } catch (\Exception $e) {
             /**
              *  Print a red error message in the log file
@@ -140,19 +146,19 @@ class Delete extends Operation
             /**
              *  Set operation status to 'error'
              */
-            $this->operation->setStatus('error');
-            $this->operation->setError($e->getMessage());
+            $this->task->setStatus('error');
+            $this->task->setError($e->getMessage());
         }
 
         /**
          *  Get total duration
          */
-        $duration = $this->operation->getDuration();
+        $duration = $this->task->getDuration();
 
         /**
          *  Close operation
          */
         $this->log->stepDuration($duration);
-        $this->operation->close();
+        $this->task->close();
     }
 }

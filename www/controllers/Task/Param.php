@@ -1,20 +1,15 @@
 <?php
 
-namespace Controllers\Repo\Operation;
+namespace Controllers\Task;
 
 use Exception;
 
-class Operation
+trait Param
 {
-    protected $repo;
-    protected $operation;
-    public $log;
-    protected $poolId;
-
     /**
      *  Check required parameters for an operation
      */
-    protected function operationParamsCheck($operationType, $taskParams, $requiredParams)
+    public function taskParamsCheck($operationType, $taskParams, $requiredParams)
     {
         /**
          *  Check required parameters
@@ -29,7 +24,7 @@ class Operation
     /**
      *  Set repo parameters for an operation
      */
-    protected function operationParamsSet($taskParams, $requiredParams = null, $optionnalParams = null)
+    public function taskParamsSet($taskParams, $requiredParams = null, $optionnalParams = null)
     {
         /**
          *  Set required parameters, using the appropriate setter function
@@ -61,7 +56,7 @@ class Operation
      *   - an update of repo/section
      *   - a rebuild of repo/section metadata
      */
-    protected function printDetails(string $title)
+    public function printDetails(string $title)
     {
         $this->log->step();
 

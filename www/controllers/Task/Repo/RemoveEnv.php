@@ -1,11 +1,17 @@
 <?php
 
-namespace Controllers\Repo\Operation;
+namespace Controllers\Task\Repo;
 
 use Exception;
 
-class RemoveEnv extends Operation
+class RemoveEnv
 {
+    use \Controllers\Task\Param;
+
+    private $repo;
+    private $task;
+    private $log;
+
     public function __construct(string $poolId = '00000', array $taskParams)
     {
         /**
@@ -16,15 +22,15 @@ class RemoveEnv extends Operation
         }
 
         $this->repo = new \Controllers\Repo\Repo();
-        $this->operation = new \Controllers\Operation\Operation();
-        $this->log = new \Controllers\Log\OperationLog('repomanager', $this->operation->getPid());
+        $this->task = new \Controllers\Task\Task();
+        $this->log = new \Controllers\Log\OperationLog('repomanager', $this->task->getPid());
 
         /**
          *  Check and set snapId parameter
          */
         $requiredParams = array('repoId', 'snapId', 'envId');
-        $this->operationParamsCheck('Remove repo snapshot environment', $taskParams, $requiredParams);
-        $this->operationParamsSet($taskParams, $requiredParams);
+        $this->taskParamsCheck('Remove repo snapshot environment', $taskParams, $requiredParams);
+        $this->taskParamsSet($taskParams, $requiredParams);
 
         /**
          *  Getting all repo details from its snapshot Id
@@ -34,17 +40,17 @@ class RemoveEnv extends Operation
         /**
          *  Set operation details
          */
-        $this->operation->setAction('removeEnv');
-        $this->operation->setType('manual');
+        $this->task->setAction('removeEnv');
+        $this->task->setType('manual');
 
         /**
          *  This operation type does not have a real poolId because it is executed outside the usual process
          */
-        $this->operation->setPoolId('00000');
-        $this->operation->setTargetSnapId($this->repo->getSnapId());
-        $this->operation->setTargetEnvId($this->repo->getEnv());
-        $this->operation->setLogfile($this->log->getName());
-        $this->operation->start();
+        $this->task->setPoolId('00000');
+        $this->task->setTargetSnapId($this->repo->getSnapId());
+        $this->task->setTargetEnvId($this->repo->getEnv());
+        $this->task->setLogfile($this->log->getName());
+        $this->task->start();
     }
 
     /**
@@ -60,7 +66,7 @@ class RemoveEnv extends Operation
         /**
          *  Launch external script that will build the main log file from the small log files of each step
          */
-        $this->log->runLogBuilder($this->operation->getPid(), $this->log->getLocation());
+        $this->log->runLogBuilder($this->task->getPid(), $this->log->getLocation());
 
         try {
             ob_start();
@@ -111,7 +117,7 @@ class RemoveEnv extends Operation
             /**
              *  Set operation status to done
              */
-            $this->operation->setStatus('done');
+            $this->task->setStatus('done');
         } catch (\Exception $e) {
             /**
              *  Print a red error message in the log file
@@ -121,19 +127,19 @@ class RemoveEnv extends Operation
             /**
              *  Set operation status to error
              */
-            $this->operation->setStatus('error');
-            $this->operation->setError($e->getMessage());
+            $this->task->setStatus('error');
+            $this->task->setError($e->getMessage());
         }
 
         /**
          *  Get total duration
          */
-        $duration = $this->operation->getDuration();
+        $duration = $this->task->getDuration();
 
         /**
          *  Close operation
          */
         $this->log->stepDuration($duration);
-        $this->operation->close();
+        $this->task->close();
     }
 }

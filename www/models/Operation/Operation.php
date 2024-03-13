@@ -194,210 +194,210 @@ class Operation extends \Models\Model
     /**
      *  Ajout d'une nouvelle opération en base de données
      */
-    public function add(string $date, string $time, string $action, string $type, string $pid, string $poolId, string $logfile, string $status)
-    {
-        try {
-            $stmt = $this->db->prepare("INSERT INTO operations (Date, Time, Action, Type, Pid, Pool_id, Logfile, Status) VALUES (:date, :time, :action, :type, :pid, :poolid, :logfile, :status)");
-            $stmt->bindValue(':date', $date);
-            $stmt->bindValue(':time', $time);
-            $stmt->bindValue(':action', $action);
-            $stmt->bindValue(':type', $type);
-            $stmt->bindValue(':pid', $pid);
-            $stmt->bindValue(':poolid', $poolId);
-            $stmt->bindValue(':logfile', $logfile);
-            $stmt->bindValue(':status', $status);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-    }
+    // public function add(string $date, string $time, string $action, string $type, string $pid, string $poolId, string $logfile, string $status)
+    // {
+    //     try {
+    //         $stmt = $this->db->prepare("INSERT INTO operations (Date, Time, Action, Type, Pid, Pool_id, Logfile, Status) VALUES (:date, :time, :action, :type, :pid, :poolid, :logfile, :status)");
+    //         $stmt->bindValue(':date', $date);
+    //         $stmt->bindValue(':time', $time);
+    //         $stmt->bindValue(':action', $action);
+    //         $stmt->bindValue(':type', $type);
+    //         $stmt->bindValue(':pid', $pid);
+    //         $stmt->bindValue(':poolid', $poolId);
+    //         $stmt->bindValue(':logfile', $logfile);
+    //         $stmt->bindValue(':status', $status);
+    //         $stmt->execute();
+    //     } catch (\Exception $e) {
+    //         \Controllers\Common::dbError($e);
+    //     }
+    // }
 
-    /**
-     *  Update plan Id in database
-     */
-    public function updatePlanId(string $id, string $planId)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE operations SET Id_plan=:id_plan WHERE Id=:id");
-            $stmt->bindValue(':id_plan', $planId);
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
+    // /**
+    //  *  Update plan Id in database
+    //  */
+    // public function updatePlanId(string $id, string $planId)
+    // {
+    //     try {
+    //         $stmt = $this->db->prepare("UPDATE operations SET Id_plan=:id_plan WHERE Id=:id");
+    //         $stmt->bindValue(':id_plan', $planId);
+    //         $stmt->bindValue(':id', $id);
+    //         $stmt->execute();
+    //     } catch (\Exception $e) {
+    //         \Controllers\Common::dbError($e);
+    //     }
 
-        unset($stmt);
-    }
+    //     unset($stmt);
+    // }
 
-    /**
-     *  Update repo name in database
-     */
-    public function updateTargetRepo(string $id, string $name)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE operations SET Id_repo_target = :id_repo_target WHERE Id = :id");
-            $stmt->bindValue(':id_repo_target', $name);
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
+    // /**
+    //  *  Update repo name in database
+    //  */
+    // public function updateTargetRepo(string $id, string $name)
+    // {
+    //     try {
+    //         $stmt = $this->db->prepare("UPDATE operations SET Id_repo_target = :id_repo_target WHERE Id = :id");
+    //         $stmt->bindValue(':id_repo_target', $name);
+    //         $stmt->bindValue(':id', $id);
+    //         $stmt->execute();
+    //     } catch (\Exception $e) {
+    //         \Controllers\Common::dbError($e);
+    //     }
 
-        unset($stmt);
-    }
+    //     unset($stmt);
+    // }
 
-    /**
-     *  Update source repo in database
-     */
-    public function updateSourceRepo(string $id, string $sourceRepo)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE operations SET Id_repo_source = :id_repo_source WHERE Id = :id");
-            $stmt->bindValue(':id_repo_source', $sourceRepo);
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
+    // /**
+    //  *  Update source repo in database
+    //  */
+    // public function updateSourceRepo(string $id, string $sourceRepo)
+    // {
+    //     try {
+    //         $stmt = $this->db->prepare("UPDATE operations SET Id_repo_source = :id_repo_source WHERE Id = :id");
+    //         $stmt->bindValue(':id_repo_source', $sourceRepo);
+    //         $stmt->bindValue(':id', $id);
+    //         $stmt->execute();
+    //     } catch (\Exception $e) {
+    //         \Controllers\Common::dbError($e);
+    //     }
 
-        unset($stmt);
-    }
+    //     unset($stmt);
+    // }
 
-    /**
-     *  Update source snap Id in database
-     */
-    public function updateSourceSnap(string $id, string $snapId)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE operations SET Id_snap_source = :id_snap_source WHERE Id = :id");
-            $stmt->bindValue(':id_snap_source', $snapId);
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
+    // /**
+    //  *  Update source snap Id in database
+    //  */
+    // public function updateSourceSnap(string $id, string $snapId)
+    // {
+    //     try {
+    //         $stmt = $this->db->prepare("UPDATE operations SET Id_snap_source = :id_snap_source WHERE Id = :id");
+    //         $stmt->bindValue(':id_snap_source', $snapId);
+    //         $stmt->bindValue(':id', $id);
+    //         $stmt->execute();
+    //     } catch (\Exception $e) {
+    //         \Controllers\Common::dbError($e);
+    //     }
 
-        unset($stmt);
-    }
+    //     unset($stmt);
+    // }
 
-    /**
-     *  Update target snap Id in database
-     */
-    public function updateTargetSnap(string $id, string $snapId)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE operations SET Id_snap_target = :id_snap_target WHERE Id = :id");
-            $stmt->bindValue(':id_snap_target', $snapId);
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
+    // /**
+    //  *  Update target snap Id in database
+    //  */
+    // public function updateTargetSnap(string $id, string $snapId)
+    // {
+    //     try {
+    //         $stmt = $this->db->prepare("UPDATE operations SET Id_snap_target = :id_snap_target WHERE Id = :id");
+    //         $stmt->bindValue(':id_snap_target', $snapId);
+    //         $stmt->bindValue(':id', $id);
+    //         $stmt->execute();
+    //     } catch (\Exception $e) {
+    //         \Controllers\Common::dbError($e);
+    //     }
 
-        unset($stmt);
-    }
+    //     unset($stmt);
+    // }
 
-    /**
-     *  Update source env in database
-     */
-    public function updateSourceEnv(string $id, string $envId)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE operations SET Id_env_source = :id_env_source WHERE Id = :id");
-            $stmt->bindValue(':id_env_source', $envId);
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
+    // /**
+    //  *  Update source env in database
+    //  */
+    // public function updateSourceEnv(string $id, string $envId)
+    // {
+    //     try {
+    //         $stmt = $this->db->prepare("UPDATE operations SET Id_env_source = :id_env_source WHERE Id = :id");
+    //         $stmt->bindValue(':id_env_source', $envId);
+    //         $stmt->bindValue(':id', $id);
+    //         $stmt->execute();
+    //     } catch (\Exception $e) {
+    //         \Controllers\Common::dbError($e);
+    //     }
 
-        unset($stmt);
-    }
+    //     unset($stmt);
+    // }
 
-    /**
-     *  Update target env Id in database
-     */
-    public function updateTargetEnv(string $id, string $envId)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE operations SET Id_env_target = :id_env_target WHERE Id = :id");
-            $stmt->bindValue(':id_env_target', $envId);
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
+    // /**
+    //  *  Update target env Id in database
+    //  */
+    // public function updateTargetEnv(string $id, string $envId)
+    // {
+    //     try {
+    //         $stmt = $this->db->prepare("UPDATE operations SET Id_env_target = :id_env_target WHERE Id = :id");
+    //         $stmt->bindValue(':id_env_target', $envId);
+    //         $stmt->bindValue(':id', $id);
+    //         $stmt->execute();
+    //     } catch (\Exception $e) {
+    //         \Controllers\Common::dbError($e);
+    //     }
 
-        unset($stmt);
-    }
+    //     unset($stmt);
+    // }
 
-    /**
-     *  Update group Id in database
-     */
-    public function updateGroup(string $id, string $groupId)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE operations SET Id_group=:id_group WHERE Id=:id");
-            $stmt->bindValue(':id_group', $groupId);
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
+    // /**
+    //  *  Update group Id in database
+    //  */
+    // public function updateGroup(string $id, string $groupId)
+    // {
+    //     try {
+    //         $stmt = $this->db->prepare("UPDATE operations SET Id_group=:id_group WHERE Id=:id");
+    //         $stmt->bindValue(':id_group', $groupId);
+    //         $stmt->bindValue(':id', $id);
+    //         $stmt->execute();
+    //     } catch (\Exception $e) {
+    //         \Controllers\Common::dbError($e);
+    //     }
 
-        unset($stmt);
-    }
+    //     unset($stmt);
+    // }
 
-    /**
-     *  Update GPG check in database
-     */
-    public function updateGpgCheck(string $id, string $gpgCheck)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE operations SET GpgCheck=:gpgCheck WHERE Id=:id");
-            $stmt->bindValue(':gpgCheck', $gpgCheck);
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
+    // /**
+    //  *  Update GPG check in database
+    //  */
+    // public function updateGpgCheck(string $id, string $gpgCheck)
+    // {
+    //     try {
+    //         $stmt = $this->db->prepare("UPDATE operations SET GpgCheck=:gpgCheck WHERE Id=:id");
+    //         $stmt->bindValue(':gpgCheck', $gpgCheck);
+    //         $stmt->bindValue(':id', $id);
+    //         $stmt->execute();
+    //     } catch (\Exception $e) {
+    //         \Controllers\Common::dbError($e);
+    //     }
 
-        unset($stmt);
-    }
+    //     unset($stmt);
+    // }
 
-    /**
-     *  Update GPG resign in database
-     */
-    public function updateGpgResign(string $id, string $gpgResign)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE operations SET GpgResign=:gpgResign WHERE Id=:id");
-            $stmt->bindValue(':gpgResign', $gpgResign);
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
+    // /**
+    //  *  Update GPG resign in database
+    //  */
+    // public function updateGpgSign(string $id, string $gpgResign)
+    // {
+    //     try {
+    //         $stmt = $this->db->prepare("UPDATE operations SET GpgResign=:gpgResign WHERE Id=:id");
+    //         $stmt->bindValue(':gpgResign', $gpgResign);
+    //         $stmt->bindValue(':id', $id);
+    //         $stmt->execute();
+    //     } catch (\Exception $e) {
+    //         \Controllers\Common::dbError($e);
+    //     }
 
-        unset($stmt);
-    }
+    //     unset($stmt);
+    // }
 
     /**
      *  CLOTURE D'UNE OPERATION
      *  Modifie le status en BDD
      */
-    public function closeOperation(string $id, string $status, string $duration)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE operations SET Status = :status, Duration = :duration WHERE Id = :id");
-            $stmt->bindValue(':status', $status);
-            $stmt->bindValue(':duration', $duration);
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-    }
+    // public function closeOperation(string $id, string $status, string $duration)
+    // {
+    //     try {
+    //         $stmt = $this->db->prepare("UPDATE operations SET Status = :status, Duration = :duration WHERE Id = :id");
+    //         $stmt->bindValue(':status', $status);
+    //         $stmt->bindValue(':duration', $duration);
+    //         $stmt->bindValue(':id', $id);
+    //         $stmt->execute();
+    //     } catch (\Exception $e) {
+    //         \Controllers\Common::dbError($e);
+    //     }
+    // }
 
     /**
      *  Retourne les opérations exécutées ou en cours d'exécution par une planification à partir de son Id

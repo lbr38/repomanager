@@ -1,6 +1,6 @@
 <?php
 
-namespace Controllers\Repo\Operation\Metadata;
+namespace Controllers\Task\Repo\Metadata;
 
 use Exception;
 
@@ -15,11 +15,11 @@ class Deb
     private $aptftparchive = '/usr/bin/apt-ftparchive';
     private $logfile;
     private $pid;
-    private $operation;
+    private $task;
 
     public function __construct()
     {
-        $this->operation = new \Controllers\Operation\Operation(false);
+        $this->task = new \Controllers\Task\Task(false);
     }
 
     public function setRoot(string $root)
@@ -77,7 +77,7 @@ class Deb
         /**
          *  Set operation pid to the main pid passed
          */
-        $this->operation->setPid($this->pid);
+        $this->task->setPid($this->pid);
 
         /**
          *  Check if root path exists
@@ -173,7 +173,7 @@ class Deb
          *  Retrieve PID of the launched process
          *  Then write PID to main PID file
          */
-        $this->operation->addsubpid($myprocess->getPid());
+        $this->task->addsubpid($myprocess->getPid());
 
         /**
          *  Print output to logfile
@@ -197,7 +197,7 @@ class Deb
          *  Retrieve PID of the launched process
          *  Then write PID to main PID file
          */
-        $this->operation->addsubpid($myprocess->getPid());
+        $this->task->addsubpid($myprocess->getPid());
 
         /**
          *  Print output to logfile
@@ -241,7 +241,7 @@ class Deb
          *  Retrieve PID of the launched process
          *  Then write PID to main PID file
          */
-        $this->operation->addsubpid($myprocess->getPid());
+        $this->task->addsubpid($myprocess->getPid());
 
         if ($myprocess->getExitCode() != 0) {
             throw new Exception('Failed to sign Release metadata file');

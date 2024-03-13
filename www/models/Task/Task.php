@@ -24,7 +24,7 @@ class Task extends \Models\Model
         $data = array();
 
         try {
-            $stmt = $this->db->prepare("SELECT * FROM operations WHERE Id = :id");
+            $stmt = $this->db->prepare("SELECT * FROM tasks WHERE Id = :id");
         } catch (Exception $e) {
             \Controllers\Common::dbError($e);
         }
@@ -61,7 +61,7 @@ class Task extends \Models\Model
     }
 
     /**
-     *  Met à jour le status d'une opération à partir du PID spécifié
+     *  Update task status from specified PID
      */
     public function setStatus(int $id, string $status)
     {
@@ -69,6 +69,163 @@ class Task extends \Models\Model
             $stmt = $this->db->prepare("UPDATE tasks SET Status = :status WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $stmt->bindValue(':status', $status);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Update plan Id in database
+     */
+    // public function updatePlanId(string $id, string $planId)
+    // {
+    //     try {
+    //         $stmt = $this->db->prepare("UPDATE operations SET Id_plan=:id_plan WHERE Id=:id");
+    //         $stmt->bindValue(':id_plan', $planId);
+    //         $stmt->bindValue(':id', $id);
+    //         $stmt->execute();
+    //     } catch (\Exception $e) {
+    //         \Controllers\Common::dbError($e);
+    //     }
+    // }
+
+    /**
+     *  Update repo name in database
+     */
+    public function updateTargetRepo(string $id, string $name)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE tasks SET Target_repo_id = :repoId WHERE Id = :id");
+            $stmt->bindValue(':repoId', $name);
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Update source snap Id in database
+     */
+    public function updateSourceSnap(string $id, string $snapId)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE tasks SET Source_snap_id = :snapId WHERE Id = :id");
+            $stmt->bindValue(':snapId', $snapId);
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Update target snap Id in database
+     */
+    public function updateTargetSnap(string $id, string $snapId)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE tasks SET Target_snap_id = :snapId WHERE Id = :id");
+            $stmt->bindValue(':snapId', $snapId);
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Update target env Id in database
+     */
+    public function updateTargetEnv(string $id, string $envId)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE tasks SET Target_env_id = :envId WHERE Id = :id");
+            $stmt->bindValue(':envId', $envId);
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Update group Id in database
+     */
+    public function updateGroup(string $id, string $groupId)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE tasks SET Group_id = :groupId WHERE Id = :id");
+            $stmt->bindValue(':groupId', $groupId);
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Update GPG check in database
+     */
+    public function updateGpgCheck(string $id, string $gpgCheck)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE tasks SET Gpg_check = :gpgCheck WHERE Id = :id");
+            $stmt->bindValue(':gpgCheck', $gpgCheck);
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Update GPG sign in database
+     */
+    public function updateGpgSign(string $id, string $gpgSign)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE tasks SET Gpg_sign = :gpgSign WHERE Id = :id");
+            $stmt->bindValue(':gpgSign', $gpgSign);
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Add a new task to the database
+     */
+    public function add(string $date, string $time, string $action, string $type, string $pid, string $poolId, string $logfile, string $status)
+    {
+        try {
+            $stmt = $this->db->prepare("INSERT INTO tasks (Date, Time, Action, Type, Pid, Task_pool_id, Logfile, Status) VALUES (:date, :time, :action, :type, :pid, :poolid, :logfile, :status)");
+            $stmt->bindValue(':date', $date);
+            $stmt->bindValue(':time', $time);
+            $stmt->bindValue(':action', $action);
+            $stmt->bindValue(':type', $type);
+            $stmt->bindValue(':pid', $pid);
+            $stmt->bindValue(':poolid', $poolId);
+            $stmt->bindValue(':logfile', $logfile);
+            $stmt->bindValue(':status', $status);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Close a task
+     */
+    public function close(string $id, string $status, string $duration)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE tasks SET Status = :status, Duration = :duration WHERE Id = :id");
+            $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':duration', $duration);
+            $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);

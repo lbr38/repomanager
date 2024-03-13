@@ -98,7 +98,7 @@ try {
     /**
      *  Generate controller name
      */
-    $controllerPath = '\Controllers\Repo\Operation\\' . ucfirst($action);
+    $controllerPath = '\Controllers\Task\Repo\\' . ucfirst($action);
 
     /**
      *  Check if class exists, otherwise the action might be invalid
@@ -111,7 +111,7 @@ try {
      *  Instantiate controller and execute action
      */
     $controller = new $controllerPath($poolId, $taskParams);
-    // $controller->execute();
+    $controller->execute();
 } catch (Exception $e) {
     $mylog->log('error', 'Task run', $e->getMessage());
     echo 'Error: ' . $e->getMessage() . PHP_EOL;

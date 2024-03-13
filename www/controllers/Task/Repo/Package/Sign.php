@@ -1,6 +1,6 @@
 <?php
 
-namespace Controllers\Repo\Operation\Package;
+namespace Controllers\Task\Repo\Package;
 
 use Exception;
 
@@ -128,7 +128,7 @@ trait Sign
             /**
              *  If the action is 'rebuild' then we do not delete what has been done (otherwise it deletes the repo!)
              */
-            if ($this->operation->getAction() != 'rebuild') {
+            if ($this->task->getAction() != 'rebuild') {
                 /**
                  *  Delete what has been done
                  */

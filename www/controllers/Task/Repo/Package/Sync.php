@@ -1,6 +1,6 @@
 <?php
 
-namespace Controllers\Repo\Operation\Package;
+namespace Controllers\Task\Repo\Package;
 
 use Exception;
 
@@ -24,10 +24,10 @@ trait Sync
             /**
              *  Operation type must be specified ('new' or 'update')
              */
-            if (empty($this->operation->getAction())) {
+            if (empty($this->task->getAction())) {
                 throw new Exception('Operation type unknow (empty)');
             }
-            if ($this->operation->getAction() != 'new' and $this->operation->getAction() != 'update') {
+            if ($this->task->getAction() != 'new' and $this->task->getAction() != 'update') {
                 throw new Exception('Operation type is invalid');
             }
 
@@ -45,7 +45,7 @@ trait Sync
              *
              *  Cas nouveau snapshot de repo :
              */
-            if ($this->operation->getAction() == 'new') {
+            if ($this->task->getAction() == 'new') {
                 if ($this->repo->getPackageType() == 'rpm') {
                     if ($this->repo->isActive($this->repo->getName()) === true) {
                         throw new Exception('Repo <span class="label-white">' . $this->repo->getName() . '</span> already exists');
@@ -68,7 +68,7 @@ trait Sync
             /**
              *  Si il s'agit d'une mise à jour de snapshot de repo on vérifie que l'id du snapshot existe en base de données
              */
-            if ($this->operation->getAction() == 'update') {
+            if ($this->task->getAction() == 'update') {
                 /**
                  *  Vérifie si le snapshot qu'on souhaite mettre à jour existe bien en base de données
                  */

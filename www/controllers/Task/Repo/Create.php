@@ -1,23 +1,27 @@
 <?php
 
-namespace Controllers\Repo\Operation;
+namespace Controllers\Task\Repo;
 
 use Exception;
 
-class Create extends Operation
+class Create
 {
+    use \Controllers\Task\Param;
     use Package\Sync;
     use Package\Sign;
     use Metadata\Create;
     use Finalize;
 
+    private $repo;
+    private $task;
+    private $log;
     private $type;
 
     public function __construct(string $poolId, array $taskParams)
     {
         $this->repo = new \Controllers\Repo\Repo();
-        $this->operation = new \Controllers\Operation\Operation();
-        $this->log = new \Controllers\Log\OperationLog('repomanager', $this->operation->getPid());
+        $this->task = new \Controllers\Task\Task();
+        $this->log = new \Controllers\Log\OperationLog('repomanager', $this->task->getPid());
 
         /**
          *  Check and set operation parameters
@@ -56,8 +60,8 @@ class Create extends Operation
             $this->repo->setName($taskParams['alias']);
         }
 
-        $this->operationParamsCheck('Create repo', $taskParams, $requiredParams);
-        $this->operationParamsSet($taskParams, $requiredParams, $optionnalParams);
+        $this->taskParamsCheck('Create repo', $taskParams, $requiredParams);
+        $this->taskParamsSet($taskParams, $requiredParams, $optionnalParams);
 
         if ($taskParams['type'] == 'mirror') {
             /**
@@ -73,19 +77,19 @@ class Create extends Operation
         /**
          *  Set operation details
          */
-        $this->operation->setAction('new');
-        $this->operation->setType('manual');
-        $this->operation->setPoolId($poolId);
-        $this->operation->setRepoName($this->repo->getName());
+        $this->task->setAction('new');
+        $this->task->setType('manual');
+        $this->task->setPoolId($poolId);
+        $this->task->setRepoName($this->repo->getName());
         if ($this->repo->getPackageType() == 'deb') {
-            $this->operation->setRepoName($this->repo->getName() . '|' . $this->repo->getDist() . '|' . $this->repo->getSection());
+            $this->task->setRepoName($this->repo->getName() . '|' . $this->repo->getDist() . '|' . $this->repo->getSection());
         }
         if ($taskParams['type'] == 'mirror') {
-            $this->operation->setGpgCheck($this->repo->getTargetGpgCheck());
-            $this->operation->setGpgResign($this->repo->getTargetGpgResign());
+            $this->task->setGpgCheck($this->repo->getTargetGpgCheck());
+            $this->task->setGpgResign($this->repo->getTargetGpgResign());
         }
-        $this->operation->setLogfile($this->log->getName());
-        $this->operation->start();
+        $this->task->setLogfile($this->log->getName());
+        $this->task->start();
 
         /**
          *  Run the operation
@@ -131,7 +135,7 @@ class Create extends Operation
         /**
          *  Run the external script that will build the main log file from the small log files of each step
          */
-        $this->log->runLogBuilder($this->operation->getPid(), $this->log->getLocation());
+        $this->log->runLogBuilder($this->task->getPid(), $this->log->getLocation());
 
         try {
             /**
@@ -162,27 +166,27 @@ class Create extends Operation
             /**
              *  Set operation status to 'done'
              */
-            $this->operation->setStatus('done');
+            $this->task->setStatus('done');
         } catch (\Exception $e) {
             $this->log->stepError($e->getMessage());
 
             /**
              *  Set operation status to 'error'
              */
-            $this->operation->setStatus('error');
-            $this->operation->setError($e->getMessage());
+            $this->task->setStatus('error');
+            $this->task->setError($e->getMessage());
         }
 
         /**
          *  Get total duration
          */
-        $duration = $this->operation->getDuration();
+        $duration = $this->task->getDuration();
 
         /**
          *  Close operation
          */
         $this->log->stepDuration($duration);
-        $this->operation->close();
+        $this->task->close();
     }
 
     /**
@@ -204,7 +208,7 @@ class Create extends Operation
         /**
          *  Launch the external script that will build the main log file from the small log files of each step
          */
-        $this->log->runLogBuilder($this->operation->getPid(), $this->log->getLocation());
+        $this->log->runLogBuilder($this->task->getPid(), $this->log->getLocation());
 
         try {
             ob_start();
@@ -376,7 +380,7 @@ class Create extends Operation
             /**
              *  Set operation status to 'done'
              */
-            $this->operation->setStatus('done');
+            $this->task->setStatus('done');
         } catch (\Exception $e) {
             /**
              *  Print a red error message in the log file
@@ -386,19 +390,19 @@ class Create extends Operation
             /**
              *  Set operation status to 'error'
              */
-            $this->operation->setStatus('error');
-            $this->operation->setError($e->getMessage());
+            $this->task->setStatus('error');
+            $this->task->setError($e->getMessage());
         }
 
         /**
          *  Get total duration
          */
-        $duration = $this->operation->getDuration();
+        $duration = $this->task->getDuration();
 
         /**
          *  Close operation
          */
         $this->log->stepDuration($duration);
-        $this->operation->close();
+        $this->task->close();
     }
 }

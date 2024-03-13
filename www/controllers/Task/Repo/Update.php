@@ -1,28 +1,33 @@
 <?php
 
-namespace Controllers\Repo\Operation;
+namespace Controllers\Task\Repo;
 
 use Exception;
 
-class Update extends Operation
+class Update
 {
+    use \Controllers\Task\Param;
     use Package\Sync;
     use Package\Sign;
     use Metadata\Create;
     use Finalize;
 
+    private $repo;
+    private $task;
+    private $log;
+
     public function __construct(string $poolId, array $taskParams)
     {
         $this->repo = new \Controllers\Repo\Repo();
-        $this->operation = new \Controllers\Operation\Operation();
-        $this->log = new \Controllers\Log\OperationLog('repomanager', $this->operation->getPid());
+        $this->task = new \Controllers\Task\Task();
+        $this->log = new \Controllers\Log\OperationLog('repomanager', $this->task->getPid());
 
         /**
          *  Check and set snapId parameter
          */
         $requiredParams = array('snapId');
-        $this->operationParamsCheck('Update repo', $taskParams, $requiredParams);
-        $this->operationParamsSet($taskParams, $requiredParams);
+        $this->taskParamsCheck('Update repo', $taskParams, $requiredParams);
+        $this->taskParamsSet($taskParams, $requiredParams);
 
         /**
          *  Getting all repo details from its snapshot Id
@@ -34,29 +39,29 @@ class Update extends Operation
          */
         $requiredParams = array('targetGpgCheck', 'targetGpgResign', 'targetArch', 'onlySyncDifference');
         $optionnalParams = array('targetEnv', 'targetPackageTranslation');
-        $this->operationParamsCheck('Update repo', $taskParams, $requiredParams);
-        $this->operationParamsSet($taskParams, $requiredParams, $optionnalParams);
+        $this->taskParamsCheck('Update repo', $taskParams, $requiredParams);
+        $this->taskParamsSet($taskParams, $requiredParams, $optionnalParams);
 
         /**
          *  Set operation details
          */
-        $this->operation->setAction('update');
-        $this->operation->setType('manual');
-        $this->operation->setPoolId($poolId);
-        $this->operation->setTargetSnapId($this->repo->getSnapId());
-        $this->operation->setGpgCheck($this->repo->getTargetGpgCheck());
-        $this->operation->setGpgResign($this->repo->getTargetGpgResign());
-        $this->operation->setLogfile($this->log->getName());
+        $this->task->setAction('update');
+        $this->task->setType('manual');
+        $this->task->setPoolId($poolId);
+        $this->task->setTargetSnapId($this->repo->getSnapId());
+        $this->task->setGpgCheck($this->repo->getTargetGpgCheck());
+        $this->task->setGpgResign($this->repo->getTargetGpgResign());
+        $this->task->setLogfile($this->log->getName());
 
         /**
          *  If a schedule Id has been specified then it means that the action has been initialized by a schedule
          */
         if (!empty($taskParams['planId'])) {
-            $this->operation->setType('plan');
-            $this->operation->setPlanId($taskParams['planId']);
+            $this->task->setType('plan');
+            $this->task->setPlanId($taskParams['planId']);
         }
 
-        $this->operation->start();
+        $this->task->start();
     }
 
     /**
@@ -78,7 +83,7 @@ class Update extends Operation
         /**
          *  Launch external script that will build the main log file from the small log files of each step
          */
-        $this->log->runLogBuilder($this->operation->getPid(), $this->log->getLocation());
+        $this->log->runLogBuilder($this->task->getPid(), $this->log->getLocation());
 
         try {
             /**
@@ -109,7 +114,7 @@ class Update extends Operation
             /**
              *  Set operation status to done
              */
-            $this->operation->setStatus('done');
+            $this->task->setStatus('done');
         } catch (\Exception $e) {
             /**
              *  Print a red error message in the log file
@@ -119,19 +124,19 @@ class Update extends Operation
             /**
              *  Set operation status to error
              */
-            $this->operation->setStatus('error');
-            $this->operation->setError($e->getMessage());
+            $this->task->setStatus('error');
+            $this->task->setError($e->getMessage());
 
             /**
              *  Get total duration
              */
-            $duration = $this->operation->getDuration();
+            $duration = $this->task->getDuration();
 
             /**
              *  Close operation
              */
             $this->log->stepDuration($duration);
-            $this->operation->close();
+            $this->task->close();
 
             throw new Exception($e->getMessage());
         }
@@ -139,12 +144,12 @@ class Update extends Operation
         /**
          *  Get total duration
          */
-        $duration = $this->operation->getDuration();
+        $duration = $this->task->getDuration();
 
         /**
          *  Close operation
          */
         $this->log->stepDuration($duration);
-        $this->operation->close();
+        $this->task->close();
     }
 }

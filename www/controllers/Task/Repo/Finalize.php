@@ -1,6 +1,6 @@
 <?php
 
-namespace Controllers\Repo\Operation;
+namespace Controllers\Task\Repo;
 
 use Exception;
 
@@ -18,10 +18,10 @@ trait Finalize
         /**
          *  Le type d'opération doit être renseigné pour cette fonction (soit 'new' soit 'update')
          */
-        if (empty($this->operation->getAction())) {
+        if (empty($this->task->getAction())) {
             throw new Exception('operation type unknown (empty)');
         }
-        if ($this->operation->getAction() != 'new' and $this->operation->getAction() != 'update') {
+        if ($this->task->getAction() != 'new' and $this->task->getAction() != 'update') {
             throw new Exception('operation type is invalid');
         }
 
@@ -29,7 +29,7 @@ trait Finalize
          *  1. Mise à jour de la BDD
          *  - Si il s'agit d'un nouveau repo alors on l'ajoute en base de données
          */
-        if ($this->operation->getAction() == 'new') {
+        if ($this->task->getAction() == 'new') {
             /**
              *  Si actuellement aucun repo rpm de ce nom n'existe en base de données alors on l'ajoute
              */
@@ -99,7 +99,7 @@ trait Finalize
             }
         }
 
-        if ($this->operation->getAction() == 'update') {
+        if ($this->task->getAction() == 'update') {
             /**
              *  Dans le cas où la nouvelle date du snapshot est la même que l'ancienne
              *  (cas où on remet à jour le même snapshot le même jour) alors on met seulement à jour quelques
@@ -206,9 +206,9 @@ trait Finalize
 
         /**
          *  Ajout du repo à un groupe si un groupe a été renseigné.
-         *  Uniquement si il s'agit d'un nouveau repo/section ($this->operation->getAction() = new)
+         *  Uniquement si il s'agit d'un nouveau repo/section ($this->task->getAction() = new)
          */
-        if ($this->operation->getAction() == 'new' and !empty($this->repo->getTargetGroup())) {
+        if ($this->task->getAction() == 'new' and !empty($this->repo->getTargetGroup())) {
             $this->log->step('ADDING TO GROUP');
             $this->repo->addRepoIdToGroup($this->repo->getRepoId(), $this->repo->getTargetGroup());
             $this->log->stepOK();
