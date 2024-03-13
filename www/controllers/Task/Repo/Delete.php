@@ -34,7 +34,7 @@ class Delete
          *  Set operation details
          */
         $this->task->setAction('delete');
-        $this->task->setType('manual');
+        $this->task->setType('immediate');
         $this->task->setPoolId($poolId);
         $this->task->setTargetSnapId($this->repo->getSnapId());
         $this->task->setLogfile($this->log->getName());

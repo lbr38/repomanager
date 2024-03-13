@@ -1,6 +1,6 @@
 <?php
 $content = '';
-$slidePanelName = 'repos/operation';
+$slidePanelName = 'repos/task';
 $slidePanelTitle = '';
 
 include(ROOT . '/views/includes/slide-panel.inc.php');

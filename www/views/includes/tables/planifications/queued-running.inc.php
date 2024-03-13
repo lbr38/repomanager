@@ -16,7 +16,7 @@
                 <div>
                     <span>
                         <?php
-                        if ($item['Type'] == 'plan') {
+                        if ($item['Type'] == 'scheduled') {
                             echo 'Scheduled on <b>' . DateTime::createFromFormat('Y-m-d', $item['Date'])->format('d-m-Y') . ' ' . $item['Time'] . '</b>';
                         }
 

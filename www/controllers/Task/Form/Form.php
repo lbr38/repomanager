@@ -131,20 +131,20 @@ class Form
     /**
      *  Validate the operation form filled by the user
      */
-    public function validate(array $operations_params)
+    public function validate(array $tasks_params)
     {
         $myrepo = new \Controllers\Repo\Repo();
         $mysource = new \Controllers\Source();
         $myhistory = new \Controllers\History();
 
-        foreach ($operations_params as $operation_params) {
+        foreach ($tasks_params as $task_params) {
             /**
              *  Retrieve action
              */
-            if (empty($operation_params['action'])) {
+            if (empty($task_params['action'])) {
                 throw new Exception("No action has been specified");
             }
-            $action = $operation_params['action'];
+            $action = $task_params['action'];
 
             /**
              *  Check that the action is valid
@@ -157,21 +157,21 @@ class Form
              *  Retrieve repo and snapshot Ids, except when the action is 'new'
              */
             if ($action !== 'new') {
-                Param\Snapshot::checkId($operation_params['snapId']);
-                $snapId = $operation_params['snapId'];
+                Param\Snapshot::checkId($task_params['snapId']);
+                $snapId = $task_params['snapId'];
             }
 
             /**
              *  When no environment points to the snapshot (snapId), there is no envId transmitted.
              */
-            // if (!empty($operation_params['envId'])) {
-            //     Param\Environment::checkId($operation_params['envId']);
-            //     $envId = $operation_params['envId'];
+            // if (!empty($task_params['envId'])) {
+            //     Param\Environment::checkId($task_params['envId']);
+            //     $envId = $task_params['envId'];
             // }
 
             if ($action == 'new') {
-                Param\PackageType::check($operation_params['packageType']);
-                $packageType = $operation_params['packageType'];
+                Param\PackageType::check($task_params['packageType']);
+                $packageType = $task_params['packageType'];
             }
 
             /**
@@ -197,64 +197,64 @@ class Form
              *  Case the action is 'new'
              */
             if ($action == 'new') {
-                Param\Type::check($operation_params['type']);
+                Param\Type::check($task_params['type']);
 
                 if ($packageType == 'rpm') {
-                    Param\Releasever::check($operation_params['releasever']);
+                    Param\Releasever::check($task_params['releasever']);
                 }
 
                 if ($packageType == 'deb') {
-                    if (empty($operation_params['dist'])) {
+                    if (empty($task_params['dist'])) {
                         throw new Exception('You must specify a distribution.');
                     }
-                    if (empty($operation_params['section'])) {
+                    if (empty($task_params['section'])) {
                         throw new Exception('You must specify a section.');
                     }
 
-                    foreach ($operation_params['dist'] as $dist) {
+                    foreach ($task_params['dist'] as $dist) {
                         Param\Dist::check($dist);
                     }
-                    foreach ($operation_params['section'] as $section) {
+                    foreach ($task_params['section'] as $section) {
                         Param\Section::check($section);
                     }
                 }
 
-                Param\Description::check($operation_params['targetDescription']);
-                Param\Arch::check($operation_params['targetArch']);
+                Param\Description::check($task_params['targetDescription']);
+                Param\Arch::check($task_params['targetArch']);
 
-                if (!empty($operation_params['targetGroup'])) {
-                    Param\Group::check($operation_params['targetGroup']);
+                if (!empty($task_params['targetGroup'])) {
+                    Param\Group::check($task_params['targetGroup']);
                 }
 
                 /**
                  *  If the selected repo type is 'local' then we check that a name has been provided (can be left empty in the case of a mirror)
                  */
-                if ($operation_params['type'] == "local") {
-                    $targetName = $operation_params['alias'];
+                if ($task_params['type'] == "local") {
+                    $targetName = $task_params['alias'];
                     Param\Name::check($targetName);
                 }
 
                 /**
                  *  If the selected repo type is 'mirror' then we check additional parameters
                  */
-                if ($operation_params['type'] == "mirror") {
+                if ($task_params['type'] == "mirror") {
                     /**
                      *  If no alias has been given, we use the source name as alias
                      */
-                    if (!empty($operation_params['alias'])) {
-                        $targetName = $operation_params['alias'];
+                    if (!empty($task_params['alias'])) {
+                        $targetName = $task_params['alias'];
                     } else {
-                        $targetName = $operation_params['source'];
+                        $targetName = $task_params['source'];
                     }
 
-                    Param\Source::check($operation_params['source'], $packageType);
+                    Param\Source::check($task_params['source'], $packageType);
                     Param\Name::check($targetName);
-                    Param\GpgCheck::check($operation_params['targetGpgCheck']);
-                    Param\GpgResign::check($operation_params['targetGpgResign']);
+                    Param\GpgCheck::check($task_params['targetGpgCheck']);
+                    Param\GpgResign::check($task_params['targetGpgResign']);
 
                     if ($packageType == 'deb') {
-                        if (!empty($operation_params['targetPackageTranslation'])) {
-                            Param\TranslationInc::check($operation_params['targetPackageTranslation']);
+                        if (!empty($task_params['targetPackageTranslation'])) {
+                            Param\TranslationInc::check($task_params['targetPackageTranslation']);
                         }
                     }
                 }
@@ -263,18 +263,18 @@ class Form
                  *  Check if a repo/section with the same name is not already active with snapshots
                  */
                 if ($packageType == 'rpm') {
-                    if ($myrepo->isActive($operation_params['alias']) === true) {
-                        throw new Exception('<span class="label-white">' . $operation_params['alias'] . '</span> repo already exists');
+                    if ($myrepo->isActive($task_params['alias']) === true) {
+                        throw new Exception('<span class="label-white">' . $task_params['alias'] . '</span> repo already exists');
                     }
                 }
                 if ($packageType == 'deb') {
                     /**
                      *  For deb repo, we check that no repo/dist/section with the same name is already active
                      */
-                    foreach ($operation_params['dist'] as $distribution) {
-                        foreach ($operation_params['section'] as $section) {
-                            if ($myrepo->isActive($operation_params['alias'], $distribution, $section) === true) {
-                                throw new Exception('<span class="label-white">' . $operation_params['alias'] . ' ❯ ' . $distribution . ' ❯ ' . $section . '</span> repo already exists');
+                    foreach ($task_params['dist'] as $distribution) {
+                        foreach ($task_params['section'] as $section) {
+                            if ($myrepo->isActive($task_params['alias'], $distribution, $section) === true) {
+                                throw new Exception('<span class="label-white">' . $task_params['alias'] . ' ❯ ' . $distribution . ' ❯ ' . $section . '</span> repo already exists');
                             }
                         }
                     }
@@ -283,19 +283,19 @@ class Form
                 /**
                  *  Check that the source repo exists
                  */
-                if ($operation_params['type'] == 'mirror') {
-                    if ($mysource->exists($packageType, $operation_params['source']) === false) {
-                        throw new Exception("There is no source repo named " . $operation_params['source']);
+                if ($task_params['type'] == 'mirror') {
+                    if ($mysource->exists($packageType, $task_params['source']) === false) {
+                        throw new Exception("There is no source repo named " . $task_params['source']);
                     }
                 }
 
                 if ($packageType == 'rpm') {
-                    $myhistory->set($_SESSION['username'], 'Run operation: New repo <span class="label-white">' . $targetName . '</span> (' . $operation_params['type'] . ')', 'success');
+                    $myhistory->set($_SESSION['username'], 'Run operation: New repo <span class="label-white">' . $targetName . '</span> (' . $task_params['type'] . ')', 'success');
                 }
                 if ($packageType == 'deb') {
-                    foreach ($operation_params['dist'] as $distribution) {
-                        foreach ($operation_params['section'] as $section) {
-                            $myhistory->set($_SESSION['username'], 'Run operation: New repo <span class="label-white">' . $targetName . ' ❯ ' . $distribution . ' ❯ ' . $section . '</span> (' . $operation_params['type'] . ')', 'success');
+                    foreach ($task_params['dist'] as $distribution) {
+                        foreach ($task_params['section'] as $section) {
+                            $myhistory->set($_SESSION['username'], 'Run operation: New repo <span class="label-white">' . $targetName . ' ❯ ' . $distribution . ' ❯ ' . $section . '</span> (' . $task_params['type'] . ')', 'success');
                         }
                     }
                 }
@@ -305,8 +305,8 @@ class Form
              *  Case the action is 'update'
              */
             if ($action == 'update') {
-                Param\GpgCheck::check($operation_params['targetGpgCheck']);
-                Param\GpgResign::check($operation_params['targetGpgResign']);
+                Param\GpgCheck::check($task_params['targetGpgCheck']);
+                Param\GpgResign::check($task_params['targetGpgResign']);
 
                 if ($packageType == 'rpm') {
                     $myhistory->set($_SESSION['username'], 'Run operation: update repo <span class="label-white">' . $myrepo->getName() . '</span> (' . $myrepo->getType() . ')', 'success');
@@ -315,11 +315,11 @@ class Form
                     $myhistory->set($_SESSION['username'], 'Run operation: update repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span> (' . $myrepo->getType() . ')', 'success');
                 }
 
-                Param\Arch::check($operation_params['targetArch']);
+                Param\Arch::check($task_params['targetArch']);
 
                 if ($packageType == 'deb') {
-                    if (!empty($operation_params['targetPackageTranslation'])) {
-                        Param\TranslationInc::check($operation_params['targetPackageTranslation']);
+                    if (!empty($task_params['targetPackageTranslation'])) {
+                        Param\TranslationInc::check($task_params['targetPackageTranslation']);
                     }
                 }
             }
@@ -328,39 +328,39 @@ class Form
              *  Case the action is 'duplicate'
              */
             if ($action == 'duplicate') {
-                Param\Name::check($operation_params['targetName']);
+                Param\Name::check($task_params['targetName']);
 
-                if (!empty($operation_params['targetEnv'])) {
-                    Param\Environment::check($operation_params['targetEnv']);
+                if (!empty($task_params['targetEnv'])) {
+                    Param\Environment::check($task_params['targetEnv']);
                 }
 
-                if (!empty($operation_params['targetDescription'])) {
-                    Param\Description::check($operation_params['targetDescription']);
+                if (!empty($task_params['targetDescription'])) {
+                    Param\Description::check($task_params['targetDescription']);
                 }
 
-                if (!empty($operation_params['targetGroup'])) {
-                    Param\Group::check($operation_params['targetGroup']);
+                if (!empty($task_params['targetGroup'])) {
+                    Param\Group::check($task_params['targetGroup']);
                 }
 
                 /**
                  *  Check that a repo with the same name does not already exist
                  */
                 if ($packageType == 'rpm') {
-                    if ($myrepo->isActive($operation_params['targetName']) === true) {
-                        throw new Exception('<span class="label-white">' . $operation_params['targetName'] . '</span> repo already exists');
+                    if ($myrepo->isActive($task_params['targetName']) === true) {
+                        throw new Exception('<span class="label-white">' . $task_params['targetName'] . '</span> repo already exists');
                     }
                 }
                 if ($packageType == 'deb') {
-                    if ($myrepo->isActive($operation_params['targetName'], $myrepo->getDist(), $myrepo->getSection()) === true) {
-                        throw new Exception('<span class="label-white">' . $operation_params['targetName'] . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span> repo already exists');
+                    if ($myrepo->isActive($task_params['targetName'], $myrepo->getDist(), $myrepo->getSection()) === true) {
+                        throw new Exception('<span class="label-white">' . $task_params['targetName'] . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span> repo already exists');
                     }
                 }
 
                 if ($packageType == 'rpm') {
-                    $myhistory->set($_SESSION['username'], 'Run operation: duplicate repo <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span> ➡ <span class="label-white">' . $operation_params['targetName'] . '</span>', 'success');
+                    $myhistory->set($_SESSION['username'], 'Run operation: duplicate repo <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span> ➡ <span class="label-white">' . $task_params['targetName'] . '</span>', 'success');
                 }
                 if ($packageType == 'deb') {
-                    $myhistory->set($_SESSION['username'], 'Run operation: duplicate repo  <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span> ➡ <span class="label-white">' . $operation_params['targetName'] . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>', 'success');
+                    $myhistory->set($_SESSION['username'], 'Run operation: duplicate repo  <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span> ➡ <span class="label-white">' . $task_params['targetName'] . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>', 'success');
                 }
             }
 
@@ -387,14 +387,14 @@ class Form
              *  Case the action is 'env'
              */
             if ($action == 'env') {
-                Param\Environment::check($operation_params['targetEnv']);
-                Param\Description::check($operation_params['targetDescription']);
+                Param\Environment::check($task_params['targetEnv']);
+                Param\Description::check($task_params['targetDescription']);
 
                 if ($packageType == 'rpm') {
-                    $myhistory->set($_SESSION['username'], 'Run operation: new repo environment <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟵' . \Controllers\Common::envtag($operation_params['targetEnv']), 'success');
+                    $myhistory->set($_SESSION['username'], 'Run operation: new repo environment <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟵' . \Controllers\Common::envtag($task_params['targetEnv']), 'success');
                 }
                 if ($packageType == 'deb') {
-                    $myhistory->set($_SESSION['username'], 'Run operation: new repo environment <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟵' . \Controllers\Common::envtag($operation_params['targetEnv']), 'success');
+                    $myhistory->set($_SESSION['username'], 'Run operation: new repo environment <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟵' . \Controllers\Common::envtag($task_params['targetEnv']), 'success');
                 }
             }
 
@@ -402,7 +402,7 @@ class Form
              *  Case the action is 'rebuild'
              */
             if ($action == 'rebuild') {
-                Param\GpgResign::check($operation_params['targetGpgResign']);
+                Param\GpgResign::check($task_params['targetGpgResign']);
 
                 if ($packageType == 'rpm') {
                     $myhistory->set($_SESSION['username'], 'Run operation: rebuild repo metadata files of <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>', 'success');

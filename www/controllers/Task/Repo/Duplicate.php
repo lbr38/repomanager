@@ -50,7 +50,7 @@ class Duplicate
          *  Set operation details
          */
         $this->task->setAction('duplicate');
-        $this->task->setType('manual');
+        $this->task->setType('immediate');
         $this->task->setPoolId($poolId);
         $this->task->setSourceSnapId($this->repo->getSnapId());
         $this->task->setRepoName($this->repo->getTargetName());

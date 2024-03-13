@@ -76,11 +76,11 @@ class Main
         }
         // Async tasks pool dir
         if (!defined('POOL')) {
-            define('POOL', DATA_DIR . "/operations/pool");
+            define('POOL', DATA_DIR . "/tasks/pool");
         }
         // PIDs
         if (!defined('PID_DIR')) {
-            define('PID_DIR', DATA_DIR . "/operations/pid");
+            define('PID_DIR', DATA_DIR . "/tasks/pid");
         }
         // Temp dir
         if (!defined('TEMP_DIR')) {

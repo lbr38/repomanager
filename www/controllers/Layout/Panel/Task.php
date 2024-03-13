@@ -2,10 +2,10 @@
 
 namespace Controllers\Layout\Panel;
 
-class Operation
+class Task
 {
     public static function render()
     {
-        include_once(ROOT . '/views/includes/panels/repos/operation.inc.php');
+        include_once(ROOT . '/views/includes/panels/repos/task.inc.php');
     }
 }

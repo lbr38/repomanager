@@ -46,7 +46,7 @@ class Update
          *  Set operation details
          */
         $this->task->setAction('update');
-        $this->task->setType('manual');
+        $this->task->setType('immediate');
         $this->task->setPoolId($poolId);
         $this->task->setTargetSnapId($this->repo->getSnapId());
         $this->task->setGpgCheck($this->repo->getTargetGpgCheck());
@@ -57,7 +57,7 @@ class Update
          *  If a schedule Id has been specified then it means that the action has been initialized by a schedule
          */
         if (!empty($taskParams['planId'])) {
-            $this->task->setType('plan');
+            $this->task->setType('scheduled');
             $this->task->setPlanId($taskParams['planId']);
         }
 
@@ -115,7 +115,7 @@ class Update
              *  Set operation status to done
              */
             $this->task->setStatus('done');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             /**
              *  Print a red error message in the log file
              */

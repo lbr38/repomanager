@@ -42,7 +42,7 @@ class Env
          *  Set operation details
          */
         $this->task->setAction('env');
-        $this->task->setType('manual');
+        $this->task->setType('immediate');
         $this->task->setPoolId($poolId);
         $this->task->setTargetSnapId($this->repo->getSnapId());
         $this->task->setTargetEnvId($this->repo->getTargetEnv());

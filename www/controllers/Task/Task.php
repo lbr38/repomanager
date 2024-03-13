@@ -211,10 +211,10 @@ class Task
     /**
      *  Update group Id in database
      */
-    public function updateGroup(string $groupId)
-    {
-        $this->model->updateGroup($this->id, $groupId);
-    }
+    // public function updateGroup(string $groupId)
+    // {
+    //     $this->model->updateGroup($this->id, $groupId);
+    // }
 
     /**
      *  Update GPG check in database
@@ -230,6 +230,102 @@ class Task
     public function updateGpgSign(string $gpgResign)
     {
         $this->model->updateGpgSign($this->id, $gpgResign);
+    }
+
+    /**
+     *  Retourne les opérations exécutées ou en cours d'exécution par une planification à partir de son Id
+     */
+    // public function getOperationsByPlanId(string $planId, string $status)
+    // {
+    //     return $this->model-> getOperationsByPlanId($planId, $status);
+    // }
+
+    /**
+     *  List all running tasks
+     *  It is possible to filter the type of operation ('immediate' or 'scheduled')
+     *  It is possible to add an offset to the request
+     */
+    public function listRunning(string $type = '', bool $withOffset = false, int $offset = 0)
+    {
+        return $this->model->listRunning($type, $withOffset, $offset);
+    }
+
+    /**
+     *  List all done tasks (with or without errors)
+     *  It is possible to filter the type of operation ('immediate' or 'scheduled')
+     *  It is possible to filter the type of planification that launched this operation ('scheduled' or 'regular' (unique planification or recurrent planification))
+     *  It is possible to add an offset to the request
+     */
+    public function listDone(string $type = '', string $planType = '', bool $withOffset = false, int $offset = 0)
+    {
+        return $this->model->listDone($type, $planType, $withOffset, $offset);
+    }
+
+    /**
+     *  Return true if an operation is running
+     */
+    public function somethingRunning()
+    {
+        return $this->model->somethingRunning();
+    }
+
+    /**
+     *  Return repository from task Id
+     */
+    public function getRepo(string $id)
+    {
+        $myrepo = new \Controllers\Repo\Repo();
+
+        /**
+         *  Retrieve all informations about the task from the database
+         */
+        $taskInfo = $this->model->getById($id);
+
+        if (!empty($taskInfo['Source_snap_id'])) {
+            if (is_numeric($taskInfo['Source_snap_id'])) {
+                $myrepo->getAllById('', $taskInfo['Source_snap_id'], '');
+                $repoName    = $myrepo->getName();
+                $repoDist    = $myrepo->getDist();
+                $repoSection = $myrepo->getSection();
+            }
+        } else if (!empty($taskInfo['Target_repo_id'])) {
+            if (is_numeric($taskInfo['Target_repo_id'])) {
+                $myrepo->getAllById($taskInfo['Target_repo_id'], '', '');
+                $repoName    = $myrepo->getName();
+                $repoDist    = $myrepo->getDist();
+                $repoSection = $myrepo->getSection();
+            } else {
+                $repo = explode('|', $taskInfo['Target_repo_id']);
+                $repoName = $repo[0];
+                if (!empty($repo[1]) and !empty($repo[2])) {
+                    $repoDist    = $repo[1];
+                    $repoSection = $repo[2];
+                }
+            }
+        } else if (!empty($taskInfo['Target_snap_id'])) {
+            if (is_numeric($taskInfo['Target_snap_id'])) {
+                $myrepo->getAllById('', $taskInfo['Target_snap_id'], '');
+                $repoName    = $myrepo->getName();
+                $repoDist    = $myrepo->getDist();
+                $repoSection = $myrepo->getSection();
+            }
+        }
+
+        if (!empty($repoDist) and !empty($repoSection)) {
+            $repo = $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection;
+        }
+
+        if (!empty($repoName) and empty($repoDist) and empty($repoSection)) {
+            $repo = $repoName;
+        }
+
+        if (!empty($taskInfo['Target_env_id'])) {
+            $repo .= ' ' . \Controllers\Common::envtag($taskInfo['Target_env_id']);
+        }
+
+        unset($myrepo);
+
+        return $repo;
     }
 
     /**
@@ -322,7 +418,7 @@ class Task
      */
     public function executeId(int $id)
     {
-        // $myprocess = new \Controllers\Process('/usr/bin/php ' . ROOT . '/operations/execute.php --id="' . $id . '" >/dev/null 2>/dev/null &');
+        // $myprocess = new \Controllers\Process('/usr/bin/php ' . ROOT . '/tasks/execute.php --id="' . $id . '" >/dev/null 2>/dev/null &');
         // $myprocess->execute();
         // $myprocess->close();
     }
@@ -370,9 +466,9 @@ class Task
             $this->updateTargetEnv($this->targetEnvId);
         }
 
-        if (!empty($this->groupId)) {
-            $this->updateGroupId($this->groupId);
-        }
+        // if (!empty($this->groupId)) {
+        //     $this->updateGroupId($this->groupId);
+        // }
 
         if (!empty($this->gpgCheck)) {
             $this->updateGpgCheck($this->gpgCheck);
@@ -390,7 +486,7 @@ class Task
         $this->layoutContainerStateController->update('header/menu');
         $this->layoutContainerStateController->update('repos/list');
         $this->layoutContainerStateController->update('planifications/queued-running');
-        $this->layoutContainerStateController->update('operations/list');
+        $this->layoutContainerStateController->update('tasks/list');
         $this->layoutContainerStateController->update('browse/list');
         $this->layoutContainerStateController->update('browse/actions');
 
@@ -446,7 +542,7 @@ class Task
         $this->layoutContainerStateController->update('repos/properties');
         $this->layoutContainerStateController->update('planifications/queued-running');
         $this->layoutContainerStateController->update('planifications/history');
-        $this->layoutContainerStateController->update('operations/list');
+        $this->layoutContainerStateController->update('tasks/list');
         $this->layoutContainerStateController->update('browse/list');
         $this->layoutContainerStateController->update('browse/actions');
 
@@ -564,7 +660,7 @@ class Task
         $this->layoutContainerStateController->update('header/menu');
         $this->layoutContainerStateController->update('repos/list');
         $this->layoutContainerStateController->update('planifications/queued-running');
-        $this->layoutContainerStateController->update('operations/list');
+        $this->layoutContainerStateController->update('tasks/list');
 
         unset($myplan);
 

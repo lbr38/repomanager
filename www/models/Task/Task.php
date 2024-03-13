@@ -25,12 +25,14 @@ class Task extends \Models\Model
 
         try {
             $stmt = $this->db->prepare("SELECT * FROM tasks WHERE Id = :id");
+            $stmt->bindValue(':id', $id);
+            $result = $stmt->execute();
         } catch (Exception $e) {
             \Controllers\Common::dbError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $data[] = $row;
+            $data = $row;
         }
 
         return $data;
@@ -63,7 +65,7 @@ class Task extends \Models\Model
     /**
      *  Update task status from specified PID
      */
-    public function setStatus(int $id, string $status)
+    public function setStatus(int $id, string $status) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE tasks SET Status = :status WHERE Id = :id");
@@ -93,7 +95,7 @@ class Task extends \Models\Model
     /**
      *  Update repo name in database
      */
-    public function updateTargetRepo(string $id, string $name)
+    public function updateTargetRepo(string $id, string $name) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE tasks SET Target_repo_id = :repoId WHERE Id = :id");
@@ -108,7 +110,7 @@ class Task extends \Models\Model
     /**
      *  Update source snap Id in database
      */
-    public function updateSourceSnap(string $id, string $snapId)
+    public function updateSourceSnap(string $id, string $snapId) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE tasks SET Source_snap_id = :snapId WHERE Id = :id");
@@ -123,7 +125,7 @@ class Task extends \Models\Model
     /**
      *  Update target snap Id in database
      */
-    public function updateTargetSnap(string $id, string $snapId)
+    public function updateTargetSnap(string $id, string $snapId) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE tasks SET Target_snap_id = :snapId WHERE Id = :id");
@@ -138,7 +140,7 @@ class Task extends \Models\Model
     /**
      *  Update target env Id in database
      */
-    public function updateTargetEnv(string $id, string $envId)
+    public function updateTargetEnv(string $id, string $envId) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE tasks SET Target_env_id = :envId WHERE Id = :id");
@@ -153,22 +155,22 @@ class Task extends \Models\Model
     /**
      *  Update group Id in database
      */
-    public function updateGroup(string $id, string $groupId)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE tasks SET Group_id = :groupId WHERE Id = :id");
-            $stmt->bindValue(':groupId', $groupId);
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-    }
+    // public function updateGroup(string $id, string $groupId)
+    // {
+    //     try {
+    //         $stmt = $this->db->prepare("UPDATE tasks SET Group_id = :groupId WHERE Id = :id");
+    //         $stmt->bindValue(':groupId', $groupId);
+    //         $stmt->bindValue(':id', $id);
+    //         $stmt->execute();
+    //     } catch (\Exception $e) {
+    //         \Controllers\Common::dbError($e);
+    //     }
+    // }
 
     /**
      *  Update GPG check in database
      */
-    public function updateGpgCheck(string $id, string $gpgCheck)
+    public function updateGpgCheck(string $id, string $gpgCheck) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE tasks SET Gpg_check = :gpgCheck WHERE Id = :id");
@@ -183,7 +185,7 @@ class Task extends \Models\Model
     /**
      *  Update GPG sign in database
      */
-    public function updateGpgSign(string $id, string $gpgSign)
+    public function updateGpgSign(string $id, string $gpgSign) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE tasks SET Gpg_sign = :gpgSign WHERE Id = :id");
@@ -193,6 +195,183 @@ class Task extends \Models\Model
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
+    }
+
+    /**
+     *  Retourne true si une opération est en cours d'exécution
+     */
+    public function somethingRunning()
+    {
+        $data = array();
+
+        try {
+            $result = $this->db->query("SELECT Id FROM tasks WHERE Status = 'running'");
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+
+        if (!empty($data)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     *  List all running tasks
+     *  It is possible to filter the type of task ('immediate' or 'scheduled')
+     *  It is possible to add an offset to the request
+     */
+    public function listRunning(string $type, bool $withOffset, int $offset)
+    {
+        $data = array();
+
+        /**
+         *  Case where we want all types
+         */
+        try {
+            if (empty($type)) {
+                $query = "SELECT * FROM tasks
+                WHERE Status = 'running'
+                ORDER BY Date DESC, Time DESC";
+
+            /**
+             *  Case where we want to filter by task type only
+             */
+            } else {
+                $query = "SELECT * FROM tasks
+                WHERE Status = 'running' and Type = :type
+                ORDER BY Date DESC, Time DESC";
+            }
+
+            /**
+             *  Add offset if needed
+             */
+            if ($withOffset === true) {
+                $query .= " LIMIT 10 OFFSET :offset";
+            }
+
+            /**
+             *  Prepare query
+             */
+            $stmt = $this->db->prepare($query);
+            $stmt->bindValue(':type', $type);
+            $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
+
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return $data;
+    }
+
+    /**
+     *  List all done tasks (with or without errors)
+     *  It is possible to filter the type of task ('immediate' or 'scheduled')
+     *  It is possible to filter the type of planification that launched this task ('scheduled' or 'regular' (unique planification or recurrent planification))
+     *  It is possible to add an offset to the request
+     */
+    public function listDone(string $type, string $planType, bool $withOffset, int $offset)
+    {
+        $data = array();
+
+        try {
+            /**
+             *  Case where we want all types
+             */
+            if (empty($type) and empty($planType)) {
+                $query = "SELECT * FROM tasks
+                WHERE Status = 'error' or Status = 'done' or Status = 'stopped'
+                ORDER BY Date DESC, Time DESC";
+            }
+
+            /**
+             *  Case where we want to filter by task type only
+             */
+            if (!empty($type) and empty($planType)) {
+                $query = "SELECT * FROM tasks
+                WHERE Type = :type and (Status = 'error' or Status = 'done' or Status = 'stopped')
+                ORDER BY Date DESC, Time DESC";
+            }
+
+            /**
+             *  Case where we want to filter by planification type only
+             */
+            if (empty($type) and !empty($planType)) {
+                $query = "SELECT * FROM tasks 
+                INNER JOIN planifications
+                ON operations.Id_plan = planifications.Id
+                WHERE planifications.Type = :plantype and (operations.Status = 'error' or operations.Status = 'done' or operations.Status = 'stopped')
+                ORDER BY operations.Date DESC, operations.Time DESC";
+            }
+
+            /**
+             *  Case where we want to filter by operation type AND planification type
+             */
+            if (!empty($type) and !empty($planType)) {
+                $query = "SELECT
+                operations.Id,
+                operations.Date,
+                operations.Time,
+                operations.Action,
+                operations.Type,
+                operations.Id_repo_source,
+                operations.Id_repo_target,
+                operations.Id_group,
+                operations.Id_plan,
+                operations.GpgCheck,
+                operations.GpgResign,
+                operations.Pid,
+                operations.Logfile,
+                operations.Status
+                FROM operations 
+                INNER JOIN planifications
+                ON operations.Id_plan = planifications.Id
+                WHERE operations.Type = :type
+                and planifications.Type = :plantype
+                and (operations.Status = 'error' or operations.Status = 'done' or operations.Status = 'stopped')
+                ORDER BY operations.Date DESC, operations.Time DESC";
+            }
+
+            /**
+             *  Add offset if needed
+             */
+            if ($withOffset === true) {
+                $query .= " LIMIT 10 OFFSET :offset";
+            }
+
+            /**
+             *  Prepare query
+             */
+            $stmt = $this->db->prepare($query);
+
+            /**
+             *  Bind values if exists
+             */
+            $stmt->bindValue(':type', $type);
+            $stmt->bindValue(':plantype', $planType);
+            $stmt->bindValue(':type', $type);
+            $stmt->bindValue(':plantype', $planType);
+            $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return $data;
     }
 
     /**

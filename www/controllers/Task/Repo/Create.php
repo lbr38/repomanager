@@ -78,7 +78,7 @@ class Create
          *  Set operation details
          */
         $this->task->setAction('new');
-        $this->task->setType('manual');
+        $this->task->setType('immediate');
         $this->task->setPoolId($poolId);
         $this->task->setRepoName($this->repo->getName());
         if ($this->repo->getPackageType() == 'deb') {

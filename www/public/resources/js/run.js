@@ -36,7 +36,7 @@ $(document).on('click','#display-log-btn',function () {
 $(document).on('click','.show-logfile-btn',function () {
     var logfile = $(this).attr('logfile');
     setCookie('view-logfile', logfile, 1);
-    reloadContainer('operations/log');
+    reloadContainer('tasks/log');
 });
 
 /**

@@ -336,7 +336,7 @@ class OperationLog
             /**
              *  Make the following container refreshable by the client
              */
-            $mylayoutContainer->update('operations/log');
+            $mylayoutContainer->update('tasks/log');
 
             sleep(1);
         }
@@ -349,7 +349,7 @@ class OperationLog
         /**
          *  Make the following container refreshable by the client
          */
-        $mylayoutContainer->update('operations/log');
+        $mylayoutContainer->update('tasks/log');
     }
 
     private function writeStepLog(int $pid, string $logFile)

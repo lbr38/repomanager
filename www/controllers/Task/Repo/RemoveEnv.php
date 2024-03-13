@@ -41,7 +41,7 @@ class RemoveEnv
          *  Set operation details
          */
         $this->task->setAction('removeEnv');
-        $this->task->setType('manual');
+        $this->task->setType('immediate');
 
         /**
          *  This operation type does not have a real poolId because it is executed outside the usual process

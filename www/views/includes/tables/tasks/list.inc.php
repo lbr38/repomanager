@@ -7,7 +7,7 @@
             /**
              *  If the current operation item was made in a scheduled task, we display the scheduled task header
              */
-            if ($item['Type'] == 'plan') {
+            if ($item['Type'] == 'scheduled') {
                 $headerColor = 'header-light-blue margin-left-15';
 
                 /**
@@ -111,7 +111,7 @@
                 </div>
   
                 <div>
-                    <?= $myop->printRepoOrGroup($item['Id']); ?>
+                    <span class="label-white"><?= $myTask->getRepo($item['Id']); ?></span>
                 </div>
 
                 <div class="flex align-item-center justify-end">
@@ -119,8 +119,8 @@
                     /**
                      *  Print relaunch button if pool Id JSON file still exists
                      */
-                    if ($item['Status'] != 'running' and file_exists(POOL . '/' . $item['Pool_id'] . '.json') and IS_ADMIN) {
-                        echo '<img class="icon-lowopacity relaunch-operation-btn" src="/assets/icons/update.svg" pool-id="' . $item['Pool_id'] . '" title="Relaunch this operation with the same parameters." />';
+                    if ($item['Status'] != 'running' and IS_ADMIN) {
+                        echo '<img class="icon-lowopacity relaunch-operation-btn" src="/assets/icons/update.svg" pool-id="' . $item['Task_pool_id'] . '" title="Relaunch this operation with the same parameters." />';
                     }
 
                     if ($item['Status'] == 'running') {

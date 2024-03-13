@@ -20,7 +20,7 @@ class Schedule extends \Models\Model
         $data = array();
 
         try {
-            $result = $this->db->query("SELECT * FROM operations WHERE Status = 'queued'");
+            $result = $this->db->query("SELECT * FROM tasks WHERE Status = 'queued'");
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }

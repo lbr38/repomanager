@@ -616,7 +616,7 @@ class Repo extends \Models\Model
     public function snapOpIsRunning(string $snapId)
     {
         try {
-            $stmt = $this->db->prepare("SELECT Id FROM operations WHERE (Id_snap_source = :snapId OR Id_snap_target = :snapId) AND Status = 'running'");
+            $stmt = $this->db->prepare("SELECT Id FROM tasks WHERE (Source_snap_id = :snapId OR Target_snap_id = :snapId) AND Status = 'running'");
             $stmt->bindValue(':snapId', $snapId);
             $result = $stmt->execute();
         } catch (\Exception $e) {

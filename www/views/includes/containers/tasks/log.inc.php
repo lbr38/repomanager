@@ -1,4 +1,4 @@
-<section class="section-left reloadable-container" container="operations/log">
+<section class="section-left reloadable-container" container="tasks/log">
     <h3>LOG</h3>
 
     <div id="log-container">
