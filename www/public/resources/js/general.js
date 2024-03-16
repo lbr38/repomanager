@@ -387,7 +387,7 @@ function stopTask(pid)
         type: "POST",
         url: "/ajax/controller.php",
         data: {
-            controller: "operation",
+            controller: "task",
             action: "stopTask",
             pid: pid
         },

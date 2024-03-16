@@ -6,7 +6,7 @@ use Exception;
 
 class Environment
 {
-    public static function check(string $env)
+    public static function check(string $env) : void
     {
         $myenv = new \Controllers\Environment();
 

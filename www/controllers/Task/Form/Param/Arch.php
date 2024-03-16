@@ -6,7 +6,7 @@ use Exception;
 
 class Arch
 {
-    public static function check(array $targetArch)
+    public static function check(array $targetArch) : void
     {
         if (empty($targetArch)) {
             throw new Exception('Architecture must be specified');

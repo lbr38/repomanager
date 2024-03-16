@@ -6,7 +6,7 @@ use Exception;
 
 class Group
 {
-    public static function check(string $group)
+    public static function check(string $group) : void
     {
         if (empty($group)) {
             return;

@@ -6,7 +6,7 @@ use Exception;
 
 class Snapshot
 {
-    public static function checkId(int $id)
+    public static function checkId(int $id) : void
     {
         $myrepo = new \Controllers\Repo\Repo();
 

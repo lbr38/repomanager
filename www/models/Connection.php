@@ -421,10 +421,12 @@ class Connection extends SQLite3
 
         $this->exec("CREATE TABLE IF NOT EXISTS tasks (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        Date DATE NOT NULL,
-        Time TIME NOT NULL,
         Action VARCHAR(255) NOT NULL,
         Type CHAR(9) NOT NULL, /* immediate, scheduled */
+        Schedule_frequency CHAR(15), /* every-day, every-hour... */
+        Schedule_day CHAR(70),
+        Date DATE,
+        Time TIME,
         Repo_type CHAR(6), /* local, mirror */
         Source_snap_id INTEGER,
         Target_repo_id VARCHAR(255),

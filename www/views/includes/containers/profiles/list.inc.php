@@ -191,10 +191,10 @@
 
         <script>
             $(document).ready(function() {
-                classToSelect2('select[name=profile-repos]', 'Add repo 🖉');
-                classToSelect2('select[name=profile-exclude-major]', 'Select package 🖉', true);
-                classToSelect2('select[name=profile-exclude]', 'Select package 🖉', true);
-                classToSelect2('select[name=profile-service-restart]', 'Select service 🖉', true);
+                selectToSelect2('select[name=profile-repos]', 'Add repo 🖉');
+                selectToSelect2('select[name=profile-exclude-major]', 'Select package 🖉', true);
+                selectToSelect2('select[name=profile-exclude]', 'Select package 🖉', true);
+                selectToSelect2('select[name=profile-service-restart]', 'Select service 🖉', true);
             });
         </script>
         <?php

@@ -26,7 +26,7 @@ if ($_POST['action'] == 'validateForm' and !empty($_POST['taskParams'])) {
 
     try {
         $myTaskForm->validate($taskParams);
-        $myTask->execute($taskParams);
+        // $myTask->execute($taskParams);
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
@@ -43,7 +43,7 @@ if ($_POST['action'] == 'removeEnv' and !empty($_POST['repoId'] and !empty($_POS
     $taskParams['envId']  = $_POST['envId'];
 
     try {
-        $controller = new \Controllers\Repo\Operation\RemoveEnv('00000', $taskParams);
+        $controller = new \Controllers\Task\Repo\RemoveEnv('00000', $taskParams);
         $controller->execute();
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
@@ -70,7 +70,7 @@ if ($_POST['action'] == 'relaunchTask' and !empty($_POST['poolId'])) {
 /**
  *  Stop a task
  */
-if ($_POST['action'] == "stopTask" and !empty($_POST['pid'])) {
+if ($_POST['action'] == 'stopTask' and !empty($_POST['pid'])) {
     $myTask = new \Controllers\Task\Task();
 
     try {

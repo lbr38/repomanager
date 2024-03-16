@@ -173,7 +173,7 @@ class Service
                 /**
                  *  If curl has failed (meaning a curl param might be invalid)
                  */
-                throw new Exception('Error while retrieving new version from Github (curl error): ' . curl_error($this->curlHandle));
+                throw new Exception('(curl error): ' . curl_error($this->curlHandle));
             }
 
             /**
@@ -186,16 +186,16 @@ class Service
                  *  If return code is 404
                  */
                 if ($status["http_code"] == '404') {
-                    throw new Exception('Error while retrieving new version from Github (file not found)');
+                    throw new Exception('(file not found)');
                 } else {
-                    throw new Exception('Error while retrieving new version from Github (http return code is: ' . $status["http_code"] . ')');
+                    throw new Exception('(http return code is ' . $status["http_code"] . ')');
                 }
 
                 curl_close($this->curlHandle);
                 fclose($outputFile);
             }
         } catch (Exception $e) {
-            $this->logController->log('error', 'Service', $e->getMessage());
+            $this->logController->log('error', 'Service', 'Error while check for new version from Github ' . $e->getMessage());
         }
     }
 

@@ -14,7 +14,7 @@
 <tr>
     <td class="td-30">Target environment</td>
     <td>
-        <select class="operation_param" param-name="targetEnv" required>
+        <select class="task-param" param-name="targetEnv" required>
             <?php
             foreach (ENVS as $env) {
                 /**
@@ -32,5 +32,5 @@
     <td class="td-30">
         <span>Description</span> <span class="lowopacity-cst">(optionnal)</span>
     </td>
-    <td><input type="text" class="operation_param" param-name="targetDescription" /></td>
+    <td><input type="text" class="task-param" param-name="targetDescription" /></td>
 </tr>

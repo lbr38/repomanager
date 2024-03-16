@@ -6,7 +6,7 @@ use Exception;
 
 class Releasever
 {
-    public static function check(array $releasevers)
+    public static function check(array $releasevers) : void
     {
         if (empty($releasevers)) {
             throw new Exception('Release version must be specified');

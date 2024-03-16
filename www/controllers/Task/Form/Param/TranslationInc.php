@@ -6,7 +6,7 @@ use Exception;
 
 class TranslationInc
 {
-    public static function check(array $packageTranslation)
+    public static function check(array $packageTranslation) : void
     {
         if (empty($packageTranslation)) {
             return;

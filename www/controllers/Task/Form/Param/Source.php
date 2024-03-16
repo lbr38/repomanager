@@ -6,7 +6,7 @@ use Exception;
 
 class Source
 {
-    public static function check(string $source, string $packageType)
+    public static function check(string $source, string $packageType) : void
     {
         $mysource = new \Controllers\Source();
 

@@ -6,7 +6,7 @@ use Exception;
 
 class GpgCheck
 {
-    public static function check(string $gpgCheck)
+    public static function check(string $gpgCheck) : void
     {
         if ($gpgCheck !== "yes" and $gpgCheck !== "no") {
             throw new Exception('GPG signature check is invalid');

@@ -6,7 +6,7 @@ use Exception;
 
 class Name
 {
-    public static function check(string $name)
+    public static function check(string $name) : void
     {
         if (empty($name)) {
             throw new Exception('Repository name must be specified');

@@ -20,51 +20,6 @@ $getOptions = getopt(null, ["id:"]);
 
 try {
     /**
-     *  Retrieve operation Id
-     */
-    // if (empty($getOptions['id'])) {
-    //     throw new Exception('Operation Id is not defined');
-    // }
-
-    // $poolId = $getOptions['id'];
-
-    // if (!file_exists(POOL . '/' . $poolId . '.json')) {
-    //     throw new Exception('Cannot get operation details (Id ' . $poolId . ') from pool file: file not found.');
-    // }
-
-    // /**
-    //  *  Getting operation details
-    //  */
-    // $operation_params = json_decode(file_get_contents(POOL . '/' . $poolId . '.json'), true);
-
-    // /**
-    //  *  Default values
-    //  */
-    // $targetGroup = 'nogroup';
-    // $targetDescription = 'nodescription';
-
-    // /**
-    //  *  Getting action
-    //  */
-    // if (empty($operation_params['action'])) {
-    //     throw new Exception('Action not specified');
-    // }
-
-    // $action = $operation_params['action'];
-
-    // // TODO : remplacer new par create
-    // if ($action == 'new') {
-    //     $action = 'create';
-    // }
-
-    // /**
-    //  *  Check that action is valid
-    //  */
-    // if (!in_array($action, $validActions)) {
-    //     throw new Exception('Invalid action: ' . $action);
-    // }
-
-    /**
      *  Retrieve task Id
      */
     if (empty($getOptions['id'])) {

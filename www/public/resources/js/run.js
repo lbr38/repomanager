@@ -62,7 +62,7 @@ function relaunchTask(poolId)
         type: "POST",
         url: "/ajax/controller.php",
         data: {
-            controller: "operation",
+            controller: "task",
             action: "relaunchTask",
             poolId: poolId
         },

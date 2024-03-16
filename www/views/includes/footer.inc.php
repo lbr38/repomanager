@@ -34,6 +34,7 @@
 <?php
 if (__ACTUAL_URI__[1] == "") {
     echo '<script src="/resources/js/repo.js?' . VERSION . '"></script>';
+    echo '<script src="/resources/js/task.js?' . VERSION . '"></script>';
     echo '<script src="/resources/js/group.js?' . VERSION . '"></script>';
     echo '<script src="/resources/js/source.js?' . VERSION . '"></script>';
 }

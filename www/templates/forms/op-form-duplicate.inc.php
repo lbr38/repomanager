@@ -15,10 +15,10 @@
 <tr>
     <td class="td-30">New repo name</td>
     <td>
-        <input type="text" class="operation_param" param-name="targetName" required />
+        <input type="text" class="task-param" param-name="targetName" required />
         <?php /*if ($myrepo->getPackageType() == 'deb') : ?>
-            <input type="hidden" class="operation_param" param-name="dist" value="<?= $myrepo->getDist() ?>" required />
-            <input type="hidden" class="operation_param" param-name="section" value="<?= $myrepo->getSection() ?>" required />
+            <input type="hidden" class="task-param" param-name="dist" value="<?= $myrepo->getDist() ?>" required />
+            <input type="hidden" class="task-param" param-name="section" value="<?= $myrepo->getSection() ?>" required />
         <?php endif */?>
     </td>
 </tr>
@@ -26,7 +26,7 @@
 <tr>
     <td class="td-30">Point an environment</td>
     <td>
-        <select id="duplicate-repo-target-env-select-<?=$myrepo->getSnapId()?>" class="operation_param" param-name="targetEnv">
+        <select id="duplicate-repo-target-env-select-<?=$myrepo->getSnapId()?>" class="task-param" param-name="targetEnv">
             <option value=""></option>
             <?php
             foreach (ENVS as $env) {
@@ -45,7 +45,7 @@
         <span>Description</span> <span class="lowopacity-cst">(optionnal)</span>
     </td>
     <td>
-        <input type="text" class="operation_param" param-name="targetDescription" />
+        <input type="text" class="task-param" param-name="targetDescription" />
     </td>
 </tr>
 
@@ -63,7 +63,7 @@ if (!empty($groupList)) : ?>
             <span>Add to group</span> <span class="lowopacity-cst">(optionnal)</span>
         </td>
         <td>
-            <select class="operation_param" param-name="targetGroup">
+            <select class="task-param" param-name="targetGroup">
                 <option value="">Select group...</option>
                 <?php
                 foreach ($groupList as $group) {

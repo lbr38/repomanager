@@ -119,7 +119,7 @@
                     /**
                      *  Print relaunch button if pool Id JSON file still exists
                      */
-                    if ($item['Status'] != 'running' and IS_ADMIN) {
+                    if ($item['Status'] != 'running' and !empty($item['Task_pool_id']) and IS_ADMIN) {
                         echo '<img class="icon-lowopacity relaunch-operation-btn" src="/assets/icons/update.svg" pool-id="' . $item['Task_pool_id'] . '" title="Relaunch this operation with the same parameters." />';
                     }
 

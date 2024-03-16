@@ -4,9 +4,9 @@ namespace Controllers\Task\Form\Param;
 
 use Exception;
 
-class GpgResign
+class GpgSign
 {
-    public static function check(string $gpgResign)
+    public static function check(string $gpgResign) : void
     {
         if ($gpgResign !== "yes" and $gpgResign !== "no") {
             throw new Exception('GPG signature is invalid');

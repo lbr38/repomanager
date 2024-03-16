@@ -6,7 +6,7 @@ use Exception;
 
 class PackageType
 {
-    public static function check(string $type)
+    public static function check(string $type) : void
     {
         $valid = array('rpm', 'deb');
 
@@ -15,7 +15,7 @@ class PackageType
         }
 
         if (!in_array($type, $valid)) {
-            throw new Exception('Package type is invalid');
+            throw new Exception('Package type ' . $type . ' is invalid');
         }
     }
 }
