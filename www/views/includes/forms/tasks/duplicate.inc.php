@@ -15,18 +15,14 @@
 <tr>
     <td class="td-30">New repo name</td>
     <td>
-        <input type="text" class="task-param" param-name="targetName" required />
-        <?php /*if ($myrepo->getPackageType() == 'deb') : ?>
-            <input type="hidden" class="task-param" param-name="dist" value="<?= $myrepo->getDist() ?>" required />
-            <input type="hidden" class="task-param" param-name="section" value="<?= $myrepo->getSection() ?>" required />
-        <?php endif */?>
+        <input type="text" class="task-param" param-name="target-name" required />
     </td>
 </tr>
 
 <tr>
     <td class="td-30">Point an environment</td>
     <td>
-        <select id="duplicate-repo-target-env-select-<?=$myrepo->getSnapId()?>" class="task-param" param-name="targetEnv">
+        <select id="duplicate-repo-target-env-select-<?=$myrepo->getSnapId()?>" class="task-param" param-name="target-env">
             <option value=""></option>
             <?php
             foreach (ENVS as $env) {
@@ -45,7 +41,7 @@
         <span>Description</span> <span class="lowopacity-cst">(optionnal)</span>
     </td>
     <td>
-        <input type="text" class="task-param" param-name="targetDescription" />
+        <input type="text" class="task-param" param-name="description" />
     </td>
 </tr>
 
@@ -63,7 +59,7 @@ if (!empty($groupList)) : ?>
             <span>Add to group</span> <span class="lowopacity-cst">(optionnal)</span>
         </td>
         <td>
-            <select class="task-param" param-name="targetGroup">
+            <select class="task-param" param-name="group">
                 <option value="">Select group...</option>
                 <?php
                 foreach ($groupList as $group) {
@@ -77,7 +73,7 @@ if (!empty($groupList)) : ?>
 <script>
 $(document).ready(function(){
     /**
-     *  Affiche la description uniquement si un environnement est spécifié
+     *  Print description field only if an environment is specified
      */
     $(document).on('change','#duplicate-repo-target-env-select-<?=$myrepo->getSnapId()?>',function(){
         if ($('#duplicate-repo-target-env-select-<?=$myrepo->getSnapId()?>').val() == "") {

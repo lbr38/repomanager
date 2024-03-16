@@ -9,7 +9,6 @@ class Update
     public function validate(array $formParams)
     {
         $myrepo = new \Controllers\Repo\Repo();
-        $mysource = new \Controllers\Source();
         $myhistory = new \Controllers\History();
 
         /**
@@ -24,9 +23,21 @@ class Update
         $myrepo->getAllById('', $formParams['snapId'], '');
 
         /**
-         *  Retrieve the package type of the repo
+         *  Check only sync difference
          */
-        $packageType = $myrepo->getPackageType();
+        Param\OnlySyncDifference::check($formParams['only-sync-difference']);
+
+        /**
+         *  Check env
+         */
+        if (!empty($formParams['env'])) {
+            Param\Environment::check($formParams['env']);
+        }
+
+        /**
+         *  Check architecture
+         */
+        Param\Arch::check($formParams['arch']);
 
         /**
          *  Check gpg check
@@ -39,17 +50,12 @@ class Update
         Param\GpgSign::check($formParams['gpg-sign']);
 
         /**
-         *  Check architecture
-         */
-        Param\Arch::check($formParams['arch']);
-
-        /**
          *  Add history
          */
-        if ($packageType == 'rpm') {
+        if ($myrepo->getPackageType() == 'rpm') {
             $myhistory->set($_SESSION['username'], 'Run operation: update repo <span class="label-white">' . $myrepo->getName() . '</span> (' . $myrepo->getType() . ')', 'success');
         }
-        if ($packageType == 'deb') {
+        if ($myrepo->getPackageType() == 'deb') {
             $myhistory->set($_SESSION['username'], 'Run operation: update repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span> (' . $myrepo->getType() . ')', 'success');
         }
     }

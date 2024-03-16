@@ -19,7 +19,7 @@ if ($myrepo->getPackageType() == 'deb') {
     <td class="td-30" title="Selected snapshot content will be copied to the new snapshot before syncing packages. Then only the new changed packages will be synced from source repository. Can significantly reduce syncing duration on large repos.">Only sync the difference</td>
     <td>
         <label class="onoff-switch-label">
-            <input type="checkbox" class="onoff-switch-input task-param" value="yes" param-name="onlySyncDifference" checked />
+            <input type="checkbox" class="onoff-switch-input task-param" value="yes" param-name="only-sync-difference" checked />
             <span class="onoff-switch-slider"></span>
         </label>
     </td>
@@ -28,7 +28,7 @@ if ($myrepo->getPackageType() == 'deb') {
 <tr>
     <td class="td-30">Architecture</td>
     <td>
-        <select class="targetArchSelect task-param" param-name="targetArch" multiple>
+        <select class="task-param" param-name="arch" multiple>
             <option value="">Select architecture...</option>
             <?php
             if ($myrepo->getPackageType() == 'rpm') :
@@ -56,7 +56,7 @@ if ($myrepo->getPackageType() == 'deb') {
 <tr>
     <td class="td-30">Point an environment</td>
     <td>
-        <select id="update-repo-target-env-select-<?= $myrepo->getSnapId() ?>" class="task-param" param-name="targetEnv">
+        <select id="update-repo-target-env-select-<?= $myrepo->getSnapId() ?>" class="task-param" param-name="env">
             <option value=""></option>
             <?php
             foreach (ENVS as $env) {
@@ -70,22 +70,6 @@ if ($myrepo->getPackageType() == 'deb') {
     </td>
 </tr>
 
-<?php
-if ($myrepo->getPackageType() == 'deb') : ?>
-<!-- <tr>
-    <td class="td-30">Include translations</td>
-    <td>
-        <select class="targetPackageTranslationSelect task-param" param-name="targetPackageTranslation" multiple>
-            <option value="en" <?php //echo (in_array('en', DEB_DEFAULT_TRANSLATION)) ? 'selected' : ''; ?>>en (english)</option>
-            <option value="fr" <?php //echo (in_array('fr', DEB_DEFAULT_TRANSLATION)) ? 'selected' : ''; ?>>fr (french)</option>
-            <option value="de" <?php //echo (in_array('de', DEB_DEFAULT_TRANSLATION)) ? 'selected' : ''; ?>>de (deutsch)</option>
-            <option value="it" <?php //echo (in_array('it', DEB_DEFAULT_TRANSLATION)) ? 'selected' : ''; ?>>it (italian)</option>
-        </select>
-    </td>
-</tr> -->
-    <?php
-endif; ?>
-
 <tr>
     <td colspan="100%"><b>GPG parameters</b></td>
 </tr>
@@ -94,7 +78,7 @@ endif; ?>
     <td class="td-30">Check GPG signatures</td>
     <td>
         <label class="onoff-switch-label">
-            <input name="repoGpgCheck" param-name="targetGpgCheck" type="checkbox" class="onoff-switch-input task-param" value="yes" checked />
+            <input type="checkbox" param-name="gpg-check" class="onoff-switch-input task-param" value="yes" checked />
             <span class="onoff-switch-slider"></span>
         </label>
     </td>
@@ -106,11 +90,12 @@ endif; ?>
         <label class="onoff-switch-label">
             <?php
             if ($myrepo->getPackageType() == 'rpm') : ?>
-                <input name="repoGpgResign" param-name="targetGpgResign" type="checkbox" class="onoff-switch-input task-param type_rpm" value="yes" <?php echo (RPM_SIGN_PACKAGES == "true") ? 'checked' : ''; ?>>
+                <input type="checkbox" param-name="gpg-sign" class="onoff-switch-input task-param type_rpm" value="yes" <?php echo (RPM_SIGN_PACKAGES == "true") ? 'checked' : ''; ?>>
                 <?php
             endif;
+
             if ($myrepo->getPackageType() == 'deb') : ?>
-                <input name="repoGpgResign" param-name="targetGpgResign" type="checkbox" class="onoff-switch-input task-param type_deb" value="yes" <?php echo (DEB_SIGN_REPO == "true") ? 'checked' : ''; ?>>
+                <input type="checkbox" param-name="gpg-sign" class="onoff-switch-input task-param type_deb" value="yes" <?php echo (DEB_SIGN_REPO == "true") ? 'checked' : ''; ?>>
                 <?php
             endif ?>
             <span class="onoff-switch-slider"></span>
@@ -123,8 +108,7 @@ $(document).ready(function(){
     /**
      *  Convert select to select2
      */
-    selectToSelect2('.targetArchSelect');
-    selectToSelect2('.targetPackageTranslationSelect');
+    selectToSelect2('select.task-param[param-name="arch"]');
 
     /**
      *  Update repo->date<-env schema if an env is selected
@@ -134,17 +118,17 @@ $(document).ready(function(){
 
     function printEnv() {
         /**
-         *  Nom du dernier environnement de la chaine
+         *  Name of the last environment of the chain
          */
         var lastEnv = '<?= LAST_ENV ?>';
 
         /**
-         *  Récupération de l'environnement sélectionné dans la liste
+         *  Retrieve the selected environment in the list
          */
         var selectValue = $(selectName).val();
         
         /**
-         *  Si l'environnement correspond au dernier environnement de la chaine alors il sera affiché en rouge
+         *  If the environment corresponds to the last environment of the chain then it will be displayed in red
          */
         if (selectValue == lastEnv) {
             var envSpanClass = 'last-env';
@@ -153,13 +137,13 @@ $(document).ready(function(){
         }
 
         /**
-         *  Si aucun environnement n'a été selectionné par l'utilisateur alors on n'affiche rien 
+         *  If there is no environment selected by the user then nothing is displayed
          */
         if (selectValue == "") {
             $(envSpan).html('');
         
         /**
-         *  Sinon on affiche l'environnement qui pointe vers le nouveau snapshot qui sera créé
+         *  Else we display the environment that points to the new snapshot that will be created
          */
         } else {
             $(envSpan).html('⟵<span class="'+envSpanClass+'">'+selectValue+'</span>');
