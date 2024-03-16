@@ -729,19 +729,19 @@ footer #github img { width: 25px; }
 .header-light-red, .header-light-red-min { background-color: #ff3369 !important; }
 .header-light-blue, .header-light-blue-min { background-color: #2b4d6e !important; }
 
-.operation-form {
+.task-form-params {
     width: 100%;
     display: flex;
     align-items: center;
     flex-wrap: wrap;
 }
 
-.operation-form span, .operation-form input[type=text], .operation-form select {
+.task-form-params span, .task-form-params input[type=text], .task-form-params select {
     flex: 0 0 50%;
 }
 
 /* Les paragraphes eux occupent tout l'espace, les titres aussi */
-.operation-form p, .operation-form h3 {
+.task-form-params p, .task-form-params h3 {
     flex: 0 0 100%;
 }
 

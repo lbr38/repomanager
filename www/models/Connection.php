@@ -108,9 +108,10 @@ class Connection extends SQLite3
         OR name='repos_snap'
         OR name='env'
         OR name='sources'
-        OR name='groups' 
-        OR name='group_members' 
-        OR name='operations' 
+        OR name='groups'
+        OR name='group_members'
+        OR name='tasks'
+        OR name='tasks_pool'
         OR name='planifications'
         OR name='profile'
         OR name='profile_settings'
@@ -167,7 +168,7 @@ class Connection extends SQLite3
      */
     public function checkMainTables()
     {
-        $required = 27;
+        $required = 28;
 
         /**
          *  If the number of tables != $required then we try to regenerate the tables
@@ -396,27 +397,52 @@ class Connection extends SQLite3
         /**
          *  operations table
          */
-        $this->exec("CREATE TABLE IF NOT EXISTS operations (
+        // $this->exec("CREATE TABLE IF NOT EXISTS operations (
+        // Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        // Date DATE NOT NULL,
+        // Time TIME NOT NULL,
+        // Action VARCHAR(255) NOT NULL,
+        // Type CHAR(6) NOT NULL, /* manual, plan */
+        // Id_repo_source VARCHAR(255),
+        // Id_snap_source INTEGER,
+        // Id_env_source INTEGER,
+        // Id_repo_target VARCHAR(255),
+        // Id_snap_target INTEGER,
+        // Id_env_target INTEGER,
+        // Id_group INTEGER,
+        // Id_plan INTEGER,
+        // GpgCheck CHAR(3),
+        // GpgResign CHAR(3),
+        // Pid INTEGER NOT NULL,
+        // Pool_id INTEGER NOT NULL,
+        // Logfile VARCHAR(255) NOT NULL,
+        // Duration INTEGER,
+        // Status CHAR(7) NOT NULL)"); /* queued, running, done, stopped */
+
+        $this->exec("CREATE TABLE IF NOT EXISTS tasks (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        Date DATE NOT NULL,
-        Time TIME NOT NULL,
         Action VARCHAR(255) NOT NULL,
-        Type CHAR(6) NOT NULL, /* manual, plan */
-        Id_repo_source VARCHAR(255),
-        Id_snap_source INTEGER,
-        Id_env_source INTEGER,
-        Id_repo_target VARCHAR(255),
-        Id_snap_target INTEGER,
-        Id_env_target INTEGER,
-        Id_group INTEGER,
-        Id_plan INTEGER,
-        GpgCheck CHAR(3),
-        GpgResign CHAR(3),
+        Type CHAR(9) NOT NULL, /* immediate, scheduled */
+        Schedule_frequency CHAR(15), /* every-day, every-hour... */
+        Schedule_day CHAR(70),
+        Date DATE,
+        Time TIME,
+        Repo_type CHAR(6), /* local, mirror */
+        Source_snap_id INTEGER,
+        Target_repo_id VARCHAR(255),
+        Target_snap_id INTEGER,
+        Target_env_id INTEGER,
+        Gpg_check CHAR(5), /* true, false */
+        Gpg_sign CHAR(5), /* true, false */
         Pid INTEGER NOT NULL,
-        Pool_id INTEGER NOT NULL,
+        Task_pool_id INTEGER NOT NULL,
         Logfile VARCHAR(255) NOT NULL,
         Duration INTEGER,
-        Status CHAR(7) NOT NULL)"); /* running, done, stopped */
+        Status CHAR(9) NOT NULL)"); /* scheduled, running, done, stopped */
+
+        $this->exec("CREATE TABLE IF NOT EXISTS tasks_pool (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Parameters TEXT NOT NULL)");
 
         /**
          *  planifications table

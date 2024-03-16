@@ -78,7 +78,7 @@ class Host extends \Controllers\Api\Controller
             }
 
             /**
-             *  Retrieve host database Id if its authId has been specified, it will be useful for next operations
+             *  Retrieve host database Id if its authId has been specified, it will be useful for next tasks
              */
             if (!empty($this->hostId)) {
                 try {

@@ -61,8 +61,8 @@ class File extends Service
             /**
              *  Clean pid files older than 7 days
              */
-            if (is_dir(DATA_DIR . '/operations/pid')) {
-                $files = \Controllers\Common::findRecursive(DATA_DIR . '/operations/pid', 'pid');
+            if (is_dir(DATA_DIR . '/tasks/pid')) {
+                $files = \Controllers\Common::findRecursive(DATA_DIR . '/tasks/pid', 'pid');
 
                 if (!empty($files)) {
                     foreach ($files as $file) {
@@ -80,8 +80,8 @@ class File extends Service
             /**
              *  Clean pool files older than 7 days
              */
-            if (is_dir(DATA_DIR . '/operations/pool')) {
-                $files = \Controllers\Common::findRecursive(DATA_DIR . '/operations/pool', 'json');
+            if (is_dir(DATA_DIR . '/tasks/pool')) {
+                $files = \Controllers\Common::findRecursive(DATA_DIR . '/tasks/pool', 'json');
 
                 if (!empty($files)) {
                     foreach ($files as $file) {

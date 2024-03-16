@@ -36,7 +36,7 @@ $(document).on('click','#display-log-btn',function () {
 $(document).on('click','.show-logfile-btn',function () {
     var logfile = $(this).attr('logfile');
     setCookie('view-logfile', logfile, 1);
-    reloadContainer('operations/log');
+    reloadContainer('tasks/log');
 });
 
 /**
@@ -48,7 +48,7 @@ $(document).on('click','.relaunch-operation-btn',function (e) {
 
     var poolId = $(this).attr('pool-id');
 
-    relaunchOperation(poolId);
+    relaunchTask(poolId);
 });
 
 
@@ -56,14 +56,14 @@ $(document).on('click','.relaunch-operation-btn',function (e) {
  *  Ajax: Relaunch operation
  *  @param {string} poolId
  */
-function relaunchOperation(poolId)
+function relaunchTask(poolId)
 {
     $.ajax({
         type: "POST",
         url: "/ajax/controller.php",
         data: {
-            controller: "operation",
-            action: "relaunchOperation",
+            controller: "task",
+            action: "relaunchTask",
             poolId: poolId
         },
         dataType: "json",
