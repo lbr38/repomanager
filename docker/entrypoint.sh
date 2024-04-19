@@ -18,6 +18,10 @@ if [ ! -z "$FQDN" ];then
     # Repomanager configuration
     echo $FQDN > "$WWW_DIR/.fqdn"
 fi
+if [ ! -z "$PROXY" ]; then
+    #Proxy configuration
+    echo $PROXY > "$WWW_DIR/.proxy"
+fi
 if [ ! -z "$MAX_UPLOAD_SIZE" ];then
     # Nginx configuration
     sed -i "s/client_max_body_size.*$/client_max_body_size ${MAX_UPLOAD_SIZE};/g" /etc/nginx/sites-enabled/repomanager.conf

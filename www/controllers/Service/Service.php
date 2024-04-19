@@ -164,6 +164,13 @@ class Service
             curl_setopt($this->curlHandle, CURLOPT_TIMEOUT, 120);
 
             /**
+             *  If a proxy has been specified
+             */
+            if (!is_null(PROXY)) {
+                curl_setopt($this->curlHandle, CURLOPT_PROXY, PROXY);
+            }
+
+            /**
              *  Execute curl
              */
             if (curl_exec($this->curlHandle) === false) {
