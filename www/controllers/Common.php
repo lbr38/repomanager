@@ -573,6 +573,13 @@ class Common
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 
         /**
+         *  If a proxy has been specified
+         */
+        if (!is_null(PROXY)) {
+            curl_setopt($ch, CURLOPT_PROXY, PROXY);
+        }
+
+        /**
          *  If a custom SSL certificate and key have been specified
          */
         if (!empty($sslCertificatePath)) {

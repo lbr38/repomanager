@@ -125,6 +125,12 @@ class Mirror
         // curl_setopt($this->curlHandle, CURLOPT_VERBOSE, true);
 
         /**
+         *  If a proxy has been specified
+         */
+        if (!is_null(PROXY)) {
+            curl_setopt($this->curlHandle, CURLOPT_PROXY, PROXY);
+        }
+        /**
          *  If a custom ssl certificate and private key must be used
          */
         if (!empty($this->sslCustomCertificate)) {

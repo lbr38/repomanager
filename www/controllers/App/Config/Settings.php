@@ -94,6 +94,17 @@ class Settings
             }
         }
 
+        if (!defined('PROXY')) {
+            /**
+             *  Proxy file is created by the dockerfile
+             */
+            if (file_exists(ROOT . '/.proxy')) {
+                define('PROXY', trim(file_get_contents(ROOT . '/.proxy')));
+            } else {
+                define('PROXY', null);
+            }
+        }
+
         if (!defined('WWW_REPOS_DIR_URL')) {
             define('WWW_REPOS_DIR_URL', __SERVER_PROTOCOL__ . '://' . WWW_HOSTNAME . '/repo');
         }

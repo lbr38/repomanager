@@ -120,6 +120,13 @@ class Import
                 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // follow redirect
                 curl_setopt($ch, CURLOPT_ENCODING, '');         // use compression if any
 
+                /**
+                 *  If a proxy has been specified
+                 */
+                if (!is_null(PROXY)) {
+                    curl_setopt($ch, CURLOPT_PROXY, PROXY);
+                }
+
                 if (curl_exec($ch) === false) {
                     /**
                      *  If curl has failed (meaning a curl param might be invalid)
