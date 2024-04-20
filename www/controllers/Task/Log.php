@@ -62,11 +62,6 @@ class Log
         }
     }
 
-    // public function getPid()
-    // {
-    //     return $this->pid;
-    // }
-
     public function getDate()
     {
         return $this->date;
