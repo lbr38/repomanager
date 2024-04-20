@@ -1,6 +1,6 @@
 <?php
 /**
- *  x.x.x database update
+ *  3.8.0 database update
  */
 
 /**
