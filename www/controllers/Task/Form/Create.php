@@ -67,21 +67,24 @@ class Create
         }
 
         /**
-         *  If the selected repo type is 'local' then we check that a name has been provided (can be left empty in the case of a mirror)
+         *  If the selected repo type is 'local' we will have to check that a name has been provided (can be left empty in the case of a mirror)
          */
         if ($formParams['repo-type'] == 'local') {
             $targetName = $formParams['alias'];
 
-            /**
-             *  Check name
-             */
-            Param\Name::check($targetName);
+            if ($formParams['package-type'] == 'deb') {
+                $arch = $formParams['deb-arch'];
+            }
+
+            if ($formParams['package-type'] == 'rpm') {
+                $arch = $formParams['rpm-arch'];
+            }
         }
 
         /**
          *  If the selected repo type is 'mirror' then we check additional parameters
          */
-        if ($formParams['repo-type'] == "mirror") {
+        if ($formParams['repo-type'] == 'mirror') {
             if ($formParams['package-type'] == 'deb') {
                 $arch   = $formParams['deb-arch'];
                 $source = $formParams['deb-source'];
@@ -102,19 +105,9 @@ class Create
             }
 
             /**
-             *  Check architecture
-             */
-            Param\Arch::check($arch);
-
-            /**
              *  Check source
              */
             Param\Source::check($source, $formParams['package-type']);
-
-            /**
-             *  Check name
-             */
-            Param\Name::check($targetName);
 
             /**
              *  Check gpg check
@@ -126,6 +119,16 @@ class Create
              */
             Param\GpgSign::check($formParams['gpg-sign']);
         }
+
+        /**
+         *  Check name
+         */
+        Param\Name::check($targetName);
+
+        /**
+         *  Check architecture
+         */
+        Param\Arch::check($arch);
 
         /**
          *  Check if a repo/section with the same name is not already active with snapshots

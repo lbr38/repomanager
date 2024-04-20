@@ -72,6 +72,13 @@ class Create
          */
         if ($taskParams['repo-type'] == 'local') {
             $this->repo->setName($taskParams['alias']);
+
+            if ($taskParams['package-type'] == 'rpm') {
+                $requiredParams[] = 'rpm-arch';
+            }
+            if ($taskParams['package-type'] == 'deb') {
+                $requiredParams[] = 'deb-arch';
+            }
         }
 
         $this->taskParamsCheck('Create repo', $taskParams, $requiredParams);
