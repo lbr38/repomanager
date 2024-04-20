@@ -26,25 +26,6 @@
 
             <?php
             /**
-             *  SCHEDULE TASKS tab
-             */
-            if (__ACTUAL_URI__[1] == 'plans') {
-                $headerMenuClass = 'menu-sub-container-underline';
-            } else {
-                $headerMenuClass = 'menu-sub-container';
-            } ?>
-
-            <div class="<?= $headerMenuClass ?>">
-                <a href="/plans">
-                    <div class="flex align-item-center column-gap-3">
-                        <img src="/assets/icons/calendar.svg" class="icon" />
-                        <span class="menu-section-title">SCHEDULE TASKS</span>
-                    </div>
-                </a>
-            </div>
-            <?php
-
-            /**
              *  MANAGE HOSTS tab
              */
             if (__ACTUAL_URI__[1] == 'hosts' or __ACTUAL_URI__[1] == 'host') {
