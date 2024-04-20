@@ -59,6 +59,22 @@ class Settings
             $settingsToApply['EMAIL_RECIPIENT'] = implode(',', $sendSettings['emailRecipient']);
         }
 
+        if (!empty($sendSettings['proxy'])) {
+            /**
+             *  Check that URL is valid
+             */
+            if (!preg_match('#^https?://#', $sendSettings['proxy'])) {
+                throw new Exception('Proxy URL must start with http(s)://');
+            }
+
+            $settingsToApply['PROXY'] = \Controllers\Common::validateData($sendSettings['proxy']);
+        } else {
+            $settingsToApply['PROXY'] = '';
+        }
+
+        /**
+         *  Repositories / Mirroring settings
+         */
         if (isset($sendSettings['repoConfFilesPrefix'])) {
             $repoConfFilesPrefix = Common::validateData($sendSettings['repoConfFilesPrefix']);
 
@@ -69,9 +85,6 @@ class Settings
             $settingsToApply['REPO_CONF_FILES_PREFIX'] = $repoConfFilesPrefix;
         }
 
-        /**
-         *  Repositories / Mirroring settings
-         */
         if (!empty($sendSettings['mirrorPackageDownloadTimeout'])) {
             if (is_numeric($sendSettings['mirrorPackageDownloadTimeout']) and $sendSettings['mirrorPackageDownloadTimeout'] > 0) {
                 $settingsToApply['MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT'] = $sendSettings['mirrorPackageDownloadTimeout'];

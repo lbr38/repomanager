@@ -127,9 +127,10 @@ class Mirror
         /**
          *  If a proxy has been specified
          */
-        if (!is_null(PROXY)) {
+        if (!empty(PROXY)) {
             curl_setopt($this->curlHandle, CURLOPT_PROXY, PROXY);
         }
+
         /**
          *  If a custom ssl certificate and private key must be used
          */

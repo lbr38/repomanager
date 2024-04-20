@@ -30,7 +30,7 @@ class Settings
             /**
              *  Following parameters can be empty, we don't increment the error counter in their case
              */
-            $ignoreEmptyParam = array('RPM_DEFAULT_ARCH', 'DEB_DEFAULT_ARCH', 'DEB_DEFAULT_TRANSLATION', 'REPO_CONF_FILES_PREFIX');
+            $ignoreEmptyParam = array('PROXY', 'RPM_DEFAULT_ARCH', 'DEB_DEFAULT_ARCH', 'DEB_DEFAULT_TRANSLATION', 'REPO_CONF_FILES_PREFIX');
 
             if (in_array($key, $ignoreEmptyParam)) {
                 continue;
@@ -95,13 +95,10 @@ class Settings
         }
 
         if (!defined('PROXY')) {
-            /**
-             *  Proxy file is created by the dockerfile
-             */
-            if (file_exists(ROOT . '/.proxy')) {
-                define('PROXY', trim(file_get_contents(ROOT . '/.proxy')));
+            if (!empty($settings['PROXY'])) {
+                define('PROXY', $settings['PROXY']);
             } else {
-                define('PROXY', null);
+                define('PROXY', '');
             }
         }
 

@@ -520,11 +520,13 @@ class Connection extends SQLite3
          */
         $this->exec("CREATE TABLE IF NOT EXISTS settings (
         /* General settings */
-        EMAIL_RECIPIENT VARCHAR(255),
         DEBUG_MODE CHAR(5),
-        REPO_CONF_FILES_PREFIX VARCHAR(255),
         TIMEZONE VARCHAR(255),
+        EMAIL_RECIPIENT VARCHAR(255),
+        PROXY VARCHAR(255),
         /* Repo settings */
+        RETENTION INTEGER,
+        REPO_CONF_FILES_PREFIX VARCHAR(255),
         /* Mirroring */
         MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT INTEGER,
         /* RPM */
@@ -544,7 +546,6 @@ class Connection extends SQLite3
         PLANS_ENABLED CHAR(5),
         PLANS_REMINDERS_ENABLED CHAR(5),
         PLANS_CLEAN_REPOS CHAR(5),
-        RETENTION INTEGER,
         /* Statistics & metrics settings */
         STATS_ENABLED CHAR(5),
         /* Hosts and profiles settings */
