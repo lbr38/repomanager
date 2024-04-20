@@ -258,25 +258,10 @@ class Repo
         return DateTime::createFromFormat('Y-m-d', $this->date)->format('d-m-Y');
     }
 
-    // public function getTargetDate()
-    // {
-    //     return $this->targetDate;
-    // }
-
-    // public function getTargetDateFormatted()
-    // {
-    //     return DateTime::createFromFormat('Y-m-d', $this->targetDate)->format('d-m-Y');
-    // }
-
     public function getTime()
     {
         return $this->time;
     }
-
-    // public function getTargetTime()
-    // {
-    //     return $this->targetTime;
-    // }
 
     public function getRebuild()
     {
