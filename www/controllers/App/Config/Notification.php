@@ -22,7 +22,25 @@ class Notification
          *  If an update is available, generate a new notification
          */
         if (UPDATE_AVAILABLE == 'true') {
-            $message = '<span class="yellowtext">A new release is available: <b>' . GIT_VERSION . '</b>.</span><br><br>Please update your docker image by following the steps documented <b><a href="' . PROJECT_UPDATE_DOC_URL . '">here</a></b></span>';
+            /**
+             *  Check if its a major release version
+             *  If first digit of the version is different, its a major release
+             */
+            $currentVersionDigit = explode('.', VERSION)[0];
+            $newVersionDigit = explode('.', GIT_VERSION)[0];
+
+            /**
+             *  Case its a major release
+             */
+            if ($currentVersionDigit != $newVersionDigit) {
+                $message = '<span class="yellowtext">A new major release is available: ';
+            } else {
+                $message = '<span>A new release is available: ';
+            }
+
+            $message .= '<a href="https://github.com/lbr38/repomanager/releases/latest" target="_blank" rel="noopener noreferrer" title="See changelog"><code>' . GIT_VERSION . '</code><img src="/assets/icons/external-link.svg" class="icon" /></a>';
+            $message .= '<br><br><span>Please update your docker image by following the steps documented <b><a href="' . PROJECT_UPDATE_DOC_URL . '"><code>here</code></a></b></span>';
+
             $NOTIFICATION_MESSAGES[] = array('Title' => 'Update available', 'Message' =>  $message);
             $NOTIFICATION++;
         }

@@ -123,7 +123,7 @@ class Import
                 /**
                  *  If a proxy has been specified
                  */
-                if (!is_null(PROXY)) {
+                if (!empty(PROXY)) {
                     curl_setopt($ch, CURLOPT_PROXY, PROXY);
                 }
 
