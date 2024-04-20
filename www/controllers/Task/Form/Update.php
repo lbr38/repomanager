@@ -58,10 +58,10 @@ class Update
          *  Add history
          */
         if ($myrepo->getPackageType() == 'rpm') {
-            $myhistory->set($_SESSION['username'], 'Running task: update repo <span class="label-white">' . $myrepo->getName() . '</span> (' . $myrepo->getType() . ')', 'success');
+            $myhistory->set($_SESSION['username'], 'Running task: update repository <span class="label-white">' . $myrepo->getName() . '</span> (' . $myrepo->getType() . ')', 'success');
         }
         if ($myrepo->getPackageType() == 'deb') {
-            $myhistory->set($_SESSION['username'], 'Running task: update repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span> (' . $myrepo->getType() . ')', 'success');
+            $myhistory->set($_SESSION['username'], 'Running task: update repository <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span> (' . $myrepo->getType() . ')', 'success');
         }
     }
 }
