@@ -38,7 +38,7 @@ class Package
          *  If the path does not exist on the server then we quit
          */
         if (!is_dir($repoPath)) {
-            throw new Exception('Repo directory ' . $repoPath . ' does not exist');
+            throw new Exception('Repository directory ' . $repoPath . ' does not exist');
         }
 
         /**

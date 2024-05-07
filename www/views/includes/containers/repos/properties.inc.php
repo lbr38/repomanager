@@ -2,16 +2,23 @@
     <div>
         <h3>PROPERTIES</h3>
 
-        <div class="div-generic-blue circle-div-container-container">
+        <div class="div-generic-blue flex align-item-center justify-space-between padding-right-40">
             <div>
-                <div class="circle-div-container">
+                <div class="flex column-gap-15 align-item-center">
                     <div class="circle-div-container-count-green">
                         <span>
                             <?= $totalRepos ?>
                         </span>
                     </div>
                     <div>
-                        <span>Repos</span>
+                        <span>
+                            <?php
+                            if ($totalRepos <= 1) {
+                                echo 'Repository';
+                            } else {
+                                echo 'Repositories';
+                            } ?>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -28,75 +35,75 @@
         </div>
 
         <?php
-        if (!empty($lastPlan) or !empty($nextPlan)) : ?>
-            <div class="div-generic-blue">
+        if (!empty($lastScheduledTask) or !empty($nextScheduledTasks)) : ?>
+            <div class="div-generic-blue flex-direction-column flex row-gap-20">
                 <?php
-                if (!empty($lastPlan)) :
-                    if ($lastPlan['Status'] == 'done') {
-                        $planStatus = 'OK';
-                        $borderColor = 'green';
-                    } else {
-                        $planStatus = 'Error';
+                if (!empty($lastScheduledTask) and !empty($lastScheduledTask['Date']) and !empty($lastScheduledTask['Time'])) :
+                    if ($lastScheduledTask['Status'] == 'error' or $lastScheduledTask['Status'] == 'stopped') {
+                        $taskStatus = 'Error';
                         $borderColor = 'red';
+                    } else {
+                        $taskStatus = 'OK';
+                        $borderColor = 'green';
                     } ?>
+
+                    <h5>Last scheduled task</h5>
 
                     <div class="circle-div-container">
                         <div class="circle-div-container-count-<?= $borderColor ?>">
                             <span>
-                                <?= $planStatus ?>
+                                <?= $taskStatus ?>
                             </span>
                         </div>
                         <div>
                             <span>
-                                <a href="/plans">Last scheduled task (<?=DateTime::createFromFormat('Y-m-d', $lastPlan['Date'])->format('d-m-Y') . ' ' . $lastPlan['Time']?>)</a>
+                                <a href="/run?task-log=<?= $lastScheduledTask['Logfile'] ?>"><?= DateTime::createFromFormat('Y-m-d', $lastScheduledTask['Date'])->format('d-m-Y') . ' ' . $lastScheduledTask['Time'] ?></a>
                             </span>
                         </div>
                     </div>
                     <?php
                 endif;
 
-                if (!empty($nextPlan)) :
-                    /**
-                     *  Calculating of many days left before next plan
-                     */
-                    $date_now = new DateTime(DATE_YMD);
-                    $date_plan = new DateTime($nextPlan['Date']);
-                    $time_now = new DateTime(date('H:i'));
-                    $time_plan = new DateTime($nextPlan['Time']);
-                    $days_left = $date_plan->diff($date_now);
-                    $time_left = $time_plan->diff($time_now); ?>
+                if (!empty($nextScheduledTasks)) : ?>
+                    <h5>Next scheduled tasks</h5>
 
-                    <div class="circle-div-container">
-                        <div class="circle-div-container-count">
-                            <span>
-                                <?php
-                                /**
-                                 *  If days left = 0 (current day) then print hours left instead
-                                 */
-                                if ($days_left->days == 0) {
-                                    /**
-                                     *  If hours left = 0 then print minutes left instead
-                                     */
-                                    if ($time_left->format('%h') == 0) {
-                                        echo $time_left->format('%im');
-                                    } else {
-                                        echo $time_left->format('%hh%im');
-                                    }
-                                } else {
-                                    echo $days_left->days . 'd';
-                                } ?>
-                            </span>
-                        </div>
-                        <div>
-                            <span>
-                                <a href="/plans">Next scheduled task (<?=DateTime::createFromFormat('Y-m-d', $nextPlan['Date'])->format('d-m-Y') . ' ' . $nextPlan['Time']?>)</a>
-                            </span>
-                        </div>
-                    </div>
                     <?php
-                endif; ?>
+                    foreach ($nextScheduledTasks as $scheduledTask) : ?>
+                        <div class="flex column-gap-15 align-item-center">
+                            <div class="circle-div-container-count-yellow">
+                                <span>
+                                    <?php
+                                    /**
+                                     *  If days left = 0 (current day) then print hours left instead
+                                     */
+                                    if ($scheduledTask['left']['days'] > 0) {
+                                        echo $scheduledTask['left']['days'] . 'd';
+                                    } else {
+                                        echo $scheduledTask['left']['time'];
+                                    } ?>
+                                </span>
+                            </div>
+
+                            <div>
+                                <p>
+                                    <a href="/run"> 
+                                        <?php
+                                        if (!empty($scheduledTask['date'])) {
+                                            echo DateTime::createFromFormat('Y-m-d', $scheduledTask['date'])->format('d-m-Y') . ' ';
+                                        }
+
+                                        if (!empty($scheduledTask['time'])) {
+                                            echo $scheduledTask['time'];
+                                        } ?>
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+                        <?php
+                    endforeach;
+                endif ?>
             </div>
             <?php
-        endif; ?>
+        endif ?>
     </div>
 </section>

@@ -4,23 +4,23 @@ define('ROOT', '/var/www/repomanager');
 require_once(ROOT . '/controllers/Autoloader.php');
 new \Controllers\Autoloader('api');
 
-$mysignalhandler = new \Controllers\SignalHandler();
-$myservice = new \Controllers\Service\Service();
-$myservicestat = new \Controllers\Service\Statistic();
-$myserviceplan = new \Controllers\Service\Planification();
-$mycveController = new \Controllers\Cve\Tools\Import();
+$mySignalHandler = new \Controllers\SignalHandler();
+$myService = new \Controllers\Service\Service();
+$myStatService = new \Controllers\Service\Statistic();
+$myScheduledTaskService = new \Controllers\Service\ScheduledTask();
+$myCveController = new \Controllers\Cve\Tools\Import();
 
 /**
  *  Define a file to create on interrupt
  *  This file is used to stop stats parsing
  */
-$mysignalhandler->touchFileOnInterrupt(DATA_DIR . '/.service-parsing-stop');
+$mySignalHandler->touchFileOnInterrupt(DATA_DIR . '/.service-parsing-stop');
 
 /**
  *  Run stats access log parsing task
  */
 if (!empty($argv[1]) && $argv[1] == 'stats/accesslog/parse') {
-    $myservicestat->parseAccessLog();
+    $myStatService->parseAccessLog();
     exit;
 }
 
@@ -28,23 +28,23 @@ if (!empty($argv[1]) && $argv[1] == 'stats/accesslog/parse') {
  *  Run stats access log processing task
  */
 if (!empty($argv[1]) && $argv[1] == 'stats/accesslog/process') {
-    $myservicestat->processAccessLog();
+    $myStatService->processAccessLog();
     exit;
 }
 
 /**
- *  Run planification task
+ *  Run scheduled tasks
  */
-if (!empty($argv[1]) && $argv[1] == 'plan-exec') {
-    $myserviceplan->planExecute();
+if (!empty($argv[1]) && $argv[1] == 'scheduled-task-exec') {
+    $myScheduledTaskService->execute();
     exit;
 }
 
 /**
- *  Run planification reminder task
+ *  Run scheduled tasks reminder
  */
-if (!empty($argv[1]) && $argv[1] == 'plan-reminder') {
-    $myserviceplan->planReminder();
+if (!empty($argv[1]) && $argv[1] == 'scheduled-task-reminder') {
+    $myScheduledTaskService->sendReminders();
     exit;
 }
 
@@ -52,13 +52,13 @@ if (!empty($argv[1]) && $argv[1] == 'plan-reminder') {
  *  Run CVE import task
  */
 if (!empty($argv[1]) && $argv[1] == 'cve-import') {
-    $mycveController->import();
+    $myCveController->import();
     exit;
 }
 
 /**
  *  Run main service
  */
-$myservice->run();
+$myService->run();
 
 exit;

@@ -13,7 +13,7 @@ class Repos
             \Controllers\Layout\Panel\RepoGroup::render();
             \Controllers\Layout\Panel\SourceRepo::render();
             \Controllers\Layout\Panel\NewRepo::render();
-            \Controllers\Layout\Panel\Operation::render();
+            \Controllers\Layout\Panel\Task::render();
         }
     }
 }

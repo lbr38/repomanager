@@ -10,16 +10,15 @@ class Repo
     private $model;
     private $repoListingController;
 
-    private $poolId;
+    private $taskId;
     private $repoId;
     private $snapId;
     private $envId;
-    private $planId;
     private $name;
     private $source;
     private $packageType;
+    private $type;
     private $arch;
-    private $translationIncluded;
     private $dist;
     private $section;
     private $date;
@@ -27,28 +26,23 @@ class Repo
     private $time;
     private $env;
     private $description;
+    private $group;
     private $signed;
-    private $type; // mirror or local
     private $status;
     private $rebuild;
+    private $gpgCheck;
+    private $gpgSign;
     private $targetName;
     private $targetDate;
     private $targetTime;
     private $targetEnv;
-    private $targetGroup;
-    private $targetDescription;
-    private $targetGpgCheck;
-    private $targetGpgResign;
     private $releasever;
     private $targetArch;
-    private $targetPackageTranslation = array();
 
     /**
      *  Mirroring parameters
      */
-    private $gpgCheck;
-    private $gpgResign;
-    private $onlySyncDifference = 'no';
+    private $onlySyncDifference = 'false';
 
     public function __construct()
     {
@@ -69,11 +63,6 @@ class Repo
     public function setEnvId(string $id)
     {
         $this->envId = \Controllers\Common::validateData($id);
-    }
-
-    public function setPlanId(string $id)
-    {
-        $this->planId = \Controllers\Common::validateData($id);
     }
 
     public function setName(string $name)
@@ -102,20 +91,9 @@ class Repo
         $this->dateFormatted = DateTime::createFromFormat('Y-m-d', $date)->format('d-m-Y');
     }
 
-    public function setTargetDate(string $date)
-    {
-        $this->targetDate = $date;
-        $this->targetDateFormatted = DateTime::createFromFormat('Y-m-d', $date)->format('d-m-Y');
-    }
-
     public function setTime(string $time)
     {
         $this->time = $time;
-    }
-
-    public function setTargetTime(string $time)
-    {
-        $this->targetTime = $time;
     }
 
     public function setType(string $type)
@@ -167,32 +145,23 @@ class Repo
         $this->targetEnv = $env;
     }
 
-    public function setTargetGroup(string $group)
+    public function setGroup(string $group)
     {
         if ($group == 'nogroup') {
-            $this->targetGroup = '';
+            $this->group = '';
         } else {
-            $this->targetGroup = $group;
+            $this->group = $group;
         }
     }
 
-    public function setTargetDescription(string $description)
+    public function setGpgCheck(string $gpgCheck)
     {
-        if ($description == 'nodescription') {
-            $this->targetDescription = '';
-        } else {
-            $this->targetDescription = $description;
-        }
+        $this->gpgCheck = $gpgCheck;
     }
 
-    public function setTargetGpgCheck(string $gpgCheck)
+    public function setGpgSign(string $gpgResign)
     {
-        $this->targetGpgCheck = $gpgCheck;
-    }
-
-    public function setTargetGpgResign(string $gpgResign)
-    {
-        $this->targetGpgResign = $gpgResign;
+        $this->gpgSign = $gpgResign;
     }
 
     public function setArch(array $arch)
@@ -200,24 +169,9 @@ class Repo
         $this->arch = $arch;
     }
 
-    public function setPackageTranslation(array $translationIncluded)
-    {
-        $this->translationIncluded = $translationIncluded;
-    }
-
     public function setReleasever(string $releasever)
     {
         $this->releasever = $releasever;
-    }
-
-    public function setTargetArch(array $targetArch)
-    {
-        $this->targetArch = $targetArch;
-    }
-
-    public function setTargetPackageTranslation(array $targetPackageTranslation)
-    {
-        $this->targetPackageTranslation = $targetPackageTranslation;
     }
 
     public function setOnlySyncDifference(string $onlySyncDifference)
@@ -225,9 +179,9 @@ class Repo
         $this->onlySyncDifference = $onlySyncDifference;
     }
 
-    public function setPoolId(string $poolId)
+    public function setTaskId(string $taskId)
     {
-        $this->poolId = $poolId;
+        $this->taskId = $taskId;
     }
 
     public function getRepoId()
@@ -285,24 +239,9 @@ class Repo
         return DateTime::createFromFormat('Y-m-d', $this->date)->format('d-m-Y');
     }
 
-    public function getTargetDate()
-    {
-        return $this->targetDate;
-    }
-
-    public function getTargetDateFormatted()
-    {
-        return DateTime::createFromFormat('Y-m-d', $this->targetDate)->format('d-m-Y');
-    }
-
     public function getTime()
     {
         return $this->time;
-    }
-
-    public function getTargetTime()
-    {
-        return $this->targetTime;
     }
 
     public function getRebuild()
@@ -345,16 +284,6 @@ class Repo
         return $this->targetArch;
     }
 
-    public function getPackageTranslation()
-    {
-        return $this->translationIncluded;
-    }
-
-    public function getTargetPackageTranslation()
-    {
-        return $this->targetPackageTranslation;
-    }
-
     public function getDescription()
     {
         return $this->description;
@@ -365,24 +294,19 @@ class Repo
         return $this->targetName;
     }
 
-    public function getTargetGroup()
+    public function getGroup()
     {
-        return $this->targetGroup;
+        return $this->group;
     }
 
-    public function getTargetDescription()
+    public function getGpgCheck()
     {
-        return $this->targetDescription;
+        return $this->gpgCheck;
     }
 
-    public function getTargetGpgCheck()
+    public function getGpgSign()
     {
-        return $this->targetGpgCheck;
-    }
-
-    public function getTargetGpgResign()
-    {
-        return $this->targetGpgResign;
+        return $this->gpgSign;
     }
 
     public function getOnlySyncDifference()
@@ -390,15 +314,15 @@ class Repo
         return $this->onlySyncDifference;
     }
 
-    public function getPoolId()
+    public function getTaskId()
     {
-        return $this->poolId;
+        return $this->taskId;
     }
 
     /**
      *  Récupère toutes les informations d'un repo, snapshot en env en base de données
      */
-    public function getAllById(string $repoId = null, string $snapId = null, string $envId = null)
+    public function getAllById(string|null $repoId = null, string|null $snapId = null, string|null $envId = null)
     {
         $data = $this->model->getAllById($repoId, $snapId, $envId);
 
@@ -467,9 +391,6 @@ class Repo
         }
         if (!empty($data['Arch'])) {
             $this->setArch(explode(',', $data['Arch']));
-        }
-        if (!empty($data['Pkg_translation'])) {
-            $this->setPackageTranslation(explode(',', $data['Pkg_translation']));
         }
     }
 
@@ -623,6 +544,14 @@ class Repo
     }
 
     /**
+     *  Return latest snapshot Id from repo Id
+     */
+    public function getLatestSnapId(int $repoId)
+    {
+        return $this->model->getLatestSnapId($repoId);
+    }
+
+    /**
      *  Return environment Id from repo name
      */
     public function getEnvIdFromRepoName(string $name, string $dist = null, string $section = null, string $env)
@@ -660,13 +589,6 @@ class Repo
         $removedSnaps = array();
         $removedSnapsError = array();
         $removedSnapsFinalArray = array();
-
-        /**
-         *  1. Si le nettoyage automatique n'est pas autorisé alors on quitte la fonction
-         */
-        if (PLANS_CLEAN_REPOS != "true") {
-            return;
-        }
 
         if (!is_int(RETENTION) or RETENTION < 0) {
             return;
@@ -894,7 +816,7 @@ class Repo
     /**
      *  Return true if a snapshot exists at a specific date in database, from the repo name and the date
      */
-    public function existsRepoSnapDate(string $date, string $name, string $dist = null, string $section = null)
+    public function existsRepoSnapDate(string $date, string $name, string|null $dist = null, string|null $section = null)
     {
         return $this->model->existsRepoSnapDate($date, $name, $dist, $section);
     }

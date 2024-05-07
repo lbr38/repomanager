@@ -1,4 +1,4 @@
-classToSelect2('select.group-hosts-list', 'Add host...');
+selectToSelect2('select.group-hosts-list', 'Add host...');
 
 /**
  *  Fonctions
@@ -510,12 +510,20 @@ $(document).on('submit','#hostsSettingsForm',function () {
     var packagesConsideredCritical = $('input[name="settings-pkgs-considered-critical"').val();
 
     ajaxRequest(
+        // Controller:
         'host',
+        // Action:
         'editSettings',
+        // Data:
         {
             packagesConsideredOutdated: packagesConsideredOutdated,
             packagesConsideredCritical: packagesConsideredCritical
         },
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload container:
         ['hosts/list']
     );
 
@@ -802,7 +810,7 @@ function newGroup(name)
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'success');
             reloadPanel('hosts/groups', function () {
-                classToSelect2('select.group-hosts-list', 'Add host...'); });
+                selectToSelect2('select.group-hosts-list', 'Add host...'); });
             reloadContainer('hosts/list');
         },
         error: function (jqXHR, textStatus, thrownError) {
@@ -832,7 +840,7 @@ function deleteGroup(id)
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'success');
             reloadPanel('hosts/groups', function () {
-                classToSelect2('select.group-hosts-list', 'Add host...'); });
+                selectToSelect2('select.group-hosts-list', 'Add host...'); });
             reloadContainer('hosts/list');
         },
         error: function (jqXHR, ajaxOptions, thrownError) {
@@ -866,7 +874,7 @@ function editGroup(id, name, hostsId)
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'success');
             reloadPanel('hosts/groups', function () {
-                classToSelect2('select.group-hosts-list', 'Add host...'); });
+                selectToSelect2('select.group-hosts-list', 'Add host...'); });
             reloadContainer('hosts/list');
         },
         error: function (jqXHR, textStatus, thrownError) {

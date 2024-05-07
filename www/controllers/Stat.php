@@ -50,7 +50,7 @@ class Stat
     /**
      *  Count the number of access requests to the specified repo/section, on a given date
      */
-    public function getDailyAccessCount(string $type, string $name, string|null $dist, string|null $section, string $env, string $date)
+    public function getDailyAccessCount(string $type, string $name, string|null $dist = null, string|null $section = null, string $env, string $date)
     {
         return $this->model->getDailyAccessCount($type, $name, $dist, $section, $env, $date);
     }
@@ -66,7 +66,7 @@ class Stat
     /**
      *  Add new repo access log to database
      */
-    public function addAccess(string $date, string $time, string $type, string $repoName, string|null $repoDist, string|null $repoSection, string $repoEnv, string $sourceHost, string $sourceIp, string $request, string $result)
+    public function addAccess(string $date, string $time, string $type, string $repoName, string|null $repoDist = null, string|null $repoSection = null, string $repoEnv, string $sourceHost, string $sourceIp, string $request, string $result)
     {
         $this->model->addAccess($date, $time, $type, $repoName, $repoDist, $repoSection, $repoEnv, $sourceHost, $sourceIp, $request, $result);
     }

@@ -53,41 +53,49 @@ function permissions
 
     echo -ne "${YELLOW} Setting permissions... ${RESET}"
  
-    # Permissions on web directory
-    find "$WWW_DIR" -type d -exec chmod 0770 {} \;
-    find "$WWW_DIR" -type f -exec chmod 0660 {} \;
+    # Owner on web directory
     chmod 750 "$WWW_DIR"
     chown -R ${WWW_USER}:repomanager "$WWW_DIR"
 
-    # Permissions on data directory
-    find "$DATA_DIR" -type d -exec chmod 0770 {} \;
-    find "$DATA_DIR" -type f -exec chmod 0660 {} \;
+    # Owner on data directory
     chmod 770 "$DATA_DIR"
     chown -R ${WWW_USER}:repomanager "$DATA_DIR"
 
-    if [ -f "$WWW_DIR/bin/repomanager" ];then
-        chmod 550 $WWW_DIR/bin/repomanager
-    fi
-
-    # Permissions on repos directory
-    find "$REPOS_DIR" -type d -exec chmod 0770 {} \;
-    find "$REPOS_DIR" -type f -exec chmod 0660 {} \;
+    # Owner on repos directory
     chmod 770 "$REPOS_DIR"
     chown -R ${WWW_USER}:repomanager "$REPOS_DIR"
+
+    # Permissions on web directory
+    find "$WWW_DIR" -type d -exec chmod 0770 {} \; &
+    find "$WWW_DIR" -type f -exec chmod 0660 {} \; &
+
+    # Permissions on data directory
+    find "$DATA_DIR" -type d -exec chmod 0770 {} \; &
+    find "$DATA_DIR" -type f -exec chmod 0660 {} \; &
+
+    # Permissions on repos directory
+    find "$REPOS_DIR" -type d -exec chmod 0770 {} \; &
+    find "$REPOS_DIR" -type f -exec chmod 0660 {} \; &
 
     # Permissions on .gnupg directory
     if [ -d "$GPGHOME" ];then
         chown -R ${WWW_USER}:repomanager $GPGHOME
         chmod 700 $GPGHOME
+
         # Permissions on passphrase
         if [ -f "$GPGHOME/passphrase" ];then 
             chmod 400 $GPGHOME/passphrase
         fi
     fi
+
     # Permissions on GPG public key
     if [ -d "$REPOS_DIR/gpgkeys" ];then
-        chown ${WWW_USER}:repomanager $REPOS_DIR/gpgkeys/*pub
-        chmod 660 $REPOS_DIR/gpgkeys/*pub
+        chown ${WWW_USER}:repomanager $REPOS_DIR/gpgkeys/*
+        chmod 660 $REPOS_DIR/gpgkeys/*
+    fi
+
+    if [ -f "$WWW_DIR/bin/repomanager" ];then
+        chmod 550 $WWW_DIR/bin/repomanager
     fi
 }
 

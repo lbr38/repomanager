@@ -17,31 +17,32 @@ if ($action == 'deletePackage' and !empty($_POST['snapId']) and !empty($_POST['p
 /**
  *  Rebuild repo metadata files
  */
-if ($action == 'rebuild' and !empty($_POST['snapId']) and !empty($_POST['rebuildGpgSign'])) {
+if ($action == 'rebuild' and !empty($_POST['snapId']) and !empty($_POST['gpgSign'])) {
     $myrepo = new \Controllers\Repo\Repo();
-    $myoperation = new \Controllers\Operation\Operation();
+    $mytask = new \Controllers\Task\Task();
 
     try {
         if ($myrepo->existsSnapId($_POST['snapId']) !== true) {
-            throw new Exception('Invalid repo snapshot ID');
+            throw new Exception('Invalid repository snapshot Id');
         }
 
-        if ($_POST['rebuildGpgSign'] != 'yes' and $_POST['rebuildGpgSign'] != 'no') {
-            throw new Exception('Invalid GPG Resign value');
+        if ($_POST['gpgSign'] != 'true' and $_POST['gpgSign'] != 'false') {
+            throw new Exception('Invalid GPG sign value');
         }
 
         /**
-         *  Create a json file that defines the operation to execute
+         *  Create a json file that defines the task to execute
          */
         $params = array();
         $params['action'] = 'rebuild';
-        $params['snapId'] = $_POST['snapId'];
-        $params['targetGpgResign'] = $_POST['rebuildGpgSign'];
+        $params['snap-id'] = $_POST['snapId'];
+        $params['gpg-sign'] = $_POST['gpgSign'];
+        $params['schedule']['scheduled'] = 'false';
 
         /**
-         *  Execute the operation
+         *  Execute the task
          */
-        $myoperation->execute(array($params));
+        $mytask->execute(array($params));
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }

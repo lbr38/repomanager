@@ -12,7 +12,7 @@ class Mirror
     protected $releasever;
     protected $arch;
     protected $translation;
-    protected $checkSignature = 'yes';
+    protected $checkSignature = 'true';
     protected $gpgKeyUrl;
     protected $primaryLocation;
     protected $primaryChecksum;

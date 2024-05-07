@@ -251,7 +251,7 @@ if (!empty($groupsList)) {
                                         if ($snapId != $previousSnapId) :
                                             $myrepo = new \Controllers\Repo\Repo();
                                             if ($myrepo->snapOpIsRunning($snapId) === true) : ?>
-                                                <img src="/assets/images/loading.gif" class="icon" title="An operation is running on this repository snaphot." />
+                                                <img src="/assets/images/loading.gif" class="icon" title="A task is running on this repository snaphot." />
                                                 <?php
                                             else : ?>
                                                 <input type="checkbox" class="icon-verylowopacity" name="checkbox-repo[]" repo-id="<?= $repoId ?>" snap-id="<?= $snapId ?>" <?php echo !empty($envId) ? 'env-id="' . $envId . '"' : ''; ?> repo-type="<?= $type ?>" title="Select and execute an action.">
@@ -297,9 +297,9 @@ if (!empty($groupsList)) {
                                         
                                         <span>
                                             <?php
-                                            if ($signed == "yes") {
+                                            if ($signed == "true") {
                                                 echo '<img class="icon-np lowopacity-cst" src="/assets/icons/key.svg" title="Signed with GPG" />';
-                                            } elseif ($signed == "no") {
+                                            } elseif ($signed == "false") {
                                                 echo '<img class="icon-np" src="/assets/icons/key2.svg" title="Not signed with GPG" />';
                                             } else {
                                                 echo '<img class="icon-np lowopacity-cst" src="/assets/icons/unknow.svg" title="GPG signature: unknow" />';
@@ -349,7 +349,7 @@ if (!empty($groupsList)) {
                                      *  Remove env icon
                                      */
                                     if (IS_ADMIN) {
-                                        echo '<img src="/assets/icons/delete.svg" class="delete-env-btn icon-lowopacity" title="Remove ' . $env . ' environment" repo-id="' . $repoId . '" snap-id="' . $snapId . '" env-id="' . $envId . '" env-name="' . $env . '" />';
+                                        echo '<img src="/assets/icons/delete.svg" class="delete-env-btn icon-lowopacity" title="Remove ' . $env . ' environment" repo-id="' . $repoId . '" snap-id="' . $snapId . '" env-id="' . $envId . '" env="' . $env . '" />';
                                     }
 
                                     /**

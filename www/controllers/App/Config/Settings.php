@@ -47,7 +47,7 @@ class Settings
 
         if (!is_writable(REPOS_DIR)) {
             ++$__LOAD_SETTINGS_ERROR;
-            $__LOAD_SETTINGS_MESSAGES[] = "Repos directory '" . REPOS_DIR . "' is not writeable.";
+            $__LOAD_SETTINGS_MESSAGES[] = "Repositories main directory <code>" . REPOS_DIR . "</code> is not writeable.";
         }
 
         if (!defined('TIMEZONE')) {
@@ -68,7 +68,7 @@ class Settings
                 define('EMAIL_RECIPIENT', explode(',', $settings['EMAIL_RECIPIENT']));
             } else {
                 define('EMAIL_RECIPIENT', array());
-                $__LOAD_SETTINGS_MESSAGES[] = 'No recipient email adress is defined. ';
+                $__LOAD_SETTINGS_MESSAGES[] = '<code>Default contact</code> setting is not defined. At least one email address should be defined.';
             }
         }
 
@@ -76,7 +76,7 @@ class Settings
             if (!empty($settings['DEBUG_MODE'])) {
                 define('DEBUG_MODE', $settings['DEBUG_MODE']);
             } else {
-                define('DEBUG_MODE', 'false');
+                define('DEBUG_MODE', false);
             }
         }
 
@@ -127,10 +127,7 @@ class Settings
             if (isset($settings['RETENTION']) and $settings['RETENTION'] >= 0) {
                 define('RETENTION', intval($settings['RETENTION'], 8));
             } else {
-                define('RETENTION', '');
-                if (defined('PLANS_ENABLED') and PLANS_ENABLED == "true") {
-                    $__LOAD_SETTINGS_MESSAGES[] = "Repository snapshots retention is not defined.";
-                }
+                define('RETENTION', 3);
             }
         }
 
@@ -178,7 +175,7 @@ class Settings
                  *  Print a message only if RPM repositories are enabled.
                  */
                 if (RPM_REPO == 'true') {
-                    $__LOAD_SETTINGS_MESSAGES[] = "Release version for RPM repositories is not defined.";
+                    $__LOAD_SETTINGS_MESSAGES[] = "<code>Default release version</code> setting is not defined.";
                 }
             }
         }
@@ -233,7 +230,7 @@ class Settings
                  *  Define a default key ID
                  */
                 define('GPG_SIGNING_KEYID', '');
-                $__LOAD_SETTINGS_MESSAGES[] = "GPG signing key Id is not defined.";
+                $__LOAD_SETTINGS_MESSAGES[] = "<code>GPG key Id</code> setting (GPG signing key) is not defined.";
             }
         }
 
@@ -243,7 +240,7 @@ class Settings
                 define('STATS_ENABLED', $settings['STATS_ENABLED']);
             } else {
                 define('STATS_ENABLED', '');
-                $__LOAD_SETTINGS_MESSAGES[] = "Enabling repos statistics is not defined.";
+                $__LOAD_SETTINGS_MESSAGES[] = "<code>Enable repositories statistics</code> setting is not defined.";
             }
         }
 
@@ -257,38 +254,18 @@ class Settings
              */
             if (!is_readable(STATS_LOG_PATH)) {
                 ++$__LOAD_SETTINGS_ERROR;
-                $__LOAD_SETTINGS_MESSAGES[] = "Access log file to scan for statistics is not readable: '" . STATS_LOG_PATH . "'";
+                $__LOAD_SETTINGS_MESSAGES[] = "Access log file used for statistics is not readable: <code>" . STATS_LOG_PATH . "</code>";
             }
         }
 
         /**
          *  Scheduled tasks settings
          */
-        if (!defined('PLANS_ENABLED')) {
-            if (!empty($settings['PLANS_ENABLED'])) {
-                define('PLANS_ENABLED', $settings['PLANS_ENABLED']);
-            } else {
-                define('PLANS_ENABLED', '');
-                $__LOAD_SETTINGS_MESSAGES[] = "Enabling planifications is not defined.";
-            }
-        }
-
         if (!defined('PLANS_REMINDERS_ENABLED')) {
             if (!empty($settings['PLANS_REMINDERS_ENABLED'])) {
                 define('PLANS_REMINDERS_ENABLED', $settings['PLANS_REMINDERS_ENABLED']);
             } else {
                 define('PLANS_REMINDERS_ENABLED', 'false');
-            }
-        }
-
-        if (!defined('PLANS_CLEAN_REPOS')) {
-            if (!empty($settings['PLANS_CLEAN_REPOS'])) {
-                define('PLANS_CLEAN_REPOS', $settings['PLANS_CLEAN_REPOS']);
-            } else {
-                define('PLANS_CLEAN_REPOS', '');
-                if (defined('PLANS_ENABLED') and PLANS_ENABLED == "true") {
-                    $__LOAD_SETTINGS_MESSAGES[] = "Allowing planifications to delete old repos snapshots is not defined.";
-                }
             }
         }
 
@@ -300,7 +277,7 @@ class Settings
                 define('MANAGE_HOSTS', $settings['MANAGE_HOSTS']);
             } else {
                 define('MANAGE_HOSTS', '');
-                $__LOAD_SETTINGS_MESSAGES[] = "Enabling hosts management is not defined.";
+                $__LOAD_SETTINGS_MESSAGES[] = "<code>Manage hosts</code> setting is not defined.";
             }
         }
 
@@ -309,7 +286,7 @@ class Settings
                 define('MANAGE_PROFILES', $settings['MANAGE_PROFILES']);
             } else {
                 define('MANAGE_PROFILES', '');
-                $__LOAD_SETTINGS_MESSAGES[] = "Enabling profiles management is not defined.";
+                $__LOAD_SETTINGS_MESSAGES[] = "<code>Manage profiles</code> setting is not defined.";
             }
         }
 
