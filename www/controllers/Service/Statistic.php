@@ -327,10 +327,26 @@ class Statistic extends Service
                      */
                     $request = explode(' ', $line['Request']);
 
+                    // debug
+                    // echo print_r($request, true) . PHP_EOL;
+
                     /**
                      *  Date and time
                      */
                     $dateExplode = explode(':', str_replace('[', '', $request[3]));
+
+                    /**
+                     *  Check if date is valid
+                     *  If not, then delete the log line from the queue as it is invalid
+                     */
+                    if (empty($dateExplode[0]) or !DateTime::createFromFormat('d/M/Y', $dateExplode[0])) {
+                        /**
+                         *  Delete the log line from the queue
+                         */
+                        $this->statController->deleteFromQueue($id);
+                        continue;
+                    }
+
                     $date = DateTime::createFromFormat('d/M/Y', $dateExplode[0])->format('Y-m-d');
                     $time = $dateExplode[1] . ':' . $dateExplode[2] . ':' . $dateExplode[3];
 

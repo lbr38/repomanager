@@ -180,7 +180,7 @@
                     </div>
                 </div>
 
-                <h5>MIRRORING SETTINGS</h5>
+                <h5>GLOBAL MIRRORING SETTINGS</h5>
 
                 <div class="settings-div">
                     <div>
@@ -237,27 +237,6 @@
 
                     <div class="settings-div">
                         <div>
-                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Some package in a repository may not be signed at all and will throw an error when 'Check GPG signatures' is enabled. This parameter allows you to ignore this error and download the package anyway. Warning: this will not ignore error when the package signature is present but invalid.">
-                        </div>
-                        <div>
-                            <p>Ignore error when package signature is missing</p>
-                        </div>
-                        <div>
-                            <label class="onoff-switch-label">
-                                <input class="settings-param onoff-switch-input" param-name="rpmSignIgnoreMissingSignature" type="checkbox" value="true" <?php echo (RPM_SIGN_IGNORE_MISSING_SIGNATURE == "true") ? 'checked' : ''; ?>>
-                                <span class="onoff-switch-slider"></span>
-                            </label>
-                        </div>
-                        <div>
-                            <?php
-                            if (empty(RPM_SIGN_IGNORE_MISSING_SIGNATURE)) {
-                                echo '<img src="/assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                            } ?>
-                        </div>
-                    </div>
-
-                    <div class="settings-div">
-                        <div>
                             <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Default release version to use when creating RPM repositories." />
                         </div>
                         <div>
@@ -279,24 +258,49 @@
                     </div>
 
                     <div class="settings-div">
-                        <div>
-                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Default package architecture to use when creating RPM repositories.">
-                        </div>
-                        <div>
-                            <p>Default package architecture</p>
-                        </div>
-                        <div>
-                            <select id="rpmArchitectureSelect" class="settings-param" param-name="rpmDefaultArch" multiple>
-                                <?php
-                                foreach (RPM_ARCHS as $arch) {
-                                    if (in_array($arch, RPM_DEFAULT_ARCH)) {
-                                        echo '<option value="' . $arch . '" selected>' . $arch . '</option>';
-                                    } else {
-                                        echo '<option value="' . $arch . '">' . $arch . '</option>';
-                                    }
-                                } ?>
-                            </select>
-                        </div>
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Default package architecture to use when creating RPM repositories.">
+
+                        <p>Default package architecture</p>
+
+                        <select id="rpmArchitectureSelect" class="settings-param" param-name="rpmDefaultArch" multiple>
+                            <?php
+                            foreach (RPM_ARCHS as $arch) {
+                                if (in_array($arch, RPM_DEFAULT_ARCH)) {
+                                    echo '<option value="' . $arch . '" selected>' . $arch . '</option>';
+                                } else {
+                                    echo '<option value="' . $arch . '">' . $arch . '</option>';
+                                }
+                            } ?>
+                        </select>
+                    </div>
+
+                    <div class="settings-div">
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="RPM mirroring settings">
+                        <p><b>MIRRORING SETTINGS</b></p>
+                    </div>
+
+                    <div class="settings-div">
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Some package retrieved from a remote repository may not be signed at all (for example, the publisher released the package forgetting to sign it). This parameter allows you to choose what to do in this case.">
+                        
+                        <p>When package signature is missing</p>
+
+                        <select class="settings-param" param-name="rpm-missing-signature">
+                            <option value="download" <?php echo (RPM_MISSING_SIGNATURE == 'download') ? 'selected' : '' ?>>Download package anyway</option>
+                            <option value="ignore" <?php echo (RPM_MISSING_SIGNATURE == 'ignore') ? 'selected' : '' ?>>Ignore package (do not download)</option>
+                            <option value="error" <?php echo (RPM_MISSING_SIGNATURE == 'error') ? 'selected' : '' ?>>End mirroring task with error</option>
+                        </select>
+                    </div>
+
+                    <div class="settings-div">
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Some package retrieved from a remote repository may have invalid signature (because the GPG key used to sign the package was not imported, or because the publisher signed the package with a different GPG key, or because the package's signature is corrupted or somehow broken). This parameter allows you to choose what to do in this case.">
+
+                        <p>When package signature is invalid</p>
+
+                        <select class="settings-param" param-name="rpm-invalid-signature">
+                            <option value="download" <?php echo (RPM_INVALID_SIGNATURE == 'download') ? 'selected' : '' ?>>Download package anyway</option>
+                            <option value="ignore" <?php echo (RPM_INVALID_SIGNATURE == 'ignore') ? 'selected' : '' ?>>Ignore package (do not download)</option>
+                            <option value="error" <?php echo (RPM_INVALID_SIGNATURE == 'error') ? 'selected' : '' ?>>End mirroring task with error</option>
+                        </select>
                     </div>
                     <?php
                 endif ?>
@@ -379,6 +383,22 @@
                             </select>
                         </div>
                     </div> -->
+
+                    <div class="settings-div">
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="DEB mirroring settings">
+                        <p><b>MIRRORING SETTINGS</b></p>
+                    </div>
+
+                    <div class="settings-div">
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="InRelease / Release file retrieved from a remote repository may have invalid signature (because the GPG key used to sign the file was not imported, or because the publisher signed the file with a different GPG key, or because the file's signature is corrupted or somehow broken). This parameter allows you to choose what to do in this case.">
+
+                        <p>When Release file signature is invalid</p>
+
+                        <select class="settings-param" param-name="deb-invalid-signature">
+                            <option value="ignore" <?php echo (DEB_INVALID_SIGNATURE == 'ignore') ? 'selected' : '' ?>>Ignore and try another Release file if possible</option>
+                            <option value="error" <?php echo (DEB_INVALID_SIGNATURE == 'error') ? 'selected' : '' ?>>End mirroring task with error</option>
+                        </select>
+                    </div>
                     <?php
                 endif;
 

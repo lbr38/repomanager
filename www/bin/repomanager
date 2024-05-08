@@ -7,7 +7,6 @@ export GPG_TTY=$(tty)
 # Main variables
 PWD=$(dirname "$0")
 WWW_DIR="/var/www/repomanager"
-WWW_USER="www-data"
 DATA_DIR="/var/lib/repomanager"
 REPOS_DIR="/home/repo"
 GPGHOME="$DATA_DIR/.gnupg"
@@ -53,33 +52,25 @@ function permissions
 
     echo -ne "${YELLOW} Setting permissions... ${RESET}"
  
-    # Owner on web directory
-    chmod 750 "$WWW_DIR"
-    chown -R ${WWW_USER}:repomanager "$WWW_DIR"
-
-    # Owner on data directory
-    chmod 770 "$DATA_DIR"
-    chown -R ${WWW_USER}:repomanager "$DATA_DIR"
-
-    # Owner on repos directory
+    # Permissions on repos directory
     chmod 770 "$REPOS_DIR"
-    chown -R ${WWW_USER}:repomanager "$REPOS_DIR"
+    chown -R www-data:repomanager "$REPOS_DIR"
+    if [ -d "$REPOS_DIR/gpgkeys" ];then
+        chown www-data:repomanager $REPOS_DIR/gpgkeys/*
+        chmod 660 $REPOS_DIR/gpgkeys/*
+    fi
 
     # Permissions on web directory
-    find "$WWW_DIR" -type d -exec chmod 0770 {} \; &
-    find "$WWW_DIR" -type f -exec chmod 0660 {} \; &
+    chmod 750 "$WWW_DIR"
+    chown -R www-data:repomanager "$WWW_DIR"
 
     # Permissions on data directory
-    find "$DATA_DIR" -type d -exec chmod 0770 {} \; &
-    find "$DATA_DIR" -type f -exec chmod 0660 {} \; &
-
-    # Permissions on repos directory
-    find "$REPOS_DIR" -type d -exec chmod 0770 {} \; &
-    find "$REPOS_DIR" -type f -exec chmod 0660 {} \; &
+    chmod 770 "$DATA_DIR"
+    chown -R www-data:repomanager "$DATA_DIR"
 
     # Permissions on .gnupg directory
     if [ -d "$GPGHOME" ];then
-        chown -R ${WWW_USER}:repomanager $GPGHOME
+        chown -R www-data:repomanager $GPGHOME
         chmod 700 $GPGHOME
 
         # Permissions on passphrase
@@ -88,15 +79,17 @@ function permissions
         fi
     fi
 
-    # Permissions on GPG public key
-    if [ -d "$REPOS_DIR/gpgkeys" ];then
-        chown ${WWW_USER}:repomanager $REPOS_DIR/gpgkeys/*
-        chmod 660 $REPOS_DIR/gpgkeys/*
-    fi
+    # Permissions on web directory
+    find "$WWW_DIR" -type d -exec chmod 0750 {} \; &
+    find "$WWW_DIR" -type f -exec chmod 0640 {} \; &
 
-    if [ -f "$WWW_DIR/bin/repomanager" ];then
-        chmod 550 $WWW_DIR/bin/repomanager
-    fi
+    # Permissions on data directory (except .gnupg directory)
+    find "$DATA_DIR" ! -path "$GPGHOME" -type d -exec chmod 0770 {} \; &
+    find "$DATA_DIR" -type f -exec chmod 0660 {} \; &
+
+    # Permissions on repos directory
+    find "$REPOS_DIR" -type d -exec chmod 0770 {} \; &
+    find "$REPOS_DIR" -type f -exec chmod 0660 {} \; &
 }
 
 echo '

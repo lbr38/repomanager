@@ -461,18 +461,39 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                  */
 
                 /**
-                 *  If no key ID has been found in the package header, throw an error unless RPM_SIGN_IGNORE_MISSING_SIGNATURE is set to true
+                 *  Case no key ID has been found in the package header (missing signature)
                  */
                 if (!preg_match('/key ID(.*) /i', $content, $matches)) {
                     /**
-                     *  If RPM_SIGN_IGNORE_MISSING_SIGNATURE is set to true, then just ignore the missing signature and continue (process next package)
+                     *  If RPM_MISSING_SIGNATURE is set to 'error', then throw an error
                      */
-                    if (RPM_SIGN_IGNORE_MISSING_SIGNATURE == 'true') {
-                        $this->logWarning('This package has no GPG signature (GPG signing key ID not found in the package header) (downloaded anyway)');
+                    if (RPM_MISSING_SIGNATURE == 'error') {
+                        $this->logError('This package has no GPG signature (GPG signing key ID not found in the package header)', 'GPG signature check failed');
+                    }
+
+                    /**
+                     *  If RPM_MISSING_SIGNATURE is set to 'ignore', then just ignore the package (delete it because it has been downloaded, and process next package)
+                     */
+                    if (RPM_MISSING_SIGNATURE == 'ignore') {
+                        $this->logWarning('This package has no GPG signature (GPG signing key ID not found in the package header) (ignoring package)');
+
+                        /**
+                         *  Delete package
+                         */
+                        if (!unlink($targetDir. '/' . $rpmPackageName)) {
+                            $this->logError('Error while deleting package <code>' . $targetDir. '/' . $rpmPackageName . '</code>', 'Error while deleting package');
+                        }
+
                         continue;
                     }
 
-                    $this->logError('This package has no GPG signature (GPG signing key ID not found in the package header)', 'GPG signature check failed');
+                    /**
+                     *  If RPM_MISSING_SIGNATURE is set to 'download', then download the package anyway
+                     */
+                    if (RPM_MISSING_SIGNATURE == 'download') {
+                        $this->logWarning('This package has no GPG signature (GPG signing key ID not found in the package header) (downloaded anyway)');
+                        continue;
+                    }
                 }
 
                 /**
@@ -490,11 +511,39 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                 $keyId = rtrim($keyId, ':');
 
                 /**
-                 *  Now check if that key Id appears in known public keys Id
-                 *  If not, throw an error, else, signature is OK
+                 *  Check if that key Id appears in known public keys Id
                  */
                 if (!preg_grep("/$keyId\$/i", $knownPublicKeys)) {
-                    $this->logError('GPG signature is not OK (unknown GPG signing key ID: ' . $keyId . ')', 'GPG signature check failed');
+                    /**
+                     *  If RPM_INVALID_SIGNATURE is set to 'error', then throw an error
+                     */
+                    if (RPM_INVALID_SIGNATURE == 'error') {
+                        $this->logError('GPG signature check failed (unknown GPG signing key ID: ' . $keyId . ')', 'GPG signature check failed');
+                    }
+
+                    /**
+                     *  If RPM_INVALID_SIGNATURE is set to 'ignore', then just ignore the package (delete it because it has been downloaded, and process next package)
+                     */
+                    if (RPM_INVALID_SIGNATURE == 'ignore') {
+                        $this->logWarning('GPG signature check failed (unknown GPG signing key ID: ' . $keyId . ') (ignoring package)');
+
+                        /**
+                         *  Delete package
+                         */
+                        if (!unlink($targetDir. '/' . $rpmPackageName)) {
+                            $this->logError('Error while deleting package <code>' . $targetDir. '/' . $rpmPackageName . '</code>', 'Error while deleting package');
+                        }
+
+                        continue;
+                    }
+
+                    /**
+                     *  If RPM_INVALID_SIGNATURE is set to 'download', then download the package anyway
+                     */
+                    if (RPM_INVALID_SIGNATURE == 'download') {
+                        $this->logWarning('GPG signature check failed (unknown GPG signing key ID: ' . $keyId . ') (downloaded anyway)');
+                        continue;
+                    }
                 }
             }
 

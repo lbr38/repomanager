@@ -122,14 +122,6 @@ class Settings
             }
         }
 
-        if (!empty($sendSettings['rpmSignIgnoreMissingSignature'])) {
-            if ($sendSettings['rpmSignIgnoreMissingSignature'] == "true") {
-                $settingsToApply['RPM_SIGN_IGNORE_MISSING_SIGNATURE'] = 'true';
-            } else {
-                $settingsToApply['RPM_SIGN_IGNORE_MISSING_SIGNATURE'] = 'false';
-            }
-        }
-
         if (!empty($sendSettings['releasever']) and is_numeric($sendSettings['releasever'])) {
             $settingsToApply['RELEASEVER'] = $sendSettings['releasever'];
         }
@@ -145,6 +137,22 @@ class Settings
             }
 
             $settingsToApply['RPM_DEFAULT_ARCH'] = $rpmDefaultArch;
+        }
+
+        if (!empty($sendSettings['rpm-missing-signature'])) {
+            if (in_array($sendSettings['rpm-missing-signature'], ['download', 'ignore', 'error'])) {
+                $settingsToApply['RPM_MISSING_SIGNATURE'] = $sendSettings['rpm-missing-signature'];
+            } else {
+                $settingsToApply['RPM_MISSING_SIGNATURE'] = 'error';
+            }
+        }
+
+        if (!empty($sendSettings['rpm-invalid-signature'])) {
+            if (in_array($sendSettings['rpm-invalid-signature'], ['download', 'ignore', 'error'])) {
+                $settingsToApply['RPM_INVALID_SIGNATURE'] = $sendSettings['rpm-invalid-signature'];
+            } else {
+                $settingsToApply['RPM_INVALID_SIGNATURE'] = 'error';
+            }
         }
 
         /**
@@ -190,6 +198,14 @@ class Settings
             }
 
             $settingsToApply['DEB_DEFAULT_TRANSLATION'] = $debDefaultTranslation;
+        }
+
+        if (!empty($sendSettings['deb-invalid-signature'])) {
+            if (in_array($sendSettings['deb-invalid-signature'], ['ignore', 'error'])) {
+                $settingsToApply['DEB_INVALID_SIGNATURE'] = $sendSettings['deb-invalid-signature'];
+            } else {
+                $settingsToApply['DEB_INVALID_SIGNATURE'] = 'error';
+            }
         }
 
         /**
