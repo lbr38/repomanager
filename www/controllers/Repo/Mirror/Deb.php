@@ -11,7 +11,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
      */
     private function getReleaseFile()
     {
-        $this->logOutput(PHP_EOL . 'Getting <code>Release</code> file ... ');
+        $this->logOutput(PHP_EOL . 'Getting <code>InRelease</code> / <code>Release</code> file ... ');
 
         /**
          *  Check that Release.xx file exists before downloading it to prevent error message displaying for nothing
@@ -28,7 +28,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
          *  Print an error and quit if no Release file has been found
          */
         if (!file_exists($this->workingDir . '/InRelease') and !file_exists($this->workingDir . '/Release') and !file_exists($this->workingDir . '/Release.gpg')) {
-            $this->logError('No <code>Release</code> file has been found in the source repository <code>' . $this->url . '/dists/' . $this->dist . '/</code> (looked for <code>InRelease</code>, <code>Release</code> and <code>Release.gpg</code>). Is the URL of the repository correct?', '<code>Release</code> file not found');
+            $this->logError('No <code>InRelease</code> or <code>Release</code> file has been found in the source repository <code>' . $this->url . '/dists/' . $this->dist . '/</code> (looked for <code>InRelease</code>, <code>Release</code> and <code>Release.gpg</code>). Is the URL of the repository correct?', '<code>Release</code> file not found');
         }
 
         $this->logOK();
@@ -42,11 +42,10 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
      */
     private function parseReleaseFile()
     {
-        if (file_exists($this->workingDir . '/InRelease')) {
-            $content = file($this->workingDir . '/InRelease');
-        } elseif (file_exists($this->workingDir . '/Release')) {
-            $content = file($this->workingDir . '/Release');
-        }
+        /**
+         *  Get valid InRelease / Release file content
+         */
+        $content = file($this->workingDir . '/' . $this->validReleaseFile);
 
         /**
          *  Process research of Packages indices for each arch
@@ -122,10 +121,10 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  If no Packages.xx/Sources.xx file has been found for this arch, throw an error
              */
             if ($arch == 'src') {
-                $this->logError('No ' . $arch . ' <code>Sources</code> indices file has been found in the <code>Release</code> file.', 'Cannot retrieve <code>' . $arch . '</code> <code>Packages</code> indices file');
+                $this->logError('No ' . $arch . ' <code>Sources</code> indices file has been found in the <code>' . $this->validReleaseFile . '</code> file.', 'Cannot retrieve <code>' . $arch . '</code> <code>Packages</code> indices file');
             }
             if ($arch != 'src') {
-                $this->logError('No ' . $arch . ' <code>Packages</code> indices file has been found in the <code>Release</code> file.', 'Cannot retrieve <code>' . $arch . '</code> <code>Packages</code> indices file');
+                $this->logError('No ' . $arch . ' <code>Packages</code> indices file has been found in the <code>' . $this->validReleaseFile . '</code> file.', 'Cannot retrieve <code>' . $arch . '</code> <code>Packages</code> indices file');
             }
         }
 
@@ -445,31 +444,109 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
     private function checkReleaseGPGSignature()
     {
         /**
-         *  Quit if signature check is disabled
+         *  List of possible Release files to check
+         */
+        $releaseFiles = array(
+            array(
+                'name' => 'InRelease',
+                'signature' => ''
+            ),
+
+            array(
+                'name' => 'Release',
+                'signature' => 'Release.gpg'
+            )
+        );
+
+        /**
+         *  If signature check is disabled, then just set a valid Release file
          */
         if ($this->checkSignature == 'false') {
+            foreach ($releaseFiles as $releaseFile) {
+                if (!file_exists($this->workingDir . '/' . $releaseFile['name'])) {
+                    continue;
+                }
+
+                $this->validReleaseFile = $releaseFile['name'];
+            }
+
+            /**
+             *  If no valid Release file has been found, throw an error
+             */
+            if (empty($this->validReleaseFile)) {
+                $this->logError('No valid <code>InRelease</code> or <code>Release</code> file found. Please ensure that the remote repository is correctly built.', 'Release file check fail');
+            }
+
             return;
         }
 
-        $this->logOutput(PHP_EOL . 'Checking <code>Release</code> GPG signature ... ');
-
         /**
-         *  Check signature from InRelease file in priority, else from Release.gpg file
+         *  If signature check is enabled, then look for a valid Release file
          */
-        if (file_exists($this->workingDir . '/InRelease')) {
-            $this->checkGPGSignature($this->workingDir . '/InRelease');
-        } elseif (file_exists($this->workingDir . '/Release.gpg')) {
-            $this->checkGPGSignature($this->workingDir . '/Release.gpg', $this->workingDir . '/Release');
+        foreach ($releaseFiles as $releaseFile) {
+            if (!file_exists($this->workingDir . '/' . $releaseFile['name'])) {
+                continue;
+            }
+
+            $this->logOutput(PHP_EOL . 'Checking <code>' . $releaseFile['name'] . '</code> GPG signature ... ');
+
+            /**
+             *  Check that GPG signature is valid (signed with a known key)
+             */
+            try {
+                if (!empty($releaseFile['signature'])) {
+                    $this->checkGPGSignature($this->workingDir . '/' . $releaseFile['signature'], $this->workingDir . '/' . $releaseFile['name']);
+                } else {
+                    $this->checkGPGSignature($this->workingDir . '/' . $releaseFile['name']);
+                }
+
+                /**
+                 *  If file's signature is valid, then set file as the valid Release file and quit the loop
+                 */
+                $this->validReleaseFile = $releaseFile['name'];
+
+                $this->logOK();
+
+                break;
+            } catch (Exception $e) {
+                if (DEB_INVALID_SIGNATURE == 'error') {
+                    $this->logError($e->getMessage(), 'GPG signature check failed');
+                }
+
+                if (DEB_INVALID_SIGNATURE == 'ignore') {
+                    $this->logWarning($e->getMessage());
+                    continue;
+                }
+            }
         }
 
-        $this->logOK();
+        /**
+         *  If no valid Release file has been found, throw an error
+         */
+        if (empty($this->validReleaseFile)) {
+            $this->logError(PHP_EOL . 'No <code>InRelease</code> or <code>Release</code> file found with a valid GPG signature. Please check that you have imported the GPG key used to sign the repository.', 'GPG signature check failed');
+        }
     }
 
     /**
      *  Check GPG signature of specified file
      */
-    private function checkGPGSignature(string $signatureFile, string $clearFile = null)
+    private function checkGPGSignature(string $signedFile, string $clearFile = null)
     {
+        /**
+         *  Check that signature file exists
+         */
+        if (!file_exists($signedFile)) {
+            throw new Exception('No ' . end(explode('/', $signedFile)) . ' signed file found. Are you sure that the remote repository is signed?');
+        }
+
+        /**
+         *  If a clear file has been specified, check that it exists
+         */
+        if (!empty($clearFile) and !file_exists($clearFile)) {
+            throw new Exception('No ' . end(explode('/', $clearFile)) . ' clear file found. Are you sure that the remote repository is signed?');
+        }
+
         /**
          *  If a clear file exists (e.g. Release) then specify it as second argument, as suggested by gpgv:
          *    Please remember that the signature file (.sig or .asc)
@@ -477,9 +554,9 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
          *  e.g. gpgv --homedir /var/lib/repomanager/.gnupg/ Release.gpg Release
          */
         if (!empty($clearFile)) {
-            $myprocess = new \Controllers\Process('/usr/bin/gpgv --homedir ' . GPGHOME . ' ' . $signatureFile . ' ' . $clearFile);
+            $myprocess = new \Controllers\Process('/usr/bin/gpgv --homedir ' . GPGHOME . ' ' . $signedFile . ' ' . $clearFile);
         } else {
-            $myprocess = new \Controllers\Process('/usr/bin/gpgv --homedir ' . GPGHOME . ' ' . $signatureFile);
+            $myprocess = new \Controllers\Process('/usr/bin/gpgv --homedir ' . GPGHOME . ' ' . $signedFile);
         }
 
         $myprocess->execute();
@@ -487,10 +564,24 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
         $myprocess->close();
 
         /**
-         *  If gpgv returned an error then signature is invalid
+         *  If 'Can't check signature: No public key' is found in the output, then the GPG key is not imported
+         */
+        if (preg_match("/Can't check signature: No public key/", $output)) {
+            throw new Exception('No GPG key could verify the signature of <code>' . end(explode('/', $signedFile)) . '</code> file. Please check that you have imported the GPG key used to sign the repository.');
+        }
+
+        /**
+         *  If 'BAD signature from' is found in the output, then the signature is invalid / broken
+         */
+        if (preg_match("/BAD signature from/", $output)) {
+            throw new Exception('Invalid signature of <code>' . end(explode('/', $signedFile)) . '</code> file: ' . PHP_EOL . '<pre class="codeblock">' . $output . '</pre>');
+        }
+
+        /**
+         *  Else if the exit code is not 0, then print the error message
          */
         if ($myprocess->getExitCode() != 0) {
-            $this->logError('No GPG key could verify the signature of downloaded file <code>' . $signatureFile . '</code>: ' . PHP_EOL . $output, 'GPG signature check fail');
+            throw new Exception('Invalid signature or no GPG key could verify the signature of <code>' . end(explode('/', $signedFile)) . '</code> file: ' . PHP_EOL . '<pre class="codeblock">' . $output . '</pre>');
         }
     }
 

@@ -492,14 +492,16 @@ class Connection extends SQLite3
         /* RPM */
         RPM_REPO CHAR(5),
         RPM_SIGN_PACKAGES CHAR(5),
-        RPM_SIGN_IGNORE_MISSING_SIGNATURE CHAR(5),
         RELEASEVER CHAR(5),
         RPM_DEFAULT_ARCH VARCHAR(255),
+        RPM_MISSING_SIGNATURE VARCHAR(255), /* download, ignore, error */
+        RPM_INVALID_SIGNATURE VARCHAR(255), /* download, ignore, error */
         /* DEB */
         DEB_REPO CHAR(5),
         DEB_SIGN_REPO CHAR(5),
         DEB_DEFAULT_ARCH VARCHAR(255),
         DEB_DEFAULT_TRANSLATION VARCHAR(255),
+        DEB_INVALID_SIGNATURE VARCHAR(255), /* ignore, error */
         /* GPG signing key */
         GPG_SIGNING_KEYID VARCHAR(255),
         /* Scheduled tasks settings */
@@ -542,13 +544,15 @@ class Connection extends SQLite3
                 MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT,
                 RPM_REPO,
                 RPM_SIGN_PACKAGES,
-                RPM_SIGN_IGNORE_MISSING_SIGNATURE,
                 RELEASEVER,
                 RPM_DEFAULT_ARCH,
+                RPM_MISSING_SIGNATURE,
+                RPM_INVALID_SIGNATURE,
                 DEB_REPO,
                 DEB_SIGN_REPO,
                 DEB_DEFAULT_ARCH,
                 DEB_DEFAULT_TRANSLATION,
+                DEB_INVALID_SIGNATURE,
                 GPG_SIGNING_KEYID,
                 PLANS_REMINDERS_ENABLED,
                 PLANS_CLEAN_REPOS,
@@ -568,13 +572,15 @@ class Connection extends SQLite3
                 '300',
                 'true',
                 'true',
-                'false',
                 '8',
                 'noarch,x86_64',
+                'error',
+                'error',
                 'true',
                 'true',
                 'amd64',
                 '',
+                'error',
                 '$gpgKeyId',
                 'false',
                 'false',

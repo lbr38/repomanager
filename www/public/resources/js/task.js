@@ -198,6 +198,7 @@ $(document).on('click',"input[name=checkbox-repo\\[\\]]",function () {
         $('.reposList').find('input[name=checkbox-repo\\[\\]]').removeAttr('style');
         return;
     } else {
+        $('#newalert').remove();
         $('#repo-actions-btn-container').show();
     }
 

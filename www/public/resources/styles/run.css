@@ -40,6 +40,16 @@
     margin: 0;
 }
 
+#log pre.codeblock {
+    background-color: rgb(26 29 31);
+    color: white;
+    border-radius: 4px;
+    font-size: 12px;
+    line-height: 20px;
+    padding: 20px;
+    margin: 10px 0 0 0;
+}
+
 /* Boutons Top et Down pour atteindre le haut ou le bas de page */
 #scrollButtons-container {
     /* flex: 0 4%; */

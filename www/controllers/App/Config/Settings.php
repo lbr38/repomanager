@@ -157,14 +157,6 @@ class Settings
             }
         }
 
-        if (!defined('RPM_SIGN_IGNORE_MISSING_SIGNATURE')) {
-            if (!empty($settings['RPM_SIGN_IGNORE_MISSING_SIGNATURE'])) {
-                define('RPM_SIGN_IGNORE_MISSING_SIGNATURE', $settings['RPM_SIGN_IGNORE_MISSING_SIGNATURE']);
-            } else {
-                define('RPM_SIGN_IGNORE_MISSING_SIGNATURE', 'false');
-            }
-        }
-
         if (!defined('RELEASEVER')) {
             if (!empty($settings['RELEASEVER'])) {
                 define('RELEASEVER', $settings['RELEASEVER']);
@@ -185,6 +177,22 @@ class Settings
                 define('RPM_DEFAULT_ARCH', explode(',', $settings['RPM_DEFAULT_ARCH']));
             } else {
                 define('RPM_DEFAULT_ARCH', array());
+            }
+        }
+
+        if (!defined('RPM_MISSING_SIGNATURE')) {
+            if (!empty($settings['RPM_MISSING_SIGNATURE'])) {
+                define('RPM_MISSING_SIGNATURE', $settings['RPM_MISSING_SIGNATURE']);
+            } else {
+                define('RPM_MISSING_SIGNATURE', 'error');
+            }
+        }
+
+        if (!defined('RPM_INVALID_SIGNATURE')) {
+            if (!empty($settings['RPM_INVALID_SIGNATURE'])) {
+                define('RPM_INVALID_SIGNATURE', $settings['RPM_INVALID_SIGNATURE']);
+            } else {
+                define('RPM_INVALID_SIGNATURE', 'error');
             }
         }
 
@@ -218,6 +226,14 @@ class Settings
                 define('DEB_DEFAULT_TRANSLATION', explode(',', $settings['DEB_DEFAULT_TRANSLATION']));
             } else {
                 define('DEB_DEFAULT_TRANSLATION', array());
+            }
+        }
+
+        if (!defined('DEB_INVALID_SIGNATURE')) {
+            if (!empty($settings['DEB_INVALID_SIGNATURE'])) {
+                define('DEB_INVALID_SIGNATURE', $settings['DEB_INVALID_SIGNATURE']);
+            } else {
+                define('DEB_INVALID_SIGNATURE', 'error');
             }
         }
 

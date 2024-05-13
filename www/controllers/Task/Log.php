@@ -52,8 +52,16 @@ class Log
          *  Update symbolic link 'latest' to point to the newly created log file
          */
         if (file_exists(MAIN_LOGS_DIR . '/latest')) {
+            /**
+             *  If first unlink fails, try another time with a random sleep time
+             *  To fix error when multiple tasks are running at the same time and tries to update the symlink
+             */
             if (!unlink(MAIN_LOGS_DIR . '/latest')) {
-                throw new Exception('Error while generating task log: cannot remove symlink to the latest log file');
+                usleep(rand(100000, 1500000));
+
+                if (!unlink(MAIN_LOGS_DIR . '/latest')) {
+                    throw new Exception('Error while generating task log: cannot remove symlink to the latest log file');
+                }
             }
         }
 

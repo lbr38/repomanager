@@ -20,7 +20,7 @@
                     </span>
                 </div>
                 <div>
-                    <span>Repo size</span>
+                    <span>Repository size</span>
                 </div>
             </div>
         </div>

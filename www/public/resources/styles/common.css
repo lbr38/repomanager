@@ -13,15 +13,10 @@
  */
 a {
     text-decoration: none;
-    /* using text-shadow to generate bold on link */
-    text-shadow: -.25px -.25px 0 transparent,
-                  .25px .25px transparent;
 }
 
 a:hover {
-    /* using text-shadow to generate bold on link */
-    text-shadow: -.25px -.25px 0 white,
-                  .25px .25px white;
+    font-weight: bold;
 }
 
 p, label, a, i, span {
