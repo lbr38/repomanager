@@ -3,6 +3,7 @@
 namespace Controllers\Repo\Mirror;
 
 use Exception;
+use SimpleXMLElement;
 
 class Rpm extends \Controllers\Repo\Mirror\Mirror
 {
@@ -147,19 +148,29 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          */
         try {
             /**
-             *  Case mime type is bzip2
+             *  Case mime type is application/x-bzip2 (.bz2 file)
              *  Uncompress to 'primary.xml'
              */
             if ($mime == 'application/x-bzip2') {
-                $primaryFile = \Controllers\Common::bunzip2($primaryFile, $this->workingDir . '/primary.xml');
+                \Controllers\Common::bunzip2($primaryFile, $this->workingDir . '/primary.xml');
             /**
-             *  Else it should be gzip
+             *  Case mime type is application/x-xz (.xz file)
+             */
+            } elseif ($mime == 'application/x-xz') {
+                \Controllers\Common::xzUncompress($primaryFile, $this->workingDir . '/primary.xml');
+            /**
+             *  Case mime type is application/gzip (.gz file)
+             */
+            } elseif ($mime == 'application/gzip') {
+                \Controllers\Common::gunzip($primaryFile);
+            /**
+             *  Case it's another mime type, throw an error
              */
             } else {
-                $primaryFile = \Controllers\Common::gunzip($primaryFile);
+                throw new Exception('MIME type not supported: ' . $mime . PHP_EOL . 'Please contact the developer to add support for this MIME type');
             }
         } catch (Exception $e) {
-            $this->logError($e, 'Error while uncompressing <code>primary.xml.gz</code>');
+            $this->logError($e, 'Error while uncompressing <code>'. end(explode('/', $primaryFile)) . '</code>');
         }
 
         /**
@@ -177,11 +188,15 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         /**
          *  Convert primary.xml content from XML to JSON to PHP array for a simpler parsing
          */
-        $xml = simplexml_load_file($primaryFile);
-        $json = json_encode($xml);
-        unset($xml);
-        $jsonArray = json_decode($json, true);
-        unset($json);
+        try {
+            $xml = new SimpleXMLElement(file_get_contents($primaryFile), LIBXML_PARSEHUGE);
+            $json = json_encode($xml);
+            unset($xml);
+            $jsonArray = json_decode($json, true);
+            unset($json);
+        } catch (Exception $e) {
+            $this->logError('Could not parse ' . $primaryFile . ': ' . $e->getMessage() . PHP_EOL . $error, 'Could not retrieve package list');
+        }
 
         /**
          *  First count number of packages because retrieving the packages informations is different if there is only one package or multiple packages

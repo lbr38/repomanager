@@ -547,9 +547,13 @@ class Common
     /**
      *  Uncompress specified xz file 'file.xz' to 'file'
      */
-    public static function xzUncompress(string $filename)
+    public static function xzUncompress(string $filename, string $outputFilename = null)
     {
-        $myprocess = new \Controllers\Process('/usr/bin/xz --decompress ' . $filename);
+        if (!empty($outputFilename)) {
+            $myprocess = new \Controllers\Process('/usr/bin/xz --decompress -k -c ' . $filename . ' > ' . $outputFilename);
+        } else {
+            $myprocess = new \Controllers\Process('/usr/bin/xz --decompress -k ' . $filename);
+        }
         $myprocess->execute();
         $content = $myprocess->getOutput();
         $myprocess->close();
