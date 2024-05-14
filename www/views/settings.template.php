@@ -280,7 +280,7 @@
                     </div>
 
                     <div class="settings-div">
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Some package retrieved from a remote repository may not be signed at all (for example, the publisher released the package forgetting to sign it). This parameter allows you to choose what to do in this case.">
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Package retrieved from a remote repository may not be signed at all (for example, the publisher released the package forgetting to sign it). This parameter allows you to choose what to do in this case.">
                         
                         <p>When package signature is missing</p>
 
@@ -292,7 +292,7 @@
                     </div>
 
                     <div class="settings-div">
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Some package retrieved from a remote repository may have invalid signature (because the GPG key used to sign the package was not imported, or because the publisher signed the package with a different GPG key, or because the package's signature is corrupted or somehow broken). This parameter allows you to choose what to do in this case.">
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Package retrieved from a remote repository may have invalid signature (because the GPG key used to sign the package was not imported, or because the publisher signed the package with a different GPG key, or because the package's signature is corrupted or somehow broken). This parameter allows you to choose what to do in this case.">
 
                         <p>When package signature is invalid</p>
 
