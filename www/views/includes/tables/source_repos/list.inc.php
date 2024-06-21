@@ -59,12 +59,17 @@
                     <div class="grid grid-fr-1-2 align-item-center column-gap-10">
                         <span>Path to SSL certificate</span>
                         <span>
-                            <input class="source-sslcrt-input" type="text" value="<?= $item['Ssl_certificate_path'] ?>" placeholder="e.g. /var/lib/repomanager/ssl/certificate.crt" />
+                            <input class="source-ssl-crt-input" type="text" value="<?= $item['Ssl_certificate_path'] ?>" placeholder="e.g. /var/lib/repomanager/ssl/my-editor/certificate.crt" />
                         </span>
                     
                         <span>Path to SSL private key</span>
                         <span>
-                            <input class="source-sslkey-input" type="text" value="<?= $item['Ssl_private_key_path'] ?>" placeholder="e.g. /var/lib/repomanager/ssl/private.key" />
+                            <input class="source-ssl-key-input" type="text" value="<?= $item['Ssl_private_key_path'] ?>" placeholder="e.g. /var/lib/repomanager/ssl/my-editor/private.key" />
+                        </span>
+
+                        <span>Path to SSL CA certificate</span>
+                        <span>
+                            <input class="source-ssl-cacrt-input" type="text" value="<?= $item['Ssl_ca_certificate_path'] ?>" placeholder="e.g. /var/lib/repomanager/ssl/my-editor/ca-certificate.crt" />
                         </span>
                     </div>
 

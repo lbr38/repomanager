@@ -35,7 +35,7 @@ function reloadNewRepoDiv()
  */
 function countChecked()
 {
-    var countTotal = $('.reposList').find('input[name=checkbox-repo\\[\\]]:checked').length;
+    var countTotal = $('.reposList').find('input[name=checkbox-repo]:checked').length;
 
     return countTotal;
 };
@@ -183,7 +183,7 @@ $(document).on('click','.delete-env-btn',function () {
 /**
  *  Event: when a checkbox is checked/unchecked
  */
-$(document).on('click',"input[name=checkbox-repo\\[\\]]",function () {
+$(document).on('click',"input[name=checkbox-repo]",function () {
     /**
      *  Count the number of checked checkboxes
      */
@@ -195,7 +195,7 @@ $(document).on('click',"input[name=checkbox-repo\\[\\]]",function () {
      */
     if (count_checked == 0) {
         $('#repo-actions-btn-container').hide();
-        $('.reposList').find('input[name=checkbox-repo\\[\\]]').removeAttr('style');
+        $('.reposList').find('input[name=checkbox-repo]').removeAttr('style');
         return;
     } else {
         $('#newalert').remove();
@@ -206,13 +206,13 @@ $(document).on('click',"input[name=checkbox-repo\\[\\]]",function () {
      *  If there is at least 1 checkbox checked then we display all the other checkboxes
      *  All checked checkboxes are set to opacity = 1
      */
-    $('.reposList').find('input[name=checkbox-repo\\[\\]]').css("visibility", "visible");
-    $('.reposList').find('input[name=checkbox-repo\\[\\]]:checked').css("opacity", "1");
+    $('.reposList').find('input[name=checkbox-repo]').css("visibility", "visible");
+    $('.reposList').find('input[name=checkbox-repo]:checked').css("opacity", "1");
 
     /**
      *  If a 'local' repo is checked then we hide the 'update' button
      */
-    if ($('.reposList').find('input[name=checkbox-repo\\[\\]][repo-type=local]:checked').length > 0) {
+    if ($('.reposList').find('input[name=checkbox-repo][repo-type=local]:checked').length > 0) {
         $('.repo-action-btn[action=update]').hide();
     } else {
         $('.repo-action-btn[action=update]').show();
@@ -238,7 +238,7 @@ $(document).on('click',".repo-action-btn",function () {
     /**
      *  Loop through all checked repos and retrieve their id
      */
-    $('.reposList').find('input[name=checkbox-repo\\[\\]]:checked').each(function () {
+    $('.reposList').find('input[name=checkbox-repo]:checked').each(function () {
         var obj = {};
 
         /**
@@ -292,11 +292,6 @@ $(document).on('click',".task-schedule-btn", function () {
      *  Find parent task-form
      */
     var form = $(this).parents('.task-form');
-
-    /**
-     *  Show schedule params from this form
-     */
-
 
     /**
      *  Change button text and color if schedule is checked
@@ -492,7 +487,14 @@ $(document).on('submit','.task-form',function () {
         // Reload container:
         [],
         // Execute functions on success:
-        [ 'closePanel()' ]
+        [
+            'closePanel()',
+            // Uncheck all checkboxes and remove all styles JQuery could have applied
+            "$('.reposList').find('input[name=checkbox-repo]').prop('checked', false);",
+            "$('.reposList').find('input[name=checkbox-repo]').removeAttr('style');",
+            // Reload right panel
+            "reloadContainer('repos/properties')"
+        ]
     );
 
     return false;

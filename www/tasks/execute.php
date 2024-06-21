@@ -5,7 +5,7 @@ define('ROOT', '/var/www/repomanager');
 require_once(ROOT . "/controllers/Autoloader.php");
 new \Controllers\Autoloader('api');
 
-ini_set('memory_limit', '256M');
+ini_set('memory_limit', '512M');
 
 $myTask = new \Controllers\Task\Task();
 $mylog = new \Controllers\Log\Log();

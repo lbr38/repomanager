@@ -4,12 +4,12 @@
     
     - Update documentation
 
+    [ REPOS ]
+
+    - Add a way to sync Redhat repositories #169
+
+
 [ BUGS ]
-
-    [ REPOS ]
-
-    - (KO) Mirror a debian repo with translations => translations are not included by reprepro
-    - (KO) Mirror a debian repo with multiple archs and translations => translations are not included by reprepro
 
 
 [ IMPROVEMENTS / FEATURES ]
@@ -17,8 +17,10 @@
     [ GENERAL ]
 
     - (JS) Refactor and mutualize the ajax functions
-    - Rename PLANS_* constants to TASK_*
+    - Rename PLANS_REMINDERS_ENABLED constants to SCHEDULED_TASK_REMINDERS_ENABLED
     - Log catched fatal errors (catch (Error $e)) in FATAL_ERRORS_LOG dedicated file (Error class: https://www.php.net/manual/fr/class.error.php)
+    - Add more verbosity to urlReachable function (return http error)
+    - Add a stop task button in the tasks tab #170
 
 
     [ REPOS ]

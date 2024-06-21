@@ -25,11 +25,11 @@ if (
 /**
  *  Edit a source repo
  */
-if ($_POST['action'] == 'edit' and !empty($_POST['id']) and !empty($_POST['name']) and !empty($_POST['url']) and isset($_POST['gpgkey']) and isset($_POST['sslCertificatePath']) and isset($_POST['sslPrivateKeyPath'])) {
+if ($_POST['action'] == 'edit' and !empty($_POST['id']) and !empty($_POST['name']) and !empty($_POST['url']) and isset($_POST['gpgkey']) and isset($_POST['sslCertificatePath']) and isset($_POST['sslPrivateKeyPath']) and isset($_POST['sslCaCertificatePath'])) {
     $mysource = new \Controllers\Source();
 
     try {
-        $mysource->edit($_POST['id'], $_POST['name'], $_POST['url'], $_POST['gpgkey'], $_POST['sslCertificatePath'], $_POST['sslPrivateKeyPath']);
+        $mysource->edit($_POST['id'], $_POST['name'], $_POST['url'], $_POST['gpgkey'], $_POST['sslCertificatePath'], $_POST['sslPrivateKeyPath'], $_POST['sslCaCertificatePath']);
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }

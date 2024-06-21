@@ -656,7 +656,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          */
 
         foreach ($this->archUrls as $url) {
-            if (!\Controllers\Common::urlReachable($url . '/repodata/repomd.xml', $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
+            if (!\Controllers\Common::urlReachable($url . '/repodata/repomd.xml', $this->sslCustomCertificate, $this->sslCustomPrivateKey, $this->sslCustomCaCertificate)) {
                 /**
                  *  Remove unreachable URL from array
                  */

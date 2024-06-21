@@ -101,7 +101,7 @@ class Source
     /**
      *  Edit a source repo
      */
-    public function edit(int $id, string $name, string $url, string $gpgKeyURL = null, string $sslCertificatePath = null, string $sslPrivateKeyPath = null)
+    public function edit(int $id, string $name, string $url, string $gpgKeyURL = null, string $sslCertificatePath = null, string $sslPrivateKeyPath = null, string $sslCaCertificatePath = null)
     {
         /**
          *  Check that source repo exists
@@ -192,7 +192,19 @@ class Source
             }
         }
 
-        $this->model->edit($id, $name, $url, $gpgKeyURL, $sslCertificatePath, $sslPrivateKeyPath);
+        /**
+         *  SSL CA certificate file must be a file that exists and is readable
+         */
+        if (!empty($sslCaCertificatePath)) {
+            if (!file_exists($sslCaCertificatePath)) {
+                throw new Exception('Specified CA certificate file does not exist');
+            }
+            if (!is_readable($sslCaCertificatePath)) {
+                throw new Exception('Specified CA certificate file is not readable');
+            }
+        }
+
+        $this->model->edit($id, $name, $url, $gpgKeyURL, $sslCertificatePath, $sslPrivateKeyPath, $sslCaCertificatePath);
     }
 
     /**

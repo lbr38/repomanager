@@ -27,6 +27,7 @@ class Mirror
     protected $outputFile;
     protected $sslCustomCertificate;
     protected $sslCustomPrivateKey;
+    protected $sslCustomCaCertificate;
     protected $curlHandle;
 
     public function setUrl(string $url)
@@ -84,6 +85,11 @@ class Mirror
         $this->sslCustomPrivateKey = $path;
     }
 
+    public function setSslCustomCaCertificate(string $path)
+    {
+        $this->sslCustomCaCertificate = $path;
+    }
+
     /**
      *  Initialize mirroring task
      */
@@ -132,13 +138,16 @@ class Mirror
         }
 
         /**
-         *  If a custom ssl certificate and private key must be used
+         *  If a custom ssl certificate / private key /ca certificate must be used
          */
         if (!empty($this->sslCustomCertificate)) {
             curl_setopt($this->curlHandle, CURLOPT_SSLCERT, $this->sslCustomCertificate);
         }
         if (!empty($this->sslCustomPrivateKey)) {
             curl_setopt($this->curlHandle, CURLOPT_SSLKEY, $this->sslCustomPrivateKey);
+        }
+        if (!empty($this->sslCustomCaCertificate)) {
+            curl_setopt($this->curlHandle, CURLOPT_CAINFO, $this->sslCustomCaCertificate);
         }
 
         /**

@@ -1,5 +1,5 @@
 /**
- *  v1.7
+ *  v1.8
  */
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
@@ -115,6 +115,7 @@ pre {
 .flex-direction-column {flex-direction: column}
 .grid {display: grid}
 .grid-2 {grid-template-columns: 1fr 1fr !important}
+.grid-3 {grid-template-columns: 1fr 1fr 1fr !important}
 .grid-fr-1-2 {grid-template-columns: 1fr 2fr !important}
 .grid-fr-2-1 {grid-template-columns: 2fr 1fr !important}
 .grid-fr-4-1 {grid-template-columns: 4fr 1fr !important}
@@ -126,7 +127,7 @@ pre {
 .align-content-center {align-content: center}
 .align-content-right {align-content: flex-end}
 .align-item-center {align-items: center}
-.align-item-right {align-items: flex-end}
+.align-item-right, .align-flex-end {align-items: flex-end}
 .align-self-center {align-self: center}
 .column-gap-1{column-gap: 1px}.column-gap-2 {column-gap: 2px}.column-gap-4 {column-gap: 4px}.column-gap-5{column-gap: 5px}.column-gap-6{column-gap: 6px}.column-gap-7{column-gap: 7px}.column-gap-8{column-gap: 8px}.column-gap-9{column-gap: 9px}.column-gap-10{column-gap: 10px}.column-gap-15{column-gap: 15px}
 .column-gap-20{column-gap: 20px}.column-gap-30{column-gap: 30px}.column-gap-40{column-gap: 40px}.column-gap-50{column-gap: 50px}.column-gap-60{column-gap: 60px}.column-gap-70{column-gap: 70px}.column-gap-80{column-gap: 80px}.column-gap-90{column-gap: 90px}.column-gap-100{column-gap: 100px}
@@ -252,7 +253,10 @@ td {
     cursor: pointer;
 }
 .icon-small {
-    height: 8px;
+    height: 8px !important;
+}
+.icon-medium {
+    height: 12px !important;
 }
 .icon-lowopacity {
     opacity: 0.33;
@@ -320,6 +324,7 @@ input::placeholder {
     display: inline-block;
     font-size: 14px;
     cursor: pointer;
+    box-shadow: rgba(12, 18, 20, 0.504) 0px 0px 10px 1px;
 }
 
 /* Tous les boutons bleus */
@@ -417,6 +422,7 @@ input::placeholder {
     background-color: #15bf7f;
     border-radius: 60px;
     cursor: pointer;
+    box-shadow: rgba(12, 18, 20, 0.504) 0px 0px 10px 1px;
 }
 [class^="slide-btn"] img {
     width: 16px;
@@ -707,7 +713,7 @@ textarea {
     position: fixed;
     bottom: 0;
     left: 0;
-    z-index:1000;
+    z-index: 1000;
     background-color: #182b3e;
     border-top: 1px solid rgb(60, 70, 75);
     box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
@@ -756,7 +762,7 @@ textarea {
     display: flex;
     align-items: center;
     column-gap: 8px ;
-    z-index: 999;
+    z-index: 998;
 }
 
 #loading img {
@@ -777,7 +783,7 @@ textarea {
     height: 100%;
     background-color: #182b3e82;
     border-radius: 8px;
-    z-index: 999;
+    z-index: 998;
 }
 
 /**
