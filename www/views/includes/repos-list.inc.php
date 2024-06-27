@@ -254,7 +254,7 @@ if (!empty($groupsList)) {
                                                 <img src="/assets/images/loading.gif" class="icon" title="A task is running on this repository snaphot." />
                                                 <?php
                                             else : ?>
-                                                <input type="checkbox" class="icon-verylowopacity" name="checkbox-repo[]" repo-id="<?= $repoId ?>" snap-id="<?= $snapId ?>" <?php echo !empty($envId) ? 'env-id="' . $envId . '"' : ''; ?> repo-type="<?= $type ?>" title="Select and execute an action.">
+                                                <input type="checkbox" class="icon-verylowopacity" name="checkbox-repo" repo-id="<?= $repoId ?>" snap-id="<?= $snapId ?>" <?php echo !empty($envId) ? 'env-id="' . $envId . '"' : ''; ?> repo-type="<?= $type ?>" title="Select and execute an action.">
                                                 <?php
                                             endif;
                                         endif;

@@ -24,14 +24,14 @@ RUN apt-get install findutils iputils-ping git gnupg2 rpm librpmsign9 createrepo
 # Install postfix
 RUN apt-get install postfix -y
 
-# Add nginx and PHP 8.1 repositories
+# Add nginx and PHP 8.3 repositories
 RUN curl -sS https://packages.bespin.ovh/repo/gpgkeys/packages.bespin.ovh.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/packages.bespin.ovh.gpg
 RUN echo "deb https://packages.bespin.ovh/repo/repomanager-nginx/bookworm/nginx_prod bookworm nginx" > /etc/apt/sources.list.d/nginx.list
 RUN echo "deb https://packages.bespin.ovh/repo/repomanager-php/bookworm/main_prod bookworm main" > /etc/apt/sources.list.d/php.list
 RUN apt-get update -y
 
-# Install nginx and PHP 8.1
-RUN apt-get install nginx php8.1-fpm php8.1-cli php8.1-sqlite3 php8.1-xml php8.1-curl sqlite3 -y
+# Install nginx and PHP 8.3
+RUN apt-get install nginx php8.3-fpm php8.3-cli php8.3-sqlite3 php8.3-xml php8.3-curl sqlite3 -y
 
 # Clone project in the container
 RUN git clone https://github.com/lbr38/repomanager.git /tmp/repomanager
@@ -50,9 +50,9 @@ RUN sed -i "s/__MAX_UPLOAD_SIZE__/$max_upload_size/g" /etc/nginx/sites-enabled/r
 RUN rm -rf /etc/nginx/sites-enabled/default /var/www/html
 
 # Configure PHP
-RUN cp /tmp/repomanager/docker/config/php/www.conf /etc/php/8.1/fpm/pool.d/www.conf
-RUN sed -i "s/^upload_max_filesize.*$/upload_max_filesize = $max_upload_size/g" /etc/php/8.1/fpm/php.ini
-RUN sed -i "s/^post_max_size.*$/post_max_size = $max_upload_size/g" /etc/php/8.1/fpm/php.ini
+RUN cp /tmp/repomanager/docker/config/php/www.conf /etc/php/8.3/fpm/pool.d/www.conf
+RUN sed -i "s/^upload_max_filesize.*$/upload_max_filesize = $max_upload_size/g" /etc/php/8.3/fpm/php.ini
+RUN sed -i "s/^post_max_size.*$/post_max_size = $max_upload_size/g" /etc/php/8.3/fpm/php.ini
 
 # Configure SQLite
 RUN echo ".headers on" > /root/.sqliterc

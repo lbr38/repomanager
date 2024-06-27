@@ -108,16 +108,17 @@ class Source extends Model
     /**
      *  Edit a source repo
      */
-    public function edit(string $id, string $name, string $url, string|null $gpgKeyURL, string|null $sslCertificatePath, string|null $sslPrivateKeyPath)
+    public function edit(string $id, string $name, string $url, string|null $gpgKeyURL, string|null $sslCertificatePath, string|null $sslPrivateKeyPath, string|null $sslCaCertificatePath)
     {
         try {
-            $stmt = $this->db->prepare('UPDATE sources SET Name = :name, Url = :url, Gpgkey = :gpgKeyUrl, Ssl_certificate_path = :sslCertificatePath, Ssl_private_key_path = :sslPrivateKeyPath WHERE Id = :id');
+            $stmt = $this->db->prepare('UPDATE sources SET Name = :name, Url = :url, Gpgkey = :gpgKeyUrl, Ssl_certificate_path = :sslCertificatePath, Ssl_private_key_path = :sslPrivateKeyPath, Ssl_ca_certificate_path = :sslCaCertificatePath WHERE Id = :id');
             $stmt->bindValue(':id', $id);
             $stmt->bindValue(':name', $name);
             $stmt->bindValue(':url', $url);
             $stmt->bindValue(':gpgKeyUrl', $gpgKeyURL);
             $stmt->bindValue(':sslCertificatePath', $sslCertificatePath);
             $stmt->bindValue(':sslPrivateKeyPath', $sslPrivateKeyPath);
+            $stmt->bindValue(':sslCaCertificatePath', $sslCaCertificatePath);
             $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);

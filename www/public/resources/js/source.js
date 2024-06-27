@@ -44,10 +44,11 @@ $(document).on('submit','.source-form',function () {
     var name = $(this).find('.source-input-name').val();
     var url = $(this).find('.source-input-url').val();
     var gpgkey = $(this).find('.source-gpgkey-input').val();
-    var sslCertificatePath = $(this).find('.source-sslcrt-input').val();
-    var sslPrivateKeyPath = $(this).find('.source-sslkey-input').val();
+    var sslCertificatePath = $(this).find('.source-ssl-crt-input').val();
+    var sslPrivateKeyPath = $(this).find('.source-ssl-key-input').val();
+    var sslCaCertificatePath = $(this).find('.source-ssl-cacrt-input').val();
 
-    editSource(id, name, url, gpgkey, sslCertificatePath, sslPrivateKeyPath);
+    editSource(id, name, url, gpgkey, sslCertificatePath, sslPrivateKeyPath, sslCaCertificatePath);
 
     return false;
 });
@@ -141,8 +142,9 @@ function newSource(repoType, name, url, gpgKeyURL, gpgKeyText)
  * @param {*} gpgkey
  * @param {*} sslCertificatePath
  * @param {*} sslPrivateKeyPath
+ * @param {*} sslCaCertificatePath
  */
-function editSource(id, name, url, gpgkey, sslCertificatePath, sslPrivateKeyPath)
+function editSource(id, name, url, gpgkey, sslCertificatePath, sslPrivateKeyPath, sslCaCertificatePath)
 {
     $.ajax({
         type: "POST",
@@ -155,7 +157,8 @@ function editSource(id, name, url, gpgkey, sslCertificatePath, sslPrivateKeyPath
             url: url,
             gpgkey: gpgkey,
             sslCertificatePath: sslCertificatePath,
-            sslPrivateKeyPath: sslPrivateKeyPath
+            sslPrivateKeyPath: sslPrivateKeyPath,
+            sslCaCertificatePath: sslCaCertificatePath
         },
         dataType: "json",
         success: function (data, textStatus, jqXHR) {

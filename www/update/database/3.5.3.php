@@ -54,43 +54,43 @@ $sources = array(
     // centos 8 stream
     array(
         'type' => 'rpm',
-        'name' => 'baseos-8',
+        'name' => 'centos8-baseos',
         'url' => 'http://mirror.centos.org/centos/8-stream/BaseOS/$basearch/os/'
     ),
     array(
         'type' => 'rpm',
-        'name' => 'appstream-8',
+        'name' => 'centos8-appstream',
         'url' => 'http://mirror.centos.org/centos/8-stream/AppStream/$basearch/os/'
     ),
     array(
         'type' => 'rpm',
-        'name' => 'extras-8',
+        'name' => 'centos8-extras',
         'url' => 'http://mirror.centos.org/centos/8-stream/extras/$basearch/os/'
     ),
     array(
         'type' => 'rpm',
-        'name' => 'epel-8',
+        'name' => 'epel8',
         'url' => 'https://dl.fedoraproject.org/pub/epel/8/Everything/$basearch/'
     ),
     // centos 9 stream
     array(
         'type' => 'rpm',
-        'name' => 'baseos-9',
+        'name' => 'centos9-baseos',
         'url' => 'https://mirror.stream.centos.org/9-stream/BaseOS/$basearch/os/'
     ),
     array(
         'type' => 'rpm',
-        'name' => 'appstream-9',
+        'name' => 'centos9-appstream',
         'url' => 'https://mirror.stream.centos.org/9-stream/AppStream/$basearch/os/'
     ),
     array(
         'type' => 'rpm',
-        'name' => 'extras-common-9',
+        'name' => 'centos9-extras-common',
         'url' => 'https://mirror.stream.centos.org/SIGs/9-stream/extras/$basearch/extras-common/'
     ),
     array(
         'type' => 'rpm',
-        'name' => 'epel-9',
+        'name' => 'epel9',
         'url' => 'https://dl.fedoraproject.org/pub/epel/9/Everything/$basearch/'
     )
 );

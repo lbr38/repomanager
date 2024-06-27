@@ -569,7 +569,7 @@ class Common
      *  Return true if distant URL is reachable
      *  The target URL can be a file or a directory
      */
-    public static function urlReachable(string $url, string $sslCertificatePath = null, string $sslPrivateKeyPath = null)
+    public static function urlReachable(string $url, string $sslCertificatePath = null, string $sslPrivateKeyPath = null, string $sslCustomCaCertificate = null)
     {
         $ch = curl_init($url);
 
@@ -584,13 +584,16 @@ class Common
         }
 
         /**
-         *  If a custom SSL certificate and key have been specified
+         *  If a custom SSL certificate / private key / ca certificate have been specified
          */
         if (!empty($sslCertificatePath)) {
             curl_setopt($ch, CURLOPT_SSLCERT, $sslCertificatePath);
         }
         if (!empty($sslPrivateKeyPath)) {
             curl_setopt($ch, CURLOPT_SSLKEY, $sslPrivateKeyPath);
+        }
+        if (!empty($sslCustomCaCertificate)) {
+            curl_setopt($ch, CURLOPT_CAINFO, $sslCustomCaCertificate);
         }
 
         if (curl_exec($ch) === false) {

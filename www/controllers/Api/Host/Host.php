@@ -331,7 +331,7 @@ class Host extends \Controllers\Api\Controller
                     if (!empty($this->data->status) and ($this->action == 'packages-update' or $this->action == 'general-status-update' or $this->action == 'packages-status-update' or $this->action == 'full-history-update') and $this->method == 'PUT') {
                         try {
                             $myhost->acknowledgeRequest($this->action, $this->data->status);
-                            return array('message' => 'Acknowledge has been taken into account.');
+                            return array('message' => array('Acknowledge has been taken into account.'));
                         } catch (Exception $e) {
                             throw new Exception($e->getMessage());
                         }

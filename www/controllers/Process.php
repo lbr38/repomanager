@@ -4,7 +4,7 @@ namespace Controllers;
 
 class Process
 {
-    private $workingDir = ROOT . '/.temp'; // Working dir for php
+    private $workingDir = ROOT; // Working dir for php
     private $command;
     private $env = array('HOME' => ROOT, 'PATH' => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin');
     private $process;

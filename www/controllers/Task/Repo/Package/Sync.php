@@ -220,11 +220,18 @@ trait Sync
                 if (!empty($sourceDetails['Gpgkey'])) {
                     $mymirror->setGpgKeyUrl($sourceDetails['Gpgkey']);
                 }
+
+                /**
+                 *  If the source repo has a custom SSL certificate, private key or CA certificate, then they will be used
+                 */
                 if (!empty($sourceDetails['Ssl_certificate_path'])) {
                     $mymirror->setSslCustomCertificate($sourceDetails['Ssl_certificate_path']);
                 }
                 if (!empty($sourceDetails['Ssl_private_key_path'])) {
                     $mymirror->setSslCustomPrivateKey($sourceDetails['Ssl_private_key_path']);
+                }
+                if (!empty($sourceDetails['Ssl_ca_certificate_path'])) {
+                    $mymirror->setSslCustomCaCertificate($sourceDetails['Ssl_ca_certificate_path']);
                 }
                 $mymirror->mirror();
 

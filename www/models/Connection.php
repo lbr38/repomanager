@@ -305,7 +305,8 @@ class Connection extends SQLite3
         Url VARCHAR(255) NOT NULL,
         Gpgkey VARCHAR(255),
         Ssl_certificate_path VARCHAR(255),
-        Ssl_private_key_path VARCHAR(255))");
+        Ssl_private_key_path VARCHAR(255),
+        Ssl_ca_certificate_path VARCHAR(255))");
 
         /**
          *  users table
@@ -506,7 +507,6 @@ class Connection extends SQLite3
         GPG_SIGNING_KEYID VARCHAR(255),
         /* Scheduled tasks settings */
         PLANS_REMINDERS_ENABLED CHAR(5),
-        PLANS_CLEAN_REPOS CHAR(5),
         /* Statistics & metrics settings */
         STATS_ENABLED CHAR(5),
         /* Hosts and profiles settings */
@@ -555,7 +555,6 @@ class Connection extends SQLite3
                 DEB_INVALID_SIGNATURE,
                 GPG_SIGNING_KEYID,
                 PLANS_REMINDERS_ENABLED,
-                PLANS_CLEAN_REPOS,
                 RETENTION,
                 STATS_ENABLED,
                 MANAGE_HOSTS,
@@ -582,7 +581,6 @@ class Connection extends SQLite3
                 '',
                 'error',
                 '$gpgKeyId',
-                'false',
                 'false',
                 '3',
                 'false',

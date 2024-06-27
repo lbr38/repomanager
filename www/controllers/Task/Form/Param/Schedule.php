@@ -39,6 +39,13 @@ class Schedule
              *  Check that schedule time is set and valid
              */
             self::checkTime($scheduleParams['schedule-time']);
+
+            /**
+             *  Check that date and time are not in the past
+             */
+            if (strtotime($scheduleParams['schedule-date'] . ' ' . $scheduleParams['schedule-time']) < strtotime(date('Y-m-d H:i'))) {
+                throw new Exception('You cannot schedule a task in the past');
+            }
         }
 
         /**
