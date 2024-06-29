@@ -19,7 +19,9 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
         $releasePossibleNames = array('InRelease', 'Release', 'Release.gpg');
 
         foreach ($releasePossibleNames as $releaseFile) {
-            if (\Controllers\Common::urlReachable($this->url . '/dists/' . $this->dist . '/' . $releaseFile, $this->sslCustomCertificate, $this->sslCustomPrivateKey, $this->sslCustomCaCertificate)) {
+            $urlReachable = \Controllers\Common::urlReachable($this->url . '/dists/' . $this->dist . '/' . $releaseFile, $this->sslCustomCertificate, $this->sslCustomPrivateKey, $this->sslCustomCaCertificate);
+
+            if ($urlReachable === true) {
                 $this->download($this->url . '/dists/' . $this->dist . '/' . $releaseFile, $this->workingDir . '/' . $releaseFile);
             }
         }
@@ -98,7 +100,9 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                         /**
                          *  Include this Packages.xx/Sources.xx file only if it does really exist on the remote server (sometimes it can be declared in Release but not exists...)
                          */
-                        if (\Controllers\Common::urlReachable($this->url . '/dists/' . $this->dist . '/' . $location, $this->sslCustomCertificate, $this->sslCustomPrivateKey, $this->sslCustomCaCertificate)) {
+                        $urlReachable = \Controllers\Common::urlReachable($this->url . '/dists/' . $this->dist . '/' . $location, $this->sslCustomCertificate, $this->sslCustomPrivateKey, $this->sslCustomCaCertificate);
+
+                        if ($urlReachable === true) {
                             if ($arch == 'src') {
                                 $this->sourcesIndicesLocation[] = array('location' => $location, 'checksum' => $checksum);
                             }

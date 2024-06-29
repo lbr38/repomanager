@@ -82,6 +82,23 @@ class Task extends \Models\Model
         return $id;
     }
 
+    public function getLogfileById(int $id) : string
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT Logfile FROM tasks WHERE Id = :id");
+            $stmt->bindValue(':id', $id);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $logfile = $row['Logfile'];
+        }
+
+        return $logfile;
+    }
+
     /**
      *  Update date in database
      */
@@ -364,14 +381,21 @@ class Task extends \Models\Model
     }
 
     /**
-     *  Get last scheduled task
+     *  Get last scheduled task (last 7 days)
      */
     public function getLastScheduledTask()
     {
         $data = array();
 
         try {
-            $result = $this->db->query("SELECT * FROM tasks WHERE Type = 'scheduled' AND Status != 'running' ORDER BY Date DESC, Time DESC LIMIT 1");
+            $stmt = $this->db->prepare("SELECT * FROM tasks
+            WHERE Type = 'scheduled'
+            AND Status != 'running'
+            AND Date >= :date
+            ORDER BY Date DESC, Time DESC LIMIT 1");
+
+            $stmt->bindValue(':date', date('Y-m-d', strtotime('-7 days')));
+            $result = $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }

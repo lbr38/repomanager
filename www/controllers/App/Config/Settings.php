@@ -277,11 +277,11 @@ class Settings
         /**
          *  Scheduled tasks settings
          */
-        if (!defined('PLANS_REMINDERS_ENABLED')) {
-            if (!empty($settings['PLANS_REMINDERS_ENABLED'])) {
-                define('PLANS_REMINDERS_ENABLED', $settings['PLANS_REMINDERS_ENABLED']);
+        if (!defined('SCHEDULED_TASKS_REMINDERS')) {
+            if (!empty($settings['SCHEDULED_TASKS_REMINDERS'])) {
+                define('SCHEDULED_TASKS_REMINDERS', $settings['SCHEDULED_TASKS_REMINDERS']);
             } else {
-                define('PLANS_REMINDERS_ENABLED', 'false');
+                define('SCHEDULED_TASKS_REMINDERS', 'false');
             }
         }
 

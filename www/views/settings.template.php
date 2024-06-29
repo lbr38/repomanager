@@ -509,13 +509,13 @@
                     </div>
                     <div>
                         <label class="onoff-switch-label">
-                            <input class="settings-param onoff-switch-input" param-name="scheduled-tasks-reminders" type="checkbox" value="true" <?php echo (PLANS_REMINDERS_ENABLED == "true") ? 'checked' : ''; ?>>
+                            <input class="settings-param onoff-switch-input" param-name="scheduled-tasks-reminders" type="checkbox" value="true" <?php echo (SCHEDULED_TASKS_REMINDERS == "true") ? 'checked' : ''; ?>>
                             <span class="onoff-switch-slider"></span>
                         </label>
                     </div>
                     <div>
                         <?php
-                        if (empty(PLANS_REMINDERS_ENABLED)) {
+                        if (empty(SCHEDULED_TASKS_REMINDERS)) {
                             echo '<img src="/assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </div>

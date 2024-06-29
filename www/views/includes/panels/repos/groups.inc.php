@@ -39,7 +39,7 @@ if (!empty($repoGroupsList)) : ?>
                     <span>Name</span>
                     <input class="group-name-input" type="text" group-id="<?= $group['Id'] ?>" value="<?= $group['Name'] ?>" />
 
-                    <span>Include repos</span>
+                    <span>Repositories</span>
                     <select class="group-repos-list" group-id="<?= $group['Id'] ?>" name="group-repos[]" multiple>
                         <?php
                         /**

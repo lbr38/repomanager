@@ -136,6 +136,22 @@ class Task
     }
 
     /**
+     *  Get task Id by PID
+     */
+    public function getIdByPid(string $pid)
+    {
+        return $this->model->getIdByPid($pid);
+    }
+
+    /**
+     *  Get task logfile by Id
+     */
+    public function getLogfileById(int $id) : string
+    {
+        return $this->model->getLogfileById($id);
+    }
+
+    /**
      *  Update date in database
      */
     public function updateDate(int $id, string $date) : void
@@ -241,7 +257,7 @@ class Task
     }
 
     /**
-     *  Get last scheduled task
+     *  Get last scheduled task (last 7 days)
      */
     public function getLastScheduledTask()
     {
@@ -650,7 +666,7 @@ class Task
         /**
          *  Getting task Id from its PID
          */
-        $taskId = $this->model->getIdByPid($pid);
+        $taskId = $this->getIdByPid($pid);
 
         /**
          *  If the task Id is empty, we throw an exception
@@ -667,8 +683,7 @@ class Task
         /**
          *  Getting logfile name
          */
-        preg_match('/(?<=LOG=).*/', $content, $logfile);
-        $logfile = str_replace('"', '', $logfile[0]);
+        $logfile = $this->getLogfileById($taskId);
 
         /**
          *  Getting sub PIDs
@@ -722,6 +737,25 @@ class Task
          */
         $this->updateStatus($taskId, 'stopped');
 
+        /**
+         *  Append CSS to logfile to display the task as stopped
+         */
+        if (file_exists(MAIN_LOGS_DIR . '/' . $logfile)) {
+            file_put_contents(
+                MAIN_LOGS_DIR . '/' . $logfile,
+                '<style>
+                .op-step-div { background-color: #ff0044 !important; }
+                .op-step-loading { display: none !important; }
+                .op-step-title-ok { display: none !important; }
+                .op-step-title-stopped { display: inline-block !important; }
+                </style>',
+                FILE_APPEND
+            );
+        }
+
+        /**
+         *  Clear cache
+         */
         \Controllers\App\Cache::clear();
 
         /**

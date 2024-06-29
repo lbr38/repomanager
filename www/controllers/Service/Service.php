@@ -76,8 +76,8 @@ class Service
             /**
              *  Scheduled tasks related settings
              */
-            if (!empty($settings['PLANS_REMINDERS_ENABLED'])) {
-                $this->scheduledTasksRemindersEnabled = $settings['PLANS_REMINDERS_ENABLED'];
+            if (!empty($settings['SCHEDULED_TASKS_REMINDERS'])) {
+                $this->scheduledTasksRemindersEnabled = $settings['SCHEDULED_TASKS_REMINDERS'];
             } else {
                 $this->logController->log('error', 'Service', "Could not retrieve 'Enable scheduled tasks reminders' setting.");
                 // Disable scheduled tasks reminders

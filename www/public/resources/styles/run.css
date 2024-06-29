@@ -95,7 +95,7 @@
     -webkit-box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
     box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
 }
-.op-step-title, .op-step-title-error, .op-step-title-ok, .op-step-title-warning, .op-step-loading, .op-step-time, .op-step-duration {
+.op-step-title, .op-step-title-error, .op-step-title-stopped, .op-step-title-ok, .op-step-title-warning, .op-step-loading, .op-step-time, .op-step-duration {
     padding-top: 20px;
     padding-bottom: 20px;
     padding-left: 20px;
@@ -104,10 +104,14 @@
 }
 .op-step-title { width: 30%; }
 .op-step-title-warning { width: 1%; }
-.op-step-title-error, .op-step-title-ok, .op-step-loading { width: 60%; }
+.op-step-title-error, .op-step-title-stopped, .op-step-title-ok, .op-step-loading { width: 60%; }
 .op-step-time {
     font-size: 12px;
     opacity: 0.8;
     position: absolute;
     right: 10px;
+}
+
+.op-step-title-stopped {
+    display: none;
 }

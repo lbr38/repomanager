@@ -38,9 +38,23 @@ $(document).keyup(function (e) {
 /**
  *  Event: stop task
  */
-$(document).on('click','.kill-btn',function () {
+$(document).on('click','.stop-task-btn',function () {
     var pid = $(this).attr('pid');
-    stopTask(pid);
+
+    ajaxRequest(
+        // Controller:
+        'task',
+        // Action:
+        'stopTask',
+        // Data:
+        {
+            pid: pid
+        },
+        // Print success alert:
+        true,
+        // Print error alert:
+        true
+    );
 });
 
 /**
@@ -371,32 +385,6 @@ function getConfirmBox(name)
             $('footer').append(jsonValue.message);
         },
         error: function (jqXHR, textStatus, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
-}
-
-/**
- *  Ajax: Stop a task
- *  @param {string} pid
- */
-function stopTask(pid)
-{
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "task",
-            action: "stopTask",
-            pid: pid
-        },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'success');
-        },
-        error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },

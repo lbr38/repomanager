@@ -96,8 +96,10 @@ class Import
                 /**
                  *  Check that feed URL exist
                  */
-                if (\Controllers\Common::urlReachable($feedUrl) === false) {
-                    throw new Exception('Feed URL does not exist');
+                $urlReachable = \Controllers\Common::urlReachable($feedUrl);
+
+                if ($urlReachable !== true) {
+                    throw new Exception('Feed URL is not reachable (http error ' . $urlReachable['responseCode'] . ')');
                 }
 
                 /**

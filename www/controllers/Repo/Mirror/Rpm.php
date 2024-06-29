@@ -656,15 +656,31 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          */
 
         foreach ($this->archUrls as $url) {
-            if (!\Controllers\Common::urlReachable($url . '/repodata/repomd.xml', $this->sslCustomCertificate, $this->sslCustomPrivateKey, $this->sslCustomCaCertificate)) {
+            $urlReachable = \Controllers\Common::urlReachable($url . '/repodata/repomd.xml', $this->sslCustomCertificate, $this->sslCustomPrivateKey, $this->sslCustomCaCertificate);
+
+            /**
+             *  If urlReachable returned true, then the URL is reachable
+             */
+            if ($urlReachable === true) {
+                $this->logOutput(' • <span class="copy">' . $url . '</span>' . PHP_EOL);
+
+            /**
+             *  Else, it returned an array with the response code
+             */
+            } else {
                 /**
-                 *  Remove unreachable URL from array
+                 *  If response code is 403, then the URL is forbidden
+                 */
+                if ($urlReachable['responseCode'] == '403') {
+                    $this->logError('URL <span class="copy">' . $url . '</span> returned 403 forbidden. The source repository URL might require authentication or has IP filtering.', 'Forbidden URL');
+                }
+
+                /**
+                 *  For any other response code, just remove the unreachable URL from array, others URLs will be tested
                  */
                 if (($key = array_search($url, $this->archUrls)) !== false) {
                     unset($this->archUrls[$key]);
                 }
-            } else {
-                $this->logOutput(' • <span class="copy">' . $url . '</span>' . PHP_EOL);
             }
         }
 
