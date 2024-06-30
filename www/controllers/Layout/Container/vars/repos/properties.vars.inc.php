@@ -43,6 +43,11 @@ if (!empty($nextScheduledTasks)) {
      *  Sort tasks by date and time
      */
     array_multisort(array_column($nextScheduledTasks, 'date'), SORT_ASC, array_column($nextScheduledTasks, 'time'), SORT_ASC, $nextScheduledTasks);
+
+    /*
+     *  Remove duplicates (when multiple tasks are scheduled for the same date and time)
+     */
+    $nextScheduledTasks = array_unique($nextScheduledTasks, SORT_REGULAR);
 }
 
 unset($myrepo, $mytask, $diskTotalSpace, $nextScheduledTasksLeft);

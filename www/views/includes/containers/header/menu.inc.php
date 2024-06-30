@@ -161,7 +161,7 @@
                                         <span class="label-white"><?= $myTask->getRepo($task['Id']); ?></span>
                                     </a>
 
-                                    <span title="Stop task" class="kill-btn" pid="<?= $task['Pid'] ?>">
+                                    <span title="Stop task" class="stop-task-btn" pid="<?= $task['Pid'] ?>">
                                         <img src="/assets/icons/delete.svg" class="icon">
                                     </span>
                                 </div>

@@ -237,9 +237,9 @@ class Settings
          */
         if (!empty($sendSettings['scheduled-tasks-reminders'])) {
             if ($sendSettings['scheduled-tasks-reminders'] == "true") {
-                $settingsToApply['PLANS_REMINDERS_ENABLED'] = 'true';
+                $settingsToApply['SCHEDULED_TASKS_REMINDERS'] = 'true';
             } else {
-                $settingsToApply['PLANS_REMINDERS_ENABLED'] = 'false';
+                $settingsToApply['SCHEDULED_TASKS_REMINDERS'] = 'false';
             }
         }
 

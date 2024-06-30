@@ -18,11 +18,13 @@
             <?php
             foreach (ENVS as $env) {
                 /**
-                 *  On ne réaffiche pas l'env source
+                 *  Don't display the environment if it already exists
                  */
-                if ($env !== $myrepo->getEnv()) {
-                    echo '<option value="' . $env . '">' . $env . '</option>';
+                if ($myrepo->existsSnapIdEnv($myrepo->getSnapId(), $env)) {
+                    continue;
                 }
+
+                echo '<option value="' . $env . '">' . $env . '</option>';
             } ?>
         </select>
     </td>

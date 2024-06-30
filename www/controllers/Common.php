@@ -605,7 +605,7 @@ class Common
         curl_close($ch);
 
         if ($responseCode != 200) {
-            return false;
+            return array('responseCode' => $responseCode);
         }
 
         return true;

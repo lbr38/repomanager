@@ -506,7 +506,7 @@ class Connection extends SQLite3
         /* GPG signing key */
         GPG_SIGNING_KEYID VARCHAR(255),
         /* Scheduled tasks settings */
-        PLANS_REMINDERS_ENABLED CHAR(5),
+        SCHEDULED_TASKS_REMINDERS CHAR(5),
         /* Statistics & metrics settings */
         STATS_ENABLED CHAR(5),
         /* Hosts and profiles settings */
@@ -554,7 +554,7 @@ class Connection extends SQLite3
                 DEB_DEFAULT_TRANSLATION,
                 DEB_INVALID_SIGNATURE,
                 GPG_SIGNING_KEYID,
-                PLANS_REMINDERS_ENABLED,
+                SCHEDULED_TASKS_REMINDERS,
                 RETENTION,
                 STATS_ENABLED,
                 MANAGE_HOSTS,

@@ -189,6 +189,7 @@ class Log
     public function steplogName(string $name)
     {
         echo '<div class="op-step-title"><span>' . $name . '</span></div>';
+        echo '<div class="op-step-title-stopped">Task stopped by user</div>';
         $this->steplogWrite();
     }
 
