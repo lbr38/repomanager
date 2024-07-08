@@ -13,8 +13,7 @@
 
     - (JS) Refactor and mutualize the ajax functions
     - Log catched fatal errors (catch (Error $e)) in FATAL_ERRORS_LOG dedicated file (Error class: https://www.php.net/manual/fr/class.error.php)
-    
-
+    - Catch php memory limit errors and add a parameter in the settings tab to modify the memory limit
 
     [ REPOS ]
     

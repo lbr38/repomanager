@@ -126,7 +126,7 @@ jobs:
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='1'" www-data
 
       - name: Print mirrored rpm repo content
-        run: ls -l /home/repo/extras_pprd/packages/*/*.rpm
+        run: ls -l /home/repo/
 
       - name: Run job - Update rpm repo
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='2'" www-data
@@ -135,7 +135,7 @@ jobs:
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='3'" www-data
 
       - name: Print duplicated rpm repo content
-        run: ls -l /home/repo/extras-copy_pprd/packages/*/*.rpm
+        run: ls -l /home/repo/centos9-extras-common-copy_pprd/packages/*/*.rpm
 
       - name: Run job - Point environment to rpm repo
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='4'" www-data
