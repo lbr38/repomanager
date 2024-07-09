@@ -61,11 +61,15 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         /**
          *  Convert repomd.xml XML content to JSON to PHP array for a simpler parsing
          */
-        $xml = simplexml_load_file($this->workingDir . '/repomd.xml');
-        $json = json_encode($xml);
-        unset($xml);
-        $jsonArray = json_decode($json, true);
-        unset($json);
+        try {
+            $xml = new SimpleXMLElement(file_get_contents($this->workingDir . '/repomd.xml'), LIBXML_PARSEHUGE);
+            $jsonArray = json_decode(json_encode($xml), true);
+            unset($xml);
+        } catch (Exception $e) {
+            $this->logError('Could not parse ' . $this->workingDir . '/repomd.xml: ' . $e->getMessage() . PHP_EOL . $error, 'Could not retrieve package list');
+        }
+
+        gc_collect_cycles();
 
         foreach ($jsonArray['data'] as $data) {
             if (isset($data['@attributes'])) {
@@ -125,6 +129,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         if (empty($this->primaryLocation) or empty($this->primaryChecksum)) {
             $this->logError('Could not find location of the package list file');
         }
+
+        unset($jsonArray, $data);
     }
 
     /**
@@ -190,13 +196,13 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          */
         try {
             $xml = new SimpleXMLElement(file_get_contents($primaryFile), LIBXML_PARSEHUGE);
-            $json = json_encode($xml);
+            $jsonArray = json_decode(json_encode($xml), true);
             unset($xml);
-            $jsonArray = json_decode($json, true);
-            unset($json);
         } catch (Exception $e) {
             $this->logError('Could not parse ' . $primaryFile . ': ' . $e->getMessage() . PHP_EOL . $error, 'Could not retrieve package list');
         }
+
+        gc_collect_cycles();
 
         /**
          *  First count number of packages because retrieving the packages informations is different if there is only one package or multiple packages
@@ -295,6 +301,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         if ($error == 0) {
             $this->logOK();
         }
+
+        unset($jsonArray, $data);
     }
 
     /**
@@ -346,6 +354,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              *  Filter to retrieve key Id column only
              */
             $knownPublicKeys = array_column($knownPublicKeys, 'id');
+
+            unset($mygpg, $myprocess);
         }
 
         /**
@@ -566,6 +576,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              *  Print OK if package has been downloaded and verified successfully
              */
             $this->logOK();
+
+            unset($myprocess, $content, $keyId, $matches);
         }
 
         unset($this->rpmPackagesLocation, $totalPackages, $packageCounter);
@@ -592,17 +604,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
 
         /**
          *  Building all possibly URLs to explore, from the base URL, the releasever and all the archs selected by the user
-         */
-
-        /**
-         *  First start by adding just the base URL to the array, with no arch in the URL (because some distant repos do not have arch in their URL)
-         *  replacing '$releasever' with the specified releasever
-         *  and '$basearch' with an empty string
-         */
-        $this->archUrls[] = str_replace('$releasever', $this->releasever, $this->url);
-
-        /**
-         *  Then loop through all the archs selected by the user to build all the possible URLs to explore
+         *  Loop through all the archs selected by the user to build all the possible URLs to explore
          */
         foreach ($this->arch as $arch) {
             $url = $this->url;
@@ -672,7 +674,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                  *  If response code is 403, then the URL is forbidden
                  */
                 if ($urlReachable['responseCode'] == '403') {
-                    $this->logError('URL <span class="copy">' . $url . '</span> returned 403 forbidden. The source repository URL might require authentication or has IP filtering.', 'Forbidden URL');
+                    $this->logError('URL <span class="copy">' . $url . '</span> returned 403 forbidden. The source repository URL might require authentication, has IP filtering or is non-existent.', 'Forbidden URL');
                 }
 
                 /**

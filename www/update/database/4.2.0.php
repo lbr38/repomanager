@@ -62,12 +62,12 @@ $sources = array(
     array(
         'type' => 'rpm',
         'name' => 'redhat-baseos',
-        'url' => 'https://cdn.redhat.com/content/dist/rhel$releasever/$releasever/x86_64/baseos/os'
+        'url' => 'https://cdn.redhat.com/content/dist/rhel$releasever/$releasever/$basearch/baseos/os'
     ),
     array(
         'type' => 'rpm',
         'name' => 'redhat-appstream',
-        'url' => 'https://cdn.redhat.com/content/dist/rhel$releasever/$releasever/x86_64/appstream/os'
+        'url' => 'https://cdn.redhat.com/content/dist/rhel$releasever/$releasever/$basearch/appstream/os'
     ),
 );
 

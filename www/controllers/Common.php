@@ -491,7 +491,7 @@ class Common
             throw new Exception('Error while uncompressing bzip2 file ' . $filename . ': ' . $content);
         }
 
-        unset($myprocess);
+        unset($myprocess, $content);
     }
 
     /**
@@ -542,6 +542,8 @@ class Common
         if (!gzclose($fileOpen)) {
             throw new Exception('Error while closing gziped file: ' . $filename);
         }
+
+        unset($bufferSize, $fileOpen, $fileOut);
     }
 
     /**
@@ -562,7 +564,7 @@ class Common
             throw new Exception('Error while uncompressing xz file ' . $filename . ': ' . $content);
         }
 
-        unset($myprocess);
+        unset($myprocess, $content);
     }
 
     /**
