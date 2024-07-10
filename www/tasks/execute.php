@@ -5,10 +5,11 @@ define('ROOT', '/var/www/repomanager');
 require_once(ROOT . "/controllers/Autoloader.php");
 new \Controllers\Autoloader('api');
 
-ini_set('memory_limit', '512M');
+ini_set('memory_limit', TASK_EXECUTION_MEMORY_LIMIT . 'M');
 
 $myTask = new \Controllers\Task\Task();
 $mylog = new \Controllers\Log\Log();
+$myFatalErrorHandler = new \Controllers\FatalErrorHandler();
 
 /**
  *  Getting options from command line: task Id is required and cannot be empty.
@@ -27,6 +28,11 @@ try {
     }
 
     $taskId = $getOptions['id'];
+
+    /**
+     *  Set task Id for fatal error handler
+     */
+    $myFatalErrorHandler->setTaskId($taskId);
 
     /**
      *  Retrieve task details

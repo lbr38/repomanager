@@ -644,8 +644,6 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             }
         }
 
-        $this->logOutput(PHP_EOL . 'Packages will be retrieved from following URLs:' . PHP_EOL);
-
         /**
          *  Foreach arch URL, test if it is reachable and got a /repodata/repomd.xml file, else remove the URL from the array
          *  e.g. of $this->archUrls content:
@@ -656,29 +654,20 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          *      [2] => http://nginx.org/packages/centos/7/SRPMS
          *  )
          */
-
         foreach ($this->archUrls as $url) {
             $urlReachable = \Controllers\Common::urlReachable($url . '/repodata/repomd.xml', $this->sslCustomCertificate, $this->sslCustomPrivateKey, $this->sslCustomCaCertificate);
 
             /**
-             *  If urlReachable returned true, then the URL is reachable
+             *  If url is not reachable
              */
-            if ($urlReachable === true) {
-                $this->logOutput(' • <span class="copy">' . $url . '</span>' . PHP_EOL);
-
-            /**
-             *  Else, it returned an array with the response code
-             */
-            } else {
+            if ($urlReachable !== true) {
                 /**
-                 *  If response code is 403, then the URL is forbidden
+                 *  Add URL to errorUrls array with the response code
                  */
-                if ($urlReachable['responseCode'] == '403') {
-                    $this->logError('URL <span class="copy">' . $url . '</span> returned 403 forbidden. The source repository URL might require authentication, has IP filtering or is non-existent.', 'Forbidden URL');
-                }
+                $errorUrls[] = array('url' => $url, 'responseCode' => $urlReachable['responseCode']);
 
                 /**
-                 *  For any other response code, just remove the unreachable URL from array, others URLs will be tested
+                 *  Remove the unreachable URL from possible URLs array, others URLs will be tested
                  */
                 if (($key = array_search($url, $this->archUrls)) !== false) {
                     unset($this->archUrls[$key]);
@@ -690,7 +679,32 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          *  Remove all empty subarray of $this->archUrls and print an error and quit if no valid/reachable URL has been found
          */
         if (empty(array_filter($this->archUrls))) {
-            $this->logError('No reachable URL found. The source repository URL might be incorrect or unreachable', 'No reachable URL found');
+            $errorUrlsString = '';
+
+            /**
+             *  For each URL that has been tested and returned an error, add it to the error message
+             */
+            foreach ($errorUrls as $errorUrl) {
+                /**
+                 *  If response code is 403, add some explanation to the error message
+                 */
+                if ($errorUrl['responseCode'] == '403') {
+                    $errorUrlsString .= ' • <span class="copy">' . $errorUrl['url'] . '</span> (response code: ' . $errorUrl['responseCode'] . ' forbidden. The URL might require authentication, has IP filtering or is non-existent.)' . PHP_EOL;
+                } else {
+                    $errorUrlsString .= ' • <span class="copy">' . $errorUrl['url'] . '</span> (response code: ' . $errorUrl['responseCode'] . ')' . PHP_EOL;
+                }
+            }
+
+            $this->logError('No reachable URL found. The source repository URL might be incorrect or unreachable. Tested URLs:' . PHP_EOL . $errorUrlsString, 'No reachable URL found');
+        }
+
+        /**
+         *  If there was no error, print the URLs that will be used to retrieve packages
+         */
+        $this->logOutput(PHP_EOL . 'Packages will be retrieved from following URLs:' . PHP_EOL);
+
+        foreach ($this->archUrls as $url) {
+            $this->logOutput(' • <span class="copy">' . $url . '</span>' . PHP_EOL);
         }
 
         /**

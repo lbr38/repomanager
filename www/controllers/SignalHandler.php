@@ -2,8 +2,6 @@
 
 namespace Controllers;
 
-use Exception;
-
 class SignalHandler
 {
     private $filepath;

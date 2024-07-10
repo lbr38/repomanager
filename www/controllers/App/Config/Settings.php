@@ -102,6 +102,14 @@ class Settings
             }
         }
 
+        if (!defined('TASK_EXECUTION_MEMORY_LIMIT')) {
+            if (!empty($settings['TASK_EXECUTION_MEMORY_LIMIT'])) {
+                define('TASK_EXECUTION_MEMORY_LIMIT', $settings['TASK_EXECUTION_MEMORY_LIMIT']);
+            } else {
+                define('TASK_EXECUTION_MEMORY_LIMIT', 512);
+            }
+        }
+
         if (!defined('WWW_REPOS_DIR_URL')) {
             define('WWW_REPOS_DIR_URL', __SERVER_PROTOCOL__ . '://' . WWW_HOSTNAME . '/repo');
         }
