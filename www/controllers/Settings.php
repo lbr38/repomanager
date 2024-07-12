@@ -72,6 +72,10 @@ class Settings
             $settingsToApply['PROXY'] = '';
         }
 
+        if (!empty($sendSettings['task-execution-memory-limit']) and is_numeric($sendSettings['task-execution-memory-limit']) and $sendSettings['task-execution-memory-limit'] > 2) {
+            $settingsToApply['TASK_EXECUTION_MEMORY_LIMIT'] = \Controllers\Common::validateData($sendSettings['task-execution-memory-limit']);
+        }
+
         /**
          *  Repositories / Mirroring settings
          */
@@ -79,7 +83,7 @@ class Settings
             $retention = Common::validateData($sendSettings['retention']);
 
             if (!is_numeric($retention) or $retention < 0) {
-                throw new Exception('Invalid retention value for ' . $retention);
+                throw new Exception('Invalid retention value');
             }
 
             $settingsToApply['RETENTION'] = $retention;

@@ -485,6 +485,7 @@ class Connection extends SQLite3
         TIMEZONE VARCHAR(255),
         EMAIL_RECIPIENT VARCHAR(255),
         PROXY VARCHAR(255),
+        TASK_EXECUTION_MEMORY_LIMIT INTEGER,
         /* Repo settings */
         RETENTION INTEGER,
         REPO_CONF_FILES_PREFIX VARCHAR(255),
@@ -541,6 +542,7 @@ class Connection extends SQLite3
                 DEBUG_MODE,
                 REPO_CONF_FILES_PREFIX,
                 TIMEZONE,
+                TASK_EXECUTION_MEMORY_LIMIT,
                 MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT,
                 RPM_REPO,
                 RPM_SIGN_PACKAGES,
@@ -568,6 +570,7 @@ class Connection extends SQLite3
                 'false',
                 'repomanager-',
                 'Europe/Paris',
+                '512',
                 '300',
                 'true',
                 'true',

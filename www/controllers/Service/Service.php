@@ -27,8 +27,6 @@ class Service
      */
     protected function getSettings()
     {
-        echo $this->getDate() . ' Getting settings...' . PHP_EOL;
-
         $mysettings = new \Controllers\Settings();
 
         /**

@@ -129,6 +129,19 @@
                     </div>
                     <div></div>
                 </div>
+
+                <div class="settings-div">
+                    <div>
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Specify the memory limit for tasks execution." /> 
+                    </div>
+                    <div>
+                        <p>Task execution memory limit (in MB)</p>
+                    </div>
+                    <div>
+                        <input class="settings-param" param-name="task-execution-memory-limit" type="number" min="2" value="<?= TASK_EXECUTION_MEMORY_LIMIT ?>" placeholder="default is 512">
+                    </div>
+                    <div></div>
+                </div>
             </div>
 
             <h3>REPOSITORIES</h3>
@@ -158,7 +171,7 @@
                         <p>Retention</p>
                     </div>
                     <div>
-                        <input class="settings-param" param-name="retention" type="number" value="<?= RETENTION ?>">
+                        <input class="settings-param" param-name="retention" type="number" min="1" value="<?= RETENTION ?>">
                     </div>
                     <div>
                         <?php
@@ -190,7 +203,7 @@
                         <p>Package download timeout (in seconds)</p>
                     </div>
                     <div>
-                        <input class="settings-param" param-name="mirrorPackageDownloadTimeout" type="number" value="<?= MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT ?>">
+                        <input class="settings-param" param-name="mirrorPackageDownloadTimeout" min="1" type="number" value="<?= MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT ?>" placeholder="default is 300">
                     </div>
                 </div>
     
