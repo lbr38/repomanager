@@ -2,5 +2,9 @@
     "NT01" : {
         "title" : "Welcome to Repomanager",
         "message" : "Hey! This is the notification section, sometimes you will see some important messages here. <br><br>For any help, please check out the documentation <a href='https://github.com/lbr38/repomanager/wiki'>here</a> or feel free to add an issue on <a href='https://github.com/lbr38/repomanager/issues'>github</a>."
+    },
+    "NT02" : {
+        "title" : "New! Discord channel",
+        "message" : "A Discord channel is available <b><a href='https://discord.gg/34yeNsMmkQ'>here</a></b> for any questions or quick help/debugging (English or French spoken)."
     }
 }

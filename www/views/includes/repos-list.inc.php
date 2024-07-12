@@ -246,7 +246,7 @@ if (!empty($groupsList)) {
                                      */
                                     if (IS_ADMIN) :
                                         /**
-                                         *  On affiche la checkbox que lorsque le snapshot est différent du précédent et qu'il n'y a pas d'opération en cours sur le snapshot
+                                         *  Print checkbox only if the snapshot is different from the previous one and there is no operation running on the snapshot
                                          */
                                         if ($snapId != $previousSnapId) :
                                             $myrepo = new \Controllers\Repo\Repo();
@@ -312,7 +312,7 @@ if (!empty($groupsList)) {
                             
                             <?php
                             /**
-                             *  Affichage d'une flèche uniquement si un environnement pointe vers le snapshot
+                             *  Print an arrow only if an environment points to the snapshot
                              */
                             if ($snapId == $previousSnapId) {
                                 echo '<div class="item-arrow-up">';
@@ -366,7 +366,7 @@ if (!empty($groupsList)) {
 
                             <?php
                             /**
-                             *  Affichage de la description
+                             *  Description input
                              */
                             echo '<div class="item-desc">';
                             if (!empty($env)) {
@@ -398,7 +398,7 @@ if (!empty($groupsList)) {
 }
 
 /**
- *  Boutons d'actions
+ *  Action buttons
  */
 if (IS_ADMIN) : ?>
     <div id="repo-actions-btn-container" class="action hide">

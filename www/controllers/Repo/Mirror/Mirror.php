@@ -113,8 +113,9 @@ class Mirror
     /**
      *  Download specified distant file
      */
-    public function download(string $url, string $savePath)
+    public function download(string $url, string $savePath, int $retries = 0)
     {
+        $currentRetry = 0;
         $localFile = fopen($savePath, "w");
 
         /**
@@ -151,9 +152,19 @@ class Mirror
         }
 
         /**
-         *  Execute curl
+         *  Execute curl request and retry if needed
          */
-        if (curl_exec($this->curlHandle) === false) {
+        while (curl_exec($this->curlHandle) === false) {
+            /**
+             *  If curl has failed, print a warning and retry if current retry is less than the maximum number of retries
+             */
+            if ($currentRetry != $retries) {
+                $currentRetry++;
+                $this->logWarning('Curl error (' . curl_errno($this->curlHandle) . '): ' . curl_error($this->curlHandle));
+                $this->logOutput('<span class="opacity-80-cst">Retrying (' . $currentRetry . '/' . $retries . ') ... </span>');
+                continue;
+            }
+
             /**
              *  If curl has failed (meaning a curl param might be invalid or timeout has been reached)
              */

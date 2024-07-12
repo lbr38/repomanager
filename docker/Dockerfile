@@ -66,7 +66,6 @@ RUN echo $fqdn > /etc/mailname
 # Copy repomanager files
 RUN mkdir -p $WWW_DIR $DATA_DIR $REPOS_DIR
 RUN cp -r /tmp/repomanager/www/* $WWW_DIR/
-RUN touch $WWW_DIR/.docker
 RUN echo "$fqdn" > $WWW_DIR/.fqdn
 
 # Create repomanager group and set basic permissions
@@ -82,8 +81,8 @@ RUN echo "syntax on" >> /root/.vimrc
 RUN echo "set background=dark" >> /root/.vimrc
 
 # Copy entrypoint script
-RUN cp /tmp/repomanager/docker/entrypoint.sh /entrypoint.sh
-RUN chmod 700 /entrypoint.sh
+RUN cp /tmp/repomanager/docker/init /init
+RUN chmod 700 /init
 
 # Clean
 RUN rm -rf /tmp/repomanager
@@ -94,4 +93,4 @@ EXPOSE 8080
 # Set working dir
 WORKDIR ${DATA_DIR}
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/init"]

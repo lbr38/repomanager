@@ -22,5 +22,5 @@ try {
     exit(1);
 }
 
-echo 'Databases check and initialization successful' . PHP_EOL;
+echo PHP_EOL . 'Databases check and initialization successful' . PHP_EOL;
 exit(0);

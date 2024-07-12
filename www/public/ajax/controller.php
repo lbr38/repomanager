@@ -21,7 +21,7 @@ function response($responseCode, $message)
     exit;
 }
 
-if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH'] == "XMLHttpRequest" and !empty($_POST['controller'])) {
+if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == "xmlhttprequest" and !empty($_POST['controller'])) {
     require_once(ROOT . "/controllers/Autoloader.php");
     new \Controllers\Autoloader();
 

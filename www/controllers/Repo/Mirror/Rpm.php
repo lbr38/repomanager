@@ -10,9 +10,9 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
     private $archUrls = array();
 
     /**
-     *  Get distant repomd.xml file
+     *  Download repomd.xml file
      */
-    private function getRepoMd(string $url)
+    private function downloadRepomd(string $url)
     {
         $this->logOutput(PHP_EOL . 'Getting <code>repomd.xml</code> from <span class="copy">' . $url . '/repodata/repomd.xml</span> ... ');
 
@@ -24,13 +24,13 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
     }
 
     /**
-     *  Get primary.xml packages list file
+     *  Download primary.xml packages list file
      */
-    private function getPackagesList(string $url, string $checksum)
+    private function downloadPrimary(string $url)
     {
-        $this->logOutput(PHP_EOL . 'Getting <code>primary.xml.gz</code> from <span class="copy">' . $url . '</span> ... ');
+        $this->logOutput(PHP_EOL . 'Getting <code>primary.xml.gz</code> from <span class="copy">' . $url . '/' . $this->primaryLocation . '</span> ... ');
 
-        if (!$this->download($url, $this->workingDir . '/primary.xml.gz')) {
+        if (!$this->download($url . '/' . $this->primaryLocation, $this->workingDir . '/primary.xml.gz')) {
             throw new Exception('Could not download <code>primary.xml.gz</code>');
         }
 
@@ -38,11 +38,174 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          *  Check that downloaded file checksum is the same as the provided checksum from repomd.xml
          *  Try with sha512, sha256 then sha1
          */
-        if (hash_file('sha512', $this->workingDir . '/primary.xml.gz') != $checksum) {
-            if (hash_file('sha256', $this->workingDir . '/primary.xml.gz') != $checksum) {
-                if (hash_file('sha1', $this->workingDir . '/primary.xml.gz') != $checksum) {
+        if (hash_file('sha512', $this->workingDir . '/primary.xml.gz') != $this->primaryChecksum) {
+            if (hash_file('sha256', $this->workingDir . '/primary.xml.gz') != $this->primaryChecksum) {
+                if (hash_file('sha1', $this->workingDir . '/primary.xml.gz') != $this->primaryChecksum) {
                     throw new Exception('<code>primary.xml.gz</code> checksum does not match provided checksum');
                 }
+            }
+        }
+
+        $this->logOK();
+    }
+
+    /**
+     *  Download comps.xml file
+     */
+    private function downloadComps(string $url)
+    {
+        /**
+         *  Quit if there is no comps.xml file to download
+         */
+        if (empty($this->compsLocation) or empty($this->compsChecksum)) {
+            return;
+        }
+
+        $this->logOutput(PHP_EOL . 'Getting <code>comps.xml</code> from <span class="copy">' . $url . '/' . $this->compsLocation . '</span> ... ');
+
+        if (!$this->download($url . '/' . $this->compsLocation, $this->workingDir . '/comps.xml')) {
+            throw new Exception('Could not download <code>comps.xml</code>');
+        }
+
+        /**
+         *  Check that downloaded file checksum is the same as the provided checksum from repomd.xml
+         *  Try with sha512, sha256 then sha1
+         */
+        if (hash_file('sha512', $this->workingDir . '/comps.xml') != $this->compsChecksum) {
+            if (hash_file('sha256', $this->workingDir . '/comps.xml') != $this->compsChecksum) {
+                if (hash_file('sha1', $this->workingDir . '/comps.xml') != $this->compsChecksum) {
+                    throw new Exception('<code>comps.xml</code> checksum does not match provided checksum');
+                }
+            }
+        }
+
+        $this->logOK();
+    }
+
+    /**
+     *  Download modules.yaml file
+     */
+    private function downloadModules(string $url)
+    {
+        /**
+         *  Quit if there is no modules.yaml file to download
+         */
+        if (empty($this->modulesLocation) or empty($this->modulesChecksum)) {
+            return;
+        }
+
+        $this->logOutput(PHP_EOL . 'Getting <code>modules</code> file from <span class="copy">' . $url . '/' . $this->modulesLocation . '</span> ... ');
+
+        /**
+         *  Get modules file extension
+         *  We'll give this modules file a temporary name, to avoid it being included automatically by createrepo_c (it fails every time with modules.yaml file)
+         *  It will be renamed and imported by modifyrepo_c later
+         */
+        if (pathinfo($this->modulesLocation, PATHINFO_EXTENSION) == 'gz') {
+            $modulesFileExtension = 'gz';
+            $modulesFileTargetName = 'modules-temp.yaml.gz';
+        } else if (pathinfo($this->modulesLocation, PATHINFO_EXTENSION) == 'yaml') {
+            $modulesFileExtension = 'yaml';
+            $modulesFileTargetName = 'modules-temp.yaml';
+        } else {
+            throw new Exception('Unsupported file extension ' . pathinfo($this->modulesLocation, PATHINFO_EXTENSION) . ' for <code>modules</code> file. Please contact the developer to add support for this file extension.');
+        }
+
+        /**
+         *  Download modules file
+         */
+        if (!$this->download($url . '/' . $this->modulesLocation, $this->workingDir . '/' . $modulesFileTargetName)) {
+            throw new Exception('Could not download <code>' . $modulesFileTargetName . '</code> file');
+        }
+
+        /**
+         *  Check that downloaded file checksum is the same as the provided checksum from repomd.xml
+         *  Try with sha512, sha256 then sha1
+         */
+        if (hash_file('sha512', $this->workingDir . '/' . $modulesFileTargetName) != $this->modulesChecksum) {
+            if (hash_file('sha256', $this->workingDir . '/' . $modulesFileTargetName) != $this->modulesChecksum) {
+                if (hash_file('sha1', $this->workingDir . '/' . $modulesFileTargetName) != $this->modulesChecksum) {
+                    throw new Exception('<code>' . $modulesFileTargetName . '</code> checksum does not match provided checksum');
+                }
+            }
+        }
+
+        /**
+         *  If modules file has been downloaded as a .gz file, uncompress it (otherwise it will fail to be included to the metadata)
+         */
+        if ($modulesFileExtension == 'gz') {
+            try {
+                \Controllers\Common::gunzip($this->workingDir . '/' . $modulesFileTargetName);
+            } catch (Exception $e) {
+                throw new Exception('Could not uncompress <code>' . $modulesFileTargetName . '</code>: ' . $e->getMessage());
+            }
+
+            /**
+             *  Delete original .gz file
+             */
+            if (!unlink($this->workingDir . '/' . $modulesFileTargetName)) {
+                throw new Exception('Could not delete <code>' . $modulesFileTargetName . '</code> file');
+            }
+        }
+
+        $this->logOK();
+    }
+
+    /**
+     *  Download updateinfo.xml.gz file
+     */
+    private function downloadUpdateInfo(string $url)
+    {
+        /**
+         *  Quit if there is no updateinfo.xml.gz file to download
+         */
+        if (empty($this->updateInfoLocation) or empty($this->updateInfoChecksum)) {
+            return;
+        }
+
+        $this->logOutput(PHP_EOL . 'Getting <code>updateinfo.xml.gz</code> from <span class="copy">' . $url . '/' . $this->updateInfoLocation . '</span> ... ');
+
+        if (pathinfo($this->updateInfoLocation, PATHINFO_EXTENSION) == 'gz') {
+            $updateInfoFileExtension = 'gz';
+            $updateInfoFileTargetName = 'updateinfo.xml.gz';
+        } else if (pathinfo($this->updateInfoLocation, PATHINFO_EXTENSION) == 'xml') {
+            $updateInfoFileExtension = 'xml';
+            $updateInfoFileTargetName = 'updateinfo.xml';
+        } else {
+            throw new Exception('Unsupported file extension ' . pathinfo($this->updateInfoLocation, PATHINFO_EXTENSION) . ' for <code>updateinfo</code> file. Please contact the developer to add support for this file extension.');
+        }
+
+        if (!$this->download($url . '/' . $this->updateInfoLocation, $this->workingDir . '/' . $updateInfoFileTargetName)) {
+            throw new Exception('Could not download <code>updateinfo.xml.gz</code>');
+        }
+
+        /**
+         *  Check that downloaded file checksum is the same as the provided checksum from repomd.xml
+         *  Try with sha512, sha256 then sha1
+         */
+        if (hash_file('sha512', $this->workingDir . '/' . $updateInfoFileTargetName) != $this->updateInfoChecksum) {
+            if (hash_file('sha256', $this->workingDir . '/' . $updateInfoFileTargetName) != $this->updateInfoChecksum) {
+                if (hash_file('sha1', $this->workingDir . '/' . $updateInfoFileTargetName) != $this->updateInfoChecksum) {
+                    throw new Exception('<code>' . $updateInfoFileTargetName . '</code> checksum does not match provided checksum');
+                }
+            }
+        }
+
+        /**
+         *  If updateinfo file has been downloaded as a .gz file, uncompress it
+         */
+        if ($updateInfoFileExtension == 'gz') {
+            try {
+                \Controllers\Common::gunzip($this->workingDir . '/' . $updateInfoFileTargetName);
+            } catch (Exception $e) {
+                throw new Exception('Could not uncompress <code>' . $updateInfoFileTargetName . '</code>: ' . $e->getMessage());
+            }
+
+            /**
+             *  Delete original .gz file
+             */
+            if (!unlink($this->workingDir . '/' . $updateInfoFileTargetName)) {
+                throw new Exception('Could not delete <code>' . $updateInfoFileTargetName . '</code> file');
             }
         }
 
@@ -118,6 +281,69 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                      */
                     } else {
                         $this->primaryChecksum = $data['checksum'];
+                    }
+                }
+
+                /**
+                 *  Retrieve comps.xml location
+                 *  Find an attribute 'type' equals to 'group', if exists
+                 */
+                if ($data['@attributes']['type'] == 'group') {
+                    $this->compsLocation = $data['location']['@attributes']['href'];
+                    $this->compsChecksum = $data['checksum'];
+
+                    /**
+                     *  If $data['checksum'] is an array with multiple checksums found (sha, sha256, sha512), then just keep the first of them.
+                     */
+                    if (is_array($data['checksum'])) {
+                        $this->compsChecksum = $data['checksum'][0];
+                    /**
+                     *  Else if $data['checksum'] is a string
+                     */
+                    } else {
+                        $this->compsChecksum = $data['checksum'];
+                    }
+                }
+
+                /**
+                 *  Retrieve modules.yaml location
+                 *  Find an attribute 'type' equals to 'modules', if exists
+                 */
+                if ($data['@attributes']['type'] == 'modules') {
+                    $this->modulesLocation = $data['location']['@attributes']['href'];
+                    $this->modulesChecksum = $data['checksum'];
+
+                    /**
+                     *  If $data['checksum'] is an array with multiple checksums found (sha, sha256, sha512), then just keep the first of them.
+                     */
+                    if (is_array($data['checksum'])) {
+                        $this->modulesChecksum = $data['checksum'][0];
+                    /**
+                     *  Else if $data['checksum'] is a string
+                     */
+                    } else {
+                        $this->modulesChecksum = $data['checksum'];
+                    }
+                }
+
+                /**
+                 *  Retrieve updateinfo.xml.gz location
+                 *  Find an attribute 'type' equals to 'updateinfo', if exists
+                 */
+                if ($data['@attributes']['type'] == 'updateinfo') {
+                    $this->updateInfoLocation = $data['location']['@attributes']['href'];
+                    $this->updateInfoChecksum = $data['checksum'];
+
+                    /**
+                     *  If $data['checksum'] is an array with multiple checksums found (sha, sha256, sha512), then just keep the first of them.
+                     */
+                    if (is_array($data['checksum'])) {
+                        $this->updateInfoChecksum = $data['checksum'][0];
+                    /**
+                     *  Else if $data['checksum'] is a string
+                     */
+                    } else {
+                        $this->updateInfoChecksum = $data['checksum'];
                     }
                 }
             }
@@ -442,7 +668,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             /**
              *  Download package if it does not already exist
              */
-            if (!$this->download($url . '/' . $rpmPackageLocation, $targetDir . '/' . $rpmPackageName)) {
+            if (!$this->download($url . '/' . $rpmPackageLocation, $targetDir . '/' . $rpmPackageName, 3)) {
                 $this->logError('error', 'Error while retrieving packages');
             }
 
@@ -452,7 +678,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              */
             if (hash_file('sha256', $targetDir . '/' . $rpmPackageName) != $rpmPackageChecksum) {
                 if (hash_file('sha1', $targetDir . '/' . $rpmPackageName) != $rpmPackageChecksum) {
-                    $this->logError('checksum (sha256) does not match (tried sha256 and sha1)', 'Error while retrieving packages');
+                    $this->logError('checksum of the downloaded package does not match the checksum indicated by the source repository metadata (tested sha256 and sha1)', 'Error while retrieving packages');
                 }
             }
 
@@ -712,19 +938,34 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          */
         foreach ($this->archUrls as $url) {
             /**
-             *  Get repomd.xml
+             *  Download repomd.xml
              */
-            $this->getRepoMd($url);
+            $this->downloadRepomd($url);
 
             /**
-             *  Find primary packages list location
+             *  Find primary, group and module files location
              */
             $this->parseRepoMd();
 
             /**
-             *  Get primary packages list file
+             *  Download primary.xml packages list file
              */
-            $this->getPackagesList($url . '/' . $this->primaryLocation, $this->primaryChecksum);
+            $this->downloadPrimary($url);
+
+            /**
+             *  Download group files
+             */
+            $this->downloadComps($url);
+
+            /**
+             *  Download modules.yaml file
+             */
+            $this->downloadModules($url);
+
+            /**
+             *  Download updateinfo.xml.gz file
+             */
+            $this->downloadUpdateInfo($url);
 
             /**
              *  Parse primary packages list file

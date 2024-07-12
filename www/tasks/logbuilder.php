@@ -1,4 +1,5 @@
 <?php
+cli_set_process_title('repomanager.logbuilder');
 
 define('ROOT', '/var/www/repomanager');
 require_once(ROOT . '/controllers/Autoloader.php');
@@ -19,6 +20,11 @@ try {
         throw new Exception('error', 'Logbuilder run', 'No task Id provided');
     }
     $taskId = $argv[1];
+
+    /**
+     *  Rewrite the process title
+     */
+    cli_set_process_title('repomanager.task-' . $taskId . '.logbuilder');
 
     /**
      *  Retrieve location of the main log file (logs/main/...)

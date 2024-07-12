@@ -78,25 +78,6 @@ class File extends Service
             }
 
             /**
-             *  Clean pool files older than 7 days
-             */
-            if (is_dir(DATA_DIR . '/tasks/pool')) {
-                $files = \Controllers\Common::findRecursive(DATA_DIR . '/tasks/pool', 'json');
-
-                if (!empty($files)) {
-                    foreach ($files as $file) {
-                        if (filemtime($file) < strtotime('-7 days')) {
-                            if (!unlink($file)) {
-                                throw new Exception('Error while cleaning pool files: cannot delete file <b>' . $file . '</b>');
-                            }
-                        }
-                    }
-
-                    unset($files);
-                }
-            }
-
-            /**
              *  Clean temp mirror directories older than 3 days
              */
             if (is_dir(REPOS_DIR)) {

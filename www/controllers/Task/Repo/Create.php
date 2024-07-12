@@ -233,7 +233,7 @@ class Create
              */
             include(ROOT . '/views/templates/tasks/new-local.inc.php');
 
-            $this->taskLog->step('CREATING REPO');
+            $this->taskLog->step('CREATING REPOSITORY');
 
             /**
              *  Check if a repo/section with the same name is already active with snapshots

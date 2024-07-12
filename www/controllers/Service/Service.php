@@ -223,6 +223,8 @@ class Service
         $counter = 0;
 
         while (true) {
+            $this->currentTime = date('H:i');
+
             /**
              *  Get settings
              */
@@ -254,8 +256,6 @@ class Service
                 $counter = 0;
             }
 
-            $this->currentTime = date('H:i');
-
             /**
              *  Execute scheduled tasks
              */
@@ -268,7 +268,7 @@ class Service
                 /**
                  *  Send scheduled tasks reminders
                  */
-                if ($this->scheduledTasksRemindersEnabled == 'true') {
+                if ($this->scheduledTasksRemindersEnabled == 'true' and $this->currentTime == '00:00') {
                     $this->runService('scheduled-task-reminder');
                 }
             }

@@ -80,7 +80,7 @@ class Api
         /**
          *  Return 403 if an update is running
          */
-        if (UPDATE_RUNNING == 'true') {
+        if (UPDATE_RUNNING === true) {
             http_response_code(403);
             echo json_encode(["return" => "403", "message_error" => array('Reposerver is actually being updated. Please try again later.')]);
             exit;
