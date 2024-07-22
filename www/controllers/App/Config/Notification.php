@@ -21,7 +21,7 @@ class Notification
         /**
          *  If an update is available, generate a new notification
          */
-        if (UPDATE_AVAILABLE == 'true') {
+        if (UPDATE_AVAILABLE) {
             /**
              *  Check if its a major release version
              *  If first digit of the version is different, its a major release

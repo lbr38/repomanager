@@ -35,6 +35,18 @@
         </tr>
 
         <?php
+        if ($this->repo->getPackageType() == 'rpm' and !empty($this->repo->getReleasever())) : ?>
+            <tr>
+                <th>RELEASE VERSION</th>
+                <td>
+                    <div class="flex column-gap-5">
+                        <?= '<span class="label-black">' . $this->repo->getReleasever() . '</span>' ?>
+                    </div>
+                </td>
+            </tr>
+            <?php
+        endif;
+
         if (!empty($this->repo->getArch())) : ?>
             <tr>
                 <th>ARCHITECTURE</th>

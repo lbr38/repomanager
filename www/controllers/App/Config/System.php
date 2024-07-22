@@ -81,6 +81,27 @@ class System
         }
 
         /**
+         *  If HTTP_X_REQUESTED_WITH is set to 'xmlhttprequest' we can assume that the request is an AJAX request
+         */
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) and strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+            define('AJAX', true);
+        } else {
+            define('AJAX', false);
+        }
+
+        /**
+         *  Clear cookies starting with 'tables/' when the page has been reloaded by the user (not AJAX)
+         */
+        if (AJAX === false) {
+            foreach ($_COOKIE as $key => $value) {
+                if (strpos($key, 'tables/') === 0) {
+                    setcookie($key, '', time() - 3600, '/');
+                    unset($_COOKIE[$key]);
+                }
+            }
+        }
+
+        /**
          *  GET Parameters
          */
         if (!defined('__GET_PARAMETERS__')) {

@@ -16,7 +16,7 @@ trait Create
 
         ob_start();
 
-        $this->taskLog->step('CREATING REPO');
+        $this->taskLog->step('CREATING REPOSITORY');
 
         echo '<div class="hide createRepoDiv"><pre>';
 
@@ -84,10 +84,10 @@ trait Create
             /**
              *  Throw exception to stop the process
              */
-            $msg = 'Repo creation has failed';
+            $msg = 'Repository creation has failed';
 
             if (!empty($createMetadataErrorMsg)) {
-                $msg .= ' - ' . $createMetadataErrorMsg;
+                $msg .= ': ' . $createMetadataErrorMsg;
             }
 
             throw new Exception($msg);

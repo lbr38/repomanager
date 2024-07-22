@@ -11,7 +11,7 @@ Designed for an enterprise usage and to help deployment of packages updates on l
 - Upload packages into repositories
 - Create environments (eg. ``preprod``, ``prod``...) and make mirrors available only for specific envs.
 - Manage hosts packages updates
-- Plan tasks
+- Schedule tasks
 - ...
 
 ![alt text](https://github.com/lbr38/repomanager/assets/54670129/1cc4e053-cd74-4744-8f6b-f78fa1eef1cb)
@@ -46,4 +46,5 @@ No roadmap, just a todolist with some bug reports and ideas you can find <a href
 <h2>Contact</h2>
 
 - For bug reports, issues or features requests, please open a new issue in the Github ``Issues`` section
-- For any other question you can contact me at <a href="mailto:repomanager@protonmail.com">repomanager@protonmail.com</a> (English or French spoken)
+- A Discord channel is available <a href="https://discord.gg/34yeNsMmkQ">here</a> for any questions or quick help/debugging (English or French spoken)
+- You can also contact me at <a href="mailto:repomanager@protonmail.com">repomanager@protonmail.com</a> (English or French spoken)

@@ -77,10 +77,6 @@ class Main
         if (!defined('CVE_LOG_DIR')) {
             define('CVE_LOG_DIR', LOGS_DIR . '/cve');
         }
-        // Async tasks pool dir
-        if (!defined('POOL')) {
-            define('POOL', DATA_DIR . "/tasks/pool");
-        }
         // PIDs
         if (!defined('PID_DIR')) {
             define('PID_DIR', DATA_DIR . "/tasks/pid");
@@ -99,7 +95,7 @@ class Main
         }
         // Logbuilder
         if (!defined('LOGBUILDER')) {
-            define('LOGBUILDER', ROOT . '/tools/logbuilder.php');
+            define('LOGBUILDER', ROOT . '/tasks/logbuilder.php');
         }
         // Actual release version and available version on github
         if (!defined('VERSION')) {
@@ -111,19 +107,20 @@ class Main
         if (!defined('GIT_VERSION')) {
             define('GIT_VERSION', trim(file_get_contents(DATA_DIR . '/version.available')));
         }
-
-        if (defined('VERSION') and defined('GIT_VERSION')) {
-            if (!empty(GIT_VERSION) && VERSION !== GIT_VERSION) {
-                if (!defined('UPDATE_AVAILABLE')) {
-                    define('UPDATE_AVAILABLE', 'true');
+        if (!defined('UPDATE_AVAILABLE')) {
+            if (defined('VERSION') and defined('GIT_VERSION')) {
+                if (preg_match('/^[0-9]+\.[0-9]+\.[0-9]+$/', GIT_VERSION)) {
+                    if (VERSION !== GIT_VERSION) {
+                        define('UPDATE_AVAILABLE', true);
+                    } else {
+                        define('UPDATE_AVAILABLE', false);
+                    }
+                } else {
+                    define('UPDATE_AVAILABLE', false);
                 }
             } else {
-                if (!defined('UPDATE_AVAILABLE')) {
-                    define('UPDATE_AVAILABLE', 'false');
-                }
+                define('UPDATE_AVAILABLE', false);
             }
-        } else {
-            define('UPDATE_AVAILABLE', 'false');
         }
 
         /**
@@ -131,11 +128,11 @@ class Main
          */
         if (file_exists(DATA_DIR . "/update-running")) {
             if (!defined('UPDATE_RUNNING')) {
-                define('UPDATE_RUNNING', 'true');
+                define('UPDATE_RUNNING', true);
             }
         } else {
             if (!defined('UPDATE_RUNNING')) {
-                define('UPDATE_RUNNING', 'false');
+                define('UPDATE_RUNNING', false);
             }
         }
 

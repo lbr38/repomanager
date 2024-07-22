@@ -9,7 +9,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
     /**
      *  Download Release file
      */
-    private function getReleaseFile()
+    private function downloadReleaseFile()
     {
         $this->logOutput(PHP_EOL . 'Getting <code>InRelease</code> / <code>Release</code> file ... ');
 
@@ -680,7 +680,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             /**
              *  Download
              */
-            if (!$this->download($url . '/' . $debPackageLocation, $targetDir . '/' . $debPackageName)) {
+            if (!$this->download($url . '/' . $debPackageLocation, $targetDir . '/' . $debPackageName, 3)) {
                 $this->logError('error', 'Error while retrieving packages');
             }
 
@@ -688,7 +688,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  Check that downloaded deb package's sha256 matches the sha256 specified by the Packages file
              */
             if (hash_file('sha256', $targetDir . '/' . $debPackageName) != $debPackageChecksum) {
-                $this->logError('SHA256 does not match', 'Error while retrieving packages');
+                $this->logError('checksum of the downloaded package does not match the checksum indicated by the source repository metadata (tested sha256)', 'Error while retrieving packages');
             }
 
             /**
@@ -852,7 +852,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
         /**
          *  Try to download distant Release / InRelease file
          */
-        $this->getReleaseFile();
+        $this->downloadReleaseFile();
 
         /**
          *  Check Release GPG signature if enabled

@@ -32,19 +32,19 @@ jobs:
       # Entrypoint is not executed, so we need to run most of the commands manually
       - name: Execute entrypoint
         run: |
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/initialize-database.php" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/initialize.php" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php" www-data
           /bin/bash /var/www/repomanager/bin/repomanager -p
 
       # Create deb tasks jobs in database
       - name: Create deb tasks jobs
         run: |
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php --release='ci/deb/mirror'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php --release='ci/deb/update'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php --release='ci/deb/duplicate'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php --release='ci/deb/env'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php --release='ci/deb/rebuild'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php --release='ci/deb/delete'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/deb/mirror'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/deb/update'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/deb/duplicate'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/deb/env'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/deb/rebuild'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/deb/delete'" www-data
 
       # Create some environments for the tasks to run
       - name: Set basic configuration
@@ -101,19 +101,19 @@ jobs:
       # Entrypoint is not executed, so we need to run most of the commands manually
       - name: Execute entrypoint
         run: |
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/initialize-database.php" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/initialize.php" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php" www-data
           /bin/bash /var/www/repomanager/bin/repomanager -p
 
       # Create rpm tasks jobs in database
       - name: Create rpm tasks jobs
         run: |
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php --release='ci/rpm/mirror'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php --release='ci/rpm/update'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php --release='ci/rpm/duplicate'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php --release='ci/rpm/env'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php --release='ci/rpm/rebuild'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php --release='ci/rpm/delete'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/rpm/mirror'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/rpm/update'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/rpm/duplicate'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/rpm/env'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/rpm/rebuild'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/rpm/delete'" www-data
 
       # Create some environments for the tasks to run
       - name: Set basic configuration

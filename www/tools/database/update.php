@@ -29,11 +29,13 @@ try {
     echo PHP_EOL . 'Enabling maintenance page.' . PHP_EOL;
     $myupdate->setMaintenance('on');
 
+    echo 'Updating database.' . PHP_EOL;
+
     /**
      *  Only execute specified version update file
      */
     if (!empty($targetVersion)) {
-        echo PHP_EOL . 'Executing SQL queries if there are...' . PHP_EOL;
+        echo 'Executing ' . $targetVersion . ' release SQL queries if there are...' . PHP_EOL;
         $myupdate->updateDB($targetVersion);
 
     /**
@@ -47,7 +49,7 @@ try {
     $error++;
 }
 
-echo PHP_EOL . 'Disabling maintenance page.' . PHP_EOL;
+echo 'Disabling maintenance page.' . PHP_EOL;
 
 $myupdate->setMaintenance('off');
 

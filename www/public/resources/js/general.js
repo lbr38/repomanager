@@ -23,7 +23,22 @@ $(document).on('click','.slide-panel-close-btn',function () {
 $(document).on('click','.acquit-log-btn',function () {
     var id = $(this).attr('log-id');
 
-    acquitLog(id);
+    ajaxRequest(
+        // Controller:
+        'general',
+        // Action:
+        'acquitLog',
+        // Data:
+        {
+            id: id
+        },
+        // Print success alert:
+        false,
+        // Print error alert:
+        true,
+        // Reload containers:
+        ['header/general-log-messages']
+    );
 });
 
 /**
@@ -145,31 +160,7 @@ function reloadOpenedClosedElements()
     });
 }
 
-/**
- * Ajax: Mark log as read
- * @param {string} id
- */
-function acquitLog(id)
-{
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "general",
-            action: "acquitLog",
-            id: id
-        },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            reloadContainer('header/general-log-messages');
-        },
-        error: function (jqXHR, textStatus, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
-}
+
 
 /**
  * Reload panel and execute function if needed
@@ -369,24 +360,26 @@ function reloadTable(table, offset)
  */
 function getConfirmBox(name)
 {
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "general",
-            action: "getConfirmBox",
+    ajaxRequest(
+        // Controller:
+        'general',
+        // Action:
+        'getConfirmBox',
+        // Data:
+        {
             name: name
         },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            closeConfirmBox();
-            $('#newalert').remove();
-            $('footer').append(jsonValue.message);
-        },
-        error: function (jqXHR, textStatus, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
+        // Print success alert:
+        false,
+        // Print error alert:
+        true,
+        // Reload containers:
+        [],
+        // Execute functions on success:
+        [
+            "closeConfirmBox()",
+            "$('#newalert').remove()",
+            "$('footer').append(jsonValue.message)"
+        ]
+    );
 }

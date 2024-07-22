@@ -17,7 +17,6 @@ class Directory
             //GPGHOME, // perms must be 0700 on this directory
             LOGS_DIR,
             MAIN_LOGS_DIR,
-            POOL,
             PID_DIR,
             TEMP_DIR,
             HOSTS_DIR,

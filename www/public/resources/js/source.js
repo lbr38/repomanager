@@ -108,30 +108,31 @@ $(document).on('submit','#source-repo-add-key-form',function () {
  */
 function newSource(repoType, name, url, gpgKeyURL, gpgKeyText)
 {
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "source",
-            action: "new",
+    ajaxRequest(
+        // Controller:
+        'source',
+        // Action:
+        'new',
+        // Data:
+        {
             repoType: repoType,
             name: name,
             url: url,
             gpgKeyURL: gpgKeyURL,
             gpgKeyText: gpgKeyText
         },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'success');
-            reloadPanel('repos/sources');
-            reloadNewRepoDiv();
-        },
-        error: function (jqXHR, ajaxOptions, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload containers:
+        [],
+        // Execute functions on success:
+        [
+            "reloadPanel('repos/sources')",
+            "reloadNewRepoDiv()"
+        ]
+    );
 }
 
 /**
@@ -146,12 +147,13 @@ function newSource(repoType, name, url, gpgKeyURL, gpgKeyText)
  */
 function editSource(id, name, url, gpgkey, sslCertificatePath, sslPrivateKeyPath, sslCaCertificatePath)
 {
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "source",
-            action: "edit",
+    ajaxRequest(
+        // Controller:
+        'source',
+        // Action:
+        'edit',
+        // Data:
+        {
             id: id,
             name: name,
             url: url,
@@ -160,18 +162,18 @@ function editSource(id, name, url, gpgkey, sslCertificatePath, sslPrivateKeyPath
             sslPrivateKeyPath: sslPrivateKeyPath,
             sslCaCertificatePath: sslCaCertificatePath
         },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'success');
-            reloadPanel('repos/sources');
-            reloadNewRepoDiv();
-        },
-        error: function (jqXHR, ajaxOptions, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload containers:
+        [],
+        // Execute functions on success:
+        [
+            "reloadPanel('repos/sources')",
+            "reloadNewRepoDiv()"
+        ]
+    );
 }
 
 /**
@@ -180,26 +182,27 @@ function editSource(id, name, url, gpgkey, sslCertificatePath, sslPrivateKeyPath
  */
 function deleteSource(sourceId)
 {
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "source",
-            action: "delete",
+    ajaxRequest(
+        // Controller:
+        'source',
+        // Action:
+        'delete',
+        // Data:
+        {
             sourceId: sourceId
         },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'success');
-            reloadPanel('repos/sources');
-            reloadNewRepoDiv();
-        },
-        error: function (jqXHR, ajaxOptions, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload containers:
+        [],
+        // Execute functions on success:
+        [
+            "reloadPanel('repos/sources')",
+            "reloadNewRepoDiv()"
+        ]
+    );
 }
 
 /**
@@ -208,25 +211,26 @@ function deleteSource(sourceId)
  */
 function deleteGpgKey(gpgKeyId)
 {
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "source",
-            action: "deleteGpgKey",
+    ajaxRequest(
+        // Controller:
+        'source',
+        // Action:
+        'deleteGpgKey',
+        // Data:
+        {
             gpgKeyId: gpgKeyId
         },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'success');
-            reloadPanel('repos/sources');
-        },
-        error: function (jqXHR, ajaxOptions, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload containers:
+        [],
+        // Execute functions on success:
+        [
+            "reloadPanel('repos/sources')"
+        ]
+    );
 }
 
 /**
@@ -235,23 +239,24 @@ function deleteGpgKey(gpgKeyId)
  */
 function importGpgKey(gpgkey)
 {
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "source",
-            action: "importGpgKey",
+    ajaxRequest(
+        // Controller:
+        'source',
+        // Action:
+        'importGpgKey',
+        // Data:
+        {
             gpgkey: gpgkey
         },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'success');
-            reloadPanel('repos/sources');
-        },
-        error: function (jqXHR, ajaxOptions, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload containers:
+        [],
+        // Execute functions on success:
+        [
+            "reloadPanel('repos/sources')"
+        ]
+    );
 }

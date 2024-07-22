@@ -10,11 +10,17 @@ class FatalErrorHandler
     private $taskId;
     private $logController;
     private $layoutContainerStateController;
+    private $reservedMemory;
 
     public function __construct()
     {
         $this->logController = new \Controllers\Log\Log();
         $this->layoutContainerStateController = new \Controllers\Layout\ContainerState();
+
+        /**
+         *   Keep some memory reserved for fatalHandler() to run even in a memory error state
+         */
+        $this->reservedMemory = str_repeat(' ', 1024 * 1024); // 1MB
 
         register_shutdown_function(array($this, 'fatalHandler'));
     }
@@ -26,29 +32,34 @@ class FatalErrorHandler
 
     /**
      *  Fatal error handler
+     *  Avoid creating variables here as PHP is already in a memory error state, variables may not be created
      */
     public function fatalHandler()
     {
+        /**
+         *  Free up reserved memory to make sure this function can run even in a memory error state
+         */
+        $this->reservedMemory = null;
+
         $error = error_get_last();
 
         if ($error !== null) {
-            $type = $error['type'];
-            $message = $error['message'];
-            $file = $error['file'];
-            $line = $error['line'];
+            // Other available error keys:
+            // $error['file'];
+            // $error['line'];
 
             /**
              *  Check if the error is a fatal error
              */
-            if ($type === E_ERROR || $type === E_PARSE || $type === E_CORE_ERROR || $type === E_COMPILE_ERROR) {
+            if ($error['type'] === E_ERROR || $error['type'] === E_PARSE || $error['type'] === E_CORE_ERROR || $error['type'] === E_COMPILE_ERROR) {
                 /**
                  *  Print a log message
                  *  If a task Id has been set, log the error with the task Id
                  */
                 if (!empty($this->taskId)) {
-                    $this->logController->log('error', 'Fatal error occured while running task #' . $this->taskId . ' (you may have to stop the task manually)', $message);
+                    $this->logController->log('error', 'Fatal error occured while running task #' . $this->taskId . ' (you may have to stop the task manually)', $error['message']);
                 } else {
-                    $this->logController->log('error', 'Fatal error occured', $message);
+                    $this->logController->log('error', 'Fatal error occured', $error['message']);
                 }
 
                 $this->layoutContainerStateController->update('header/general-log-messages');
