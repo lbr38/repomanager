@@ -34,17 +34,17 @@ $sources = array(
     array(
         'type' => 'rpm',
         'name' => 'base',
-        'url' => 'http://mirror.centos.org/centos-7/7/os/$basearch/'
+        'url' => 'https://vault.centos.org/7.9.2009/os/x86_64/'
     ),
     array(
         'type' => 'rpm',
         'name' => 'updates',
-        'url' => 'http://mirror.centos.org/centos-7/7/updates/$basearch/'
+        'url' => 'https://vault.centos.org/7.9.2009/updates/x86_64/'
     ),
     array(
         'type' => 'rpm',
         'name' => 'extras',
-        'url' => 'http://mirror.centos.org/centos-7/7/extras/$basearch/'
+        'url' => 'https://vault.centos.org/7.9.2009/extras/x86_64/'
     ),
     array(
         'type' => 'rpm',
@@ -55,12 +55,12 @@ $sources = array(
     array(
         'type' => 'rpm',
         'name' => 'centos8-baseos',
-        'url' => 'http://mirror.centos.org/centos/8-stream/BaseOS/$basearch/os/'
+        'url' => 'http://vault.centos.org/8-stream/BaseOS/$basearch/os/'
     ),
     array(
         'type' => 'rpm',
         'name' => 'centos8-appstream',
-        'url' => 'http://mirror.centos.org/centos/8-stream/AppStream/$basearch/os/'
+        'url' => 'http://vault.centos.org/8-stream/AppStream/$basearch/os/'
     ),
     array(
         'type' => 'rpm',

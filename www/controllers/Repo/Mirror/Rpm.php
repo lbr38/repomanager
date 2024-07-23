@@ -104,6 +104,12 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         if (pathinfo($this->modulesLocation, PATHINFO_EXTENSION) == 'gz') {
             $modulesFileExtension = 'gz';
             $modulesFileTargetName = 'modules-temp.yaml.gz';
+        } else if (pathinfo($this->modulesLocation, PATHINFO_EXTENSION) == 'bz2') {
+            $modulesFileExtension = 'bz2';
+            $modulesFileTargetName = 'modules-temp.yaml.bz2';
+        } else if (pathinfo($this->modulesLocation, PATHINFO_EXTENSION) == 'xz') {
+            $modulesFileExtension = 'xz';
+            $modulesFileTargetName = 'modules-temp.yaml.xz';
         } else if (pathinfo($this->modulesLocation, PATHINFO_EXTENSION) == 'yaml') {
             $modulesFileExtension = 'yaml';
             $modulesFileTargetName = 'modules-temp.yaml';
@@ -148,6 +154,36 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             }
         }
 
+        if ($modulesFileExtension == 'bz2') {
+            try {
+                \Controllers\Common::bunzip2($this->workingDir . '/' . $modulesFileTargetName, $this->workingDir . '/modules.yaml');
+            } catch (Exception $e) {
+                throw new Exception('Could not uncompress <code>' . $modulesFileTargetName . '</code>: ' . $e->getMessage());
+            }
+
+            /**
+             *  Delete original .bz2 file
+             */
+            if (!unlink($this->workingDir . '/' . $modulesFileTargetName)) {
+                throw new Exception('Could not delete <code>' . $modulesFileTargetName . '</code> file');
+            }
+        }
+
+        if ($modulesFileExtension == 'xz') {
+            try {
+                \Controllers\Common::xzUncompress($this->workingDir . '/' . $modulesFileTargetName, $this->workingDir . '/modules.yaml');
+            } catch (Exception $e) {
+                throw new Exception('Could not uncompress <code>' . $modulesFileTargetName . '</code>: ' . $e->getMessage());
+            }
+
+            /**
+             *  Delete original .xz file
+             */
+            if (!unlink($this->workingDir . '/' . $modulesFileTargetName)) {
+                throw new Exception('Could not delete <code>' . $modulesFileTargetName . '</code> file');
+            }
+        }
+
         $this->logOK();
     }
 
@@ -168,6 +204,12 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         if (pathinfo($this->updateInfoLocation, PATHINFO_EXTENSION) == 'gz') {
             $updateInfoFileExtension = 'gz';
             $updateInfoFileTargetName = 'updateinfo.xml.gz';
+        } else if (pathinfo($this->updateInfoLocation, PATHINFO_EXTENSION) == 'bz2') {
+            $updateInfoFileExtension = 'bz2';
+            $updateInfoFileTargetName = 'updateinfo.xml.bz2';
+        } else if (pathinfo($this->updateInfoLocation, PATHINFO_EXTENSION) == 'xz') {
+            $updateInfoFileExtension = 'xz';
+            $updateInfoFileTargetName = 'updateinfo.xml.xz';
         } else if (pathinfo($this->updateInfoLocation, PATHINFO_EXTENSION) == 'xml') {
             $updateInfoFileExtension = 'xml';
             $updateInfoFileTargetName = 'updateinfo.xml';
@@ -203,6 +245,36 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
 
             /**
              *  Delete original .gz file
+             */
+            if (!unlink($this->workingDir . '/' . $updateInfoFileTargetName)) {
+                throw new Exception('Could not delete <code>' . $updateInfoFileTargetName . '</code> file');
+            }
+        }
+
+        if ($updateInfoFileExtension == 'bz2') {
+            try {
+                \Controllers\Common::bunzip2($this->workingDir . '/' . $updateInfoFileTargetName, $this->workingDir . '/updateinfo.xml');
+            } catch (Exception $e) {
+                throw new Exception('Could not uncompress <code>' . $updateInfoFileTargetName . '</code>: ' . $e->getMessage());
+            }
+
+            /**
+             *  Delete original .bz2 file
+             */
+            if (!unlink($this->workingDir . '/' . $updateInfoFileTargetName)) {
+                throw new Exception('Could not delete <code>' . $updateInfoFileTargetName . '</code> file');
+            }
+        }
+
+        if ($updateInfoFileExtension == 'xz') {
+            try {
+                \Controllers\Common::xzUncompress($this->workingDir . '/' . $updateInfoFileTargetName, $this->workingDir . '/updateinfo.xml');
+            } catch (Exception $e) {
+                throw new Exception('Could not uncompress <code>' . $updateInfoFileTargetName . '</code>: ' . $e->getMessage());
+            }
+
+            /**
+             *  Delete original .xz file
              */
             if (!unlink($this->workingDir . '/' . $updateInfoFileTargetName)) {
                 throw new Exception('Could not delete <code>' . $updateInfoFileTargetName . '</code> file');
