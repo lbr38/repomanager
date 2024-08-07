@@ -221,7 +221,7 @@
                                             /**
                                              *  Retrieve the status of the last update request (if there is one)
                                              */
-                                            $lastRequestedUpdate = $myhost->getLastRequestedUpdateStatus();
+                                            // $lastRequestedUpdate = $myhost->getLastRequestedUpdateStatus();
 
                                             /**
                                              *  Close the dedicated database of the host

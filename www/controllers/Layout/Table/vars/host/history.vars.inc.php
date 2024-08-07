@@ -17,11 +17,6 @@ if (!empty($_COOKIE['tables/host/history/offset']) and is_numeric($_COOKIE['tabl
 }
 
 /**
- *  Getting updates requests that Repomanager has sent to this host
- */
-// $updatesRequestsList = $myhost->getUpdatesRequests();
-
-/**
  *  Get list of packages events history, with offset
  */
 $events = $myhost->getEventsHistory(true, $reloadableTableOffset);

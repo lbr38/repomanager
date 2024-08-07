@@ -16,17 +16,15 @@
 
     <h3><?= strtoupper($hostname) ?></h3>
 
-    <div class="grid grid-2 justify-space-between align-item-center div-generic-blue reloadable-container" container="host/summary">
-        <table class="table-generic host-table">
-            <tr>
-                <td>IP</td>
-                <td><?= $ip ?></td>
-            </tr>
-            <tr>
-                <td>OS</td>
+    <div class="grid grid-2 justify-space-between align-item-center div-generic-blue">
+        <div class="grid grid-2 align-item-center row-gap-15 margin-top-15 margin-bottom-15 margin-left-15">
+            <span>IP</span>
+            <span><?= $ip ?></span>
+
+            <span>OS</span>
+            <span>
                 <?php
                 if (!empty($os) and !empty($os_version)) {
-                    echo '<td>';
                     if ($os == "Centos" or $os == "centos" or $os == "CentOS") {
                         echo '<img src="/assets/icons/products/centos.png" class="icon" />';
                     } elseif ($os == "Debian" or $os == "debian") {
@@ -37,68 +35,63 @@
                         echo '<img src="/assets/icons/products/tux.png" class="icon" />';
                     }
                     echo ucfirst($os) . ' ' . $os_version . ' - ' . $kernel . ' ' . $arch . '';
-                    echo '</td>';
                 } else {
-                    echo '<td>Unknow</td>';
+                    echo 'Unknow';
                 } ?>
-            </tr>
-            <tr>
-                <td>PROFILE</td>
-                <td>
+            </span>
+
+            <span>PROFILE</span>
+            <span>
                 <?php
                 if (!empty($profile)) {
                     echo '<span class="label-white">' . $profile . '</span>';
                 } else {
                     echo 'Unknow';
                 } ?>
-                </td>
-            </tr>
-            <tr>
-                <td>ENVIRONMENT</td>
+            </span>
+
+            <span>ENVIRONMENT</span>
+            <span>
                 <?php
                 if (!empty($env)) {
-                    echo "<td>" . Controllers\Common::envtag($env) . "</td>";
+                    echo Controllers\Common::envtag($env);
                 } else {
-                    echo '<td>Unknow</td>';
+                    echo 'Unknow';
                 } ?>
-            </tr>
-            <tr>
-                <td>AGENT STATUS</td>
-                <td>
-                    <span>
+            </span>
+
+            <span>AGENT STATUS</span>
+            <span>
+                <?php
+                if ($agentStatus == 'running') {
+                    echo '<img src="/assets/icons/greencircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Running';
+                }
+                if ($agentStatus == "disabled") {
+                    echo '<img src="/assets/icons/yellowcircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Disabled';
+                }
+                if ($agentStatus == "stopped") {
+                    echo '<img src="/assets/icons/redcircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Stopped';
+                }
+                if ($agentStatus == "seems-stopped") {
+                    echo '<img src="/assets/icons/redcircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Seems stopped';
+                }
+                if ($agentStatus == "unknow") {
+                    echo '<img src="/assets/icons/graycircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . '." /> Unknow';
+                } ?>
+            </span>
+
+            <span>AGENT VERSION</span>
+            <span>
+                <span class="label-black">
                     <?php
-                    if ($agentStatus == 'running') {
-                        echo '<img src="/assets/icons/greencircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Running';
-                    }
-                    if ($agentStatus == "disabled") {
-                        echo '<img src="/assets/icons/yellowcircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Disabled';
-                    }
-                    if ($agentStatus == "stopped") {
-                        echo '<img src="/assets/icons/redcircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Stopped';
-                    }
-                    if ($agentStatus == "seems-stopped") {
-                        echo '<img src="/assets/icons/redcircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Seems stopped';
-                    }
-                    if ($agentStatus == "unknow") {
-                        echo '<img src="/assets/icons/graycircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . '." /> Unknow';
+                    if (!empty($agentVersion)) {
+                        echo $agentVersion;
+                    } else {
+                        echo 'Unknow';
                     } ?>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td>AGENT VERSION</td>
-                <td>
-                    <span class="label-black">
-                        <?php
-                        if (!empty($agentVersion)) {
-                            echo $agentVersion;
-                        } else {
-                            echo 'Unknow';
-                        } ?>
-                    </span>
-                </td>
-            </tr>
-        </table>
+                </span>
+            </span>
+        </div>
 
         <div>
             <div class="host-line-chart-container">
