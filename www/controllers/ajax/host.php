@@ -69,7 +69,7 @@ if ($action == "getHostsWithPackage" and !empty($_POST['hostsIdArray']) and !emp
 /*
  *  Execute an action on selected host(s)
  */
-if ($action == "hostExecAction" and !empty($_POST['exec']) and !empty($_POST['hosts_array'])) {
+if ($action == "executeAction" and !empty($_POST['exec']) and !empty($_POST['hosts_array'])) {
     $myhost = new \Controllers\Host();
 
     try {
@@ -79,6 +79,21 @@ if ($action == "hostExecAction" and !empty($_POST['exec']) and !empty($_POST['ho
     }
 
     response(HTTP_OK, $content);
+}
+
+/**
+ *  Cancel a request sent to a host
+ */
+if ($action == "cancelRequest" and !empty($_POST['id'])) {
+    $myhost = new \Controllers\Host();
+
+    try {
+        $myhost->cancelWsRequest($_POST['id']);
+    } catch (\Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, 'Request has been canceled');
 }
 
 /**

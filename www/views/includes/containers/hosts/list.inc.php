@@ -196,40 +196,29 @@
                                             /**
                                              *  Open the dedicated database of the host from its ID to be able to retrieve additional information
                                              */
-                                            $myhost->openHostDb($id);
+                                            $hostDb->openHostDb($id);
 
                                             /**
                                              *  Retrieve the total number of available packages
                                              */
-                                            $packagesAvailableTotal = count($myhost->getPackagesAvailable());
+                                            $packagesAvailableTotal = count($hostDb->getPackagesAvailable());
 
                                             /**
                                              *  Retrieve the total number of installed packages
                                              */
-                                            $packagesInstalledTotal = count($myhost->getPackagesInstalled());
+                                            $packagesInstalledTotal = count($hostDb->getPackagesInstalled());
 
                                             /**
-                                             *  If the total number of available packages retrieved previously is > $packagesCountConsideredOutdated (threshold defined by the user) then we increment $totalNotUptodate (counts the number of hosts that are not up to date in the chartjs)
-                                             *  Else it's $totalUptodate that we increment.
+                                             *  Retrieve the last pending request (if there is one)
                                              */
-                                            if ($packagesAvailableTotal >= $packagesCountConsideredOutdated) {
-                                                $totalNotUptodate++;
-                                            } else {
-                                                $totalUptodate++;
-                                            }
-
-                                            /**
-                                             *  Retrieve the status of the last update request (if there is one)
-                                             */
-                                            $lastRequestedUpdate = $myhost->getLastRequestedUpdateStatus();
+                                            $lastPendingRequest = $myhost->getLastPendingRequest($id);
 
                                             /**
                                              *  Close the dedicated database of the host
                                              */
-                                            $myhost->closeHostDb();
+                                            $hostDb->closeHostDb();
 
                                             /**
-                                             *  Affichage des informations de l'hôte
                                              *  Print the host informations
                                              *  Here the <div> will contain all the host information, this in order to be able to search on it (input 'search a host')
                                              */ ?>
@@ -299,37 +288,75 @@
                                                             /**
                                                              *  Last request status
                                                              */
-                                                            if (!empty($lastRequestedUpdate)) :
-                                                                if ($lastRequestedUpdate['Type'] == 'packages-update') {
-                                                                    $updateType = 'Packages update';
+                                                            if (!empty($lastPendingRequest)) :
+                                                                if ($lastPendingRequest['Request'] == 'request-general-infos') {
+                                                                    $requestTitle = 'Requested the host to send its general informations';
                                                                 }
-                                                                if ($lastRequestedUpdate['Type'] == 'general-status-update') {
-                                                                    $updateType = 'Retrieving general informations';
+                                                                if ($lastPendingRequest['Request'] == 'request-packages-infos') {
+                                                                    $requestTitle = 'Requested the host to send its packages informations';
                                                                 }
-                                                                if ($lastRequestedUpdate['Type'] == 'packages-status-update') {
-                                                                    $updateType = 'Retrieving packages state';
+                                                                if ($lastPendingRequest['Request'] == 'update-all-packages') {
+                                                                    $requestTitle = 'Requested the host to update all of its packages';
                                                                 }
-                                                                if ($lastRequestedUpdate['Status'] == 'requested') {
-                                                                    $updateStatus = '(request send)';
+
+                                                                if ($lastPendingRequest['Status'] == 'new') {
+                                                                    $updateStatus = 'Pending';
+                                                                    $textColor = 'yellowtext';
                                                                 }
-                                                                if ($lastRequestedUpdate['Status'] == 'running') {
-                                                                    $updateStatus = 'running<img src="/assets/images/loading.gif" class="icon" />';
+                                                                if ($lastPendingRequest['Status'] == 'sent') {
+                                                                    $updateStatus = 'Sent';
+                                                                    $textColor = 'yellowtext';
                                                                 }
-                                                                if ($lastRequestedUpdate['Status'] == 'error') {
-                                                                    $updateStatus = 'has failed';
+                                                                if ($lastPendingRequest['Status'] == 'received') {
+                                                                    $updateStatus = 'Received';
+                                                                    $textColor = 'yellowtext';
                                                                 }
-                                                                /**
-                                                                 *  If the update request has been made several days ago or has been made +10min ago then we display the message in yellow, the remote host may not have received or processed the request
-                                                                 */
-                                                                if ($lastRequestedUpdate['Status'] == 'requested' or $lastRequestedUpdate['Status'] == 'running') {
-                                                                    if ($lastRequestedUpdate['Date'] != DATE_YMD or $lastRequestedUpdate['Time'] <= date('H:i:s', strtotime(date('H:i:s') . ' - 10 minutes'))) {
-                                                                        echo '<span class="yellowtext" title="The request does not seem to have been taken into account by the host (requested on ' . DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y') . ' ' . $lastRequestedUpdate['Time'] . ')">' . $updateType . ' ' . $updateStatus . '</span>';
+                                                                if ($lastPendingRequest['Status'] == 'canceled') {
+                                                                    $updateStatus = 'Canceled';
+                                                                    $textColor = 'redtext';
+                                                                }
+                                                                if ($lastPendingRequest['Status'] == 'failed') {
+                                                                    $updateStatus = 'Failed';
+                                                                    $textColor = 'redtext';
+                                                                }
+                                                                if ($lastPendingRequest['Status'] == 'completed') {
+                                                                    $updateStatus = 'Completed';
+                                                                    $textColor = 'lowopacity-cst';
+                                                                }
+
+                                                                if (!empty($lastPendingRequest['Info'])) {
+                                                                    /**
+                                                                     *  If the request was a packages update, retrieve more informations from the summary (number of packages updated)
+                                                                     */
+                                                                    if ($lastPendingRequest['Request'] == 'update-all-packages' and !empty($lastPendingRequest['Info_json'])) {
+                                                                        $summary = json_decode($lastPendingRequest['Info_json'], true);
+
+                                                                        // If there was no packages to update
+                                                                        if ($summary['update']['status'] == 'nothing-to-do') {
+                                                                            $requestInfo = 'No packages to update';
+                                                                        }
+
+                                                                        // If there was packages to update, retrieve the number of packages updated
+                                                                        if ($summary['update']['status'] == 'done' or $summary['update']['status'] == 'failed') {
+                                                                            $successCount = $summary['update']['success']['count'];
+                                                                            $failedCount = $summary['update']['failed']['count'];
+
+                                                                            $requestInfo = $successCount . ' package(s) updated, ' . $failedCount . ' failed';
+                                                                        }
                                                                     } else {
-                                                                        echo '<span class="lowopacity-cst" title="On ' . DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y') . ' ' . $lastRequestedUpdate['Time'] . '">' . $updateType . ' ' . $updateStatus . '</span>';
+                                                                        $requestInfo = $lastPendingRequest['Info'];
                                                                     }
                                                                 }
-                                                                if ($lastRequestedUpdate['Status'] == 'error') {
-                                                                    echo '<span class="redtext" title="On ' . DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y') . ' ' . $lastRequestedUpdate['Time'] . '">' . $updateType . ' ' . $updateStatus . '</span>';
+
+                                                                /**
+                                                                 *  Only print the request title if it was send less than 1h ago
+                                                                 */
+                                                                if (strtotime($lastPendingRequest['Date'] . ' ' . $lastPendingRequest['Time']) >= strtotime(date('Y-m-d H:i:s') . ' - 1 hour')) {
+                                                                    if (!empty($requestInfo)) {
+                                                                        echo '<p class="' . $textColor . '">' . $requestTitle . ' - ' . $requestInfo . '</p>';
+                                                                    } else {
+                                                                        echo '<p class="' . $textColor . '">' . $requestTitle . ' - ' . $updateStatus . '</p>';
+                                                                    }
                                                                 }
                                                             endif ?>
                                                         </div>
@@ -386,11 +413,5 @@
             </div>
         </div>
         <?php
-    endif;
-
-    /**
-     *  Export hosts up to date and not up to date counters to be used in the chartjs
-     */
-    define('HOSTS_TOTAL_UPTODATE', $totalUptodate);
-    define('HOSTS_TOTAL_NOT_UPTODATE', $totalNotUptodate); ?>
+    endif; ?>
 </section>

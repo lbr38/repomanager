@@ -7,7 +7,7 @@ use Exception;
 
 class Connection extends SQLite3
 {
-    public function __construct(string $database, string $hostId = null)
+    public function __construct(string $database, string|null $hostId = null, bool $check = true)
     {
         /**
          *  Open database from its name
@@ -22,9 +22,7 @@ class Connection extends SQLite3
 
             /**
              *  Open database
-             */
-
-            /**
+             *
              *  Case where database is 'main', it is the main database 'repomanager.db'
              */
             if ($database == 'main') {
@@ -32,7 +30,16 @@ class Connection extends SQLite3
                 $this->busyTimeout(10000);
                 $this->enableExceptions(true);
                 $this->enableWAL();
-                $this->checkMainTables();
+
+                /**
+                 *  If check is true, check if tables are missing before generating them
+                 *  This avoid to execute all CREATE tables queries each time the class is instanciated, and should speed up page loading
+                 */
+                if ($check) {
+                    $this->checkMainTables();
+                } else {
+                    $this->generateMainTables();
+                }
 
             /**
              *  Case where database is 'stats', it is the stats database 'repomanager-stats.db'
@@ -42,7 +49,16 @@ class Connection extends SQLite3
                 $this->busyTimeout(10000);
                 $this->enableExceptions(true);
                 $this->enableWAL();
-                $this->checkStatsTables();
+
+                /**
+                 *  If check is true, check if tables are missing before generating them
+                 *  This avoid to execute all CREATE tables queries each time the class is instanciated, and should speed up page loading
+                 */
+                if ($check) {
+                    $this->checkStatsTables();
+                } else {
+                    $this->generateStatsTables();
+                }
 
             /**
              *  Case where database is 'hosts', it is the hosts database 'repomanager-hosts.db'
@@ -52,7 +68,16 @@ class Connection extends SQLite3
                 $this->busyTimeout(10000);
                 $this->enableExceptions(true);
                 $this->enableWAL();
-                $this->checkHostsTables();
+
+                /**
+                 *  If check is true, check if tables are missing before generating them
+                 *  This avoid to execute all CREATE tables queries each time the class is instanciated, and should speed up page loading
+                 */
+                if ($check) {
+                    $this->checkHostsTables();
+                } else {
+                    $this->generateHostsTables();
+                }
 
             /**
              *  Case where database is 'host', it is a host database 'properties.db', hostId must be set
@@ -153,7 +178,9 @@ class Connection extends SQLite3
     public function countHostsTables()
     {
         $result = $this->query("SELECT name FROM sqlite_master WHERE type='table'
-        and name='hosts'
+        and name='ws_connections'
+        OR name='ws_requests'
+        OR name='hosts'
         OR name='groups'
         OR name='group_members'
         OR name='settings'");
@@ -214,7 +241,7 @@ class Connection extends SQLite3
      */
     public function checkHostsTables()
     {
-        $required = 4;
+        $required = 6;
 
         /**
          *  If the number of tables != $required then we try to regenerate the tables
@@ -749,6 +776,32 @@ class Connection extends SQLite3
     private function generateHostsTables()
     {
         /**
+         *  ws_connections table
+         */
+        $this->exec("CREATE TABLE IF NOT EXISTS ws_connections (
+        Connection_id INTEGER,
+        Id_host INTEGER,
+        Authenticated CHAR(5))"); /* true, false */
+
+        /**
+         *  ws_requests table
+         */
+        $this->exec("CREATE TABLE IF NOT EXISTS ws_requests (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Date DATE NOT NULL,
+        Time TIME NOT NULL,
+        Request VARCHAR(255) NOT NULL,
+        Request_json VARCHAR(255),
+        Status VARCHAR(255) NOT NULL, /* new, sent, received, failed, completed */
+        Info VARCHAR(255), /* error or info message */
+        Info_json VARCHAR(255), /* Info message with JSON */
+        Response VARCHAR(255),
+        Response_json VARCHAR(255),
+        Retry INTEGER NOT NULL,
+        Next_retry VARCHAR(255),
+        Id_host INTEGER NOT NULL)");
+
+        /**
          *  hosts table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS hosts (
@@ -801,6 +854,33 @@ class Connection extends SQLite3
         if ($this->isempty($result) === true) {
             $this->exec("INSERT INTO settings ('pkgs_count_considered_outdated', 'pkgs_count_considered_critical') VALUES ('1', '10')");
         }
+
+        /**
+         *  Create indexes
+         */
+        // hosts table indexes:
+        $this->exec("CREATE INDEX IF NOT EXISTS hosts_index ON hosts (Ip, Hostname, Os, Os_version, Os_family, Kernel, Arch, Type, Profile, Env, AuthId, Token, Online_status, Online_status_date, Online_status_time, Reboot_required, Linupdate_version, Status)");
+        $this->exec("CREATE INDEX IF NOT EXISTS hosts_authid_index ON hosts (AuthId)");
+        $this->exec("CREATE INDEX IF NOT EXISTS hosts_token_index ON hosts (Token)");
+        $this->exec("CREATE INDEX IF NOT EXISTS hosts_authid_token_status_index ON hosts (AuthId, Token, Status)");
+        $this->exec("CREATE INDEX IF NOT EXISTS hosts_hostname_index ON hosts (Hostname)");
+        $this->exec("CREATE INDEX IF NOT EXISTS hosts_kernel_index ON hosts (Kernel)");
+        $this->exec("CREATE INDEX IF NOT EXISTS hosts_profile_index ON hosts (Profile)");
+        $this->exec("CREATE INDEX IF NOT EXISTS hosts_status_online_status_date_time ON hosts (Status, Online_status, Online_status_date, Online_status_time)");
+        // groups table indexes:
+        $this->exec("CREATE INDEX IF NOT EXISTS groups_index ON groups (Name)");
+        // group_members table indexes:
+        $this->exec("CREATE INDEX IF NOT EXISTS group_members_index ON group_members (Id_host, Id_group)");
+        $this->exec("CREATE INDEX IF NOT EXISTS group_members_id_host_index ON group_members (Id_host)");
+        $this->exec("CREATE INDEX IF NOT EXISTS group_members_id_group_index ON group_members (Id_group)");
+        // ws_connections table indexes:
+        $this->exec("CREATE INDEX IF NOT EXISTS ws_connections_authenticated ON ws_connections (Authenticated)");
+        $this->exec("CREATE INDEX IF NOT EXISTS ws_connections_connection_id ON ws_connections (Connection_id)");
+        $this->exec("CREATE INDEX IF NOT EXISTS ws_connections_id_host ON ws_connections (Id_host)");
+        // ws_requests table indexes:
+        $this->exec("CREATE INDEX IF NOT EXISTS ws_requests_id_host ON ws_requests (Id_host)");
+        $this->exec("CREATE INDEX IF NOT EXISTS ws_requests_status ON ws_requests (Status)");
+        $this->exec("CREATE INDEX IF NOT EXISTS ws_requests_date_time ON ws_requests (Date, Time)");
     }
 
     /**
@@ -858,15 +938,19 @@ class Connection extends SQLite3
         Status VARCHAR(7))"); /* error / warning / unknow / done */
 
         /**
-         *  updates_requests table
-         *  History of all update requests
+         *  Create indexes
          */
-        $this->exec("CREATE TABLE IF NOT EXISTS updates_requests (
-        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        Date DATE NOT NULL,
-        Time TIME NOT NULL,
-        Type CHAR(32), /* packages-update, general-status-update, packages-status-update */
-        Status VARCHAR(10))"); /* running, done, error */
+        // packages table indexes:
+        $this->exec("CREATE INDEX IF NOT EXISTS host_packages_available_name_version ON packages_available (Name, Version);");
+        $this->exec("CREATE INDEX IF NOT EXISTS host_packages_name_version ON packages (Name, Version);");
+        $this->exec("CREATE INDEX IF NOT EXISTS host_packages_state ON packages (State);");
+        $this->exec("CREATE INDEX IF NOT EXISTS host_packages_id_event_state ON packages (Id_event, State)");
+        $this->exec("CREATE INDEX IF NOT EXISTS host_packages_state_date ON packages (State, Date)");
+        // packages_history table indexes:
+        $this->exec("CREATE INDEX IF NOT EXISTS host_packages_history_id_event_State ON packages_history (Id_event, State)");
+        $this->exec("CREATE INDEX IF NOT EXISTS host_packages_history_name ON packages_history (Name)");
+        $this->exec("CREATE INDEX IF NOT EXISTS host_packages_history_state ON packages_history (State)");
+        $this->exec("CREATE INDEX IF NOT EXISTS host_packages_history_state_date ON packages_history (State, Date)");
     }
 
     /**

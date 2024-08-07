@@ -585,7 +585,6 @@ $(document).on('click',".js-select-all-button",function () {
  *  Event: When a host action button is clicked
  */
 $(document).on('click','.hostsActionBtn',function () {
-
     var hostsArray = [];
 
     /**
@@ -607,20 +606,52 @@ $(document).on('click','.hostsActionBtn',function () {
     });
 
     /**
-     *  Depending on the action we ask for a confirmation
+     *  Define confirmation message and button text
      */
-    if (action == 'update') {
-        confirmBox('Request selected hosts to update their packages?', function () {
-            execAction(action, hostsArray)}, 'Update');
-    } else if (action == 'delete') {
-        confirmBox('Delete selected hosts?', function () {
-            execAction(action, hostsArray)});
+    if (action == 'request-general-infos') {
+        confirmMessage = 'Request selected hosts to send general informations?';
+        confirmBtn = 'Request';
+    } else if (action == 'request-packages-infos') {
+        confirmMessage = 'Request selected hosts to send packages informations?';
+        confirmBtn = 'Request';
+    } else if (action == 'update-all-packages') {
+        confirmMessage = 'Request selected hosts to update their packages?';
+        confirmBtn = 'Request';
     } else if (action == 'reset') {
-        confirmBox('Reset selected hosts?', function () {
-            execAction(action, hostsArray)}, 'Reset');
+        confirmMessage = 'Reset selected hosts?';
+        confirmBtn = 'Reset';
+    } else if (action == 'delete') {
+        confirmMessage = 'Delete selected hosts?';
+        confirmBtn = 'Delete';
     } else {
-        execAction(action, hostsArray);
+        printAlert('Unknown action', 'error');
+        return
     }
+
+    /**
+     *  Print confirmation box and execute action
+     */
+    confirmBox(confirmMessage, function () {
+        ajaxRequest(
+            // Controller:
+            'host',
+            // Action:
+            'executeAction',
+            // Data:
+            {
+                exec: action,
+                hosts_array: hostsArray
+            },
+            // Print success alert:
+            true,
+            // Print error alert:
+            true,
+            // Reload container:
+            ['hosts/list', 'host/requests', 'host/history'],
+            // Execute functions on success:
+            []
+        )
+    }, confirmBtn);
 });
 
 /**
@@ -628,30 +659,65 @@ $(document).on('click','.hostsActionBtn',function () {
  */
 $(document).on('click','.host-action-btn',function () {
 
-    var hosts_array = [];
+    var hostsArray = [];
 
     /**
      *  Récupère l'id de l'hôte
      */
-    hosts_array.push($(this).attr('hostid'));
+    hostsArray.push($(this).attr('host-id'));
 
     /**
      *  Récupère l'action à exécuter
      */
     var action = $(this).attr('action');
 
-    if (action == 'update') {
-        confirmBox('Request host to update its packages?', function () {
-            execAction(action, hosts_array);}, 'Update');
+    /**
+     *  Define confirmation message and button text
+     */
+    if (action == 'request-general-infos') {
+        confirmMessage = 'Request host to send general informations?';
+        confirmBtn = 'Request';
+    } else if (action == 'request-packages-infos') {
+        confirmMessage = 'Request host to send packages informations?';
+        confirmBtn = 'Request';
+    } else if (action == 'update-all-packages') {
+        confirmMessage = 'Request host to update its packages?';
+        confirmBtn = 'Request';
     } else if (action == 'reset') {
-        confirmBox('Reset host?', function () {
-            execAction(action, hosts_array);}, 'Reset');
+        confirmMessage = 'Reset host?';
+        confirmBtn = 'Reset';
     } else if (action == 'delete') {
-        confirmBox('Delete host?', function () {
-            execAction(action, hosts_array);}, 'Delete');
+        confirmMessage = 'Delete host?';
+        confirmBtn = 'Delete';
     } else {
-        execAction(action, hosts_array);
+        printAlert('Unknown action', 'error');
+        return
     }
+
+    /**
+     *  Print confirmation box and execute action
+     */
+    confirmBox(confirmMessage, function () {
+        ajaxRequest(
+            // Controller:
+            'host',
+            // Action:
+            'executeAction',
+            // Data:
+            {
+                exec: action,
+                hosts_array: hostsArray
+            },
+            // Print success alert:
+            true,
+            // Print error alert:
+            true,
+            // Reload container:
+            ['hosts/list', 'host/requests', 'host/history'],
+            // Execute functions on success:
+            []
+        )
+    }, confirmBtn);
 });
 
 /**
@@ -683,21 +749,33 @@ $(document).on('click','#installed-packages-btn',function () {
 });
 
 /**
- *  Event : afficher tous les évènements
+ *  Event: cancel a request sent to a host
  */
-$(document).on('click','#print-all-events-btn',function () {
+$(document).on('click','.cancel-request-btn',function () {
     /**
-     *  On affiche les évènements masqués de type 'event'
+     *  Retrieve request id
      */
-    $("tr.event").css('display', 'table-row');
+    var id = $(this).attr('request-id');
+
     /**
-     *  On affiche les évènements masqués de type 'update-request' (si il y en a)
+     *  Cancel request
      */
-    $("tr.update-request").css('display', 'table-row');
-    /**
-     *  On masque le bouton "Afficher tout"
-     */
-    $("#print-all-events-btn").hide();
+    ajaxRequest(
+        // Controller:
+        'host',
+        // Action:
+        'cancelRequest',
+        // Data:
+        {
+            id: id
+        },
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload container:
+        ['host/requests']
+    );
 });
 
 /**
@@ -875,36 +953,6 @@ function editGroup(id, name, hostsId)
             printAlert(jsonValue.message, 'success');
             reloadPanel('hosts/groups', function () {
                 selectToSelect2('select.group-hosts-list', 'Add host...'); });
-            reloadContainer('hosts/list');
-        },
-        error: function (jqXHR, textStatus, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
-}
-
-/**
- * Ajax: Execute an action on selected host(s)
- * @param {string} action
- * @param {array} hosts_array
- */
-function execAction(action, hosts_array)
-{
-    printAlert('Request being sent <img src="/assets/images/loading.gif" class="icon" />');
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "host",
-            action: "hostExecAction",
-            exec: action,
-            hosts_array: hosts_array
-        },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'success');
             reloadContainer('hosts/list');
         },
         error: function (jqXHR, textStatus, thrownError) {

@@ -15,7 +15,7 @@ try {
      *  Open a connection to each database and create tables if they do not exist
      */
     foreach ($databases as $database) {
-        $myconn = new \Models\Connection($database);
+        $myconn = new \Models\Connection($database, null, false);
     }
 } catch (\Exception $e) {
     echo 'There was an error while initializing ' . $database . ' database: ' . $e->getMessage() .  PHP_EOL;

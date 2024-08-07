@@ -83,7 +83,7 @@ class Host extends \Controllers\Api\Controller
             if (!empty($this->hostId)) {
                 try {
                     $myhost->setAuthId($this->hostId);
-                    $myhost->setId($myhost->getIdByAuth());
+                    $myhost->setId($myhost->getIdByAuth($this->hostId));
                 } catch (Exception $e) {
                     throw new Exception('Coult not retrieve host Id in database');
                 }
@@ -313,27 +313,6 @@ class Host extends \Controllers\Api\Controller
                             } catch (Exception $e) {
                                 throw new Exception('Package events history update has failed.');
                             }
-                        }
-                    }
-                }
-
-                /**
-                 *  Host request acknowledgement
-                 *  https://repomanager.mydomain.net/api/v2/host/request
-                 */
-                if ($this->component == 'request' and $this->method == 'PUT') {
-                    /**
-                     *  https://repomanager.mydomain.net/api/v2/host/request/packages-update
-                     *  https://repomanager.mydomain.net/api/v2/host/request/general-status-update
-                     *  https://repomanager.mydomain.net/api/v2/host/request/packages-status-update
-                     *  https://repomanager.mydomain.net/api/v2/host/request/full-history-update
-                     */
-                    if (!empty($this->data->status) and ($this->action == 'packages-update' or $this->action == 'general-status-update' or $this->action == 'packages-status-update' or $this->action == 'full-history-update') and $this->method == 'PUT') {
-                        try {
-                            $myhost->acknowledgeRequest($this->action, $this->data->status);
-                            return array('message' => array('Acknowledge has been taken into account.'));
-                        } catch (Exception $e) {
-                            throw new Exception($e->getMessage());
                         }
                     }
                 }

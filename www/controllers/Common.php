@@ -669,7 +669,7 @@ class Common
     /**
      *  Print OS icon image
      */
-    public static function printOsIcon(string $os = null, string $os_family = null)
+    public static function printOsIcon(string $os = null, string $osFamily = null)
     {
         if (!empty($os)) {
             if (preg_match('/centos/i', $os)) {
@@ -684,10 +684,10 @@ class Common
         /**
          *  If OS could not be found and OS family is specified
          */
-        if (!empty($os_family)) {
-            if (preg_match('/debian|ubuntu|kubuntu|xubuntu|armbian|mint/i', $os_family)) {
+        if (!empty($osFamily)) {
+            if (preg_match('/debian|ubuntu|kubuntu|xubuntu|armbian|mint/i', $osFamily)) {
                 return '<img src="/assets/icons/products/debian.png" class="icon-np" title="' . $os . '" />';
-            } elseif (preg_match('/rhel|centos|fedora/i', $os_family)) {
+            } elseif (preg_match('/rhel|centos|fedora/i', $osFamily)) {
                 return '<img src="/assets/icons/products/redhat.png" class="icon-np" title="' . $os . '" />';
             }
         }

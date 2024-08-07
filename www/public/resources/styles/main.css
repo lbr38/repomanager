@@ -1,4 +1,4 @@
-@font-face{ font-family: 'ethnocentric'; src: url('/assets/fonts/ethnocentric rg.ttf') format('truetype'); }
+@font-face{font-family: 'ethnocentric'; src: url('/assets/fonts/ethnocentric rg.ttf') format('truetype');}
 
 body {
     display: flex;
@@ -8,10 +8,9 @@ body {
      *  'fade-in' mode on every page
      *  See @keyframes fadeInAnimation below
      **/
-    animation: fadeInAnimation ease 0.00001s;
+    /* animation: fadeInAnimation ease 0.00001s;
     animation-iteration-count: 1;
-    animation-fill-mode: forwards;
-    font-family: 'Roboto', sans-serif !important;
+    animation-fill-mode: forwards; */
     margin: 0px;
     padding: 0px;
     background-color: #112334;
@@ -20,14 +19,14 @@ body {
     font-size: 13px;
 }
 
-@keyframes fadeInAnimation {
+/* @keyframes fadeInAnimation {
     0% {
         opacity: 0;
     }
     100% {
         opacity: 1;
     }
-}
+} */
 
 header {
     width: 100%;
@@ -455,10 +454,6 @@ article {
 .repo-action-btn {
     margin-left: 5px;
     margin-right: 5px;
-}
-
-.host-action-btn {
-    margin-top: 5px;
 }
 
 /* Menu gestion des profils */
