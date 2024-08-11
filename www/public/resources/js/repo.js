@@ -258,7 +258,7 @@ $(document).on('click','.client-configuration-btn',function () {
     var www_hostname = $(this).attr('www-hostname');
 
     if (packageType == "rpm") {
-        var commands = 'echo -e "[' + repo_conf_files_prefix + '' + repoName + '_' + repoEnv + ']\nname=' + repoName + ' repo on ' + www_hostname + '\ncomment=' + repoName + ' repo on ' + www_hostname + '\nbaseurl=' + repo_dir_url + '/' + repoName + '_' + repoEnv + '\nenabled=1\ngpgkey=' + repo_dir_url + '/gpgkeys/' + www_hostname + '.pub\ngpgcheck=1" > /etc/yum.repos.d/' + repo_conf_files_prefix + '' + repoName + '.repo';
+        var commands = 'echo -e "[' + repo_conf_files_prefix + '' + repoName + '_' + repoEnv + ']\nname=' + repoName + ' repo on ' + www_hostname + '\nbaseurl=' + repo_dir_url + '/' + repoName + '_' + repoEnv + '\nenabled=1\ngpgkey=' + repo_dir_url + '/gpgkeys/' + www_hostname + '.pub\ngpgcheck=1" > /etc/yum.repos.d/' + repo_conf_files_prefix + '' + repoName + '.repo';
     }
     if (packageType == "deb") {
         var commands = 'curl -sS ' + repo_dir_url + '/gpgkeys/' + www_hostname + '.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/' + www_hostname + '.gpg\n\n';

@@ -18,6 +18,9 @@
     - (RPM) See how to accelerate the rpm signing process by using multi-threading
     - (Feature) (DEB) Be able to add distributions to the list of pre-defined distributions (and do the same for sections)
     - (Feature) Support Arch Linux packages https://blog.desdelinux.net/en/create-your-local-arch-linux-repository/
+    - (Feature) (RPM) Do not sign the packages if it was already done before (case the repository has been updated with "Only sync the difference")
+    - (Feature) Add checkboxes to select all repositories of the same group in repos list
+    - (Feature) Add a way to filter wanted/unwanted packages from a repository sync, with a regex
 
 
     [ HOSTS / LINUPDATE ]
