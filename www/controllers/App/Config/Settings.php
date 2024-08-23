@@ -28,9 +28,9 @@ class Settings
          */
         foreach ($settings as $key => $value) {
             /**
-             *  Following parameters can be empty, we don't increment the error counter in their case
+             *  Following parameters can be empty (or equal to 0), we don't increment the error counter in their case
              */
-            $ignoreEmptyParam = array('PROXY', 'RPM_DEFAULT_ARCH', 'DEB_DEFAULT_ARCH', 'DEB_DEFAULT_TRANSLATION', 'REPO_CONF_FILES_PREFIX');
+            $ignoreEmptyParam = array('PROXY', 'RPM_DEFAULT_ARCH', 'DEB_DEFAULT_ARCH', 'DEB_DEFAULT_TRANSLATION', 'REPO_CONF_FILES_PREFIX', 'RETENTION');
 
             if (in_array($key, $ignoreEmptyParam)) {
                 continue;

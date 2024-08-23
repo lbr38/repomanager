@@ -16,6 +16,7 @@ class Create
     private $task;
     private $taskLog;
     private $type;
+    private $packagesToSign = null;
 
     public function __construct(string $taskId)
     {

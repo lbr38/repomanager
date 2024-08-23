@@ -127,7 +127,7 @@ pre {
 .grid-fr-4-1 {grid-template-columns: 4fr 1fr !important}
 .grid-fr-auto-1-2 {grid-template-columns: auto 1fr 2fr !important}
 .grid-fr-auto-1-3 {grid-template-columns: auto 1fr 3fr !important}
-.grid-fr-6 {grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr !important}
+.grid-fr-5 {grid-template-columns: 1fr 1fr 1fr 1fr 1fr !important}
 .justify-center {justify-content: center}
 .justify-space-between {justify-content: space-between}
 .justify-end {justify-content: flex-end}

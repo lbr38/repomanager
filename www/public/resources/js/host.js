@@ -935,28 +935,28 @@ $(document).on('click','.package-details-close-btn',function () {
  */
 function newGroup(name)
 {
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "group",
-            action: "new",
+    ajaxRequest(
+        // Controller:
+        'group',
+        // Action:
+        'new',
+        // Data:
+        {
             name: name,
-            type: "host"
+            type: 'host'
         },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'success');
-            reloadPanel('hosts/groups', function () {
-                selectToSelect2('select.group-hosts-list', 'Add host...'); });
-            reloadContainer('hosts/list');
-        },
-        error: function (jqXHR, textStatus, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload container:
+        ['hosts/list'],
+        // Execute functions on success:
+        [
+            // Reload group panel
+            "reloadPanel('hosts/groups', function () { selectToSelect2('select.group-hosts-list', 'Add host...'); })",
+        ]
+    );
 }
 
 /**
@@ -965,28 +965,28 @@ function newGroup(name)
  */
 function deleteGroup(id)
 {
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "group",
-            action: "delete",
+    ajaxRequest(
+        // Controller:
+        'group',
+        // Action:
+        'delete',
+        // Data:
+        {
             id: id,
-            type: "host"
+            type: 'host'
         },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'success');
-            reloadPanel('hosts/groups', function () {
-                selectToSelect2('select.group-hosts-list', 'Add host...'); });
-            reloadContainer('hosts/list');
-        },
-        error: function (jqXHR, ajaxOptions, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload container:
+        ['hosts/list'],
+        // Execute functions on success:
+        [
+            // Reload group panel
+            "reloadPanel('hosts/groups', function () { selectToSelect2('select.group-hosts-list', 'Add host...'); })",
+        ]
+    );
 }
 
 /**
@@ -997,30 +997,30 @@ function deleteGroup(id)
  */
 function editGroup(id, name, hostsId)
 {
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "group",
-            action: "edit",
+    ajaxRequest(
+        // Controller:
+        'group',
+        // Action:
+        'edit',
+        // Data:
+        {
             id: id,
             name: name,
             data: hostsId,
-            type: "host"
+            type: 'host'
         },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'success');
-            reloadPanel('hosts/groups', function () {
-                selectToSelect2('select.group-hosts-list', 'Add host...'); });
-            reloadContainer('hosts/list');
-        },
-        error: function (jqXHR, textStatus, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload container:
+        ['hosts/list'],
+        // Execute functions on success:
+        [
+            // Reload group panel
+            "reloadPanel('hosts/groups', function () { selectToSelect2('select.group-hosts-list', 'Add host...'); })",
+        ]
+    );
 }
 
 /**

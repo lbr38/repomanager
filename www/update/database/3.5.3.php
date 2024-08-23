@@ -34,17 +34,17 @@ $sources = array(
     array(
         'type' => 'rpm',
         'name' => 'base',
-        'url' => 'https://vault.centos.org/7.9.2009/os/x86_64/'
+        'url' => 'https://vault.centos.org/7.9.2009/os/$basearch/'
     ),
     array(
         'type' => 'rpm',
         'name' => 'updates',
-        'url' => 'https://vault.centos.org/7.9.2009/updates/x86_64/'
+        'url' => 'https://vault.centos.org/7.9.2009/updates/$basearch/'
     ),
     array(
         'type' => 'rpm',
         'name' => 'extras',
-        'url' => 'https://vault.centos.org/7.9.2009/extras/x86_64/'
+        'url' => 'https://vault.centos.org/7.9.2009/extras/$basearch/'
     ),
     array(
         'type' => 'rpm',

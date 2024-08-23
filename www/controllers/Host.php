@@ -373,7 +373,7 @@ class Host
             }
             if ($event['State'] == "purged") {
                 $contentIcon = 'delete';
-                $contentText = 'Purged';
+                $contentText = 'Uninstalled (purged)';
             }
 
             /**
@@ -1561,7 +1561,7 @@ class Host
     /**
      *  Update websocket request in database
      */
-    public function updateWsRequest(int $id, string $status, string|null $info = null, string|null $infoJson = null)
+    public function updateWsRequest(int $id, string $status, string $info, string $infoJson)
     {
         $this->model->updateWsRequest($id, $status, $info, $infoJson);
     }

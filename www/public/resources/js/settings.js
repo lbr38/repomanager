@@ -259,21 +259,16 @@ function deleteUser(id)
  */
 function sendTestEmail()
 {
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "settings",
-            action: "sendTestEmail"
-        },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'success');
-        },
-        error: function (jqXHR, textStatus, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
+    ajaxRequest(
+        // Controller:
+        'settings',
+        // Action:
+        'sendTestEmail',
+        // Data:
+        {},
+        // Print success alert:
+        true,
+        // Print error alert:
+        true
+    );
 }

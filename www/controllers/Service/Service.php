@@ -287,14 +287,12 @@ class Service
                     $this->lastStatsRunning = date('H:i');
 
                     /**
-                     *  Clean old statistics
+                     *  Clean old statistics and generate repo size statistics at midnight
                      */
-                    $this->serviceStatisticController->statsClean();
-
-                    /**
-                     *  Generate repo size statistics
-                     */
-                    $this->serviceStatisticController->statsGenerate();
+                    if ($this->currentTime == '00:00') {
+                        $this->serviceStatisticController->statsClean();
+                        $this->serviceStatisticController->statsGenerate();
+                    }
 
                     /**
                      *  Parse access logs to generate repo access statistics

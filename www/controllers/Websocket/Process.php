@@ -64,8 +64,8 @@ class Process extends WebsocketServer
      */
     public function responseFromRequestId($conn, $message)
     {
-        $info = 'Completed';
-        $infoJson = null;
+        $info = '';
+        $infoJson = '';
 
         /**
          *  Retrieve request Id
@@ -79,7 +79,6 @@ class Process extends WebsocketServer
 
         /**
          *  Retrieve error or info message, if any
-         *  Otherwise, info is set to 'Completed'
          */
         if (!empty($message['response-to-request']['error'])) {
             $info = 'Error: ' . strtolower($message['response-to-request']['error']);
@@ -245,7 +244,7 @@ class Process extends WebsocketServer
                     /**
                      *  Update request status to 'sent' in database
                      */
-                    $this->hostController->updateWsRequest($request['Id'], 'sent');
+                    $this->hostController->updateWsRequestStatus($request['Id'], 'sent');
                     $this->hostController->updateWsRequestInfo($request['Id'], 'Request sent to the host');
                     $this->layoutContainerStateController->update('host/requests');
                 }

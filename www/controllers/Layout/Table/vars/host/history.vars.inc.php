@@ -53,6 +53,11 @@ foreach ($events as $event) {
     $event['PackagesRemoved'] = $myhost->getEventPackagesList($event['Id'], 'removed');
 
     /**
+     *  Getting purged packages from this event
+     */
+    $event['PackagesPurged'] = $myhost->getEventPackagesList($event['Id'], 'purged');
+
+    /**
      *  Add this event to the list of events with packages
      */
     $eventsWithPackages[] = $event;

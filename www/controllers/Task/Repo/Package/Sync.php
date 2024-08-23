@@ -222,7 +222,7 @@ trait Sync
                 }
 
                 /**
-                 *  If the source repo has a custom SSL certificate, private key or CA certificate, then they will be used
+                 *  If the source repo requires a SSL certificate, private key or CA certificate, then they will be used
                  */
                 if (!empty($sourceDetails['Ssl_certificate_path'])) {
                     $mymirror->setSslCustomCertificate($sourceDetails['Ssl_certificate_path']);
@@ -234,6 +234,14 @@ trait Sync
                     $mymirror->setSslCustomCaCertificate($sourceDetails['Ssl_ca_certificate_path']);
                 }
                 $mymirror->mirror();
+
+                /**
+                 *  If the repo snapshot must be signed, then retrieve the list of packages to sign from the mirroring task
+                 *  It will be used in the signing task (see Sign.php)
+                 */
+                if ($this->repo->getGpgSign() == 'true') {
+                    $this->packagesToSign = $mymirror->getPackagesToSign();
+                }
 
                 unset($mymirror);
             }

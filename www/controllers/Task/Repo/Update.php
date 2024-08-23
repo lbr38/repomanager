@@ -16,6 +16,7 @@ class Update
     private $repo;
     private $task;
     private $taskLog;
+    private $packagesToSign = null;
 
     public function __construct(string $taskId)
     {

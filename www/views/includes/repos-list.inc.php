@@ -19,15 +19,25 @@ if (!empty($groupsList)) {
         /**
          *  Count repositories
          *  To have the exact number of repos, count by their repoId (to avoid duplicate repos)
-         *  e.g:
          */
-        $reposCount = count(array_unique(array_column($reposList, 'repoId'))); ?>
+        $reposCount = count(array_unique(array_column($reposList, 'repoId')));
+
+        /**
+         *  Generate count message
+         */
+        if ($reposCount < 2) {
+            $countMessage = $reposCount . ' repository';
+        } else {
+            $countMessage = $reposCount . ' repositories';
+        } ?>
 
         <div class="repos-list-group div-generic-blue veil-on-reload" group="<?= $group['Name'] ?>">
-            <img src="/assets/icons/up.svg" class="hideGroup pointer float-right icon-lowopacity" group-id="<?= $group['Id'] ?>" state="visible" />
-            <div>
-                <p class="font-size-16"><?= $group['Name'] ?></p>
-                <p class="lowopacity-cst"><?= $reposCount ?> repositories</p>
+            <div class="flex justify-space-between">
+                <div>
+                    <p class="font-size-16"><?= $group['Name'] ?></p>
+                    <p class="lowopacity-cst"><?= $countMessage ?></p>
+                </div>
+                <img src="/assets/icons/up.svg" class="hideGroup pointer icon-lowopacity" group-id="<?= $group['Id'] ?>" state="visible" />
             </div>
 
             <?php

@@ -69,6 +69,7 @@ td:last-child,
     display: grid;
     grid-template-columns: 3% 4% 47% 11% 11% 8% 8% 8%;
     align-items: center;
+    text-wrap: balance;
 }
 
 .hosts-table-title {
@@ -378,6 +379,7 @@ td:last-child,
     margin-top: 20px;
     background-color: #0c141b;
     border-radius: 8px;
+    line-height: 1.5;
 }
 
 /* Desktop configuration */
