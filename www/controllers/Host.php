@@ -9,6 +9,7 @@ class Host
 {
     protected $host_db; // BDD dédiée de l'hôte
     private $model;
+    private $layoutContainerStateController;
     private $id;
     private $idArray = array();
     private $ip;
@@ -38,6 +39,7 @@ class Host
          *  Ouverture de la base de données 'hosts' (repomanager-hosts.db)
          */
         $this->model = new \Models\Host();
+        $this->layoutContainerStateController = new \Controllers\Layout\ContainerState();
     }
 
     public function setId(string $id)
@@ -146,16 +148,9 @@ class Host
     /**
      *  Récupère l'ID en BDD d'un hôte à partir de ses identifiants
      */
-    public function getIdByAuth()
+    public function getIdByAuth(string $authId)
     {
-        /**
-         *  Récupération à partir d'un id d'hôte et du token
-         */
-        if (empty($this->authId)) {
-            throw new Exception('Invalid authId identifier');
-        }
-
-        $id = $this->model->getIdByAuth($this->authId);
+        $id = $this->model->getIdByAuth($authId);
 
         if (empty($id)) {
             throw new Exception("No host Id has been found from this authId identifier");
@@ -175,6 +170,14 @@ class Host
         }
 
         return $this->model->getAllById($id);
+    }
+
+    /**
+     *  Return the hostname of the host by its Id
+     */
+    public function getHostnameById(int $id)
+    {
+        return $this->model->getHostnameById($id);
     }
 
     /**
@@ -219,11 +222,20 @@ class Host
     }
 
     /**
-     *  Récupère la liste des mises à jour demandées par repomanager à l'hôte
+     *  Retrieve the list of requests sent to the host
+     *  It is possible to add an offset to the request
      */
-    public function getUpdatesRequests()
+    public function getRequests(int $id, bool $withOffset = false, int $offset = 0)
     {
-        return $this->model->getUpdatesRequests();
+        return $this->model->getRequests($id, $withOffset, $offset);
+    }
+
+    /**
+     *  Return the last pending request sent to the host
+     */
+    public function getLastPendingRequest(int $id)
+    {
+        return $this->model->getLastPendingRequest($id);
     }
 
     /**
@@ -286,7 +298,7 @@ class Host
 
         foreach ($packages as $package) {
             $content .= '<div class="flex align-item-center min-width-200">';
-            $content .= Common::printProductIcon($package['Name']);
+            $content .= \Controllers\Common::printProductIcon($package['Name']);
             $content .= '<span class="copy">' . $package['Name'] . '</span>';
             $content .= '</div>';
             $content .= '<span class="copy">' . $package['Version'] . '</span>';
@@ -408,36 +420,6 @@ class Host
         $content .= '</div>';
 
         return $content;
-    }
-
-    /**
-     *  Récupère les informations concernant la dernière requête de mise à jour envoyée à l'hôte
-     */
-    public function getLastUpdateStatus()
-    {
-        $datas = $this->model->getLastUpdateStatus();
-
-        /**
-         *  Parmis les deux arrays récupérées, on tri par date pour avoir le + récent en haut
-         */
-        array_multisort(array_column($datas, 'Date'), SORT_DESC, array_column($datas, 'Time'), SORT_DESC, $datas);
-
-        /**
-         *  On ne retourne uniquement le 1er array (le plus récent)
-         */
-        if (!empty($datas[0])) {
-            return $datas[0];
-        }
-
-        return '';
-    }
-
-    /**
-     *  Récupère le status de la dernière demande de mise à jour de l'hôte
-     */
-    public function getLastRequestedUpdateStatus()
-    {
-        return $this->model->getLastRequestedUpdateStatus();
     }
 
     /**
@@ -1146,57 +1128,27 @@ class Host
         $this->model->setHostInactive($this->id);
     }
 
-    public function acknowledgeRequest(string $type, string $status)
-    {
-        $type = Common::validateData($type);
-        $status = Common::validateData($status);
-
-        /**
-         *  On vérifie que l'action spécifiée par l'hôte est valide
-         */
-        if ($type != 'packages-update' and $type != 'general-status-update' and $type != 'packages-status-update' and $type != 'full-history-update') {
-            throw new Exception('Invalid request type');
-        }
-
-        /**
-         *  On vérifie que le status spécifié par l'hôte est valide
-         */
-        if ($status != 'running' and $status != 'done' and $status != 'error') {
-            throw new Exception('Invalid request status');
-        }
-
-        /**
-         *  Ouverture de la base de données de l'hôte
-         */
-        $this->model->openHostDb($this->id);
-
-        $this->model->acknowledgeRequest($type, $status);
-
-        return true;
-    }
-
     /**
-     *  Demande à un ou plusieurs hôte(s) d'exécuter une action
-     *  - update
-     *  - reset
-     *  - delete
+     *  Ask one or more host(s) to execute an action
      */
     public function hostExec(array $hostsId, string $action)
     {
         /**
-         *  On vérifie que l'action est valide
+         *  Only admins should be able to perform actions
          */
-        if (
-            $action != 'delete'
-            and $action != 'reset'
-            and $action != 'update'
-            and $action != 'general-status-update'
-            and $action != 'packages-status-update'
-        ) {
+        if (!IS_ADMIN) {
+            throw new Exception('You are not allowed to perform this action');
+        }
+
+        $validActions = ['update-all-packages', 'reset', 'delete', 'request-general-infos', 'request-packages-infos'];
+
+        /**
+         *  Check if the action to execute is valid
+         */
+        if (!in_array($action, $validActions)) {
             throw new Exception('Action to execute is invalid');
         }
 
-        $hostIdError                      = array();
         $hostUpdateError                  = array();
         $hostUpdateOK                     = array();
         $hostResetError                   = array();
@@ -1209,267 +1161,142 @@ class Host
         $hostPackagesStatusUpdateOK       = array();
 
         /**
-         *  On traite l'array contenant les Id d'hôtes à traiter
+         *  First check that hosts Id are valid
          */
         foreach ($hostsId as $hostId) {
-            $this->setId(Common::validateData($hostId));
-
-            /**
-             *  Si l'Id de l'hôte n'est pas un chiffre, on enregistre son id dans $hostIdError[] puis on passe à l'hôte suivant
-             */
-            if (!is_numeric($this->id)) {
-                $hostIdError[] = $this->id;
-                continue;
+            if (!is_numeric($hostId)) {
+                throw new Exception('Invalid host Id: ' . $hostId);
             }
+        }
+
+        foreach ($hostsId as $hostId) {
+            $hostId = \Controllers\Common::validateData($hostId);
 
             /**
-             *  D'abord on récupère l'IP et le hostname de l'hôte à traiter
+             *  Retrieve the IP and hostname of the host to be processed
              */
-            $hostname = $this->model->getHostnameById($this->id);
-            $ip = $this->model->getIpById($this->id);
+            $hostname = $this->getHostnameById($hostId);
+            $ip = $this->model->getIpById($hostId);
 
             /**
-             *  Si l'ip récupérée est vide, on passe à l'hôte suivant
+             *  If the retrieved ip is empty, we move on to the next host
              */
             if (empty($ip)) {
                 continue;
             }
-            $this->setIp($ip);
 
+            $this->setIp($ip);
             if (!empty($hostname)) {
                 $this->setHostname($hostname);
             }
 
             /**
-             *  Ouverture de la base de données de l'hôte
+             *  Open host database
              */
-            $this->openHostDb($this->id);
+            $this->openHostDb($hostId);
 
             /**
-             *  Cas où l'action demandée est une mise à jour
-             */
-            if ($action == 'update') {
-                /**
-                 *  Modification de l'état en BDD pour cet hôte (requested = demande envoyée, en attente)
-                 */
-                $this->model->addUpdateRequest('packages-update');
-
-                /**
-                 *  Envoi d'un ping avec le message 'r-update-pkgs' en hexadecimal pour ordonner à l'hôte de se mettre à jour
-                 */
-                exec("ping -W1 -c 1 -p 722d7570646174652d706b6773 $this->ip");
-
-                /**
-                 *  Si l'hôte a un Hostname, on le pousse dans l'array, sinon on pousse uniquement son adresse ip
-                 */
-                if (!empty($this->hostname)) {
-                    $hostUpdateOK[] = array('ip' => $this->ip, 'hostname' => $this->hostname);
-                } else {
-                    $hostUpdateOK[] = array('ip' => $this->ip);
-                }
-            }
-
-            /**
-             *  Si l'action est un reset de l'hôte
+             *  Case where the requested action is a reset
              */
             if ($action == 'reset') {
-
                 /**
-                 *  Reset de certaines informations générales de l'hôte
+                 *  Reset host general informations
                  */
                 $this->model->resetHost($hostId);
-
-                /**
-                 *  Si l'hôte a un Hostname, on le pousse dans l'array, sinon on pousse uniquement son adresse ip
-                 */
-                if (!empty($this->hostname)) {
-                    $hostResetOK[] = array('ip' => $this->ip, 'hostname' => $this->hostname);
-                } else {
-                    $hostResetOK[] = array('ip' => $this->ip);
-                }
             }
 
             /**
-             *  Si l'action est une suppression de l'hôte
+             *  Case where the requested action is a delete
              */
             if ($action == 'delete') {
                 /**
-                 *  Passage de l'hôte en état 'deleted' en BDD
+                 *  Set host status to 'deleted' in database
                  */
                 $this->model->setHostInactive($hostId);
-
-                /**
-                 *  Si l'hôte a un Hostname, on le pousse dans l'array, sinon on pousse uniquement son adresse ip
-                 */
-                if (!empty($this->hostname)) {
-                    $hostDeleteOK[] = array('ip' => $this->ip, 'hostname' => $this->hostname);
-                } else {
-                    $hostDeleteOK[] = array('ip' => $this->ip);
-                }
             }
 
             /**
-             *  Si l'action correspond à l'une des suivantes, on ajoute une entrée dans la base de données de l'hôte
+             *  Case where the requested action is an update
              */
-            if (
-                $action == 'general-status-update' or
-                $action == 'packages-status-update'
-            ) {
-
+            if ($action == 'update-all-packages') {
                 /**
-                 *  Modification de l'état en BDD pour cet hôte (requested = demande envoyée, en attente)
+                 *  Add a new websocket request in the database
                  */
-                $this->model->addUpdateRequest($action);
+                $this->newWsRequest($hostId, 'update-all-packages');
             }
 
             /**
-             *  Si l'action est une demande de mise à jour des informations générales de l'hôte
+             *  Case where the requested action is a general status update
              */
-            if ($action == 'general-status-update') {
+            if ($action == 'request-general-infos') {
                 /**
-                 *  Envoi d'un ping avec le message 'r-general-status' en hexadecimal pour ordonner à l'hôte d'envoyer les informations
+                 *  Add a new websocket request in the database
                  */
-                exec("ping -W1 -c 1 -p 722d67656e6572616c2d737461747573 $this->ip");
-
-                /**
-                 *  Si l'hôte a un Hostname, on le pousse dans l'array, sinon on pousse uniquement son adresse ip
-                 */
-                if (!empty($this->hostname)) {
-                    $hostGeneralUpdateOK[] = array('ip' => $this->ip, 'hostname' => $this->hostname);
-                } else {
-                    $hostGeneralUpdateOK[] = array('ip' => $this->ip);
-                }
+                $this->newWsRequest($hostId, 'request-general-infos');
             }
 
             /**
-             *  Si l'action est une demande de mise à jour des informations concernant les paquets sur l'hôte
+             *  Case where the requested action is a packages status update
              */
-            if ($action == 'packages-status-update') {
+            if ($action == 'request-packages-infos') {
                 /**
-                 *  Envoi d'un ping avec le message 'r-pkgs-status' en hexadecimal pour ordonner à l'hôte d'envoyer les informations
+                 *  Add a new websocket request in the database
                  */
-                exec("ping -W1 -c 1 -p 722d706b67732d737461747573 $this->ip");
-
-                /**
-                 *  Si l'hôte a un Hostname, on le pousse dans l'array, sinon on pousse uniquement son adresse ip
-                 */
-                if (!empty($this->hostname)) {
-                    $hostPackagesStatusUpdateOK[] = array('ip' => $this->ip, 'hostname' => $this->hostname);
-                } else {
-                    $hostPackagesStatusUpdateOK[] = array('ip' => $this->ip);
-                }
+                $this->newWsRequest($hostId, 'request-packages-infos');
             }
 
             /**
-             *  Clotûre de la base de données de l'hôte
+             *  If the host has a hostname, we push it in the array, otherwise we push only its ip
+             */
+            if (!empty($this->hostname)) {
+                $hosts[] = array('ip' => $this->ip, 'hostname' => $this->hostname);
+            } else {
+                $hosts[] = array('ip' => $this->ip);
+            }
+
+            /**
+             *  Close host database
              */
             $this->closeHostDb();
         }
 
         /**
-         *  Génération d'un message de confirmation avec le nom/ip des hôtes sur lesquels l'action a été effectuée
+         *  Generate a confirmation message with the name/ip of the hosts on which the action has been performed
          */
-        $message = '';
-
-        /**
-         *  Génération des messages pour les hôtes dont l'id est invalide
-         */
-        if (!empty($hostIdError)) {
-            $message .= "Following hosts Id are invalid:<br>";
-
-            foreach ($hostIdError as $id) {
-                $message .= $id . '<br>';
-            }
+        if ($action == 'reset') {
+            $message = 'Following hosts have been reseted:';
+            $this->layoutContainerStateController->update('hosts/overview');
+            $this->layoutContainerStateController->update('hosts/list');
+            $this->layoutContainerStateController->update('host/summary');
+            $this->layoutContainerStateController->update('host/packages');
+            $this->layoutContainerStateController->update('host/history');
         }
 
-        /**
-         *  Génération des messages pour une action de type 'update'
-         */
-        if (!empty($hostUpdateError)) {
-            $message .= 'Update request has failed on the following hosts (unreachable) :<br>';
-
-            foreach ($hostUpdateError as $host) {
-                $message .= $host['hostname'] . ' (' . $host['ip'] . ')<br>';
-            }
-        }
-        if (!empty($hostUpdateOK)) {
-            $message .= 'Update request has been send to the following hosts:<br>';
-
-            foreach ($hostUpdateOK as $host) {
-                $message .= $host['hostname'] . ' (' . $host['ip'] . ')<br>';
-            }
+        if ($action == 'delete') {
+            $message = 'Following hosts have been deleted:';
+            $this->layoutContainerStateController->update('hosts/overview');
+            $this->layoutContainerStateController->update('hosts/list');
         }
 
-        /**
-         *  Génération des messages pour une action de type 'reset'
-         */
-        if (!empty($hostErrorError)) {
-            $message .= 'Reset has failed for the following hosts:<br>';
-
-            foreach ($hostErrorError as $host) {
-                $message .= $host['hostname'] . ' (' . $host['ip'] . ')<br>';
-            }
-        }
-        if (!empty($hostResetOK)) {
-            $message .= 'Following hosts have been reseted:<br>';
-
-            foreach ($hostResetOK as $host) {
-                $message .= $host['hostname'] . ' (' . $host['ip'] . ')<br>';
-            }
+        if ($action == 'update-all-packages') {
+            $message = 'Requesting packages update to the following hosts:';
+            $this->layoutContainerStateController->update('host/requests');
         }
 
-        /**
-         *  Génération des messages pour une action de type 'delete'
-         */
-        if (!empty($hostDeleteError)) {
-            $message .= "Following hosts could not have been deleted:<br>";
-
-            foreach ($hostDeleteError as $host) {
-                $message .= $host['hostname'] . ' (' . $host['ip'] . ')<br>';
-            }
-        }
-        if (!empty($hostDeleteOK)) {
-            $message .= 'Following hosts have been deleted:<br>';
-
-            foreach ($hostDeleteOK as $host) {
-                $message .= $host['hostname'] . ' (' . $host['ip'] . ')<br>';
-            }
+        if ($action == 'request-general-infos') {
+            $message = 'Requesting general informations to the following hosts:';
+            $this->layoutContainerStateController->update('host/requests');
         }
 
-        /**
-         *  Génération des messages pour une action de type 'general-status-update'
-         */
-        if (!empty($hostGeneralUpdateError)) {
-            $message .= "Request has not been sent to the following host:<br>";
-
-            foreach ($hostGeneralUpdateError as $host) {
-                $message .= $host['hostname'] . ' (' . $host['ip'] . ')<br>';
-            }
-        }
-        if (!empty($hostGeneralUpdateOK)) {
-            $message .= 'Request has been sent to the following hosts:<br>';
-
-            foreach ($hostGeneralUpdateOK as $host) {
-                $message .= $host['hostname'] . ' (' . $host['ip'] . ')<br>';
-            }
+        if ($action == 'request-packages-infos') {
+            $message = 'Requesting packages informations to the following hosts:';
+            $this->layoutContainerStateController->update('host/requests');
         }
 
-        /**
-         *  Génération des messages pour une action de type 'packages-status-update'
-         */
-        if (!empty($hostPackagesStatusUpdateError)) {
-            $message .= "Request has not been sent to the following host:<br>";
+        $message .= '<br><br>';
 
-            foreach ($hostPackagesStatusUpdateError as $host) {
-                $message .= $host['hostname'] . ' (' . $host['ip'] . ')<br>';
-            }
-        }
-        if (!empty($hostPackagesStatusUpdateOK)) {
-            $message .= 'Request has been sent to the following hosts:<br>';
-
-            foreach ($hostPackagesStatusUpdateOK as $host) {
-                $message .= $host['hostname'] . ' (' . $host['ip'] . ')<br>';
-            }
+        foreach ($hosts as $host) {
+            $message .= '<span class="label-white">' . $host['hostname'] . ' (' . $host['ip'] . ')</span> ';
         }
 
         return $message;
@@ -1660,5 +1487,119 @@ class Host
                 $this->model->removeFromGroup($actualHostId, $groupId);
             }
         }
+    }
+
+    /**
+     *  Clean websocket connections from database
+     */
+    public function cleanWsConnections()
+    {
+        $this->model->cleanWsConnections();
+    }
+
+    /**
+     *  Return all websocket connections from database
+     *  If a status is specified, only requests with this status will be returned, otherwise all requests will be returned
+     */
+    public function getWsConnections(string|null $status = null)
+    {
+        return $this->model->getWsConnections($status);
+    }
+
+    /**
+     *  Add new websocket connection in database
+     */
+    public function newWsConnection(int $connectionId)
+    {
+        $this->model->newWsConnection($connectionId);
+    }
+
+    /**
+     *  Delete websocket connection from database
+     */
+    public function deleteWsConnection(int $connectionId)
+    {
+        $this->model->deleteWsConnection($connectionId);
+    }
+
+    /**
+     *  Update websocket connection in database
+     */
+    public function updateWsConnection(int $connectionId, int $hostId, string $authenticated)
+    {
+        $this->model->updateWsConnection($connectionId, $hostId, $authenticated);
+    }
+
+    /**
+     *  Add new websocket request in database
+     */
+    public function newWsRequest(int $hostId, string $request)
+    {
+        $this->model->newWsRequest($hostId, $request);
+    }
+
+    /**
+     *  Return all websocket requests from database
+     *  If a status is specified, only requests with this status will be returned, otherwise all requests will be returned
+     */
+    public function getWsRequests(string|null $status = null)
+    {
+        return $this->model->getWsRequests($status);
+    }
+
+    /**
+     *  Update websocket request in database
+     */
+    public function updateWsRequest(int $id, string $status, string|null $info = null, string|null $summary = null)
+    {
+        $this->model->updateWsRequest($id, $status, $info, $summary);
+    }
+
+    /**
+     *  Update websocket request status in database
+     */
+    public function updateWsRequestStatus(int $id, string $status)
+    {
+        $this->model->updateWsRequestStatus($id, $status);
+    }
+
+    /**
+     *  Update websocket request info message in database
+     */
+    public function updateWsRequestInfo(int $id, string $info)
+    {
+        $this->model->updateWsRequestInfo($id, $info);
+    }
+
+    /**
+     *  Update websocket request retry in database
+     */
+    public function updateWsRequestRetry(int $id, int $retry)
+    {
+        $this->model->updateWsRequestRetry($id, $retry);
+    }
+
+    /**
+     *  Update websocket request next retry time in database
+     */
+    public function updateWsRequestNextRetry(int $id, string $nextRetry)
+    {
+        $this->model->updateWsRequestNextRetry($id, $nextRetry);
+    }
+
+    /**
+     *  Return websocket connection Id by host Id
+     */
+    public function getWsConnectionIdByHostId(int $hostId)
+    {
+        return $this->model->getWsConnectionIdByHostId($hostId);
+    }
+
+    /**
+     *  Cancel websocket request in database
+     */
+    public function cancelWsRequest(int $id)
+    {
+        $this->model->cancelWsRequest($id);
     }
 }

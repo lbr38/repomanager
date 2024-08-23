@@ -1,11 +1,79 @@
 <?php
 $myhost = new \Controllers\Host();
 $mycolor = new \Controllers\Common();
+$totalNotUptodate = 0;
+$totalUptodate = 0;
+
+/**
+ *  Getting hosts list
+ */
+$hostsList = $myhost->listAll('active');
 
 /**
  *  Getting total hosts
  */
-$totalHosts = count($myhost->listAll('active'));
+$totalHosts = count($hostsList);
+
+/**
+ *  Getting general hosts threshold settings
+ */
+$hostsSettings = $myhost->getSettings();
+
+/**
+ *  Getting general hosts threshold settings
+ */
+$hostsSettings = $myhost->getSettings();
+
+/**
+ *  Threshold of the maximum number of available update above which the host is considered as 'not up to date' (but not critical)
+ */
+$packagesCountConsideredOutdated = $hostsSettings['pkgs_count_considered_outdated'];
+
+/**
+ *  Threshold of the maximum number of available update above which the host is considered as 'not up to date' (critical)
+ */
+$packagesCountConsideredCritical = $hostsSettings['pkgs_count_considered_critical'];
+
+/**
+ *
+ */
+foreach ($hostsList as $host) {
+    /**
+     *  Open the dedicated database of the host from its ID to be able to retrieve additional information
+     */
+    $myhost->openHostDb($host['Id']);
+
+    /**
+     *  Retrieve the total number of available packages
+     */
+    $packagesAvailableTotal = count($myhost->getPackagesAvailable());
+
+    /**
+     *  Retrieve the total number of installed packages
+     */
+    $packagesInstalledTotal = count($myhost->getPackagesInstalled());
+
+    /**
+     *  If the total number of available packages retrieved previously is > $packagesCountConsideredOutdated (threshold defined by the user) then we increment $totalNotUptodate (counts the number of hosts that are not up to date in the chartjs)
+     *  Else it's $totalUptodate that we increment.
+     */
+    if ($packagesAvailableTotal >= $packagesCountConsideredOutdated) {
+        $totalNotUptodate++;
+    } else {
+        $totalUptodate++;
+    }
+
+    /**
+     *  Close the dedicated database of the host
+     */
+    $myhost->closeHostDb();
+}
+
+/**
+ *  Define the total number of hosts up to date and not up to date
+ */
+define('HOSTS_TOTAL_UPTODATE', $totalUptodate);
+define('HOSTS_TOTAL_NOT_UPTODATE', $totalNotUptodate);
 
 /**
  *  Getting a list of all hosts OS (bar chart)
@@ -50,4 +118,4 @@ define('HOSTS_AGENT_VERSION_LIST', $myhost->listCountAgentVersion());
 $rebootRequiredList = $myhost->listRebootRequired();
 $rebootRequiredCount = count($rebootRequiredList);
 
-unset($myhost);
+unset($myhost, $hostsList, $hostsSettings, $totalNotUptodate, $totalUptodate, $packagesCountConsideredOutdated, $packagesCountConsideredCritical);

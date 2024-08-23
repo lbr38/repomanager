@@ -67,7 +67,7 @@ td:last-child,
 
 .hosts-table-title, .host-line {
     display: grid;
-    grid-template-columns: 3% 4% 45% 10% 10% 7% 7% 15%;
+    grid-template-columns: 3% 4% 47% 11% 11% 8% 8% 8%;
     align-items: center;
 }
 
@@ -84,6 +84,11 @@ td:last-child,
     box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
 }
 
+.host-update-status p {
+    font-size: 12px;
+    text-wrap: wrap;
+}
+
 .host-additionnal-info {
     display: none;
     flex-direction: column;
@@ -92,7 +97,7 @@ td:last-child,
 }
 
 .stats-access-request {
-    grid-template-columns: 1% 20% 20% auto;
+    grid-template-columns: 1% 10% 20% auto;
 }
 
 .chart-loading {
@@ -398,27 +403,6 @@ td:last-child,
     position: absolute;
     bottom: 2px;
     right: 4px;
-}
-
-.host-action-btns-container {
-    max-width: 300px;
-    min-width: 300px;
-    position: absolute;
-    right: 80px;
-    top: 70px;
-    z-index: 1;
-}
-
-.host-action-btn {
-    display: none;
-}
-
-.host-action-btn-action {
-    text-align: right;
-}
-
-.host-action-btns-container:hover .host-action-btn {
-    display: block;
 }
 
 /* Desktop configuration */

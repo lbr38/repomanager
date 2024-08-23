@@ -56,6 +56,10 @@ class Main
         if (!defined('MAIN_LOGS_DIR')) {
             define('MAIN_LOGS_DIR', LOGS_DIR . '/main');
         }
+        // Websocket server logs dir
+        if (!defined('WS_LOGS_DIR')) {
+            define('WS_LOGS_DIR', LOGS_DIR . '/websocket');
+        }
         if (!defined('EXCEPTIONS_LOG')) {
             define('EXCEPTIONS_LOG', LOGS_DIR . '/exceptions');
         }

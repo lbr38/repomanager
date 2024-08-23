@@ -12,13 +12,11 @@ class Service
     private $serviceFileController;
     private $curlHandle;
     private $currentTime;
-    private $lastTime;
     private $root = '/var/www/repomanager';
-    private $wwwUser = 'www-data';
-    private $reposDir = '/home/repo';
     private $scheduledTasksRemindersEnabled;
     private $cveImportEnabled;
     private $cveImportTime;
+    private $manageHostsEnabled;
     protected $statsEnabled;
     protected $statsLogPath = '/var/log/nginx/repomanager_access.log';
 
@@ -30,87 +28,84 @@ class Service
         $mysettings = new \Controllers\Settings();
 
         /**
-         *  Loop until all settings are retrieved
+         *  Get all settings
          */
-        while (true) {
-            $missingSetting = 0;
+        $settings = $mysettings->get();
 
-            /**
-             *  Get all settings
-             */
-            $settings = $mysettings->get();
+        /**
+         *  Hosts related settings
+         */
+        if (!empty($settings['MANAGE_HOSTS'])) {
+            $this->manageHostsEnabled = $settings['MANAGE_HOSTS'];
+        } else {
+            $this->logController->log('error', 'Service', "Could not retrieve 'Manage hosts' setting.");
+            // Disable hosts management
+            $this->manageHostsEnabled = 'false';
+        }
 
+        /**
+         *  Statistics related settings
+         */
+        if (!empty($settings['STATS_ENABLED'])) {
+            $this->statsEnabled = $settings['STATS_ENABLED'];
+        } else {
+            $this->logController->log('error', 'Service', "Could not retrieve 'Enable repositories statistics' setting.");
+            // Disable statistics
+            $this->statsEnabled = 'false';
+        }
+
+        if ($this->statsEnabled == 'true') {
             /**
-             *  Statistics related settings
+             *  Check if the log file is readable
              */
-            if (!empty($settings['STATS_ENABLED'])) {
-                $this->statsEnabled = $settings['STATS_ENABLED'];
-            } else {
-                $this->logController->log('error', 'Service', "Could not retrieve 'Enable repositories statistics' setting.");
+            if (!is_readable($this->statsLogPath)) {
+                $this->logController->log('error', 'Service', "Access log file to scan for statistics <b>" . $this->statsLogPath . "</b> is not readable.");
                 // Disable statistics
                 $this->statsEnabled = 'false';
             }
 
-            if ($this->statsEnabled == 'true') {
-                /**
-                 *  Check if the log file is readable
-                 */
-                if (!is_readable($this->statsLogPath)) {
-                    $this->logController->log('error', 'Service', "Access log file to scan for statistics <b>" . $this->statsLogPath . "</b> is not readable.");
-                    // Disable statistics
-                    $this->statsEnabled = 'false';
-                }
-
-                /**
-                 *  Check if the statistics database exists
-                 */
-                if (!is_file(STATS_DB)) {
-                    $this->logController->log('error', 'Service', "Statistics database is not initialized.");
-                    // Disable statistics
-                    $this->statsEnabled = 'false';
-                }
-            }
-
             /**
-             *  Scheduled tasks related settings
+             *  Check if the statistics database exists
              */
-            if (!empty($settings['SCHEDULED_TASKS_REMINDERS'])) {
-                $this->scheduledTasksRemindersEnabled = $settings['SCHEDULED_TASKS_REMINDERS'];
-            } else {
-                $this->logController->log('error', 'Service', "Could not retrieve 'Enable scheduled tasks reminders' setting.");
-                // Disable scheduled tasks reminders
-                $this->scheduledTasksRemindersEnabled = 'false';
+            if (!is_file(STATS_DB)) {
+                $this->logController->log('error', 'Service', "Statistics database is not initialized.");
+                // Disable statistics
+                $this->statsEnabled = 'false';
             }
-
-
-            /**
-             *  CVE related settings
-             */
-            if (!empty($settings['CVE_IMPORT'])) {
-                $this->cveImportEnabled = $settings['CVE_IMPORT'];
-            } else {
-                $this->logController->log('error', 'Service', "Could not retrieve 'Import CVEs' setting.");
-                // Disable cve import
-                $this->cveImportEnabled = 'false';
-            }
-
-            if ($this->cveImportEnabled == 'true') {
-                if (!empty($settings['CVE_IMPORT_TIME'])) {
-                    $this->cveImportTime = $settings['CVE_IMPORT_TIME'];
-                } else {
-                    $this->logController->log('error', 'Service', "Could not retrieve 'Import scheduled time' setting.");
-                }
-            }
-
-            /**
-             *  Quit loop if all settings are retrieved
-             */
-            if ($missingSetting == 0) {
-                break;
-            }
-
-            sleep(5);
         }
+
+        /**
+         *  Scheduled tasks related settings
+         */
+        if (!empty($settings['SCHEDULED_TASKS_REMINDERS'])) {
+            $this->scheduledTasksRemindersEnabled = $settings['SCHEDULED_TASKS_REMINDERS'];
+        } else {
+            $this->logController->log('error', 'Service', "Could not retrieve 'Enable scheduled tasks reminders' setting.");
+            // Disable scheduled tasks reminders
+            $this->scheduledTasksRemindersEnabled = 'false';
+        }
+
+
+        /**
+         *  CVE related settings
+         */
+        if (!empty($settings['CVE_IMPORT'])) {
+            $this->cveImportEnabled = $settings['CVE_IMPORT'];
+        } else {
+            $this->logController->log('error', 'Service', "Could not retrieve 'Import CVEs' setting.");
+            // Disable cve import
+            $this->cveImportEnabled = 'false';
+        }
+
+        if ($this->cveImportEnabled == 'true') {
+            if (!empty($settings['CVE_IMPORT_TIME'])) {
+                $this->cveImportTime = $settings['CVE_IMPORT_TIME'];
+            } else {
+                $this->logController->log('error', 'Service', "Could not retrieve 'Import scheduled time' setting.");
+            }
+        }
+
+        sleep(5);
     }
 
     /**
@@ -219,6 +214,8 @@ class Service
         $this->serviceFileController = new \Controllers\Service\File();
         $this->logController = new \Controllers\Log\Log();
         $this->curlHandle = curl_init();
+        $this->lastScheduledTaskRunning = '';
+        $this->lastStatsRunning = '';
 
         $counter = 0;
 
@@ -259,25 +256,36 @@ class Service
             /**
              *  Execute scheduled tasks
              */
-            if ($this->currentTime != $this->lastTime) {
+            if ($this->currentTime != $this->lastScheduledTaskRunning) {
+                $this->lastScheduledTaskRunning = date('H:i');
+
                 /**
                  *  Execute scheduled task
                  */
-                $this->runService('scheduled-task-exec', true);
+                $this->runService('scheduled tasks', 'scheduled-task-exec', true);
 
                 /**
                  *  Send scheduled tasks reminders
                  */
                 if ($this->scheduledTasksRemindersEnabled == 'true' and $this->currentTime == '00:00') {
-                    $this->runService('scheduled-task-reminder');
+                    $this->runService('scheduled tasks reminder', 'scheduled-task-reminder');
                 }
+            }
+
+            /**
+             *  Start websocket server if manage hosts is enabled
+             */
+            if ($this->manageHostsEnabled == 'true') {
+                $this->runService('websocket server', 'wss');
             }
 
             /**
              *  Parse access logs to generate stats (if enabled)
              */
             if ($this->statsEnabled == 'true') {
-                if ($this->currentTime != $this->lastTime) {
+                if ($this->currentTime != $this->lastStatsRunning) {
+                    $this->lastStatsRunning = date('H:i');
+
                     /**
                      *  Clean old statistics
                      */
@@ -287,23 +295,21 @@ class Service
                      *  Generate repo size statistics
                      */
                     $this->serviceStatisticController->statsGenerate();
-                }
 
-                /**
-                 *  Parse access logs to generate repo access statistics
-                 */
-                $this->runService('stats/accesslog/parse');
-                $this->runService('stats/accesslog/process');
+                    /**
+                     *  Parse access logs to generate repo access statistics
+                     */
+                    $this->runService('stats parsing', 'stats-parse');
+                    $this->runService('stats processing', 'stats-process');
+                }
             }
 
             /**
              *  Import CVEs
              */
             if ($this->cveImportEnabled == 'true' && $this->currentTime == $this->cveImportTime) {
-                $this->runService('cve-import');
+                $this->runService('cve import', 'cve-import');
             }
-
-            $this->lastTime = date('H:i');
 
             pcntl_signal_dispatch();
             sleep(5);
@@ -315,7 +321,7 @@ class Service
     /**
      *  Run this service with the specified parameter
      */
-    private function runService(string $parameter, bool $force = false)
+    private function runService(string $name, string $parameter, bool $force = false)
     {
         try {
             /**
@@ -325,7 +331,7 @@ class Service
              *  If force != false, then the service will be run even if it is already running (e.g: for running multiple scheduled tasks at the same time)
              */
             if ($force === false) {
-                $myprocess = new \Controllers\Process("ps aux | grep '" . ROOT . "/tools/service.php " . $parameter . "' | grep -v grep");
+                $myprocess = new \Controllers\Process('/usr/bin/ps aux | grep "repomanager.' . $parameter . '" | grep -v grep');
                 $myprocess->execute();
                 $content = $myprocess->getOutput();
                 $myprocess->close();
@@ -341,7 +347,7 @@ class Service
             /**
              *  Else, run the service with the specified parameter
              */
-            echo $this->getDate() . " Running service with parameter '" . $parameter . "'..." . PHP_EOL;
+            echo $this->getDate() . ' Running ' . $name . '...' . PHP_EOL;
 
             $myprocess = new \Controllers\Process("/usr/bin/php " . ROOT . "/tools/service.php '" . $parameter . "' >/dev/null 2>/dev/null &");
             $myprocess->execute();

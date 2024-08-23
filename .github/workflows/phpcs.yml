@@ -26,4 +26,4 @@ jobs:
           php phpcs.phar --version
 
       - name: Detect coding standard violations
-        run: php phpcs.phar --standard=$GITHUB_WORKSPACE/phpcs.xml --colors -n $GITHUB_WORKSPACE --ignore=libs/PHPMailer
+        run: php phpcs.phar --standard=$GITHUB_WORKSPACE/phpcs.xml --colors -n $GITHUB_WORKSPACE --ignore=libs/

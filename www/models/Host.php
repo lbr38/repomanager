@@ -704,7 +704,7 @@ class Host extends Model
         WHERE Status = 'active' AND Online_status = 'running' AND Online_status_date = :todayDate AND Online_status_time >= :maxTime),
         (SELECT COUNT(*) as Linupdate_agent_status_seems_stopped_count
         FROM hosts
-        WHERE Status = 'active' AND (Online_status_date != :todayDate OR Online_status_time <= :maxTime)),
+        WHERE Status = 'active' AND Online_status != 'stopped' AND (Online_status_date != :todayDate OR Online_status_time <= :maxTime)),
         (SELECT COUNT(*) as Linupdate_agent_status_disabled_count
         FROM hosts
         WHERE Status = 'active' AND Online_status = 'disabled'),
@@ -1120,34 +1120,62 @@ class Host extends Model
     }
 
     /**
-     *  Récupère la liste des mises à jour demandées par repomanager à l'hôte
+     *  Retrieve the list of requests sent to the host
+     *  It is possible to add an offset to the request
      */
-    public function getUpdatesRequests()
+    public function getRequests(int $id, bool $withOffset, int $offset)
     {
-        /**
-         *  Si la BDD dédiée à l'hôte n'est pas instanciée dans $this->host_db alors on quitte
-         */
-        if (empty($this->host_db)) {
-            return false;
-        }
-
-        $datas = array();
+        $data = array();
 
         try {
-            $result = $this->host_db->query("SELECT * FROM updates_requests ORDER BY Date DESC, Time DESC");
+            $query = "SELECT * FROM ws_requests WHERE Id_host = :id ORDER BY Date DESC, Time DESC";
+
+            /**
+             *  Add offset if needed
+             */
+            if ($withOffset === true) {
+                $query .= " LIMIT 10 OFFSET :offset";
+            }
+
+            /**
+             *  Prepare query
+             */
+            $stmt = $this->db->prepare($query);
+            $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
+            $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
+
+            $result = $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            /**
-             *  On ajoute une colonne Event_type au résultat afin de définir qu'il s'agit d'une 'update_request'. Sera utile au moment de l'affichage des données.
-             */
-            $row['Event_type'] = 'update_request';
-            $datas[] = $row;
+            $data[] = $row;
         }
 
-        return $datas;
+        return $data;
+    }
+
+    /**
+     *  Return the last pending request sent to the host
+     */
+    public function getLastPendingRequest(int $id)
+    {
+        $data = array();
+
+        try {
+            $stmt = $this->db->prepare("SELECT * from ws_requests WHERE Id_host = :id ORDER BY DATE DESC, TIME DESC LIMIT 1");
+            $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data = $row;
+        }
+
+        return $data;
     }
 
     /**
@@ -1204,7 +1232,7 @@ class Host extends Model
         }
 
         try {
-            $stmt = $this->host_db->prepare("SELECT * FROM packages        
+            $stmt = $this->host_db->prepare("SELECT * FROM packages
             WHERE Id_event = :eventId and State = :packageState
             UNION
             SELECT * FROM packages_history       
@@ -1285,63 +1313,6 @@ class Host extends Model
     }
 
     /**
-     *  Récupère les informations concernant la dernière requête de mise à jour envoyée à l'hôte
-     */
-    public function getLastUpdateStatus()
-    {
-        $datas = array();
-
-        try {
-            $result = $this->host_db->query("SELECT Date, Time, Status FROM events ORDER BY Id DESC LIMIT 1");
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $datas[] = $row;
-        }
-
-        try {
-            $result = $this->host_db->query("SELECT Date, Time, Status FROM updates_requests ORDER BY Id DESC LIMIT 1");
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $datas[] = $row;
-        }
-
-        return $datas;
-    }
-
-    /**
-     *  Récupère le status de la dernière demande de mise à jour de l'hôte
-     */
-    public function getLastRequestedUpdateStatus()
-    {
-        /**
-         *  Si la BDD dédiée à l'hôte n'est pas instanciée dans $this->host_db alors on quitte
-         */
-        if (empty($this->host_db)) {
-            return false;
-        }
-
-        $datas = array();
-
-        try {
-            $result = $this->host_db->query("SELECT Date, Time, Type, Status FROM updates_requests ORDER BY Id DESC LIMIT 1");
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $datas = $row;
-        }
-
-        return $datas;
-    }
-
-    /**
      *  Compte le nombre de paquets installés, mis à jour, désinstallés... au cours des X derniers jours.
      *  Retourne un array contenant les dates => nombre de paquet
      *  Fonction utilisées notamment pour la création du graphique ChrtJS de type 'line' sur la page d'un hôte
@@ -1381,10 +1352,12 @@ class Host extends Model
     }
 
     /**
-     *  Retourne le hostname d'un hôte à partir de son Id
+     *  Return the hostname of the host by its Id
      */
-    public function getHostnameById(string $id)
+    public function getHostnameById(int $id)
     {
+        $hostname = '';
+
         try {
             $stmt = $this->db->prepare("SELECT Hostname FROM hosts WHERE Id = :id");
             $stmt->bindValue(':id', $id);
@@ -1514,7 +1487,6 @@ class Host extends Model
             $this->host_db->exec("DROP TABLE packages");
             $this->host_db->exec("DROP TABLE packages_available");
             $this->host_db->exec("DROP TABLE packages_history");
-            $this->host_db->exec("DROP TABLE updates_requests");
 
             /**
              *  Puis on les re-génère à vide
@@ -1522,37 +1494,6 @@ class Host extends Model
             $this->host_db->generateHostTables();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
-        }
-    }
-
-    /**
-     *  Ajout d'une requête
-     */
-    public function addUpdateRequest(string $type)
-    {
-        try {
-            $stmt = $this->host_db->prepare("INSERT INTO updates_requests ('Date', 'Time', 'Type', 'Status') VALUES (:date, :time, :type, 'requested')");
-            $stmt->bindValue(':date', date('Y-m-d'));
-            $stmt->bindValue(':time', date('H:i:s'));
-            $stmt->bindValue(':type', $type);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-    }
-
-    /**
-     *  Mise à jour du status d'une requête
-     */
-    public function acknowledgeRequest(string $type, string $status)
-    {
-        try {
-            $stmt = $this->host_db->prepare("UPDATE updates_requests SET Status = :status WHERE Type = :type and Status = 'requested' or Status = 'running'");
-            $stmt->bindValue(':status', $status);
-            $stmt->bindValue(':type', $type);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            return false;
         }
     }
 
@@ -1661,5 +1602,265 @@ class Host extends Model
         }
 
         return count($hosts);
+    }
+
+    /**
+     *  Clean ws connections from database
+     */
+    public function cleanWsConnections()
+    {
+        try {
+            $stmt = $this->db->prepare("DELETE FROM ws_connections");
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Return all websocket connections from database
+     *  If a status is specified, only requests with this status will be returned, otherwise all requests will be returned
+     */
+    public function getWsConnections(string|null $status)
+    {
+        $connections = array();
+
+        try {
+            /**
+             *  If a status is specified, we only get requests with this status
+             */
+            if (!empty($status)) {
+                $stmt = $this->db->prepare("SELECT * FROM ws_connections WHERE Authenticated = :status");
+                $stmt->bindValue(':status', $status);
+            } else {
+                $stmt = $this->db->prepare("SELECT * FROM ws_connections");
+            }
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $connections[] = $row;
+        }
+
+        return $connections;
+    }
+
+    /**
+     *  Add new ws connection in database
+     */
+    public function newWsConnection(int $connectionId)
+    {
+        try {
+            $stmt = $this->db->prepare("INSERT INTO ws_connections ('Connection_id', 'Authenticated') VALUES (:id, 'false')");
+            $stmt->bindValue(':id', $connectionId);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Delete ws connection from database
+     */
+    public function deleteWsConnection(int $connectionId)
+    {
+        try {
+            $stmt = $this->db->prepare("DELETE FROM ws_connections WHERE Connection_id = :id");
+            $stmt->bindValue(':id', $connectionId);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Update ws connection in database
+     */
+    public function updateWsConnection(int $connectionId, int $hostId, string $authenticated)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE ws_connections SET Id_host = :hostId, Authenticated = :authenticated WHERE Connection_id = :connectionId");
+            $stmt->bindValue(':hostId', $hostId);
+            $stmt->bindValue(':authenticated', $authenticated);
+            $stmt->bindValue(':connectionId', $connectionId);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Add new websocket request in database
+     */
+    public function newWsRequest(int $hostId, string $request)
+    {
+        try {
+            $stmt = $this->db->prepare("INSERT INTO ws_requests ('Date', 'Time', 'Request', 'Status', 'Retry', 'Id_host') VALUES (:date, :time, :request, 'new', '0', :hostId)");
+            $stmt->bindValue(':date', date('Y-m-d'));
+            $stmt->bindValue(':time', date('H:i:s'));
+            $stmt->bindValue(':request', $request);
+            $stmt->bindValue(':hostId', $hostId);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Return all websocket requests from database
+     */
+    public function getWsRequests(string|null $status)
+    {
+        $requests = array();
+
+        try {
+            /**
+             *  If a status is specified, we only get requests with this status
+             */
+            if (!empty($status)) {
+                $stmt = $this->db->prepare("SELECT * FROM ws_requests WHERE Status = :status ORDER BY Date DESC, Time DESC");
+                $stmt->bindValue(':status', $status);
+            } else {
+                $stmt = $this->db->prepare("SELECT * FROM ws_requests ORDER BY Date DESC, Time DESC");
+            }
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $requests[] = $row;
+        }
+
+        return $requests;
+    }
+
+    /**
+     *  Update websocket request in database
+     */
+    public function updateWsRequest(int $id, string $status, string|null $info, string|null $infoJson)
+    {
+        try {
+            $query = "UPDATE ws_requests SET Status = :status";
+
+            if (!empty($info)) {
+                $query .= ", Info = :info";
+            }
+
+            if (!empty($infoJson)) {
+                $query .= ", Info_json = :infoJson";
+            }
+
+            $query .= " WHERE Id = :id";
+
+            $stmt = $this->db->prepare($query);
+            $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':info', $info);
+            $stmt->bindValue(':infoJson', $infoJson);
+            $stmt->bindValue(':id', $id);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Update websocket request status in database
+     */
+    public function updateWsRequestStatus(int $id, string $status)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE ws_requests SET Status = :status WHERE Id = :id");
+            $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':id', $id);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Update websocket request info message in database
+     */
+    public function updateWsRequestInfo(int $id, string $info)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE ws_requests SET Info = :info WHERE Id = :id");
+            $stmt->bindValue(':info', $info);
+            $stmt->bindValue(':id', $id);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Update websocket request retry in database
+     */
+    public function updateWsRequestRetry(int $id, int $retry)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE ws_requests SET Retry = :retry WHERE Id = :id");
+            $stmt->bindValue(':retry', $retry);
+            $stmt->bindValue(':id', $id);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Update websocket request next retry time in database
+     */
+    public function updateWsRequestNextRetry(int $id, string $nextRetry)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE ws_requests SET Next_retry = :nextRetry WHERE Id = :id");
+            $stmt->bindValue(':nextRetry', $nextRetry);
+            $stmt->bindValue(':id', $id);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Return websocket connection Id by host Id
+     */
+    public function getWsConnectionIdByHostId(int $hostId)
+    {
+        $connectionId = '';
+
+        try {
+            $stmt = $this->db->prepare("SELECT Connection_id FROM ws_connections WHERE Id_host = :hostId");
+            $stmt->bindValue(':hostId', $hostId);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        $connectionId = '';
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $connectionId = $row['Connection_id'];
+        }
+
+        return $connectionId;
+    }
+
+    /**
+     *  Cancel websocket request in database
+     */
+    public function cancelWsRequest(int $id)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE ws_requests SET Status = 'canceled', Info = Info || ' (canceled)' WHERE Id = :id");
+            $stmt->bindValue(':id', $id);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
     }
 }
