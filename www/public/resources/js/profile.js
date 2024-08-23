@@ -76,25 +76,22 @@ $(document).on('submit','.profile-config-form',function () {
  */
 function newProfile(name)
 {
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "profile",
-            action: "new",
+    ajaxRequest(
+        // Controller:
+        'profile',
+        // Action:
+        'new',
+        // Data:
+        {
             name: name
         },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'success');
-            reloadContainer('profiles/list');
-        },
-        error: function (jqXHR, textStatus, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload container:
+        ['profiles/list']
+    );
 }
 
 /**
@@ -103,25 +100,22 @@ function newProfile(name)
  */
 function deleteProfile(id)
 {
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "profile",
-            action: "delete",
+    ajaxRequest(
+        // Controller:
+        'profile',
+        // Action:
+        'delete',
+        // Data:
+        {
             id: id
         },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'success');
-            reloadContainer('profiles/list');
-        },
-        error: function (jqXHR, ajaxOptions, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload container:
+        ['profiles/list']
+    );
 }
 
 /**
@@ -130,25 +124,22 @@ function deleteProfile(id)
  */
 function duplicate(id)
 {
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "profile",
-            action: "duplicate",
+    ajaxRequest(
+        // Controller:
+        'profile',
+        // Action:
+        'duplicate',
+        // Data:
+        {
             id: id
         },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'success');
-            reloadContainer('profiles/list');
-        },
-        error: function (jqXHR, textStatus, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload container:
+        ['profiles/list']
+    );
 }
 
 /**
@@ -163,12 +154,13 @@ function duplicate(id)
  */
 function configure(id, name, reposList, exclude, excludeMajor, serviceRestart, notes)
 {
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "profile",
-            action: "configure",
+    ajaxRequest(
+        // Controller:
+        'profile',
+        // Action:
+        'configure',
+        // Data:
+        {
             id: id,
             name: name,
             reposList: reposList,
@@ -177,15 +169,11 @@ function configure(id, name, reposList, exclude, excludeMajor, serviceRestart, n
             serviceRestart: serviceRestart,
             notes: notes
         },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'success');
-            reloadContainer('profiles/list');
-        },
-        error: function (jqXHR, textStatus, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload container:
+        ['profiles/list']
+    );
 }

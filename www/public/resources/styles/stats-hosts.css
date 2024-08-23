@@ -154,34 +154,6 @@ td:last-child,
     text-align: center;
 }
 
-.packageDetails {
-    width: 90%;
-    height: max-content;
-    max-height: 100vh;
-    padding: 15px 15px 15px 15px;
-    margin-top: 15px;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    -webkit-box-shadow: 0px 10px 13px 6px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
-    box-shadow: 0px 10px 13px 6px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
-    background-color:#112334;
-    color: white;
-    overflow: auto;
-    z-index: 10;
-}
-.host-close, .packageDetails-close {
-    position: fixed;
-    right: 8px;
-}
-
-.host-update-request-btn {
-    position: absolute;
-    top: 4px;
-    right: 10px;
-}
-
 .hosts-charts-container {
     display: grid;
     grid-template-columns: repeat(3, 32.5%);
@@ -205,8 +177,6 @@ td:last-child,
 
 .hosts-charts-list-column-container {
     column-count: 2;
-    /* column-fill: auto; */
-    /* height: 90%; */
 }
 
 .hosts-charts-list-container {
@@ -377,32 +347,37 @@ td:last-child,
     left: -16px;
 }
 
-/* The actual content */
-.timeline-container-content {
-    padding: 30px 30px;
-    position: relative;
-    border-radius: 6px;
-    -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
-    box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
-}
-.timeline-container-content {
-    background-color: #182b3e;
-}
-
-.timeline-event-date {
-    font-size: 12px;
-    opacity: 0.50;
-    position: absolute;
-    top: 2px;
-    left: 4px;
+.package-details-container, .ws-request-log-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    margin: auto;
+    background-color: #182b3e82;
 }
 
-.timeline-event-version {
-    font-size: 12px;
-    opacity: 0.80;
-    position: absolute;
-    bottom: 2px;
-    right: 4px;
+.package-details, .ws-request-log {
+    display: flex;
+    flex-direction: column;
+    width: 70%;
+    max-height: 80%;
+    padding: 15px 15px 15px 15px;
+    border-radius: 8px;
+    background-color: #112334;
+    overflow: auto;
+    box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
+}
+
+.ws-request-log pre {
+    min-height: 200px;
+    padding: 20px;
+    margin-top: 20px;
+    background-color: #0c141b;
+    border-radius: 8px;
 }
 
 /* Desktop configuration */
@@ -410,9 +385,5 @@ td:last-child,
     .groups-container {
         columns: 2;
         column-count: 2;
-    }
-
-    .packageDetails {
-        width: 50%;
     }
 }

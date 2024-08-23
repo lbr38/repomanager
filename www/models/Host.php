@@ -1471,17 +1471,45 @@ class Host extends Model
     }
 
     /**
-     *  Reset les données d'un hôte
+     *  Reset host data
      */
     public function resetHost(string $hostId)
     {
         try {
+            /**
+             *  Reset host general informations
+             */
             $stmt = $this->db->prepare("UPDATE hosts SET Os = null, Os_version = null, Profile = null, Env = null, Kernel = null, Arch = null WHERE id = :id");
             $stmt->bindValue(':id', $hostId);
             $stmt->execute();
 
             /**
-             *  On supprime toutes les tables dans cette base de données
+             *  Retrieve all requests made to the host
+             */
+            $stmt = $this->db->prepare("SELECT Id FROM ws_requests WHERE Id_host = :id");
+            $stmt->bindValue(':id', $hostId);
+            $result = $stmt->execute();
+
+            /**
+             *  Delete all requests logs files
+             */
+            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+                if (file_exists(WS_REQUESTS_LOGS_DIR . '/request-' . $row['Id'] . '.log')) {
+                    if (!unlink(WS_REQUESTS_LOGS_DIR . '/request-' . $row['Id'] . '.log')) {
+                        throw new \Exception('Unable to delete request log file: ' . WS_REQUESTS_LOGS_DIR . '/request-' . $row['Id'] . '.log');
+                    }
+                }
+            }
+
+            /**
+             *  Delete all requests in ws_requests table
+             */
+            $stmt = $this->db->prepare("DELETE FROM ws_requests WHERE Id_host = :id");
+            $stmt->bindValue(':id', $hostId);
+            $stmt->execute();
+
+            /**
+             *  Delete all tables in host database
              */
             $this->host_db->exec("DROP TABLE events");
             $this->host_db->exec("DROP TABLE packages");
@@ -1489,7 +1517,7 @@ class Host extends Model
             $this->host_db->exec("DROP TABLE packages_history");
 
             /**
-             *  Puis on les re-génère à vide
+             *  Then we regenerate them empty
              */
             $this->host_db->generateHostTables();
         } catch (\Exception $e) {
@@ -1859,6 +1887,20 @@ class Host extends Model
             $stmt = $this->db->prepare("UPDATE ws_requests SET Status = 'canceled', Info = Info || ' (canceled)' WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Delete websocket request from database
+     */
+    public function deleteWsRequest(int $id)
+    {
+        try {
+            $stmt = $this->db->prepare("DELETE FROM ws_requests WHERE Id = :id");
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }

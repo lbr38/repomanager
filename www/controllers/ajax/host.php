@@ -82,6 +82,21 @@ if ($action == "executeAction" and !empty($_POST['exec']) and !empty($_POST['hos
 }
 
 /**
+ *  Show request log details
+ */
+if ($action == "getRequestLog" and !empty($_POST['id'])) {
+    $myhost = new \Controllers\Host();
+
+    try {
+        $content = $myhost->getRequestLog($_POST['id']);
+    } catch (\Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, $content);
+}
+
+/**
  *  Cancel a request sent to a host
  */
 if ($action == "cancelRequest" and !empty($_POST['id'])) {

@@ -31,7 +31,7 @@
                         <?php
                         foreach (HOSTS_KERNEL_LIST as $kernel) :
                             if (empty($kernel['Kernel'])) {
-                                $kernelName = 'Unknow';
+                                $kernelName = 'Unknown';
                             } else {
                                 $kernelName = $kernel['Kernel'];
                             } ?>
@@ -60,7 +60,7 @@
                         <?php
                         foreach (HOSTS_PROFILES_LIST as $profile) {
                             if (empty($profile['Profile'])) {
-                                $profileName = 'Unknow';
+                                $profileName = 'Unknown';
                             } else {
                                 $profileName = $profile['Profile'];
                             } ?>
@@ -182,7 +182,7 @@
 
         foreach (HOSTS_PROFILES_LIST as $profile) {
             if (empty($profile['Profile'])) {
-                $profileNameList .= "'Unknow',";
+                $profileNameList .= "'Unknown',";
             } else {
                 $profileNameList .= "'" . $profile['Profile'] . "',";
             }
@@ -209,7 +209,7 @@
 
         foreach (HOSTS_OS_LIST as $os) {
             if (empty($os['Os'])) {
-                $osNameList .= "'Unknow',";
+                $osNameList .= "'Unknown',";
             } else {
                 $osNameList .= "'" . ucfirst($os['Os']) . " " . $os['Os_version'] . "',";
             }
@@ -236,7 +236,7 @@
 
         foreach (HOSTS_ARCHS_LIST as $arch) {
             if (empty($arch['Arch'])) {
-                $archNameList .= "'Unknow',";
+                $archNameList .= "'Unknown',";
             } else {
                 $archNameList .= "'" . $arch['Arch'] . "',";
             }
@@ -263,7 +263,7 @@
 
         foreach (HOSTS_ENVS_LIST as $env) {
             if (empty($env['Env'])) {
-                $envNameList .= "'Unknow',";
+                $envNameList .= "'Unknown',";
             } else {
                 $envNameList .= "'" . $env['Env'] . "',";
             }
@@ -336,7 +336,7 @@
 
         foreach (HOSTS_AGENT_VERSION_LIST as $agent) {
             if (empty($agent['Linupdate_version'])) {
-                $agentNameList .= "'Unknow',";
+                $agentNameList .= "'Unknown',";
             } else {
                 $agentNameList .= "'" . $agent['Linupdate_version'] . "',";
             }

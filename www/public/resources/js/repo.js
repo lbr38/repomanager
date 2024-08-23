@@ -298,23 +298,19 @@ $(document).on('click','.divReposConf-close',function () {
  */
 function setRepoDescription(envId, repoDescription)
 {
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "repo",
-            action: "setRepoDescription",
+    ajaxRequest(
+        // Controller:
+        'repo',
+        // Action:
+        'setRepoDescription',
+        // Data:
+        {
             envId: envId,
             description: repoDescription
         },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'success');
-        },
-        error: function (jqXHR, ajaxOptions, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
+        // Print success alert:
+        true,
+        // Print error alert:
+        true
+    );
 }

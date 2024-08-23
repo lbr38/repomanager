@@ -60,6 +60,10 @@ class Main
         if (!defined('WS_LOGS_DIR')) {
             define('WS_LOGS_DIR', LOGS_DIR . '/websocket');
         }
+        // Websocket requests logs dir
+        if (!defined('WS_REQUESTS_LOGS_DIR')) {
+            define('WS_REQUESTS_LOGS_DIR', LOGS_DIR . '/websocket-requests');
+        }
         if (!defined('EXCEPTIONS_LOG')) {
             define('EXCEPTIONS_LOG', LOGS_DIR . '/exceptions');
         }
