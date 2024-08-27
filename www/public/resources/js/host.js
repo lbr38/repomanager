@@ -58,6 +58,7 @@ function countChecked(group)
     var countTotal = $('body').find('input[name=checkbox-host\\[\\]][group=' + group + ']:checked').length
     return countTotal;
 };
+
 /**
  * Fonction permettant de compter la totalité des checkbox d'un groupe, cochées ou non
  * @param {string} group
@@ -749,6 +750,68 @@ $(document).on('click','#installed-packages-btn',function () {
 });
 
 /**
+ *  Event: show request log details
+ */
+$(document).on('click','.request-show-log-btn',function () {
+    /**
+     *  Retrieve request id
+     */
+    var id = $(this).attr('request-id');
+
+    /**
+     *  Get request log
+     */
+    $.ajax({
+        type: "POST",
+        url: "/ajax/controller.php",
+        data: {
+            controller: "host",
+            action: "getRequestLog",
+            id: id
+        },
+        dataType: "json",
+        success: function (data, textStatus, jqXHR) {
+            /**
+             *  Retrieve and print success message
+             */
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+
+            html = '<div class="ws-request-log-container">'
+                + '<div class="ws-request-log">'
+                + '<div class="flex justify-space-between">'
+                + '<h4>LOG</h4>'
+                + '<span class="ws-request-close-btn"><img title="Close" class="close-btn lowopacity" src="/assets/icons/close.svg" /></span>'
+                + '</div>'
+                + '<div>'
+                + '<pre>' + jsonValue.message + '</pre>'
+                + '</div>'
+                + '</div>'
+                + '</div>';
+
+            /**
+             *  Print request log
+             */
+            $('footer').append(html);
+        },
+        error: function (jqXHR, textStatus, thrownError) {
+            /**
+             *  Retrieve and print error message
+             */
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+
+            printAlert(jsonValue.message, 'error');
+        }
+    });
+});
+
+/**
+ *  Event: close request log details
+ */
+$(document).on('click','.ws-request-close-btn',function () {
+    $(".ws-request-log-container").remove();
+});
+
+/**
  *  Event: cancel a request sent to a host
  */
 $(document).on('click','.cancel-request-btn',function () {
@@ -785,7 +848,7 @@ $(document).on('click','.get-package-timeline',function () {
     /**
      *  Si un historique est déjà affiché à l'écran on le détruit
      */
-    $(".packageDetails").remove();
+    $(".package-details-container").remove();
 
     /**
      *  Récupération de l'Id du package
@@ -860,12 +923,10 @@ $(document).on('mouseleave', '.event-packages-details', function () {
 });
 
 /**
- *  Event : fermeture de .packageDetails
- *  D'abord on masque le div avec une animation, puis on détruit le div
+ *  Event: close package details div
  */
-$(document).on('click','.packageDetails-close',function () {
-    $(".packageDetails").hide('200');
-    $(".packageDetails").remove();
+$(document).on('click','.package-details-close-btn',function () {
+    $(".package-details-container").remove();
 });
 
 /**
@@ -1040,7 +1101,19 @@ function getPackageTimeline(hostid, packagename)
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            $('body').append('<div class="packageDetails"><span class="packageDetails-close"><img title="Close" class="close-btn lowopacity" src="/assets/icons/close.svg" /></span>' + jsonValue.message + '</div>');
+
+            html = '<div class="package-details-container">'
+                + '<div class="package-details">'
+                + '<div class="flex justify-end">'
+                + '<span class="package-details-close-btn"><img title="Close" class="close-btn lowopacity" src="/assets/icons/close.svg" /></span>'
+                + '</div>'
+                + '<div>'
+                + '<div>' + jsonValue.message + '</div>'
+                + '</div>'
+                + '</div>'
+                + '</div>';
+
+            $('footer').append(html);
         },
         error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);

@@ -9,8 +9,10 @@
 
         if (!empty($reloadableTableContent)) :
             foreach ($reloadableTableContent as $item) :
-                $detailsDiv = false;
+                $class = 'table-container bck-blue-alt';
+                $title = '';
                 $requestInfo = '';
+                $log = false;
 
                 /**
                  *  Set items content
@@ -63,26 +65,32 @@
                      *  If the request was a packages update, retrieve more informations from the summary (number of packages updated)
                      */
                     if ($item['Request'] == 'update-all-packages' and !empty($item['Info_json'])) {
-                        $summary = json_decode($item['Info_json'], true);
+                        $infoJson = json_decode($item['Info_json'], true);
 
                         // If there was no packages to update
-                        if ($summary['update']['status'] == 'nothing-to-do') {
+                        if ($infoJson['update']['status'] == 'nothing-to-do') {
                             $requestInfo = 'No packages to update';
                         }
 
                         // If there was packages to update, retrieve the number of packages updated
-                        if ($summary['update']['status'] == 'done' or $summary['update']['status'] == 'failed') {
-                            $successCount = $summary['update']['success']['count'];
-                            $failedCount = $summary['update']['failed']['count'];
+                        if ($infoJson['update']['status'] == 'done' or $infoJson['update']['status'] == 'failed') {
+                            $successCount = $infoJson['update']['success']['count'];
+                            $failedCount = $infoJson['update']['failed']['count'];
 
                             $requestInfo = $successCount . ' package(s) updated, ' . $failedCount . ' failed';
                         }
                     } else {
                         $requestInfo = $item['Info'];
                     }
+
+                    if (file_exists(WS_REQUESTS_LOGS_DIR . '/request-' . $item['Id'] . '.log')) {
+                        $log = true;
+                        $title = "Show log";
+                        $class .= ' request-show-log-btn pointer';
+                    }
                 } ?>
 
-                <div class="table-container bck-blue-alt">
+                <div class="<?= $class ?>" request-id="<?= $item['Id'] ?>" title="<?= $title ?>">
                     <div>
                         <img class="icon-small" src="/assets/icons/<?= $statusColor ?>circle.png" title="<?= $status ?>">                    
                     </div>
@@ -99,6 +107,11 @@
 
                     <div class="flex align-item-center justify-end">
                         <?php
+                        if ($log) : ?>
+                            <img class="icon-lowopacity" src="/assets/icons/file.svg" title="<?= $title ?>">
+                            <?php
+                        endif;
+
                         if ($item['Status'] == 'new') : ?>
                             <img class="icon-lowopacity cancel-request-btn" src="/assets/icons/delete.svg" request-id="<?= $item['Id'] ?>" title="Cancel request">
                             <?php

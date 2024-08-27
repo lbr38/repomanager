@@ -49,7 +49,7 @@ $sources = array(
     array(
         'type' => 'rpm',
         'name' => 'epel',
-        'url' => 'https://dl.fedoraproject.org/pub/epel/7/$basearch/'
+        'url' => 'https://archives.fedoraproject.org/pub/archive/epel/7/$basearch/'
     ),
     // centos 8 stream
     array(

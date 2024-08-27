@@ -224,34 +224,31 @@ function reloadContainer(container)
      */
     printLoadingVeilByParentClass('reloadable-container[container="' + container + '"]');
 
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
+    ajaxRequest(
+        // Controller:
+        'general',
+        // Action:
+        'getContainer',
+        // Data:
+        {
             sourceUrl: window.location.href,
             sourceUri: window.location.pathname,
-            controller: "general",
-            action: "getContainer",
             container: container
         },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            /**
-             *  Replace container with itself, with new content
-             */
-            $('.reloadable-container[container="' + container + '"]').replaceWith(jsonValue.message);
-
-            /**
-             *  Reload opened or closed elements that were opened/closed before reloading
-             */
-            reloadOpenedClosedElements();
-        },
-        error: function (jqXHR, textStatus, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
+        // Print success alert:
+        false,
+        // Print error alert:
+        true,
+        // Reload container:
+        [],
+        // Execute functions on success:
+        [
+            // Replace container with itself, with new content
+            "$('.reloadable-container[container=\"" + container + "\"]').replaceWith(jsonValue.message)",
+            // Reload opened or closed elements that were opened/closed before reloading
+            "reloadOpenedClosedElements()"
+        ]
+    );
 
     /**
      *  Hide loading icon
@@ -325,32 +322,35 @@ function reloadTable(table, offset)
 {
     printLoading();
 
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "general",
-            action: "getTable",
+    ajaxRequest(
+        // Controller:
+        'general',
+        // Action:
+        'getTable',
+        // Data:
+        {
             table: table,
             offset: offset,
             sourceUrl: window.location.href,
             sourceUri: window.location.pathname,
             sourceGetParameters: getGetParams()
         },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            /**
-             *  Replace table with itself, with new content
-             */
-            $('.reloadable-table[table="' + table + '"]').replaceWith(jsonValue.message);
-        },
-        error: function (jqXHR, textStatus, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
+        // Print success alert:
+        false,
+        // Print error alert:
+        true,
+        // Reload container:
+        [],
+        // Execute functions on success:
+        [
+            // Replace table with itself, with new content
+            "$('.reloadable-table[table=\"" + table + "\"]').replaceWith(jsonValue.message)"
+        ]
+    );
 
+    /**
+     *  Hide loading icon
+     */
     hideLoading();
 }
 

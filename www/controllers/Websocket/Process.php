@@ -65,7 +65,7 @@ class Process extends WebsocketServer
     public function responseFromRequestId($conn, $message)
     {
         $info = 'Completed';
-        $summary = '';
+        $infoJson = null;
 
         /**
          *  Retrieve request Id
@@ -91,7 +91,16 @@ class Process extends WebsocketServer
          *  Retrieve JSON summary, if any
          */
         if (!empty($message['response-to-request']['summary'])) {
-            $summary = json_encode($message['response-to-request']['summary']);
+            $infoJson = json_encode($message['response-to-request']['summary']);
+        }
+
+        /**
+         *  Retrieve log, if any
+         */
+        if (!empty($message['response-to-request']['log'])) {
+            if (!file_put_contents(WS_REQUESTS_LOGS_DIR . '/request-' . $requestId . '.log', $message['response-to-request']['log'])) {
+                $this->log('[conn #' . $conn->resourceId . '] Error while writing request #' . $requestId . ' log to file ' . WS_REQUESTS_LOGS_DIR . '/request-' . $requestId . '.log');
+            }
         }
 
         $this->log('[conn #' . $conn->resourceId . '] Sended response for request #' . $requestId . ' with status "' . $status . '"');
@@ -99,7 +108,7 @@ class Process extends WebsocketServer
         /**
          *  Update request status and response in database
          */
-        $this->hostController->updateWsRequest($requestId, $status, $info, $summary);
+        $this->hostController->updateWsRequest($requestId, $status, $info, $infoJson);
 
         $this->layoutContainerStateController->update('hosts/overview');
         $this->layoutContainerStateController->update('hosts/list');
@@ -143,6 +152,11 @@ class Process extends WebsocketServer
             }
 
             /**
+             *  Retrieve host hostname, for better logs
+             */
+            $hostname = $this->hostController->getHostnameById($request['Id_host']);
+
+            /**
              *  If target host is not authenticated (not in $clients), skip
              */
             if (!in_array($request['Id_host'], array_column($clients, 'Id_host'))) {
@@ -164,7 +178,7 @@ class Process extends WebsocketServer
                         $nextRetry = strtotime('+10 minutes');
                     }
 
-                    $this->log('[server] Request #' . $request['Id'] . ' for host #' . $request['Id_host']. ' cannot be processed: host is not connected or not authenticated (retry ' . $request['Retry'] . '/3 - next retry ~' . date('H:i:s', $nextRetry) . ')');
+                    $this->log('[server] Request #' . $request['Id'] . ' for host ' . $hostname . ' #' . $request['Id_host']. ' cannot be processed: host is not connected or not authenticated (retry ' . $request['Retry'] . '/3 - next retry ~' . date('H:i:s', $nextRetry) . ')');
 
                     /**
                      *  Set new retry date in database and add an info message
@@ -175,7 +189,7 @@ class Process extends WebsocketServer
                     continue;
                 }
 
-                $this->log('[server] Request #' . $request['Id'] . ' for host #' . $request['Id_host']. ' cannot be processed: host is not connected or not authenticated (retry 3/3 - failed, will not retry)');
+                $this->log('[server] Request #' . $request['Id'] . ' for host ' . $hostname . ' #' . $request['Id_host']. ' cannot be processed: host is not connected or not authenticated (retry 3/3 - failed, will not retry)');
 
                 /**
                  *  If all retries failed, update request status to 'failed' in database
@@ -193,16 +207,38 @@ class Process extends WebsocketServer
             $hostWsConnectionId = $this->hostController->getWsConnectionIdByHostId($request['Id_host']);
 
             /**
-             *  Retrieve host hostname, for better logs
+             *  If request is 'disconnect', close connection and remove it from database
              */
-            $hostname = $this->hostController->getHostnameById($request['Id_host']);
+            if ($request['Request'] == 'disconnect') {
+                foreach ($socket->getClients() as $client) {
+                    if ($client->resourceId == $hostWsConnectionId) {
+                        /**
+                         *  Send a message to the host to inform that the connection will be closed
+                         */
+                        $client->send(json_encode(array('info' => 'You will now be disconnected from the server')));
+
+                        /**
+                         *  Close connection
+                         */
+                        $client->close();
+                        $this->log('[server] Closed connection with host ' . $hostname . ' (connection #' . $client->resourceId . ') as requested by request #' . $request['Id']);
+                    }
+                }
+
+                /**
+                 *  Delete the disconnect request from database
+                 */
+                $this->hostController->deleteWsRequest($request['Id']);
+                continue;
+            }
 
             /**
+             *  Any other request
              *  Send message to target host through websocket
              */
             foreach ($socket->getClients() as $client) {
                 if ($client->resourceId == $hostWsConnectionId) {
-                    $this->log('[server] Sending request #' . $request['Id'] . ' to ' . $hostname . ' through connection #' . $client->resourceId);
+                    $this->log('[server] Sending request #' . $request['Id'] . ' to host ' . $hostname . ' through connection #' . $client->resourceId);
 
                     $client->send(json_encode(array('request-id' => $request['Id'], 'request' => $request['Request'])));
 

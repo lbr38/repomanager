@@ -48,7 +48,7 @@
                 if (!empty($profile)) {
                     echo '<span class="label-white">' . $profile . '</span>';
                 } else {
-                    echo 'Unknow';
+                    echo 'Unknown';
                 } ?>
             </span>
 
@@ -58,7 +58,7 @@
                 if (!empty($env)) {
                     echo Controllers\Common::envtag($env);
                 } else {
-                    echo 'Unknow';
+                    echo 'Unknown';
                 } ?>
             </span>
 
@@ -78,7 +78,7 @@
                     echo '<img src="/assets/icons/redcircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Seems stopped';
                 }
                 if ($agentStatus == "unknow") {
-                    echo '<img src="/assets/icons/graycircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . '." /> Unknow';
+                    echo '<img src="/assets/icons/graycircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . '." /> Unknown';
                 } ?>
             </span>
 
@@ -89,7 +89,7 @@
                     if (!empty($agentVersion)) {
                         echo $agentVersion;
                     } else {
-                        echo 'Unknow';
+                        echo 'Unknown';
                     } ?>
                 </span>
             </span>

@@ -379,28 +379,29 @@ class Host
             /**
              *  Position of the container block in the timeline according to the last displayed
              */
-            if ($contentPosition == 'left') {
-                $content .= '<div class="timeline-container timeline-container-left">';
-            }
-            if ($contentPosition == 'right') {
-                $content .= '<div class="timeline-container timeline-container-right">';
-            }
+            $content .= '<div class="timeline-container timeline-container-' . $contentPosition . '">';
 
-            $content .= '<div class="timeline-container-content">';
-            $content .= '<span class="timeline-event-date">' . DateTime::createFromFormat('Y-m-d', $event['Date'])->format('d-m-Y') . ' ' . $event['Time'] . '</span>';
-            $content .= '<div class="flex align-item-center">';
+            /**
+             *  Display the date, time and state of the package
+             */
+            $content .= '<div class="table-container">';
             $content .= '<img src="/assets/icons/' . $contentIcon . '.svg" class="icon" />';
+            $content .= '<div class="flex flex-direction-column">';
+            $content .= '<p>' . DateTime::createFromFormat('Y-m-d', $event['Date'])->format('d-m-Y') . '</p>';
+            $content .= '<p class="lowopacity-cst">' . $event['Time'] . '</p>';
+            $content .= '</div>';
+            $content .= '<div class="flex flex-direction-column">';
+            $content .= '<p>' . $contentText . '</p>';
+            $content .= '<p class="lowopacity-cst copy">Version: ' . $event['Version'] . '</p>';
+            $content .= '</div>';
+            $content .= '</div>';
+
             /**
              *  If this event is the result of an update, install or uninstall event, then we indicate the Id of the event
              */
             // if (!empty($event['Id_event'])) {
             //     $content .= '<a href="#' . $event['Id_event'] . '" >';
             // }
-            $content .= '<span>' . $contentText . '</span>';
-            $content .= '</div>';
-
-            $content .= '<span class="timeline-event-version">Version : <b>' . $event['Version'] . '</b></span>';
-            $content .= '</div>';
 
             /**
              *  If the previous block was on the left, we display the next one on the right and vice versa
@@ -1200,7 +1201,7 @@ class Host
              */
             if ($action == 'reset') {
                 /**
-                 *  Reset host general informations
+                 *  Reset host data in database
                  */
                 $this->model->resetHost($hostId);
             }
@@ -1210,9 +1211,19 @@ class Host
              */
             if ($action == 'delete') {
                 /**
+                 *  First, reset host data in database
+                 */
+                $this->model->resetHost($hostId);
+
+                /**
                  *  Set host status to 'deleted' in database
                  */
                 $this->model->setHostInactive($hostId);
+
+                /**
+                 *  Add a new ws request to disconnect the host
+                 */
+                $this->newWsRequest($hostId, 'disconnect');
             }
 
             /**
@@ -1550,9 +1561,9 @@ class Host
     /**
      *  Update websocket request in database
      */
-    public function updateWsRequest(int $id, string $status, string|null $info = null, string|null $summary = null)
+    public function updateWsRequest(int $id, string $status, string|null $info = null, string|null $infoJson = null)
     {
-        $this->model->updateWsRequest($id, $status, $info, $summary);
+        $this->model->updateWsRequest($id, $status, $info, $infoJson);
     }
 
     /**
@@ -1601,5 +1612,38 @@ class Host
     public function cancelWsRequest(int $id)
     {
         $this->model->cancelWsRequest($id);
+    }
+
+    /**
+     *  Delete websocket request from database
+     */
+    public function deleteWsRequest(int $id)
+    {
+        $this->model->deleteWsRequest($id);
+    }
+
+    /**
+     *  Get request log details
+     *  Request log is a file stored in the websocket-requests logs directory
+     */
+    public function getRequestLog(int $id)
+    {
+        $logFile = WS_REQUESTS_LOGS_DIR . '/request-' . $id . '.log';
+
+        if (!file_exists($logFile)) {
+            throw new Exception('Log file does not exist');
+        }
+
+        if (!is_readable($logFile)) {
+            throw new Exception('Log file is not readable');
+        }
+
+        $content = file_get_contents($logFile);
+
+        if ($content === false) {
+            throw new Exception('Error while reading log file');
+        }
+
+        return $content;
     }
 }
