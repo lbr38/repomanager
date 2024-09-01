@@ -25,13 +25,6 @@ class Statistic extends Service
      */
     public function statsClean()
     {
-        /**
-         *  Exit the function if current time != 00:00
-         */
-        if (date('H:i') != '00:00') {
-            return;
-        }
-
         echo $this->getDate() . ' Cleaning old statistics...' . PHP_EOL;
 
         try {
@@ -46,13 +39,6 @@ class Statistic extends Service
      */
     public function statsGenerate()
     {
-        /**
-         *  Exit the function if current time != 00:00
-         */
-        if (date('H:i') != '00:00') {
-            return;
-        }
-
         echo $this->getDate() . ' Generating statistics...' . PHP_EOL;
 
         /**

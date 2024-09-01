@@ -13,6 +13,7 @@ class Rebuild
     private $repo;
     private $task;
     private $taskLog;
+    private $packagesToSign = null;
 
     public function __construct(string $taskId)
     {

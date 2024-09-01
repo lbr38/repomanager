@@ -165,18 +165,18 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Maximum number of snapshots to keep per repository." />
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Maximum number of unused snapshots to keep per repository." />
                     </div>
                     <div>
                         <p>Retention</p>
                     </div>
                     <div>
-                        <input class="settings-param" param-name="retention" type="number" min="1" value="<?= RETENTION ?>">
+                        <input class="settings-param" param-name="retention" type="number" min="0" value="<?= RETENTION ?>">
                     </div>
                     <div>
                         <?php
-                        if (empty(RETENTION)) {
-                            echo '<img src="/assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                        if (RETENTION == 0) {
+                            echo '<img src="/assets/icons/warning.png" class="icon" title="No retention is set. All unused snapshots will be deleted." />';
                         } ?>
                     </div>
                 </div>

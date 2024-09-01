@@ -22,6 +22,7 @@ class Mirror
     protected $debPackagesLocation = array();
     protected $sourcesPackagesLocation = array();
     protected $rpmPackagesLocation = array();
+    protected $packagesToSign = array();
     protected $workingDir;
     protected $outputToFile = false;
     protected $outputFile;
@@ -88,6 +89,11 @@ class Mirror
     public function setSslCustomCaCertificate(string $path)
     {
         $this->sslCustomCaCertificate = $path;
+    }
+
+    public function getPackagesToSign()
+    {
+        return $this->packagesToSign;
     }
 
     /**

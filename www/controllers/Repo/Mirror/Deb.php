@@ -597,14 +597,14 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
         /**
          *  Target directory in which packages will be downloaded
          */
-        $targetDir = $this->workingDir . '/pool/' . $this->section;
+        $absoluteDir = $this->workingDir . '/pool/' . $this->section;
 
         /**
          *  Create directory in which packages will be downloaded
          */
-        if (!is_dir($targetDir)) {
-            if (!mkdir($targetDir, 0770, true)) {
-                $this->logError('Cannot create directory: <code>' . $targetDir . '</code>', 'Error while creating target directory');
+        if (!is_dir($absoluteDir)) {
+            if (!mkdir($absoluteDir, 0770, true)) {
+                $this->logError('Cannot create directory: <code>' . $absoluteDir . '</code>', 'Error while creating target directory');
             }
         }
 
@@ -639,7 +639,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             /**
              *  Output package to download to log file
              */
-            $this->logOutput('<span class="mediumopacity-cst">(' . $packageCounter . '/' . $totalPackages . ')  ➙ ' . $debPackageLocation . ' ... </span>');
+            $this->logOutput('<span class="opacity-80-cst">(' . $packageCounter . '/' . $totalPackages . ')  ➙ ' . $debPackageLocation . ' ... </span>');
 
             /**
              *  Check that package naming respects the Debian package naming convention
@@ -672,7 +672,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             /**
              *  Check if file does not already exists before downloading it (e.g. copied from a previously snapshot)
              */
-            if (file_exists($targetDir . '/' . $debPackageName)) {
+            if (file_exists($absoluteDir . '/' . $debPackageName)) {
                 $this->logOutput('already exists (ignoring)' . PHP_EOL);
                 continue;
             }
@@ -680,14 +680,14 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             /**
              *  Download
              */
-            if (!$this->download($url . '/' . $debPackageLocation, $targetDir . '/' . $debPackageName, 3)) {
+            if (!$this->download($url . '/' . $debPackageLocation, $absoluteDir . '/' . $debPackageName, 3)) {
                 $this->logError('error', 'Error while retrieving packages');
             }
 
             /**
              *  Check that downloaded deb package's sha256 matches the sha256 specified by the Packages file
              */
-            if (hash_file('sha256', $targetDir . '/' . $debPackageName) != $debPackageChecksum) {
+            if (hash_file('sha256', $absoluteDir . '/' . $debPackageName) != $debPackageChecksum) {
                 $this->logError('checksum of the downloaded package does not match the checksum indicated by the source repository metadata (tested sha256)', 'Error while retrieving packages');
             }
 
@@ -715,14 +715,14 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
         /**
          *  Target directory in which packages will be downloaded
          */
-        $targetDir = $this->workingDir . '/pool/' . $this->section;
+        $absoluteDir = $this->workingDir . '/pool/' . $this->section;
 
         /**
          *  Create directory in which packages will be downloaded
          */
-        if (!is_dir($targetDir)) {
-            if (!mkdir($targetDir, 0770, true)) {
-                $this->logError('Cannot create directory: <code>' . $targetDir . '</code>', 'Error while creating target directory');
+        if (!is_dir($absoluteDir)) {
+            if (!mkdir($absoluteDir, 0770, true)) {
+                $this->logError('Cannot create directory: <code>' . $absoluteDir . '</code>', 'Error while creating target directory');
             }
         }
 
@@ -757,12 +757,12 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             /**
              *  Output source package to download to log file
              */
-            $this->logOutput('<span class="mediumopacity-cst">(' . $packageCounter . '/' . $totalPackages . ')  ➙ ' . $sourcePackageLocation . ' ... </span>');
+            $this->logOutput('<span class="opacity-80-cst">(' . $packageCounter . '/' . $totalPackages . ')  ➙ ' . $sourcePackageLocation . ' ... </span>');
 
             /**
              *  Check if file does not already exists before downloading it (e.g. copied from a previously snapshot)
              */
-            if (file_exists($targetDir . '/' . $sourcePackageName)) {
+            if (file_exists($absoluteDir . '/' . $sourcePackageName)) {
                 $this->logOutput('already exists (ignoring)' . PHP_EOL);
                 continue;
             }
@@ -770,14 +770,14 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             /**
              *  Download
              */
-            if (!$this->download($url . '/' . $sourcePackageLocation, $targetDir . '/' . $sourcePackageName)) {
+            if (!$this->download($url . '/' . $sourcePackageLocation, $absoluteDir . '/' . $sourcePackageName)) {
                 $this->logError('error', 'Error while retrieving sources packages');
             }
 
             /**
              *  Check that downloaded source package's md5 matches the md5sum specified by the Sources indices file
              */
-            if (md5_file($targetDir . '/' . $sourcePackageName) != $sourcePackageMd5) {
+            if (md5_file($absoluteDir . '/' . $sourcePackageName) != $sourcePackageMd5) {
                 $this->logError('md5 of the file does not match ' . $sourcePackageMd5, 'Error while retrieving sources packages');
             }
 

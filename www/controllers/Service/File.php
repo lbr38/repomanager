@@ -19,11 +19,11 @@ class File extends Service
      */
     public function cleanUp()
     {
-        echo $this->getDate() . ' Cleaning temporary files' . PHP_EOL;
+        echo $this->getDate() . ' Cleaning files' . PHP_EOL;
 
         try {
             /**
-             *  Clean files older than 7 days in .temp
+             *  Clean temp files and directories older than 7 days
              */
             if (is_dir(DATA_DIR . '/.temp')) {
                 $files = \Controllers\Common::findRecursive(DATA_DIR . '/.temp');
@@ -33,29 +33,24 @@ class File extends Service
                     foreach ($files as $file) {
                         if (filemtime($file) < strtotime('-7 days')) {
                             if (!unlink($file)) {
-                                throw new Exception('Error while cleaning .temp directory: cannot delete file <b>' . $file . '</b>');
+                                throw new Exception('Could not clean temporary file <b>' . $file . '</b>');
                             }
                         }
                     }
-
-                    unset($files);
                 }
 
-                /**
-                 *  Also delete dirs older than 7 days
-                 */
                 if (!empty($dirs)) {
                     foreach ($dirs as $dir) {
                         if (\Controllers\Filesystem\Directory::isEmpty($dir)) {
                             echo $this->getDate() . ' Deleting ' . $dir . PHP_EOL;
                             if (!rmdir($dir)) {
-                                throw new Exception('Error while cleaning .temp directory: cannot delete directory <b>' . $dir . '</b>');
+                                throw new Exception('Could not clean temporary directory <b>' . $dir . '</b>');
                             }
                         }
                     }
-
-                    unset($dirs);
                 }
+
+                unset($files, $dirs);
             }
 
             /**
@@ -68,13 +63,13 @@ class File extends Service
                     foreach ($files as $file) {
                         if (filemtime($file) < strtotime('-7 days')) {
                             if (!unlink($file)) {
-                                throw new Exception('Error while cleaning pid files: cannot delete file <b>' . $file . '</b>');
+                                throw new Exception('Could not clean pid file <b>' . $file . '</b>');
                             }
                         }
                     }
-
-                    unset($files);
                 }
+
+                unset($files);
             }
 
             /**
@@ -87,13 +82,32 @@ class File extends Service
                     foreach ($dirs as $dir) {
                         if (filemtime($dir) < strtotime('-3 days')) {
                             if (!\Controllers\Filesystem\Directory::deleteRecursive($dir)) {
-                                $this->logController->log('error', 'Service', 'Error while cleaning temporary downloaded files: cannot delete directory <b>' . $dir . '</b>');
+                                throw new Exception('Could not clean temporary directory <b>' . $dir . '</b>');
                             }
                         }
                     }
-
-                    unset($dirs);
                 }
+
+                unset($dirs);
+            }
+
+            /**
+             *  Clean websocket logs older than 15 days
+             */
+            if (is_dir(WS_LOGS_DIR)) {
+                $files = \Controllers\Common::findRecursive(WS_LOGS_DIR, 'log');
+
+                if (!empty($files)) {
+                    foreach ($files as $file) {
+                        if (filemtime($file) < strtotime('-15 days')) {
+                            if (!unlink($file)) {
+                                throw new Exception('Could not clean websocket log file <b>' . $file . '</b>');
+                            }
+                        }
+                    }
+                }
+
+                unset($files);
             }
         } catch (Exception $e) {
             $this->logController->log('error', 'Service', $e->getMessage());

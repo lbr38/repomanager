@@ -711,28 +711,33 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              *  If package arch is 'src' then package will be downloaded in a 'SRPMS' directory to respect most of the RPM repositories architecture
              */
             if ($rpmPackageArch == 'src') {
-                $targetDir = $this->workingDir . '/packages/SRPMS';
+                $relativeDir = 'packages/SRPMS';
 
             /**
              *  Else, package will be downloaded in a directory named after the package arch
              */
             } else {
-                $targetDir = $this->workingDir . '/packages/' . $rpmPackageArch;
+                $relativeDir = 'packages/' . $rpmPackageArch;
             }
+
+            /**
+             *  Define absolute directory in which package will be downloaded
+             */
+            $absoluteDir = $this->workingDir . '/' . $relativeDir;
 
             /**
              *  Create directory in which package will be downloaded
              */
-            if (!is_dir($targetDir)) {
-                if (!mkdir($targetDir, 0770, true)) {
-                    $this->logError('Cannot create directory: ' . $targetDir, 'Error while creating target directory');
+            if (!is_dir($absoluteDir)) {
+                if (!mkdir($absoluteDir, 0770, true)) {
+                    $this->logError('Cannot create directory: ' . $absoluteDir, 'Error while creating target directory');
                 }
             }
 
             /**
              *  Check if file does not already exists before downloading it (e.g. copied from a previously snapshot)
              */
-            if (file_exists($targetDir . '/' . $rpmPackageName)) {
+            if (file_exists($absoluteDir . '/' . $rpmPackageName)) {
                 $this->logOutput('already exists (ignoring)' . PHP_EOL);
                 continue;
             }
@@ -740,7 +745,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             /**
              *  Download package if it does not already exist
              */
-            if (!$this->download($url . '/' . $rpmPackageLocation, $targetDir . '/' . $rpmPackageName, 3)) {
+            if (!$this->download($url . '/' . $rpmPackageLocation, $absoluteDir . '/' . $rpmPackageName, 3)) {
                 $this->logError('error', 'Error while retrieving packages');
             }
 
@@ -748,8 +753,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              *  Check that downloaded rpm package matches the checksum specified by the primary.xml file
              *  Try with sha256 then sha1
              */
-            if (hash_file('sha256', $targetDir . '/' . $rpmPackageName) != $rpmPackageChecksum) {
-                if (hash_file('sha1', $targetDir . '/' . $rpmPackageName) != $rpmPackageChecksum) {
+            if (hash_file('sha256', $absoluteDir . '/' . $rpmPackageName) != $rpmPackageChecksum) {
+                if (hash_file('sha1', $absoluteDir . '/' . $rpmPackageName) != $rpmPackageChecksum) {
                     $this->logError('checksum of the downloaded package does not match the checksum indicated by the source repository metadata (tested sha256 and sha1)', 'Error while retrieving packages');
                 }
             }
@@ -774,7 +779,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                 /**
                  *  Extract package header
                  */
-                $myprocess = new \Controllers\Process('/usr/bin/rpm -qp --qf "%|DSAHEADER?{%{DSAHEADER:pgpsig}}:{%|RSAHEADER?{%{RSAHEADER:pgpsig}}:{(none}|}| %{NVRA}\n" ' . $targetDir. '/' . $rpmPackageName);
+                $myprocess = new \Controllers\Process('/usr/bin/rpm -qp --qf "%|DSAHEADER?{%{DSAHEADER:pgpsig}}:{%|RSAHEADER?{%{RSAHEADER:pgpsig}}:{(none}|}| %{NVRA}\n" ' . $absoluteDir. '/' . $rpmPackageName);
                 $myprocess->execute();
                 $content = $myprocess->getOutput();
                 $myprocess->close();
@@ -803,8 +808,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                         /**
                          *  Delete package
                          */
-                        if (!unlink($targetDir. '/' . $rpmPackageName)) {
-                            $this->logError('Error while deleting package <code>' . $targetDir. '/' . $rpmPackageName . '</code>', 'Error while deleting package');
+                        if (!unlink($absoluteDir . '/' . $rpmPackageName)) {
+                            $this->logError('Error while deleting package <code>' . $absoluteDir. '/' . $rpmPackageName . '</code>', 'Error while deleting package');
                         }
 
                         continue;
@@ -815,6 +820,13 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                      */
                     if (RPM_MISSING_SIGNATURE == 'download') {
                         $this->logWarning('This package has no GPG signature (GPG signing key ID not found in the package header) (downloaded anyway)');
+
+                        /**
+                         *  Add package to the list of packages to sign (if signing is enabled).
+                         *  This is the relative patch which is added, because the absolute path is just a temporary path (download-xxxx)
+                         */
+                        $this->packagesToSign[] = $relativeDir . '/' . $rpmPackageName;
+
                         continue;
                     }
                 }
@@ -853,8 +865,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                         /**
                          *  Delete package
                          */
-                        if (!unlink($targetDir. '/' . $rpmPackageName)) {
-                            $this->logError('Error while deleting package <code>' . $targetDir. '/' . $rpmPackageName . '</code>', 'Error while deleting package');
+                        if (!unlink($absoluteDir. '/' . $rpmPackageName)) {
+                            $this->logError('Error while deleting package <code>' . $absoluteDir. '/' . $rpmPackageName . '</code>', 'Error while deleting package');
                         }
 
                         continue;
@@ -865,10 +877,23 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                      */
                     if (RPM_INVALID_SIGNATURE == 'download') {
                         $this->logWarning('GPG signature check failed (unknown GPG signing key ID: ' . $keyId . ') (downloaded anyway)');
+
+                        /**
+                         *  Add package to the list of packages to sign (if signing is enabled).
+                         *  This is the relative patch which is added, because the absolute path is just a temporary path (download-xxxx)
+                         */
+                        $this->packagesToSign[] = $relativeDir . '/' . $rpmPackageName;
+
                         continue;
                     }
                 }
             }
+
+            /**
+             *  Add package to the list of packages to sign (if signing is enabled).
+             *  This is the relative patch which is added, because the absolute path is just a temporary path (download-xxxx)
+             */
+            $this->packagesToSign[] = $relativeDir . '/' . $rpmPackageName;
 
             /**
              *  Print OK if package has been downloaded and verified successfully

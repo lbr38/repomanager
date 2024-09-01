@@ -66,29 +66,30 @@ $(document).on('click','.group-config-btn',function () {
  */
 function newGroup(name)
 {
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "group",
-            action: "new",
+    ajaxRequest(
+        // Controller:
+        'group',
+        // Action:
+        'new',
+        // Data:
+        {
             name: name,
-            type: "repo"
+            type: 'repo'
         },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'success');
-            reloadPanel('repos/groups', function () {
-                selectToSelect2('select.group-repos-list', 'Add repository'); });
-            reloadNewRepoDiv();
-            reloadContainer('repos/list');
-        },
-        error: function (jqXHR, textStatus, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload container:
+        ['repos/list'],
+        // Execute functions on success:
+        [
+            // Reload group panel
+            "reloadPanel('repos/groups', function () { selectToSelect2('select.group-repos-list', 'Add repository'); })",
+            // Reload create repo div
+            "reloadNewRepoDiv()"
+        ]
+    );
 }
 
 /**
@@ -97,29 +98,30 @@ function newGroup(name)
  */
 function deleteGroup(id)
 {
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "group",
-            action: "delete",
+    ajaxRequest(
+        // Controller:
+        'group',
+        // Action:
+        'delete',
+        // Data:
+        {
             id: id,
-            type: "repo"
+            type: 'repo'
         },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'success');
-            reloadPanel('repos/groups', function () {
-                selectToSelect2('select.group-repos-list', 'Add repository'); });
-            reloadNewRepoDiv();
-            reloadContainer('repos/list');
-        },
-        error: function (jqXHR, ajaxOptions, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload container:
+        ['repos/list'],
+        // Execute functions on success:
+        [
+            // Reload group panel
+            "reloadPanel('repos/groups', function () { selectToSelect2('select.group-repos-list', 'Add repository'); })",
+            // Reload create repo div
+            "reloadNewRepoDiv()"
+        ]
+    );
 }
 
 /**
@@ -130,29 +132,28 @@ function deleteGroup(id)
  */
 function editGroup(id, name, reposId)
 {
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "group",
-            action: "edit",
+    ajaxRequest(
+        // Controller:
+        'group',
+        // Action:
+        'edit',
+        // Data:
+        {
             id: id,
             name: name,
             data: reposId,
-            type: "repo"
+            type: 'repo'
         },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'success');
-            reloadPanel('repos/groups', function () {
-                selectToSelect2('select.group-repos-list', 'Add repository'); });
-            reloadNewRepoDiv();
-            reloadContainer('repos/list');
-        },
-        error: function (jqXHR, textStatus, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload container:
+        ['repos/list'],
+        // Execute functions on success:
+        [
+            // Reload group panel
+            "reloadPanel('repos/groups', function () { selectToSelect2('select.group-repos-list', 'Add repository'); })",
+        ]
+    );
 }

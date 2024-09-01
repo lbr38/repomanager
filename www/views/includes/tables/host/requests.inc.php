@@ -19,27 +19,27 @@
                  */
                 if ($item['Status'] == 'new') {
                     $statusColor = 'yellow';
-                    $status = 'Pending';
+                    $requestStatus = 'Pending';
                 }
                 if ($item['Status'] == 'sent') {
                     $statusColor = 'yellow';
-                    $status = 'Sent';
+                    $requestStatus = 'Sent';
                 }
                 if ($item['Status'] == 'received') {
                     $statusColor = 'yellow';
-                    $status = 'Received';
+                    $requestStatus = 'Received';
                 }
                 if ($item['Status'] == 'canceled') {
                     $statusColor = 'red';
-                    $status = 'Canceled';
+                    $requestStatus = 'Canceled';
                 }
                 if ($item['Status'] == 'failed') {
                     $statusColor = 'red';
-                    $status = 'Failed';
+                    $requestStatus = 'Failed';
                 }
                 if ($item['Status'] == 'completed') {
                     $statusColor = 'green';
-                    $status = 'Completed';
+                    $requestStatus = 'Completed';
                 }
 
                 if ($item['Request'] == 'request-general-infos') {
@@ -57,10 +57,15 @@
                     $requestTitle = 'Requested the host to update all of its packages';
                 }
 
+                // If the request was a disconnect, skip it
+                if ($item['Request'] == 'disconnect') {
+                    continue;
+                }
+
                 /**
                  *  If request ended with an error
                  */
-                if (!empty($item['Info'])) {
+                if (!empty($item['Info_json'])) {
                     /**
                      *  If the request was a packages update, retrieve more informations from the summary (number of packages updated)
                      */
@@ -92,7 +97,7 @@
 
                 <div class="<?= $class ?>" request-id="<?= $item['Id'] ?>" title="<?= $title ?>">
                     <div>
-                        <img class="icon-small" src="/assets/icons/<?= $statusColor ?>circle.png" title="<?= $status ?>">                    
+                        <img class="icon-small" src="/assets/icons/<?= $statusColor ?>circle.png" title="<?= $requestStatus ?>">                    
                     </div>
 
                     <div>
@@ -102,7 +107,12 @@
 
                     <div>
                         <p title="<?= $requestTitle ?>"><?= $request ?></p>
-                        <p class="lowopacity-cst"><?= $requestInfo ?></p>
+                        <?php
+                        if (!empty($requestInfo)) {
+                            echo '<p class="lowopacity-cst">' . $requestInfo . '</p>';
+                        } else {
+                            echo '<p class="lowopacity-cst">' . $requestStatus . '</p>';
+                        } ?>
                     </div>
 
                     <div class="flex align-item-center justify-end">

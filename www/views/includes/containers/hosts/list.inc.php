@@ -66,24 +66,39 @@
                             } ?>
                             <input type='hidden' name='groupname' value='<?=$group['Name']?>'>
             
-                            <div class="div-generic-blue hosts-group-container veil-on-reload">
+                            <div class="hosts-group-container div-generic-blue veil-on-reload">
                                 <?php
                                 /**
                                  *  Print the group name except if it's the Default group
                                  */
-                                if ($group['Name'] != "Default") :
-                                    echo '<h3>';
-                                    echo $group['Name'];
+                                if ($group['Name'] == 'Default') {
+                                    $groupName = 'Ungrouped';
+                                } else {
+                                    $groupName = $group['Name'];
+                                }
 
-                                    /**
-                                     *  Print the number of hosts in the group
-                                     */
-                                    if (!empty($hostsList)) {
-                                        echo ' (' . count($hostsList) . ')';
-                                    }
-                                    echo '</h3>';
-                                endif;
+                                /**
+                                 *  Count number of hosts in the group
+                                 */
+                                $hostsCount = count($hostsList);
 
+                                /**
+                                 *  Generate count message
+                                 */
+                                if ($hostsCount < 2) {
+                                    $countMessage = $hostsCount . ' host';
+                                } else {
+                                    $countMessage = $hostsCount . ' hosts';
+                                } ?>
+
+                                <div class="flex justify-space-between">
+                                    <div>
+                                        <p class="font-size-16"><?= $groupName ?></p>
+                                        <p class="lowopacity-cst"><?= $countMessage ?></p>
+                                    </div>
+                                </div>
+
+                                <?php
                                 /**
                                  *  Print the hosts of the group
                                  */
@@ -276,7 +291,7 @@
 
                                                     <div class="flex flex-direction-column row-gap-4">
                                                         <span class="copy" title="<?= $tooltip ?>">
-                                                            <a href="/host/<?= $id ?>" target="_blank" rel="noopener noreferrer"><?= $hostname ?></a>
+                                                            <a href="/host/<?= $id ?>" class="wordbreakall" target="_blank" rel="noopener noreferrer"><?= $hostname ?></a>
                                                         </span>
 
                                                         <span class="copy font-size-12 lowopacity-cst" title="<?= $hostname ?> IP address">
@@ -287,44 +302,54 @@
                                                             <?php
                                                             /**
                                                              *  Last request status
+                                                             *  Ignore it if the request was a 'disconnect' request
                                                              */
-                                                            if (!empty($lastPendingRequest)) :
+                                                            if (!empty($lastPendingRequest) and $lastPendingRequest['Request'] != 'disconnect') :
                                                                 if ($lastPendingRequest['Request'] == 'request-general-infos') {
                                                                     $requestTitle = 'Requested the host to send its general informations';
+                                                                    $shortRequestTitle = 'General informations';
                                                                 }
                                                                 if ($lastPendingRequest['Request'] == 'request-packages-infos') {
                                                                     $requestTitle = 'Requested the host to send its packages informations';
+                                                                    $shortRequestTitle = 'Packages informations';
                                                                 }
                                                                 if ($lastPendingRequest['Request'] == 'update-all-packages') {
                                                                     $requestTitle = 'Requested the host to update all of its packages';
+                                                                    $shortRequestTitle = 'Update all packages';
                                                                 }
 
                                                                 if ($lastPendingRequest['Status'] == 'new') {
-                                                                    $updateStatus = 'Pending';
+                                                                    $icon = '<span class="yellowtext">⧖</span>';
+                                                                    $requestStatus = 'pending';
                                                                     $textColor = 'yellowtext';
                                                                 }
                                                                 if ($lastPendingRequest['Status'] == 'sent') {
-                                                                    $updateStatus = 'Sent';
+                                                                    $icon = '<span class="yellowtext">⧖</span>';
+                                                                    $requestStatus = 'sent';
                                                                     $textColor = 'yellowtext';
                                                                 }
                                                                 if ($lastPendingRequest['Status'] == 'received') {
-                                                                    $updateStatus = 'Received';
+                                                                    $icon = '<span class="yellowtext">⧖</span>';
+                                                                    $requestStatus = 'received';
                                                                     $textColor = 'yellowtext';
                                                                 }
                                                                 if ($lastPendingRequest['Status'] == 'canceled') {
-                                                                    $updateStatus = 'Canceled';
-                                                                    $textColor = 'redtext';
+                                                                    $icon = '<span>✕</span>';
+                                                                    $requestStatus = 'canceled';
+                                                                    $textColor = 'lowopacity-cst';
                                                                 }
                                                                 if ($lastPendingRequest['Status'] == 'failed') {
-                                                                    $updateStatus = 'Failed';
+                                                                    $icon = '<span class="redtext">✕</span>';
+                                                                    $requestStatus = 'failed';
                                                                     $textColor = 'redtext';
                                                                 }
                                                                 if ($lastPendingRequest['Status'] == 'completed') {
-                                                                    $updateStatus = 'Completed';
+                                                                    $icon = '<span class="greentext">✔</span>';
+                                                                    $requestStatus = 'completed';
                                                                     $textColor = 'lowopacity-cst';
                                                                 }
 
-                                                                if (!empty($lastPendingRequest['Info'])) {
+                                                                if (!empty($lastPendingRequest['Info_json'])) {
                                                                     /**
                                                                      *  If the request was a packages update, retrieve more informations from the summary (number of packages updated)
                                                                      */
@@ -333,7 +358,7 @@
 
                                                                         // If there was no packages to update
                                                                         if ($summary['update']['status'] == 'nothing-to-do') {
-                                                                            $requestInfo = 'No packages to update';
+                                                                            $requestInfo = 'no packages to update';
                                                                         }
 
                                                                         // If there was packages to update, retrieve the number of packages updated
@@ -353,9 +378,9 @@
                                                                  */
                                                                 if (strtotime($lastPendingRequest['Date'] . ' ' . $lastPendingRequest['Time']) >= strtotime(date('Y-m-d H:i:s') . ' - 1 hour')) {
                                                                     if (!empty($requestInfo)) {
-                                                                        echo '<p class="' . $textColor . '">' . $requestTitle . ' - ' . $requestInfo . '</p>';
+                                                                        echo '<p class="' . $textColor . '" title="' . $requestTitle . '">' . $icon . ' ' . $shortRequestTitle . ' - ' . $requestInfo . '</p>';
                                                                     } else {
-                                                                        echo '<p class="' . $textColor . '">' . $requestTitle . ' - ' . $updateStatus . '</p>';
+                                                                        echo '<p class="' . $textColor . '" title="' . $requestTitle . '">' . $icon . ' ' . $shortRequestTitle . ' - ' . $requestStatus . '</p>';
                                                                     }
                                                                 }
                                                             endif ?>
@@ -401,8 +426,6 @@
                                         endforeach; ?>
                                     </div>
                                     <?php
-                                else :
-                                    echo '<div class="hosts-table-empty"><p class="lowopacity-cst">(empty)</p></div>';
                                 endif ?>
                             </div>
                             <?php

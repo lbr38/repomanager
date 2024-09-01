@@ -2,7 +2,7 @@
     <?php
     if (!empty($reloadableTableContent)) :
         foreach ($reloadableTableContent as $item) : ?>
-            <div class="table-container grid-fr-6 bck-blue-alt">
+            <div class="table-container grid-fr-5 bck-blue-alt">
                 <div>
                     <p><b><?= DateTime::createFromFormat('Y-m-d', $item['Date'])->format('d-m-Y') ?></b></p>
                     <p class="lowopacity-cst"><?= $item['Time']; ?>
@@ -42,7 +42,14 @@
                         <span class="label-red"><?= count($item['PackagesRemoved']) ?> uninstalled</span>
                     </div>
                     <?php
-                endif; ?>                
+                endif;
+
+                if (!empty($item['PackagesPurged'])) : ?>
+                    <div class="pointer event-packages-btn" host-id="<?= $id ?>" event-id="<?= $item['Id'] ?>" package-state="purged">
+                        <span class="label-red"><?= count($item['PackagesPurged']) ?> uninstalled (purged)</span>
+                    </div>
+                    <?php
+                endif ?>
             </div>
             <?php
         endforeach; ?>

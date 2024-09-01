@@ -35,7 +35,7 @@
     word-wrap: break-word;       /* Internet Explorer 5.5+ */
     background-color: #182b3e;
     font-size: 14px;
-    line-height: 20px;
+    line-height: 1.5;
     padding: 20px;
     margin: 0;
 }
@@ -45,7 +45,7 @@
     color: white;
     border-radius: 4px;
     font-size: 12px;
-    line-height: 20px;
+    line-height: 1.5;
     padding: 20px;
     margin: 10px 0 0 0;
 }
@@ -104,7 +104,10 @@
 }
 .op-step-title { width: 30%; }
 .op-step-title-warning { width: 1%; }
-.op-step-title-error, .op-step-title-stopped, .op-step-title-ok, .op-step-loading { width: 60%; }
+.op-step-title-error, .op-step-title-stopped, .op-step-title-ok, .op-step-loading {
+    width: 60%;
+    line-height: 1.5;
+}
 .op-step-time {
     font-size: 12px;
     opacity: 0.8;

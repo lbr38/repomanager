@@ -1768,22 +1768,10 @@ class Host extends Model
     /**
      *  Update websocket request in database
      */
-    public function updateWsRequest(int $id, string $status, string|null $info, string|null $infoJson)
+    public function updateWsRequest(int $id, string $status, string $info, string $infoJson)
     {
         try {
-            $query = "UPDATE ws_requests SET Status = :status";
-
-            if (!empty($info)) {
-                $query .= ", Info = :info";
-            }
-
-            if (!empty($infoJson)) {
-                $query .= ", Info_json = :infoJson";
-            }
-
-            $query .= " WHERE Id = :id";
-
-            $stmt = $this->db->prepare($query);
+            $stmt = $this->db->prepare("UPDATE ws_requests SET Status = :status, Info = :info, Info_json = :infoJson WHERE Id = :id");
             $stmt->bindValue(':status', $status);
             $stmt->bindValue(':info', $info);
             $stmt->bindValue(':infoJson', $infoJson);

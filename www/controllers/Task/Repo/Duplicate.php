@@ -43,8 +43,8 @@ class Duplicate
         /**
          *  Set additionnal params from the actual repo to duplicate
          */
-        $taskParams['gpg-sign'] = $this->repo->getSigned();
-        $taskParams['arch'] = $this->repo->getArch();
+        $taskParams['gpg-sign'] = $this->sourceRepo->getSigned();
+        $taskParams['arch'] = $this->sourceRepo->getArch();
 
         /**
          *  Repo override some parameters defined by the user
