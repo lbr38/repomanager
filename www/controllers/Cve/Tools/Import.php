@@ -372,7 +372,7 @@ class Import
             /**
              *  Add error to log file
              */
-            file_put_contents(CVE_IMPORT_LOG_DIR . '/cve-import-' . $this->importId . '.error', 'Error while importing CVEs (import Id ' . $this->importId . '): '. $e->getMessage() . PHP_EOL, FILE_APPEND);
+            file_put_contents(CVE_LOG_DIR . '/cve-import-' . $this->importId . '.error', 'Error while importing CVEs (import Id ' . $this->importId . '): '. $e->getMessage() . PHP_EOL, FILE_APPEND);
 
             return false;
         }

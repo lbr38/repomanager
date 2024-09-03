@@ -380,6 +380,7 @@ td:last-child,
     background-color: #0c141b;
     border-radius: 8px;
     line-height: 1.5;
+    text-wrap: wrap;
 }
 
 /* Desktop configuration */

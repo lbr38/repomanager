@@ -926,6 +926,12 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         $this->url = rtrim($this->url, '/');
 
         /**
+         *  First start by adding just the base URL to the array, with no arch in the URL (because some distant repos may have no arch in their URL)
+         *  replacing '$releasever' with the specified releasever
+         */
+        $this->archUrls[] = str_replace('$releasever', $this->releasever, $this->url);
+
+        /**
          *  Building all possibly URLs to explore, from the base URL, the releasever and all the archs selected by the user
          *  Loop through all the archs selected by the user to build all the possible URLs to explore
          */
@@ -942,6 +948,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              */
             if (preg_match('/\$basearch/i', $url)) {
                 $this->archUrls[] = str_replace('$basearch', $arch, $url);
+
             /**
              *  Else if there is no $basearch variable in the URL, just append the arch to the URL as this could be a possible URL to explore
              */
@@ -972,9 +979,10 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          *  e.g. of $this->archUrls content:
          *  Array
          *  (
-         *      [0] => http://nginx.org/packages/centos/7/x86_64
-         *      [1] => http://nginx.org/packages/centos/7/src
-         *      [2] => http://nginx.org/packages/centos/7/SRPMS
+         *      [0] => http://nginx.org/packages/centos/7
+         *      [1] => http://nginx.org/packages/centos/7/x86_64
+         *      [2] => http://nginx.org/packages/centos/7/src
+         *      [3] => http://nginx.org/packages/centos/7/SRPMS
          *  )
          */
         foreach ($this->archUrls as $url) {
@@ -1012,9 +1020,9 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                  *  If response code is 403, add some explanation to the error message
                  */
                 if ($errorUrl['responseCode'] == '403') {
-                    $errorUrlsString .= ' • <span class="copy">' . $errorUrl['url'] . '</span> (response code: ' . $errorUrl['responseCode'] . ' forbidden. The URL might require authentication, has IP filtering or is non-existent.)' . PHP_EOL;
+                    $errorUrlsString .= '<p> • <span class="copy">' . $errorUrl['url'] . '</span> (response code: ' . $errorUrl['responseCode'] . ' forbidden. The URL might require authentication, has IP filtering or is non-existent.)</p>';
                 } else {
-                    $errorUrlsString .= ' • <span class="copy">' . $errorUrl['url'] . '</span> (response code: ' . $errorUrl['responseCode'] . ')' . PHP_EOL;
+                    $errorUrlsString .= '<p> • <span class="copy">' . $errorUrl['url'] . '</span> (response code: ' . $errorUrl['responseCode'] . ')</p>';
                 }
             }
 

@@ -40,12 +40,13 @@ class Source extends Model
     /**
      *  Get source repo Id from its name
      */
-    public function getIdByName(string $name)
+    public function getIdByName(string $type, string $name)
     {
         $id = '';
 
         try {
-            $stmt = $this->db->prepare("SELECT Id FROM sources WHERE Name = :name");
+            $stmt = $this->db->prepare("SELECT Id FROM sources WHERE Type = :type AND Name = :name");
+            $stmt->bindValue(':type', $type);
             $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
         } catch (\Exception $e) {

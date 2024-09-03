@@ -24,9 +24,9 @@ class Source
     /**
      *  Get source repo Id from its name
      */
-    public function getIdByName(string $name)
+    public function getIdByName(string $type, string $name)
     {
-        return $this->model->getIdByName($name);
+        return $this->model->getIdByName($type, $name);
     }
 
     public function getType(string $id)
@@ -57,13 +57,20 @@ class Source
         $url = stripslashes($url);
 
         /**
-         *  Check that URL is valid and starts with http(s)://
+         *  Check that URL is valid
+         *  Allow ? and & characters for query strings
+         *  Allow $ character for variables (e.g $releasever)
+         *  Allow @ and : character for basic authentification (e.g http://user:password@url)
          */
-        if (!\Controllers\Common::isAlphanumDash($url, array('=', ':', '/', '.', '?', '$', '&', ','))) {
-            throw new Exception('Source repo URL contains invalid characters');
+        if (!\Controllers\Common::isAlphanumDash($url, array('http://', 'https://', '/', '.', '?', '&', '$', '@', ':'))) {
+            throw new Exception('Specified URL contains invalid characters');
         }
+
+        /**
+         *  Check that URL starts with http(s)://
+         */
         if (!preg_match('#^https?://#', $url)) {
-            throw new Exception('Source repo URL must start with <b>http(s)://</b>');
+            throw new Exception('Specified URL must start with <b>http(s)://</b>');
         }
 
         /**
@@ -129,7 +136,7 @@ class Source
             /**
              *  Retrieve the Id of the source repo with the same name
              */
-            $testId = $this->getIdByName($name);
+            $testId = $this->getIdByName($type, $name); //toto
 
             /**
              *  If the Id is different from the one we are editing, then the name is already used
@@ -149,16 +156,19 @@ class Source
 
         /**
          *  Check that URL is valid
+         *  Allow ? and & characters for query strings
+         *  Allow $ character for variables (e.g $releasever)
+         *  Allow @ and : character for basic authentification (e.g http://user:password@url)
          */
-        if (\Controllers\Common::isAlphanumDash($url, array('http://', 'https://', '/', '.', '?', '&', '$')) === false) {
-            throw new Exception("Specified URL contains invalid characters");
+        if (!\Controllers\Common::isAlphanumDash($url, array('http://', 'https://', '/', '.', '?', '&', '$', '@', ':'))) {
+            throw new Exception('Specified URL contains invalid characters');
         }
 
         /**
          *  Check that URL starts with http(s)://
          */
         if (!preg_match('#^https?://#', $url)) {
-            throw new Exception('Repository URL must start with http(s)://');
+            throw new Exception('Specified URL must start with <b>http(s)://</b>');
         }
 
         /**
