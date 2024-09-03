@@ -264,7 +264,7 @@ class Mirror
             $exceptionMessage = $errorMessage;
         }
 
-        $this->logOutput('<code class="bkg-red font-size-11">KO</code> <span class="redtext font-size-13">' . $errorMessage . '</span>' . PHP_EOL);
+        $this->logOutput('<code class="bkg-red font-size-11">KO</code> <span class="redtext">' . $errorMessage . '</span>' . PHP_EOL);
 
         throw new Exception($exceptionMessage);
     }
@@ -274,7 +274,7 @@ class Mirror
      */
     public function logWarning(string $message)
     {
-        $this->logOutput('<code class="bkg-yellow font-size-11">WARNING</code> <span class="yellowtext font-size-13">' . $message . '</span>' . PHP_EOL);
+        $this->logOutput('<code class="bkg-yellow font-size-11">WARNING</code> <span class="yellowtext">' . $message . '</span>' . PHP_EOL);
     }
 
     /**
