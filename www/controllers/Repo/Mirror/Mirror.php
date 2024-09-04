@@ -30,6 +30,7 @@ class Mirror
     protected $sslCustomPrivateKey;
     protected $sslCustomCaCertificate;
     protected $curlHandle;
+    protected $previousSnapshotDirPath;
 
     public function setUrl(string $url)
     {
@@ -89,6 +90,11 @@ class Mirror
     public function setSslCustomCaCertificate(string $path)
     {
         $this->sslCustomCaCertificate = $path;
+    }
+
+    public function setPreviousSnapshotDirPath(string $path)
+    {
+        $this->previousSnapshotDirPath = $path;
     }
 
     public function getPackagesToSign()
@@ -247,9 +253,13 @@ class Mirror
     /**
      *  Write a green 'OK' to log file
      */
-    public function logOK()
+    public function logOK(string $message = null)
     {
-        $this->logOutput('<code class="bkg-green font-size-11">OK</code>' . PHP_EOL);
+        if (!empty($message)) {
+            $this->logOutput('<div class="inline-block"><div class="flex align-item-center column-gap-5"><span class="label-ok">OK</span><span class="opacity-80-cst">' . $message . '</span></div></div>' . PHP_EOL);
+        } else {
+            $this->logOutput('<div class="inline-block"><span class="label-ok">OK</span></div>' . PHP_EOL);
+        }
     }
 
     /**
@@ -264,7 +274,7 @@ class Mirror
             $exceptionMessage = $errorMessage;
         }
 
-        $this->logOutput('<code class="bkg-red font-size-11">KO</code> <span class="redtext">' . $errorMessage . '</span>' . PHP_EOL);
+        $this->logOutput('<div class="inline-block"><div class="flex align-item-center column-gap-5"><span class="label-ko">KO</span><span class="redtext">' . $errorMessage . '</span></div></div>' . PHP_EOL);
 
         throw new Exception($exceptionMessage);
     }
@@ -274,7 +284,7 @@ class Mirror
      */
     public function logWarning(string $message)
     {
-        $this->logOutput('<code class="bkg-yellow font-size-11">WARNING</code> <span class="yellowtext">' . $message . '</span>' . PHP_EOL);
+        $this->logOutput('<span class="yellowtext"><img src="/assets/icons/warning.png" class="icon" />' . $message . '</span>' . PHP_EOL);
     }
 
     /**

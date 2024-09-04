@@ -460,7 +460,7 @@
                                     <input class="env-input" type="text" value="<?= $envName ?>" />
                                 </div>
                                 <div>
-                                    <span class="round-btn-red">
+                                    <span class="round-btn-tr-to-red">
                                         <img src="/assets/icons/delete.svg" class="delete-env-btn" env-name="<?= $envName ?>" title="Delete <?= $envName ?> environment"/>
                                     </span>
                                 </div>

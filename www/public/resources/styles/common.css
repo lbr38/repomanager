@@ -80,7 +80,7 @@ pre {
  */
 .inline { display: inline; }
 .block { display: block; }
-.inline-block { display: inline-block; }
+.inline-block {display: inline-block !important;}
 .float-left { float: left; }
 .float-right { float: right; }
 .align-top { vertical-align: top; }
@@ -335,55 +335,79 @@ input::placeholder {
     box-shadow: rgba(12, 18, 20, 0.504) 0px 0px 10px 1px;
 }
 
-/* Tous les boutons bleus */
+/* All transparent buttons */
+.btn-large-tr, .btn-medium-tr, .btn-small-tr, .btn-xsmall-tr, .btn-xxsmall-tr, .btn-fit-tr, .round-btn-tr,
+.btn-large-tr-to-red, .btn-medium-tr-to-red, .btn-small-tr-to-red, .btn-xsmall-tr-to-red, .btn-xxsmall-tr-to-red, .btn-fit-tr-to-red, .round-btn-tr-to-red {
+    background-color: initial;
+    box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
+    border: 1px solid #24405c;
+    opacity: 0.5;
+}
+
+/* All blue buttons */
 .btn-large-blue, .btn-medium-blue, .btn-small-blue, .btn-xsmall-blue, .btn-xxsmall-blue, .btn-fit-blue, .round-btn-blue {
     background-color: #1d3349;
 }
-/* Tous les boutons verts */
+/* All green buttons */
 .btn-large-green, .btn-medium-green, .btn-small-green, .btn-xsmall-green, .btn-xxsmall-green, .btn-fit-green, .round-btn-green {
     background-color: #15bf7f;
 }
-/* Tous les boutons rouges */
+/* All red buttons */
 .btn-large-red, .btn-medium-red, .btn-small-red, .btn-xsmall-red, .btn-xxsmall-red, .btn-fit-red, .round-btn-red {
     background-color: #ff0044;
 }
-/* Tous les boutons jaunes */
+/* All yellow buttons */
 .btn-large-yellow, .btn-medium-yellow, .btn-small-yellow, .btn-xsmall-yellow, .btn-xxsmall-yellow, .btn-fit-yellow, .round-btn-yellow {
     background-color: #ffb536;
 }
-/* Boutons taille large */
-.button-large, .btn-large-blue, .btn-large-green, .btn-large-red {
+/* All large buttons */
+.btn-large, .btn-large-blue, .btn-large-green, .btn-large-red {
     width: 100%;
 }
-/* Boutons taille moyenne */
-.button-medium, .btn-medium-blue, .btn-medium-green, .btn-medium-red {
+/* All medium buttons */
+.btn-medium, .btn-medium-blue, .btn-medium-green, .btn-medium-red {
     width: 150px;
 }
-/* Boutons petite taille */
-.button-small, .btn-small-blue, .btn-small-green, .btn-small-red {
+/* All small buttons */
+.btn-small, .btn-small-blue, .btn-small-green, .btn-small-red {
     width: 100px;
 }
-/* Boutons très petite taille */
-.button-xsmall, .btn-xsmall-blue, .btn-xsmall-green, .btn-xsmall-red {
+/* All very small buttons */
+.btn-xsmall, .btn-xsmall-blue, .btn-xsmall-green, .btn-xsmall-red {
     width: 50px;
 }
-/* Boutons carré */
-.button-xxsmall, .btn-xxsmall-blue, .btn-xxsmall-green, .btn-xxsmall-red {
+/* All very very small buttons */
+.btn-xxsmall, .btn-xxsmall-blue, .btn-xxsmall-green, .btn-xxsmall-red {
     margin: 2px;
     width: 30px;
 }
 
-/* Tous les boutons bleus :hover */
+/* All transparent buttons (hover) */
+.btn-large-tr:hover, .btn-medium-tr:hover, .btn-small-tr:hover, .btn-xsmall-tr:hover, .btn-xxsmall-tr:hover, .btn-fit-tr:hover, .round-btn-tr:hover {
+    transition-duration: 0.2s;
+    background-color: #1d3349;
+    opacity: 1;
+}
+
+/* All transparent to red buttons (hover) */
+.btn-large-tr-to-red:hover, .btn-medium-tr-to-red:hover, .btn-small-tr-to-red:hover, .btn-xsmall-tr-to-red:hover, .btn-xxsmall-tr-to-red:hover, .btn-fit-tr-to-red:hover, .round-btn-tr-to-red:hover {
+    transition-duration: 0.2s;
+    background-color: #dc0044;
+    border: 1 px solid #dc0044;
+    opacity: 1;
+}
+
+/* All blue buttons (hover) */
 .btn-large-blue:hover, .btn-medium-blue:hover, .btn-small-blue:hover, .btn-xsmall-blue:hover, .btn-xxsmall-blue:hover, .btn-fit-blue:hover, .round-btn-blue:hover {
     transition-duration: 0.2s;
     background-color: #1e3a54;
 }
-/* Tous les boutons verts :hover */
+/* All green buttons (hover) */
 .btn-large-green:hover, .btn-medium-green:hover, .btn-small-green:hover, .btn-xsmall-green:hover, .btn-xxsmall-green:hover, .btn-fit-green:hover, .round-btn-green:hover {
     transition-duration: 0.2s;
     background-color: #12a16a;
 }
-/* Tous les boutons rouges :hover */
+/* All red buttons (hover) */
 .btn-large-red:hover, .btn-medium-red:hover, .btn-small-red:hover, .btn-xsmall-red:hover, .btn-xxsmall-red:hover, .btn-fit-red:hover, .round-btn-red:hover {
     transition-duration: 0.2s;
     background-color: #dc0044;
