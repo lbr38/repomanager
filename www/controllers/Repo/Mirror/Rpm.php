@@ -743,6 +743,25 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             }
 
             /**
+             *  Check if package already exists in the previous snapshot
+             *  If so, just create a hard link to the package
+             */
+            if (isset($this->previousSnapshotDirPath)) {
+                if (file_exists($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $rpmPackageName)) {
+                    $this->logOK('(linked to previous snapshot)');
+
+                    /**
+                     *  Create hard link to the package
+                     */
+                    if (!link($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $rpmPackageName, $absoluteDir . '/' . $rpmPackageName)) {
+                        $this->logError('Cannot create hard link to package: ' . $this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $rpmPackageName, 'Error while creating hard link');
+                    }
+
+                    continue;
+                }
+            }
+
+            /**
              *  Download package if it does not already exist
              */
             if (!$this->download($url . '/' . $rpmPackageLocation, $absoluteDir . '/' . $rpmPackageName, 3)) {

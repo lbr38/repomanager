@@ -114,32 +114,6 @@
             <?php
         endif;
 
-        if ($this->task->getAction() == 'update') :
-            if (!empty($this->repo->getOnlySyncDifference())) : ?>
-                <tr>
-                    <th>ONLY SYNC THE DIFFERENCE</th>
-                    <td>
-                        <?php
-                        if ($this->repo->getOnlySyncDifference() == 'true') : ?>
-                            <div class="flex align-item-center column-gap-5">
-                                <img src="/assets/icons/greencircle.png" class="icon-small" />
-                                <span>Enabled</span>
-                            </div>
-                            <?php
-                        endif;
-                        if ($this->repo->getOnlySyncDifference() == 'false') : ?>
-                            <div class="flex align-item-center column-gap-5">
-                                <img src="/assets/icons/redcircle.png" class="icon-small" />
-                                <span>Disabled</span>
-                            </div>
-                            <?php
-                        endif; ?>
-                    </td>
-                </tr>
-                <?php
-            endif;
-        endif;
-
         if (!empty($this->repo->getGroup())) : ?>
             <tr>
                 <th>ADD TO GROUP</th>

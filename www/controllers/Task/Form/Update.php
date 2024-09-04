@@ -23,11 +23,6 @@ class Update
         $myrepo->getAllById('', $formParams['snap-id'], '');
 
         /**
-         *  Check only sync difference
-         */
-        Param\OnlySyncDifference::check($formParams['only-sync-difference']);
-
-        /**
          *  Check env
          */
         if (!empty($formParams['env'])) {

@@ -85,15 +85,7 @@ class Browse
     public static function printSubDir($dir, $path)
     {
         echo '<li>';
-
-        /**
-         *  If dir name is 'my_uploaded_packages' then print it in yellow
-         */
-        if ($dir == 'my_uploaded_packages') {
-            echo '<div class="explorer-toggle header-blue yellowtext pointer"><img src="/assets/icons/folder.svg" class="icon" /><span class="yellowtext">' . $dir . '</span></div>';
-        } else {
-            echo '<div class="explorer-toggle header-blue pointer"><img src="/assets/icons/folder.svg" class="icon" /><span>' . $dir . '</span></div>';
-        }
+        echo '<div class="explorer-toggle header-blue pointer"><img src="/assets/icons/folder.svg" class="icon" /><span>' . $dir . '</span></div>';
 
         /**
          *  Calling main tree function again to print this sub-directory tree

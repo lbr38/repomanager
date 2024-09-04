@@ -31,13 +31,17 @@ if (!empty($groupsList)) {
             $countMessage = $reposCount . ' repositories';
         } ?>
 
-        <div class="repos-list-group div-generic-blue veil-on-reload" group="<?= $group['Name'] ?>">
+        <div class="repos-list-group div-generic-blue veil-on-reload" group-id="<?= $group['Id'] ?>" group="<?= $group['Name'] ?>">
             <div class="flex justify-space-between">
                 <div>
                     <p class="font-size-16"><?= $group['Name'] ?></p>
                     <p class="lowopacity-cst"><?= $countMessage ?></p>
                 </div>
                 <img src="/assets/icons/up.svg" class="hideGroup pointer icon-lowopacity" group-id="<?= $group['Id'] ?>" state="visible" />
+            </div>
+
+            <div class="repos-list-group-select-all-btns">
+                <button class="repos-list-group-select-all-latest-snap-btn btn-medium-tr hide" group-id="<?= $group['Id'] ?>">✔ Select all latest snapshots</button>
             </div>
 
             <?php
@@ -264,7 +268,7 @@ if (!empty($groupsList)) {
                                                 <img src="/assets/images/loading.gif" class="icon" title="A task is running on this repository snaphot." />
                                                 <?php
                                             else : ?>
-                                                <input type="checkbox" class="icon-verylowopacity" name="checkbox-repo" repo-id="<?= $repoId ?>" snap-id="<?= $snapId ?>" <?php echo !empty($envId) ? 'env-id="' . $envId . '"' : ''; ?> repo-type="<?= $type ?>" title="Select and execute an action.">
+                                                <input type="checkbox" class="icon-verylowopacity" name="checkbox-repo" repo-id="<?= $repoId ?>" snap-id="<?= $snapId ?>" <?php echo !empty($envId) ? 'env-id="' . $envId . '"' : ''; ?> env-name="<?= $env ?>" repo-type="<?= $type ?>" group-id="<?= $group['Id'] ?>" title="Select and execute an action.">
                                                 <?php
                                             endif;
                                         endif;

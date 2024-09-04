@@ -296,19 +296,6 @@
                             <?php
                         endif;
 
-                        if (!empty($taskRawParams['only-sync-difference'])) : ?>
-                            <span>Only sync the difference</span>
-                            <span>
-                                <?php
-                                if ($taskRawParams['only-sync-difference'] == 'true') {
-                                    echo '<img src="/assets/icons/greencircle.png" class="icon-small" />Enabled';
-                                } else {
-                                    echo '<img src="/assets/icons/redcircle.png" class="icon-small" />Disabled';
-                                } ?>
-                            </span>
-                            <?php
-                        endif;
-
                         if (!empty($taskRawParams['gpg-check'])) : ?>
                             <span>Check GPG signature</span>
                             <span>

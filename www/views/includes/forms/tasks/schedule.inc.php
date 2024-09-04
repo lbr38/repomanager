@@ -1,5 +1,3 @@
-<hr>
-
 <div class="task-schedule-form-params" action="<?= $scheduleForm['action'] ?>">
     <table class="task-table">
         <tr>
