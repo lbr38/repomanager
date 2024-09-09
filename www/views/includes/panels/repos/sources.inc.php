@@ -46,7 +46,7 @@
             </td>
         </tr>
         <tr>
-            <td colspan="2"><br><b>GPG signing key</b> <span class="lowopacity-cst">(optionnal)</span></td>
+            <td colspan="2"><br><b>GPG signing key</b> <span class="lowopacity-cst">(optional)</span></td>
         </tr>
         <tr>
             <td colspan="100%">

@@ -54,10 +54,10 @@ class Duplicate
          *  Check and set others task parameters
          */
         $requiredParams = array('name', 'gpg-sign', 'arch');
-        $optionnalParams = array('group', 'description', 'env');
+        $optionalParams = array('group', 'description', 'env');
 
         $this->taskParamsCheck('Duplicate repository', $taskParams, $requiredParams);
-        $this->taskParamsSet($taskParams, $requiredParams, $optionnalParams);
+        $this->taskParamsSet($taskParams, $requiredParams, $optionalParams);
 
         /**
          *  Prepare task and task log

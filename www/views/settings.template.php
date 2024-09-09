@@ -119,7 +119,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Specify the proxy URL to use to access the internet (optionnal). Example: https://myproxy.com:8080" /> 
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Specify the proxy URL to use to access the internet (optional). Example: https://myproxy.com:8080" /> 
                     </div>
                     <div>
                         <p>Use proxy</p>
