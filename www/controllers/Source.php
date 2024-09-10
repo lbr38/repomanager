@@ -136,7 +136,7 @@ class Source
             /**
              *  Retrieve the Id of the source repo with the same name
              */
-            $testId = $this->getIdByName($type, $name); //toto
+            $testId = $this->getIdByName($type, $name);
 
             /**
              *  If the Id is different from the one we are editing, then the name is already used

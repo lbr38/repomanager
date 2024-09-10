@@ -109,68 +109,29 @@ trait Sync
             }
 
             /**
-             *  If onlySyncDifference is true then copy source snapshot content to the working dir to avoid downloading packages that already exists, and only download the new packages.
-             *  This parameter is used in the case of a snapshot update only (task 'update').
+             *  If the task is an update, retrieve previous snapshot directory path
              */
-            if ($this->repo->getOnlySyncDifference() == 'true') {
-                $this->taskLog->steplogWrite('Only sync the difference enabled: copying source snapshot packages to the new repository snapshot.' . PHP_EOL);
-
-                /**
-                 *  Create working dir
-                 */
-                if (!is_dir($workingDir)) {
-                    if (!mkdir($workingDir, 0770, true)) {
-                        throw new Exception('Cannot create temporary working directory ' . $workingDir);
-                    }
+            if ($this->task->getAction() == 'update') {
+                if ($this->sourceRepo->getPackageType() == 'rpm') {
+                    $previousSnapshotDir = REPOS_DIR . '/' . $this->sourceRepo->getDateFormatted() . '_' . $this->sourceRepo->getName();
+                }
+                if ($this->sourceRepo->getPackageType() == 'deb') {
+                    $previousSnapshotDir = REPOS_DIR . '/' . $this->sourceRepo->getName() . '/' . $this->sourceRepo->getDist() . '/' . $this->sourceRepo->getDateFormatted() . '_' . $this->sourceRepo->getSection();
                 }
 
                 /**
-                 *  Get all source snapshot informations to retrieve snapshot directory path
+                 *  Check that previous snapshot directory has been retrieved
                  */
-                $sourceSnapshot = new \Controllers\Repo\Repo();
-                $sourceSnapshot->getAllById(null, $this->repo->getSnapId());
-
-                /**
-                 *  Retrieve source snapshot directory from the informations
-                 */
-                if ($this->repo->getPackageType() == 'rpm') {
-                    $sourceSnapshotDir = REPOS_DIR . '/' . $sourceSnapshot->getDateFormatted() . '_' . $sourceSnapshot->getName();
-                }
-                if ($this->repo->getPackageType() == 'deb') {
-                    $sourceSnapshotDir = REPOS_DIR . '/' . $sourceSnapshot->getName() . '/' . $sourceSnapshot->getDist() . '/' . $sourceSnapshot->getDateFormatted() . '_' . $sourceSnapshot->getSection() . '/pool/' . $sourceSnapshot->getSection();
+                if (empty($previousSnapshotDir)) {
+                    throw new Exception('Could not retrieve previous snapshot directory');
                 }
 
                 /**
-                 *  Check that source snapshot directory exists
+                 *  Check that previous snapshot directory exists
                  */
-                if (!is_dir($sourceSnapshotDir)) {
-                    throw new Exception('Source snapshot directory does not exist: ' . $sourceSnapshotDir);
+                if (!is_dir($previousSnapshotDir)) {
+                    throw new Exception('Previous snapshot directory does not exist: ' . $previousSnapshotDir);
                 }
-
-                /**
-                 *  RPM repo: copy source snapshot packages to the working dir packages directory
-                 */
-                if ($this->repo->getPackageType() == 'rpm') {
-                    /**
-                     *  First, create the packages directory
-                     */
-                    if (!is_dir($workingDir . '/packages')) {
-                        if (!mkdir($workingDir . '/packages', 0770, true)) {
-                            throw new Exception('Cannot create packages directory ' . $workingDir . '/packages');
-                        }
-                    }
-
-                    \Controllers\Filesystem\Directory::copy($sourceSnapshotDir . '/packages', $workingDir . '/packages');
-                }
-
-                /**
-                 *  DEB repo: copy source snapshot pool directory to the working dir pool directory
-                 */
-                if ($this->repo->getPackageType() == 'deb') {
-                    \Controllers\Filesystem\Directory::copy($sourceSnapshotDir, $workingDir . '/pool/' . $sourceSnapshot->getSection());
-                }
-
-                unset($sourceSnapshot, $sourceSnapshotDir);
             }
         } catch (Exception $e) {
             echo '</pre></div>';
@@ -215,6 +176,14 @@ trait Sync
                 $mymirror->outputToFile(true);
 
                 /**
+                 *  If the task is an update, set the previous repo directory path
+                 *  Hard links will be created from the previous snapshot to the new snapshot
+                 */
+                if ($this->task->getAction() == 'update' and !empty($previousSnapshotDir)) {
+                    $mymirror->setPreviousSnapshotDirPath($previousSnapshotDir);
+                }
+
+                /**
                  *  If the source repo has a http:// GPG signing key, then it will be used to check for package signature
                  */
                 if (!empty($sourceDetails['Gpgkey'])) {
@@ -233,6 +202,10 @@ trait Sync
                 if (!empty($sourceDetails['Ssl_ca_certificate_path'])) {
                     $mymirror->setSslCustomCaCertificate($sourceDetails['Ssl_ca_certificate_path']);
                 }
+
+                /**
+                 *  Start mirroring
+                 */
                 $mymirror->mirror();
 
                 /**
@@ -271,15 +244,30 @@ trait Sync
                 $mymirror->setSection($this->repo->getSection());
                 $mymirror->setArch($this->repo->getArch());
                 $mymirror->setCheckSignature($this->repo->getGpgCheck());
-                // $mymirror->setTranslation($this->repo->getTargetPackageTranslation());
                 $mymirror->setOutputFile($this->taskLog->getStepLog());
                 $mymirror->outputToFile(true);
+
+                /**
+                 *  If the task is an update, set the previous repo directory path
+                 *  Hard links will be created from the previous snapshot to the new snapshot
+                 */
+                if ($this->task->getAction() == 'update' and !empty($previousSnapshotDir)) {
+                    $mymirror->setPreviousSnapshotDirPath($previousSnapshotDir);
+                }
+
+                /**
+                 *  If the source repo requires a SSL certificate, private key or CA certificate, then they will be used
+                 */
                 if (!empty($sourceDetails['Ssl_certificate_path'])) {
                     $mymirror->setSslCustomCertificate($sourceDetails['Ssl_certificate_path']);
                 }
                 if (!empty($sourceDetails['Ssl_private_key_path'])) {
                     $mymirror->setSslCustomPrivateKey($sourceDetails['Ssl_private_key_path']);
                 }
+
+                /**
+                 *  Start mirroring
+                 */
                 $mymirror->mirror();
 
                 unset($mymirror);

@@ -185,22 +185,45 @@ $(document).on('click','.delete-env-btn',function () {
  */
 $(document).on('click',"input[name=checkbox-repo]",function () {
     /**
+     *  Retrieve checkbox's environment name
+     */
+    var envName = $(this).attr('env-name');
+
+    /**
+     *  Retrieve checkbox's group id
+     */
+    var groupId = $(this).attr('group-id');
+
+    /**
      *  Count the number of checked checkboxes
      */
     var count_checked = countChecked();
 
     /**
-     *  If all checkboxes are unchecked then we hide all action buttons, otherwise we show them
-     *  Also remove the style applied by jquery on the checkboxes when they are checked
+     *  If all checkboxes are unchecked then we hide all action buttons
      */
     if (count_checked == 0) {
         $('#repo-actions-btn-container').hide();
         $('.reposList').find('input[name=checkbox-repo]').removeAttr('style');
+        $('.repos-list-group[group-id=' + groupId + ']').find('.repos-list-group-select-all-latest-snap-btn').hide();
         return;
-    } else {
-        $('#newalert').remove();
-        $('#repo-actions-btn-container').show();
     }
+
+    /**
+     *  Otherwise, display action buttons
+     */
+    $('#newalert').remove();
+    $('#repo-actions-btn-container').show();
+
+    /**
+     *  Show 'select all latest snapshots' buttons
+     */
+    $('.repos-list-group[group-id=' + groupId + ']').find('.repos-list-group-select-all-latest-snap-btn').css('display', 'flex');
+    // If the checkbox has an environment name then display 'select all xx env' snapshot button
+    // TODO
+    // if (envName != '') {
+    //     console.log(envName);
+    // }
 
     /**
      *  If there is at least 1 checkbox checked then we display all the other checkboxes
@@ -218,6 +241,73 @@ $(document).on('click',"input[name=checkbox-repo]",function () {
         $('.repo-action-btn[action=update]').show();
     }
 });
+
+/**
+ *  Event: Click on 'select all latest snapshots' button
+ */
+$(document).on('click',".repos-list-group-select-all-latest-snap-btn",function () {
+    /**
+     *  Retrieve group Id
+     */
+    var groupId = $(this).attr('group-id');
+
+    /**
+     *  Retrieve all repos in the group
+     */
+    var reposCheckboxes = $('.repos-list-group[group-id=' + groupId + ']').find('input[name=checkbox-repo]');
+
+    /**
+     *  Retrieve select status
+     */
+    var selectStatus = $(this).attr('status');
+
+    /**
+     *  If current status is not 'selected', then select all the latest snaps
+     */
+    if (selectStatus != 'selected') {
+        /**
+         *  Loop through all checkboxes and check the latest snap
+         *  The latest snap is the first snap in the list (the first checkbox of each repo)
+         */
+        latestRepoId = '';
+        reposCheckboxes.each(function () {
+            // Click the checkbox if it matches the latest snap
+            if ($(this).attr('repo-id') != latestRepoId) {
+                // Click the checkbox if not already checked
+                if (!$(this).is(':checked')) {
+                    $(this).click();
+                }
+            // Otherwise, uncheck the checkbox to make sure only the latest snaps are checked
+            } else {
+                if ($(this).is(':checked')) {
+                    $(this).click();
+                }
+            }
+
+            latestRepoId = $(this).attr('repo-id');
+        });
+
+        // Set status
+        $(this).attr('status', 'selected');
+
+    /**
+     *  Otherwise, uncheck all checkboxes
+     */
+    } else {
+        reposCheckboxes.each(function () {
+            if ($(this).is(':checked')) {
+                $(this).click();
+            }
+        });
+
+        // Set status
+        $(this).attr('status', '');
+
+        // Hide 'select all' buttons
+        $(this).hide();
+    }
+});
+
 
 /**
  *  Event: Click on an action button

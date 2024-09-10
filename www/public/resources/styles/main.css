@@ -227,6 +227,12 @@ article {
     font-size: 14px;
 }
 
+.repos-list-group-select-all-btns {
+    display: flex;
+    margin-left: 330px;
+    column-gap: 15px;
+}
+
 .repos-list-group-flex-div {
     display: grid;
     grid-template-columns: 300px 50px auto auto auto 60px 1fr;
@@ -504,7 +510,7 @@ input::placeholder {
     background-color: #dc0044;
 }
 
-[class^="label-pkg"] {
+[class^="label-pkg"], .label-ok, .label-ko {
     display: block;
     width: 18px;
     height: 18px;
@@ -518,6 +524,12 @@ input::placeholder {
     background-color: #5372e7;
 }
 .label-pkg-deb {
+    background-color: #ff0044;
+}
+.label-ok {
+    background-color: #14be7e;
+}
+.label-ko {
     background-color: #ff0044;
 }
 
@@ -688,11 +700,15 @@ footer #github img { width: 25px; }
 .header-light-red, .header-light-red-min { background-color: #ff3369 !important; }
 .header-light-blue, .header-light-blue-min { background-color: #2b4d6e !important; }
 
-.task-form-params {
-    width: 100%;
+.task-form-params, .task-schedule-form-params {
+    width: auto;
     display: flex;
     align-items: center;
     flex-wrap: wrap;
+    border: 1px solid #78838f38;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
 }
 
 .task-form-params span, .task-form-params input[type=text], .task-form-params select {

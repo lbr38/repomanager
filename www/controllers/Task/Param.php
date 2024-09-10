@@ -43,8 +43,7 @@ trait Param
             'gpg-sign' => 'setGpgSign',
             'env' => 'setEnv',
             'description' => 'setDescription',
-            'group' => 'setGroup',
-            'only-sync-difference' => 'setOnlySyncDifference',
+            'group' => 'setGroup'
         );
 
         /**

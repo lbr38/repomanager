@@ -34,7 +34,6 @@ class Form
         }
 
         $content = $title . '<form class="task-form" autocomplete="off">';
-        $totalReposArray = count($repos_array);
 
         foreach ($repos_array as $repo) {
             $myrepo = new \Controllers\Repo\Repo();
@@ -104,14 +103,6 @@ class Form
 
             echo '</table>';
             echo '</div>';
-
-            /**
-             *  Print a <hr> to separate when there are multiple repos to be processed
-             */
-            if ($totalReposArray > 1) {
-                echo '<br><hr><br>';
-            }
-            $totalReposArray--;
 
             $content .= ob_get_clean();
         }

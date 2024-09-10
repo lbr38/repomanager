@@ -39,11 +39,6 @@ class Repo
     private $releasever;
     private $targetArch;
 
-    /**
-     *  Mirroring parameters
-     */
-    private $onlySyncDifference = 'false';
-
     public function __construct()
     {
         $this->model = new \Models\Repo\Repo();
@@ -174,11 +169,6 @@ class Repo
         $this->releasever = $releasever;
     }
 
-    public function setOnlySyncDifference(string $onlySyncDifference)
-    {
-        $this->onlySyncDifference = $onlySyncDifference;
-    }
-
     public function setTaskId(string $taskId)
     {
         $this->taskId = $taskId;
@@ -307,11 +297,6 @@ class Repo
     public function getGpgSign()
     {
         return $this->gpgSign;
-    }
-
-    public function getOnlySyncDifference()
-    {
-        return $this->onlySyncDifference;
     }
 
     public function getTaskId()

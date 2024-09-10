@@ -5,7 +5,6 @@
 $rawParams['action'] = 'update';
 $rawParams['snap-id'] = '1';
 $rawParams['env-id'] = '';
-$rawParams['only-sync-difference'] = 'true';
 $rawParams['arch'] = ['amd64', 'armhf'];
 $rawParams['env'] = 'pprd';
 $rawParams['gpg-check'] = 'false';

@@ -595,9 +595,14 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
     private function downloadDebPackages($url)
     {
         /**
+         *  Define package relative dir
+         */
+        $relativeDir = 'pool/' . $this->section;
+
+        /**
          *  Target directory in which packages will be downloaded
          */
-        $absoluteDir = $this->workingDir . '/pool/' . $this->section;
+        $absoluteDir = $this->workingDir . '/' . $relativeDir;
 
         /**
          *  Create directory in which packages will be downloaded
@@ -675,6 +680,25 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             if (file_exists($absoluteDir . '/' . $debPackageName)) {
                 $this->logOutput('already exists (ignoring)' . PHP_EOL);
                 continue;
+            }
+
+            /**
+             *  Check if package already exists in the previous snapshot
+             *  If so, just create a hard link to the package
+             */
+            if (isset($this->previousSnapshotDirPath)) {
+                if (file_exists($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName)) {
+                    $this->logOK('(linked to previous snapshot)');
+
+                    /**
+                     *  Create hard link to the package
+                     */
+                    if (!link($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName, $absoluteDir . '/' . $debPackageName)) {
+                        $this->logError('Cannot create hard link to package: ' . $this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName, 'Error while creating hard link');
+                    }
+
+                    continue;
+                }
             }
 
             /**

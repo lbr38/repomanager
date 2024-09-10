@@ -16,16 +16,6 @@ if ($myrepo->getPackageType() == 'deb') {
 </tr>
 
 <tr>
-    <td title="Selected snapshot content will be copied to the new snapshot before syncing packages. Then only the new changed packages will be synced from source repository. Can significantly reduce syncing duration on large repos.">Only sync the difference</td>
-    <td>
-        <label class="onoff-switch-label">
-            <input type="checkbox" class="onoff-switch-input task-param" value="true" param-name="only-sync-difference" checked />
-            <span class="onoff-switch-slider"></span>
-        </label>
-    </td>
-</tr>
-
-<tr>
     <td>Architecture</td>
     <td>
         <select class="task-param" param-name="arch" multiple>

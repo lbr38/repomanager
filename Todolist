@@ -1,5 +1,7 @@
 [ IN PROGRESS ]
 
+    - (Feature) Add checkboxes to select all the latest snapshots in repos list
+    - (Feature) Add packages deduplication between snapshots
 
 [ BUGS ]
 
@@ -15,9 +17,7 @@
     
     - Think about a way to publish debian repos in a more elegant way. Currently: https://<FQDN>/repo/debian/dists/buster/main_prod buster main_prod
     - (RPM) See how to accelerate the rpm signing process by using multi-threading
-    - (Feature) (DEB) Be able to add distributions to the list of pre-defined distributions (and do the same for sections)
     - (Feature) Support Arch Linux packages https://blog.desdelinux.net/en/create-your-local-arch-linux-repository/
-    - (Feature) Add checkboxes to select all repositories of the same group in repos list
     - (Feature) Add a way to filter wanted/unwanted packages from a repository sync, with a regex
 
 
