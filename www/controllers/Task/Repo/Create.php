@@ -34,7 +34,7 @@ class Create
          *  Check and set task parameters
          */
         $requiredParams = array('package-type', 'repo-type', 'arch');
-        $optionnalParams = array('env', 'group', 'description');
+        $optionalParams = array('env', 'group', 'description');
 
         /**
          *  Required parameters in case the repo type is 'rpm'
@@ -68,7 +68,7 @@ class Create
         }
 
         $this->taskParamsCheck('Create repo', $taskParams, $requiredParams);
-        $this->taskParamsSet($taskParams, $requiredParams, $optionnalParams);
+        $this->taskParamsSet($taskParams, $requiredParams, $optionalParams);
 
         if ($taskParams['repo-type'] == 'mirror') {
             /**

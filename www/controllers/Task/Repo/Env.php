@@ -39,9 +39,9 @@ class Env
          *  Check and set others task parameters
          */
         $requiredParams = array('env');
-        $optionnalParams = array('description');
+        $optionalParams = array('description');
         $this->taskParamsCheck('Repo environment', $taskParams, $requiredParams);
-        $this->taskParamsSet($taskParams, $requiredParams, $optionnalParams);
+        $this->taskParamsSet($taskParams, $requiredParams, $optionalParams);
 
         /**
          *  Prepare task and task log

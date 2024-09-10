@@ -78,10 +78,10 @@ class Update
          *  Repo override some parameters defined by the user
          */
         $requiredParams = array('gpg-check', 'gpg-sign', 'arch', 'only-sync-difference');
-        $optionnalParams = array('env');
+        $optionalParams = array('env');
 
         $this->taskParamsCheck('Update repo', $taskParams, $requiredParams);
-        $this->taskParamsSet($taskParams, $requiredParams, $optionnalParams);
+        $this->taskParamsSet($taskParams, $requiredParams, $optionalParams);
 
         /**
          *  Prepare task and task log

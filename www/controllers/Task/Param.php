@@ -24,7 +24,7 @@ trait Param
     /**
      *  Set repo parameters for a task
      */
-    public function taskParamsSet($taskParams, $requiredParams = null, $optionnalParams = null)
+    public function taskParamsSet($taskParams, $requiredParams = null, $optionalParams = null)
     {
         /**
          *  Repo controller setter functions depending on parameters
@@ -58,10 +58,10 @@ trait Param
         }
 
         /**
-         *  Set optionnal parameters if defined, using the appropriate setter function
+         *  Set optional parameters if defined, using the appropriate setter function
          */
-        if (!empty($optionnalParams)) {
-            foreach ($optionnalParams as $param) {
+        if (!empty($optionalParams)) {
+            foreach ($optionalParams as $param) {
                 if (!empty($taskParams[$param])) {
                     $setterFunction = $setters[$param];
                     $this->repo->$setterFunction($taskParams[$param]);

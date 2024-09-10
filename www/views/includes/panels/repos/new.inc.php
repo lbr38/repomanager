@@ -78,7 +78,7 @@
             <tr>
                 <td field-type="mirror rpm deb">
                     <span>Custom repo name</span>
-                    <span class="lowopacity-cst">(optionnal)</span>
+                    <span class="lowopacity-cst">(optional)</span>
                 </td>
                 <td field-type="local rpm deb">Repo name</td>
                 <td>
@@ -146,7 +146,7 @@
             <tr id="new-repo-target-description-tr">
                 <td>
                     <span>Description</span>
-                    <span class="lowopacity-cst">(optionnal)</span>
+                    <span class="lowopacity-cst">(optional)</span>
                 </td>
                 <td><input type="text" class="task-param" param-name="description" package-type="all" /></td>
             </tr>
@@ -159,7 +159,7 @@
                 <tr>
                     <td>
                         <span>Add to group</span>
-                        <span class="lowopacity-cst">(optionnal)</span>
+                        <span class="lowopacity-cst">(optional)</span>
                     </td>
                     <td>
                         <select class="task-param" param-name="group" package-type="all" >

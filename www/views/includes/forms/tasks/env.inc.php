@@ -32,7 +32,7 @@
 
 <tr>
     <td>
-        <span>Description</span> <span class="lowopacity-cst">(optionnal)</span>
+        <span>Description</span> <span class="lowopacity-cst">(optional)</span>
     </td>
     <td><input type="text" class="task-param" param-name="description" /></td>
 </tr>
