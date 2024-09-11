@@ -31,6 +31,8 @@ class Mirror
     protected $sslCustomCaCertificate;
     protected $curlHandle;
     protected $previousSnapshotDirPath;
+    protected $packagesToInclude = [];
+    protected $packagesToExclude = [];
 
     public function setUrl(string $url)
     {
@@ -95,6 +97,16 @@ class Mirror
     public function setPreviousSnapshotDirPath(string $path)
     {
         $this->previousSnapshotDirPath = $path;
+    }
+
+    public function setPackagesToInclude(array $packages)
+    {
+        $this->packagesToInclude = $packages;
+    }
+
+    public function setPackagesToExclude(array $packages)
+    {
+        $this->packagesToExclude = $packages;
     }
 
     public function getPackagesToSign()

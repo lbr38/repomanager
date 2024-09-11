@@ -82,7 +82,7 @@ class Host extends Model
                 unset($stmt);
             }
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         $hostsIn = array();
@@ -110,7 +110,7 @@ class Host extends Model
             $stmt->bindValue(':id_event', $eventId);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->host_db->logError($e);
         }
     }
 
@@ -129,7 +129,7 @@ class Host extends Model
             $stmt->bindValue(':id_event', $id_event);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->host_db->logError($e);
         }
     }
 
@@ -153,7 +153,7 @@ class Host extends Model
             $stmt->bindValue(':time', $time);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->host_db->logError($e);
         }
     }
 
@@ -173,7 +173,7 @@ class Host extends Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -188,7 +188,7 @@ class Host extends Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -203,7 +203,7 @@ class Host extends Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -218,7 +218,7 @@ class Host extends Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -233,7 +233,7 @@ class Host extends Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -248,7 +248,7 @@ class Host extends Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -263,7 +263,7 @@ class Host extends Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -278,7 +278,7 @@ class Host extends Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -293,7 +293,7 @@ class Host extends Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -310,7 +310,7 @@ class Host extends Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -325,7 +325,7 @@ class Host extends Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -340,7 +340,7 @@ class Host extends Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -355,7 +355,7 @@ class Host extends Model
             $stmt->bindValue(':version', $packageVersion);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->host_db->logError($e);
         }
     }
 
@@ -384,7 +384,7 @@ class Host extends Model
             $stmt->bindValue(':authId', $authId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -404,7 +404,7 @@ class Host extends Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         $data = array();
@@ -431,7 +431,7 @@ class Host extends Model
             $stmt->bindValue(':kernel', $kernel);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -456,7 +456,7 @@ class Host extends Model
             $stmt->bindValue(':profile', $profile);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -476,7 +476,7 @@ class Host extends Model
             $stmt->bindValue(':packageId', $packageId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->host_db->logError($e);
         }
 
         $data = array();
@@ -503,7 +503,7 @@ class Host extends Model
                 $stmt->bindValue(':version', $packageVersion);
                 $result = $stmt->execute();
             } catch (\Exception $e) {
-                \Controllers\Common::dbError($e);
+                $this->host_db->logError($e);
             }
 
             while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -521,7 +521,7 @@ class Host extends Model
                 $stmt->bindValue(':name', $packageName);
                 $result = $stmt->execute();
             } catch (\Exception $e) {
-                \Controllers\Common::dbError($e);
+                $this->host_db->logError($e);
             }
 
             while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -557,7 +557,7 @@ class Host extends Model
             $stmt->bindValue(':name', $packageName);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->host_db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -578,7 +578,7 @@ class Host extends Model
             $stmt->bindValue(':token', $token);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         if ($this->db->isempty($result)) {
@@ -768,7 +768,7 @@ class Host extends Model
             $stmt->bindValue(':ip', \Controllers\Common::validateData($ip));
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -788,7 +788,7 @@ class Host extends Model
             $stmt->bindValue(':hostname', \Controllers\Common::validateData($hostname));
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -808,7 +808,7 @@ class Host extends Model
             $stmt->bindValue(':name', \Controllers\Common::validateData($packageName));
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->host_db->logError($e);
         }
 
         if ($this->host_db->isempty($result) === true) {
@@ -829,7 +829,7 @@ class Host extends Model
             $stmt->bindValue(':version', $packageVersion);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->host_db->logError($e);
         }
 
         if ($this->host_db->isempty($result) === true) {
@@ -851,7 +851,7 @@ class Host extends Model
             $stmt->bindValue(':name', "${packageName}%");
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->host_db->logError($e);
         }
 
         /**
@@ -860,11 +860,6 @@ class Host extends Model
         if ($this->host_db->isempty($result) === true) {
             return $packages;
         }
-
-        /**
-         *  Sinon on récupère les données
-         */
-        // $packages = array();
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $packageName = $row['Name'];
@@ -875,7 +870,6 @@ class Host extends Model
         /**
          *  Le résultat sera traité par js donc on transmets un array au format JSON
          */
-        // return json_encode($packages);
         return $packages;
     }
 
@@ -889,7 +883,7 @@ class Host extends Model
             $stmt->bindValue(':name', $packageName);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->host_db->logError($e);
         }
 
         if ($this->host_db->isempty($result) === true) {
@@ -910,7 +904,7 @@ class Host extends Model
             $stmt->bindValue(':version', $packageVersion);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->host_db->logError($e);
         }
 
         if ($this->host_db->isempty($result) === true) {
@@ -931,7 +925,7 @@ class Host extends Model
             $stmt->bindValue(':version', $version);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->host_db->logError($e);
         }
     }
 
@@ -946,7 +940,7 @@ class Host extends Model
             $stmt->bindValue(':version', $version);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->host_db->logError($e);
         }
     }
 
@@ -961,7 +955,7 @@ class Host extends Model
             $stmt->bindValue(':time_start', $timeStart);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->host_db->logError($e);
         }
 
         if ($this->host_db->isempty($result) === true) {
@@ -984,7 +978,7 @@ class Host extends Model
             $stmt->bindValue(':time_end', $timeEnd);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->host_db->logError($e);
         }
     }
 
@@ -998,7 +992,7 @@ class Host extends Model
         try {
             $result = $this->db->query("SELECT * FROM settings");
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -1019,7 +1013,7 @@ class Host extends Model
             $stmt->bindValue(':packagesConsideredCritical', $packagesConsideredCritical);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -1043,7 +1037,7 @@ class Host extends Model
         try {
             $result = $this->host_db->query("SELECT * FROM packages ORDER BY Name ASC");
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->host_db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -1073,7 +1067,7 @@ class Host extends Model
         try {
             $result = $this->host_db->query("SELECT * FROM packages WHERE State = 'inventored' or State = 'installed' or State = 'dep-installed' or State = 'upgraded' or State = 'downgraded'");
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->host_db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -1109,7 +1103,7 @@ class Host extends Model
 
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->host_db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -1146,7 +1140,7 @@ class Host extends Model
 
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -1168,7 +1162,7 @@ class Host extends Model
             $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -1204,7 +1198,7 @@ class Host extends Model
 
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->host_db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -1241,7 +1235,7 @@ class Host extends Model
             $stmt->bindValue(':packageState', \Controllers\Common::validateData($packageState));
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->host_db->logError($e);
         }
 
         $datas = array();
@@ -1269,7 +1263,7 @@ class Host extends Model
             $stmt->bindValue(':state', \Controllers\Common::validateData($packageState));
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->host_db->logError($e);
         }
 
         $packages = array();
@@ -1302,7 +1296,7 @@ class Host extends Model
             $stmt->bindValue(':packagename', $packageName);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->host_db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -1335,7 +1329,7 @@ class Host extends Model
             $stmt->bindValue(':dateEnd', $dateEnd);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->host_db->logError($e);
         }
 
         $array = array();
@@ -1363,7 +1357,7 @@ class Host extends Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -1383,7 +1377,7 @@ class Host extends Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -1403,7 +1397,7 @@ class Host extends Model
             $stmt->bindValue(':hostname', $hostname);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         $status = '';
@@ -1431,7 +1425,7 @@ class Host extends Model
             $stmt->bindValue(':time', $time);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -1451,7 +1445,7 @@ class Host extends Model
             $stmt->bindValue(':time', $time);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -1466,7 +1460,7 @@ class Host extends Model
             $stmt->bindValue(':hostId', $hostId);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -1521,7 +1515,7 @@ class Host extends Model
              */
             $this->host_db->generateHostTables();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->host_db->logError($e);
         }
     }
 
@@ -1543,7 +1537,7 @@ class Host extends Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -1568,7 +1562,7 @@ class Host extends Model
             $stmt->bindValue(':groupId', $groupId);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         /**
@@ -1584,7 +1578,7 @@ class Host extends Model
             $stmt->bindValue(':id_group', $groupId);
             $stmt->execute();
         } catch (Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -1606,7 +1600,7 @@ class Host extends Model
             $stmt->bindValue(':hostId', $hostId);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -1622,7 +1616,7 @@ class Host extends Model
             $stmt->bindValue(':profile', $profile);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -1641,7 +1635,7 @@ class Host extends Model
             $stmt = $this->db->prepare("DELETE FROM ws_connections");
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -1665,7 +1659,7 @@ class Host extends Model
             }
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -1685,7 +1679,7 @@ class Host extends Model
             $stmt->bindValue(':id', $connectionId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -1699,7 +1693,7 @@ class Host extends Model
             $stmt->bindValue(':id', $connectionId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -1715,7 +1709,7 @@ class Host extends Model
             $stmt->bindValue(':connectionId', $connectionId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -1732,7 +1726,7 @@ class Host extends Model
             $stmt->bindValue(':hostId', $hostId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -1755,7 +1749,7 @@ class Host extends Model
             }
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -1778,7 +1772,7 @@ class Host extends Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -1793,7 +1787,7 @@ class Host extends Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -1808,7 +1802,7 @@ class Host extends Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -1823,7 +1817,7 @@ class Host extends Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -1838,7 +1832,7 @@ class Host extends Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -1854,7 +1848,7 @@ class Host extends Model
             $stmt->bindValue(':hostId', $hostId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         $connectionId = '';
@@ -1876,7 +1870,7 @@ class Host extends Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -1890,7 +1884,51 @@ class Host extends Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
+    }
+
+    /**
+     *  Get request package log details
+     */
+    public function getRequestPackageLog(int $id, string $package, string $status) : string|null
+    {
+        $data = '';
+
+        // Example of Info_json content:
+        // "update":{
+        //     "status":"done",
+        //     "success":{
+        //         "count":7,
+        //         "packages":{
+        //             "brave-browser":{
+        //                 "version":"xxxx",
+        //                 "log":"xxxx"
+        //             },
+        //             "firefox":{
+        //                 "version":"xxxx",
+        //                 "log":"xxxx"
+        //             },
+        //         }
+        //     }
+        // }
+
+        try {
+            /**
+             *  Extract the log of the specified package in the specified status
+             */
+            $stmt = $this->db->prepare("SELECT json_extract(Info_json, :path) as log FROM ws_requests WHERE Id = :id");
+            $stmt->bindValue(':path', '$.update.' . $status . '.packages.' . $package . '.log');
+            $stmt->bindValue(':id', $id);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            $this->db->logError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data = $row['log'];
+        }
+
+        return $data;
     }
 }

@@ -85,7 +85,7 @@ trait Finalize
              *  Add snapshot in database
              *  Empty array() for package translation because it's not used for the moment
              */
-            $this->repo->addSnap($this->repo->getDate(), $this->repo->getTime(), $this->repo->getGpgSign(), $this->repo->getArch(), array(), $this->repo->getType(), 'active', $this->repo->getRepoId());
+            $this->repo->addSnap($this->repo->getDate(), $this->repo->getTime(), $this->repo->getGpgSign(), $this->repo->getArch(), array(), $this->repo->getPackagesToInclude(), $this->repo->getPackagesToExclude(), $this->repo->getType(), 'active', $this->repo->getRepoId());
 
             /**
              *  Retrieve the last insert row ID
@@ -118,6 +118,16 @@ trait Finalize
                 $this->repo->snapSetArch($this->repo->getSnapId(), $this->repo->getArch());
 
                 /**
+                 *  Update packages to include (it could be different from the previous one)
+                 */
+                $this->repo->snapSetPackagesIncluded($this->repo->getSnapId(), $this->repo->getPackagesToInclude());
+
+                /**
+                 *  Update packages to exclude (it could be different from the previous one)
+                 */
+                $this->repo->snapSetPackagesExcluded($this->repo->getSnapId(), $this->repo->getPackagesToExclude());
+
+                /**
                  *  Mise à jour de la date
                  */
                 $this->repo->snapSetDate($this->repo->getSnapId(), date('Y-m-d'));
@@ -134,7 +144,7 @@ trait Finalize
                 /**
                  *  Cas où un nouveau snapshot a été créé, on l'ajoute en base de données
                  */
-                $this->repo->addSnap($this->repo->getDate(), $this->repo->getTime(), $this->repo->getGpgSign(), $this->repo->getArch(), array(), 'mirror', 'active', $this->repo->getRepoId());
+                $this->repo->addSnap($this->repo->getDate(), $this->repo->getTime(), $this->repo->getGpgSign(), $this->repo->getArch(), array(), $this->repo->getPackagesToInclude(), $this->repo->getPackagesToExclude(), 'mirror', 'active', $this->repo->getRepoId());
 
                 /**
                  *  On récupère l'Id du snapshot précédemment créé

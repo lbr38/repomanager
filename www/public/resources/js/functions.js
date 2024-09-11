@@ -178,6 +178,39 @@ function printLoadingVeilByParentClass(name)
 }
 
 /**
+ * Print a modal window with specified content
+ * @param {*} content
+ * @param {*} title
+ * @param {*} inPre
+ */
+function printModalWindow(content, title, inPre = true)
+{
+    /**
+     *  If a modal window is already opened, remove it
+     */
+    $('.modal-window-container').remove();
+
+    html = '<div class="modal-window-container">'
+        + '<div class="modal-window">'
+        + '<div class="flex justify-space-between">'
+        + '<h4>' + title + '</h4>'
+        + '<span class="modal-window-close-btn"><img title="Close" class="close-btn lowopacity" src="/assets/icons/close.svg" /></span>'
+        + '</div>'
+        + '<div>';
+    if (inPre) {
+        html += '<pre>' + content + '</pre>';
+    } else {
+        html += content;
+    }
+
+    html += '</div>'
+        + '</div>'
+        + '</div>';
+
+    $('footer').append(html);
+}
+
+/**
  *  Slide div by class name or Id and save state in sessionStorage
  *  @param {*} name
  */

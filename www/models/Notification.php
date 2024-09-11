@@ -24,7 +24,7 @@ class Notification extends Model
         try {
             $result = $this->db->query("SELECT * FROM notifications");
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -44,7 +44,7 @@ class Notification extends Model
         try {
             $result = $this->db->query("SELECT Id, Title, Message FROM notifications WHERE Status = 'new'");
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -66,7 +66,7 @@ class Notification extends Model
             $stmt->bindValue(':message', $message);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -80,7 +80,7 @@ class Notification extends Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -94,7 +94,7 @@ class Notification extends Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         if ($this->db->isempty($result)) {

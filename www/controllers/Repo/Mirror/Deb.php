@@ -647,6 +647,50 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             $this->logOutput('<span class="opacity-80-cst">(' . $packageCounter . '/' . $totalPackages . ')  ➙ ' . $debPackageLocation . ' ... </span>');
 
             /**
+             *  If a list of package(s) to include has been provided, check if the package is in the list
+             *  If not, skip the package
+             */
+            if (!empty($this->packagesToInclude)) {
+                $isIn = false;
+
+                foreach ($this->packagesToInclude as $packageToInclude) {
+                    if (preg_match('/' . $packageToInclude . '/', $debPackageName)) {
+                        $isIn = true;
+                    }
+                }
+
+                /**
+                 *  If package is not in the list of packages to include, skip it
+                 */
+                if (!$isIn) {
+                    $this->logOutput('<span class="opacity-80-cst">not in the list of packages to include (ignoring)</span>' . PHP_EOL);
+                    continue;
+                }
+            }
+
+            /**
+             *  If a list of package(s) to exclude has been provided, check if the package is in the list
+             *  If so, skip the package
+             */
+            if (!empty($this->packagesToExclude)) {
+                $isIn = false;
+
+                foreach ($this->packagesToExclude as $packageToExclude) {
+                    if (preg_match('/' . $packageToExclude . '/', $debPackageName)) {
+                        $isIn = true;
+                    }
+                }
+
+                /**
+                 *  If package is in the list of packages to exclude, skip it
+                 */
+                if ($isIn) {
+                    $this->logOutput('<span class="opacity-80-cst">in the list of packages to exclude (ignoring)</span>' . PHP_EOL);
+                    continue;
+                }
+            }
+
+            /**
              *  Check that package naming respects the Debian package naming convention
              *  It must ends with _<arch>.deb, if not then rename it
              *  e.g. elasticsearch deb repository has a package named 'filebeat-8.0.0-amd64.deb'. In this case arch is incorrect and should use underscore instead of dash.

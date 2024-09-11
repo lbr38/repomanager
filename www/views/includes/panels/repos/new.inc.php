@@ -233,6 +233,28 @@
                     </select>
                 </td>
             </tr>
+
+            <tr field-type="mirror rpm deb">
+                <td>
+                    <span>Only include package(s)</span>
+                    <span class="lowopacity-cst">(optional)</span>
+                </td>
+
+                <td field-type="mirror rpm deb">
+                    <select class="task-param" param-name="package-include" package-type="all" multiple></select>
+                </td>
+            </tr>
+
+            <tr field-type="mirror rpm deb">
+                <td>
+                    <span>Exclude package(s)</span>
+                    <span class="lowopacity-cst">(optional)</span>
+                </td>
+
+                <td field-type="mirror rpm deb">
+                    <select class="task-param" param-name="package-exclude" package-type="all" multiple></select>
+                </td>
+            </tr>
         </table>
     </div>
 

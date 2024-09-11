@@ -16,7 +16,7 @@ trait Param
          */
         foreach ($requiredParams as $param) {
             if (empty($taskParams[$param])) {
-                throw new Exception($taskType . ": parameter '$param' is not defined.");
+                throw new Exception($taskType . ': parameter ' . $param . ' is not defined.');
             }
         }
     }
@@ -43,7 +43,9 @@ trait Param
             'gpg-sign' => 'setGpgSign',
             'env' => 'setEnv',
             'description' => 'setDescription',
-            'group' => 'setGroup'
+            'group' => 'setGroup',
+            'package-include' => 'setPackagesToInclude',
+            'package-exclude' => 'setPackagesToExclude'
         );
 
         /**
@@ -61,7 +63,8 @@ trait Param
          */
         if (!empty($optionalParams)) {
             foreach ($optionalParams as $param) {
-                if (!empty($taskParams[$param])) {
+                // if (!empty($taskParams[$param])) {
+                if (isset($taskParams[$param])) {
                     $setterFunction = $setters[$param];
                     $this->repo->$setterFunction($taskParams[$param]);
                 }

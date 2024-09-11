@@ -75,10 +75,10 @@ class Update
         $this->repo->getAllById(null, $taskParams['snap-id'], null);
 
         /**
-         *  Repo override some parameters defined by the user
+         *  Override with parameters defined by the user
          */
         $requiredParams = array('gpg-check', 'gpg-sign', 'arch');
-        $optionalParams = array('env');
+        $optionalParams = array('env', 'package-include', 'package-exclude');
 
         $this->taskParamsCheck('Update repo', $taskParams, $requiredParams);
         $this->taskParamsSet($taskParams, $requiredParams, $optionalParams);

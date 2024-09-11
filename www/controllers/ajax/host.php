@@ -97,6 +97,21 @@ if ($action == "getRequestLog" and !empty($_POST['id'])) {
 }
 
 /**
+ *  Show request package log details
+ */
+if ($action == "getRequestPackageLog" and !empty($_POST['id']) and !empty($_POST['package']) and !empty($_POST['status'])) {
+    $myhost = new \Controllers\Host();
+
+    try {
+        $content = $myhost->getRequestPackageLog($_POST['id'], $_POST['package'], $_POST['status']);
+    } catch (\Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, $content);
+}
+
+/**
  *  Cancel a request sent to a host
  */
 if ($action == "cancelRequest" and !empty($_POST['id'])) {

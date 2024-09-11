@@ -172,6 +172,8 @@ trait Sync
                 $mymirror->setReleasever($this->repo->getReleasever());
                 $mymirror->setArch($this->repo->getArch());
                 $mymirror->setCheckSignature($this->repo->getGpgCheck());
+                $mymirror->setPackagesToInclude($this->repo->getPackagesToInclude());
+                $mymirror->setPackagesToExclude($this->repo->getPackagesToExclude());
                 $mymirror->setOutputFile($this->taskLog->getStepLog());
                 $mymirror->outputToFile(true);
 
@@ -244,6 +246,8 @@ trait Sync
                 $mymirror->setSection($this->repo->getSection());
                 $mymirror->setArch($this->repo->getArch());
                 $mymirror->setCheckSignature($this->repo->getGpgCheck());
+                $mymirror->setPackagesToInclude($this->repo->getPackagesToInclude());
+                $mymirror->setPackagesToExclude($this->repo->getPackagesToExclude());
                 $mymirror->setOutputFile($this->taskLog->getStepLog());
                 $mymirror->outputToFile(true);
 

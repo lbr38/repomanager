@@ -34,7 +34,7 @@ class Create
          *  Check and set task parameters
          */
         $requiredParams = array('package-type', 'repo-type', 'arch');
-        $optionalParams = array('env', 'group', 'description');
+        $optionalParams = array('env', 'group', 'description', 'package-include', 'package-exclude');
 
         /**
          *  Required parameters in case the repo type is 'rpm'
@@ -363,7 +363,7 @@ class Create
             /**
              *  Add snapshot to database
              */
-            $this->repo->addSnap($this->repo->getDate(), $this->repo->getTime(), 'false', $this->repo->getArch(), array(), $this->repo->getType(), 'active', $this->repo->getRepoId());
+            $this->repo->addSnap($this->repo->getDate(), $this->repo->getTime(), 'false', $this->repo->getArch(), array(), array(), array(), $this->repo->getType(), 'active', $this->repo->getRepoId());
 
             /**
              *  Retrieve snapshot Id from the last insert row

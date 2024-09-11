@@ -27,6 +27,8 @@ class Repo
     private $env;
     private $description;
     private $group;
+    private $packagesToInclude = [];
+    private $packagesToExclude = [];
     private $signed;
     private $status;
     private $rebuild;
@@ -164,6 +166,16 @@ class Repo
         $this->arch = $arch;
     }
 
+    public function setPackagesToInclude(array $packages)
+    {
+        $this->packagesToInclude = $packages;
+    }
+
+    public function setPackagesToExclude(array $packages)
+    {
+        $this->packagesToExclude = $packages;
+    }
+
     public function setReleasever(string $releasever)
     {
         $this->releasever = $releasever;
@@ -264,6 +276,16 @@ class Repo
         return $this->arch;
     }
 
+    public function getPackagesToInclude()
+    {
+        return $this->packagesToInclude;
+    }
+
+    public function getPackagesToExclude()
+    {
+        return $this->packagesToExclude;
+    }
+
     public function getReleasever()
     {
         return $this->releasever;
@@ -305,7 +327,7 @@ class Repo
     }
 
     /**
-     *  Récupère toutes les informations d'un repo, snapshot en env en base de données
+     *  Retrieve all informations from a repo, snapshot and env in database
      */
     public function getAllById(string|null $repoId = null, string|null $snapId = null, string|null $envId = null)
     {
@@ -315,7 +337,7 @@ class Repo
     }
 
     /**
-     *  Fonction qui parse et récupère les résultats des fonctions getAllBy*
+     *  Function that parses and retrieves the results of the getAllBy* functions
      */
     private function getAllByParser(array $data)
     {
@@ -376,6 +398,12 @@ class Repo
         }
         if (!empty($data['Arch'])) {
             $this->setArch(explode(',', $data['Arch']));
+        }
+        if (!empty($data['Pkg_included'])) {
+            $this->setPackagesToInclude(explode(',', $data['Pkg_included']));
+        }
+        if (!empty($data['Pkg_excluded'])) {
+            $this->setPackagesToExclude(explode(',', $data['Pkg_excluded']));
         }
     }
 
@@ -512,6 +540,8 @@ class Repo
                 $this->model->removeFromGroup($actualRepoId, $groupId);
             }
         }
+
+        \Controllers\App\Cache::clear();
     }
 
     /**
@@ -552,9 +582,14 @@ class Repo
         return $this->model->getEnvIdBySnapId($snapId);
     }
 
+    /**
+     *  Set environment description
+     */
     public function envSetDescription(string $envId, string $description)
     {
-        return $this->model->envSetDescription($envId, $description);
+        $this->model->envSetDescription($envId, $description);
+
+        \Controllers\App\Cache::clear();
     }
 
     /**
@@ -681,6 +716,8 @@ class Repo
             }
         }
 
+        \Controllers\App\Cache::clear();
+
         return $returnOutput;
     }
 
@@ -708,6 +745,8 @@ class Repo
                 $this->model->removeFromGroup($id);
             }
         }
+
+        \Controllers\App\Cache::clear();
     }
 
     /**
@@ -759,6 +798,22 @@ class Repo
     }
 
     /**
+     *  Set packages included
+     */
+    public function snapSetPackagesIncluded(int $snapId, array $packages)
+    {
+        $this->model->snapSetPackagesIncluded($snapId, implode(',', $packages));
+    }
+
+    /**
+     *  Set packages excluded
+     */
+    public function snapSetPackagesExcluded(int $snapId, array $packages)
+    {
+        $this->model->snapSetPackagesExcluded($snapId, implode(',', $packages));
+    }
+
+    /**
      *  Add a repo in database
      */
     public function add(string $source, string $packageType, string $name)
@@ -769,9 +824,9 @@ class Repo
     /**
      *  Add a repo snapshot in database
      */
-    public function addSnap(string $date, string $time, string $gpgSignature, array $arch, array $includeTranslation, string $type, string $status, string $repoId)
+    public function addSnap(string $date, string $time, string $gpgSignature, array $arch, array $includeTranslation, array $packagesIncluded, array $packagesExcluded, string $type, string $status, string $repoId)
     {
-        $this->model->addSnap($date, $time, $gpgSignature, $arch, $includeTranslation, $type, $status, $repoId);
+        $this->model->addSnap($date, $time, $gpgSignature, $arch, $includeTranslation, $packagesIncluded, $packagesExcluded, $type, $status, $repoId);
     }
 
     /**

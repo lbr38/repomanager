@@ -22,7 +22,7 @@ class Schedule extends \Models\Model
         try {
             $result = $this->db->query("SELECT * FROM tasks WHERE Status = 'queued'");
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {

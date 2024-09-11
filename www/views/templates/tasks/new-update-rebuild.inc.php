@@ -51,10 +51,40 @@
             <tr>
                 <th>ARCHITECTURE</th>
                 <td>
-                    <div class="flex column-gap-5">
+                    <div class="flex column-gap-5 row-gap-5">
                         <?php
                         foreach ($this->repo->getArch() as $arch) {
                             echo '<span class="label-black">' . $arch . '</span>';
+                        } ?>
+                    </div>
+                </td>
+            </tr>
+            <?php
+        endif;
+
+        if (!empty($this->repo->getPackagesToInclude())) : ?>
+            <tr>
+                <th>PACKAGES TO INCLUDE</th>
+                <td>
+                    <div class="flex column-gap-5 row-gap-5">
+                        <?php
+                        foreach ($this->repo->getPackagesToInclude() as $package) {
+                            echo '<span class="label-black">' . $package . '</span>';
+                        } ?>
+                    </div>
+                </td>
+            </tr>
+            <?php
+        endif;
+
+        if (!empty($this->repo->getPackagesToExclude())) : ?>
+            <tr>
+                <th>PACKAGES TO EXCLUDE</th>
+                <td>
+                    <div class="flex column-gap-5 row-gap-5">
+                        <?php
+                        foreach ($this->repo->getPackagesToExclude() as $package) {
+                            echo '<span class="label-black">' . $package . '</span>';
                         } ?>
                     </div>
                 </td>

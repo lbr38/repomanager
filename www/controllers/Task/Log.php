@@ -51,22 +51,28 @@ class Log
         /**
          *  Update symbolic link 'latest' to point to the newly created log file
          */
-        if (file_exists(MAIN_LOGS_DIR . '/latest')) {
-            /**
-             *  If first unlink fails, try another time with a random sleep time
-             *  To fix error when multiple tasks are running at the same time and tries to update the symlink
-             */
-            if (!unlink(MAIN_LOGS_DIR . '/latest')) {
-                usleep(rand(100000, 1500000));
+        $retries = 0;
 
-                if (!unlink(MAIN_LOGS_DIR . '/latest')) {
-                    throw new Exception('Error while generating task log: cannot remove symlink to the latest log file');
-                }
+        while (readlink(MAIN_LOGS_DIR . '/latest') != $this->location) {
+            if ($retries == 5) {
+                throw new Exception('Error while generating task log: cannot create symlink to the latest log file');
             }
-        }
 
-        if (!symlink($this->location, MAIN_LOGS_DIR . '/latest')) {
-            throw new Exception('Error while generating task log: cannot create symlink to the latest log file');
+            /**
+             *  Sleep a little bit before trying again
+             */
+            usleep(rand(100000, 1500000));
+
+            /**
+             *  If the symlink already exists, delete it
+             */
+            if (file_exists(MAIN_LOGS_DIR . '/latest')) {
+                unlink(MAIN_LOGS_DIR . '/latest');
+            }
+
+            symlink($this->location, MAIN_LOGS_DIR . '/latest');
+
+            $retries++;
         }
     }
 

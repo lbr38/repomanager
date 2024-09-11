@@ -43,7 +43,7 @@ class Listing extends \Models\Model
             WHERE repos_snap.Status = 'active'
             ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC, repos_env.Env ASC");
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         $repos = array();
@@ -85,7 +85,7 @@ class Listing extends \Models\Model
                 repos_snap.Reconstruct,
                 repos_snap.Status,
                 repos_env.Description
-                FROM repos 
+                FROM repos
                 LEFT JOIN repos_snap
                     ON repos.Id = repos_snap.Id_repo
                 LEFT JOIN repos_env 
@@ -113,7 +113,7 @@ class Listing extends \Models\Model
                 repos_snap.Reconstruct,
                 repos_snap.Status,
                 repos_env.Description
-                FROM repos 
+                FROM repos
                 LEFT JOIN repos_snap
                     ON repos.Id = repos_snap.Id_repo
                 LEFT JOIN repos_env 
@@ -130,7 +130,7 @@ class Listing extends \Models\Model
                 $reposInGroup = $stmt->execute();
             }
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         $reposIn = array();
@@ -172,7 +172,7 @@ class Listing extends \Models\Model
                 ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC");
             }
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         $repos = array();

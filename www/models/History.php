@@ -24,7 +24,7 @@ class History extends Model
         try {
             $result = $this->db->query("SELECT history.Id, history.Date, history.Time, history.Action, history.State, users.First_name, users.Last_name, users.Username FROM history JOIN users ON history.Id_user = users.Id ORDER BY Date DESC, Time DESC");
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
             return;
         }
 
@@ -47,7 +47,7 @@ class History extends Model
             $stmt->bindValue(':userid', $userId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
             return;
         }
 
@@ -74,7 +74,7 @@ class History extends Model
             $stmt->bindValue(':state', $state);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 }

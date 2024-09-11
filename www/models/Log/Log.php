@@ -42,7 +42,7 @@ class Log extends \Models\Model
             }
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -55,19 +55,19 @@ class Log extends \Models\Model
     /**
      *  Log a message
      */
-    public function log(string $type, string $component, string $message)
+    public function log(string $type, string $component, string $message, string $details)
     {
-        try {
-            $stmt = $this->db->prepare("INSERT INTO logs (Date, Time, Type, Component, Message, Status) VALUES (:date, :time, :type, :component, :message, 'new')");
-            $stmt->bindValue(':date', date('Y-m-d'));
-            $stmt->bindValue(':time', date('H:i:s'));
-            $stmt->bindValue(':type', $type);
-            $stmt->bindValue(':component', $component);
-            $stmt->bindValue(':message', $message);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
+        /**
+         *  No try/cacth here, if an error occurs, it will be caught in the controller
+         */
+        $stmt = $this->db->prepare("INSERT INTO logs (Date, Time, Type, Component, Message, Details, Status) VALUES (:date, :time, :type, :component, :message, :details, 'new')");
+        $stmt->bindValue(':date', date('Y-m-d'));
+        $stmt->bindValue(':time', date('H:i:s'));
+        $stmt->bindValue(':type', $type);
+        $stmt->bindValue(':component', $component);
+        $stmt->bindValue(':message', $message);
+        $stmt->bindValue(':details', $details);
+        $stmt->execute();
     }
 
     /**
@@ -80,7 +80,7 @@ class Log extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 }

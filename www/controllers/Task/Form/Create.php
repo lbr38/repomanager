@@ -102,6 +102,16 @@ class Create
              *  Check gpg sign
              */
             Param\GpgSign::check($formParams['gpg-sign']);
+
+            /**
+             *  Check package(s) to include
+             */
+            Param\PackageInclude::check($formParams['package-include']);
+
+            /**
+             *  Check package(s) to exclude
+             */
+            Param\PackageExclude::check($formParams['package-exclude']);
         }
 
         /**

@@ -25,31 +25,49 @@ class Log
      *  Log a message
      *  Only log if a similar log message is not already logged
      */
-    public function log(string $type, string $component, string $message)
+    public function log(string $type, string $component, string $message, string $details = '')
     {
-        /**
-         *  Get all unread log
-         */
-        $logs = $this->getUnread($type);
-
-        if (!empty($logs)) {
+        try {
             /**
-             *  Loop through all logs
+             *  Get all unread log
              */
-            foreach ($logs as $log) {
+            $logs = $this->getUnread($type);
+
+            if (!empty($logs)) {
                 /**
-                 *  If a similar log message is already logged, quit
+                 *  Loop through all logs
                  */
-                if ($log['Component'] == $component && $log['Message'] == $message) {
-                    return;
+                foreach ($logs as $log) {
+                    /**
+                     *  If a similar log message is already logged, quit
+                     */
+                    if ($log['Component'] == $component && $log['Message'] == $message && $log['Details'] == $details) {
+                        return;
+                    }
                 }
             }
-        }
+
+            /**
+             *  Log the message
+             */
+            $this->model->log($type, $component, $message, $details);
 
         /**
-         *  Log the message
+         *  If the log could not be saved in database, log the error in error_log
          */
-        $this->model->log($type, $component, $message);
+        } catch (\Exception $e) {
+            error_log('Here is a database error while trying to save log: ' . $e . PHP_EOL);
+
+
+            /**
+             *  If the log cannot be saved then log directly in error_log
+             */
+            if (!empty($details)) {
+                error_log('Here is a the original error that could not be saved in database: ' . $message . ': ' . $details . PHP_EOL);
+            } else {
+                error_log('Here is a the original error that could not be saved in database: ' . $message . PHP_EOL);
+            }
+        }
     }
 
     /**

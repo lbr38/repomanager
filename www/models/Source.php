@@ -27,7 +27,7 @@ class Source extends Model
             $stmt->bindValue(':name', $sourceName);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -50,7 +50,7 @@ class Source extends Model
             $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -72,7 +72,7 @@ class Source extends Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -102,7 +102,7 @@ class Source extends Model
             $stmt->bindValue(':url', $url);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -122,7 +122,7 @@ class Source extends Model
             $stmt->bindValue(':sslCaCertificatePath', $sslCaCertificatePath);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -136,7 +136,7 @@ class Source extends Model
             $stmt->bindValue(':id', $sourceId);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -151,7 +151,7 @@ class Source extends Model
             $stmt->bindValue(':name', $source);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         if ($this->db->isempty($result)) {
@@ -171,7 +171,7 @@ class Source extends Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         if ($this->db->isempty($result)) {

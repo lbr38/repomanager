@@ -366,6 +366,13 @@
                                                                             $successCount = $summary['update']['success']['count'];
                                                                             $failedCount = $summary['update']['failed']['count'];
 
+                                                                            // If the update failed
+                                                                            if ($summary['update']['status'] == 'failed') {
+                                                                                $icon = '<span class="redtext">✕</span>';
+                                                                                $shortRequestTitle = 'Update all packages failed';
+                                                                                $textColor = 'redtext';
+                                                                            }
+
                                                                             $requestInfo = $successCount . ' package(s) updated, ' . $failedCount . ' failed';
                                                                         }
                                                                     } else {

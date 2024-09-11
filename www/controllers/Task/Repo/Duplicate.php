@@ -248,7 +248,7 @@ class Duplicate
             /**
              *  Add the new repo snapshot in database
              */
-            $this->repo->addSnap($this->repo->getDate(), $this->repo->getTime(), $this->repo->getSigned(), $this->repo->getArch(), array(), $this->repo->getType(), $this->repo->getStatus(), $targetRepoId);
+            $this->repo->addSnap($this->repo->getDate(), $this->repo->getTime(), $this->repo->getSigned(), $this->repo->getArch(), array(), $this->repo->getPackagesToInclude(), $this->repo->getPackagesToExclude(), $this->repo->getType(), $this->repo->getStatus(), $targetRepoId);
 
             /**
              *  Retrieve the Id of the new repo snapshot in database

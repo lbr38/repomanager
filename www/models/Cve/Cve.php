@@ -26,7 +26,7 @@ class Cve extends \Models\Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -48,7 +48,7 @@ class Cve extends \Models\Model
             $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -70,7 +70,7 @@ class Cve extends \Models\Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -92,7 +92,7 @@ class Cve extends \Models\Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -113,7 +113,7 @@ class Cve extends \Models\Model
             $stmt = $this->db->prepare("SELECT Id FROM cve ORDER BY Id ASC");
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -158,7 +158,7 @@ class Cve extends \Models\Model
 
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $cves[] = $row;
@@ -183,7 +183,7 @@ class Cve extends \Models\Model
             $stmt->bindValue(':search', '%' . $search . '%');
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -206,7 +206,7 @@ class Cve extends \Models\Model
             $stmt->bindValue(':status', $status);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -226,7 +226,7 @@ class Cve extends \Models\Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -246,7 +246,7 @@ class Cve extends \Models\Model
             $stmt->bindValue(':name', $nameId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -274,7 +274,7 @@ class Cve extends \Models\Model
             $stmt->bindValue(':cvss3Score', $cvss3Score);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         /**
@@ -302,7 +302,7 @@ class Cve extends \Models\Model
                         $stmt->bindValue(':cveId', $cveId);
                         $result = $stmt->execute();
                     } catch (\Exception $e) {
-                        \Controllers\Common::dbError($e);
+                        $this->db->logError($e);
                     }
                 }
             }
@@ -319,7 +319,7 @@ class Cve extends \Models\Model
                     $stmt->bindValue(':cveId', $cveId);
                     $result = $stmt->execute();
                 } catch (\Exception $e) {
-                    \Controllers\Common::dbError($e);
+                    $this->db->logError($e);
                 }
             }
         }
@@ -343,7 +343,7 @@ class Cve extends \Models\Model
             $stmt->bindValue(':cvss3Score', $cvss3Score);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         /**
@@ -374,7 +374,7 @@ class Cve extends \Models\Model
                     $stmt->bindValue(':cveId', $cveId);
                     $result = $stmt->execute();
                 } catch (\Exception $e) {
-                    \Controllers\Common::dbError($e);
+                    $this->db->logError($e);
                 }
             }
         }
@@ -394,7 +394,7 @@ class Cve extends \Models\Model
             $stmt->bindValue(':cveId', $cveId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         if ($this->db->isempty($result)) {
@@ -418,7 +418,7 @@ class Cve extends \Models\Model
             $stmt->bindValue(':cveId', $cveId);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -440,7 +440,7 @@ class Cve extends \Models\Model
             $stmt->bindValue(':version', $version . '%');
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         // $endTime = hrtime(true);
