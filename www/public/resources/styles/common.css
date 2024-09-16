@@ -75,6 +75,15 @@ pre {
     font-size: 12px;
 }
 
+pre.codeblock {
+    background-color: rgb(26 29 31);
+    color: white;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.5;
+    padding: 20px;
+}
+
 /**
  *  Generic class
  */
@@ -341,7 +350,6 @@ input::placeholder {
     background-color: initial;
     box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
     border: 1px solid #24405c;
-    opacity: 0.5;
 }
 
 /* All blue buttons */
@@ -393,7 +401,7 @@ input::placeholder {
 .btn-large-tr-to-red:hover, .btn-medium-tr-to-red:hover, .btn-small-tr-to-red:hover, .btn-xsmall-tr-to-red:hover, .btn-xxsmall-tr-to-red:hover, .btn-fit-tr-to-red:hover, .round-btn-tr-to-red:hover {
     transition-duration: 0.2s;
     background-color: #dc0044;
-    border: 1 px solid #dc0044;
+    border: 1px solid #dc0044;
     opacity: 1;
 }
 
@@ -483,11 +491,11 @@ input::placeholder {
     background-color: initial;
     box-shadow: rgb(32 25 25 / 50%) 0px 0px 15px 1px;
     border: 1px solid #ffffff52;
-    opacity: 0.5;
+    /* opacity: 0.5; */
 }
-.slide-btn-tr:hover, .slide-btn-medium-tr:hover {
+/* .slide-btn-tr:hover, .slide-btn-medium-tr:hover {
     opacity: 1;
-}
+} */
 
 /* override slide-btn */
 [class^="slide-btn-medium"] {
@@ -835,6 +843,42 @@ textarea {
     background-color: #182b3e82;
     border-radius: 8px;
     z-index: 998;
+}
+
+.modal-window-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 10000;
+    margin: auto;
+    background-color: #182b3e82;
+}
+
+.modal-window {
+    display: flex;
+    flex-direction: column;
+    width: 70%;
+    max-height: 80%;
+    padding: 15px 15px 15px 15px;
+    border-radius: 8px;
+    background-color: #112334;
+    overflow: auto;
+    box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
+}
+
+.modal-window pre {
+    min-height: 200px;
+    padding: 20px;
+    margin-top: 20px;
+    background-color: #0c141b;
+    border-radius: 8px;
+    line-height: 1.5;
+    text-wrap: wrap;
 }
 
 /**

@@ -18,9 +18,18 @@ $(document).on('click','.slide-panel-close-btn',function () {
 });
 
 /**
- *  Event: mark log as read
+ *  Event: show general log details
  */
-$(document).on('click','.acquit-log-btn',function () {
+$(document).on('click','.general-log-show-info-btn',function () {
+    var id = $(this).attr('log-id');
+
+    $('pre.general-log-details[log-id="' + id + '"]').toggle();
+});
+
+/**
+ *  Event: mark general log as read
+ */
+$(document).on('click','.general-log-acquit-btn',function () {
     var id = $(this).attr('log-id');
 
     ajaxRequest(
@@ -42,11 +51,19 @@ $(document).on('click','.acquit-log-btn',function () {
 });
 
 /**
- *  Event: hide slided window on escape button press
+ *  Event: close request log details
+ */
+$(document).on('click','.modal-window-close-btn',function () {
+    $(".modal-window-container").remove();
+});
+
+/**
+ *  Event: hide slided window and modal window on escape button press
  */
 $(document).keyup(function (e) {
     if (e.key === "Escape") {
         closePanel();
+        $(".modal-window-container").remove();
     }
 });
 

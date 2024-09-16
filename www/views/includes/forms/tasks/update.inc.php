@@ -8,39 +8,7 @@ if ($myrepo->getPackageType() == 'deb') {
 
 <tr>
     <td colspan="100%">Task will create a new mirror snapshot:
-    <br><br><span class="label-white"><?= $mirror ?></span>⟶<span class="label-green"><?= DATE_DMY ?></span><span id="update-repo-show-target-env-<?= $myrepo->getSnapId() ?>"></span></td>
-</tr>
-
-<tr>
-    <td colspan="100%"><b>Update parameters</b></td>
-</tr>
-
-<tr>
-    <td>Architecture</td>
-    <td>
-        <select class="task-param" param-name="arch" multiple>
-            <option value="">Select architecture...</option>
-            <?php
-            if ($myrepo->getPackageType() == 'rpm') :
-                foreach (RPM_ARCHS as $arch) {
-                    if (in_array($arch, $myrepo->getArch())) {
-                        echo '<option value="' . $arch . '" selected>' . $arch . '</option>';
-                    } else {
-                        echo '<option value="' . $arch . '">' . $arch . '</option>';
-                    }
-                }
-            endif;
-            if ($myrepo->getPackageType() == 'deb') :
-                foreach (DEB_ARCHS as $arch) {
-                    if (in_array($arch, $myrepo->getArch())) {
-                        echo '<option value="' . $arch . '" selected>' . $arch . '</option>';
-                    } else {
-                        echo '<option value="' . $arch . '">' . $arch . '</option>';
-                    }
-                }
-            endif; ?>
-        </select>
-    </td>
+    <br><br><span class="label-white"><?= $mirror ?></span>⟶<span class="label-green"><?= DATE_DMY ?></span><span id="update-repo-show-target-env-<?= $myrepo->getSnapId() ?>"></span><br><br></td>
 </tr>
 
 <tr>
@@ -93,6 +61,75 @@ if ($myrepo->getPackageType() == 'deb') {
     </td>
 </tr>
 
+<tr>
+    <td colspan="100%"><b>Advanced parameters</b></td>
+</tr>
+
+<tr>
+    <td>Architecture</td>
+    <td>
+        <select class="task-param" param-name="arch" multiple>
+            <option value="">Select architecture...</option>
+            <?php
+            if ($myrepo->getPackageType() == 'rpm') :
+                foreach (RPM_ARCHS as $arch) {
+                    if (in_array($arch, $myrepo->getArch())) {
+                        echo '<option value="' . $arch . '" selected>' . $arch . '</option>';
+                    } else {
+                        echo '<option value="' . $arch . '">' . $arch . '</option>';
+                    }
+                }
+            endif;
+
+            if ($myrepo->getPackageType() == 'deb') :
+                foreach (DEB_ARCHS as $arch) {
+                    if (in_array($arch, $myrepo->getArch())) {
+                        echo '<option value="' . $arch . '" selected>' . $arch . '</option>';
+                    } else {
+                        echo '<option value="' . $arch . '">' . $arch . '</option>';
+                    }
+                }
+            endif; ?>
+        </select>
+    </td>
+</tr>
+
+<tr>
+    <td>
+        <span>Only include package(s)</span>
+        <span class="lowopacity-cst">(optional)</span>
+    </td>
+
+    <td>
+        <select class="task-param" param-name="package-include" multiple>
+            <?php
+            if (!empty($myrepo->getPackagesToInclude())) {
+                foreach ($myrepo->getPackagesToInclude() as $package) {
+                    echo '<option value="' . $package . '" selected>' . $package . '</option>';
+                }
+            } ?>
+        </select>
+    </td>
+</tr>
+
+<tr>
+    <td>
+        <span>Exclude package(s)</span>
+        <span class="lowopacity-cst">(optional)</span>
+    </td>
+
+    <td>
+        <select class="task-param" param-name="package-exclude" multiple>
+            <?php
+            if (!empty($myrepo->getPackagesToExclude())) {
+                foreach ($myrepo->getPackagesToExclude() as $package) {
+                    echo '<option value="' . $package . '" selected>' . $package . '</option>';
+                }
+            } ?>
+        </select>
+    </td>
+</tr>
+
 <?php
 /**
  *  Define schedule form action and allowed type(s)
@@ -106,6 +143,8 @@ $(document).ready(function(){
      *  Convert select to select2
      */
     selectToSelect2('select.task-param[param-name="arch"]');
+    selectToSelect2('select.task-param[param-name="package-include"]', 'Specify package(s)', true);
+    selectToSelect2('select.task-param[param-name="package-exclude"]', 'Specify package(s)', true);
 
     /**
      *  Update repo->date<-env schema if an env is selected

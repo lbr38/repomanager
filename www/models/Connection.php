@@ -46,7 +46,7 @@ class Connection extends SQLite3
              */
             } elseif ($database == 'stats') {
                 $this->open(STATS_DB);
-                $this->busyTimeout(10000);
+                $this->busyTimeout(15000);
                 $this->enableExceptions(true);
                 $this->enableWAL();
 
@@ -65,7 +65,7 @@ class Connection extends SQLite3
              */
             } elseif ($database == 'hosts') {
                 $this->open(HOSTS_DB);
-                $this->busyTimeout(10000);
+                $this->busyTimeout(15000);
                 $this->enableExceptions(true);
                 $this->enableWAL();
 
@@ -84,7 +84,7 @@ class Connection extends SQLite3
              */
             } elseif ($database == 'host') {
                 $this->open(HOSTS_DIR . '/' . $hostId . '/properties.db');
-                $this->busyTimeout(10000);
+                $this->busyTimeout(15000);
                 $this->enableExceptions(true);
                 $this->enableWAL();
                 $this->generateHostTables();
@@ -293,6 +293,8 @@ class Connection extends SQLite3
         Signed CHAR(5) NOT NULL, /* true, false */
         Arch VARCHAR(255),
         Pkg_translation VARCHAR(255),
+        Pkg_included VARCHAR(255),
+        Pkg_excluded VARCHAR(255),
         Type CHAR(6) NOT NULL,
         Reconstruct CHAR(8), /* needed, running, failed */
         Status CHAR(8) NOT NULL,
@@ -390,7 +392,7 @@ class Connection extends SQLite3
                 $stmt->bindValue(':password_hashed', $password_hashed);
                 $stmt->execute();
             } catch (\Exception $e) {
-                \Controllers\Common::dbError($e);
+                $this->logError($e);
             }
         }
 
@@ -694,6 +696,7 @@ class Connection extends SQLite3
         Type CHAR(5) NOT NULL, /* info, error */
         Component VARCHAR(255),
         Message VARCHAR(255) NOT NULL,
+        Details TEXT,
         Status CHAR(9) NOT NULL)"); /* new, acquitted */
 
         /**
@@ -1025,5 +1028,19 @@ class Connection extends SQLite3
         }
 
         return false;
+    }
+
+    /**
+     *  Log a database error in database
+     */
+    public function logError(string $exception = null)
+    {
+        $logController = new \Controllers\Log\Log();
+
+        if (!empty($exception)) {
+            $logController->log('error', 'Database', 'An error occured while executing request in database.', $exception);
+        } else {
+            $logController->log('error', 'Database', 'An error occured while executing request in database.');
+        }
     }
 }

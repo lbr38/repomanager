@@ -752,63 +752,78 @@ $(document).on('click','#installed-packages-btn',function () {
 /**
  *  Event: show request log details
  */
-$(document).on('click','.request-show-log-btn',function () {
+$(document).on('click','.request-show-log-btn',function (e) {
+    // Prevent parent to be triggered
+    e.stopPropagation();
+
     /**
      *  Retrieve request id
      */
     var id = $(this).attr('request-id');
 
-    /**
-     *  Get request log
-     */
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "host",
-            action: "getRequestLog",
+    ajaxRequest(
+        // Controller:
+        'host',
+        // Action:
+        'getRequestLog',
+        // Data:
+        {
             id: id
         },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            /**
-             *  Retrieve and print success message
-             */
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-
-            html = '<div class="ws-request-log-container">'
-                + '<div class="ws-request-log">'
-                + '<div class="flex justify-space-between">'
-                + '<h4>LOG</h4>'
-                + '<span class="ws-request-close-btn"><img title="Close" class="close-btn lowopacity" src="/assets/icons/close.svg" /></span>'
-                + '</div>'
-                + '<div>'
-                + '<pre>' + jsonValue.message + '</pre>'
-                + '</div>'
-                + '</div>'
-                + '</div>';
-
-            /**
-             *  Print request log
-             */
-            $('footer').append(html);
-        },
-        error: function (jqXHR, textStatus, thrownError) {
-            /**
-             *  Retrieve and print error message
-             */
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-
-            printAlert(jsonValue.message, 'error');
-        }
-    });
+        // Print success alert:
+        false,
+        // Print error alert:
+        true,
+        // Reload container:
+        [],
+        // Execute functions on success:
+        [
+            "printModalWindow(jsonValue.message, 'LOG')"
+        ]
+    );
 });
 
 /**
- *  Event: close request log details
+ *  Event: show package log details
  */
-$(document).on('click','.ws-request-close-btn',function () {
-    $(".ws-request-log-container").remove();
+$(document).on('click','.request-show-package-log-btn',function (e) {
+    /**
+     *  Retrieve request id, package name and status
+     */
+    var id = $(this).attr('request-id');
+    var package = $(this).attr('package');
+    var status = $(this).attr('status');
+
+    ajaxRequest(
+        // Controller:
+        'host',
+        // Action:
+        'getRequestPackageLog',
+        // Data:
+        {
+            id: id,
+            package: package,
+            status: status
+        },
+        // Print success alert:
+        false,
+        // Print error alert:
+        true,
+        // Reload container:
+        [],
+        // Execute functions on success:
+        [
+            "printModalWindow(jsonValue.message, 'LOG')"
+        ]
+    );
+});
+
+/**
+ *  Event: show request log details
+ */
+$(document).on('click','.request-show-more-info-btn',function () {
+    var id = $(this).attr('request-id');
+    $('div.request-details[request-id="' + id + '"]').toggle();
 });
 
 /**
@@ -842,21 +857,37 @@ $(document).on('click','.cancel-request-btn',function () {
 });
 
 /**
- *  Event : récupérer l'historique d'un paquet
+ *  Event: print package history
  */
 $(document).on('click','.get-package-timeline',function () {
     /**
-     *  Si un historique est déjà affiché à l'écran on le détruit
-     */
-    $(".package-details-container").remove();
-
-    /**
-     *  Récupération de l'Id du package
+     *  Retrieve id of the host and the package name
      */
     var hostid = $(this).attr('hostid');
-    var packagename = $(this).attr('packagename');
+    var packageName = $(this).attr('packagename');
+    var title = packageName.toUpperCase() + ' HISTORY';
 
-    getPackageTimeline(hostid, packagename);
+    ajaxRequest(
+        // Controller:
+        'host',
+        // Action:
+        'getPackageTimeline',
+        // Data:
+        {
+            hostid: hostid,
+            packagename: packageName
+        },
+        // Print success alert:
+        false,
+        // Print error alert:
+        true,
+        // Reload container:
+        [],
+        // Execute functions on success:
+        [
+            "printModalWindow(jsonValue.message, '" + title + "', false)"
+        ]
+    );
 });
 
 /**
@@ -920,13 +951,6 @@ $(document).on('mouseenter', '.event-packages-btn', function (e) {
  */
 $(document).on('mouseleave', '.event-packages-details', function () {
     $('.event-packages-details').remove();
-});
-
-/**
- *  Event: close package details div
- */
-$(document).on('click','.package-details-close-btn',function () {
-    $(".package-details-container").remove();
 });
 
 /**
@@ -1074,46 +1098,6 @@ function getHostsWithPackageAjax(hostsId_array, package)
             }
 
             hideGroupDiv();
-        },
-        error: function (jqXHR, textStatus, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
-}
-
-/**
- * Ajax : récupérer l'historique d'un paquet en base de données
- * @param {string} hostid
- * @param {string} packagename
- */
-function getPackageTimeline(hostid, packagename)
-{
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "host",
-            action: "getPackageTimeline",
-            hostid: hostid,
-            packagename: packagename
-        },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-
-            html = '<div class="package-details-container">'
-                + '<div class="package-details">'
-                + '<div class="flex justify-end">'
-                + '<span class="package-details-close-btn"><img title="Close" class="close-btn lowopacity" src="/assets/icons/close.svg" /></span>'
-                + '</div>'
-                + '<div>'
-                + '<div>' + jsonValue.message + '</div>'
-                + '</div>'
-                + '</div>'
-                + '</div>';
-
-            $('footer').append(html);
         },
         error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);

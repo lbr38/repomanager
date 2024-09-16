@@ -21,7 +21,7 @@ class Login extends Model
         try {
             $result = $this->db->query("SELECT Email FROM users WHERE State = 'active'");
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -43,7 +43,7 @@ class Login extends Model
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -65,7 +65,7 @@ class Login extends Model
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -87,7 +87,7 @@ class Login extends Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -109,7 +109,7 @@ class Login extends Model
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -129,7 +129,7 @@ class Login extends Model
         try {
             $result = $this->db->query("SELECT users.Id, users.Username, users.Api_key, users.First_name, users.Last_name, users.Email, users.Type, user_role.Name as Role_name FROM users JOIN user_role ON users.Role = user_role.Id WHERE State = 'active' ORDER BY Username ASC");
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -152,7 +152,7 @@ class Login extends Model
             $stmt->bindValue(':role', $role);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -169,7 +169,7 @@ class Login extends Model
             $stmt->bindValue(':email', $email);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -183,7 +183,7 @@ class Login extends Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -199,7 +199,7 @@ class Login extends Model
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -220,7 +220,7 @@ class Login extends Model
             $stmt->bindValue(':password', $hashedPassword);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -235,7 +235,7 @@ class Login extends Model
             $stmt->bindValue(':apikey', $apiKey);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 }

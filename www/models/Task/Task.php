@@ -28,7 +28,7 @@ class Task extends \Models\Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -48,7 +48,7 @@ class Task extends \Models\Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -72,7 +72,7 @@ class Task extends \Models\Model
             $stmt->bindValue(':pid', $pid);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -89,7 +89,7 @@ class Task extends \Models\Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -110,7 +110,7 @@ class Task extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -125,7 +125,7 @@ class Task extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -140,7 +140,7 @@ class Task extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -155,7 +155,7 @@ class Task extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -170,7 +170,7 @@ class Task extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -185,7 +185,7 @@ class Task extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -200,7 +200,7 @@ class Task extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -214,7 +214,7 @@ class Task extends \Models\Model
         try {
             $result = $this->db->query("SELECT Id FROM tasks WHERE Status = 'running'");
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -271,7 +271,7 @@ class Task extends \Models\Model
 
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -310,7 +310,7 @@ class Task extends \Models\Model
             $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -370,7 +370,7 @@ class Task extends \Models\Model
             $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -397,7 +397,7 @@ class Task extends \Models\Model
             $stmt->bindValue(':date', date('Y-m-d', strtotime('-7 days')));
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -417,7 +417,7 @@ class Task extends \Models\Model
         try {
             $result = $this->db->query("SELECT * FROM tasks WHERE Type = 'scheduled' AND Status = 'scheduled'");
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -439,7 +439,7 @@ class Task extends \Models\Model
             $stmt->bindValue(':status', $status);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         /**
@@ -458,7 +458,7 @@ class Task extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         /**
@@ -479,7 +479,7 @@ class Task extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -493,7 +493,7 @@ class Task extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -507,7 +507,7 @@ class Task extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -521,7 +521,7 @@ class Task extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 }

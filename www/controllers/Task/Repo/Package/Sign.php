@@ -148,7 +148,7 @@ trait Sign
                      */
                     if ($myprocess->getExitCode() != 0) {
                         echo '<span class="label-ko inline-block">KO</span> <span class="redtext">error while signing package:</span>' . PHP_EOL;
-                        echo '<pre class="codeblock">' . $output . '</pre>';
+                        echo '<pre class="codeblock margin-top-10">' . $output . '</pre>';
                         $signError++;
                         break;
                     }

@@ -28,7 +28,7 @@ class Stat extends Model
             $stmt->bindValue(':envId', $envId);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -63,7 +63,7 @@ class Stat extends Model
             $stmt->bindValue(':result', $result);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -77,7 +77,7 @@ class Stat extends Model
             $stmt->bindValue(':request', $request);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -92,7 +92,7 @@ class Stat extends Model
             $stmt = $this->db->prepare("SELECT * FROM access_queue LIMIT 100");
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -112,7 +112,7 @@ class Stat extends Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -126,7 +126,7 @@ class Stat extends Model
             $stmt->bindValue('envId', $envId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         $datas = array();
@@ -149,7 +149,7 @@ class Stat extends Model
             $stmt->bindValue(':days', $days);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         $datas = array();
@@ -172,7 +172,7 @@ class Stat extends Model
             $stmt->bindValue(':days', $days);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         $datas = array();
@@ -244,7 +244,7 @@ class Stat extends Model
             $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -285,7 +285,7 @@ class Stat extends Model
             $stmt->bindValue(':date', $date);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -320,7 +320,7 @@ class Stat extends Model
             $this->db->exec("VACUUM");
             $this->db->exec("ANALYZE");
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 

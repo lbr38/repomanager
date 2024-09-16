@@ -40,6 +40,7 @@ class Env
          */
         $requiredParams = array('env');
         $optionalParams = array('description');
+
         $this->taskParamsCheck('Repo environment', $taskParams, $requiredParams);
         $this->taskParamsSet($taskParams, $requiredParams, $optionalParams);
 

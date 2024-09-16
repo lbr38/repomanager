@@ -35,6 +35,16 @@ class Update
         Param\Arch::check($formParams['arch']);
 
         /**
+         *  Check package(s) to include
+         */
+        Param\PackageInclude::check($formParams['package-include']);
+
+        /**
+         *  Check package(s) to exclude
+         */
+        Param\PackageExclude::check($formParams['package-exclude']);
+
+        /**
          *  Check gpg check
          */
         Param\GpgCheck::check($formParams['gpg-check']);

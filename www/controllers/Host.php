@@ -331,8 +331,7 @@ class Host
         /**
          *  Build the timeline to display and send it back to the ajax controller because it is jquery that will take care of displaying it afterwards
          */
-        $content = '<h4>' . strtoupper($packageName) . ' PACKAGE HISTORY</h4>';
-        $content .= '<div class="timeline">';
+        $content = '<div class="timeline">';
 
         /**
          *  The first block will be displayed on the left in the timeline
@@ -1626,7 +1625,7 @@ class Host
      *  Get request log details
      *  Request log is a file stored in the websocket-requests logs directory
      */
-    public function getRequestLog(int $id)
+    public function getRequestLog(int $id) : string
     {
         $logFile = WS_REQUESTS_LOGS_DIR . '/request-' . $id . '.log';
 
@@ -1645,5 +1644,13 @@ class Host
         }
 
         return $content;
+    }
+
+    /**
+     *  Get request package log details
+     */
+    public function getRequestPackageLog(int $id, string $package, string $status) : string|null
+    {
+        return $this->model->getRequestPackageLog($id, $package, $status);
     }
 }

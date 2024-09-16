@@ -348,41 +348,6 @@ td:last-child,
     left: -16px;
 }
 
-.package-details-container, .ws-request-log-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    margin: auto;
-    background-color: #182b3e82;
-}
-
-.package-details, .ws-request-log {
-    display: flex;
-    flex-direction: column;
-    width: 70%;
-    max-height: 80%;
-    padding: 15px 15px 15px 15px;
-    border-radius: 8px;
-    background-color: #112334;
-    overflow: auto;
-    box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
-}
-
-.ws-request-log pre {
-    min-height: 200px;
-    padding: 20px;
-    margin-top: 20px;
-    background-color: #0c141b;
-    border-radius: 8px;
-    line-height: 1.5;
-    text-wrap: wrap;
-}
-
 /* Desktop configuration */
 @media (min-width:1500px) {
     .groups-container {

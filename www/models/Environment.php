@@ -24,7 +24,7 @@ class Environment extends Model
             $stmt->bindValue(':name', $name);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -38,7 +38,7 @@ class Environment extends Model
             $stmt->bindValue(':name', $name);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -108,7 +108,7 @@ class Environment extends Model
             $stmt->bindValue(':env', $name);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         if ($this->db->isempty($result)) {

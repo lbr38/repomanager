@@ -21,7 +21,7 @@ class Settings extends Model
         try {
             $result = $this->db->query("SELECT * FROM settings");
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -53,7 +53,7 @@ class Settings extends Model
             }
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 }

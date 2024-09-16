@@ -5,24 +5,44 @@
      */
     if (LOG > 0) : ?>
         <section class="section-main">
-            <div class="div-generic-blue flex flex-direction-column row-gap-5">
+            <div class="div-generic-blue flex flex-direction-column row-gap-15">
                 <p class="lowopacity-cst">Log messages (<?= LOG ?>)</p>
                 <?php
                 foreach (LOG_MESSAGES as $log) : ?>
                     <div class="flex justify-space-between">
-                        <div class="flex align-item-center">
+                        <div class="flex flex-direction-column row-gap-5">
+                            <div class="flex align-item-center column-gap-10">
+                                <?php
+                                if ($log['Type'] == 'error') {
+                                    echo '<img src="/assets/icons/redcircle.png" class="icon-small">';
+                                }
+                                if ($log['Type'] == 'info') {
+                                    echo '<img src="/assets/icons/greencircle.png" class="icon-small">';
+                                } ?>
+
+                                <p><?= $log['Date'] . ' ' . $log['Time'] ?> - <code><?= $log['Component'] ?></code> - <?= $log['Message'] ?></p>
+                            </div>
+
                             <?php
-                            if ($log['Type'] == 'error') {
-                                echo '<img src="/assets/icons/redcircle.png" class="icon-small">';
-                            }
-                            if ($log['Type'] == 'info') {
-                                echo '<img src="/assets/icons/greencircle.png" class="icon-small">';
+                            if (!empty($log['Details'])) {
+                                echo '<pre class="codeblock general-log-details hide" log-id="' . $log['Id'] . '">' . $log['Details'] . '</pre>';
                             } ?>
-                            <span><?= $log['Date'] . ' ' . $log['Time'] ?> - <code><?= $log['Component'] ?></code> - <?= $log['Message'] ?></span>
                         </div>
-                        <div class="slide-btn align-self-center acquit-log-btn" log-id="<?= $log['Id'] ?>" title="Mark as read">
-                            <img src="/assets/icons/enabled.svg" />
-                            <span>Mark as read</span>
+
+                        <div>
+                            <?php
+                            if (!empty($log['Details'])) : ?>
+                                <div class="slide-btn-tr general-log-show-info-btn" log-id="<?= $log['Id'] ?>" title="More info">
+                                    <img src="/assets/icons/info.svg" />
+                                    <span>More info</span>
+                                </div>
+                                <?php
+                            endif ?>
+
+                            <div class="slide-btn general-log-acquit-btn" log-id="<?= $log['Id'] ?>" title="Mark as read">
+                                <img src="/assets/icons/enabled.svg" />
+                                <span>Mark as read</span>
+                            </div>
                         </div>
                     </div>
                     <?php

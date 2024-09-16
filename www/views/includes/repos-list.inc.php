@@ -41,7 +41,7 @@ if (!empty($groupsList)) {
             </div>
 
             <div class="repos-list-group-select-all-btns">
-                <button class="repos-list-group-select-all-latest-snap-btn btn-medium-tr hide" group-id="<?= $group['Id'] ?>">✔ Select all latest snapshots</button>
+                <button class="repos-list-group-select-all-latest-snap-btn btn-medium-tr mediumopacity hide" group-id="<?= $group['Id'] ?>">✔ Select all latest snapshots</button>
             </div>
 
             <?php

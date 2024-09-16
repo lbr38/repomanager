@@ -21,7 +21,7 @@ class ContainerState extends \Models\Model
         try {
             $result = $this->db->query("SELECT * FROM layout_container_state");
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -42,7 +42,7 @@ class ContainerState extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -57,7 +57,7 @@ class ContainerState extends \Models\Model
             $stmt->bindValue(':name', $name);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -71,7 +71,7 @@ class ContainerState extends \Models\Model
             $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         if ($this->db->isempty($result)) {

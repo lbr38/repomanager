@@ -26,7 +26,7 @@ class Import extends \Models\Model
             $stmt->bindValue(':status', 'running');
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         return $this->getLastInsertRowID();
@@ -43,7 +43,7 @@ class Import extends \Models\Model
             $stmt->bindValue(':duration', $duration);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -58,7 +58,7 @@ class Import extends \Models\Model
             $stmt->bindValue(':status', $status);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -74,7 +74,7 @@ class Import extends \Models\Model
             $stmt->bindValue(':status', 'running');
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
 
         return $this->getLastInsertRowID();
@@ -91,7 +91,7 @@ class Import extends \Models\Model
             $stmt->bindValue(':duration', $duration);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -106,7 +106,7 @@ class Import extends \Models\Model
             $stmt->bindValue(':status', $status);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 
@@ -123,7 +123,7 @@ class Import extends \Models\Model
             $this->db->query("VACUUM");
             $this->db->checkMainTables();
         } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
+            $this->db->logError($e);
         }
     }
 }
