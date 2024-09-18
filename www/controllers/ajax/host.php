@@ -81,6 +81,18 @@ if ($action == "executeAction" and !empty($_POST['exec']) and !empty($_POST['hos
     response(HTTP_OK, $content);
 }
 
+if ($action == 'installSelectedAvailablePackages' and !empty($_POST['hostId']) and !empty($_POST['packages'])) {
+    $hostExecuteController = new \Controllers\Host\Execute();
+
+    try {
+        $content = $hostExecuteController->installSelectedAvailablePackages($_POST['hostId'], $_POST['packages']);
+    } catch (\Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, $content);
+}
+
 /**
  *  Show request log details
  */

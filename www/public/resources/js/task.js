@@ -33,16 +33,6 @@ function reloadNewRepoDiv()
 }
 
 /**
- *  Count the number of checked checkboxes
- */
-function countChecked()
-{
-    var countTotal = $('.reposList').find('input[name=checkbox-repo]:checked').length;
-
-    return countTotal;
-};
-
-/**
  *  Show / hide the fields according to the selected package type (rpm or deb)
  */
 function newRepoFormPrintFields()
@@ -199,7 +189,7 @@ $(document).on('click',"input[name=checkbox-repo]",function () {
     /**
      *  Count the number of checked checkboxes
      */
-    var count_checked = countChecked();
+    var count_checked = $('.reposList').find('input[name=checkbox-repo]:checked').length;
 
     /**
      *  If all checkboxes are unchecked then we hide all action buttons

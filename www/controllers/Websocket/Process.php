@@ -65,7 +65,7 @@ class Process extends WebsocketServer
     public function responseFromRequestId($conn, $message)
     {
         $info = '';
-        $infoJson = '';
+        $responseJson = '';
 
         /**
          *  Retrieve request Id
@@ -90,7 +90,7 @@ class Process extends WebsocketServer
          *  Retrieve JSON summary, if any
          */
         if (!empty($message['response-to-request']['summary'])) {
-            $infoJson = json_encode($message['response-to-request']['summary']);
+            $responseJson = json_encode($message['response-to-request']['summary']);
         }
 
         /**
@@ -107,7 +107,7 @@ class Process extends WebsocketServer
         /**
          *  Update request status and response in database
          */
-        $this->hostController->updateWsRequest($requestId, $status, $info, $infoJson);
+        $this->hostController->updateWsRequest($requestId, $status, $info, $responseJson);
 
         $this->layoutContainerStateController->update('hosts/overview');
         $this->layoutContainerStateController->update('hosts/list');
@@ -156,6 +156,11 @@ class Process extends WebsocketServer
             $hostname = $this->hostController->getHostnameById($request['Id_host']);
 
             /**
+             *  Retrieve request JSON details and decode it
+             */
+            $requestDetails = json_decode($request['Request'], true);
+
+            /**
              *  If target host is not authenticated (not in $clients), skip
              */
             if (!in_array($request['Id_host'], array_column($clients, 'Id_host'))) {
@@ -201,14 +206,14 @@ class Process extends WebsocketServer
             }
 
             /**
-             *  First, retrieve wosocket connection Id of target host
+             *  First, retrieve websocket connection Id of target host
              */
             $hostWsConnectionId = $this->hostController->getWsConnectionIdByHostId($request['Id_host']);
 
             /**
              *  If request is 'disconnect', close connection and remove it from database
              */
-            if ($request['Request'] == 'disconnect') {
+            if ($requestDetails['request'] == 'disconnect') {
                 foreach ($socket->getClients() as $client) {
                     if ($client->resourceId == $hostWsConnectionId) {
                         /**
@@ -239,7 +244,14 @@ class Process extends WebsocketServer
                 if ($client->resourceId == $hostWsConnectionId) {
                     $this->log('[server] Sending request #' . $request['Id'] . ' to host ' . $hostname . ' through connection #' . $client->resourceId);
 
-                    $client->send(json_encode(array('request-id' => $request['Id'], 'request' => $request['Request'])));
+                    /**
+                     *  Send the request to the host
+                     */
+                    if (!empty($requestDetails['data'])) {
+                        $client->send(json_encode(array('request-id' => $request['Id'], 'request' => $requestDetails['request'], 'data' => $requestDetails['data'])));
+                    } else {
+                        $client->send(json_encode(array('request-id' => $request['Id'], 'request' => $requestDetails['request'])));
+                    }
 
                     /**
                      *  Update request status to 'sent' in database

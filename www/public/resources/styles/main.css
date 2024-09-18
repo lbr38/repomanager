@@ -561,13 +561,6 @@ footer #github img { width: 25px; }
     font-size: 13px;
 }
 
-.round-item {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 60px;
-}
-
 .circle-div-container div {
     display: inline-block;
     vertical-align: middle;

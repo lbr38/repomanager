@@ -68,80 +68,68 @@ function printAlert(message, type = null, timeout = 2500)
 function confirmBox(message, myfunction1, confirmBox1 = 'Delete', myfunction2 = null, confirmBox2 = null)
 {
     /**
-     *  First, delete all active confirm box if any
+     *  Case there is three choices
      */
-    $("#newConfirmAlert").remove();
+    if (myfunction2 != null && confirmBox2 != null) {
+        var $content = '<div id="new-confirm-box" class="confirmAlert"><span></span><span>' + message + '</span><div class="confirmAlert-buttons-container"><span class="pointer btn-doConfirm1">' + confirmBox1 + '</span><span class="pointer btn-doConfirm2">' + confirmBox2 + '</span><span class="pointer btn-doCancel">Cancel</span></div></div>';
+    /**
+     *  Case there is two choices
+     */
+    } else {
+        var $content = '<div id="new-confirm-box" class="confirmAlert"><span></span><span>' + message + '</span><div class="confirmAlert-buttons-container"><span class="pointer btn-doConfirm1">' + confirmBox1 + '</span><span class="pointer btn-doCancel">Cancel</span></div></div>';
+    }
+
+    $('footer').append($content);
 
     /**
-     *  Wait 50ms before creating new confirm box
+     *  Remove all old confirm boxes if any
      */
-    setTimeout(function () {
+    $('#confirm-box').remove();
+
+    /**
+     *  Rename new confirm box to 'confirm-box'
+     */
+    $('#new-confirm-box').attr('id', 'confirm-box');
+
+    /**
+     *  If choice one is clicked
+     */
+    $('.btn-doConfirm1').click(function () {
         /**
-         *  Case there is three choices
+         *  Execute function 1
          */
-        if (myfunction2 != null && confirmBox2 != null) {
-            var $content = '<div id="newConfirmAlert" class="confirmAlert"><span></span><span>' + message + '</span><div class="confirmAlert-buttons-container"><span class="pointer btn-doConfirm1">' + confirmBox1 + '</span><span class="pointer btn-doConfirm2">' + confirmBox2 + '</span><span class="pointer btn-doCancel">Cancel</span></div></div>';
+        myfunction1();
+
+        // Then remove confirm box
+        closeConfirmBox();
+    });
+
+    /**
+     *  If choice two is clicked
+     */
+    $('.btn-doConfirm2').click(function () {
         /**
-         *  Case there is two choices
+         *  Execute function 2
          */
-        } else {
-            var $content = '<div id="newConfirmAlert" class="confirmAlert"><span></span><span>' + message + '</span><div class="confirmAlert-buttons-container"><span class="pointer btn-doConfirm1">' + confirmBox1 + '</span><span class="pointer btn-doCancel">Cancel</span></div></div>';
-        }
+        myfunction2();
 
-        $('footer').append($content);
+        // Then remove confirm box
+        closeConfirmBox();
+    });
 
-        /**
-         *  If choice one is clicked
-         */
-        $('.btn-doConfirm1').click(function () {
-            /**
-             *  Execute function 1
-             */
-            myfunction1();
-
-            /**
-             *  Then remove alert
-             */
-            $("#newConfirmAlert").slideToggle(0, function () {
-                $("#newConfirmAlert").remove();
-            });
-        });
-
-        /**
-         *  If choice two is clicked
-         */
-        $('.btn-doConfirm2').click(function () {
-            /**
-             *  Execute function 2
-             */
-            myfunction2();
-
-            /**
-             *  Then remove alert
-             */
-            $("#newConfirmAlert").slideToggle(0, function () {
-                $("#newConfirmAlert").remove();
-            });
-        });
-
-        /**
-         *  If 'cancel' choice is clicked
-         */
-        $('.btn-doCancel').click(function () {
-            /**
-             *  Remove alert
-             */
-            $("#newConfirmAlert").slideToggle(0, function () {
-                $("#newConfirmAlert").remove();
-            });
-        });
-    }, 50);
+    /**
+     *  If 'cancel' choice is clicked
+     */
+    $('.btn-doCancel').click(function () {
+        // Remove confirm box
+        closeConfirmBox();
+    });
 }
 
 function closeConfirmBox()
 {
-    $("#newConfirmAlert").slideToggle(50, function () {
-        $("#newConfirmAlert").remove();
+    $("#confirm-box").slideToggle(50, function () {
+        $("#confirm-box").remove();
     });
 }
 

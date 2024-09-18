@@ -70,120 +70,128 @@ function countTotalCheckboxInGroup(group)
 };
 
 /**
- *  Rechercher un hôte dans la liste des hôtes
+ *  Search host in the host list
  */
 function searchHost()
 {
-    var div, tr, td, txtValue;
+    var div, txtValue;
     var filter_os = '';
     var filter_os_version = '';
     var filter_os_family = '';
     var filter_type = '';
     var filter_kernel = '';
     var filter_arch = '';
+    var filter_profile = '';
+    var filter_env = '';
     var filter_agent_version = '';
     var filter_reboot_required = '';
 
     /**
-     *  Si l'input est vide, on quitte
+     *  If the input is empty, quit
      */
     if (!$("#searchHostInput").val()) {
-        /**
-         *  On ré-affiche tout avant de quitter
-         */
+        // Show all containers and host lines before quit
         $('.hosts-group-container, .host-line, .js-select-all-button').show();
+
         return;
     }
 
     printLoading();
 
     /**
-     *  Récupération du terme recherché dans l'input
-     *  On converti tout en majuscule afin d'ignorer la casse lors de la recherche
+     *  Retrieve the search term from the input
+     *  Convert the search term to uppercase to ignore case when searching
      */
     search = $("#searchHostInput").val().toUpperCase();
 
     /**
-     *  On affiche tous les containers de groupes (au cas où ils auraient été masqués lors d'une précédente recherche)
+     *  Print all group containers (in case they were hidden during a previous search)
      */
     $(".hosts-group-container").show();
 
     /**
-     *  On masque toutes les lignes de serveurs, seulles celles correspondant à la recherche seront ré-affichées
+     *  Hide all host lines, only those corresponding to the search will be re-displayed
      */
     $('.host-line, .js-select-all-button').hide();
 
     /**
-     *  On vérifie si l'utilisateur a saisi un filtre dans sa recherche
-     *  les différents filtres possibles sont :
+     *  Check if the user has entered a filter in his search, different filters are possible:
      *  os:
      *  os_version:
      *  kernel:
      *  arch:
+     *  ...
      *
-     *  Comme la saisie récupérée a été convertie en majuscule, on recherche la présence d'un filtre en majuscules
-     */
-
-    /**
-     *  Si la recherche contient le filtre 'os:',
+     *  As the input retrieved has been converted to uppercase, we search for the presence of a filter in uppercase
      */
     if (search.includes("OS:")) {
-        // On récupère l'os recherché en récupérant le terme qui suit 'os:'
+        // Retrieve the os searched by getting the term following 'os:'
         filter_os = search.split('OS:')[1].split(" ")[0];
-        // On supprime le filtre de la recherche globale
+        // Remove the filter from the global search
         search = search.replaceAll('OS:' + filter_os, '');
     }
     if (search.includes("OS_VERSION:")) {
-        // On récupère la version d'os recherchée en récupérant le terme qui suit 'os_version:'
+        // Retrieve the os version searched by getting the term following 'os_version:'
         filter_os_version = search.split('OS_VERSION:')[1].split(" ")[0];
-        // On supprime le filtre de la recherche globale
+        // Remove the filter from the global search
         search = search.replaceAll('OS_VERSION:' + filter_os_version, '');
     }
     if (search.includes("OS_FAMILY:")) {
-        // On récupère la famille d'os recherchée en récupérant le terme qui suit 'os_family:'
+        // Retrieve the os family searched by getting the term following 'os_family:'
         filter_os_family = search.split('OS_FAMILY:')[1].split(" ")[0];
-        // On supprime le filtre de la recherche globale
+        // Remove the filter from the global search
         search = search.replaceAll('OS_FAMILY:' + filter_os_family, '');
     }
     if (search.includes("TYPE:")) {
-        // On récupère le type recherché en récupérant le terme qui suit 'type:'
+        // Retrieve the type searched by getting the term following 'type:'
         filter_type = search.split('TYPE:')[1].split(" ")[0];
-        // On supprime le filtre de la recherche globale
+        // Remove the filter from the global search
         search = search.replaceAll('TYPE:' + filter_type, '');
     }
     if (search.includes("KERNEL:")) {
-        // On récupère le kernel recherché en récupérant le terme qui suit 'kernel:'
+        // Retrieve the kernel searched by getting the term following 'kernel:'
         filter_kernel = search.split('KERNEL:')[1].split(" ")[0];
-        // On supprime le filtre de la recherche globale
+        // Remove the filter from the global search
         search = search.replaceAll('KERNEL:' + filter_kernel, '');
     }
     if (search.includes("ARCH:")) {
-        // On récupère l'arch recherchée en récupérant le terme qui suit 'arch:'
+        // Retrieve the arch searched by getting the term following 'arch:'
         filter_arch = search.split('ARCH:')[1].split(" ")[0];
-        // On supprime le filtre de la recherche globale
+        // Remove the filter from the global search
         search = search.replaceAll('ARCH:' + filter_arch, '');
     }
+    if (search.includes("PROFILE:")) {
+        // Retrieve the profile searched by getting the term following 'profile:'
+        filter_profile = search.split('PROFILE:')[1].split(" ")[0];
+        // Remove the filter from the global search
+        search = search.replaceAll('PROFILE:' + filter_profile, '');
+    }
+    if (search.includes("ENV:")) {
+        // Retrieve the env searched by getting the term following 'env:'
+        filter_env = search.split('ENV:')[1].split(" ")[0];
+        // Remove the filter from the global search
+        search = search.replaceAll('ENV:' + filter_env, '');
+    }
     if (search.includes("AGENT_VERSION:")) {
-        // On récupère l'arch recherchée en récupérant le terme qui suit 'arch:'
+        // Retrieve the agent version searched by getting the term following 'agent_version:'
         filter_agent_version = search.split('AGENT_VERSION:')[1].split(" ")[0];
-        // On supprime le filtre de la recherche globale
+        // Remove the filter from the global search
         search = search.replaceAll('AGENT_VERSION:' + filter_agent_version, '');
     }
     if (search.includes("REBOOT_REQUIRED:")) {
-        // On récupère l'arch recherchée en récupérant le terme qui suit 'arch:'
+        // Retrieve the reboot required searched by getting the term following 'reboot_required:'
         filter_reboot_required = search.split('REBOOT_REQUIRED:')[1].split(" ")[0];
-        // On supprime le filtre de la recherche globale
+        // Remove the filter from the global search
         search = search.replaceAll('REBOOT_REQUIRED:' + filter_reboot_required, '');
     }
 
     /**
-     *  L'utilisation de filtre peut laisser des espaces blancs
-     *  Suppression de tous les espaces blancs de la recherche globale
+     *  Using filters can leave white spaces, remove all white spaces from the global search
      */
     search = search.replaceAll(' ', '');
 
     /**
-     *  Si un filtre a été précisé alors on récupère uniquement les div '.host-line' correspondant à ce filtre
+     *  If a filter has been specified then we only retrieve the '.host-line' divs corresponding to this filter
      */
     if (filter_os != "") {
         line = $('.host-line').filter(function () {
@@ -209,6 +217,14 @@ function searchHost()
         line = $('.host-line').filter(function () {
             return $(this).attr('arch').toUpperCase().indexOf(filter_arch) > -1;
         });
+    } else if (filter_profile != "") {
+        line = $('.host-line').filter(function () {
+            return $(this).attr('profile').toUpperCase().indexOf(filter_profile) > -1;
+        });
+    } else if (filter_env != "") {
+        line = $('.host-line').filter(function () {
+            return $(this).attr('env').toUpperCase().indexOf(filter_env) > -1;
+        });
     } else if (filter_agent_version != "") {
         line = $('.host-line').filter(function () {
             return $(this).attr('agent_version').toUpperCase().indexOf(filter_agent_version) > -1;
@@ -218,14 +234,14 @@ function searchHost()
             return $(this).attr('reboot_required').toUpperCase().indexOf(filter_reboot_required) > -1;
         });
     /**
-     *  Si aucun filtre n'a été précisé alors on récupère tous les div .host-line
+     *  If no filter has been specified then we retrieve all the '.host-line' divs
      */
     } else {
         line = $(".host-line");
     }
 
     /**
-     *  Puis on traite chaque div récupéré et on affiche uniquement ceux correspondant à la recherche
+     *  Then we process each div retrieved and display only those corresponding to the search
      */
     $.each(line, function () {
         div = $(this).find("div")[2];
@@ -240,10 +256,9 @@ function searchHost()
     });
 
     /**
-     *  Masquage des div de groupes dont tous les div ont été masqués
+     *  Hide group divs whose all divs have been hidden
      */
     hideGroupDiv();
-
     hideLoading();
 }
 
@@ -543,7 +558,7 @@ $(document).on('click',"input[name=checkbox-host\\[\\]]",function () {
 
     // If there is at least 1 checkbox checked then display actions buttons
     if (count > 0) {
-        getConfirmBox('hostsActionSelect');
+        getConfirmBox('hosts/all-actions');
     } else {
         closeConfirmBox();
     }
@@ -573,7 +588,7 @@ $(document).on('click',".js-select-all-button",function () {
 
     // If there is at least 1 checkbox checked then display action buttons
     if (count_checked >= 1) {
-        getConfirmBox('hostsActionSelect');
+        getConfirmBox('hosts/all-actions');
     }
 
     // If no checkbox is checked then hide action buttons
@@ -659,7 +674,6 @@ $(document).on('click','.hostsActionBtn',function () {
  *  Event : lorsqu'on clique sur un bouton d'action 'Mettre à jour les paquets'... depuis la page d'un hote
  */
 $(document).on('click','.host-action-btn',function () {
-
     var hostsArray = [];
 
     /**
@@ -722,9 +736,7 @@ $(document).on('click','.host-action-btn',function () {
 });
 
 /**
- *  Event :
- *  Affichage / masquage de l'inventaire des paquets présents sur l'hôte
- *  Affichage / masquage de la liste des paquets disponibles sur l'hôte
+ *  Event: show/hide the list of packages available on the host
  */
 $(document).on('click','#available-packages-btn',function () {
     $("#installed-packages-div").hide();
@@ -735,6 +747,10 @@ $(document).on('click','#available-packages-btn',function () {
         $("#available-packages-div").show();
     }
 });
+
+/**
+ *  Event: show/hide the inventory of packages installed on the host
+ */
 $(document).on('click','#installed-packages-btn',function () {
     $("#available-packages-div").hide();
 
@@ -746,6 +762,144 @@ $(document).on('click','#installed-packages-btn',function () {
             $("#installed-packages-div").show();
             $("#packagesContainerLoader").hide();
         },100);
+    }
+});
+
+/**
+ *  Event: available package checkbox selection
+ */
+$(document).on('click','input[type="checkbox"].available-package-checkbox',function (e) {
+    // Prevent parent to be triggered
+    e.stopPropagation();
+
+    /**
+     *  Retrieve host Id
+     */
+    var hostId = $(this).attr('host-id');
+
+    /**
+     *  If a cookie exists, retrieve it
+     */
+    if (getCookie('temp/host-av-package-selected')) {
+        var packages = JSON.parse(getCookie('temp/host-av-package-selected'));
+    } else {
+        var packages = {
+            packages: []
+        }
+    }
+
+    /**
+     *  Append the package to the array if the checkbox is checked
+     *  Otherwise remove the package from the array
+     */
+    if (this.checked) {
+        /**
+         *  Check if the package is already in the array
+         */
+        for (var i = 0; i < packages['packages'].length; i++) {
+            if (packages['packages'][i]['name'] == $(this).attr('package')) {
+                return;
+            }
+        }
+
+        packages['packages'].push({
+            name: $(this).attr('package'),
+            available_version: $(this).attr('version')
+        });
+    } else {
+        for (var i = 0; i < packages['packages'].length; i++) {
+            if (packages['packages'][i]['name'] == $(this).attr('package')) {
+                packages['packages'].splice(i, 1);
+            }
+        }
+    }
+
+    /**
+     *  Save the array in a cookie
+     */
+    setCookie('temp/host-av-package-selected', JSON.stringify(packages), 1);
+
+    /**
+     *  Count the number of checked checkboxes
+     */
+    var countChecked = $('input[type="checkbox"].available-package-checkbox:checked').length;
+
+    /**
+     *  If number of checked checkboxes > 0 then display the action button
+     */
+    if (countChecked > 0) {
+        confirmBox('Request to install selected package(s)?', function () {
+            ajaxRequest(
+                // Controller:
+                'host',
+                // Action:
+                'installSelectedAvailablePackages',
+                // Data:
+                {
+                    hostId: hostId,
+                    packages: packages
+                },
+                // Print success alert:
+                true,
+                // Print error alert:
+                true,
+                // Reload container:
+                [],
+                // Execute functions on success:
+                []
+            );
+
+            // Remove cookie
+            setCookie('temp/host-av-package-selected', '', -1);
+        },
+        'Request');
+    } else {
+        closeConfirmBox();
+    }
+});
+
+/**
+ *  Event: click 'Select all' available packages
+ */
+$(document).on('click','.available-package-select-all',function () {
+    /**
+     *  Retrieve all available packages checkboxes
+     */
+    var checkboxes = $('.available-package-checkbox');
+
+    /**
+     *  Retrieve select btn status
+     */
+    var selectStatus = $(this).attr('status');
+
+    /**
+     *  If current status is not 'selected', then select all the packages
+     */
+    if (selectStatus != 'selected') {
+        /**
+         *  Loop through all checkboxes and check them
+         */
+        checkboxes.each(function () {
+            if (!$(this).is(':checked')) {
+                $(this).click();
+            }
+        });
+
+        // Set status
+        $(this).attr('status', 'selected');
+
+    /**
+     *  Otherwise, uncheck all checkboxes
+     */
+    } else {
+        checkboxes.each(function () {
+            if ($(this).is(':checked')) {
+                $(this).click();
+            }
+        });
+
+        // Set status
+        $(this).attr('status', '');
     }
 });
 

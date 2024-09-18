@@ -10,115 +10,180 @@
         if (!empty($reloadableTableContent)) :
             foreach ($reloadableTableContent as $item) :
                 $class = 'table-container bck-blue-alt';
-                $requestInfo = '';
+                $request = '';
+                $requestData = [];
+                $requestDetails = null;
+                $responseDetails = null;
                 $successPackages = [];
                 $failedPackages = [];
 
                 /**
-                 *  Set items content
+                 *  Retrieve and decode JSON data
                  */
-                if ($item['Status'] == 'new') {
-                    $statusColor = 'yellow';
-                    $requestStatus = 'Pending';
-                }
-                if ($item['Status'] == 'sent') {
-                    $statusColor = 'yellow';
-                    $requestStatus = 'Sent';
-                }
-                if ($item['Status'] == 'received') {
-                    $statusColor = 'yellow';
-                    $requestStatus = 'Received';
-                }
-                if ($item['Status'] == 'canceled') {
-                    $statusColor = 'red';
-                    $requestStatus = 'Canceled';
-                }
-                if ($item['Status'] == 'failed') {
-                    $statusColor = 'red';
-                    $requestStatus = 'Failed';
-                }
-                if ($item['Status'] == 'completed') {
-                    $statusColor = 'green';
-                    $requestStatus = 'Completed';
+                $requestJson = json_decode($item['Request'], true);
+
+                /**
+                 *  Request name
+                 */
+                $request = $requestJson['request'];
+
+                /**
+                 *  Request data
+                 */
+                if (isset($requestJson['data'])) {
+                    $requestData = $requestJson['data'];
                 }
 
-                if ($item['Request'] == 'request-general-infos') {
+                /**
+                 *  Response data
+                 */
+                if (!empty($item['Response_json'])) {
+                    $responseJson = json_decode($item['Response_json'], true);
+                }
+
+                /**
+                 *  Request status
+                 */
+                if ($item['Status'] == 'new') {
+                    $requestStatus = 'Pending';
+                    $requestStatusIcon = 'pending';
+                }
+                if ($item['Status'] == 'sent') {
+                    $requestStatus = 'Sent';
+                    $requestStatusIcon = 'pending';
+                }
+                if ($item['Status'] == 'running') {
+                    $requestStatus = 'Running';
+                    $requestStatusIcon = 'pending';
+                }
+                if ($item['Status'] == 'canceled') {
+                    $requestStatus = 'Canceled';
+                    $requestStatusIcon = 'crossmark';
+                }
+                if ($item['Status'] == 'failed') {
+                    $requestStatus = 'Failed';
+                    $requestStatusIcon = 'crossmark';
+                }
+                if ($item['Status'] == 'completed') {
+                    $requestStatus = 'Completed';
+                    $requestStatusIcon = 'checkmark';
+                }
+
+                /**
+                 *  Request title
+                 */
+                if ($request == 'request-general-infos') {
                     $request = 'Requested general informations';
                     $requestTitle = 'Requested the host to send its general informations';
                 }
 
-                if ($item['Request'] == 'request-packages-infos') {
+                if ($request == 'request-packages-infos') {
                     $request = 'Requested packages informations';
                     $requestTitle = 'Requested the host to send its packages informations';
                 }
 
-                if ($item['Request'] == 'update-all-packages') {
+                if ($request == 'request-specific-packages-installation') {
+                    $request = 'Request to install a list of package(s)';
+                    $requestTitle = 'Requested the host to install a list of package(s)';
+
+                    if (!empty($requestJson['packages'])) {
+                        $requestDetails = count($requestJson['packages']) . ' package(s) to install';
+                    }
+
+                    /**
+                     *  If there was packages to update, retrieve the number of packages updated
+                     */
+                    if (!empty($responseJson)) {
+                        if ($responseJson['update']['status'] == 'done' or $responseJson['update']['status'] == 'failed') {
+                            $successCount = $responseJson['update']['success']['count'];
+                            $failedCount  = $responseJson['update']['failed']['count'];
+
+                            // If the update was successful
+                            if ($responseJson['update']['status'] == 'done') {
+                                $requestStatus = 'Successful';
+                                $requestStatusIcon = 'checkmark';
+                            }
+
+                            // If the update failed
+                            if ($responseJson['update']['status'] == 'failed') {
+                                $requestStatus = 'Failed with errors';
+                                $requestStatusIcon = 'crossmark';
+                            }
+
+                            // Build a short info message
+                            $responseDetails .= $successCount . ' package(s) updated, ' . $failedCount . ' failed';
+
+                            // Retrieve the list of packages updated
+                            $successPackages = $responseJson['update']['success']['packages'];
+
+                            // Retrieve the list of packages failed
+                            $failedPackages = $responseJson['update']['failed']['packages'];
+
+                            if (!empty($successPackages) or !empty($failedPackages)) {
+                                $class .= ' request-show-more-info-btn pointer';
+                            }
+                        }
+                    }
+                }
+
+                if ($request == 'update-all-packages') {
                     $request = 'Requested to update all packages';
                     $requestTitle = 'Requested the host to update all of its packages';
-                }
 
-                // If the request was a disconnect, skip it
-                if ($item['Request'] == 'disconnect') {
-                    continue;
-                }
-
-                /**
-                 *  If request ended with an error
-                 */
-                if (!empty($item['Info_json'])) {
-                    /**
-                     *  If the request was a packages update, retrieve more informations from the summary (number of packages updated)
-                     */
-                    if ($item['Request'] == 'update-all-packages' and !empty($item['Info_json'])) {
-                        $infoJson = json_decode($item['Info_json'], true);
-
+                    if (!empty($responseJson)) {
                         /**
                          *  If there was no packages to update
                          */
-                        if ($infoJson['update']['status'] == 'nothing-to-do') {
-                            $requestInfo = 'No packages to update';
+                        if ($responseJson['update']['status'] == 'nothing-to-do') {
+                            $responseDetails = 'No packages to update';
                         }
 
                         /**
                          *  If there was packages to update, retrieve the number of packages updated
                          */
-                        if ($infoJson['update']['status'] == 'done' or $infoJson['update']['status'] == 'failed') {
-                            $successCount = $infoJson['update']['success']['count'];
-                            $failedCount = $infoJson['update']['failed']['count'];
+                        if ($responseJson['update']['status'] == 'done' or $responseJson['update']['status'] == 'failed') {
+                            $successCount = $responseJson['update']['success']['count'];
+                            $failedCount  = $responseJson['update']['failed']['count'];
 
                             // If the update was successful
-                            if ($infoJson['update']['status'] == 'done') {
-                                $requestInfo = '<span class="greentext">✔</span> Successful - ';
+                            if ($responseJson['update']['status'] == 'done') {
+                                $requestStatus = 'Successful';
+                                $requestStatusIcon = 'checkmark';
                             }
 
                             // If the update failed
-                            if ($infoJson['update']['status'] == 'failed') {
-                                $requestInfo = '<span class="redtext">✕</span> Failed - ';
-                                $statusColor = 'red';
-                                $requestStatus = 'Request completed with errors';
+                            if ($responseJson['update']['status'] == 'failed') {
+                                $requestStatus = 'Failed with errors';
+                                $requestStatusIcon = 'crossmark';
                             }
 
                             // Build a short info message
-                            $requestInfo .= $successCount . ' package(s) updated, ' . $failedCount . ' failed';
+                            $responseDetails .= $successCount . ' package(s) updated, ' . $failedCount . ' failed';
 
                             // Retrieve the list of packages updated
-                            $successPackages = $infoJson['update']['success']['packages'];
+                            $successPackages = $responseJson['update']['success']['packages'];
 
                             // Retrieve the list of packages failed
-                            $failedPackages = $infoJson['update']['failed']['packages'];
-                        }
-                    } else {
-                        $requestInfo = $item['Info'];
-                    }
+                            $failedPackages = $responseJson['update']['failed']['packages'];
 
-                    if (!empty($successPackages) or !empty($failedPackages)) {
-                        $class .= ' request-show-more-info-btn pointer';
+                            if (!empty($successPackages) or !empty($failedPackages)) {
+                                $class .= ' request-show-more-info-btn pointer';
+                            }
+                        }
                     }
+                }
+
+                // If the request was a disconnect, skip it
+                if ($request == 'disconnect') {
+                    continue;
                 } ?>
 
                 <div class="<?= $class ?>" request-id="<?= $item['Id'] ?>">
                     <div>
-                        <img class="icon-small" src="/assets/icons/<?= $statusColor ?>circle.png" title="<?= $requestStatus ?>">                    
+                        <?php
+                        if (!empty($requestStatusIcon)) {
+                            echo '<span class="' . $requestStatusIcon . '" title="' . $requestStatus . '"></span> ';
+                        } ?>
                     </div>
 
                     <div>
@@ -128,12 +193,15 @@
 
                     <div>
                         <p title="<?= $requestTitle ?>"><?= $request ?></p>
-                        <?php
-                        if (!empty($requestInfo)) {
-                            echo '<p class="lowopacity-cst">' . $requestInfo . '</p>';
-                        } else {
-                            echo '<p class="lowopacity-cst">' . $requestStatus . '</p>';
-                        } ?>
+
+                        <p class="lowopacity-cst">
+                            <?php
+                            echo $requestStatus;
+
+                            if (!empty($responseDetails)) {
+                                echo ' - ' . $responseDetails;
+                            } ?>
+                        </p>
                     </div>
 
                     <div class="flex align-item-center justify-end column-gap-5">

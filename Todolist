@@ -18,12 +18,6 @@
     - (Feature) Support Arch Linux packages https://blog.desdelinux.net/en/create-your-local-arch-linux-repository/
     
 
-
-    [ HOSTS / LINUPDATE ]
-
-    - (Feature) Be able to ask a host to update one or more specific packages
-    
-
     [ CVE ]
 
     - Check for affected hosts when sending packages with linupdate
