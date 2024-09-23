@@ -236,7 +236,7 @@ class Statistic extends Service
                     /**
                      *  Skip line if it does not contain a repo access
                      */
-                    if (!preg_match('/urlgrabber|APT-CURL|APT-HTTP/', $line)) {
+                    if (!preg_match('/urlgrabber|libdnf|APT-CURL|APT-HTTP/', $line)) {
                         continue;
                     }
 

@@ -794,10 +794,8 @@ class Connection extends SQLite3
         Date DATE NOT NULL,
         Time TIME NOT NULL,
         Request VARCHAR(255) NOT NULL,
-        Request_json VARCHAR(255),
         Status VARCHAR(255) NOT NULL, /* new, sent, received, failed, completed */
         Info VARCHAR(255), /* error or info message */
-        Info_json VARCHAR(255), /* Info message with JSON */
         Response VARCHAR(255),
         Response_json VARCHAR(255),
         Retry INTEGER NOT NULL,

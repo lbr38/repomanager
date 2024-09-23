@@ -1543,9 +1543,21 @@ class Host
     /**
      *  Add new websocket request in database
      */
-    public function newWsRequest(int $hostId, string $request)
+    public function newWsRequest(int $hostId, string $request, array $requestData = [])
     {
-        $this->model->newWsRequest($hostId, $request);
+        /**
+         *  Define the request name
+         */
+        $json['request'] = $request;
+
+        /**
+         *  If additional json data is provided, we add it to the request
+         */
+        if (!empty($requestData)) {
+            $json['data'] = $requestData;
+        }
+
+        $this->model->newWsRequest($hostId, json_encode($json));
     }
 
     /**
@@ -1560,9 +1572,9 @@ class Host
     /**
      *  Update websocket request in database
      */
-    public function updateWsRequest(int $id, string $status, string $info, string $infoJson)
+    public function updateWsRequest(int $id, string $status, string $info, string $responseJson)
     {
-        $this->model->updateWsRequest($id, $status, $info, $infoJson);
+        $this->model->updateWsRequest($id, $status, $info, $responseJson);
     }
 
     /**

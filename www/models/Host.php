@@ -1762,13 +1762,13 @@ class Host extends Model
     /**
      *  Update websocket request in database
      */
-    public function updateWsRequest(int $id, string $status, string $info, string $infoJson)
+    public function updateWsRequest(int $id, string $status, string $info, string $responseJson)
     {
         try {
-            $stmt = $this->db->prepare("UPDATE ws_requests SET Status = :status, Info = :info, Info_json = :infoJson WHERE Id = :id");
+            $stmt = $this->db->prepare("UPDATE ws_requests SET Status = :status, Info = :info, Response_json = :responseJson WHERE Id = :id");
             $stmt->bindValue(':status', $status);
             $stmt->bindValue(':info', $info);
-            $stmt->bindValue(':infoJson', $infoJson);
+            $stmt->bindValue(':responseJson', $responseJson);
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
@@ -1895,7 +1895,7 @@ class Host extends Model
     {
         $data = '';
 
-        // Example of Info_json content:
+        // Example of Response_json content:
         // "update":{
         //     "status":"done",
         //     "success":{
@@ -1917,7 +1917,7 @@ class Host extends Model
             /**
              *  Extract the log of the specified package in the specified status
              */
-            $stmt = $this->db->prepare("SELECT json_extract(Info_json, :path) as log FROM ws_requests WHERE Id = :id");
+            $stmt = $this->db->prepare("SELECT json_extract(Response_json, :path) as log FROM ws_requests WHERE Id = :id");
             $stmt->bindValue(':path', '$.update.' . $status . '.packages.' . $package . '.log');
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();

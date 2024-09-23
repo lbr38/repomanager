@@ -33,7 +33,7 @@
                             <div class="searchInput-subcontainer">
                                 <div>
                                     <div class="flex align-item-center justify-center">
-                                        <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Search a host by its name.&#13;&#13;You can specify a filter before your search entry:&#13;os:<os name> <search>&#13;os_version:<os version> <search>&#13;os_family:<os family> <search>&#13;type:<virtualization type> <search>&#13;kernel:<kernel> <search>&#13;arch:<architecture> <search>&#13;agent_version:<version> <search>&#13;reboot_required:<true/false> <search>" />
+                                        <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Search a host by its name.&#13;&#13;You can specify a filter before your search entry:&#13;os:<os name> <search>&#13;os_version:<os version> <search>&#13;os_family:<os family> <search>&#13;type:<virtualization type> <search>&#13;kernel:<kernel> <search>&#13;arch:<architecture> <search>&#13;profile:<profile> <search>&#13;env:<env> <search>&#13;agent_version:<version> <search>&#13;reboot_required:<true/false> <search>" />
                                         <span>Search host:</span>
                                     </div>
                                     <input type="text" id="searchHostInput" onkeyup="searchHost()" class="input-large" autocomplete="off" placeholder="Hostname, IP" />
@@ -237,7 +237,7 @@
                                              *  Print the host informations
                                              *  Here the <div> will contain all the host information, this in order to be able to search on it (input 'search a host')
                                              */ ?>
-                                            <div class="host-line" hostid="<?= $id ?>" hostname="<?= $hostname ?>" os="<?= $os ?>" os_version="<?= $os_version ?>" os_family="<?= $os_family ?>" type="<?= $type ?>" kernel="<?= $kernel ?>" arch="<?= $arch ?>" agent_version="<?= $agentVersion ?>" reboot_required="<?= $rebootRequired ?>">
+                                            <div class="host-line" hostid="<?= $id ?>" hostname="<?= $hostname ?>" os="<?= $os ?>" os_version="<?= $os_version ?>" os_family="<?= $os_family ?>" type="<?= $type ?>" kernel="<?= $kernel ?>" arch="<?= $arch ?>" profile="<?= $profile ?>" env="<?= $env ?>" agent_version="<?= $agentVersion ?>" reboot_required="<?= $rebootRequired ?>">
                                                 <div>
                                                     <?php
                                                     /**
@@ -304,92 +304,144 @@
                                                              *  Last request status
                                                              *  Ignore it if the request was a 'disconnect' request
                                                              */
-                                                            if (!empty($lastPendingRequest) and $lastPendingRequest['Request'] != 'disconnect') :
-                                                                if ($lastPendingRequest['Request'] == 'request-general-infos') {
-                                                                    $requestTitle = 'Requested the host to send its general informations';
-                                                                    $shortRequestTitle = 'General informations';
-                                                                }
-                                                                if ($lastPendingRequest['Request'] == 'request-packages-infos') {
-                                                                    $requestTitle = 'Requested the host to send its packages informations';
-                                                                    $shortRequestTitle = 'Packages informations';
-                                                                }
-                                                                if ($lastPendingRequest['Request'] == 'update-all-packages') {
-                                                                    $requestTitle = 'Requested the host to update all of its packages';
-                                                                    $shortRequestTitle = 'Update all packages';
-                                                                }
-
-                                                                if ($lastPendingRequest['Status'] == 'new') {
-                                                                    $icon = '<span class="yellowtext">⧖</span>';
-                                                                    $requestStatus = 'pending';
-                                                                    $textColor = 'yellowtext';
-                                                                }
-                                                                if ($lastPendingRequest['Status'] == 'sent') {
-                                                                    $icon = '<span class="yellowtext">⧖</span>';
-                                                                    $requestStatus = 'sent';
-                                                                    $textColor = 'yellowtext';
-                                                                }
-                                                                if ($lastPendingRequest['Status'] == 'received') {
-                                                                    $icon = '<span class="yellowtext">⧖</span>';
-                                                                    $requestStatus = 'received';
-                                                                    $textColor = 'yellowtext';
-                                                                }
-                                                                if ($lastPendingRequest['Status'] == 'canceled') {
-                                                                    $icon = '<span>✕</span>';
-                                                                    $requestStatus = 'canceled';
-                                                                    $textColor = 'lowopacity-cst';
-                                                                }
-                                                                if ($lastPendingRequest['Status'] == 'failed') {
-                                                                    $icon = '<span class="redtext">✕</span>';
-                                                                    $requestStatus = 'failed';
-                                                                    $textColor = 'redtext';
-                                                                }
-                                                                if ($lastPendingRequest['Status'] == 'completed') {
-                                                                    $icon = '<span class="greentext">✔</span>';
-                                                                    $requestStatus = 'completed';
-                                                                    $textColor = 'lowopacity-cst';
-                                                                }
-
-                                                                if (!empty($lastPendingRequest['Info_json'])) {
-                                                                    /**
-                                                                     *  If the request was a packages update, retrieve more informations from the summary (number of packages updated)
-                                                                     */
-                                                                    if ($lastPendingRequest['Request'] == 'update-all-packages' and !empty($lastPendingRequest['Info_json'])) {
-                                                                        $summary = json_decode($lastPendingRequest['Info_json'], true);
-
-                                                                        // If there was no packages to update
-                                                                        if ($summary['update']['status'] == 'nothing-to-do') {
-                                                                            $requestInfo = 'no packages to update';
-                                                                        }
-
-                                                                        // If there was packages to update, retrieve the number of packages updated
-                                                                        if ($summary['update']['status'] == 'done' or $summary['update']['status'] == 'failed') {
-                                                                            $successCount = $summary['update']['success']['count'];
-                                                                            $failedCount = $summary['update']['failed']['count'];
-
-                                                                            // If the update failed
-                                                                            if ($summary['update']['status'] == 'failed') {
-                                                                                $icon = '<span class="redtext">✕</span>';
-                                                                                $shortRequestTitle = 'Update all packages failed';
-                                                                                $textColor = 'redtext';
-                                                                            }
-
-                                                                            $requestInfo = $successCount . ' package(s) updated, ' . $failedCount . ' failed';
-                                                                        }
-                                                                    } else {
-                                                                        $requestInfo = $lastPendingRequest['Info'];
-                                                                    }
-                                                                }
+                                                            if (!empty($lastPendingRequest)) :
+                                                                /**
+                                                                 *  Retrieve and decode JSON data
+                                                                 */
+                                                                $requestJson = json_decode($lastPendingRequest['Request'], true);
 
                                                                 /**
-                                                                 *  Only print the request title if it was send less than 1h ago
+                                                                 *  Request name
                                                                  */
-                                                                if (strtotime($lastPendingRequest['Date'] . ' ' . $lastPendingRequest['Time']) >= strtotime(date('Y-m-d H:i:s') . ' - 1 hour')) {
-                                                                    if (!empty($requestInfo)) {
-                                                                        echo '<p class="' . $textColor . '" title="' . $requestTitle . '">' . $icon . ' ' . $shortRequestTitle . ' - ' . $requestInfo . '</p>';
-                                                                    } else {
-                                                                        echo '<p class="' . $textColor . '" title="' . $requestTitle . '">' . $icon . ' ' . $shortRequestTitle . ' - ' . $requestStatus . '</p>';
-                                                                    }
+                                                                $request = $requestJson['request'];
+
+                                                                /**
+                                                                 *  Request data
+                                                                 */
+                                                                if (isset($requestJson['data'])) {
+                                                                    $requestData = $requestJson['data'];
                                                                 }
+
+                                                                if ($request != 'disconnect') :
+                                                                    /**
+                                                                     *  Response data
+                                                                     */
+                                                                    if (!empty($lastPendingRequest['Response_json'])) {
+                                                                        $responseJson = json_decode($lastPendingRequest['Response_json'], true);
+                                                                    }
+
+                                                                    /**
+                                                                     *  Request status
+                                                                     */
+                                                                    if ($lastPendingRequest['Status'] == 'new') {
+                                                                        $requestStatus = 'Pending';
+                                                                        $requestStatusIcon = 'pending';
+                                                                    }
+                                                                    if ($lastPendingRequest['Status'] == 'sent') {
+                                                                        $requestStatus = 'Sent';
+                                                                        $requestStatusIcon = 'pending';
+                                                                    }
+                                                                    if ($lastPendingRequest['Status'] == 'running') {
+                                                                        $requestStatus = 'Running';
+                                                                        $requestStatusIcon = 'pending';
+                                                                    }
+                                                                    if ($lastPendingRequest['Status'] == 'canceled') {
+                                                                        $requestStatus = 'Canceled';
+                                                                        $requestStatusIcon = 'crossmark';
+                                                                    }
+                                                                    if ($lastPendingRequest['Status'] == 'failed') {
+                                                                        $requestStatus = 'Failed';
+                                                                        $requestStatusIcon = 'crossmark';
+                                                                    }
+                                                                    if ($lastPendingRequest['Status'] == 'completed') {
+                                                                        $requestStatus = 'Completed';
+                                                                        $requestStatusIcon = 'checkmark';
+                                                                    }
+
+                                                                    /**
+                                                                     *  Request title
+                                                                     */
+                                                                    if ($request == 'request-general-infos') {
+                                                                        $requestTitle = 'Requested the host to send its general informations';
+                                                                        $requestTitleShort = 'Req. general informations';
+                                                                    }
+                                                                    if ($request == 'request-packages-infos') {
+                                                                        $requestTitle = 'Requested the host to send its packages informations';
+                                                                        $requestTitleShort = 'Req. packages informations';
+                                                                    }
+                                                                    if ($request == 'request-specific-packages-installation') {
+                                                                        $requestTitle = 'Request to install a list of package(s)';
+                                                                        $requestTitleShort = 'Req. to update a list of package(s)';
+
+                                                                        if (!empty($requestJson['packages'])) {
+                                                                            $requestDetails = count($requestJson['packages']) . ' package(s) to install';
+                                                                        }
+                                                                    }
+                                                                    if ($request == 'update-all-packages') {
+                                                                        $requestTitle = 'Requested the host to update all of its packages';
+                                                                        $requestTitleShort = 'Req. to update all packages';
+
+                                                                        if (!empty($responseJson)) {
+                                                                            /**
+                                                                             *  If there was no packages to update
+                                                                             */
+                                                                            if ($responseJson['update']['status'] == 'nothing-to-do') {
+                                                                                $responseDetails = 'No packages to update';
+                                                                            }
+
+                                                                            /**
+                                                                             *  If there was packages to update, retrieve the number of packages updated
+                                                                             */
+                                                                            if ($responseJson['update']['status'] == 'done' or $responseJson['update']['status'] == 'failed') {
+                                                                                $successCount = $responseJson['update']['success']['count'];
+                                                                                $failedCount  = $responseJson['update']['failed']['count'];
+
+                                                                                // If the update was successful
+                                                                                if ($responseJson['update']['status'] == 'done') {
+                                                                                    $requestStatus = 'Successful';
+                                                                                    $requestStatusIcon = 'checkmark';
+                                                                                }
+
+                                                                                // If the update failed
+                                                                                if ($responseJson['update']['status'] == 'failed') {
+                                                                                    $requestStatus = 'Failed with errors';
+                                                                                    $requestStatusIcon = 'crossmark';
+                                                                                }
+
+                                                                                // Build a short info message
+                                                                                $responseDetails = $successCount . ' package(s) updated, ' . $failedCount . ' failed';
+
+                                                                                // Retrieve the list of packages updated
+                                                                                $successPackages = $responseJson['update']['success']['packages'];
+
+                                                                                // Retrieve the list of packages failed
+                                                                                $failedPackages = $responseJson['update']['failed']['packages'];
+                                                                            }
+                                                                        }
+                                                                    }
+
+                                                                    /**
+                                                                     *  Only print the request title if it was executed less than 1h ago
+                                                                     */
+                                                                    if (strtotime($lastPendingRequest['Date'] . ' ' . $lastPendingRequest['Time']) >= strtotime(date('Y-m-d H:i:s') . ' - 1 hour')) : ?>
+                                                                        <div class="flex align-item-center column-gap-5">
+                                                                            <p class="lowopacity-cst" title="<?= $requestTitle ?>">
+                                                                                <?php
+                                                                                echo $requestTitleShort;
+
+                                                                                if (!empty($responseDetails)) {
+                                                                                    echo ' - ' . $responseDetails;
+                                                                                } ?>
+                                                                            </p>
+
+                                                                            <?php
+                                                                            if (!empty($requestStatusIcon)) {
+                                                                                echo '<span class="' . $requestStatusIcon . '" title="' . $requestStatus . '"></span> ';
+                                                                            } ?>
+                                                                        </div>
+                                                                        <?php
+                                                                    endif;
+                                                                endif;
                                                             endif ?>
                                                         </div>
                                                     

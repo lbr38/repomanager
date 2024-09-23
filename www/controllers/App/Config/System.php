@@ -92,11 +92,11 @@ class System
         }
 
         /**
-         *  Clear cookies starting with 'tables/' when the page has been reloaded by the user (not AJAX)
+         *  Clear cookies starting with 'tables/' or 'temp/' when the page has been reloaded by the user (not AJAX)
          */
         if (AJAX === false) {
             foreach ($_COOKIE as $key => $value) {
-                if (strpos($key, 'tables/') === 0) {
+                if (strpos($key, 'tables/') === 0 or strpos($key, 'temp/') === 0) {
                     setcookie($key, '', time() - 3600, '/');
                     unset($_COOKIE[$key]);
                 }
