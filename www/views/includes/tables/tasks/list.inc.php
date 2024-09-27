@@ -213,7 +213,7 @@
 
                     if ($item['Status'] == 'running') {
                         echo '<span title="Stop task" class="stop-task-btn" pid="' . $item['Pid'] . '"><img src="/assets/icons/delete.svg" class="icon-lowopacity"></span>';
-                        echo '<img src="/assets/images/loading.gif" class="icon" title="Task running" />';
+                        echo '<img src="/assets/icons/loading.svg" class="icon" title="Task running" />';
                     }
 
                     if ($item['Status'] == 'done') {

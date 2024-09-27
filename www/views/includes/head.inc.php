@@ -29,18 +29,15 @@
     } ?>
 
     <!-- Load pre JS -->
-    <script src="/resources/js/pre.js?<?= VERSION ?>"></script>
+    <script src="/resources/js/pre/functions/global.js?<?= VERSION ?>"></script>
+    <script src="/resources/js/pre/pre.js?<?= VERSION ?>"></script>
     <!-- jQuery -->
-    
     <script src="/resources/js/jquery/jquery-3.7.1.min.js?<?= VERSION ?>"></script>
     <!-- Select2 https://select2.org/ -->
-
     <script src="/resources/js/select2/select2.js?<?= VERSION ?>"></script>
     <link rel="stylesheet" type='text/css' href="/resources/styles/select2.css?<?= VERSION ?>">
-
     <!-- ChartJS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js?<?= VERSION ?>" integrity="sha512-QSkVNOCYLtj73J4hbmVoOV6KVZuMluZlioC+trLpewV8qMjsWqlIQvkn1KGX2StWvPMdWGBqim1xlC8krl1EKQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    
     <!-- Favicon -->
     <link rel="icon" href="/assets/favicon.ico" />
 
@@ -49,6 +46,7 @@
 
     if (__ACTUAL_URI__[1] == "") {
         $title .= ' - Repos';
+        echo '<script src="/resources/js/pre/functions/repo.js?' . VERSION . '"></script>';
     } elseif (__ACTUAL_URI__[1] == "run") {
         $title .= ' - Tasks';
     } elseif (__ACTUAL_URI__[1] == "browse") {

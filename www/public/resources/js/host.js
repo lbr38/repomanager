@@ -372,7 +372,7 @@ $(document).on('mouseenter',".hosts-charts-list-label[chart-type=kernel]",functi
     /**
      *  Create a new <div> hosts-charts-list-label-hosts-list
      */
-    $('footer').append('<div class="hosts-charts-list-label-hosts-list"><span>Loading<img src="/assets/images/loading.gif" class="icon"/></span></div>');
+    $('footer').append('<div class="hosts-charts-list-label-hosts-list"><span>Loading<img src="/assets/icons/loading.svg" class="icon"/></span></div>');
 
     /**
      *  Get screen width
@@ -414,7 +414,7 @@ $(document).on('mouseenter',".hosts-charts-list-label[chart-type=profile]",funct
     /**
      *  Create a new <div> hosts-charts-list-label-hosts-list
      */
-    $('footer').append('<div class="hosts-charts-list-label-hosts-list"><span>Loading<img src="/assets/images/loading.gif" class="icon"/></span></div>');
+    $('footer').append('<div class="hosts-charts-list-label-hosts-list"><span>Loading<img src="/assets/icons/loading.svg" class="icon"/></span></div>');
 
     /**
      *  Get screen width
@@ -1067,7 +1067,7 @@ $(document).on('mouseenter', '.event-packages-btn', function (e) {
     /**
      *  Create a new <div> event-packages-details
      */
-    $('footer').append('<div class="event-packages-details">Loading<img src="/assets/images/loading.gif" class="icon"/></div>');
+    $('footer').append('<div class="event-packages-details">Loading<img src="/assets/icons/loading.svg" class="icon"/></div>');
 
     /**
      *  Get screen width

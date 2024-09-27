@@ -510,11 +510,6 @@ class Task
         $this->updateStatus($this->id, 'running');
 
         /**
-         *  Clear cache
-         */
-        \Controllers\App\Cache::clear();
-
-        /**
          *  Update layout containers states
          */
         $this->layoutContainerStateController->update('header/menu');
@@ -613,11 +608,6 @@ class Task
          *  Clean unused repos from profiles
          */
         $this->profileController->cleanProfiles();
-
-        /**
-         *  Clear cache
-         */
-        \Controllers\App\Cache::clear();
 
         /**
          *  Update layout containers states
@@ -752,11 +742,6 @@ class Task
                 FILE_APPEND
             );
         }
-
-        /**
-         *  Clear cache
-         */
-        \Controllers\App\Cache::clear();
 
         /**
          *  Update layout containers states

@@ -24,7 +24,7 @@
 
     <div id="packagesContainerLoader">
         <br><br>
-        <span>Loading <img src="/assets/images/loading.gif" class="icon" /></span>
+        <span>Loading <img src="/assets/icons/loading.svg" class="icon" /></span>
     </div>
 
     <div id="available-packages-div">

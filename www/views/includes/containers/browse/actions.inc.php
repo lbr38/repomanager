@@ -16,7 +16,7 @@ if (IS_ADMIN) : ?>
          */
         if (!empty($rebuild) and $rebuild == 'running') : ?>
             <div class="div-generic-blue">
-                <p>A task is running on this repository snapshot<img src="/assets/images/loading.gif" class="icon" /></p>
+                <p>A task is running on this repository snapshot<img src="/assets/icons/loading.svg" class="icon" /></p>
             </div>
             <?php
         endif;

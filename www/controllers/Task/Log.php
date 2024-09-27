@@ -323,7 +323,7 @@ class Log
      */
     public function steplogLoading(string $stepId)
     {
-        echo '<span class="' . $stepId . '-loading-' . $this->taskId . ' op-step-loading">Running<img src="/assets/images/loading.gif" class="icon" /></span>';
+        echo '<span class="' . $stepId . '-loading-' . $this->taskId . ' op-step-loading">Running<img src="/assets/icons/loading.svg" class="icon" /></span>';
         $this->steplogWrite();
     }
 

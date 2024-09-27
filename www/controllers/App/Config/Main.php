@@ -32,10 +32,6 @@ class Main
         if (!defined('HOSTS_DB')) {
             define('HOSTS_DB', DB_DIR . "/repomanager-hosts.db");
         }
-        // Cache dir
-        if (!defined('WWW_CACHE')) {
-            define('WWW_CACHE', DATA_DIR . "/cache");
-        }
         // GnuPG home
         if (!defined('GPGHOME')) {
             define('GPGHOME', DATA_DIR . "/.gnupg");

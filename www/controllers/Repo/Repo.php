@@ -540,8 +540,6 @@ class Repo
                 $this->model->removeFromGroup($actualRepoId, $groupId);
             }
         }
-
-        \Controllers\App\Cache::clear();
     }
 
     /**
@@ -588,8 +586,6 @@ class Repo
     public function envSetDescription(string $envId, string $description)
     {
         $this->model->envSetDescription($envId, $description);
-
-        \Controllers\App\Cache::clear();
     }
 
     /**
@@ -716,8 +712,6 @@ class Repo
             }
         }
 
-        \Controllers\App\Cache::clear();
-
         return $returnOutput;
     }
 
@@ -745,8 +739,6 @@ class Repo
                 $this->model->removeFromGroup($id);
             }
         }
-
-        \Controllers\App\Cache::clear();
     }
 
     /**

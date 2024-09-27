@@ -1,6 +1,6 @@
 <?php
 /**
- *  TODO: For debugging only
+ *  For debugging only
  */
 define('ROOT', '/var/www/repomanager');
 require_once(ROOT . '/controllers/Autoloader.php');

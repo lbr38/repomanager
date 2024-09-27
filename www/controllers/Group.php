@@ -129,8 +129,6 @@ class Group
 
         $myhistory = new \Controllers\History();
         $myhistory->set($_SESSION['username'], 'Create a new group <span class="label-white">' . $name . '</span> (type: ' . $this->type . ')', 'success');
-
-        \Controllers\App\Cache::clear();
     }
 
     /**
@@ -179,8 +177,6 @@ class Group
 
         $myhistory = new \Controllers\History();
         $myhistory->set($_SESSION['username'], 'Group <span class="label-white">' . $name . '</span> (type: ' . $this->type . ') edited', 'success');
-
-        \Controllers\App\Cache::clear();
     }
 
     /**
@@ -208,8 +204,6 @@ class Group
 
         $myhistory = new \Controllers\History();
         $myhistory->set($_SESSION['username'], 'Delete group <span class="label-white">' . $name . '</span> (type: '. $this->type . ')', 'success');
-
-        \Controllers\App\Cache::clear();
     }
 
     /**

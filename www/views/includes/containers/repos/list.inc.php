@@ -32,18 +32,7 @@
         </div>
 
         <div id="repos-list-container">
-            <?php
-            /**
-             *  Generate cache file if it does not exist
-             */
-            if (!file_exists(WWW_CACHE . '/repomanager-repos-list-' . $_SESSION['role'] . '.html')) {
-                \Controllers\App\Cache::generate($_SESSION['role']);
-            }
-
-            /**
-             *  Print cache file
-             */
-            include(WWW_CACHE . '/repomanager-repos-list-' . $_SESSION['role'] . '.html'); ?>
+            <?php include_once(ROOT . '/views/includes/repos-list.inc.php'); ?>
         </div>
     </div>
 </section>
