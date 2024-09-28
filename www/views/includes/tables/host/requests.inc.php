@@ -1,4 +1,4 @@
-<div class="reloadable-table flex" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
+<div class="reloadable-table flex justify-space-between" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
     <div class="flex-div-50">
         <p class="lowopacity-cst margin-bottom-15">Requests sent to the host</p>
 
@@ -54,7 +54,7 @@
                 }
                 if ($item['Status'] == 'running') {
                     $requestStatus = 'Running';
-                    $requestStatusIcon = 'pending';
+                    $requestStatusIcon = 'loading.svg';
                 }
                 if ($item['Status'] == 'canceled') {
                     $requestStatus = 'Canceled';
@@ -182,7 +182,11 @@
                     <div>
                         <?php
                         if (!empty($requestStatusIcon)) {
-                            echo '<span class="' . $requestStatusIcon . '" title="' . $requestStatus . '"></span> ';
+                            if (str_ends_with($requestStatusIcon, '.svg')) {
+                                echo '<img class="icon" src="/assets/icons/' . $requestStatusIcon . '" title="' . $requestStatus . '">';
+                            } else {
+                                echo '<span class="' . $requestStatusIcon . '" title="' . $requestStatus . '"></span> ';
+                            }
                         } ?>
                     </div>
 

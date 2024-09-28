@@ -22,7 +22,6 @@ class Directory
             PID_DIR,
             TEMP_DIR,
             HOSTS_DIR,
-            WWW_CACHE,
             DB_UPDATE_DONE_DIR,
             DATA_DIR . '/ssl'
         );

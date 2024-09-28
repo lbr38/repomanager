@@ -235,7 +235,7 @@ article {
 
 .repos-list-group-flex-div {
     display: grid;
-    grid-template-columns: 300px 50px auto auto auto 60px 1fr;
+    grid-template-columns: 300px 55px auto auto auto 60px 1fr;
     margin-bottom: 12px;
     background-color: #1d3349;
     border: 1px solid #24405c;
@@ -275,13 +275,15 @@ article {
 }
 
 .item-checkbox {
-    display: flex;
-    justify-content: flex-end;
+    display: grid;
+    grid-template-columns: auto;
+    justify-items: flex-end;
+    grid-auto-flow: column;
+    margin-right: 5px;
 }
 
 .item-checkbox input[type=checkbox] {
     vertical-align: baseline;
-    margin-right: 10px;
     opacity: 0.5;
     visibility: hidden;
 }

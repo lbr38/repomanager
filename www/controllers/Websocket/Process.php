@@ -109,6 +109,40 @@ class Process extends WebsocketServer
          */
         $this->hostController->updateWsRequest($requestId, $status, $info, $responseJson);
 
+        /**
+         *  Send a message to the client to inform that the response was received
+         *  Tell the client what kind of data was received (summary, log...), to avoid it to send them again
+         */
+        $confirmMessage = array(
+            'info' => 'Request response received',
+            'request-id' => $requestId,
+            // Tell the client what kind of data was received
+            'data' => array(
+                'status'
+            )
+        );
+        // If there was an info message, add it to the data array, to inform the client that it was received
+        if (!empty($message['response-to-request']['info'])) {
+            $confirmMessage['data'][] = 'info';
+        }
+        // If there was an error message, add it to the data array, to inform the client that it was received
+        if (!empty($message['response-to-request']['error'])) {
+            $confirmMessage['data'][] = 'error';
+        }
+        // If there was a summary, add it to the data array, to inform the client that it was received
+        if (!empty($message['response-to-request']['summary'])) {
+            $confirmMessage['data'][] = 'summary';
+        }
+        // If there was a log, add it to the data array, to inform the client that it was received
+        if (!empty($message['response-to-request']['log'])) {
+            $confirmMessage['data'][] = 'log';
+        }
+
+        /**
+         *  Send the confirmation message to the client
+         */
+        $conn->send(json_encode($confirmMessage));
+
         $this->layoutContainerStateController->update('hosts/overview');
         $this->layoutContainerStateController->update('hosts/list');
         $this->layoutContainerStateController->update('host/summary');

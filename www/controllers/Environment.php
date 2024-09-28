@@ -29,11 +29,6 @@ class Environment
          *  Delete env from database
          */
         $this->model->delete($name);
-
-        /**
-         *  Clean repos list cache
-         */
-        \Controllers\App\Cache::clear();
     }
 
     /**
@@ -69,11 +64,6 @@ class Environment
                     $this->model->new($env);
                 }
             }
-
-            /**
-             *  Clean repos list cache
-             */
-            \Controllers\App\Cache::clear();
         }
     }
 

@@ -251,40 +251,38 @@ if (!empty($groupsList)) {
                                             echo '<img class="icon" src="/assets/icons/warning.png" title="This snapshot directory is missing on the server." />';
                                         }
                                     }
-                                } ?>
+                                }
 
-                                <div>
-                                    <?php
+                                /**
+                                 *  Checkbox are only printed for admin users
+                                 */
+                                if (IS_ADMIN) :
                                     /**
-                                     *  Checkbox are only printed for admin users
+                                     *  Print checkbox only if the snapshot is different from the previous one and there is no operation running on the snapshot
                                      */
-                                    if (IS_ADMIN) :
-                                        /**
-                                         *  Print checkbox only if the snapshot is different from the previous one and there is no operation running on the snapshot
-                                         */
-                                        if ($snapId != $previousSnapId) :
-                                            $myrepo = new \Controllers\Repo\Repo();
-                                            if ($myrepo->snapOpIsRunning($snapId) === true) : ?>
-                                                <img src="/assets/images/loading.gif" class="icon" title="A task is running on this repository snaphot." />
-                                                <?php
-                                            else : ?>
-                                                <input type="checkbox" class="icon-verylowopacity" name="checkbox-repo" repo-id="<?= $repoId ?>" snap-id="<?= $snapId ?>" <?php echo !empty($envId) ? 'env-id="' . $envId . '"' : ''; ?> env-name="<?= $env ?>" repo-type="<?= $type ?>" group-id="<?= $group['Id'] ?>" title="Select and execute an action.">
-                                                <?php
-                                            endif;
+                                    if ($snapId != $previousSnapId) :
+                                        $myrepo = new \Controllers\Repo\Repo();
+                                        if ($myrepo->snapOpIsRunning($snapId) === true) : ?>
+                                            <img src="/assets/icons/loading2.svg" class="icon-medium icon-np" title="A task is running on this repository snaphot." />
+                                            <?php
+                                        else : ?>
+                                            <input type="checkbox" class="icon-verylowopacity" name="checkbox-repo" repo-id="<?= $repoId ?>" snap-id="<?= $snapId ?>" <?php echo !empty($envId) ? 'env-id="' . $envId . '"' : ''; ?> env-name="<?= $env ?>" repo-type="<?= $type ?>" group-id="<?= $group['Id'] ?>" title="Select and execute an action.">
+                                            <?php
                                         endif;
-                                    endif ?>
-                                </div>
+                                    endif;
+                                endif ?>
                             </div>
         
                             <?php
                             /**
-                             *  Get repo size in bytes
+                             *  Generate repo relative path
                              */
                             if ($packageType == 'rpm') {
-                                $repoSize = \Controllers\Filesystem\Directory::getSize(REPOS_DIR . '/' . $dateFormatted . '_' . $name);
+                                $repoRelativePath = $dateFormatted . '_' . $name;
                             }
+
                             if ($packageType == 'deb') {
-                                $repoSize = \Controllers\Filesystem\Directory::getSize(REPOS_DIR . '/' . $name . '/' . $dist . '/' . $dateFormatted . '_' . $section);
+                                $repoRelativePath = $name . '/' . $dist . '/' . $dateFormatted . '_' . $section;
                             } ?>
 
                             <div class="item-snapshot">
@@ -297,7 +295,7 @@ if (!empty($groupsList)) {
                                     </div>
 
                                     <div class="item-info">
-                                        <span class="lowopacity-cst" title="Repository snapshot size"><?= \Controllers\Common::sizeFormat($repoSize) ?></span>
+                                        <span class="item-size lowopacity-cst" title="Repository snapshot size" repo-id="<?= $repoId ?>" snap-id="<?= $snapId ?>" repo-relative-path="<?= $repoRelativePath ?>">Calc.</span>
                                         <span>
                                             <?php
                                             if ($type == "mirror") {
@@ -426,3 +424,7 @@ if (IS_ADMIN) : ?>
     </div>
     <?php
 endif ?>
+
+<script>
+    getReposSize();
+</script>

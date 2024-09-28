@@ -343,7 +343,7 @@
                                                                     }
                                                                     if ($lastPendingRequest['Status'] == 'running') {
                                                                         $requestStatus = 'Running';
-                                                                        $requestStatusIcon = 'pending';
+                                                                        $requestStatusIcon = 'loading.svg';
                                                                     }
                                                                     if ($lastPendingRequest['Status'] == 'canceled') {
                                                                         $requestStatus = 'Canceled';
@@ -436,7 +436,11 @@
 
                                                                             <?php
                                                                             if (!empty($requestStatusIcon)) {
-                                                                                echo '<span class="' . $requestStatusIcon . '" title="' . $requestStatus . '"></span> ';
+                                                                                if (str_ends_with($requestStatusIcon, '.svg')) {
+                                                                                    echo '<img src="/assets/icons/' . $requestStatusIcon . '" class="icon" title="' . $requestStatus . '" />';
+                                                                                } else {
+                                                                                    echo '<span class="' . $requestStatusIcon . '" title="' . $requestStatus . '"></span> ';
+                                                                                }
                                                                             } ?>
                                                                         </div>
                                                                         <?php

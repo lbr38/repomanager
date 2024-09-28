@@ -297,10 +297,5 @@ class Settings
          *  Write settings to database
          */
         $this->model->apply($settingsToApply);
-
-        /**
-         *  Clean repos list cache
-         */
-        \Controllers\App\Cache::clear();
     }
 }

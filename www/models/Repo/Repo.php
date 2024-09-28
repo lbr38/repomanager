@@ -546,8 +546,6 @@ class Repo extends \Models\Model
             $this->db->logError($e);
         }
         unset($stmt);
-
-        // \Controllers\App\Cache::clear();
     }
 
     /**
@@ -563,8 +561,6 @@ class Repo extends \Models\Model
         } catch (\Exception $e) {
             $this->db->logError($e);
         }
-
-        // \Controllers\App\Cache::clear();
     }
 
     /**
@@ -580,8 +576,6 @@ class Repo extends \Models\Model
         } catch (\Exception $e) {
             $this->db->logError($e);
         }
-
-        // \Controllers\App\Cache::clear();
     }
 
     /**
@@ -597,8 +591,6 @@ class Repo extends \Models\Model
         } catch (\Exception $e) {
             $this->db->logError($e);
         }
-
-        // \Controllers\App\Cache::clear();
     }
 
     /**
@@ -614,8 +606,6 @@ class Repo extends \Models\Model
         } catch (\Exception $e) {
             $this->db->logError($e);
         }
-
-        // \Controllers\App\Cache::clear();
     }
 
     /**
@@ -631,8 +621,6 @@ class Repo extends \Models\Model
         } catch (\Exception $e) {
             $this->db->logError($e);
         }
-
-        // \Controllers\App\Cache::clear();
     }
 
     /**
@@ -704,8 +692,6 @@ class Repo extends \Models\Model
         } catch (\Exception $e) {
             $this->db->logError($e);
         }
-
-        // \Controllers\App\Cache::clear();
     }
 
     /**
@@ -1009,8 +995,6 @@ class Repo extends \Models\Model
         } catch (\Exception $e) {
             $this->db->logError($e);
         }
-
-        // \Controllers\App\Cache::clear();
     }
 
     /**
@@ -1034,8 +1018,6 @@ class Repo extends \Models\Model
         } catch (\Exception $e) {
             $this->db->logError($e);
         }
-
-        // \Controllers\App\Cache::clear();
     }
 
     /**
@@ -1052,8 +1034,6 @@ class Repo extends \Models\Model
         } catch (\Exception $e) {
             $this->db->logError($e);
         }
-
-        // \Controllers\App\Cache::clear();
     }
 
     /**
@@ -1089,8 +1069,6 @@ class Repo extends \Models\Model
         } catch (Exception $e) {
             $this->db->logError($e);
         }
-
-        // \Controllers\App\Cache::clear();
     }
 
     /**
@@ -1113,8 +1091,6 @@ class Repo extends \Models\Model
         } catch (\Exception $e) {
             $this->db->logError($e);
         }
-
-        // \Controllers\App\Cache::clear();
     }
 
     /**
@@ -1131,8 +1107,6 @@ class Repo extends \Models\Model
         }
 
         unset($stmt);
-
-        \Controllers\App\Cache::clear();
     }
 
     /**
@@ -1150,8 +1124,6 @@ class Repo extends \Models\Model
         }
 
         unset($stmt);
-
-        // \Controllers\App\Cache::clear();
     }
 
     /**
@@ -1169,8 +1141,6 @@ class Repo extends \Models\Model
         }
 
         unset($stmt);
-
-        // \Controllers\App\Cache::clear();
     }
 
     /**
@@ -1188,7 +1158,5 @@ class Repo extends \Models\Model
         }
 
         unset($stmt);
-
-        // \Controllers\App\Cache::clear();
     }
 }
