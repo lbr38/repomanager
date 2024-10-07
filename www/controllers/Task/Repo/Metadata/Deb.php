@@ -142,7 +142,7 @@ class Deb
          */
         foreach ($dirs as $dir) {
             if (!is_dir($this->root . '/' . $dir)) {
-                if (!mkdir($this->root . '/' . $dir, 0777, true)) {
+                if (!mkdir($this->root . '/' . $dir, 0770, true)) {
                     throw new Exception("Failed to create directory '" . $this->root . '/' . $dir . "'");
                 }
             }

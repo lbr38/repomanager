@@ -424,7 +424,7 @@ class Import
             }
 
             if (!is_dir(CVE_IMPORT_HOSTS_DIR)) {
-                if (!mkdir(CVE_IMPORT_HOSTS_DIR, 0777, true)) {
+                if (!mkdir(CVE_IMPORT_HOSTS_DIR, 0770, true)) {
                     throw new Exception('Unable to search for CVEs affected hosts: cannot create directory ' . CVE_IMPORT_HOSTS_DIR);
                 }
             }

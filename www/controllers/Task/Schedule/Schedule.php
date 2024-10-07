@@ -60,9 +60,6 @@ class Schedule
          */
         foreach ($toExecute as $taskId) {
             echo 'task Id ' . $taskId . ' is due to be executed';
-            // $myprocess = new \Controllers\Process('/usr/bin/php ' . ROOT . '/tasks/execute.php --id="' . $taskId . '" >/dev/null 2>/dev/null &');
-            // $myprocess->execute();
-            // $myprocess->close();
         }
     }
 }

@@ -217,15 +217,15 @@
                     }
 
                     if ($item['Status'] == 'done') {
-                        echo '<img class="icon-small" src="/assets/icons/greencircle.png" title="Task completed" />';
+                        echo '<img class="icon" src="/assets/icons/check.svg" title="Task completed" />';
                     }
 
                     if ($item['Status'] == 'error') {
-                        echo '<img class="icon-small" src="/assets/icons/redcircle.png" title="Task has failed" />';
+                        echo '<img class="icon" src="/assets/icons/error.svg" title="Task has failed" />';
                     }
 
                     if ($item['Status'] == 'stopped') {
-                        echo '<img class="icon-small" src="/assets/icons/redcircle.png" title="Task stopped by the user" />';
+                        echo '<img class="icon" src="/assets/icons/error.svg" title="Task stopped by the user" />';
                     } ?>
                 </div>
             </div>
@@ -301,9 +301,9 @@
                             <span>
                                 <?php
                                 if ($taskRawParams['gpg-check'] == 'true') {
-                                    echo '<img src="/assets/icons/greencircle.png" class="icon-small" />Enabled';
+                                    echo '<img src="/assets/icons/check.svg" class="icon" />Enabled';
                                 } else {
-                                    echo '<img src="/assets/icons/redcircle.png" class="icon-small" />Disabled';
+                                    echo '<img src="/assets/icons/error.svg" class="icon" />Disabled';
                                 } ?>
                             </span>
                             <?php
@@ -314,9 +314,9 @@
                             <span>
                                 <?php
                                 if ($taskRawParams['gpg-sign'] == 'true') {
-                                    echo '<img src="/assets/icons/greencircle.png" class="icon-small" />Enabled';
+                                    echo '<img src="/assets/icons/check.svg" class="icon" />Enabled';
                                 } else {
-                                    echo '<img src="/assets/icons/redcircle.png" class="icon-small" />Disabled';
+                                    echo '<img src="/assets/icons/error.svg" class="icon" />Disabled';
                                 } ?>
                             </span>
                             <?php
@@ -338,9 +338,9 @@
                         <span>
                             <?php
                             if ($taskRawParams['schedule']['schedule-notify-error'] == 'true') {
-                                echo '<img src="/assets/icons/greencircle.png" class="icon-small" />Enabled';
+                                echo '<img src="/assets/icons/check.svg" class="icon" />Enabled';
                             } else {
-                                echo '<img src="/assets/icons/redcircle.png" class="icon-small" />Disabled';
+                                echo '<img src="/assets/icons/error.svg" class="icon" />Disabled';
                             } ?>
                         </span>
 
@@ -348,9 +348,9 @@
                         <span>
                             <?php
                             if ($taskRawParams['schedule']['schedule-notify-success'] == 'true') {
-                                echo '<img src="/assets/icons/greencircle.png" class="icon-small" />Enabled';
+                                echo '<img src="/assets/icons/check.svg" class="icon" />Enabled';
                             } else {
-                                echo '<img src="/assets/icons/redcircle.png" class="icon-small" />Disabled';
+                                echo '<img src="/assets/icons/error.svg" class="icon" />Disabled';
                             } ?>
                         </span>
 
