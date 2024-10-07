@@ -15,7 +15,7 @@ class Connection extends SQLite3
          */
         try {
             if (!is_dir(DB_DIR)) {
-                if (!mkdir(DB_DIR, 0777, true)) {
+                if (!mkdir(DB_DIR, 0770, true)) {
                     throw new Exception('Unable to create database directory');
                 }
             }
@@ -27,7 +27,7 @@ class Connection extends SQLite3
              */
             if ($database == 'main') {
                 $this->open(DB);
-                $this->busyTimeout(10000);
+                $this->busyTimeout(30000);
                 $this->enableExceptions(true);
                 $this->enableWAL();
 
@@ -46,7 +46,7 @@ class Connection extends SQLite3
              */
             } elseif ($database == 'stats') {
                 $this->open(STATS_DB);
-                $this->busyTimeout(15000);
+                $this->busyTimeout(30000);
                 $this->enableExceptions(true);
                 $this->enableWAL();
 
@@ -65,7 +65,7 @@ class Connection extends SQLite3
              */
             } elseif ($database == 'hosts') {
                 $this->open(HOSTS_DB);
-                $this->busyTimeout(15000);
+                $this->busyTimeout(30000);
                 $this->enableExceptions(true);
                 $this->enableWAL();
 
@@ -84,7 +84,7 @@ class Connection extends SQLite3
              */
             } elseif ($database == 'host') {
                 $this->open(HOSTS_DIR . '/' . $hostId . '/properties.db');
-                $this->busyTimeout(15000);
+                $this->busyTimeout(30000);
                 $this->enableExceptions(true);
                 $this->enableWAL();
                 $this->generateHostTables();
