@@ -12,7 +12,7 @@ $(document).on('submit','#addSourceForm',function () {
      *  Retrieve source repo type
      */
     var repoType = $('input[name=addSourceRepoType]:checked').val();
-console.log(repoType);
+
     /**
      *  Retrieve source repo name
      */

@@ -100,11 +100,9 @@ trait Sign
                  *  Print if all packages are to be signed or if specific packages are to be signed
                  */
                 if (!is_array($this->packagesToSign) and $this->packagesToSign == 'all') {
-                    // $this->taskLog->steplogWrite('Signing all packages:' . PHP_EOL);
                     $this->taskLog->steplogWrite('<div class="flex justify-space-between log-title"><p>SIGNING ALL PACKAGES</p><p title="Running time">' . date('H:i:s') . '</p></div>');
                 }
                 if (is_array($this->packagesToSign)) {
-                    // $this->taskLog->steplogWrite('Signing ' . $totalPackages . ' package(s):' . PHP_EOL);
                     $this->taskLog->steplogWrite('<div class="flex justify-space-between log-title"><p>SIGNING ' . $totalPackages . ' PACKAGE(S)</p><p title="Running time">' . date('H:i:s') . '</p></div>');
                 }
 
@@ -126,7 +124,6 @@ trait Sign
                     /**
                      *  Print package counter
                      */
-                    // echo '<span class="opacity-80-cst">(' . $packageCounter . '/' . $totalPackages . ')  ➙ <span class="copy">' . $rpmFile . '</span> ... </span>';
                     $this->taskLog->steplogWrite('<div class="flex justify-space-between log-title"><p>SIGNING PACKAGE (' . $packageCounter . '/' . $totalPackages . ')</p><p title="Running time">' . date('H:i:s') . '</p></div>');
                     $this->taskLog->steplogWrite('<span>' . $rpmFile . '</span>');
 

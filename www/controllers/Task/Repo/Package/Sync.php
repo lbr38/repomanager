@@ -15,7 +15,6 @@ trait Sync
 
         $this->taskLog->step('SYNCING PACKAGES');
 
-        // echo '<div class="hide getPackagesDiv"><pre>';
         echo '<div class="hide getPackagesDiv">';
         $this->taskLog->steplogWrite();
 
@@ -135,7 +134,6 @@ trait Sync
                 }
             }
         } catch (Exception $e) {
-            // echo '</pre></div>';
             echo '</div>';
 
             /**
@@ -303,7 +301,6 @@ trait Sync
                 throw new Exception('Could not rename working directory ' . $workingDir);
             }
         } catch (Exception $e) {
-            // echo '</pre></div>';
             echo '</div>';
 
             /**
@@ -319,7 +316,6 @@ trait Sync
             throw new Exception($e->getMessage());
         }
 
-        // echo '</pre></div>';
         echo '</div>';
 
         $this->taskLog->stepOK();

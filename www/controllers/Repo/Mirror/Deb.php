@@ -639,7 +639,6 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             /**
              *  Output package to download to log file
              */
-            // $this->logOutput('<span class="opacity-80-cst">(' . $packageCounter . '/' . $totalPackages . ')  ➙ ' . $debPackageLocation . ' ... </span>');
             $this->logTitle('DOWNLOADING PACKAGE (' . $packageCounter . '/' . $totalPackages . ')');
             $this->logOutput($debPackageLocation);
 

@@ -691,7 +691,6 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             /**
              *  Output package to download to log file
              */
-            // $this->logOutput('<span class="opacity-80-cst">(' . $packageCounter . '/' . $totalPackages . ')  ➙ ' . $rpmPackageLocation . ' ... </span>');
             $this->logTitle('DOWNLOADING PACKAGE (' . $packageCounter . '/' . $totalPackages . ')');
             $this->logOutput($rpmPackageLocation);
 
