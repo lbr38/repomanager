@@ -100,7 +100,7 @@ class RemoveEnv
              */
             include(ROOT . '/views/templates/tasks/remove-env.inc.php');
 
-            $this->taskLog->step('DELETING');
+            $this->taskLog->step('REMOVING');
 
             /**
              *  Delete environment symlink

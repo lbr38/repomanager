@@ -40,8 +40,8 @@ if (!empty($groupsList)) {
                 <img src="/assets/icons/up.svg" class="hideGroup pointer icon-lowopacity" group-id="<?= $group['Id'] ?>" state="visible" />
             </div>
 
-            <div class="repos-list-group-select-all-btns">
-                <button class="repos-list-group-select-all-latest-snap-btn btn-medium-tr mediumopacity hide" group-id="<?= $group['Id'] ?>">✔ Select all latest snapshots</button>
+            <div class="repos-list-group-select-all-btns mediumopacity pointer hide" group-id="<?= $group['Id'] ?>">
+                <input type="checkbox" group-id="<?= $group['Id'] ?>"><p>Select latest snapshots</p>
             </div>
 
             <?php
@@ -182,16 +182,17 @@ if (!empty($groupsList)) {
                             /**
                              *  Print empty line
                              */
-                            if ($printEmptyLine) {
-                                echo '<div class="item-empty-line"></div>';
-                            }
+                            // if ($printEmptyLine) {
+                                // echo '<div class="item-empty-line"></div>';
+                                // continue;
+                            // }
 
                             /**
                              *  Print double empty line
                              */
                             if ($printDoubleEmptyLine) {
                                 echo '<div class="item-empty-line"></div>';
-                                echo '<div class="item-empty-line"></div>';
+                                // echo '<div class="item-empty-line"></div>';
                             } ?>
 
                             <div class="item-repo" name="<?= $name ?>" dist="<?= $dist ?>" section="<?= $section ?>" releasever="<?= $releaseVersion ?>">
@@ -207,14 +208,14 @@ if (!empty($groupsList)) {
                                 if ($packageType == 'deb') {
                                     if ($printRepoDist or $printRepoSection) {
                                         if ($printRepoDist) {
-                                            echo '<span class="lowopacity-cst font-size-12" title="Distribution and section">' . ucfirst($dist) . ' ' . $section . '</span>';
+                                            echo '<span class="lowopacity-cst font-size-13" title="Distribution and section">' . ucfirst($dist) . ' ' . $section . '</span>';
                                         }
                                     }
                                 }
 
                                 if ($packageType == 'rpm') {
                                     if ($printReleaseVersion) {
-                                        echo '<div class="lowopacity-cst font-size-12" title="Release version">Release ver. ' . $releaseVersion . '</div>';
+                                        echo '<div class="lowopacity-cst font-size-13" title="Release version">Release version ' . $releaseVersion . '</div>';
                                     }
                                 } ?>
                             </div>
@@ -227,14 +228,14 @@ if (!empty($groupsList)) {
                                      */
                                     if (!empty($rebuild)) {
                                         if ($rebuild == 'needed') {
-                                            echo '<img class="icon" src="/assets/icons/warning.png" title="Repository snapshot content has been modified. You have to rebuild metadata." />';
+                                            echo '<img class="icon" src="/assets/icons/warning.svg" title="Repository snapshot content has been modified. You have to rebuild metadata." />';
                                         }
 
                                         /**
                                          *  Print a failed icon if repo snapshot rebuild has failed
                                          */
                                         if ($rebuild == 'failed') {
-                                            echo '<img class="icon" src="/assets/icons/redcircle.png" title="Metadata building has failed." />';
+                                            echo '<img class="icon" src="/assets/icons/error.svg" title="Metadata building has failed." />';
                                         }
                                     }
 
@@ -243,12 +244,12 @@ if (!empty($groupsList)) {
                                      */
                                     if ($packageType == 'rpm') {
                                         if (!is_dir(REPOS_DIR . '/' . $dateFormatted . '_' . $name)) {
-                                            echo '<img class="icon" src="/assets/icons/warning.png" title="This snapshot directory is missing on the server." />';
+                                            echo '<img class="icon" src="/assets/icons/warning.svg" title="This snapshot directory is missing on the server." />';
                                         }
                                     }
                                     if ($packageType == 'deb') {
                                         if (!is_dir(REPOS_DIR . '/' . $name . '/' . $dist . '/' . $dateFormatted . '_' . $section)) {
-                                            echo '<img class="icon" src="/assets/icons/warning.png" title="This snapshot directory is missing on the server." />';
+                                            echo '<img class="icon" src="/assets/icons/warning.svg" title="This snapshot directory is missing on the server." />';
                                         }
                                     }
                                 }
@@ -266,7 +267,7 @@ if (!empty($groupsList)) {
                                             <img src="/assets/icons/loading.svg" class="icon-medium icon-np" title="A task is running on this repository snaphot." />
                                             <?php
                                         else : ?>
-                                            <input type="checkbox" class="icon-verylowopacity" name="checkbox-repo" repo-id="<?= $repoId ?>" snap-id="<?= $snapId ?>" <?php echo !empty($envId) ? 'env-id="' . $envId . '"' : ''; ?> env-name="<?= $env ?>" repo-type="<?= $type ?>" group-id="<?= $group['Id'] ?>" title="Select and execute an action.">
+                                            <input type="checkbox" class="icon-lowopacity" name="checkbox-repo" repo-id="<?= $repoId ?>" snap-id="<?= $snapId ?>" <?php echo !empty($envId) ? 'env-id="' . $envId . '"' : ''; ?> env-name="<?= $env ?>" repo-type="<?= $type ?>" group-id="<?= $group['Id'] ?>" title="Select and execute an action.">
                                             <?php
                                         endif;
                                     endif;
@@ -415,11 +416,25 @@ if (!empty($groupsList)) {
 if (IS_ADMIN) : ?>
     <div id="repo-actions-btn-container" class="action hide">
         <div>
-            <span class="repo-action-btn btn-doGeneric" action="update" type="active-btn" title="Update selected snapshot(s)"><img class="icon" src="/assets/icons/update.svg" />Update</span>
-            <span class="repo-action-btn btn-doGeneric" action="duplicate" type="active-btn" title="Duplicate select snapshot(s)"><img class="icon" src="/assets/icons/duplicate.svg" />Duplicate</span>
-            <span class="repo-action-btn btn-doGeneric" action="env" type="active-btn" title="Point an environment to the selected snapshot(s)"><img class="icon" src="/assets/icons/link.svg" />Point an environment</span>
-            <span class="repo-action-btn btn-doGeneric" action="rebuild" type="active-btn" title="Rebuild selected snapshot(s) metadata"><img class="icon" src="/assets/icons/update.svg" />Rebuild</span>
-            <span class="repo-action-btn btn-doConfirm" action="delete" type="active-btn" title="Delete selected snapshot(s)">Delete</span>
+            <div class="repo-action-btn btn-doGeneric" action="update" type="active-btn" title="Update selected snapshot(s)">
+                <img class="icon" src="/assets/icons/update.svg" />
+                <span>Update</span>
+            </div>
+            <div class="repo-action-btn btn-doGeneric" action="duplicate" type="active-btn" title="Duplicate select snapshot(s)">
+                <img class="icon" src="/assets/icons/duplicate.svg" />
+                <span>Duplicate</span>
+            </div>
+            <div class="repo-action-btn btn-doGeneric" action="env" type="active-btn" title="Point an environment to the selected snapshot(s)">
+                <img class="icon" src="/assets/icons/link.svg" />
+                <span>Point an environment</span>
+            </div>
+            <div class="repo-action-btn btn-doGeneric" action="rebuild" type="active-btn" title="Rebuild selected snapshot(s) metadata">
+                <img class="icon" src="/assets/icons/update.svg" />
+                <span>Rebuild</span>
+            </div>
+            <div class="repo-action-btn btn-doConfirm" action="delete" type="active-btn" title="Delete selected snapshot(s)">
+                <span>Delete</span>
+            </div>
         </div>
     </div>
     <?php

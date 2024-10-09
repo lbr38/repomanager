@@ -241,6 +241,8 @@ class Log
     {
         $duration = \Controllers\Common::convertMicrotime(microtime(true) - $this->stepTimeStart);
 
+        $this->steplogWrite('<p><img src="/assets/icons/error.svg" class="icon margin-right-5 vertical-align-text-top" /><span class="redtext">' . $error . '</span><br></p>');
+
         echo '<div class="op-step-title-error">' . $error . '</div>';
 
         /**
@@ -255,7 +257,7 @@ class Log
 
         echo '<style>';
         echo '.' . $this->stepId . '-loading-' . $this->taskId . ' { display: none; }';
-        echo '.' . $this->stepId . '-maindiv-' . $this->taskId . ' { background-color: #ff0044; }';
+        echo '.' . $this->stepId . '-maindiv-' . $this->taskId . ' { background-color: #F32F63; }';
         echo '.' . $this->stepId . '-time:before { content: "' . $duration . '" }';
         echo '</style>';
 
@@ -267,7 +269,7 @@ class Log
      */
     public function stepWarning()
     {
-        echo '<div class="op-step-title-warning"><img src="/assets/icons/warning.png" class="icon" /></div>';
+        echo '<div class="op-step-title-warning"><img src="/assets/icons/warning.svg" class="icon" /></div>';
         $this->steplogWrite();
     }
 
@@ -323,7 +325,7 @@ class Log
      */
     public function steplogLoading(string $stepId)
     {
-        echo '<span class="' . $stepId . '-loading-' . $this->taskId . ' op-step-loading">Running<img src="/assets/icons/loading.svg" class="icon" /></span>';
+        echo '<span class="' . $stepId . '-loading-' . $this->taskId . ' op-step-loading">Running<img src="/assets/icons/loading.svg" class="icon margin-left-5" /></span>';
         $this->steplogWrite();
     }
 

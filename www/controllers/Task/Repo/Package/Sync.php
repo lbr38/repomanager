@@ -15,7 +15,7 @@ trait Sync
 
         $this->taskLog->step('SYNCING PACKAGES');
 
-        echo '<div class="hide getPackagesDiv"><pre>';
+        echo '<div class="hide getPackagesDiv">';
         $this->taskLog->steplogWrite();
 
         //// CHECKS ////
@@ -134,7 +134,7 @@ trait Sync
                 }
             }
         } catch (Exception $e) {
-            echo '</pre></div>';
+            echo '</div>';
 
             /**
              *  Throw exception with mirror error message
@@ -146,70 +146,141 @@ trait Sync
          *  3. Retrieving packages
          */
         try {
-            $mysource = new \Controllers\Source();
+            $mysource = new \Controllers\Repo\Source\Source();
+
+            /**
+             *  Get source repo informations
+             */
+            $source = $mysource->get($this->repo->getPackageType(), $this->repo->getSource());
+            $sourceDefinition = $source['Definition'];
+
+            /**
+             *  Check that source repo informations have been retrieved
+             */
+            if (empty($sourceDefinition)) {
+                throw new Exception('Could not retrieve source repository informations. Does the source repository still exists?');
+            }
+
+            /**
+             *  Extract source repo JSON definiton
+             */
+            try {
+                $sourceDefinition = json_decode($sourceDefinition, true);
+                $sourceUrl = $sourceDefinition['url'];
+            } catch (ValueError $e) {
+                throw new Exception('Could not extract source repository definition: ' . $e->getMessage());
+            }
+
+            if (empty($sourceUrl)) {
+                throw new Exception('Could not retrieve source repository URL. Check source repository configuration.');
+            }
+
+            unset($mysource, $source);
+
+            /**
+             *  Define mirroring params
+             */
+            if ($this->repo->getPackageType() == 'rpm') {
+                $mymirror = new \Controllers\Repo\Mirror\Rpm();
+                $mymirror->setReleasever($this->repo->getReleasever());
+            }
+            if ($this->repo->getPackageType() == 'deb') {
+                $mymirror = new \Controllers\Repo\Mirror\Deb();
+                $mymirror->setDist($this->repo->getDist());
+                $mymirror->setSection($this->repo->getSection());
+            }
+            $mymirror->setUrl($sourceUrl);
+            $mymirror->setWorkingDir($workingDir);
+            $mymirror->setArch($this->repo->getArch());
+            $mymirror->setCheckSignature($this->repo->getGpgCheck());
+            $mymirror->setPackagesToInclude($this->repo->getPackagesToInclude());
+            $mymirror->setPackagesToExclude($this->repo->getPackagesToExclude());
+            $mymirror->setOutputFile($this->taskLog->getStepLog());
+
+            /**
+             *  If the task is an update, set the previous repo directory path
+             *  Hard links will be created from the previous snapshot to the new snapshot
+             */
+            if ($this->task->getAction() == 'update' and !empty($previousSnapshotDir)) {
+                $mymirror->setPreviousSnapshotDirPath($previousSnapshotDir);
+            }
+
+            /**
+             *  If the source repo requires a SSL certificate, private key or CA certificate, then they will be used
+             */
+            if (!empty($sourceDefinition['ssl-authentication']['certificate'])) {
+                /**
+                 *  Create a temporary file with the certificate content
+                 */
+                $sslCertificate = tempnam(TEMP_DIR . '/' . $this->task->getId(), '');
+
+                if (!$sslCertificate) {
+                    throw new Exception('Could not create temporary file for SSL certificate');
+                }
+
+                /**
+                 *  Write the certificate content to the temporary file
+                 */
+                if (!file_put_contents($sslCertificate, $sourceDefinition['ssl-authentication']['certificate'])) {
+                    throw new Exception('Could not write SSL certificate to temporary file');
+                }
+
+                /**
+                 *  Set the certificate file to use
+                 */
+                $mymirror->setSslCustomCertificate($sslCertificate);
+            }
+            if (!empty($sourceDefinition['ssl-authentication']['private-key'])) {
+                /**
+                 *  Create a temporary file with the private key content
+                 */
+                $sslPrivateKey = tempnam(TEMP_DIR . '/' . $this->task->getId(), '');
+
+                if (!$sslPrivateKey) {
+                    throw new Exception('Could not create temporary file for SSL private key');
+                }
+
+                /**
+                 *  Write the private key content to the temporary file
+                 */
+                if (!file_put_contents($sslPrivateKey, $sourceDefinition['ssl-authentication']['private-key'])) {
+                    throw new Exception('Could not write SSL private key to temporary file');
+                }
+
+                /**
+                 *  Set the private key file to use
+                 */
+                $mymirror->setSslCustomPrivateKey($sslPrivateKey);
+            }
+            if (!empty($sourceDefinition['ssl-authentication']['ca-certificate'])) {
+                /**
+                 *  Create a temporary file with the CA certificate content
+                 */
+                $sslCaCertificate = tempnam(TEMP_DIR . '/' . $this->task->getId(), '');
+
+                if (!$sslCaCertificate) {
+                    throw new Exception('Could not create temporary file for SSL CA certificate');
+                }
+
+                /**
+                 *  Write the CA certificate content to the temporary file
+                 */
+                if (!file_put_contents($sslCaCertificate, $sourceDefinition['ssl-authentication']['ca-certificate'])) {
+                    throw new Exception('Could not write SSL CA certificate to temporary file');
+                }
+
+                /**
+                 *  Set the CA certificate file to use
+                 */
+                $mymirror->setSslCustomCaCertificate($sslCaCertificate);
+            }
+
+            /**
+             *  Start mirroring
+             */
+            $mymirror->mirror();
 
             if ($this->repo->getPackageType() == 'rpm') {
-                /**
-                 *  Get source repo informations
-                 */
-                $sourceDetails = $mysource->getAll('rpm', $this->repo->getSource());
-
-                /**
-                 *  Check source repo informations
-                 */
-                if (empty($sourceDetails)) {
-                    throw new Exception('Could not retrieve source repo informations. Does the source repo still exists?');
-                }
-                if (empty($sourceDetails['Url'])) {
-                    throw new Exception('Could not retrieve source repo URL. Check source repo configuration.');
-                }
-
-                unset($mysource);
-
-                $mymirror = new \Controllers\Repo\Mirror\Rpm();
-                $mymirror->setUrl($sourceDetails['Url']);
-                $mymirror->setWorkingDir($workingDir);
-                $mymirror->setReleasever($this->repo->getReleasever());
-                $mymirror->setArch($this->repo->getArch());
-                $mymirror->setCheckSignature($this->repo->getGpgCheck());
-                $mymirror->setPackagesToInclude($this->repo->getPackagesToInclude());
-                $mymirror->setPackagesToExclude($this->repo->getPackagesToExclude());
-                $mymirror->setOutputFile($this->taskLog->getStepLog());
-                $mymirror->outputToFile(true);
-
-                /**
-                 *  If the task is an update, set the previous repo directory path
-                 *  Hard links will be created from the previous snapshot to the new snapshot
-                 */
-                if ($this->task->getAction() == 'update' and !empty($previousSnapshotDir)) {
-                    $mymirror->setPreviousSnapshotDirPath($previousSnapshotDir);
-                }
-
-                /**
-                 *  If the source repo has a http:// GPG signing key, then it will be used to check for package signature
-                 */
-                if (!empty($sourceDetails['Gpgkey'])) {
-                    $mymirror->setGpgKeyUrl($sourceDetails['Gpgkey']);
-                }
-
-                /**
-                 *  If the source repo requires a SSL certificate, private key or CA certificate, then they will be used
-                 */
-                if (!empty($sourceDetails['Ssl_certificate_path'])) {
-                    $mymirror->setSslCustomCertificate($sourceDetails['Ssl_certificate_path']);
-                }
-                if (!empty($sourceDetails['Ssl_private_key_path'])) {
-                    $mymirror->setSslCustomPrivateKey($sourceDetails['Ssl_private_key_path']);
-                }
-                if (!empty($sourceDetails['Ssl_ca_certificate_path'])) {
-                    $mymirror->setSslCustomCaCertificate($sourceDetails['Ssl_ca_certificate_path']);
-                }
-
-                /**
-                 *  Start mirroring
-                 */
-                $mymirror->mirror();
-
                 /**
                  *  If the repo snapshot must be signed, then retrieve the list of packages to sign from the mirroring task
                  *  It will be used in the signing task (see Sign.php)
@@ -217,65 +288,9 @@ trait Sync
                 if ($this->repo->getGpgSign() == 'true') {
                     $this->packagesToSign = $mymirror->getPackagesToSign();
                 }
-
-                unset($mymirror);
             }
 
             if ($this->repo->getPackageType() == 'deb') {
-                /**
-                 *  Get source repo informations
-                 */
-                $sourceDetails = $mysource->getAll('deb', $this->repo->getSource());
-
-                /**
-                 *  Check source repo informations
-                 */
-                if (empty($sourceDetails)) {
-                    throw new Exception('Could not retrieve source repo informations. Does the source repo still exists?');
-                }
-                if (empty($sourceDetails['Url'])) {
-                    throw new Exception('Could not retrieve source repo URL. Check source repo configuration.');
-                }
-
-                unset($mysource);
-
-                $mymirror = new \Controllers\Repo\Mirror\Deb();
-                $mymirror->setUrl($sourceDetails['Url']);
-                $mymirror->setWorkingDir($workingDir);
-                $mymirror->setDist($this->repo->getDist());
-                $mymirror->setSection($this->repo->getSection());
-                $mymirror->setArch($this->repo->getArch());
-                $mymirror->setCheckSignature($this->repo->getGpgCheck());
-                $mymirror->setPackagesToInclude($this->repo->getPackagesToInclude());
-                $mymirror->setPackagesToExclude($this->repo->getPackagesToExclude());
-                $mymirror->setOutputFile($this->taskLog->getStepLog());
-                $mymirror->outputToFile(true);
-
-                /**
-                 *  If the task is an update, set the previous repo directory path
-                 *  Hard links will be created from the previous snapshot to the new snapshot
-                 */
-                if ($this->task->getAction() == 'update' and !empty($previousSnapshotDir)) {
-                    $mymirror->setPreviousSnapshotDirPath($previousSnapshotDir);
-                }
-
-                /**
-                 *  If the source repo requires a SSL certificate, private key or CA certificate, then they will be used
-                 */
-                if (!empty($sourceDetails['Ssl_certificate_path'])) {
-                    $mymirror->setSslCustomCertificate($sourceDetails['Ssl_certificate_path']);
-                }
-                if (!empty($sourceDetails['Ssl_private_key_path'])) {
-                    $mymirror->setSslCustomPrivateKey($sourceDetails['Ssl_private_key_path']);
-                }
-
-                /**
-                 *  Start mirroring
-                 */
-                $mymirror->mirror();
-
-                unset($mymirror);
-
                 /**
                  *  Create repo and dist directories if not exist
                  */
@@ -285,6 +300,8 @@ trait Sync
                     }
                 }
             }
+
+            unset($mymirror);
 
             /**
              *  Renaming working dir name to final name
@@ -303,7 +320,7 @@ trait Sync
                 throw new Exception('Could not rename working directory ' . $workingDir);
             }
         } catch (Exception $e) {
-            echo '</pre></div>';
+            echo '</div>';
 
             /**
              *  If there was an error while mirroring, delete working dir if exists
@@ -318,7 +335,7 @@ trait Sync
             throw new Exception($e->getMessage());
         }
 
-        echo '</pre></div>';
+        echo '</div>';
 
         $this->taskLog->stepOK();
 

@@ -6,7 +6,10 @@
     if (__LOAD_GENERAL_ERROR > 0) : ?>
         <section class="section-main">
             <div class="div-generic-blue">
-                <span class="yellowtext">Some settings from the <a href="/settings"><b>settings tab</b></a> contain missing or bad value that could generate errors on Repomanager. Please finalize the configuration before running any task.</span>
+                <div class="flex column-gap-5">
+                    <img src="/assets/icons/warning.svg" class="icon" />
+                    <p class="yellowtext">Some settings from the <a href="/settings"><b>settings tab</b></a> contain missing or bad value that could generate errors on Repomanager. Please finalize the configuration before running any task.</p>
+                </div>
                 <br><br>
                 <?php
                 foreach (__LOAD_ERROR_MESSAGES as $message) {

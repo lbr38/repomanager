@@ -2,38 +2,32 @@
     <h3>BROWSE</h3>
 
     <?php
-    if (!empty($myrepo->getName()) and !empty($myrepo->getDist()) and !empty($myrepo->getSection())) {
-        echo '<p>Explore <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span></p>';
-    } else {
-        echo '<p>Explore <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span></p>';
+    if ($myrepo->getPackageType() == 'rpm') {
+        $repo = $myrepo->getName();
+    }
+    if ($myrepo->getPackageType() == 'deb') {
+        $repo = $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection();
     } ?>
 
-    <br>
-
-    <div class="div-generic-blue grid grid-2">
+    <div class="div-generic-blue grid grid-4">
         <div>
-            <div class="circle-div-container">
-                <div class="circle-div-container-count-green">
-                    <span>
-                        <?= $repoSize ?>
-                    </span>
-                </div>
-                <div>
-                    <span>Repository size</span>
-                </div>
-            </div>
+            <h6 class="margin-top-0">REPOSITORY</h6>
+            <p><span class="label-white"><?= $repo ?></span></p>
         </div>
+
         <div>
-            <div class="circle-div-container">
-                <div class="circle-div-container-count-green">
-                    <span>
-                        <?= $packagesCount ?>
-                    </span>
-                </div>
-                <div>
-                    <span>Total packages</span>
-                </div>
-            </div>
+            <h6 class="margin-top-0">SNAPSHOT</h6>
+            <p><span class="label-black"><?= $myrepo->getDateFormatted() ?></span></p>
+        </div>
+
+        <div>
+            <h6 class="margin-top-0">SIZE</h6>
+            <p><?= $repoSize ?></p>
+        </div>
+
+        <div>
+            <h6 class="margin-top-0">PACKAGES</h6>
+            <p><?= $packagesCount ?></p>
         </div>
     </div>
 

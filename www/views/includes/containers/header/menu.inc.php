@@ -17,9 +17,9 @@
 
             <div class="<?= $headerMenuClass ?>">
                 <a href="/">
-                    <div class="flex align-item-center column-gap-3">
-                        <img src="/assets/icons/menu.svg" class="icon" />
-                        <span class="menu-section-title">REPOS</span>
+                    <div class="flex align-item-center column-gap-10">
+                        <img src="/assets/icons/package.svg" class="icon" />
+                        <span class="menu-section-title">REPOSITORIES</span>
                     </div>
                 </a>
             </div>
@@ -37,7 +37,7 @@
             if (MANAGE_HOSTS == "true") : ?>
                 <div class="<?= $headerMenuClass ?>">
                     <a href="/hosts">
-                        <div class="flex align-item-center column-gap-3">
+                        <div class="flex align-item-center column-gap-10">
                             <img src="/assets/icons/server.svg" class="icon" />
                             <span class="menu-section-title">MANAGE HOSTS</span>
                         </div>
@@ -58,7 +58,7 @@
             if (IS_ADMIN and MANAGE_PROFILES == "true") : ?>
                 <div class="<?= $headerMenuClass ?>">
                     <a href="/profiles">
-                        <div class="flex align-item-center column-gap-3">
+                        <div class="flex align-item-center column-gap-10">
                             <img src="/assets/icons/stack.svg" class="icon" />
                             <span class="menu-section-title">MANAGE PROFILES</span>
                         </div>
@@ -79,7 +79,7 @@
             if (IS_ADMIN) : ?>
                 <div class="<?= $headerMenuClass ?>">
                     <a href="/settings">
-                        <div class="flex align-item-center column-gap-3">
+                        <div class="flex align-item-center column-gap-10">
                             <img src="/assets/icons/settings.svg" class="icon" />
                             <span class="menu-section-title">SETTINGS</span>
                         </div>
@@ -100,7 +100,7 @@
             <div id="header-refresh-container" class="<?= $headerMenuClass ?>">
                 <div>
                     <a href="/run?task-log=latest">
-                        <div class="flex align-item-center column-gap-3">
+                        <div class="flex align-item-center column-gap-10">
                             <img src="/assets/icons/rocket.svg" class="icon" />
                             <span class="menu-section-title">TASKS</span>
                         </div>
@@ -178,14 +178,15 @@
 
         <div>
             <div>
-                <div class="flex column-gap-5 align-item-center">
+                <div class="flex column-gap-8 align-item-center" title="CPU load">
+                    <img src="/assets/icons/cpu.svg" class="icon-lowopacity icon-np" />
+                    <span class="lowopacity-cst font-size-12"><?= $currentLoad ?></span>
                     <span class="round-item bkg-<?= $currentLoadColor ?>"></span>
-                    <span class="lowopacity-cst font-size-11">CPU load: <?= $currentLoad ?></span>
                 </div>
             </div>
 
             <div class="menu-sub-container relative">
-                <img src="/assets/icons/alarm.svg" class="icon-lowopacity slide-panel-btn" slide-panel="general/notification" title="Show notifications" />
+                <img src="/assets/icons/alarm.svg" class="icon-lowopacity get-panel-btn" panel="general/notification" title="Show notifications" />
                 <?php
                 if (NOTIFICATION != 0) : ?>
                     <span id="notification-count"><?= NOTIFICATION ?></span>
@@ -202,7 +203,7 @@
             } ?>
 
             <div class="<?= $headerMenuClass ?>">
-                <div class="flex align-item-center column-gap-3 slide-panel-btn lowopacity pointer" slide-panel="general/userspace" title="Userspace">
+                <div class="flex align-item-center column-gap-10 get-panel-btn lowopacity pointer" panel="general/userspace" title="Userspace">
                     <img src="/assets/icons/user.svg" class="icon" />
                     <span class="menu-section-title">
                         <?php

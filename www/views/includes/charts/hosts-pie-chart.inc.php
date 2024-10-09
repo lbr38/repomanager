@@ -14,6 +14,12 @@ var pieChartOptions = {
     maintainAspectRatio: false,
     plugins: {
         legend: {
+            labels: {
+                font: {
+                    size: 14,
+                    family: 'Roboto',
+                }
+            },
             display: true,
             position: 'left'
         },

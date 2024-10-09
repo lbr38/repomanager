@@ -31,7 +31,7 @@ RUN echo "deb https://packages.bespin.ovh/repo/repomanager-php/bookworm/main_pro
 RUN apt-get update -y
 
 # Install nginx and PHP 8.3
-RUN apt-get install nginx php8.3-fpm php8.3-cli php8.3-sqlite3 php8.3-xml php8.3-curl sqlite3 -y
+RUN apt-get install nginx php8.3-fpm php8.3-cli php8.3-sqlite3 php8.3-xml php8.3-curl php8.3-yaml sqlite3 -y
 
 # Clone project in the container
 RUN git clone https://github.com/lbr38/repomanager.git /tmp/repomanager

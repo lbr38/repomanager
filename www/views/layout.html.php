@@ -20,12 +20,6 @@
 
         <?php
             /**
-             *  Slide panels
-             */
-            \Controllers\Layout\Panel\Notification::render();
-            \Controllers\Layout\Panel\Userspace::render();
-
-            /**
              *  Footer
              */
             include_once(ROOT . '/views/includes/footer.inc.php');

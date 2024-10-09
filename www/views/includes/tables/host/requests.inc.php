@@ -46,11 +46,11 @@
                  */
                 if ($item['Status'] == 'new') {
                     $requestStatus = 'Pending';
-                    $requestStatusIcon = 'pending';
+                    $requestStatusIcon = 'pending.svg';
                 }
                 if ($item['Status'] == 'sent') {
                     $requestStatus = 'Sent';
-                    $requestStatusIcon = 'pending';
+                    $requestStatusIcon = 'pending.svg';
                 }
                 if ($item['Status'] == 'running') {
                     $requestStatus = 'Running';
@@ -58,15 +58,15 @@
                 }
                 if ($item['Status'] == 'canceled') {
                     $requestStatus = 'Canceled';
-                    $requestStatusIcon = 'crossmark';
+                    $requestStatusIcon = 'warning-red.svg';
                 }
                 if ($item['Status'] == 'failed') {
                     $requestStatus = 'Failed';
-                    $requestStatusIcon = 'crossmark';
+                    $requestStatusIcon = 'error.svg';
                 }
                 if ($item['Status'] == 'completed') {
                     $requestStatus = 'Completed';
-                    $requestStatusIcon = 'checkmark';
+                    $requestStatusIcon = 'check.svg';
                 }
 
                 /**
@@ -101,13 +101,13 @@
                             // If the update was successful
                             if ($responseJson['update']['status'] == 'done') {
                                 $requestStatus = 'Successful';
-                                $requestStatusIcon = 'checkmark';
+                                $requestStatusIcon = 'check.svg';
                             }
 
                             // If the update failed
                             if ($responseJson['update']['status'] == 'failed') {
                                 $requestStatus = 'Failed with errors';
-                                $requestStatusIcon = 'crossmark';
+                                $requestStatusIcon = 'error.svg';
                             }
 
                             // Build a short info message
@@ -148,13 +148,13 @@
                             // If the update was successful
                             if ($responseJson['update']['status'] == 'done') {
                                 $requestStatus = 'Successful';
-                                $requestStatusIcon = 'checkmark';
+                                $requestStatusIcon = 'check.svg';
                             }
 
                             // If the update failed
                             if ($responseJson['update']['status'] == 'failed') {
                                 $requestStatus = 'Failed with errors';
-                                $requestStatusIcon = 'crossmark';
+                                $requestStatusIcon = 'error.svg';
                             }
 
                             // Build a short info message

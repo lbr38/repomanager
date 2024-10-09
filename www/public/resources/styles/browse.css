@@ -13,20 +13,12 @@
     text-decoration: none;
 }
 
-#explorer li div {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    align-content: center;
-    margin-top: 4px;
-    margin-bottom: 4px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-left: 8px !important;
-}
-
-#explorer li div input[type=checkbox] {
-    margin-right: 8px;
+#explorer li > div {
+    min-height: 30px;
+    padding: 9px 15px 9px 15px;
+    margin-bottom: 6px;
+    border-radius: 8px;
+    box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
 }
 
 #explorer li span {

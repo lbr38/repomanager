@@ -6,6 +6,8 @@ class History
 {
     public static function render()
     {
+        $filterByUser = false;
+
         /**
          *  Only admin have access to this page
          */
@@ -23,17 +25,15 @@ class History
         if (!empty($_POST['action']) and $_POST['action'] === "filterByUser" and !empty($_POST['userid'])) {
             $filterByUserId = \Controllers\Common::validateData($_POST['userid']);
 
-            if (!is_numeric($filterByUserId)) {
-                printAlert("User Id is invalid");
-            } else {
-                $filterByUser = "yes";
+            if (is_numeric($filterByUserId)) {
+                $filterByUser = true;
             }
         }
 
         /**
          *  Case it must be filtered by user
          */
-        if (!empty($filterByUser) and $filterByUser == "yes") {
+        if ($filterByUser === true) {
             $historyLines = $myhistory->getByUser($filterByUserId);
         } else {
             $historyLines = $myhistory->getAll();

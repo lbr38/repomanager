@@ -20,7 +20,7 @@ if (
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, array('message' => 'New API key generated', 'apikey' => $apiKey));
+    response(HTTP_OK, $apiKey);
 }
 
 /**

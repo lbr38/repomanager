@@ -178,9 +178,11 @@ class Deb
         /**
          *  Print output to logfile
          */
-        $myprocess->getOutput($this->logfile);
+        $output = $myprocess->getOutput($this->logfile);
 
         if ($myprocess->getExitCode() != 0) {
+            echo '<img src="/assets/icons/error.svg" class="icon margin-left-5 margin-right-5 vertical-align-text-top" /><span class="redtext">failed to generate Packages metadata file</span><br>';
+            echo $output;
             throw new Exception('Failed to generate Packages metadata file');
         }
 

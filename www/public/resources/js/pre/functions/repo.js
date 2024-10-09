@@ -29,7 +29,7 @@ function getReposSize()
             // Print success alert:
             false,
             // Print error alert:
-            true,
+            false,
             // Reload container:
             [],
             // Execute functions on success:
@@ -38,7 +38,7 @@ function getReposSize()
             ],
             // Execute functions on fail:
             [
-                '$("#repos-list-container").find(\'.item-size[repo-id="' + repoId + '"][snap-id="' + snapId + '"]\').html(\'?\');'
+                '$("#repos-list-container").find(\'.item-size[repo-id="' + repoId + '"][snap-id="' + snapId + '"]\').replaceWith(\'<img src="/assets/icons/warning.svg" class="icon" title="\' + jsonValue.message + \'"/>\');',
             ]
         );
     });

@@ -15,6 +15,12 @@ var donutChartOptions = {
     cutout: 30,
     plugins: {
         legend: {
+            labels: {
+                font: {
+                    size: 14,
+                    family: 'Roboto',
+                }
+            }
             display: true,
             position: 'left'
         },

@@ -23,7 +23,8 @@ class Directory
             TEMP_DIR,
             HOSTS_DIR,
             DB_UPDATE_DONE_DIR,
-            DATA_DIR . '/ssl'
+            CUSTOM_SOURCES_REPOS_LISTS_DIR . '/rpm',
+            CUSTOM_SOURCES_REPOS_LISTS_DIR . '/deb',
         );
 
         foreach ($dirs as $dir) {

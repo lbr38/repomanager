@@ -1,0 +1,41 @@
+---
+description: Linux Mint official repositories
+type: deb
+repositories:
+  - name: linuxmint
+    type: deb
+    description: Linux Mint official repositories
+    url: http://packages.linuxmint.com
+    distributions:
+      # Linux Mint 22
+      - name: wilma
+        description: Linux Mint 22
+        components:
+          - name: main
+          - name: upstream
+          - name: import
+          - name: backport
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 21
+      - name: vanessa
+        description: Linux Mint 21
+        components:
+          - name: main
+          - name: upstream
+          - name: import
+          - name: backport
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 20
+      - name: ulyana
+        description: Linux Mint 20
+        components:
+          - name: main
+          - name: upstream
+          - name: import
+          - name: backport
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2

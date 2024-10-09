@@ -1,0 +1,77 @@
+---
+description: CentOS official vaulted (EOL) repositories
+type: rpm
+repositories:
+  #
+  # CentOS 8
+  #
+
+  # CentOS 8 BaseOS
+  - name: centos8-baseos
+    description: CentOS 8 Stream BaseOS
+    type: rpm
+    url: http://vault.centos.org/8-stream/BaseOS/$basearch/os
+    releasever:
+      - name: 8
+        description: CentOS 8 Stream
+        gpgkeys:
+          - fingerprint: 99DB70FAE1D7CE227FB6488205B555B38483C65D
+
+  # CentOS 8 AppStream
+  - name: centos8-appstream
+    description: CentOS 8 Stream AppStream
+    type: rpm
+    url: http://vault.centos.org/8-stream/AppStream/$basearch/os
+    releasever:
+      - name: 8
+        description: CentOS 8 Stream
+        gpgkeys:
+          - fingerprint: 99DB70FAE1D7CE227FB6488205B555B38483C65D
+
+  # CentOS 8 Extras
+  - name: centos8-extras
+    description: CentOS 8 Stream Extras
+    type: rpm
+    url: https://vault.centos.org/8-stream/extras/$basearch/os
+    releasever:
+      - name: 8
+        description: CentOS 8 Stream
+        gpgkeys:
+          - fingerprint: 99DB70FAE1D7CE227FB6488205B555B38483C65D
+
+  #
+  # CentOS 7
+  #
+
+  # CentOS 7 Base
+  - name: base
+    type: rpm
+    description: CentOS 7 Base
+    url: https://vault.centos.org/7.9.2009/os/$basearch
+    releasever:
+      - name: 7
+        description: CentOS 7
+        gpgkeys:
+          - fingerprint: 6341AB2753D78A78A7C27BB124C6A8A7F4A80EB5
+
+  # CentOS 7 Updates
+  - name: updates
+    type: rpm
+    description: CentOS 7 Updates
+    url: https://vault.centos.org/7.9.2009/updates/$basearch
+    releasever:
+      - name: 7
+        description: CentOS 7
+        gpgkeys:
+          - fingerprint: 6341AB2753D78A78A7C27BB124C6A8A7F4A80EB5
+  
+  # CentOS 7 Extras
+  - name: extras
+    type: rpm
+    description: CentOS 7 Extras
+    url: https://vault.centos.org/7.9.2009/extras/$basearch
+    releasever:
+      - name: 7
+        description: CentOS 7
+        gpgkeys:
+          - fingerprint: 6341AB2753D78A78A7C27BB124C6A8A7F4A80EB5

@@ -1,0 +1,52 @@
+---
+# These repositories require SSL authentication.
+description: Red Hat official repositories
+type: rpm
+repositories:
+  # Red Hat BaseOS
+  - name: redhat-baseos
+    type: rpm
+    description: Red Hat BaseOS
+    url: https://cdn.redhat.com/content/dist/rhel$releasever/$releasever/$basearch/baseos/os
+    releasever:
+      - name: 9
+        description: Red Hat 9
+        gpgkeys:
+          - fingerprint: 567E347AD0044ADE55BA8A5F199E2F91FD431D51
+
+      - name: 8
+        description: Red Hat 8
+        gpgkeys:
+          - fingerprint: 567E347AD0044ADE55BA8A5F199E2F91FD431D51
+    # This repository requires SSL authentication
+    # ssl-authentication:
+    #   certificate: |
+    #     -----BEGIN CERTIFICATE-----
+    #   private-key: |
+    #     -----BEGIN PRIVATE KEY-----
+    #   ca-certificate: |
+    #     -----BEGIN CERTIFICATE-----
+
+  # Red Hat AppStream
+  - name: redhat-appstream
+    type: rpm
+    description: Red Hat AppStream
+    url: https://cdn.redhat.com/content/dist/rhel$releasever/$releasever/$basearch/appstream/os
+    releasever:
+      - name: 9
+        description: Red Hat 9
+        gpgkeys:
+          - fingerprint: 567E347AD0044ADE55BA8A5F199E2F91FD431D51
+
+      - name: 8
+        description: Red Hat 8
+        gpgkeys:
+          - fingerprint: 567E347AD0044ADE55BA8A5F199E2F91FD431D51
+    # This repository requires SSL authentication
+    # ssl-authentication:
+    #   certificate: |
+    #     -----BEGIN CERTIFICATE-----
+    #   private-key: |
+    #     -----BEGIN PRIVATE KEY-----
+    #   ca-certificate: |
+    #     -----BEGIN CERTIFICATE----- 

@@ -1,32 +1,23 @@
 <?php ob_start(); ?>
 
-<table class="table-generic">
-    <tr>
-        <td>LOGIN</td>
-        <td><?= $_SESSION['username'] ?></td>
-    </tr>
-    <tr>
-        <td>ROLE</td>
-        <td><?= $_SESSION['role'] ?></td>
-    </tr>
-    <tr>
-        <td>API KEY</td>
-        <td>
-            <div id="user_apikey">(hashed) Generate a new key to retrieve it in clear.</div>
-        </td>
-        <td>
-            <img id="user-apikey-copy-btn" src="/assets/icons/duplicate.svg" class="icon-lowopacity hide" title="Copy to clipboard" onclick="copyToClipboard(user_apikey)">
-            <img id="user-generate-apikey-btn" src="/assets/icons/update.svg" class="icon-lowopacity" title="Generate a new key">
-        </td>
-    </tr>
-</table>
+<h6>LOGIN</h6>
+<p><?= $_SESSION['username'] ?></p>
+
+<h6>ROLE</h6>
+<p><?= $_SESSION['role'] ?></p>
+
+<h6>API KEY</h6>
+<p id="user-apikey">(hashed) Generate a new key to retrieve it in clear.</p>
 
 <br>
+<div class="flex column-gap-10">
+    <button type="button" id="user-generate-apikey-btn" class="btn-medium-blue" title="Generate a new key">Generate new key</button>
+</div>
+
+<br><br>
+
 <a href="/logout" title="Logout">
-    <div class="slide-btn-red" title="Logout">
-        <img src="/assets/icons/power.svg" />
-        <span>Logout</span>
-    </div>
+    <button class="btn-small-red" >Logout</button>
 </a>
 
 <h5>PERSONAL INFORMATIONS</h5>
@@ -34,14 +25,15 @@
 <div>
     <form id="user-edit-info" autocomplete="off">
         <input type="hidden" name="username" value="<?= $_SESSION['username'] ?>" />
-        <p>First name:</p>
+        <h6>FIRST NAME</h6>
         <input type="text" class="input-large" name="first-name" value="<?php echo !empty($_SESSION['first_name']) ? $_SESSION['first_name'] : ''; ?>">
-        <br><br>
-        <p>Last name:</p>
+
+        <h6>LAST NAME</h6>
         <input type="text" class="input-large" name="last-name" value="<?php echo !empty($_SESSION['last_name']) ? $_SESSION['last_name'] : ''; ?>">
-        <br><br>
-        <p>Email:</p>
+
+        <h6>EMAIL</h6>
         <input type="email" class="input-large" name="email" value="<?php echo !empty($_SESSION['email']) ? $_SESSION['email'] : ''; ?>">
+
         <br><br>
         <button class="btn-small-green">Save</button>
     </form>
@@ -52,14 +44,15 @@
 <div>
     <form id="user-change-password" autocomplete="off">
         <input type="hidden" name="username" value="<?= $_SESSION['username'] ?>" />
-        <p>Current password:</p>
+        <h6>CURRENT PASSWORD</h6>
         <input type="password" class="input-large" name="actual-password" required />
-        <br><br>
-        <p>New password:</p>
+
+        <h6>NEW PASSWORD</h6>
         <input type="password" class="input-large" name="new-password" required />
-        <br><br>
-        <p>New password (confirm):</p>
+
+        <h6>NEW PASSWORD (confirm)</h6>
         <input type="password" class="input-large" name="new-password-confirm" required />
+
         <br><br>
         <button class="btn-small-green">Save</button>
     </form>

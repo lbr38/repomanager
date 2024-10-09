@@ -9,12 +9,12 @@
                     <?php
                     if (IS_ADMIN) : ?>
                         <div id="title-button-container">
-                            <div class="slide-btn slide-panel-btn" slide-panel="hosts/groups" title="Manage hosts groups">
+                            <div class="slide-btn get-panel-btn" panel="hosts/groups/list" title="Manage hosts groups">
                                 <img src="/assets/icons/folder.svg" />
                                 <span>Manage groups</span>
                             </div>
 
-                            <div class="slide-btn slide-panel-btn" slide-panel="hosts/settings" title="Edit display settings">
+                            <div class="slide-btn get-panel-btn" panel="hosts/settings" title="Edit display settings">
                                 <img src="/assets/icons/cog.svg" />
                                 <span>Settings</span>
                             </div>
@@ -29,24 +29,37 @@
                      *  If there is at least 1 active host then we display the search fields
                      */
                     if ($totalHosts != 0) : ?>
-                        <div class="searchInput-container">
+                        <div class="grid grid-2 justify-space-between column-gap-20">
+                            <div>
+                                <h6>SEARCH HOST</h6>
+                                <input type="text" id="search-host-input" onkeyup="searchHost()" autocomplete="off" placeholder="Hostname, IP" />
+                            </div>
+
+                            <div>
+                            <h6>SEARCH PACKAGE</h6>
+                            <input type="text" id="getHostsWithPackageInput" onkeyup="getHostsWithPackage()" autocomplete="off" placeholder="Package name" />
+                            </div>
+                        </div>
+                        <br><br>
+
+                        <!-- <div class="searchInput-container">
                             <div class="searchInput-subcontainer">
                                 <div>
-                                    <div class="flex align-item-center justify-center">
+                                    <div class="flex align-item-center column-gap-10 justify-center">
                                         <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Search a host by its name.&#13;&#13;You can specify a filter before your search entry:&#13;os:<os name> <search>&#13;os_version:<os version> <search>&#13;os_family:<os family> <search>&#13;type:<virtualization type> <search>&#13;kernel:<kernel> <search>&#13;arch:<architecture> <search>&#13;profile:<profile> <search>&#13;env:<env> <search>&#13;agent_version:<version> <search>&#13;reboot_required:<true/false> <search>" />
-                                        <span>Search host:</span>
+                                        <h6>SEARCH HOST</h6>
                                     </div>
-                                    <input type="text" id="searchHostInput" onkeyup="searchHost()" class="input-large" autocomplete="off" placeholder="Hostname, IP" />
+                                    <input type="text" id="search-host-input" onkeyup="searchHost()" class="input-large" autocomplete="off" placeholder="Hostname, IP" />
                                 </div>
                                 <div>
-                                    <div class="flex align-item-center justify-center">
+                                    <div class="flex align-item-center column-gap-10 justify-center">
                                         <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Search a package on all hosts, by its name" />
-                                        <span>Search package:</span>
+                                        <h6>SEARCH PACKAGE</h6>
                                     </div>
                                     <input type="text" id="getHostsWithPackageInput" onkeyup="getHostsWithPackage()" class="input-large" autocomplete="off" placeholder="Package name" />
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         <?php
                     endif ?>
                     
@@ -107,7 +120,6 @@
                                         <div class="hosts-table-title">
                                             <span></span>
                                             <span></span>
-                                            <span></span>
                                             <span title="Hosting type">Type</span>
                                             <span title="Host agent version">Agent v.</span>
                                             <span title="Total installed packages.">Inst.</span>
@@ -115,7 +127,7 @@
                                             <?php
                                             if (IS_ADMIN) : ?>
                                                 <span class="text-right margin-right-15">
-                                                    <input class="js-select-all-button verylowopacity pointer" type="checkbox" group="<?=$group['Name']?>" title="Select all" >
+                                                    <input class="js-select-all-button lowopacity pointer" type="checkbox" group="<?=$group['Name']?>" title="Select all" >
                                                 </span>
                                                 <?php
                                             endif ?>
@@ -244,34 +256,19 @@
                                                      *  Linupdate agent state
                                                      */
                                                     if ($agentStatus == 'running') {
-                                                        echo '<img src="/assets/icons/greencircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
+                                                        echo '<img src="/assets/icons/check.svg" class="icon" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
                                                     }
                                                     if ($agentStatus == "disabled") {
-                                                        echo '<img src="/assets/icons/yellowcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
+                                                        echo '<img src="/assets/icons/warning.svg" class="icon" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
                                                     }
                                                     if ($agentStatus == "stopped") {
-                                                        echo '<img src="/assets/icons/redcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
+                                                        echo '<img src="/assets/icons/warning-red.svg" class="icon" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
                                                     }
                                                     if ($agentStatus == "seems-stopped") {
-                                                        echo '<img src="/assets/icons/redcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
+                                                        echo '<img src="/assets/icons/warning-red.svg" class="icon" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
                                                     }
                                                     if ($agentStatus == "unknow") {
-                                                        echo '<img src="/assets/icons/graycircle.png" class="icon-small" title="Linupdate agent state on the host: unknow." />';
-                                                    } ?>
-                                                </div>
-
-                                                <div>
-                                                    <?php
-                                                    if (preg_match('/centos/i', $os)) {
-                                                        echo '<img src="/assets/icons/products/centos.png" class="icon" title="' . $os . '" />';
-                                                    } elseif (preg_match('/redhat/i', $os)) {
-                                                        echo '<img src="/assets/icons/products/redhat.png" class="icon" title="' . $os . '" />';
-                                                    } elseif (preg_match('/debian/i', $os)) {
-                                                        echo '<img src="/assets/icons/products/debian.png" class="icon" title="' . $os . '" />';
-                                                    } elseif (preg_match('/ubuntu|mint/i', $os)) {
-                                                        echo '<img src="/assets/icons/products/ubuntu.png" class="icon" title="' . $os . '" />';
-                                                    } else {
-                                                        echo '<img src="/assets/icons/products/tux.png" class="icon" title="' . $os . '" />';
+                                                        echo '<img src="/assets/icons/graycircle.png" class="icon" title="Linupdate agent state on the host: unknow." />';
                                                     } ?>
                                                 </div>
 
@@ -289,12 +286,15 @@
                                                     $tooltip .= 'Profile: '. $profile . '&#10;';
                                                     $tooltip .= 'Env: '. $env . '&#10;'; ?>
 
-                                                    <div class="flex flex-direction-column row-gap-4">
-                                                        <span class="copy" title="<?= $tooltip ?>">
-                                                            <a href="/host/<?= $id ?>" class="wordbreakall" target="_blank" rel="noopener noreferrer"><?= $hostname ?></a>
-                                                        </span>
+                                                    <div class="flex flex-direction-column row-gap-5">
+                                                        <div class="flex align-item-center column-gap-5">
+                                                            <?= \Controllers\Common::printOsIcon($os); ?>
+                                                            <span class="copy" title="<?= $tooltip ?>">
+                                                                <a href="/host/<?= $id ?>" class="wordbreakall" target="_blank" rel="noopener noreferrer"><?= $hostname ?></a>
+                                                            </span>
+                                                        </div>
 
-                                                        <span class="copy font-size-12 lowopacity-cst" title="<?= $hostname ?> IP address">
+                                                        <span class="copy font-size-14 lowopacity-cst" title="<?= $hostname ?> IP address">
                                                             <?= $ip ?>
                                                         </span>
 
@@ -335,11 +335,11 @@
                                                                      */
                                                                     if ($lastPendingRequest['Status'] == 'new') {
                                                                         $requestStatus = 'Pending';
-                                                                        $requestStatusIcon = 'pending';
+                                                                        $requestStatusIcon = 'pending.svg';
                                                                     }
                                                                     if ($lastPendingRequest['Status'] == 'sent') {
                                                                         $requestStatus = 'Sent';
-                                                                        $requestStatusIcon = 'pending';
+                                                                        $requestStatusIcon = 'pending.svg';
                                                                     }
                                                                     if ($lastPendingRequest['Status'] == 'running') {
                                                                         $requestStatus = 'Running';
@@ -347,15 +347,15 @@
                                                                     }
                                                                     if ($lastPendingRequest['Status'] == 'canceled') {
                                                                         $requestStatus = 'Canceled';
-                                                                        $requestStatusIcon = 'crossmark';
+                                                                        $requestStatusIcon = 'warning-red.svg';
                                                                     }
                                                                     if ($lastPendingRequest['Status'] == 'failed') {
                                                                         $requestStatus = 'Failed';
-                                                                        $requestStatusIcon = 'crossmark';
+                                                                        $requestStatusIcon = 'error.svg';
                                                                     }
                                                                     if ($lastPendingRequest['Status'] == 'completed') {
                                                                         $requestStatus = 'Completed';
-                                                                        $requestStatusIcon = 'checkmark';
+                                                                        $requestStatusIcon = 'check.svg';
                                                                     }
 
                                                                     /**
@@ -399,13 +399,13 @@
                                                                                 // If the update was successful
                                                                                 if ($responseJson['update']['status'] == 'done') {
                                                                                     $requestStatus = 'Successful';
-                                                                                    $requestStatusIcon = 'checkmark';
+                                                                                    $requestStatusIcon = 'check.svg';
                                                                                 }
 
                                                                                 // If the update failed
                                                                                 if ($responseJson['update']['status'] == 'failed') {
                                                                                     $requestStatus = 'Failed with errors';
-                                                                                    $requestStatusIcon = 'crossmark';
+                                                                                    $requestStatusIcon = 'error.svg';
                                                                                 }
 
                                                                                 // Build a short info message
@@ -480,7 +480,7 @@
                                                 <?php
                                                 if (IS_ADMIN) : ?>
                                                     <div class="text-right margin-right-15" title="Select <?= $hostname ?>">
-                                                        <input type="checkbox" class="js-host-checkbox verylowopacity pointer" name="checkbox-host[]" group="<?= $group['Name'] ?>" value="<?= $id ?>">
+                                                        <input type="checkbox" class="js-host-checkbox lowopacity pointer" name="checkbox-host[]" group="<?= $group['Name'] ?>" value="<?= $id ?>">
                                                     </div>
                                                     <?php
                                                 endif ?>

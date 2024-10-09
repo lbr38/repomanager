@@ -49,15 +49,11 @@
 
                     <div class="profile-config-div hide margin-bottom-5 detailsDiv" profile-id="<?= $profile['Id'] ?>">
                         <form class="profile-config-form" profile-id="<?= $profile['Id'] ?>" autocomplete="off">
-                            <h5>Name</h5>
+                            <h6 class="required">NAME</h6>
                             <input type="text" name="profile-name" value="<?= $profile['Name'] ?>" />
 
-                            <br><br><br>
-
-                            <h5>REPOSITORIES</h5>
-
-                            <p class="lowopacity-cst">Specify what repositories the client host(s) will have access to.</p>
-                            
+                            <h6>REPOSITORIES</h6>
+                            <p class="note">Specify which repositories the client host(s) will have access to.</p>
                             <select name="profile-repos" multiple>
                                 <?php
                                 /**
@@ -83,8 +79,6 @@
                                     }
                                 endforeach ?>
                             </select>
-                            
-                            <br><br><br>
 
                             <?php
                             /**
@@ -92,13 +86,10 @@
                              */
                             $listPackages = $myprofile->getPackages(); ?>
 
-                            <h5>PACKAGE EXCLUSION</h5>
-
-                            <p class="lowopacity-cst">Specify what packages the client host(s) will exclude from updates.</p>
-                            <br>
-                        
-                            <p>Exclude on a major version update</p>
-
+                            <h6>PACKAGE EXCLUSION</h6>
+                            
+                            <h6>EXCLUDE MAJOR VERSION</h6>
+                            <p class="note">Specify which packages the client host(s) should exclude from updates based on their major version.</p>
                             <select name="profile-exclude-major" multiple>
                                 <?php
                                 /**
@@ -122,10 +113,8 @@
                                 } ?>
                             </select>
                             
-                            <br><br>
-
-                            <p>Always exclude (no matter the version)</p>
-
+                            <h6>EXCLUDE ALWAYS</h6>
+                            <p class="note">Specify which packages the client host(s) should exclude from updates (no matter the version).</p>
                             <select name="profile-exclude" multiple>
                                 <?php
                                 foreach ($listPackages as $package) {
@@ -146,13 +135,10 @@
                                 } ?>
                             </select>
 
-                            <br><br><br>
-
-                            <h5>SERVICES TO RESTART</h5>
-
-                            <p class="lowopacity-cst">Specify what services the client host(s) should restart after updates.
-                            <br><br>You can conditionnaly restart a service from a package update by using the following syntax: <code>service_name:package_name</code>
-                            <br>e.g: restart httpd if any php package is updated: <code>httpd:php.*</code></p>
+                            <h6>RESTART SERVICES</h6>
+                            <p class="note">Specify what services the client host(s) should restart after updates.</p>
+                            <p class="note">You can conditionnaly restart a service from a package update by using the following syntax: <code>service_name:package_name</code></p>
+                            <p class="note">e.g: restart httpd if any php package is updated: <code>httpd:php.*</code></p>
 
                             <?php
                             /**
@@ -175,10 +161,8 @@
                                 } ?>
                             </select>
 
-                            <br><br><br>
-
-                            <h5>NOTES</h5>
-
+                            <h6>NOTES</h6>
+                            <p class="note">Add any notes you want to keep about this profile.</p>
                             <textarea name="profile-notes" class="textarea-100 margin-bottom-10"><?= $profile['Notes'] ?></textarea>
                             
                             <button type="submit" class="btn-large-green">Save</button>
@@ -191,7 +175,7 @@
 
         <script>
             $(document).ready(function() {
-                selectToSelect2('select[name=profile-repos]', 'Add repo 🖉');
+                selectToSelect2('select[name=profile-repos]', 'Select repo 🖉');
                 selectToSelect2('select[name=profile-exclude-major]', 'Select package 🖉', true);
                 selectToSelect2('select[name=profile-exclude]', 'Select package 🖉', true);
                 selectToSelect2('select[name=profile-service-restart]', 'Select service 🖉', true);

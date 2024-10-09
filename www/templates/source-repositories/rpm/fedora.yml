@@ -1,0 +1,38 @@
+---
+description: Fedora Linux official repositories
+type: rpm
+repositories:
+  # Fedora Linux
+  - name: fedora
+    type: rpm
+    description: Fedora Linux
+    url: https://download.fedoraproject.org/pub/fedora/linux/releases/$releasever/Everything/$basearch/os
+    releasever:
+      # Fedora 41
+      - name: 41
+        description: Fedora 41
+        gpgkeys:
+          - fingerprint: 466CF2D8B60BC3057AA9453ED0622462E99D6AD1
+
+      # Fedora 40
+      - name: 40
+        description: Fedora 40
+        gpgkeys:
+          - fingerprint: 115DF9AEF857853EE8445D0A0727707EA15B79CC
+  
+  - name: fedora-updates
+    type: rpm
+    description: Fedora Linux Updates
+    url: https://download.fedoraproject.org/pub/fedora/linux/updates/$releasever/Everything/$basearch/os
+    releasever:
+      # Fedora 41
+      - name: 41
+        description: Fedora 41
+        gpgkeys:
+          - fingerprint: 466CF2D8B60BC3057AA9453ED0622462E99D6AD1
+
+      # Fedora 40
+      - name: 40
+        description: Fedora 40
+        gpgkeys:
+          - fingerprint: 115DF9AEF857853EE8445D0A0727707EA15B79CC

@@ -1,0 +1,56 @@
+---
+description: Debian official archived (EOL) repositories
+type: deb
+repositories:
+  - name: debian-archive
+    type: deb
+    description: Debian archived (EOL) repositories
+    url: https://archive.debian.org/debian
+    distributions:
+      # Debian 10
+      - name: buster
+        description: Debian 10
+        components:
+          - name: main
+          - name: contrib
+          - name: non-free
+        gpgkeys:
+          - fingerprint: 0146DC6D4A0B2914BDED34DB648ACFD622F3D138
+          - fingerprint: A7236886F3CCCAAD148A27F80E98404D386FA1D9
+          - fingerprint: 6D33866EDD8FFA41C0143AEDDCC9EFBF77E11517
+
+      # Debian 9
+      - name: stretch
+        description: Debian 9
+        components:
+          - name: main
+          - name: contrib
+          - name: non-free
+        gpgkeys:
+          - fingerprint: 16E90B3FDF65EDE3AA7F323C04EE7237B7D453EC
+          - fingerprint: 0146DC6D4A0B2914BDED34DB648ACFD622F3D138
+          - fingerprint: 067E3C456BAE240ACEE88F6FEF0F382A1A7B6500
+
+      # Debian 8
+      - name: jessie
+        description: Debian 8
+        components:
+          - name: main
+          - name: contrib
+          - name: non-free
+        gpgkeys:
+          - fingerprint: A1BD8E9D78F7FE5C3E65D8AF8B48AD6246925553
+          - fingerprint: 126C0D24BD8A2942CC7DF8AC7638D0442B90D010
+          - fingerprint: CBF8D6FD518E17E1
+
+      # Debian 7
+      - name: wheezy
+        description: Debian 7
+        components:
+          - name: main
+          - name: contrib
+          - name: non-free
+        gpgkeys:
+          - fingerprint: 8B48AD6246925553
+          - fingerprint: 7638D0442B90D010
+          - fingerprint: 6FB2A1C265FFB764

@@ -104,7 +104,7 @@ class Rebuild
             /**
              *  Print task details
              */
-            $this->printDetails('REBUILD REPO METADATA');
+            $this->printDetails('rebuild');
 
             /**
              *  Sign repository / packages
