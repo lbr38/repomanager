@@ -30,7 +30,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
     private function downloadPrimary(string $url)
     {
         $this->logTitle('GETTING PRIMARY.XML.GZ');
-        $this->logOutput('From <span class="copy">' . $url . '/' . $this->primaryLocation . '</span>');       
+        $this->logOutput('From <span class="copy">' . $url . '/' . $this->primaryLocation . '</span>');
 
         if (!$this->download($url . '/' . $this->primaryLocation, $this->workingDir . '/primary.xml.gz')) {
             throw new Exception('Could not download <code>primary.xml.gz</code>');
