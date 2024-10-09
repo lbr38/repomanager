@@ -53,12 +53,10 @@ class Gpg
          */
         if (!file_exists(GPGHOME . '/gpg.conf')) {
             /**
-             *  Configure gpg.conf (pinentry-mode loopback) only on non-RHEL systems and on RHEL >7 systems
+             *  Configure gpg.conf (pinentry-mode loopback)
              */
-            if (strtoupper(OS_FAMILY) != 'REDHAT' or (strtoupper(OS_FAMILY) == 'REDHAT' and OS_VERSION > '7')) {
-                if (!file_put_contents(GPGHOME . '/gpg.conf', 'pinentry-mode loopback' . PHP_EOL . 'passphrase-file ' . PASSPHRASE_FILE)) {
-                    throw new Exception('Cannot write to: ' . GPGHOME . '/gpg.conf');
-                }
+            if (!file_put_contents(GPGHOME . '/gpg.conf', 'pinentry-mode loopback' . PHP_EOL . 'passphrase-file ' . PASSPHRASE_FILE)) {
+                throw new Exception('Cannot write to: ' . GPGHOME . '/gpg.conf');
             }
         }
     }

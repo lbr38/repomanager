@@ -6,10 +6,10 @@
         <img src="/assets/icons/close.svg" class="slide-panel-close-btn float-right lowopacity" slide-panel="source-repos/new" title="Close" />
 
         <div class="slide-panel-reloadable-div" slide-panel="source-repos/new">
-            <h3>NEW SOURCE REPOSITORY</h3>
+            <h3>ADD SOURCE REPOSITORY</h3>
 
             <form id="addSourceForm" autocomplete="off">
-                <p class="form-param-title">REPO TYPE</p>
+                <h6>REPOSITORY TYPE</h6>
                 <?php
                 if (RPM_REPO == 'true' and DEB_REPO == 'true') : ?>
                     <div class="switch-field">
@@ -33,19 +33,19 @@
                     <?php
                 endif ?>
 
-                <p class="form-param-title">NAME</p>
-                <input type="text" name="addSourceName" required />
+                <h6>NAME</h6>
+                <input type="text" name="addSourceName" placeholder="e.g. nginx" required />
 
-                <p class="form-param-title">URL</p>
-                <input type="text" name="addSourceUrl" required />
+                <h6>URL</h6>
+                <input type="text" name="addSourceUrl" placeholder="https://..." required />
 
-                <p class="form-param-title">GPG KEY URL</p>
+                <h6>GPG KEY URL</h6>
                 <input type="text" name="gpgKeyURL" placeholder="https://...">
-                <p class="form-param-note">Optional.</p>
+                <p class="input-note">Optional.</p>
 
-                <p class="form-param-title">IMPORT A GPG KEY</p>
+                <h6>IMPORT A GPG KEY</h6>
                 <textarea id="gpgKeyText" class="textarea-100" placeholder="-----BEGIN PGP PUBLIC KEY BLOCK-----"></textarea>
-                <p class="form-param-note">Optional. Plain text format.</p>
+                <p class="input-note">Optional. Plain text format.</p>
 
                 <br><br>
                 <button type="submit" class="btn-small-green" title="Add source repository">Add</button>

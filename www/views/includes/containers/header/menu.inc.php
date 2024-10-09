@@ -19,7 +19,7 @@
                 <a href="/">
                     <div class="flex align-item-center column-gap-10">
                         <img src="/assets/icons/menu.svg" class="icon" />
-                        <span class="menu-section-title">REPOS</span>
+                        <span class="menu-section-title">REPOSITORIES</span>
                     </div>
                 </a>
             </div>

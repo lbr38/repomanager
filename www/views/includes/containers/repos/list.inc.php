@@ -1,7 +1,7 @@
 <section class="section-left reloadable-container" container="repos/list">
     <div class="reposList">
         <div id="title-button-div">
-            <h3>REPOS</h3>
+            <h3>REPOSITORIES</h3>
 
             <div class="flex justify-space-between">
                 <?php

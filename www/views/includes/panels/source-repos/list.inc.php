@@ -9,9 +9,6 @@
 
             <p>Configure source repositories to mirror.</p>
 
-            <p class="form-param-title">NEW SOURCE REPOSITORY</p>
-            <button type="button" class="btn-small-green get-panel-btn" panel="source-repos/new">+ Add</button>
-
             <?php
             /**
              *  Print current sources repositories
