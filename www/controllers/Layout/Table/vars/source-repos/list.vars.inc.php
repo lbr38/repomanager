@@ -5,8 +5,8 @@ $reloadableTableOffset = 0;
 /**
  *  Retrieve offset from cookie if exists
  */
-if (!empty($_COOKIE['tables/source_repos/list/offset']) and is_numeric($_COOKIE['tables/source_repos/list/offset'])) {
-    $reloadableTableOffset = $_COOKIE['tables/source_repos/list/offset'];
+if (!empty($_COOKIE['tables/source-repos/list/offset']) and is_numeric($_COOKIE['tables/source-repos/list/offset'])) {
+    $reloadableTableOffset = $_COOKIE['tables/source-repos/list/offset'];
 }
 
 /**

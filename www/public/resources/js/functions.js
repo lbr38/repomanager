@@ -3,6 +3,31 @@
  *  Fonctions utiles
  *
  */
+function getPanel(name)
+{
+    ajaxRequest(
+        // Controller:
+        'general',
+        // Action:
+        'get-panel',
+        // Data:
+        {
+            name: name
+        },
+        // Print success alert:
+        false,
+        // Print error alert:
+        true,
+        // Reload containers:
+        [],
+        // Execute function on success:
+        [
+            "$('footer').append(jsonValue.message);",
+            "openPanel('" + name + "');"
+        ]
+    );
+}
+
 function openPanel(name)
 {
     $('.slide-panel-container[slide-panel="' + name + '"]').css({
@@ -14,15 +39,25 @@ function openPanel(name)
     })
 }
 
-function closePanel()
+function closePanel(name = null)
 {
-    $('.slide-panel').animate({
-        right: '-1000px',
-    }).promise().done(function () {
-        $('.slide-panel-container').css({
-            visibility: 'hidden'
+    if (name != null) {
+        $('.slide-panel-container[slide-panel="' + name + '"]').find('.slide-panel').animate({
+            right: '-1000px',
+        }).promise().done(function () {
+            $('.slide-panel-container[slide-panel="' + name + '"]').css({
+                visibility: 'hidden'
+            })
         })
-    })
+    } else {
+        $('.slide-panel').animate({
+            right: '-1000px',
+        }).promise().done(function () {
+            $('.slide-panel-container').css({
+                visibility: 'hidden'
+            })
+        })
+    }
 }
 
 /**

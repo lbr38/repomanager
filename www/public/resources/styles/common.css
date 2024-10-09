@@ -76,7 +76,7 @@ pre {
 }
 
 pre.codeblock {
-    background-color: rgb(26 29 31);
+    background-color: rgb(26 29 31) !important;
     color: white;
     border-radius: 8px;
     font-size: 12px;
@@ -101,7 +101,7 @@ pre.codeblock {
 .bold { font-weight: bold; }
 .greentext { color: #14be7e; }
 .redtext { color: #ff0044; }
-.yellowtext { color: #ffb536; }
+.yellowtext { color: #FCCA46; }
 .graytext { color : gray; }
 .bkg-green { background-color: #14be7e !important; color: white !important; }
 .bkg-yellow { background-color: #ffb536 !important; color: white !important; }
@@ -111,12 +111,12 @@ pre.codeblock {
 .no-bkg {background: none !important}
 .center { text-align: center; }
 .baseline { vertical-align: baseline; }
+.vertical-align-text-top{vertical-align: text-top !important}
 .font-size-11{font-size: 11px !important}.font-size-12{font-size: 12px !important}.font-size-13{font-size: 13px !important}.font-size-14{font-size: 14px !important}.font-size-15{font-size: 15px !important}.font-size-16{font-size: 16px !important}.font-size-17{font-size: 17px !important}.font-size-18{font-size: 18px !important}
 .mediumopacity,.mediumopacity-cst{opacity: 0.55}
-.lowopacity,.lowopacity-cst{opacity: 0.33} /* lowopacity-cst is used for constant lowopacity even on hover */
-.verylowopacity {opacity: 0.08}
+.lowopacity,.lowopacity-cst{opacity: 0.60} /* lowopacity-cst is used for constant lowopacity even on hover */
 .opacity-80,.opacity-80-cst{opacity: 0.80}
-.lowopacity:hover,.mediumopacity:hover,.verylowopacity:hover{opacity: 1}
+.lowopacity:hover,.mediumopacity:hover{opacity: 1}
 .text-wrap{text-wrap:wrap}
 .wordbreakall {word-break: break-all}
 .flex { display: flex; }
@@ -260,13 +260,27 @@ td {
     grid-template-columns: 5% auto 10%;
 }
 
+.form-param-title {
+    font-size: 12px;
+    font-weight: bold;
+    color: rgb(255 255 255 / 80%);
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+
+.form-param-note {
+    font-size: 12px;
+    color: #64717e;
+    margin-left: 2px;
+}
+
 /**
  *  Icons
  */
-.icon, .icon-small, .icon-medium, .icon-lowopacity, .icon-verylowopacity, .icon-mediumopacity, .icon-nf, .icon-np {
+.icon, .icon-small, .icon-medium, .icon-lowopacity, .icon-mediumopacity, .icon-nf, .icon-np {
     height: 15px;
-    margin-left: 5px;
-    margin-right: 5px;
+    /* margin-left: 5px;
+    margin-right: 5px; */
     vertical-align: middle;
     cursor: pointer;
 }
@@ -277,15 +291,12 @@ td {
     height: 18px !important;
 }
 .icon-lowopacity {
-    opacity: 0.33;
+    opacity: 0.60;
 }
 .icon-mediumopacity {
     opacity: 0.55;
 }
-.icon-verylowopacity {
-    opacity: 0.08;
-}
-.icon-lowopacity:hover, .icon-verylowopacity:hover, .icon-mediumopacity:hover {
+.icon-lowopacity:hover, .icon-mediumopacity:hover {
     opacity: 1;
 }
 /* icon with no pointer */

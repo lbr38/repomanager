@@ -236,6 +236,7 @@ article {
 .repos-list-group-flex-div {
     display: grid;
     grid-template-columns: 300px 55px auto auto auto 60px 1fr;
+    row-gap: 25px;
     margin-bottom: 12px;
     background-color: #1d3349;
     border: 1px solid #24405c;
@@ -245,7 +246,8 @@ article {
 }
 
 .repos-list-group-flex-div [class^="item"] {
-    padding: 4px 0px 4px 8px;
+    /* padding: 4px 0px 4px 8px; */
+    padding: 4px 0px 4px 0px;
     position: relative;
 }
 
@@ -266,6 +268,7 @@ article {
     display: flex;
     flex-direction: column;
     row-gap: 5px;
+    padding-left: 10px !important;
 }
 
 .item-empty-line {
@@ -279,7 +282,7 @@ article {
     grid-template-columns: auto;
     justify-items: flex-end;
     grid-auto-flow: column;
-    margin-right: 5px;
+    margin-right: 10px;
 }
 
 .item-checkbox input[type=checkbox] {
@@ -309,9 +312,9 @@ article {
 
 .item-arrow-up span {
     position: absolute;
-    top: -35px;
+    top: -61px;
     left: 15px;
-    height: 46.5px;
+    height: 72.5px;
     width: 30px;
     border-left: 1px solid #ffffff6b;
     border-bottom: 1px solid #ffffff6b;
@@ -368,7 +371,7 @@ article {
     align-content: flex-start;
     justify-content: space-evenly;
     column-gap: 2px;
-    padding: 5px 0 0 2px !important;
+    padding: 6px 0 0 0 !important;
     position: inherit !important;
 }
 
@@ -512,7 +515,7 @@ input::placeholder {
     background-color: #dc0044;
 }
 
-[class^="label-pkg"], .label-ok, .label-ko {
+[class^="label-pkg"] {
     display: block;
     width: 18px;
     height: 18px;
@@ -526,12 +529,6 @@ input::placeholder {
     background-color: #5372e7;
 }
 .label-pkg-deb {
-    background-color: #ff0044;
-}
-.label-ok {
-    background-color: #14be7e;
-}
-.label-ko {
     background-color: #ff0044;
 }
 
@@ -558,10 +555,6 @@ footer {
 }
 
 footer #github img { width: 25px; }
-
-#hideAllReposGroups {
-    font-size: 13px;
-}
 
 .circle-div-container div {
     display: inline-block;

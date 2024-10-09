@@ -12,7 +12,7 @@ $(document).on('submit','#addSourceForm',function () {
      *  Retrieve source repo type
      */
     var repoType = $('input[name=addSourceRepoType]:checked').val();
-
+console.log(repoType);
     /**
      *  Retrieve source repo name
      */
@@ -129,7 +129,7 @@ function newSource(repoType, name, url, gpgKeyURL, gpgKeyText)
         [],
         // Execute functions on success:
         [
-            "reloadPanel('repos/sources')",
+            "reloadPanel('sources-repos/list')",
             "reloadNewRepoDiv()"
         ]
     );
@@ -170,7 +170,7 @@ function editSource(id, name, url, gpgkey, sslCertificatePath, sslPrivateKeyPath
         [],
         // Execute functions on success:
         [
-            "reloadPanel('repos/sources')",
+            "reloadPanel('sources-repos/list')",
             "reloadNewRepoDiv()"
         ]
     );
@@ -199,7 +199,7 @@ function deleteSource(sourceId)
         [],
         // Execute functions on success:
         [
-            "reloadPanel('repos/sources')",
+            "reloadPanel('sources-repos/list')",
             "reloadNewRepoDiv()"
         ]
     );
@@ -228,7 +228,7 @@ function deleteGpgKey(gpgKeyId)
         [],
         // Execute functions on success:
         [
-            "reloadPanel('repos/sources')"
+            "reloadPanel('sources-repos/list')"
         ]
     );
 }
@@ -256,7 +256,7 @@ function importGpgKey(gpgkey)
         [],
         // Execute functions on success:
         [
-            "reloadPanel('repos/sources')"
+            "reloadPanel('sources-repos/list')"
         ]
     );
 }

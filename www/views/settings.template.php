@@ -47,7 +47,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Repomanager FQDN, defined during the creation of the Docker container." />
+                        <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Repomanager FQDN, defined during the creation of the Docker container." />
                     </div>
                     <div>
                         <p>Hostname</p>
@@ -60,7 +60,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Specify your timezone. This is especially useful to ensure that scheduled tasks run at the specified time." />
+                        <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Specify your timezone. This is especially useful to ensure that scheduled tasks run at the specified time." />
                     </div>
                     <div>
                         <p>Timezone</p>
@@ -83,7 +83,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Default contact for receiving emails. Currently, only scheduled tasks and their reminders are sending emails. You can specify multiple recipients." />
+                        <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Default contact for receiving emails. Currently, only scheduled tasks and their reminders are sending emails. You can specify multiple recipients." />
                     </div>
                     <div>
                         <p>Default contact</p>
@@ -119,7 +119,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Specify the proxy URL to use to access the internet (optional). Example: https://myproxy.com:8080" /> 
+                        <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Specify the proxy URL to use to access the internet (optional). Example: https://myproxy.com:8080" /> 
                     </div>
                     <div>
                         <p>Use proxy</p>
@@ -132,7 +132,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Specify the memory limit for tasks execution." /> 
+                        <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Specify the memory limit for tasks execution." /> 
                     </div>
                     <div>
                         <p>Task execution memory limit (in MB)</p>
@@ -152,7 +152,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Root URL for accessing repositories. This URL is not browseable for security reasons. To explore the content of a repository snapshot, use the snapshot browsing system." />
+                        <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Root URL for accessing repositories. This URL is not browseable for security reasons. To explore the content of a repository snapshot, use the snapshot browsing system." />
                     </div>
                     <div>
                         <p>Repos URL</p>
@@ -165,7 +165,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Maximum number of unused snapshots to keep per repository." />
+                        <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Maximum number of unused snapshots to keep per repository." />
                     </div>
                     <div>
                         <p>Retention</p>
@@ -183,7 +183,7 @@
            
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Prefix added to repository configuration files when installing on client hosts (e.g., '<myprefix>-debian.list' or '<myprefix>-nginx.repo'). Leave empty if you want no prefix." />
+                        <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Prefix added to repository configuration files when installing on client hosts (e.g., '<myprefix>-debian.list' or '<myprefix>-nginx.repo'). Leave empty if you want no prefix." />
                     </div>
                     <div>
                         <p>Repo configuration file name prefix</p>
@@ -197,7 +197,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Maximum time (in seconds) allowed to download a package during a mirroring process." />
+                        <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Maximum time (in seconds) allowed to download a package during a mirroring process." />
                     </div>
                     <div>
                         <p>Package download timeout (in seconds)</p>
@@ -212,7 +212,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable RPM package repositories.">
+                        <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Enable RPM package repositories.">
                     </div>
                     <div>
                         <p>Enable RPM repositories</p>
@@ -229,7 +229,7 @@
                 if (RPM_REPO == 'true') : ?>
                     <div class="settings-div">
                         <div>
-                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable the signing of RPM packages when creating a RPM package repository (mirror or local repository). Packages will be signed using the GPG signing key specified by the GPG key Id parameter.">
+                            <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Enable the signing of RPM packages when creating a RPM package repository (mirror or local repository). Packages will be signed using the GPG signing key specified by the GPG key Id parameter.">
                         </div>
                         <div>
                             <p>Sign packages with GPG</p>
@@ -250,7 +250,7 @@
 
                     <div class="settings-div">
                         <div>
-                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Default release version to use when creating RPM repositories." />
+                            <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Default release version to use when creating RPM repositories." />
                         </div>
                         <div>
                             <p>Default release version</p>
@@ -271,7 +271,7 @@
                     </div>
 
                     <div class="settings-div">
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Default package architecture to use when creating RPM repositories.">
+                        <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Default package architecture to use when creating RPM repositories.">
 
                         <p>Default package architecture</p>
 
@@ -288,12 +288,12 @@
                     </div>
 
                     <div class="settings-div">
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="RPM mirroring settings">
+                        <img src="/assets/icons/info.svg" class="icon-lowopacity" title="RPM mirroring settings">
                         <p><b>MIRRORING SETTINGS</b></p>
                     </div>
 
                     <div class="settings-div">
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Package retrieved from a remote repository may not be signed at all (for example, the publisher released the package forgetting to sign it). This parameter allows you to choose what to do in this case.">
+                        <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Package retrieved from a remote repository may not be signed at all (for example, the publisher released the package forgetting to sign it). This parameter allows you to choose what to do in this case.">
                         
                         <p>When package signature is missing</p>
 
@@ -305,7 +305,7 @@
                     </div>
 
                     <div class="settings-div">
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Package retrieved from a remote repository may have invalid signature (because the GPG key used to sign the package was not imported, or because the publisher signed the package with a different GPG key, or because the package's signature is corrupted or somehow broken). This parameter allows you to choose what to do in this case.">
+                        <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Package retrieved from a remote repository may have invalid signature (because the GPG key used to sign the package was not imported, or because the publisher signed the package with a different GPG key, or because the package's signature is corrupted or somehow broken). This parameter allows you to choose what to do in this case.">
 
                         <p>When package signature is invalid</p>
 
@@ -323,7 +323,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable DEB package repositories.">
+                        <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Enable DEB package repositories.">
                     </div>
                     <div>
                         <p>Enable DEB repositories</p>
@@ -340,7 +340,7 @@
                 if (DEB_REPO == 'true') : ?>
                     <div class="settings-div">
                         <div>
-                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable the signing of DEB repositories when creating a DEB package repository (mirror or local repository). The repository metadata will be signed using the GPG signing key specified by the GPG key Id parameter.">
+                            <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Enable the signing of DEB repositories when creating a DEB package repository (mirror or local repository). The repository metadata will be signed using the GPG signing key specified by the GPG key Id parameter.">
                         </div>
                         <div>
                             <p>Sign repositories with GPG</p>
@@ -361,7 +361,7 @@
 
                     <div class="settings-div">
                         <div>
-                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Default package architecture to use when creating DEB repositories.">
+                            <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Default package architecture to use when creating DEB repositories.">
                         </div>
                         <div>
                             <p>Default package architecture</p>
@@ -382,7 +382,7 @@
 
                     <!-- <div class="settings-div">
                         <div>
-                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Include packages specific translation when creating deb mirror.">
+                            <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Include packages specific translation when creating deb mirror.">
                         </div>
                         <div>
                             <p>Include translation(s) when creating deb mirror</p>
@@ -398,12 +398,12 @@
                     </div> -->
 
                     <div class="settings-div">
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="DEB mirroring settings">
+                        <img src="/assets/icons/info.svg" class="icon-lowopacity" title="DEB mirroring settings">
                         <p><b>MIRRORING SETTINGS</b></p>
                     </div>
 
                     <div class="settings-div">
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="InRelease / Release file retrieved from a remote repository may have invalid signature (because the GPG key used to sign the file was not imported, or because the publisher signed the file with a different GPG key, or because the file's signature is corrupted or somehow broken). This parameter allows you to choose what to do in this case.">
+                        <img src="/assets/icons/info.svg" class="icon-lowopacity" title="InRelease / Release file retrieved from a remote repository may have invalid signature (because the GPG key used to sign the file was not imported, or because the publisher signed the file with a different GPG key, or because the file's signature is corrupted or somehow broken). This parameter allows you to choose what to do in this case.">
 
                         <p>When Release file signature is invalid</p>
 
@@ -421,7 +421,7 @@
 
                     <div class="settings-div">
                         <div>
-                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="GPG key for signing packages and repositories, identified by its email address. This key is randomly generated upon Repomanager's first startup (4096 bits RSA key).">
+                            <img src="/assets/icons/info.svg" class="icon-lowopacity" title="GPG key for signing packages and repositories, identified by its email address. This key is randomly generated upon Repomanager's first startup (4096 bits RSA key).">
                         </div>
                         <div>
                             <p>GPG key Id (email address identifier)</p>
@@ -490,7 +490,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable logging and statistics on: repositories access, repositories size, repositories packages count" />
+                        <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Enable logging and statistics on: repositories access, repositories size, repositories packages count" />
                     </div>
                     <div>
                         <p>Enable repositories statistics</p>
@@ -515,7 +515,7 @@
             <div class="div-generic-blue">
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable reminders for scheduled tasks. Reminders are sent via email to the recipients defined when adding a new scheduled task." />
+                        <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Enable reminders for scheduled tasks. Reminders are sent via email to the recipients defined when adding a new scheduled task." />
                     </div>
                     <div>
                         <p>Enable scheduled tasks reminders</p>
@@ -540,7 +540,7 @@
             <div class="div-generic-blue">
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable the management of client hosts. These hosts can register with Repomanager via the API using linupdate." />
+                        <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Enable the management of client hosts. These hosts can register with Repomanager via the API using linupdate." />
                     </div>
                     <div>
                         <p>Manage hosts</p>
@@ -561,7 +561,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable the management of profiles for configuring client hosts." />
+                        <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Enable the management of profiles for configuring client hosts." />
                     </div>
                     <div>
                         <p>Manage profiles</p>
@@ -586,7 +586,7 @@
             <div class="div-generic-blue">
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable the import of CVEs into Repomanager. The import uses feeds from https://nvd.nist.gov/ Eventually, the CVEs tab should be able to list client hosts imported into Repomanager that have vulnerable packages." />
+                        <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Enable the import of CVEs into Repomanager. The import uses feeds from https://nvd.nist.gov/ Eventually, the CVEs tab should be able to list client hosts imported into Repomanager that have vulnerable packages." />
                     </div>
                     <div>
                         <p>Import CVEs</p>
@@ -604,7 +604,7 @@
                 if (CVE_IMPORT == 'true') : ?>
                     <div class="settings-div">
                         <div>
-                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Every day time at which the import of CVEs runs." />
+                            <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Every day time at which the import of CVEs runs." />
                         </div>
                         <div>
                             <p>Import scheduled time</p>
@@ -620,7 +620,7 @@
                 // if (MANAGE_HOSTS == 'true' && CVE_IMPORT == 'true') : ?>
                     <!-- <div class="settings-div">
                         <div>
-                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="" />
+                            <img src="/assets/icons/info.svg" class="icon-lowopacity" title="" />
                         </div>
                         <div>
                             <p>Scan for CVEs affected hosts</p>
@@ -639,7 +639,7 @@
                     if (CVE_IMPORT == 'true') : ?>
                     <div class="settings-div">
                         <div>
-                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="" />
+                            <img src="/assets/icons/info.svg" class="icon-lowopacity" title="" />
                         </div>
                         <div>
                             <p><a href="/cves" target="_blank" rel="noopener noreferrer">Access CVEs page (beta)</a><img src="/assets/icons/external-link.svg" class="icon" /></p>
@@ -666,7 +666,7 @@
 
         <div class="health-div">
             <div>
-                <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Main database. Repomanager cannot run if this database is on error." />
+                <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Main database. Repomanager cannot run if this database is on error." />
             </div>
             <div>
                 <p>Main</p>
@@ -711,7 +711,7 @@
         if (STATS_ENABLED == "true") : ?>
             <div class="health-div">
                 <div>
-                    <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Stats database." />
+                    <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Stats database." />
                 </div>
                 <div>
                     <p>Stats</p>
@@ -761,7 +761,7 @@
         if (MANAGE_HOSTS == "true") : ?>
             <div class="health-div">
                 <div>
-                    <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Hosts database." />
+                    <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Hosts database." />
                 </div>
                 <div>
                     <p>Hosts</p>
@@ -812,7 +812,7 @@
 
         <div class="health-div">
             <div>
-                <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Repomanager service is used to execute regular tasks such as executing scheduled tasks, sending scheduled tasks reminders, logging repositories access..." />
+                <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Repomanager service is used to execute regular tasks such as executing scheduled tasks, sending scheduled tasks reminders, logging repositories access..." />
             </div>
             <div>
                 <p>Repomanager service</p>

@@ -11,7 +11,8 @@ class Repos
 
         if (IS_ADMIN) {
             \Controllers\Layout\Panel\RepoGroup::render();
-            \Controllers\Layout\Panel\SourceRepo::render();
+            \Controllers\Layout\Panel\Render::render('source-repos/list');
+            // \Controllers\Layout\Panel\Render::render('source-repos/new');
             \Controllers\Layout\Panel\NewRepo::render();
             \Controllers\Layout\Panel\Task::render();
         }

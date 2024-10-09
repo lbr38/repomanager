@@ -159,7 +159,7 @@
                     } ?>
                 </div>
 
-                <div class="flex align-item-center justify-end">
+                <div class="flex align-item-center justify-end column-gap-15">
                     <?php
                     /**
                      *  If task is a scheduled task

@@ -15,7 +15,8 @@ trait Sync
 
         $this->taskLog->step('SYNCING PACKAGES');
 
-        echo '<div class="hide getPackagesDiv"><pre>';
+        // echo '<div class="hide getPackagesDiv"><pre>';
+        echo '<div class="hide getPackagesDiv">';
         $this->taskLog->steplogWrite();
 
         //// CHECKS ////
@@ -134,7 +135,8 @@ trait Sync
                 }
             }
         } catch (Exception $e) {
-            echo '</pre></div>';
+            // echo '</pre></div>';
+            echo '</div>';
 
             /**
              *  Throw exception with mirror error message
@@ -175,7 +177,6 @@ trait Sync
                 $mymirror->setPackagesToInclude($this->repo->getPackagesToInclude());
                 $mymirror->setPackagesToExclude($this->repo->getPackagesToExclude());
                 $mymirror->setOutputFile($this->taskLog->getStepLog());
-                $mymirror->outputToFile(true);
 
                 /**
                  *  If the task is an update, set the previous repo directory path
@@ -249,7 +250,6 @@ trait Sync
                 $mymirror->setPackagesToInclude($this->repo->getPackagesToInclude());
                 $mymirror->setPackagesToExclude($this->repo->getPackagesToExclude());
                 $mymirror->setOutputFile($this->taskLog->getStepLog());
-                $mymirror->outputToFile(true);
 
                 /**
                  *  If the task is an update, set the previous repo directory path
@@ -303,7 +303,8 @@ trait Sync
                 throw new Exception('Could not rename working directory ' . $workingDir);
             }
         } catch (Exception $e) {
-            echo '</pre></div>';
+            // echo '</pre></div>';
+            echo '</div>';
 
             /**
              *  If there was an error while mirroring, delete working dir if exists
@@ -318,7 +319,8 @@ trait Sync
             throw new Exception($e->getMessage());
         }
 
-        echo '</pre></div>';
+        // echo '</pre></div>';
+        echo '</div>';
 
         $this->taskLog->stepOK();
 

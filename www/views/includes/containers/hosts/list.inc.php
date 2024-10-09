@@ -32,14 +32,14 @@
                         <div class="searchInput-container">
                             <div class="searchInput-subcontainer">
                                 <div>
-                                    <div class="flex align-item-center justify-center">
+                                    <div class="flex align-item-center column-gap-10 justify-center">
                                         <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Search a host by its name.&#13;&#13;You can specify a filter before your search entry:&#13;os:<os name> <search>&#13;os_version:<os version> <search>&#13;os_family:<os family> <search>&#13;type:<virtualization type> <search>&#13;kernel:<kernel> <search>&#13;arch:<architecture> <search>&#13;profile:<profile> <search>&#13;env:<env> <search>&#13;agent_version:<version> <search>&#13;reboot_required:<true/false> <search>" />
                                         <span>Search host:</span>
                                     </div>
                                     <input type="text" id="searchHostInput" onkeyup="searchHost()" class="input-large" autocomplete="off" placeholder="Hostname, IP" />
                                 </div>
                                 <div>
-                                    <div class="flex align-item-center justify-center">
+                                    <div class="flex align-item-center column-gap-10 justify-center">
                                         <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Search a package on all hosts, by its name" />
                                         <span>Search package:</span>
                                     </div>
@@ -115,7 +115,7 @@
                                             <?php
                                             if (IS_ADMIN) : ?>
                                                 <span class="text-right margin-right-15">
-                                                    <input class="js-select-all-button verylowopacity pointer" type="checkbox" group="<?=$group['Name']?>" title="Select all" >
+                                                    <input class="js-select-all-button lowopacity pointer" type="checkbox" group="<?=$group['Name']?>" title="Select all" >
                                                 </span>
                                                 <?php
                                             endif ?>
@@ -480,7 +480,7 @@
                                                 <?php
                                                 if (IS_ADMIN) : ?>
                                                     <div class="text-right margin-right-15" title="Select <?= $hostname ?>">
-                                                        <input type="checkbox" class="js-host-checkbox verylowopacity pointer" name="checkbox-host[]" group="<?= $group['Name'] ?>" value="<?= $id ?>">
+                                                        <input type="checkbox" class="js-host-checkbox lowopacity pointer" name="checkbox-host[]" group="<?= $group['Name'] ?>" value="<?= $id ?>">
                                                     </div>
                                                     <?php
                                                 endif ?>
