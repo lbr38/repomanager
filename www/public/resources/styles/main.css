@@ -688,7 +688,7 @@ footer #github img { width: 25px; }
 .header-light-red, .header-light-red-min { background-color: #ff3369 !important; }
 .header-light-blue, .header-light-blue-min { background-color: #2b4d6e !important; }
 
-.task-form-params, .task-schedule-form-params {
+/* .task-form-params, .task-schedule-form-params {
     width: auto;
     display: flex;
     align-items: center;
@@ -704,9 +704,9 @@ footer #github img { width: 25px; }
 }
 
 /* Les paragraphes eux occupent tout l'espace, les titres aussi */
-.task-form-params p, .task-form-params h3 {
+/*.task-form-params p, .task-form-params h3 {
     flex: 0 0 100%;
-}
+} */
 
 #loginDiv-container {
     height: 90vh;

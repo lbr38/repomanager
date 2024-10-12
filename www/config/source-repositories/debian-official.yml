@@ -1,0 +1,11 @@
+---
+- name: debian
+  type: deb
+  url: https://deb.debian.org/debian
+  distributions: [buster, bullseye, bookworm]
+  components: [main, contrib, non-free]
+  architectures: [amd64, arm64, armhf, i386, mips, mips64el, mipsel, ppc64el, s390x]
+  keyserver:
+    - keyring.debian.org
+  gpgkeys:
+    - 126C0D24BD8A2942CC7DF8AC7638D0442B90D010

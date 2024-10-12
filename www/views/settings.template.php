@@ -319,23 +319,22 @@
                     <?php
                 endif;
 
-                // if (MANAGE_HOSTS == 'true' && CVE_IMPORT == 'true') : ?>
-                    <!-- <div class="settings-div">
-                        <div>
-                            <img src="/assets/icons/info.svg" class="icon-lowopacity" title="" />
-                        </div>
-                        <div>
-                            <p>Scan for CVEs affected hosts</p>
-                        </div>
-                        <div>
-                            <label class="onoff-switch-label">
-                                <input class="settings-param onoff-switch-input" param-name="cveScanHosts" type="checkbox" value="true" <?php echo (CVE_SCAN_HOSTS == "true") ? 'checked' : ''; ?>>
-                                <span class="onoff-switch-slider"></span>
-                            </label>
-                        </div>
-                        <div></div>
-                    </div> -->
-                    <?php
+                // if (MANAGE_HOSTS == 'true' && CVE_IMPORT == 'true') :
+                    // <div class="settings-div">
+                    //     <div>
+                    //         <img src="/assets/icons/info.svg" class="icon-lowopacity" title="" />
+                    //     </div>
+                    //     <div>
+                    //         <p>Scan for CVEs affected hosts</p>
+                    //     </div>
+                    //     <div>
+                    //         <label class="onoff-switch-label">
+                    //             <input class="settings-param onoff-switch-input" param-name="cveScanHosts" type="checkbox" value="true" <?php echo (CVE_SCAN_HOSTS == "true") ? 'checked' : '';
+                    //             <span class="onoff-switch-slider"></span>
+                    //         </label>
+                    //     </div>
+                    //     <div></div>
+                    // </div>
                 // endif
 
                 if (CVE_IMPORT == 'true') : ?>
@@ -384,7 +383,7 @@
         } else {
             echo '<p><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" />' . $statusMsg . '</p>';
         }
-        
+
         if (STATS_ENABLED == "true") : ?>
             <h6>STATS DATABASE</h6>
             <p class="input-note">Repositories statistics database.</p>

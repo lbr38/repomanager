@@ -1,6 +1,21 @@
 <?php
 
 /**
+ *  Import source repositories from list
+ */
+if ($_POST['action'] == 'import-source-repos' and !empty($_POST['list'])) {
+    $mysource = new \Controllers\Source();
+
+    try {
+        $mysource->import($_POST['list']);
+    } catch (\Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, 'Source repositories have been imported');
+}
+
+/**
  *  Add a new source repo
  */
 if (

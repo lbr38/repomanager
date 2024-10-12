@@ -1,6 +1,6 @@
 <?php ob_start(); ?>
 
-<h5>CREATE A NEW GROUP</h5>
+<h6>CREATE A NEW GROUP</h6>
 
 <form id="newGroupForm" autocomplete="off">
     <input id="newGroupInput" type="text" class="input-medium" placeholder="Group name" />
@@ -11,7 +11,7 @@
 
 <?php
 if (!empty($repoGroupsList)) : ?>
-    <h5>CURRENT GROUPS</h5>
+    <h6>CURRENT GROUPS</h6>
 
     <?php
     foreach ($repoGroupsList as $group) :
@@ -25,7 +25,7 @@ if (!empty($repoGroupsList)) : ?>
         <div class="table-container grid-fr-4-1 bck-blue-alt group-config-btn pointer veil-on-reload" group-id="<?= $group['Id'] ?>">
             <div>
                 <p><?= $group['Name'] ?></p>
-                <p class="lowopacity-cst"><?= $reposInCount ?> repo<?= $reposInCount > 1 ? 's' : '' ?></p>
+                <p class="lowopacity-cst"><?= $reposInCount ?> <?= $reposInCount > 1 ? 'repositories' : 'repository' ?></p>
             </div>
 
             <div class="flex justify-end">
@@ -35,44 +35,42 @@ if (!empty($repoGroupsList)) : ?>
 
         <div class="group-config-div detailsDiv margin-bottom-5 hide veil-on-reload" group-id="<?= $group['Id'] ?>">
             <form class="group-form" group-id="<?= $group['Id'] ?>" autocomplete="off">
-                <div class="grid grid-fr-1-2 align-item-center column-gap-10">
-                    <span>Name</span>
-                    <input class="group-name-input" type="text" group-id="<?= $group['Id'] ?>" value="<?= $group['Name'] ?>" />
+                <h6>NAME</h6>
+                <input class="group-name-input" type="text" group-id="<?= $group['Id'] ?>" value="<?= $group['Name'] ?>" />
 
-                    <span>Repositories</span>
-                    <select class="group-repos-list" group-id="<?= $group['Id'] ?>" name="group-repos[]" multiple>
-                        <?php
-                        /**
-                         *  Repos members of the group will be selected by default in the list
-                         */
-                        if (!empty($reposIn)) {
-                            foreach ($reposIn as $repo) {
-                                if ($repo['Package_type'] == 'rpm') {
-                                    echo '<option value="' . $repo['repoId'] . '" selected>' . $repo['Name'] . '</option>';
-                                }
-                                if ($repo['Package_type'] == 'deb') {
-                                    echo '<option value="' . $repo['repoId'] . '" selected>' . $repo['Name'] . ' ❯ ' . $repo['Dist'] . ' ❯ ' . $repo['Section'] . '</option>';
-                                }
+                <h6>REPOSITORIES</h6>
+                <select class="group-repos-list" group-id="<?= $group['Id'] ?>" name="group-repos[]" multiple>
+                    <?php
+                    /**
+                     *  Repos members of the group will be selected by default in the list
+                     */
+                    if (!empty($reposIn)) {
+                        foreach ($reposIn as $repo) {
+                            if ($repo['Package_type'] == 'rpm') {
+                                echo '<option value="' . $repo['repoId'] . '" selected>' . $repo['Name'] . '</option>';
+                            }
+                            if ($repo['Package_type'] == 'deb') {
+                                echo '<option value="' . $repo['repoId'] . '" selected>' . $repo['Name'] . ' ❯ ' . $repo['Dist'] . ' ❯ ' . $repo['Section'] . '</option>';
                             }
                         }
+                    }
 
-                        /**
-                         *  Repos not members of the group will be unselected in the list
-                         */
-                        if (!empty($reposNotIn)) {
-                            foreach ($reposNotIn as $repo) {
-                                if ($repo['Package_type'] == 'rpm') {
-                                    echo '<option value="' . $repo['repoId'] . '">' . $repo['Name'] . '</option>';
-                                }
-                                if ($repo['Package_type'] == 'deb') {
-                                    echo '<option value="' . $repo['repoId'] . '">' . $repo['Name'] . ' ❯ ' . $repo['Dist'] . ' ❯ ' . $repo['Section'] . '</option>';
-                                }
+                    /**
+                     *  Repos not members of the group will be unselected in the list
+                     */
+                    if (!empty($reposNotIn)) {
+                        foreach ($reposNotIn as $repo) {
+                            if ($repo['Package_type'] == 'rpm') {
+                                echo '<option value="' . $repo['repoId'] . '">' . $repo['Name'] . '</option>';
                             }
-                        } ?>
-                    </select>
-                </div>
+                            if ($repo['Package_type'] == 'deb') {
+                                echo '<option value="' . $repo['repoId'] . '">' . $repo['Name'] . ' ❯ ' . $repo['Dist'] . ' ❯ ' . $repo['Section'] . '</option>';
+                            }
+                        }
+                    } ?>
+                </select>
 
-                <br>
+                <br><br>
                 <button type="submit" class="btn-large-green" title="Save">Save</button>
             </form>
         </div>

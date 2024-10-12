@@ -3,7 +3,8 @@
     if (!empty($reloadableTableContent)) : ?>
         <h6>CURRENT SOURCE REPOSITORIES</h6>
 
-        <button type="button" class="btn-small-green get-panel-btn" panel="source-repos/new">Add</button>
+        <button type="button" class="btn-small-green get-panel-btn" panel="source-repos/new">Manually add</button>
+        <button type="button" class="btn-small-green get-panel-btn" panel="source-repos/import">Import</button>
         <br><br>
 
         <?php

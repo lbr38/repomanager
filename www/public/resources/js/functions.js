@@ -1,7 +1,6 @@
 /**
- *
- *  Fonctions utiles
- *
+ * Get panel by name
+ * @param {*} name
  */
 function getPanel(name)
 {
@@ -28,6 +27,10 @@ function getPanel(name)
     );
 }
 
+/**
+ * Open a panel by name
+ * @param {*} name
+ */
 function openPanel(name)
 {
     $('.slide-panel-container[slide-panel="' + name + '"]').css({
@@ -39,6 +42,10 @@ function openPanel(name)
     })
 }
 
+/**
+ * Close a panel by name
+ * @param {*} name
+ */
 function closePanel(name = null)
 {
     if (name != null) {
@@ -61,7 +68,7 @@ function closePanel(name = null)
 }
 
 /**
- * Afficher un message d'alerte (success ou error)
+ * Print a success or error alert message
  * @param {*} message
  * @param {*} type
  */

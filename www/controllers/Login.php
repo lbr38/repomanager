@@ -138,8 +138,8 @@ class Login
             throw new Exception('You are not allowed to execute this action.');
         }
 
-        $username = Common::validateData($username);
-        $role = Common::validateData($role);
+        $username = strtolower(\Controllers\Common::validateData($username));
+        $role = strtolower(\Controllers\Common::validateData($role));
 
         /**
          *  Check that username does not contain invalid characters

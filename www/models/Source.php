@@ -143,12 +143,12 @@ class Source extends Model
     /**
      *  Check if source repo exists in database
      */
-    public function exists(string $type, string $source)
+    public function exists(string $type, string $name)
     {
         try {
             $stmt = $this->db->prepare("SELECT Id FROM sources WHERE Type = :type AND Name = :name");
             $stmt->bindValue(':type', $type);
-            $stmt->bindValue(':name', $source);
+            $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
         } catch (\Exception $e) {
             $this->db->logError($e);

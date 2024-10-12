@@ -35,6 +35,95 @@ class Source
     }
 
     /**
+     *  Import list(s) of source repositories
+     */
+    public function import(array $listFiles)
+    {
+        try {
+            foreach ($listFiles as $sourceList) {
+                $listFile = \Controllers\Common::validateData($sourceList);
+
+                /**
+                 *  Check that the list exists
+                 */
+                if (!file_exists(SOURCE_LISTS_DIR . '/' . $listFile . '.yml')) {
+                    throw new Exception('specified list ' . $listFile . ' does not exist');
+                }
+
+                /**
+                 *  Load the yaml file
+                 */
+                $lists = yaml_parse_file(SOURCE_LISTS_DIR . '/' . $listFile . '.yml');
+
+                if ($lists === false) {
+                    throw new Exception('error while reading list ' . $listFile);
+                }
+
+                /**
+                 *  Check that the yaml file is not empty
+                 */
+                if (empty($lists)) {
+                    throw new Exception('list ' . $listFile . ' is empty');
+                }
+
+                foreach ($lists as $repo) {
+                    # TODO debug
+                    file_put_contents(ROOT . '/toto', print_r($repo, true));
+
+                    /**
+                     *  Throw error if some informations are missing
+                     */
+                    if (empty($repo['name'])) {
+                        throw new Exception('source repository name is empty');
+                    }
+                    if (empty($repo['url'])) {
+                        throw new Exception('source repository URL is empty');
+                    }
+                    if (empty($repo['type'])) {
+                        throw new Exception('source repository type is empty');
+                    }
+                    if (empty($repo['architectures'])) {
+                        throw new Exception('source repository architectures is empty');
+                    }
+
+                    if ($repo['type'] == 'deb') {
+                        if (empty($repo['distributions'])) {
+                            throw new Exception('source repository distributions is empty');
+                        }
+                        if (empty($repo['components'])) {
+                            throw new Exception('source repository components is empty');
+                        }
+                    }
+
+                    /**
+                     *  If a repository with the same name already exists, then update it
+                     *  Otherwise, add it
+                     */
+                    if ($this->exists($repo['type'], $repo['name'])) {
+                        /**
+                         *  If the repository already exists, then update it
+                         *  First get it's Id
+                         */
+                        $id = $this->getIdByName($repo['type'], $repo['name']);
+
+                        /**
+                         *  Edit the source repository
+                         */
+                        $this->edit($id, $repo['name'], $repo['url']);
+                    } else {
+                        /**
+                         *  Add the new source repository
+                         */
+                        $this->new($repo['type'], $repo['name'], $repo['url']);
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            throw new Exception('Could not import source repositories: ' . $e->getMessage());
+        }
+    }
+
+    /**
      *  Add a new source repo
      */
     public function new(string $type, string $name, string $url, string $gpgKeyURL = null, string $gpgKeyText = null)
@@ -294,9 +383,9 @@ class Source
     /**
      *  Check if source repo exists in database
      */
-    public function exists(string $type, string $sourceName)
+    public function exists(string $type, string $name)
     {
-        return $this->model->exists($type, $sourceName);
+        return $this->model->exists($type, $name);
     }
 
     /**
