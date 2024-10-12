@@ -49,7 +49,7 @@
                 } ?>
 
                 <h6>USE A PROXY</h6>
-                <p class="note">Optional. Specify the proxy URL to use to access the internet. e.g. https://myproxy.com:8080</p>
+                <p class="note">Specify the proxy URL to use to access the internet. e.g. https://myproxy.com:8080</p>
                 <input class="settings-param" param-name="proxy" type="text" value="<?= PROXY ?>" placeholder="https://">
 
                 <h6 class="required">TASK EXECUTION MEMORY LIMIT (in MB)</h6>

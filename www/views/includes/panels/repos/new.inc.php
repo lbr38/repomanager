@@ -2,7 +2,7 @@
        
 <form class="task-form" autocomplete="off">
     <div class="task-form-params" repo-id="none" action="create">
-        <h6>PACKAGE TYPE</h6>
+        <h6 class="required">PACKAGE TYPE</h6>
         <?php
         /**
          *  Case where the server manages several different types of repo
@@ -29,7 +29,7 @@
             <?php
         endif ?>
 
-        <h6>REPO TYPE</h6>
+        <h6 class="required">REPOSITORY TYPE</h6>
         <div class="switch-field">
             <input type="radio" id="repo-type_mirror" class="task-param" param-name="repo-type" name="repo-type" value="mirror" package-type="all" checked />
             <label for="repo-type_mirror">Mirror</label>
@@ -38,7 +38,7 @@
         </div>
 
         <div field-type="mirror rpm deb">
-            <h6>SOURCE REPO</h6>
+            <h6 class="required">SOURCE REPOSITORY</h6>
             <?php
             if (RPM_REPO == 'true') : ?>
                 <select class="task-param" param-name="source" field-type="mirror rpm" package-type="rpm">
@@ -68,13 +68,13 @@
         </div>
 
         <div field-type="mirror rpm deb">
-            <h6>CUSTOM REPO NAME</h6>
-            <p class="note">Optional</p>
+            <h6>REPOSITORY NAME</h6>
+            <p class="note">Optional. Default will be the source repository name.</p>
             <input type="text" class="task-param" param-name="alias" package-type="all" />
         </div>
 
         <div field-type="mirror local rpm">
-            <h6>RELEASE VERSION</h6>
+            <h6 class="required">RELEASE VERSION</h6>
             <select class="task-param" param-name="releasever" package-type="rpm" multiple>
                 <option value="7" <?php echo (RELEASEVER == 7) ? 'selected' : '' ?>>7 (Redhat 7 and derivatives)</option>
                 <option value="8" <?php echo (RELEASEVER == 8) ? 'selected' : '' ?>>8 (Redhat 8 and derivatives)</option>
@@ -83,7 +83,7 @@
         </div>
 
         <div field-type="mirror local deb">
-            <h6>DISTRIBUTION</h6>
+            <h6 class="required">DISTRIBUTION</h6>
             <select class="task-param" param-name="dist" package-type="deb" multiple>
                 <optgroup label="Debian">
                     <?php
@@ -99,7 +99,7 @@
                 </optgroup>
             </select>
 
-            <h6>SECTION / COMPONENT</h6>
+            <h6 class="required">SECTION / COMPONENT</h6>
             <select class="task-param" param-name="section" package-type="deb" multiple>
                 <option value="main">main</option>
                 <option value="contrib">contrib</option>
@@ -122,7 +122,6 @@
 
         <div id="new-repo-target-description-tr">
             <h6>DESCRIPTION</h6>
-            <p class="note">Optional</p>
             <input type="text" class="task-param" param-name="description" package-type="all" />
         </div>
 
@@ -132,7 +131,6 @@
          */
         if (!empty($newRepoFormGroupList)) : ?>
             <h6>ADD TO GROUP</h6>
-            <p class="note">Optional</p>
             <select class="task-param" param-name="group" package-type="all" >
                 <option value="">Select group...</option>
                 <?php
@@ -167,7 +165,7 @@
             <p>Additional parameters</p>
 
             <div field-type="mirror local rpm deb">
-                <h6>ARCHITECTURE</h6>
+                <h6 class="required">ARCHITECTURE</h6>
 
                 <div field-type="mirror local rpm">
                     <select class="task-param" param-name="arch" package-type="rpm" multiple>
@@ -199,11 +197,9 @@
 
         <div field-type="mirror rpm deb">
             <h6>ONLY INCLUDE PACKAGE(S)</h6>
-            <p class="note">Optional</p>
             <select class="task-param" param-name="package-include" package-type="all" multiple></select>
 
             <h6>EXCLUDE PACKAGE(S)</h6>
-            <p class="note">Optional</p>
             <select class="task-param" param-name="package-exclude" package-type="all" multiple></select>
         </div>
     </div>

@@ -9,7 +9,7 @@
 
     <!-- Scheduling params -->
     <div class="task-schedule-params hide">
-        <h6>SCHEDULE TYPE</h6>
+        <h6 class="required">SCHEDULE TYPE</h6>
         <?php
         /**
          *  Generate a random string to make radio Id unique and avoid conflicts with other forms
@@ -40,7 +40,7 @@
 
         if (in_array('recurring', $scheduleForm['type'])) : ?>
             <div class="task-schedule-recurring-frequency-input hide">
-                <h6>FREQUENCY</h6>
+                <h6 class="required">FREQUENCY</h6>
                 <select class="task-param" param-name="schedule-frequency">
                     <option value="">Select...</option>
                     <option value="hourly">Hourly</option>
@@ -51,7 +51,7 @@
             </div>
 
             <div class="task-schedule-recurring-day-input hide">
-                <h6>DAY(S)</h6>
+                <h6 class="required">DAY(S)</h6>
                 <select class="task-param" param-name="schedule-day" multiple>
                     <option value="monday">Monday</option>
                     <option value="tuesday">Tuesday</option>
@@ -64,7 +64,7 @@
             </div>
 
             <div class="task-schedule-recurring-monthly-input hide">
-                <h6>ON THE</h6>
+                <h6 class="required">ON THE</h6>
                 <div class="flex justify-space-between column-gap-15">
                     <select class="task-param" param-name="schedule-monthly-day-position">
                         <option value="first">First</option>
@@ -91,14 +91,14 @@
 
         if (in_array('unique', $scheduleForm['type'])) : ?>
             <div class="task-schedule-unique-input">
-                <h6>DATE</h6>
+                <h6 class="required">DATE</h6>
                 <input type="date" class="task-param" param-name="schedule-date" />
             </div>
             <?php
         endif; ?>
 
         <div class="task-schedule-time-input">
-            <h6>TIME</h6>
+            <h6 class="required">TIME</h6>
             <input type="time" class="task-param" param-name="schedule-time" />
         </div>
 

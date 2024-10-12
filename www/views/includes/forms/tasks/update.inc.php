@@ -50,7 +50,7 @@ if ($myrepo->getPackageType() == 'deb') {
 
 <h4>Additional parameters</h4>
 
-<h6>ARCHITECTURE</h6>
+<h6 class="required">ARCHITECTURE</h6>
 <select class="task-param" param-name="arch" multiple>
     <option value="">Select architecture...</option>
     <?php
@@ -76,7 +76,6 @@ if ($myrepo->getPackageType() == 'deb') {
 </select>
 
 <h6>ONLY INCLUDE PACKAGE(S)</h6>
-<p class="note">Optional</p>
 <select class="task-param" param-name="package-include" multiple>
     <?php
     if (!empty($myrepo->getPackagesToInclude())) {
@@ -87,7 +86,6 @@ if ($myrepo->getPackageType() == 'deb') {
 </select>
 
 <h6>EXCLUDE PACKAGE(S)</h6>
-<p class="note">Optional</p>
 <select class="task-param" param-name="package-exclude" multiple>
     <?php
     if (!empty($myrepo->getPackagesToExclude())) {

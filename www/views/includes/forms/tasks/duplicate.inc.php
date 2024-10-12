@@ -9,7 +9,7 @@ if ($myrepo->getPackageType() == 'deb') {
 } ?>
 ⟶<span class="label-black"><?=$myrepo->getDateFormatted()?></span>
   
-<h6>NEW REPOSITORY NAME</h6>
+<h6 class="required">NEW REPOSITORY NAME</h6>
 <input type="text" class="task-param" param-name="name" required />
 
 <h6>POINT AN ENVIRONMENT</h6>
@@ -27,7 +27,6 @@ if ($myrepo->getPackageType() == 'deb') {
 
 <div id="duplicate-repo-target-description-tr">
     <h6>DESCRIPTION</h6>
-    <p class="note">Optional</p>
     <input type="text" class="task-param" param-name="description" />
 
 <?php
@@ -39,7 +38,6 @@ $groupList = $group->listAll();
 
 if (!empty($groupList)) : ?>
     <h6>ADD TO GROUP</h6>
-    <p class="note">Optional</p>
     <select class="task-param" param-name="group">
         <option value="">Select group...</option>
         <?php

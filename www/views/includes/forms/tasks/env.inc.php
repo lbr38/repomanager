@@ -8,7 +8,7 @@ if ($myrepo->getPackageType() == 'deb') {
     echo '<span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>';
 } ?>
 
-<h6>TARGET ENVIRONMENT</h6>
+<h6 class="required">TARGET ENVIRONMENT</h6>
 <select class="task-param" param-name="env" required>
     <?php
     foreach (ENVS as $env) {
@@ -24,7 +24,6 @@ if ($myrepo->getPackageType() == 'deb') {
 </select>
 
 <h6>DESCRIPTION</h6>
-<p class="note">Optional</p>
 <input type="text" class="task-param" param-name="description" />
 
 <?php
