@@ -7,10 +7,10 @@ if ($myrepo->getPackageType() == 'deb') {
 } ?>
 
 <h6>UPDATE</h6>
-<span class="label-white"><?= $mirror ?></span>⟶<span class="label-green"><?= DATE_DMY ?></span><span id="update-repo-show-target-env-<?= $myrepo->getSnapId() ?>"></span><br><br></td>
+<span class="label-white"><?= $mirror ?></span>⟶<span class="label-black"><?= $myrepo->getDateFormatted() ?></span>
 
 <h6>TO</h6>
-<span class="label-white"><?= $mirror ?></span>⟶<span class="label-green"><?= DATE_DMY ?></span><span id="update-repo-show-target-env-<?= $myrepo->getSnapId() ?>"></span><br><br></td>
+<span class="label-white"><?= $mirror ?></span>⟶<span class="label-red"><?= DATE_DMY ?></span><span id="update-repo-show-target-env-<?= $myrepo->getSnapId() ?>"></span>
 
 <h6>POINT AN ENVIRONMENT</h6>
 <select id="update-repo-target-env-select-<?= $myrepo->getSnapId() ?>" class="task-param" param-name="env">
@@ -25,7 +25,7 @@ if ($myrepo->getPackageType() == 'deb') {
     } ?>
 </select>
 
-<h4>GPG parameters</h4>
+<h6>GPG PARAMETERS</h6>
 
 <h6>CHECK GPG SIGNATURES</h6>
 <label class="onoff-switch-label">
@@ -48,7 +48,7 @@ if ($myrepo->getPackageType() == 'deb') {
     <span class="onoff-switch-slider"></span>
 </label>
 
-<h4>Additional parameters</h4>
+<h6>ADDITIONAL PARAMETERS</h6>
 
 <h6 class="required">ARCHITECTURE</h6>
 <select class="task-param" param-name="arch" multiple>

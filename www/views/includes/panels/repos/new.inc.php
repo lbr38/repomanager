@@ -142,7 +142,7 @@
         endif ?>
 
         <div field-type="mirror rpm deb">
-            <p>GPG parameters</p>
+            <h6>GPG PARAMETERS</h6>
 
             <h6>CHECK GPG SIGNATURES</h6>
             <label class="onoff-switch-label">
@@ -162,7 +162,7 @@
         </div>
 
         <div field-type="mirror local rpm deb">
-            <p>Additional parameters</p>
+            <h6>ADDITIONAL PARAMETERS</h6>
 
             <div field-type="mirror local rpm deb">
                 <h6 class="required">ARCHITECTURE</h6>

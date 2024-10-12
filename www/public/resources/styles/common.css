@@ -76,24 +76,21 @@ h6 {
     font-size: 13px;
     font-weight: bold;
     color: rgb(255 255 255 / 80%);
-    /* margin-top: 15px; */
     margin-top: 18px;
-    /* margin-bottom: 5px; */
     margin-bottom: 2px;
 }
 
 .note {
     font-size: 13.5px;
     font-style: italic;
-    /* color: #606b76; */
-    /* color: #bdc3c7a3; */
     color: #8A99AA;
     margin-bottom: 2px;
 }
 
 .required::after {
     content: ' *';
-    color: #FF495C;
+    font-size: 12px;
+    color: #F32F63;
 }
 
 hr {
@@ -131,12 +128,12 @@ pre.codeblock {
 .pointer { cursor: pointer; }
 .bold { font-weight: bold; }
 .greentext{color:#14be7e !important}
-.redtext{color:#FF495C !important}
+.redtext{color:#F32F63 !important}
 .yellowtext{color:#FCCA46 !important}
 .graytext { color : gray; }
 .bkg-green { background-color: #14be7e !important; color: white !important; }
 .bkg-yellow { background-color: #ffb536 !important; color: white !important; }
-.bkg-red { background-color: #FF495C !important; color: white !important; }
+.bkg-red { background-color: #F32F63 !important; color: white !important; }
 .bkg-gray { background-color: #cdcdcd8f !important; color: white !important; }
 .bck-blue { background-color: #182b3e !important}
 .bck-blue-alt {background-color: #1d3349 !important}
@@ -271,7 +268,7 @@ td {
     font-weight: bold;
 }
 .table-generic-blue tr { background-color: #1d3349; }
-.table-generic-red tr  { background-color: #FF495C; }
+.table-generic-red tr  { background-color: #F32F63; }
 
 /**
  *  Generic table with pagination
@@ -426,7 +423,7 @@ input[type=checkbox]:not(.onoff-switch-input):checked {
 }
 /* All red buttons */
 .btn-large-red, .btn-medium-red, .btn-small-red, .btn-xsmall-red, .btn-xxsmall-red, .btn-fit-red, .round-btn-red {
-    background-color: #FF495C;
+    background-color: #F32F63;
 }
 /* All yellow buttons */
 .btn-large-yellow, .btn-medium-yellow, .btn-small-yellow, .btn-xsmall-yellow, .btn-xxsmall-yellow, .btn-fit-yellow, .round-btn-yellow {
@@ -540,7 +537,7 @@ input[type=checkbox]:not(.onoff-switch-input):checked {
     padding-left: 8px;
 }
 .slide-btn-red {
-    background-color: #FF495C;
+    background-color: #F32F63;
 }
 .slide-btn-red:hover {
     background-color: #ff3347;
@@ -647,7 +644,7 @@ textarea {
     background-color: #15bf7f;
 }
 .crossmark {
-    background-color: #FF495C;
+    background-color: #F32F63;
 }
 .pending {
     background-color: #ffb536;
@@ -701,7 +698,7 @@ textarea {
     background-color: #5473e8;
 }
 .label-red {
-    background-color: #FF495C;
+    background-color: #F32F63;
 }
 .label-yellow {
     background-color: #ffb536;
@@ -885,7 +882,7 @@ textarea {
     grid-template-columns: repeat(3, 33%);
 }
 .alert-success { background-color: #14be7e; }
-.alert-error { background-color: #FF495C; }
+.alert-error { background-color: #F32F63; }
 .alert span, .alert-success span, .alert-error span, .confirmAlert span,
 .alert a, .alert-success a, .alert-error a, .confirmAlert a {
     font-size: 16px;
@@ -904,7 +901,7 @@ textarea {
     box-shadow: rgb(12 18 20 / 67%) 0px 0px 0px 1px;
 }
 [class*="btn-doConfirm"] {
-    background-color: #FF495C;
+    background-color: #F32F63;
 }
 [class*="btn-doConfirm"]:hover {
     background-color: #ff3347;

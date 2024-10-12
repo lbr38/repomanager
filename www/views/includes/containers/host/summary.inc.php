@@ -125,7 +125,7 @@
                     {
                         label: 'Uninstalled',
                         data: [<?=$lineChartRemovedPackagesCount?>],
-                        borderColor: '#ff0044',
+                        borderColor: '#F32F63',
                         fill: false
                     }
                 ],

@@ -99,7 +99,7 @@ header {
     border: none;
     border-radius: 50%;
     color: white;
-    background-color: #ff0044;
+    background-color: #F32F63;
     text-align: center;
     font-size: 9px;
     font-family: monospace;
@@ -135,7 +135,7 @@ header {
     border: none;
     border-radius: 50%;
     color: white;
-    background-color: #ff0044;
+    background-color: #F32F63;
     text-align: center;
     font-size: 9px;
     font-family: monospace;
@@ -509,7 +509,7 @@ input::placeholder {
 }
 .last-env, .last-env-fit {
     color: white;
-    background-color: #ff0044;
+    background-color: #F32F63;
 }
 .last-env:hover, .last-env-fit:hover {
     background-color: #dc0044;
@@ -529,7 +529,7 @@ input::placeholder {
     background-color: #5372e7;
 }
 .label-pkg-deb {
-    background-color: #ff0044;
+    background-color: #F32F63;
 }
 
 .div-flex {
@@ -584,7 +584,7 @@ footer #github img { width: 25px; }
 }
 .circle-div-container-count-green { border: 4px solid #15bf7f; }
 .circle-div-container-count-yellow { border: 4px solid #ffb536; }
-.circle-div-container-count-red { border: 4px solid #ff0044; }
+.circle-div-container-count-red { border: 4px solid #F32F63; }
 
 .donut-chart-container {
     width: 120px;
@@ -679,7 +679,7 @@ footer #github img { width: 25px; }
 }
 
 .header-green, .header-green-min { background-color: #14be7e; }
-.header-red, .header-red-min { background-color: #ff0044; }
+.header-red, .header-red-min { background-color: #F32F63; }
 .header-blue, .header-blue-min { background-color: #1d3349; }
 .header-light-red, .header-light-red-min { background-color: #ff3369 !important; }
 .header-light-blue, .header-light-blue-min { background-color: #2b4d6e !important; }

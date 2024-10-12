@@ -229,7 +229,7 @@
                             </div>
                             <?php
                             if ($envName == DEFAULT_ENV) {
-                                echo '<p class="note">This is the default environment</p>';
+                                echo '<p class="note">This is the default environment.</p>';
                             }
                         endforeach;
                     endif ?>

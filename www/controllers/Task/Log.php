@@ -255,7 +255,7 @@ class Log
 
         echo '<style>';
         echo '.' . $this->stepId . '-loading-' . $this->taskId . ' { display: none; }';
-        echo '.' . $this->stepId . '-maindiv-' . $this->taskId . ' { background-color: #ff0044; }';
+        echo '.' . $this->stepId . '-maindiv-' . $this->taskId . ' { background-color: #F32F63; }';
         echo '.' . $this->stepId . '-time:before { content: "' . $duration . '" }';
         echo '</style>';
 

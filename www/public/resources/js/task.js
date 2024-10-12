@@ -385,7 +385,7 @@ $(document).on('click',".task-schedule-btn", function () {
         form.find('.task-confirm-btn').html('Schedule');
     } else {
         form.find('.task-schedule-params').hide();
-        form.find('.task-confirm-btn').css('background-color', '#ff0044');
+        form.find('.task-confirm-btn').css('background-color', '#F32F63');
         form.find('.task-confirm-btn').html('Execute now');
     }
 });

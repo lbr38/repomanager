@@ -1,5 +1,5 @@
 <div class="task-schedule-form-params" action="<?= $scheduleForm['action'] ?>">
-    <p>Task scheduling</p>
+    <h6>TASK SCHEDULING</h6>
 
     <h6>SCHEDULE IT</h6>
     <label class="onoff-switch-label">
