@@ -159,7 +159,7 @@ class Login
          *  Check that username does not already exist
          */
         if ($this->userExists($username) === true) {
-            throw new Exception("Username <b>$username</b> is already used");
+            throw new Exception('Username <b>' . $username . '</b> already exists');
         }
 
         /**

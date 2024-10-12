@@ -355,175 +355,116 @@
     <h3>HEALTH</h3>
 
     <div class="div-generic-blue">
-        <h5>DATABASES</h5>
-
-        <div class="health-div">
-            <div>
-                <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Main database. Repomanager cannot run if this database is on error." />
-            </div>
-            <div>
-                <p>Main</p>
-            </div>
-            <div>
-                <p>
-                    <span>Status</span>
-                    <span>
-                        <?php
-                        $statusError = 0;
-                        $statusMsg = '';
-
-                        /**
-                         *  Checking that database is readable and writable
-                         */
-                        if (!is_readable(DB) or !is_writable(DB)) {
-                            $statusError++;
-                            $statusMsg = 'Main database is not readable / writable.';
-                        } else {
-                            /**
-                             *  Checking that all tables are present
-                             */
-                            $myconn = new \Models\Connection('main');
-
-                            if (!$myconn->checkMainTables()) {
-                                $statusError++;
-                                $statusMsg = 'One or more table are missing.';
-                            }
-                        }
-
-                        if ($statusError == 0) {
-                            echo '<img src="/assets/icons/greencircle.png" class="icon-small" />';
-                        } else {
-                            echo '<img src="/assets/icons/redcircle.png" class="icon-small" />' . $statusMsg;
-                        } ?>
-                    </span>
-                </p>
-            </div>
-        </div>
-
+        <h6>MAIN DATABASE</h6>
+        <p class="input-note">Main database. Repomanager cannot run if this database is on error.</p>
         <?php
+        $statusError = 0;
+        $statusMsg = '';
+
+        /**
+         *  Checking that database is readable and writable
+         */
+        if (!is_readable(DB) or !is_writable(DB)) {
+            $statusError++;
+            $statusMsg = 'Main database is not readable / writable.';
+        } else {
+            /**
+             *  Checking that all tables are present
+             */
+            $myconn = new \Models\Connection('main');
+
+            if (!$myconn->checkMainTables()) {
+                $statusError++;
+                $statusMsg = 'One or more table are missing.';
+            }
+        }
+
+        if ($statusError == 0) {
+            echo '<p><img src="/assets/icons/check.svg" class="icon vertical-align-text-top" /> Healthy</p>';
+        } else {
+            echo '<p><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" />' . $statusMsg . '</p>';
+        }
+        
         if (STATS_ENABLED == "true") : ?>
-            <div class="health-div">
-                <div>
-                    <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Stats database." />
-                </div>
-                <div>
-                    <p>Stats</p>
-                </div>
-                <div>
-                    <p>
-                        <span>Status</span>
-                        <span>
-                            <?php
-                            $statusError = 0;
-                            $statusMsg = '';
-
-                            if (!file_exists(STATS_DB)) {
-                                touch(STATS_DB);
-                            }
-
-                            /**
-                             *  Checking that database is readable and writable
-                             */
-                            if (!is_readable(STATS_DB) or !is_writable(STATS_DB)) {
-                                $statusError++;
-                                $statusMsg = 'Stats database is not readable / writable.';
-                            } else {
-                                /**
-                                 *  Checking that all tables are present
-                                 */
-                                $myconn = new \Models\Connection('stats');
-
-                                if (!$myconn->checkStatsTables()) {
-                                    $statusError++;
-                                    $statusMsg = 'One or more table are missing.';
-                                }
-                            }
-
-                            if ($statusError == 0) {
-                                echo '<img src="/assets/icons/greencircle.png" class="icon-small" />';
-                            } else {
-                                echo '<img src="/assets/icons/redcircle.png" class="icon-small" />' . $statusMsg;
-                            } ?>
-                        </span>
-                    </p>
-                </div>
-            </div>
+            <h6>STATS DATABASE</h6>
+            <p class="input-note">Repositories statistics database.</p>
             <?php
+            $statusError = 0;
+            $statusMsg = '';
+
+            if (!file_exists(STATS_DB)) {
+                touch(STATS_DB);
+            }
+
+            /**
+             *  Checking that database is readable and writable
+             */
+            if (!is_readable(STATS_DB) or !is_writable(STATS_DB)) {
+                $statusError++;
+                $statusMsg = 'Stats database is not readable / writable.';
+            } else {
+                /**
+                 *  Checking that all tables are present
+                 */
+                $myconn = new \Models\Connection('stats');
+
+                if (!$myconn->checkStatsTables()) {
+                    $statusError++;
+                    $statusMsg = 'One or more table are missing.';
+                }
+            }
+
+            if ($statusError == 0) {
+                echo '<p><img src="/assets/icons/check.svg" class="icon vertical-align-text-top" /> Healthy</p>';
+            } else {
+                echo '<p><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" />' . $statusMsg . '</p>';
+            }
         endif;
 
         if (MANAGE_HOSTS == "true") : ?>
-            <div class="health-div">
-                <div>
-                    <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Hosts database." />
-                </div>
-                <div>
-                    <p>Hosts</p>
-                </div>
-                <div>
-                    <p>
-                        <span>Status</span>
-                        <span>
-                            <?php
-                            $statusError = 0;
-                            $statusMsg = '';
-
-                            if (!file_exists(HOSTS_DB)) {
-                                touch(HOSTS_DB);
-                            }
-
-                            /**
-                             *  Checking that database is readable and writable
-                             */
-                            if (!is_readable(HOSTS_DB) or !is_writable(HOSTS_DB)) {
-                                $statusError++;
-                                $statusMsg = 'Hosts database is not readable / writable.';
-                            } else {
-                                /**
-                                 *  Checking that all tables are present
-                                 */
-                                $myconn = new \Models\Connection('hosts');
-
-                                if (!$myconn->checkHostsTables()) {
-                                    $statusError++;
-                                    $statusMsg = 'One or more table are missing.';
-                                }
-                            }
-
-                            if ($statusError == 0) {
-                                echo '<img src="/assets/icons/greencircle.png" class="icon-small" />';
-                            } else {
-                                echo '<img src="/assets/icons/redcircle.png" class="icon-small" />' . $statusMsg;
-                            } ?>
-                        </span>
-                    </p>
-                </div>
-            </div>
+            <h6>HOSTS DATABASE</h6>
+            <p class="input-note">Hosts database.</p>
             <?php
+            $statusError = 0;
+            $statusMsg = '';
+
+            if (!file_exists(HOSTS_DB)) {
+                touch(HOSTS_DB);
+            }
+
+            /**
+             *  Checking that database is readable and writable
+             */
+            if (!is_readable(HOSTS_DB) or !is_writable(HOSTS_DB)) {
+                $statusError++;
+                $statusMsg = 'Hosts database is not readable / writable.';
+            } else {
+                /**
+                 *  Checking that all tables are present
+                 */
+                $myconn = new \Models\Connection('hosts');
+
+                if (!$myconn->checkHostsTables()) {
+                    $statusError++;
+                    $statusMsg = 'One or more table are missing.';
+                }
+            }
+
+            if ($statusError == 0) {
+                echo '<p><img src="/assets/icons/check.svg" class="icon vertical-align-text-top" /> Healthy</p>';
+            } else {
+                echo '<p><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" />' . $statusMsg . '</p>';
+            }
         endif ?>
 
-        <h5>SERVICE</h5>
-
-        <div class="health-div">
-            <div>
-                <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Repomanager service is used to execute regular tasks such as executing scheduled tasks, sending scheduled tasks reminders, logging repositories access..." />
-            </div>
-            <div>
-                <p>Repomanager service</p>
-            </div>
-            <div>
-                <p>
-                    <span>Status</span>
-                    <span>
-                        <?php
-                        if (SERVICE_RUNNING) {
-                            echo '<img src="/assets/icons/greencircle.png" class="icon-small" />';
-                        } else {
-                            echo '<img src="/assets/icons/redcircle.png" class="icon-small" />Service is not running';
-                        } ?>
-                    </span>
-                </p>
-            </div>
-        </div>
+        <h6>REPOMANAGER SERVICE</h6>
+        <p class="input-note">Repomanager service is used to execute regular tasks such as executing scheduled tasks, sending scheduled tasks reminders, logging repositories access...</p>
+        <?php
+        if (SERVICE_RUNNING) {
+            echo '<p><img src="/assets/icons/check.svg" class="icon vertical-align-text-top" /> Running</p>';
+        } else {
+            echo '<p><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /> Service is not running</p>';
+        } ?>
     </div>
 
     <?php
@@ -533,63 +474,64 @@
     if (IS_SUPERADMIN) : ?>
         <h3>USERS</h3>
 
-        <div id="usersDiv" class="div-generic-blue">
-            <form id="newUserForm" autocomplete="off">
-                <h5>CREATE USER</h5>
+        <div id="users-settings-container" class="div-generic-blue">
+            <h6>CREATE USER</h6>
+            <form id="new-user-form" autocomplete="off">
+                <div class="flex align-item-center column-gap-10">
+                    <input type="text" name="username" placeholder="Username" />
 
-                <input class="input-medium" type="text" name="username" placeholder="Username" />
+                    <select name="role" required>
+                        <option value="">Select role...</option>
+                        <option value="usage">usage (read-only)</option>
+                        <option value="administrator">administrator</option>
+                    </select>
 
-                <select name="role" class="select-medium" required>
-                    <option value="">Select role...</option>
-                    <option value="usage">usage (read-only)</option>
-                    <option value="administrator">administrator</option>
-                </select>
-
-                <button class="btn-xxsmall-green" type="submit">+</button>
+                    <div>
+                        <button class="btn-xxsmall-green" type="submit">+</button>
+                    </div>
+                </div>
             </form>
 
-            <div id="generatedPassword"></div>
+            <div id="user-settings-generated-passwd"></div>
    
-            <div id="currentUsers">
-                <?php
-                if (!empty($users)) : ?>
-                    <br>
-                    <h5>CURRENT USERS</h5>
+            <?php
+            if (!empty($users)) : ?>
+                <div id="currentUsers">
+                    <h6>CURRENT USERS</h6>
 
-                    <table class="table-generic-blue">
-                        <tr class="no-bkg">
-                            <td>Username</td>
-                            <td>Role</td>
-                            <td>Account type</td>
-                            <td class="td-fit"></td>
-                        </tr>
-                        <?php
-                        foreach ($users as $user) : ?>
-                            <tr>
-                                <td>
-                                    <?= $user['Username'] ?>
-                                </td>
-                                <td>
-                                    <?= $user['Role_name'] ?>
-                                </td>
-                                <td>
-                                    <?= $user['Type'] ?>
-                                </td>
-                                <td class="td-fit">
-                                    <?php
-                                    if ($user['Username'] != 'admin') : ?>
-                                        <span class="reset-password-btn" user-id="<?= $user['Id'] ?>" username="<?= $user['Username'] ?>" title="Reset password of user <?= $user['Username'] ?>"><img src="/assets/icons/update.svg" class="icon-lowopacity" /></span>
-                                        <span class="delete-user-btn" user-id="<?= $user['Id'] ?>" username="<?= $user['Username'] ?>" title="Delete user <?= $user['Username'] ?>"><img src="/assets/icons/delete.svg" class="icon-lowopacity" /></span>
-                                        <?php
-                                    endif ?>
-                                </td>
-                            </tr>
-                            <?php
-                        endforeach ?>
-                    </table>
                     <?php
-                endif ?>
-            </div>
+                    foreach ($users as $user) : ?>
+                        <div class="table-container grid-3 bck-blue-alt">
+                            <div>
+                                <p><?= $user['Username'] ?></p>
+                                <p class="lowopacity">
+                                    <?php
+                                    if ($user['Type'] == 'local') {
+                                        echo 'Local account';
+                                    } ?>
+                                </p>
+                            </div>
+
+                            <p><?= $user['Role_name'] ?></p>
+
+                            <div class="flex column-gap-10 justify-end">
+                                <?php
+                                if ($user['Username'] != 'admin') : ?>
+                                    <p class="reset-password-btn" user-id="<?= $user['Id'] ?>" username="<?= $user['Username'] ?>" title="Reset password of user <?= $user['Username'] ?>">
+                                        <img src="/assets/icons/update.svg" class="icon-lowopacity" />
+                                    </p>
+                                    <p class="delete-user-btn" user-id="<?= $user['Id'] ?>" username="<?= $user['Username'] ?>" title="Delete user <?= $user['Username'] ?>">
+                                        <img src="/assets/icons/delete.svg" class="icon-lowopacity" />
+                                    </p>
+                                    <?php
+                                endif ?>
+                            </div>
+                        </div>
+                        <?php
+                    endforeach ?>
+                </div>
+                <?php
+            endif ?>
         </div>
         <?php
     endif ?>

@@ -114,14 +114,14 @@ class Source
          *  Check that source repo exists
          */
         if (!$this->model->existsId($id)) {
-            throw new Exception('Source repo does not exist');
+            throw new Exception('Source repository does not exist');
         }
 
         /**
          *  Check that source repo name is valid
          */
         if (!\Controllers\Common::isAlphanumDash($name)) {
-            throw new Exception('Source repo name cannot contain special characters except hyphen and underscore');
+            throw new Exception('Source repository name cannot contain special characters except hyphen and underscore');
         }
 
         /**
@@ -142,7 +142,7 @@ class Source
              *  If the Id is different from the one we are editing, then the name is already used
              */
             if ($testId !== false and $testId != $id) {
-                throw new Exception('A source repo <b>' . $name . '</b> already exists');
+                throw new Exception('<b>' . $name . '</b> source repository already exists');
             }
         }
 

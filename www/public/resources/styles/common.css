@@ -1,5 +1,5 @@
 /**
- *  v1.10
+ *  v1.11
  */
 @font-face{font-family: 'Roboto'; src: url('/assets/fonts/Roboto/Roboto-Regular.ttf') format('truetype');}
 
@@ -106,6 +106,7 @@ pre.codeblock {
 .bkg-green { background-color: #14be7e !important; color: white !important; }
 .bkg-yellow { background-color: #ffb536 !important; color: white !important; }
 .bkg-red { background-color: #ff0044 !important; color: white !important; }
+.bkg-gray { background-color: #cdcdcd8f !important; color: white !important; }
 .bck-blue { background-color: #182b3e !important}
 .bck-blue-alt {background-color: #1d3349 !important}
 .no-bkg {background: none !important}
@@ -131,6 +132,7 @@ pre.codeblock {
 .grid-2 {grid-template-columns: 1fr 1fr !important}
 .grid-2-1 {grid-template-columns: 2fr 1fr !important}
 .grid-3 {grid-template-columns: 1fr 1fr 1fr !important}
+.grid-4 {grid-template-columns: 1fr 1fr 1fr 1fr !important}
 .grid-fr-1-2 {grid-template-columns: 1fr 2fr !important}
 .grid-fr-2-1 {grid-template-columns: 2fr 1fr !important}
 .grid-fr-4-1 {grid-template-columns: 4fr 1fr !important}
@@ -140,6 +142,7 @@ pre.codeblock {
 .grid-fr-6 {grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr !important}
 .justify-center {justify-content: center}
 .justify-space-between {justify-content: space-between}
+.justify-space-around{justify-content: space-around}
 .justify-end {justify-content: flex-end}
 .justify-items-center{justify-items: center}
 .align-content-center {align-content: center}
@@ -335,7 +338,7 @@ input[type].input-small, .select-small { width: 100px; }
 input[type].input-medium, .select-medium { width: 150px; }
 input[type].input-large, .select-large { width: 250px; }
 input:checked { opacity: 1; }
-input::placeholder {
+input::placeholder, select::placeholder, textarea::placeholder {
     color: #ffffff9e;
 }
 .select-xxlarge {
