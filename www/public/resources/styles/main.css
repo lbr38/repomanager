@@ -648,10 +648,6 @@ footer #github img { width: 25px; }
     border-radius: 8px;
 }
 
-.task-table tr td:first-child {
-    width: 35%;
-}
-
 /* Gif de chargement caché par défaut */
 .loading { display: none; }
 
@@ -687,26 +683,6 @@ footer #github img { width: 25px; }
 .header-blue, .header-blue-min { background-color: #1d3349; }
 .header-light-red, .header-light-red-min { background-color: #ff3369 !important; }
 .header-light-blue, .header-light-blue-min { background-color: #2b4d6e !important; }
-
-/* .task-form-params, .task-schedule-form-params {
-    width: auto;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    border: 1px solid #78838f38;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 15px;
-}
-
-.task-form-params span, .task-form-params input[type=text], .task-form-params select {
-    flex: 0 0 50%;
-}
-
-/* Les paragraphes eux occupent tout l'espace, les titres aussi */
-/*.task-form-params p, .task-form-params h3 {
-    flex: 0 0 100%;
-} */
 
 #loginDiv-container {
     height: 90vh;

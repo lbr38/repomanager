@@ -41,11 +41,11 @@
 
                 <h6>GPG KEY URL</h6>
                 <input type="text" name="gpgKeyURL" placeholder="https://...">
-                <p class="input-note">Optional.</p>
+                <p class="note">Optional.</p>
 
                 <h6>IMPORT A GPG KEY</h6>
                 <textarea id="gpgKeyText" class="textarea-100" placeholder="-----BEGIN PGP PUBLIC KEY BLOCK-----"></textarea>
-                <p class="input-note">Optional. Plain text format.</p>
+                <p class="note">Optional. Plain text format.</p>
 
                 <br><br>
                 <button type="submit" class="btn-small-green" title="Add source repository">Add</button>

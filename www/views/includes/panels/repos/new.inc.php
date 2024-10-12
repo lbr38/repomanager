@@ -69,7 +69,7 @@
 
         <div field-type="mirror rpm deb">
             <h6>CUSTOM REPO NAME</h6>
-            <p class="input-note">Optional</p>
+            <p class="note">Optional</p>
             <input type="text" class="task-param" param-name="alias" package-type="all" />
         </div>
 
@@ -99,7 +99,7 @@
                 </optgroup>
             </select>
 
-            <h6>SECTION</h6>
+            <h6>SECTION / COMPONENT</h6>
             <select class="task-param" param-name="section" package-type="deb" multiple>
                 <option value="main">main</option>
                 <option value="contrib">contrib</option>
@@ -122,7 +122,7 @@
 
         <div id="new-repo-target-description-tr">
             <h6>DESCRIPTION</h6>
-            <p class="input-note">Optional</p>
+            <p class="note">Optional</p>
             <input type="text" class="task-param" param-name="description" package-type="all" />
         </div>
 
@@ -132,7 +132,7 @@
          */
         if (!empty($newRepoFormGroupList)) : ?>
             <h6>ADD TO GROUP</h6>
-            <p class="input-note">Optional</p>
+            <p class="note">Optional</p>
             <select class="task-param" param-name="group" package-type="all" >
                 <option value="">Select group...</option>
                 <?php
@@ -199,11 +199,11 @@
 
         <div field-type="mirror rpm deb">
             <h6>ONLY INCLUDE PACKAGE(S)</h6>
-            <p class="input-note">Optional</p>
+            <p class="note">Optional</p>
             <select class="task-param" param-name="package-include" package-type="all" multiple></select>
 
             <h6>EXCLUDE PACKAGE(S)</h6>
-            <p class="input-note">Optional</p>
+            <p class="note">Optional</p>
             <select class="task-param" param-name="package-exclude" package-type="all" multiple></select>
         </div>
     </div>

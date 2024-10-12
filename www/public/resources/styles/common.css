@@ -1,11 +1,16 @@
 /**
- *  v1.11
+ *  v1.12
  */
 @font-face{font-family: 'Roboto'; src: url('/assets/fonts/Roboto/Roboto-Regular.ttf') format('truetype');}
 
 /**
  *  Color picker
  *  https://www.w3schools.com/colors/colors_picker.asp?colorhex=182b3e
+ *
+ *
+ *  Contrast colors
+ *  https://app.contrast-finder.org/
+ *  http://colorsafe.co/
  */
 
 body {
@@ -63,6 +68,32 @@ h5 {
     font-weight: bold;
     margin-top: 10px;
     margin-bottom: 10px;
+}
+
+/* Generally used for input forms */
+h6 {
+    line-height: 1.5em;
+    font-size: 13px;
+    font-weight: bold;
+    color: rgb(255 255 255 / 80%);
+    /* margin-top: 15px; */
+    margin-top: 18px;
+    /* margin-bottom: 5px; */
+    margin-bottom: 2px;
+}
+
+.note {
+    font-size: 13.5px;
+    font-style: italic;
+    /* color: #606b76; */
+    /* color: #bdc3c7a3; */
+    color: #8A99AA;
+    margin-bottom: 2px;
+}
+
+.required::after {
+    content: ' *';
+    color: #FF495C;
 }
 
 hr {
@@ -263,20 +294,6 @@ td {
 
 .table-container-3 {
     grid-template-columns: 5% auto 10%;
-}
-
-/* Generally used for input forms */
-h6 {
-    line-height: 1.5em;
-    font-size: 13px;
-    font-weight: bold;
-    color: rgb(255 255 255 / 80%);
-    margin-top: 15px;
-    margin-bottom: 5px;
-}
-.input-note {
-    font-size: 13.5px;
-    color: #606b76;
 }
 
 /**

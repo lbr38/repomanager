@@ -42,7 +42,7 @@
                     <input class="source-gpgkey-input" type="text" value="<?= $item['Gpgkey'] ?>" placeholder="http://..." />
 
                     <h4>SSL parameters</h4>
-                    <p class="input-note">Use a SSL certificate and private key to authenticate to the source repository<a href="https://github.com/lbr38/repomanager/wiki/05.-Manage-sources-repositories#edit-a-source-repository" target="_blank" rel="noopener noreferrer" title="See documentation"><img src="/assets/icons/external-link.svg" class="icon margin-left-5" /></a></p>
+                    <p class="note">Use a SSL certificate and private key to authenticate to the source repository<a href="https://github.com/lbr38/repomanager/wiki/05.-Manage-sources-repositories#edit-a-source-repository" target="_blank" rel="noopener noreferrer" title="See documentation"><img src="/assets/icons/external-link.svg" class="icon margin-left-5" /></a></p>
 
                     <h6>PATH TO SSL CERTIFICATE</h6>
                     <input class="source-ssl-crt-input" type="text" value="<?= $item['Ssl_certificate_path'] ?>" placeholder="e.g. /var/lib/repomanager/ssl/my-editor/certificate.crt" />

@@ -6,11 +6,11 @@
         <form id="settingsForm" autocomplete="off">
             <div class="div-generic-blue">
                 <h6>HOSTNAME</h6>
-                <p class="input-note">Repomanager FQDN, defined during the creation of the Docker container.</p>
+                <p class="note">Repomanager FQDN, defined during the creation of the Docker container.</p>
                 <input type="text" value="<?= WWW_HOSTNAME ?>" readonly />
       
-                <h6>TIMEZONE</h6>
-                <p class="input-note">Specify your timezone. This is especially useful to ensure that scheduled tasks run at the specified time.</p>
+                <h6 class="required">TIMEZONE</h6>
+                <p class="note">Specify your timezone. This is especially useful to ensure that scheduled tasks run at the specified time.</p>
                 <select class="settings-param" param-name="timezone">
                     <?php
                     $tzlist = DateTimeZone::listIdentifiers(DateTimeZone::ALL);
@@ -23,8 +23,8 @@
                     } ?>
                 </select>
 
-                <h6>DEFAULT CONTACT</h6>
-                <p class="input-note">Default contact for receiving emails. Currently, only scheduled tasks and their reminders are sending emails. You can specify multiple recipients.</p>
+                <h6 class="required">DEFAULT CONTACT</h6>
+                <p class="note">Default contact for receiving emails. Currently, only scheduled tasks and their reminders are sending emails. You can specify multiple recipients.</p>
                 <select id="emailRecipientSelect" class="settings-param" param-name="emailRecipient" multiple>
                     <?php
                     if (!empty(EMAIL_RECIPIENT)) {
@@ -43,17 +43,17 @@
                 
                 <?php
                 if (empty(EMAIL_RECIPIENT)) {
-                    echo '<p class="input-note yellowtext" title="This parameter must be specified." /><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /> This parameter must be specified.</p>';
+                    echo '<p class="note yellowtext" title="This parameter must be specified." /><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /> This parameter must be specified.</p>';
                 } else {
                     echo '<br><button type="button" id="send-test-email-btn" class="btn-medium-tr" title="Send a test email">Send a test email</button>';
                 } ?>
 
                 <h6>USE A PROXY</h6>
-                <p class="input-note">Optional. Specify the proxy URL to use to access the internet. e.g. https://myproxy.com:8080</p>
+                <p class="note">Optional. Specify the proxy URL to use to access the internet. e.g. https://myproxy.com:8080</p>
                 <input class="settings-param" param-name="proxy" type="text" value="<?= PROXY ?>" placeholder="https://">
 
-                <h6>TASK EXECUTION MEMORY LIMIT (in MB)</h6>
-                <p class="input-note">Set PHP memory limit for tasks execution. It is recommended to set this value to a higher value when mirroring large repositories.</p>
+                <h6 class="required">TASK EXECUTION MEMORY LIMIT (in MB)</h6>
+                <p class="note">Set PHP memory limit for tasks execution. It is recommended to set this value to a higher value when mirroring large repositories.</p>
                 <input class="settings-param" param-name="task-execution-memory-limit" type="number" min="2" value="<?= TASK_EXECUTION_MEMORY_LIMIT ?>" placeholder="default is 512">
             </div>
                
@@ -64,33 +64,33 @@
                 <h5>Global settings</h5>
 
                 <h6>REPOSITORIES URL</h6>
-                <p class="input-note">Root URL for accessing repositories. This URL is not browseable for security reasons. To explore the content of a repository snapshot, use the snapshot browsing system.</p>
+                <p class="note">Root URL for accessing repositories. This URL is not browseable for security reasons. To explore the content of a repository snapshot, use the snapshot browsing system.</p>
                 <input type="text" value="<?= WWW_REPOS_DIR_URL ?>" readonly />
 
-                <h6>RETENTION</h6>
-                <p class="input-note">Maximum number of unused snapshots to keep per repository.</p>
+                <h6 class="required">RETENTION</h6>
+                <p class="note">Maximum number of unused snapshots to keep per repository. Set to 0 to disable retention.</p>
                 <input class="settings-param" param-name="retention" type="number" min="0" value="<?= RETENTION ?>">
                 <?php
                 if (RETENTION == 0) {
-                    echo '<p class="input-note yellowtext"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /> No retention is set. All unused snapshots will be deleted.</p>';
+                    echo '<p class="note yellowtext"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /> No retention is set. All unused snapshots will be deleted.</p>';
                 } ?>
 
                 <h6>REPOSITORY CONFIGURATION FILE NAME PREFIX</h6>
-                <p class="input-note">Prefix added to repository configuration files when installing on client hosts (e.g., '<myprefix>-debian.list' or '<myprefix>-nginx.repo'). Leave empty if you want no prefix.</p>
+                <p class="note">Prefix added to repository configuration files when installing on client hosts (e.g., '<myprefix>-debian.list' or '<myprefix>-nginx.repo'). Leave empty if you want no prefix.</p>
                 <input class="settings-param" param-name="repoConfFilesPrefix" type="text" value="<?= REPO_CONF_FILES_PREFIX ?>">
 
                 <br><br>
                 <h5>Global mirroring settings</h5>
 
-                <h6>PACKAGE DOWNLOAD TIMEOUT (in seconds)</h6>
-                <p class="input-note">Maximum time allowed to download a package during a mirroring process.</p>
+                <h6 class="required">PACKAGE DOWNLOAD TIMEOUT (in seconds)</h6>
+                <p class="note">Maximum time allowed to download a package during a mirroring process.</p>
                 <input class="settings-param" param-name="mirrorPackageDownloadTimeout" min="1" type="number" value="<?= MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT ?>" placeholder="default is 300">
 
                 <br><br>
                 <h5>RPM</h5>
 
                 <h6>ENABLE RPM REPOSITORIES</h6>
-                <p class="input-note">Enable RPM package repositories.</p>        
+                <p class="note">Enable RPM package repositories.</p>        
                 <label class="onoff-switch-label">
                     <input class="settings-param onoff-switch-input" param-name="rpmRepo" type="checkbox" value="true" <?php echo (RPM_REPO == 'true') ? 'checked' : ''; ?>>
                     <span class="onoff-switch-slider"></span>
@@ -99,18 +99,18 @@
                 <?php
                 if (RPM_REPO == 'true') : ?>
                     <h6>SIGN PACKAGES WITH GPG</h6>
-                    <p class="input-note">Enable the signing of RPM packages when creating a RPM package repository (mirror or local repository). Packages will be signed using the GPG signing key specified by the GPG KEY ID parameter.</p>
+                    <p class="note">Enable the signing of RPM packages when creating a RPM package repository (mirror or local repository). Packages will be signed using the GPG signing key specified by the GPG KEY ID parameter.</p>
                     <label class="onoff-switch-label">
                         <input class="settings-param onoff-switch-input" param-name="rpmSignPackages" type="checkbox" value="true" <?php echo (RPM_SIGN_PACKAGES == "true") ? 'checked' : ''; ?>>
                         <span class="onoff-switch-slider"></span>
                     </label>
                     <?php
                     if (empty(RPM_SIGN_PACKAGES)) {
-                        echo '<p class="input-note yellowtext"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /> This parameter must be specified.</p>';
+                        echo '<p class="note yellowtext"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /> This parameter must be specified.</p>';
                     } ?>
 
-                    <h6>DEFAULT RELEASE VERSION</h6>
-                    <p class="input-note">Default release version to use when creating RPM repositories.</p>
+                    <h6 class="required">DEFAULT RELEASE VERSION</h6>
+                    <p class="note">Default release version to use when creating RPM repositories.</p>
                     <select class="settings-param" param-name="releasever">
                         <option value="7" <?php echo (RELEASEVER == 7) ? 'selected' : '' ?>>7 (Redhat 7 and derivatives)</option>
                         <option value="8" <?php echo (RELEASEVER == 8) ? 'selected' : '' ?>>8 (Redhat 8 and derivatives)</option>
@@ -118,11 +118,11 @@
                     </select>
                     <?php
                     if (empty(RELEASEVER)) {
-                        echo '<p class="input-note yellowtext"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /> This parameter must be specified.</p>';
+                        echo '<p class="note yellowtext"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /> This parameter must be specified.</p>';
                     } ?>
 
-                    <h6>DEFAULT PACKAGE ARCHITECTURE</h6>
-                    <p class="input-note">Default package architecture to use when creating RPM repositories.</p>
+                    <h6 class="required">DEFAULT PACKAGE ARCHITECTURE</h6>
+                    <p class="note">Default package architecture to use when creating RPM repositories.</p>
                     <select id="rpmArchitectureSelect" class="settings-param" param-name="rpmDefaultArch" multiple>
                         <?php
                         foreach (RPM_ARCHS as $arch) {
@@ -137,16 +137,16 @@
                     <br>
                     <h5 title="RPM mirroring settings">RPM Mirroring settings</h5>
 
-                    <h6>WHEN PACKAGE SIGNATURE IS MISSING</h6>
-                    <p class="input-note">Package retrieved from a remote repository may not be signed at all (for example, the publisher released the package forgetting to sign it). This parameter allows you to choose what to do in this case.</p>
+                    <h6 class="required">WHEN PACKAGE SIGNATURE IS MISSING</h6>
+                    <p class="note">Package retrieved from a remote repository may not be signed at all (for example, the publisher released the package forgetting to sign it). This parameter allows you to choose what to do in this case.</p>
                     <select class="settings-param" param-name="rpm-missing-signature">
                         <option value="download" <?php echo (RPM_MISSING_SIGNATURE == 'download') ? 'selected' : '' ?>>Download package anyway</option>
                         <option value="ignore" <?php echo (RPM_MISSING_SIGNATURE == 'ignore') ? 'selected' : '' ?>>Ignore package (do not download)</option>
                         <option value="error" <?php echo (RPM_MISSING_SIGNATURE == 'error') ? 'selected' : '' ?>>End mirroring task with error</option>
                     </select>
 
-                    <h6>WHEN PACKAGE SIGNATURE IS INVALID</h6>
-                    <p class="input-note">Package retrieved from a remote repository may have invalid signature (because the GPG key used to sign the package was not imported, or because the publisher signed the package with a different GPG key, or because the package's signature is corrupted or somehow broken). This parameter allows you to choose what to do in this case.</p>
+                    <h6  class="required">WHEN PACKAGE SIGNATURE IS INVALID</h6>
+                    <p class="note">Package retrieved from a remote repository may have invalid signature (because the GPG key used to sign the package was not imported, or because the publisher signed the package with a different GPG key, or because the package's signature is corrupted or somehow broken). This parameter allows you to choose what to do in this case.</p>
                     <select class="settings-param" param-name="rpm-invalid-signature">
                         <option value="download" <?php echo (RPM_INVALID_SIGNATURE == 'download') ? 'selected' : '' ?>>Download package anyway</option>
                         <option value="ignore" <?php echo (RPM_INVALID_SIGNATURE == 'ignore') ? 'selected' : '' ?>>Ignore package (do not download)</option>
@@ -159,7 +159,7 @@
                 <h5>DEB</h5>
 
                 <h6>ENABLE DEB REPOSITORIES</h6>
-                <p class="input-note">Enable DEB package repositories.</p>
+                <p class="note">Enable DEB package repositories.</p>
                 <label class="onoff-switch-label">
                     <input class="settings-param onoff-switch-input" param-name="debRepo" type="checkbox" value="true" <?php echo (DEB_REPO == 'true') ? 'checked' : ''; ?>>
                     <span class="onoff-switch-slider"></span>
@@ -168,18 +168,18 @@
                 <?php
                 if (DEB_REPO == 'true') : ?>
                     <h6>SIGN REPOSITORIES WITH GPG</h6>
-                    <p class="input-note">Enable the signing of DEB repositories when creating a DEB package repository (mirror or local repository). The repository metadata will be signed using the GPG signing key specified by the GPG key Id parameter.</p>
+                    <p class="note">Enable the signing of DEB repositories when creating a DEB package repository (mirror or local repository). The repository metadata will be signed using the GPG signing key specified by the GPG key Id parameter.</p>
                     <label class="onoff-switch-label">
                         <input class="settings-param onoff-switch-input" param-name="debSignRepo" type="checkbox" value="true" <?php echo (DEB_SIGN_REPO == 'true') ? 'checked' : ''; ?>>
                         <span class="onoff-switch-slider"></span>
                     </label>
                     <?php
                     if (empty(DEB_SIGN_REPO)) {
-                        echo '<p class="input-note yellowtext"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /> This parameter must be specified.</p>';
+                        echo '<p class="note yellowtext"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /> This parameter must be specified.</p>';
                     } ?>
 
-                    <h6>DEFAULT PACKAGE ARCHITECTURE</h6>
-                    <p class="input-note">Default package architecture to use when creating DEB repositories.</p>
+                    <h6 class="required">DEFAULT PACKAGE ARCHITECTURE</h6>
+                    <p class="note">Default package architecture to use when creating DEB repositories.</p>
                     <select id="debArchitectureSelect" class="settings-param" param-name="debDefaultArch" multiple>
                         <?php
                         foreach (DEB_ARCHS as $arch) {
@@ -194,8 +194,8 @@
                     <br>
                     <h5 title="DEB mirroring settings">DEB Mirroring settings</h5>
 
-                    <h6>WHEN RELEASE FILE SIGNATURE IS INVALID</h6>
-                    <p class="input-note">InRelease / Release file retrieved from a remote repository may have invalid signature (because the GPG key used to sign the file was not imported, or because the publisher signed the file with a different GPG key, or because the file's signature is corrupted or somehow broken). This parameter allows you to choose what to do in this case.</p>
+                    <h6 class="required">WHEN RELEASE FILE SIGNATURE IS INVALID</h6>
+                    <p class="note">InRelease / Release file retrieved from a remote repository may have invalid signature (because the GPG key used to sign the file was not imported, or because the publisher signed the file with a different GPG key, or because the file's signature is corrupted or somehow broken). This parameter allows you to choose what to do in this case.</p>
                     <select class="settings-param" param-name="deb-invalid-signature">
                         <option value="ignore" <?php echo (DEB_INVALID_SIGNATURE == 'ignore') ? 'selected' : '' ?>>Ignore and try another Release file if possible</option>
                         <option value="error" <?php echo (DEB_INVALID_SIGNATURE == 'error') ? 'selected' : '' ?>>End mirroring task with error</option>
@@ -207,15 +207,15 @@
                     <br><br>
                     <h5>GPG signing key</h5>
 
-                    <h6>GPG KEY ID</h6>
-                    <p class="input-note">GPG key for signing packages and repositories, identified by its email address. This key is randomly generated upon Repomanager's first startup (4096 bits RSA key).</p>
+                    <h6 class="required">GPG KEY ID</h6>
+                    <p class="note">GPG key for signing packages and repositories, identified by its email address. This key is randomly generated upon Repomanager's first startup (4096 bits RSA key).</p>
                     <input class="settings-param" param-name="gpgKeyID" type="email" value="<?= GPG_SIGNING_KEYID ?>">
                     <?php
                 endif ?>
 
                 <br><br>
                 <h5>Environments</h5>
-                <p class="input-note">Configure repository environments.</p>
+                <p class="note">Configure repository environments.</p>
 
                 <div id="envDiv">
                     <?php
@@ -229,7 +229,7 @@
                             </div>
                             <?php
                             if ($envName == DEFAULT_ENV) {
-                                echo '<p class="input-note">This is the default environment</p>';
+                                echo '<p class="note">This is the default environment</p>';
                             }
                         endforeach;
                     endif ?>
@@ -241,7 +241,7 @@
 
                     <?php
                     if (empty(ENVS)) {
-                        echo '<p class="input-note yellowtext"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /> At least 1 environment must be configured</p>';
+                        echo '<p class="note yellowtext"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /> At least 1 environment must be configured</p>';
                     } ?>
                 </div>
 
@@ -249,14 +249,14 @@
                 <h5>Statistics</h5>
 
                 <h6>ENABLE REPOSITORIES STATISTICS</h6>
-                <p class="input-note">Enable logging and statistics on repositories access, repositories size and repositories packages count.</p>
+                <p class="note">Enable logging and statistics on repositories access, repositories size and repositories packages count.</p>
                 <label class="onoff-switch-label">
                     <input class="settings-param onoff-switch-input" param-name="statsEnable" type="checkbox" value="true" <?php echo (STATS_ENABLED == "true") ? 'checked' : ''; ?>>
                     <span class="onoff-switch-slider"></span>
                 </label>
                 <?php
                 if (empty(STATS_ENABLED)) {
-                    echo '<p class="input-note yellowtext"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /> This parameter must be specified.</p>';
+                    echo '<p class="note yellowtext"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /> This parameter must be specified.</p>';
                 } ?>
             </div>
 
@@ -264,14 +264,14 @@
 
             <div class="div-generic-blue">
                 <h6>ENABLE SCHEDULED TASKS REMINDERS</h6>
-                <p class="input-note">Enable reminders for scheduled tasks. Reminders are sent via email to the recipients defined when adding a new scheduled task.</p>
+                <p class="note">Enable reminders for scheduled tasks. Reminders are sent via email to the recipients defined when adding a new scheduled task.</p>
                 <label class="onoff-switch-label">
                     <input class="settings-param onoff-switch-input" param-name="scheduled-tasks-reminders" type="checkbox" value="true" <?php echo (SCHEDULED_TASKS_REMINDERS == "true") ? 'checked' : ''; ?>>
                     <span class="onoff-switch-slider"></span>
                 </label>
                 <?php
                 if (empty(SCHEDULED_TASKS_REMINDERS)) {
-                    echo '<p class="input-note yellowtext"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /> This parameter must be specified.</p>';
+                    echo '<p class="note yellowtext"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /> This parameter must be specified.</p>';
                 } ?>
             </div>
 
@@ -279,25 +279,25 @@
 
             <div class="div-generic-blue">
                 <h6>MANAGE HOSTS</h6>
-                <p class="input-note">Enable the management of client hosts. These hosts can register to Repomanager using linupdate.</p>
+                <p class="note">Enable the management of client hosts. These hosts can register to Repomanager using linupdate.</p>
                 <label class="onoff-switch-label">
                     <input class="settings-param onoff-switch-input" param-name="manageHosts" type="checkbox" value="true" <?php echo (MANAGE_HOSTS == "true") ? 'checked' : ''; ?>>
                     <span class="onoff-switch-slider"></span>
                 </label>
                 <?php
                 if (empty(MANAGE_HOSTS)) {
-                    echo '<p class="input-note yellowtext"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /> This parameter must be specified.</p>';
+                    echo '<p class="note yellowtext"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /> This parameter must be specified.</p>';
                 } ?>
 
                 <h6>MANAGE PROFILES</h6>
-                <p class="input-note">Enable the management of profiles for configuring client hosts.</p>
+                <p class="note">Enable the management of profiles for configuring client hosts.</p>
                 <label class="onoff-switch-label">
                     <input class="settings-param onoff-switch-input" param-name="manageProfiles" type="checkbox" value="true" <?php echo (MANAGE_PROFILES == "true") ? 'checked' : ''; ?>>
                     <span class="onoff-switch-slider"></span>
                 </label>
                 <?php
                 if (empty(MANAGE_PROFILES)) {
-                    echo '<p class="input-note yellowtext"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /> This parameter must be specified.</p>';
+                    echo '<p class="note yellowtext"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /> This parameter must be specified.</p>';
                 } ?>
             </div>
 
@@ -305,7 +305,7 @@
 
             <div class="div-generic-blue">
                 <h6>IMPORT CVEs</h6>
-                <p class="input-note">Enable the import of CVEs into Repomanager. The import uses feeds from https://nvd.nist.gov/ Eventually, the CVEs tab should be able to list client hosts imported into Repomanager that have vulnerable packages.</p>
+                <p class="note">Enable the import of CVEs into Repomanager. The import uses feeds from https://nvd.nist.gov/ Eventually, the CVEs tab should be able to list client hosts imported into Repomanager that have vulnerable packages.</p>
                 <label class="onoff-switch-label">
                     <input class="settings-param onoff-switch-input" param-name="cveImport" type="checkbox" value="true" <?php echo (CVE_IMPORT == "true") ? 'checked' : ''; ?>>
                     <span class="onoff-switch-slider"></span>
@@ -313,9 +313,9 @@
 
                 <?php
                 if (CVE_IMPORT == 'true') : ?>
-                    <h6>IMPORT SCHEDULE TIME</h6>
+                    <h6 class="required">IMPORT SCHEDULE TIME</h6>
                     <input type="time" class="settings-param" param-name="cveImportTime" value="<?= CVE_IMPORT_TIME ?>">
-                    <p class="input-note">Every day time at which the import of CVEs runs.</p>
+                    <p class="note">Every day time at which the import of CVEs runs.</p>
                     <?php
                 endif;
 
@@ -355,7 +355,7 @@
 
     <div class="div-generic-blue">
         <h6>MAIN DATABASE</h6>
-        <p class="input-note">Main database. Repomanager cannot run if this database is on error.</p>
+        <p class="note">Main database. Repomanager cannot run if this database is on error.</p>
         <?php
         $statusError = 0;
         $statusMsg = '';
@@ -386,7 +386,7 @@
 
         if (STATS_ENABLED == "true") : ?>
             <h6>STATS DATABASE</h6>
-            <p class="input-note">Repositories statistics database.</p>
+            <p class="note">Repositories statistics database.</p>
             <?php
             $statusError = 0;
             $statusMsg = '';
@@ -422,7 +422,7 @@
 
         if (MANAGE_HOSTS == "true") : ?>
             <h6>HOSTS DATABASE</h6>
-            <p class="input-note">Hosts database.</p>
+            <p class="note">Hosts database.</p>
             <?php
             $statusError = 0;
             $statusMsg = '';
@@ -457,7 +457,7 @@
         endif ?>
 
         <h6>REPOMANAGER SERVICE</h6>
-        <p class="input-note">Repomanager service is used to execute regular tasks such as executing scheduled tasks, sending scheduled tasks reminders, logging repositories access...</p>
+        <p class="note">Repomanager service is used to execute regular tasks such as executing scheduled tasks, sending scheduled tasks reminders, logging repositories access...</p>
         <?php
         if (SERVICE_RUNNING) {
             echo '<p><img src="/assets/icons/check.svg" class="icon vertical-align-text-top" /> Running</p>';

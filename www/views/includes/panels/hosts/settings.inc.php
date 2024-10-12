@@ -3,7 +3,7 @@
 <form id="hostsSettingsForm" action="/hosts" method="post" autocomplete="off">
     <h6>AVAILABLE PACKAGE UPDATES</h6>
 
-    <p class="input-note">Display color labels depending on the number of available updates to help you quickly identify hosts that need to be updated.</p>
+    <p class="note">Display color labels depending on the number of available updates to help you quickly identify hosts that need to be updated.</p>
 
     <br>
 

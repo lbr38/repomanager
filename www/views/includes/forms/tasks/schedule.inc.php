@@ -84,7 +84,7 @@
                     </select>
 
                 </div>
-                <p class="input-note">of the month</p>
+                <p class="note">of the month</p>
             </div>
             <?php
         endif;
