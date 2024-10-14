@@ -29,7 +29,7 @@ a:hover {
 }
 
 p, label, a, i, span {
-    font-size: 14px;
+    font-size: 15px;
     color: white;
 }
 
@@ -75,7 +75,7 @@ h6 {
     line-height: 1.5em;
     font-size: 13px;
     font-weight: bold;
-    color: rgb(255 255 255 / 80%);
+    color: rgb(255 255 255 / 85%);
     margin-top: 18px;
     margin-bottom: 2px;
 }
@@ -183,7 +183,7 @@ pre.codeblock {
 .column-gap-20{column-gap: 20px}.column-gap-30{column-gap: 30px}.column-gap-40{column-gap: 40px}.column-gap-50{column-gap: 50px}.column-gap-60{column-gap: 60px}.column-gap-70{column-gap: 70px}.column-gap-80{column-gap: 80px}.column-gap-90{column-gap: 90px}.column-gap-100{column-gap: 100px}
 .row-gap-1 {row-gap: 1px}.row-gap-2 {row-gap: 2px}.row-gap-4 {row-gap: 4px}.row-gap-5 {row-gap: 5px}.row-gap-6 {row-gap: 6px}.row-gap-7 {row-gap: 7px}.row-gap-8 {row-gap: 8px}.row-gap-9{row-gap: 9px}.row-gap-10{row-gap: 10px}.row-gap-15{row-gap: 15px}.row-gap-20{row-gap: 20px}
 .padding-left-15{padding-left:15px !important}.padding-left-20{padding-left:20px !important}.padding-left-30{padding-left:30px !important}.padding-left-40{padding-left:40px !important}
-.padding-right-15{padding-right:15px !important}.padding-right-20{padding-right:20px !important}.paddin-right-30{padding-right:30px !important}.padding-right-40{padding-right:40px !important}
+.padding-right-15{padding-right:15px !important}.padding-right-20{padding-right:20px !important}.padding-right-30{padding-right:30px !important}.padding-right-40{padding-right:40px !important}
 .margin-left-0 {margin-left: 0px !important}.margin-left-5 {margin-left: 5px !important}.margin-left-10 {margin-left: 10px !important}.margin-left-15 {margin-left: 15px !important}.margin-left-20 {margin-left: 20px !important}.margin-left-30 {margin-left: 30px !important}.margin-left-40 {margin-left: 40px !important}
 .margin-right-0 {margin-right: 0px !important}.margin-right-5 {margin-right: 5px !important}.margin-right-10 {margin-right: 10px !important}.margin-right-15 {margin-right: 15px !important}.margin-right-20 {margin-right: 20px !important}.margin-right-30 {margin-right: 30px !important}.margin-right-40 {margin-right: 40px !important}
 .margin-top-0 {margin-top: 0px !important}.margin-top-5 {margin-top: 5px !important}.margin-top-10 {margin-top: 10px !important}.margin-top-15 {margin-top: 15px !important}.margin-top-20 {margin-top: 20px !important}.margin-top-30 {margin-top: 30px !important}.margin-top-40 {margin-top: 40px !important}
@@ -297,9 +297,7 @@ td {
  *  Icons
  */
 .icon, .icon-small, .icon-medium, .icon-lowopacity, .icon-mediumopacity, .icon-nf, .icon-np {
-    height: 15px;
-    /* margin-left: 5px;
-    margin-right: 5px; */
+    height: 16px;
     vertical-align: middle;
     cursor: pointer;
 }
@@ -461,8 +459,8 @@ input[type=checkbox]:not(.onoff-switch-input):checked {
 /* All transparent to red buttons (hover) */
 .btn-large-tr-to-red:hover, .btn-medium-tr-to-red:hover, .btn-small-tr-to-red:hover, .btn-xsmall-tr-to-red:hover, .btn-xxsmall-tr-to-red:hover, .btn-fit-tr-to-red:hover, .round-btn-tr-to-red:hover {
     transition-duration: 0.2s;
-    background-color: #ff3347;
-    border: 1px solid #ff3347;
+    background-color: #f10e4b;
+    border: 1px solid #f10e4b;
     opacity: 1;
 }
 
@@ -479,7 +477,7 @@ input[type=checkbox]:not(.onoff-switch-input):checked {
 /* All red buttons (hover) */
 .btn-large-red:hover, .btn-medium-red:hover, .btn-small-red:hover, .btn-xsmall-red:hover, .btn-xxsmall-red:hover, .btn-fit-red:hover, .round-btn-red:hover {
     transition-duration: 0.2s;
-    background-color: #ff3347;
+    background-color: #f10e4b;
 }
 
 /**
@@ -540,7 +538,7 @@ input[type=checkbox]:not(.onoff-switch-input):checked {
     background-color: #F32F63;
 }
 .slide-btn-red:hover {
-    background-color: #ff3347;
+    background-color: #f10e4b;
 }
 .slide-btn-yellow {
     background-color: #eb984e;
@@ -904,7 +902,7 @@ textarea {
     background-color: #F32F63;
 }
 [class*="btn-doConfirm"]:hover {
-    background-color: #ff3347;
+    background-color: #f10e4b;
 }
 .btn-doGeneric:hover {
     background-color: #1d3349;

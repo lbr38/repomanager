@@ -208,14 +208,14 @@ if (!empty($groupsList)) {
                                 if ($packageType == 'deb') {
                                     if ($printRepoDist or $printRepoSection) {
                                         if ($printRepoDist) {
-                                            echo '<span class="lowopacity-cst font-size-12" title="Distribution and section">' . ucfirst($dist) . ' ' . $section . '</span>';
+                                            echo '<span class="lowopacity-cst font-size-13" title="Distribution and section">' . ucfirst($dist) . ' ' . $section . '</span>';
                                         }
                                     }
                                 }
 
                                 if ($packageType == 'rpm') {
                                     if ($printReleaseVersion) {
-                                        echo '<div class="lowopacity-cst font-size-12" title="Release version">Release version ' . $releaseVersion . '</div>';
+                                        echo '<div class="lowopacity-cst font-size-13" title="Release version">Release version ' . $releaseVersion . '</div>';
                                     }
                                 } ?>
                             </div>

@@ -196,11 +196,11 @@
                          *  Task status icon
                          */
                         if ($item['Status'] == 'scheduled') {
-                            echo '<img class="icon-small" src="/assets/icons/yellowcircle.png" title="Task is scheduled" />';
+                            echo '<img class="icon" src="/assets/icons/pending.svg" title="Task is scheduled" />';
                         }
 
                         if ($item['Status'] == 'disabled') {
-                            echo '<img class="icon-small" src="/assets/icons/graycircle.png" title="Task execution is disabled" />';
+                            echo '<img class="icon" src="/assets/icons/graycircle.png" title="Task execution is disabled" />';
                         }
                     }
 
@@ -225,7 +225,7 @@
                     }
 
                     if ($item['Status'] == 'stopped') {
-                        echo '<img class="icon" src="/assets/icons/error.svg" title="Task stopped by the user" />';
+                        echo '<img class="icon" src="/assets/icons/warning-red.svg" title="Task stopped by the user" />';
                     } ?>
                 </div>
             </div>

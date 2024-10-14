@@ -34,7 +34,7 @@ td:last-child {
 
 .hosts-table-title, .host-line {
     display: grid;
-    grid-template-columns: 3% 4% 47% 11% 11% 8% 8% 8%;
+    grid-template-columns: 5% 47% 11% 11% 8% 8% 8%;
     align-items: center;
     text-wrap: balance;
 }
@@ -130,16 +130,8 @@ td:last-child {
 }
 
 .hosts-chart-sub-container {
+    height: 250px;
     position: relative;
-}
-
-.hosts-chart-title {
-    display: block;
-    width: 100%;
-    margin-bottom: 25px;
-    font-size: 13px;
-    font-weight: bold;
-    color: #ffffffd9;
 }
 
 .hosts-charts-list-column-container {

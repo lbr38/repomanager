@@ -29,19 +29,22 @@
                      *  If there is at least 1 active host then we display the search fields
                      */
                     if ($totalHosts != 0) : ?>
+                        <h6>SEARCH HOST</h6>
+                        <input type="text" id="search-host-input" onkeyup="searchHost()" autocomplete="off" placeholder="Hostname, IP" />
+
                         <div class="searchInput-container">
                             <div class="searchInput-subcontainer">
                                 <div>
                                     <div class="flex align-item-center column-gap-10 justify-center">
                                         <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Search a host by its name.&#13;&#13;You can specify a filter before your search entry:&#13;os:<os name> <search>&#13;os_version:<os version> <search>&#13;os_family:<os family> <search>&#13;type:<virtualization type> <search>&#13;kernel:<kernel> <search>&#13;arch:<architecture> <search>&#13;profile:<profile> <search>&#13;env:<env> <search>&#13;agent_version:<version> <search>&#13;reboot_required:<true/false> <search>" />
-                                        <span>Search host:</span>
+                                        <h6>SEARCH HOST</h6>
                                     </div>
-                                    <input type="text" id="searchHostInput" onkeyup="searchHost()" class="input-large" autocomplete="off" placeholder="Hostname, IP" />
+                                    <input type="text" id="search-host-input" onkeyup="searchHost()" class="input-large" autocomplete="off" placeholder="Hostname, IP" />
                                 </div>
                                 <div>
                                     <div class="flex align-item-center column-gap-10 justify-center">
                                         <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Search a package on all hosts, by its name" />
-                                        <span>Search package:</span>
+                                        <h6>SEARCH PACKAGE</h6>
                                     </div>
                                     <input type="text" id="getHostsWithPackageInput" onkeyup="getHostsWithPackage()" class="input-large" autocomplete="off" placeholder="Package name" />
                                 </div>
@@ -105,7 +108,6 @@
                                 if (!empty($hostsList)) : ?>
                                     <div class="hosts-table">
                                         <div class="hosts-table-title">
-                                            <span></span>
                                             <span></span>
                                             <span></span>
                                             <span title="Hosting type">Type</span>
@@ -244,34 +246,19 @@
                                                      *  Linupdate agent state
                                                      */
                                                     if ($agentStatus == 'running') {
-                                                        echo '<img src="/assets/icons/greencircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
+                                                        echo '<img src="/assets/icons/check.svg" class="icon" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
                                                     }
                                                     if ($agentStatus == "disabled") {
-                                                        echo '<img src="/assets/icons/yellowcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
+                                                        echo '<img src="/assets/icons/warning.svg" class="icon" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
                                                     }
                                                     if ($agentStatus == "stopped") {
-                                                        echo '<img src="/assets/icons/redcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
+                                                        echo '<img src="/assets/icons/warning-red.svg" class="icon" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
                                                     }
                                                     if ($agentStatus == "seems-stopped") {
-                                                        echo '<img src="/assets/icons/redcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
+                                                        echo '<img src="/assets/icons/warning-red.svg" class="icon" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
                                                     }
                                                     if ($agentStatus == "unknow") {
-                                                        echo '<img src="/assets/icons/graycircle.png" class="icon-small" title="Linupdate agent state on the host: unknow." />';
-                                                    } ?>
-                                                </div>
-
-                                                <div>
-                                                    <?php
-                                                    if (preg_match('/centos/i', $os)) {
-                                                        echo '<img src="/assets/icons/products/centos.png" class="icon" title="' . $os . '" />';
-                                                    } elseif (preg_match('/redhat/i', $os)) {
-                                                        echo '<img src="/assets/icons/products/redhat.png" class="icon" title="' . $os . '" />';
-                                                    } elseif (preg_match('/debian/i', $os)) {
-                                                        echo '<img src="/assets/icons/products/debian.png" class="icon" title="' . $os . '" />';
-                                                    } elseif (preg_match('/ubuntu|mint/i', $os)) {
-                                                        echo '<img src="/assets/icons/products/ubuntu.png" class="icon" title="' . $os . '" />';
-                                                    } else {
-                                                        echo '<img src="/assets/icons/products/tux.png" class="icon" title="' . $os . '" />';
+                                                        echo '<img src="/assets/icons/graycircle.png" class="icon" title="Linupdate agent state on the host: unknow." />';
                                                     } ?>
                                                 </div>
 
@@ -289,12 +276,15 @@
                                                     $tooltip .= 'Profile: '. $profile . '&#10;';
                                                     $tooltip .= 'Env: '. $env . '&#10;'; ?>
 
-                                                    <div class="flex flex-direction-column row-gap-4">
-                                                        <span class="copy" title="<?= $tooltip ?>">
-                                                            <a href="/host/<?= $id ?>" class="wordbreakall" target="_blank" rel="noopener noreferrer"><?= $hostname ?></a>
-                                                        </span>
+                                                    <div class="flex flex-direction-column row-gap-5">
+                                                        <div class="flex align-item-center column-gap-5">
+                                                            <?= \Controllers\Common::printOsIcon($os); ?>
+                                                            <span class="copy" title="<?= $tooltip ?>">
+                                                                <a href="/host/<?= $id ?>" class="wordbreakall" target="_blank" rel="noopener noreferrer"><?= $hostname ?></a>
+                                                            </span>
+                                                        </div>
 
-                                                        <span class="copy font-size-12 lowopacity-cst" title="<?= $hostname ?> IP address">
+                                                        <span class="copy font-size-14 lowopacity-cst" title="<?= $hostname ?> IP address">
                                                             <?= $ip ?>
                                                         </span>
 

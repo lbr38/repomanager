@@ -267,7 +267,7 @@ class Log
      */
     public function stepWarning()
     {
-        echo '<div class="op-step-title-warning"><img src="/assets/icons/warning.png" class="icon" /></div>';
+        echo '<div class="op-step-title-warning"><img src="/assets/icons/warning.svg" class="icon" /></div>';
         $this->steplogWrite();
     }
 

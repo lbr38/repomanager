@@ -89,7 +89,7 @@ function searchHost()
     /**
      *  If the input is empty, quit
      */
-    if (!$("#searchHostInput").val()) {
+    if (!$("#search-host-input").val()) {
         // Show all containers and host lines before quit
         $('.hosts-group-container, .host-line, .js-select-all-button').show();
 
@@ -102,7 +102,7 @@ function searchHost()
      *  Retrieve the search term from the input
      *  Convert the search term to uppercase to ignore case when searching
      */
-    search = $("#searchHostInput").val().toUpperCase();
+    search = $("#search-host-input").val().toUpperCase();
 
     /**
      *  Print all group containers (in case they were hidden during a previous search)
