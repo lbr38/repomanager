@@ -102,15 +102,15 @@
                 <td>
                     <?php
                     if ($this->repo->getGpgCheck() == 'true') : ?>
-                        <div class="flex align-item-center column-gap-5">
-                            <img src="/assets/icons/greencircle.png" class="icon-small" />
+                        <div class="flex column-gap-5">
+                            <img src="/assets/icons/check.svg" class="icon" />
                             <span>Enabled</span>
                         </div>
                         <?php
                     endif;
                     if ($this->repo->getGpgCheck() == 'false') : ?>
-                        <div class="flex align-item-center column-gap-5">
-                            <img src="/assets/icons/redcircle.png" class="icon-small" />
+                        <div class="flex column-gap-5">
+                            <img src="/assets/icons/error.svg" class="icon" />
                             <span>Disabled</span>
                         </div>
                         <?php
@@ -126,15 +126,15 @@
                 <td>
                     <?php
                     if ($this->repo->getGpgSign() == 'true') : ?>
-                        <div class="flex align-item-center column-gap-5">
-                            <img src="/assets/icons/greencircle.png" class="icon-small" />
+                        <div class="flex column-gap-5">
+                            <img src="/assets/icons/check.svg" class="icon" />
                             <span>Enabled</span>
                         </div>
                         <?php
                     endif;
                     if ($this->repo->getGpgSign() == 'false') : ?>
-                        <div class="flex align-item-center column-gap-5">
-                            <img src="/assets/icons/redcircle.png" class="icon-small" />
+                        <div class="flex column-gap-5">
+                            <img src="/assets/icons/error.svg" class="icon" />
                             <span>Disabled</span>
                         </div>
                         <?php
