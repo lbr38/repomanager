@@ -45,7 +45,7 @@
                 if (empty(EMAIL_RECIPIENT)) {
                     echo '<p class="note yellowtext" title="This parameter must be specified." /><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /> This parameter must be specified.</p>';
                 } else {
-                    echo '<br><button type="button" id="send-test-email-btn" class="btn-medium-tr" title="Send a test email">Send a test email</button>';
+                    echo '<button type="button" id="send-test-email-btn" class="btn-medium-tr margin-top-5" title="Send a test email">Send a test email</button>';
                 } ?>
 
                 <h6>USE A PROXY</h6>
@@ -503,7 +503,7 @@
                         <div class="table-container grid-3 bck-blue-alt">
                             <div>
                                 <p><?= $user['Username'] ?></p>
-                                <p class="lowopacity">
+                                <p class="lowopacity-cst">
                                     <?php
                                     if ($user['Type'] == 'local') {
                                         echo 'Local account';

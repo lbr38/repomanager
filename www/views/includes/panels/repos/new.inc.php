@@ -197,9 +197,13 @@
 
         <div field-type="mirror rpm deb">
             <h6>ONLY INCLUDE PACKAGE(S)</h6>
+            <p class="note">Specify packages names to include. All other packages will be ignored from sync.</p>
+            <p class="note">You can use <code>.*</code> as a wildcard. e.g <code>nginx_1.24.*</code></p>
             <select class="task-param" param-name="package-include" package-type="all" multiple></select>
 
             <h6>EXCLUDE PACKAGE(S)</h6>
+            <p class="note">Specify packages names to exclude from sync.</p>
+            <p class="note">You can use <code>.*</code> as a wildcard. e.g <code>nginx_1.24.*</code></p>
             <select class="task-param" param-name="package-exclude" package-type="all" multiple></select>
         </div>
     </div>

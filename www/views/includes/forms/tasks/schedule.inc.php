@@ -1,5 +1,6 @@
 <div class="task-schedule-form-params" action="<?= $scheduleForm['action'] ?>">
     <h6>TASK SCHEDULING</h6>
+    <p class="note">Don't want to execute the task immediately? Schedule it!</p>
 
     <h6>SCHEDULE IT</h6>
     <label class="onoff-switch-label">
