@@ -52,7 +52,7 @@ if ($vacumm > 0) {
 /**
  *  Add Redhat sources repositories and GPG keys
  */
-$mysource = new \Controllers\Source();
+$mysource = new \Controllers\Repo\Source\Source();
 
 /**
  *  Sources URLs

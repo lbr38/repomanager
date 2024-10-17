@@ -1,7 +1,36 @@
 /**
- *
- *  Fonctions utiles
- *
+ * Get panel by name
+ * @param {*} name
+ */
+function getPanel(name, params = [''])
+{
+    ajaxRequest(
+        // Controller:
+        'general',
+        // Action:
+        'get-panel',
+        // Data:
+        {
+            name: name,
+            params: params
+        },
+        // Print success alert:
+        false,
+        // Print error alert:
+        true,
+        // Reload containers:
+        [],
+        // Execute function on success:
+        [
+            "$('footer').append(jsonValue.message);",
+            "openPanel('" + name + "');"
+        ]
+    );
+}
+
+/**
+ * Open a panel by name
+ * @param {*} name
  */
 function openPanel(name)
 {
@@ -14,19 +43,33 @@ function openPanel(name)
     })
 }
 
-function closePanel()
+/**
+ * Close a panel by name
+ * @param {*} name
+ */
+function closePanel(name = null)
 {
-    $('.slide-panel').animate({
-        right: '-1000px',
-    }).promise().done(function () {
-        $('.slide-panel-container').css({
-            visibility: 'hidden'
+    if (name != null) {
+        $('.slide-panel-container[slide-panel="' + name + '"]').find('.slide-panel').animate({
+            right: '-1000px',
+        }).promise().done(function () {
+            $('.slide-panel-container[slide-panel="' + name + '"]').css({
+                visibility: 'hidden'
+            })
         })
-    })
+    } else {
+        $('.slide-panel').animate({
+            right: '-1000px',
+        }).promise().done(function () {
+            $('.slide-panel-container').css({
+                visibility: 'hidden'
+            })
+        })
+    }
 }
 
 /**
- * Afficher un message d'alerte (success ou error)
+ * Print a success or error alert message
  * @param {*} message
  * @param {*} type
  */

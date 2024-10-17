@@ -327,15 +327,26 @@ class Connection extends SQLite3
         /**
          *  sources table
          */
+        // $this->exec("CREATE TABLE IF NOT EXISTS sources (
+        // Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        // Type CHAR(3) NOT NULL,
+        // Name VARCHAR(255) NOT NULL,
+        // Url VARCHAR(255) NOT NULL,
+        // Gpgkey VARCHAR(255),
+        // Ssl_certificate_path VARCHAR(255),
+        // Ssl_private_key_path VARCHAR(255),
+        // Ssl_ca_certificate_path VARCHAR(255))");
+
         $this->exec("CREATE TABLE IF NOT EXISTS sources (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Type CHAR(3) NOT NULL,
         Name VARCHAR(255) NOT NULL,
-        Url VARCHAR(255) NOT NULL,
+        Url VARCHAR(255),
         Gpgkey VARCHAR(255),
         Ssl_certificate_path VARCHAR(255),
         Ssl_private_key_path VARCHAR(255),
-        Ssl_ca_certificate_path VARCHAR(255))");
+        Ssl_ca_certificate_path VARCHAR(255),
+        Details TEXT)");
 
         /**
          *  users table

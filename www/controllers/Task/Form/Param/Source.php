@@ -8,7 +8,7 @@ class Source
 {
     public static function check(string $source, string $packageType) : void
     {
-        $mysource = new \Controllers\Source();
+        $mysource = new \Controllers\Repo\Source\Source();
 
         if (empty($source)) {
             throw new Exception('Source repository must be specified');

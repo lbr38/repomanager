@@ -1,0 +1,33 @@
+---
+- name: debian-test
+  type: deb
+  url: https://deb.debian.org/debian
+  distributions:
+    buster:
+      description: Debian 10
+      components:
+        main:
+          # arch: []
+        contrib:
+        non-free:
+      gpgkeys:
+        - xxx
+    bullseye:
+      description: Debian 11
+      components:
+        main:
+        contrib:
+        non-free:
+      gpgkeys:
+        - xxx
+    bookworm:
+      description: Debian 12
+      components:
+        main:
+        contrib:
+        non-free:
+      gpgkeys:
+        - xxx
+  architectures: [amd64, arm64, armhf, i386, mips, mips64el, mipsel, ppc64el, s390x]
+  keyserver:
+    - keyring.debian.org

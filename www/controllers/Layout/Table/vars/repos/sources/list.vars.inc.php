@@ -1,12 +1,12 @@
 <?php
-$mysource = new \Controllers\Source();
+$mysource = new \Controllers\Repo\Source\Source();
 $reloadableTableOffset = 0;
 
 /**
  *  Retrieve offset from cookie if exists
  */
-if (!empty($_COOKIE['tables/source_repos/list/offset']) and is_numeric($_COOKIE['tables/source_repos/list/offset'])) {
-    $reloadableTableOffset = $_COOKIE['tables/source_repos/list/offset'];
+if (!empty($_COOKIE['tables/repos/sources/list/offset']) and is_numeric($_COOKIE['tables/repos/sources/list/offset'])) {
+    $reloadableTableOffset = $_COOKIE['tables/repos/sources/list/offset'];
 }
 
 /**

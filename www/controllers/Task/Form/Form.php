@@ -27,10 +27,10 @@ class Form
             $title = '<h3>DUPLICATE</h3>';
         }
         if ($action == 'delete') {
-            $title = '<h3>DELETE</h3>';
+            $title = '<h3>DELETE REPOSITORY SNAPSHOT</h3>';
         }
         if ($action == 'rebuild') {
-            $title = '<h3>REBUILD REPO</h3>';
+            $title = '<h3>REBUILD REPOSITORY</h3>';
         }
 
         $content = $title . '<form class="task-form" autocomplete="off">';
@@ -94,14 +94,12 @@ class Form
             ob_start();
 
             echo '<div class="task-form-params" repo-id="' . $repoId . '" snap-id="' . $snapId . '" env-id="' . $envId . '" action="' . $action . '">';
-            echo '<table class="task-table">';
 
             /**
              *  Include form template
              */
             include(ROOT . '/views/includes/forms/tasks/' . $action . '.inc.php');
 
-            echo '</table>';
             echo '</div>';
 
             $content .= ob_get_clean();

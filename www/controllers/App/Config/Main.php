@@ -161,6 +161,13 @@ class Main
         }
 
         /**
+         *  Source repositories lists dir
+         */
+        if (!defined('SOURCE_LISTS_DIR')) {
+            define('SOURCE_LISTS_DIR', ROOT . '/config/source-repositories');
+        }
+
+        /**
          *  Load system constants
          */
         System::get();

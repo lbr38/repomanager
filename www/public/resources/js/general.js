@@ -3,18 +3,19 @@ setInterval(function () {
 }, 2000);
 
 /**
- *  Slide panel opening
+ *  Event: get panel
  */
-$(document).on('click','.slide-panel-btn',function () {
-    var name = $(this).attr('slide-panel');
-    openPanel(name);
+$(document).on('click','.get-panel-btn',function () {
+    var name = $(this).attr('panel');
+    getPanel(name);
 });
 
 /**
  *  Slide panel closing
  */
 $(document).on('click','.slide-panel-close-btn',function () {
-    closePanel();
+    var name = $(this).attr('slide-panel');
+    closePanel(name);
 });
 
 /**
@@ -93,7 +94,7 @@ $(document).on('click','.stop-task-btn',function () {
  *  Event: print a copy icon on element with .copy class
  */
 $(document).on('mouseenter','.copy',function () {
-    $(this).append('<img src="/assets/icons/duplicate.svg" class="icon-lowopacity icon-copy" title="Copy to clipboard">');
+    $(this).append('<img src="/assets/icons/duplicate.svg" class="icon-lowopacity icon-copy margin-left-5 vertical-align-text-top" title="Copy to clipboard">');
 });
 
 /**
