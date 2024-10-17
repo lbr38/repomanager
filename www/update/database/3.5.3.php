@@ -2,7 +2,7 @@
 /**
  *  3.5.3 database update
  */
-$mysource = new \Controllers\Source();
+$mysource = new \Controllers\Repo\Source\Source();
 
 /**
  *  Sources URLs

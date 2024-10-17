@@ -1,14 +1,14 @@
 <?php ob_start(); ?>
 
-<div class="slide-panel-container" slide-panel="source-repos/new">
+<div class="slide-panel-container" slide-panel="repos/sources/new">
     <div class="slide-panel">
 
-        <img src="/assets/icons/close.svg" class="slide-panel-close-btn float-right lowopacity" slide-panel="source-repos/new" title="Close" />
+        <img src="/assets/icons/close.svg" class="slide-panel-close-btn float-right lowopacity" slide-panel="repos/sources/new" title="Close" />
 
-        <div class="slide-panel-reloadable-div" slide-panel="source-repos/new">
+        <div class="slide-panel-reloadable-div" slide-panel="repos/sources/new">
             <h3>ADD SOURCE REPOSITORY</h3>
 
-            <form id="addSourceForm" autocomplete="off">
+            <form id="add-source-repo-form" autocomplete="off">
                 <h6 class="required">REPOSITORY TYPE</h6>
                 <?php
                 if (RPM_REPO == 'true' and DEB_REPO == 'true') : ?>

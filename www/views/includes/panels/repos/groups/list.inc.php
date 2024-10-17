@@ -80,7 +80,7 @@ endif; ?>
 
 <?php
 $content = ob_get_clean();
-$slidePanelName = 'repos/groups';
+$slidePanelName = 'repos/groups/list';
 $slidePanelTitle = 'REPOS GROUPS';
 
 include(ROOT . '/views/includes/slide-panel.inc.php');

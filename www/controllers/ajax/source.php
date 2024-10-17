@@ -1,10 +1,54 @@
 <?php
+/**
+ *  Add a new source repo
+ */
+if ($_POST['action'] == 'new' and !empty($_POST['params'])) {
+    $mysource = new \Controllers\Repo\Source\Source();
+
+    try {
+        $mysource->new($_POST['params']);
+    } catch (\Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, 'Source repository added');
+}
+
+/**
+ *  Edit a source repo
+ */
+if ($_POST['action'] == 'edit' and !empty($_POST['id']) and !empty($_POST['params'])) {
+    $mysource = new \Controllers\Repo\Source\Source();
+
+    try {
+        $mysource->edit($_POST['id'], $_POST['params']);
+    } catch (\Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, 'Source repository edited');
+}
+
+/**
+ *  Delete a source repo
+ */
+if ($_POST['action'] == 'delete' and !empty($_POST['sourceId'])) {
+    $mysource = new \Controllers\Repo\Source\Source();
+
+    try {
+        $mysource->delete($_POST['sourceId']);
+    } catch (\Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, "Source repository deleted");
+}
 
 /**
  *  Import source repositories from list
  */
 if ($_POST['action'] == 'import-source-repos' and !empty($_POST['list'])) {
-    $mysource = new \Controllers\Source();
+    $mysource = new \Controllers\Repo\Source\Source();
 
     try {
         $mysource->import($_POST['list']);
@@ -16,62 +60,10 @@ if ($_POST['action'] == 'import-source-repos' and !empty($_POST['list'])) {
 }
 
 /**
- *  Add a new source repo
- */
-if (
-    $_POST['action'] == 'new'
-    and !empty($_POST['repoType'])
-    and !empty($_POST['name'])
-    and !empty($_POST['url'])
-    and isset($_POST['gpgKeyURL'])
-    and isset($_POST['gpgKeyText'])
-) {
-    $mysource = new \Controllers\Source();
-
-    try {
-        $mysource->new($_POST['repoType'], $_POST['name'], $_POST['url'], $_POST['gpgKeyURL'], $_POST['gpgKeyText']);
-    } catch (\Exception $e) {
-        response(HTTP_BAD_REQUEST, $e->getMessage());
-    }
-
-    response(HTTP_OK, 'Source repo <b>' . $_POST['name'] . '</b> has been added');
-}
-
-/**
- *  Edit a source repo
- */
-if ($_POST['action'] == 'edit' and !empty($_POST['id']) and !empty($_POST['name']) and !empty($_POST['url']) and isset($_POST['gpgkey']) and isset($_POST['sslCertificatePath']) and isset($_POST['sslPrivateKeyPath']) and isset($_POST['sslCaCertificatePath'])) {
-    $mysource = new \Controllers\Source();
-
-    try {
-        $mysource->edit($_POST['id'], $_POST['name'], $_POST['url'], $_POST['gpgkey'], $_POST['sslCertificatePath'], $_POST['sslPrivateKeyPath'], $_POST['sslCaCertificatePath']);
-    } catch (\Exception $e) {
-        response(HTTP_BAD_REQUEST, $e->getMessage());
-    }
-
-    response(HTTP_OK, 'Source repo has been edited');
-}
-
-/**
- *  Delete a source repo
- */
-if ($_POST['action'] == 'delete' and !empty($_POST['sourceId'])) {
-    $mysource = new \Controllers\Source();
-
-    try {
-        $mysource->delete($_POST['sourceId']);
-    } catch (\Exception $e) {
-        response(HTTP_BAD_REQUEST, $e->getMessage());
-    }
-
-    response(HTTP_OK, "Source repo has been deleted");
-}
-
-/**
  *  Delete a GPG key
  */
 if ($_POST['action'] == 'deleteGpgKey' and !empty($_POST['gpgKeyId'])) {
-    $mysource = new \Controllers\Source();
+    $mysource = new \Controllers\Repo\Source\Source();
 
     try {
         $mysource->deleteGpgKey($_POST['gpgKeyId']);
@@ -86,7 +78,7 @@ if ($_POST['action'] == 'deleteGpgKey' and !empty($_POST['gpgKeyId'])) {
  *  Import a new GPG key
  */
 if ($_POST['action'] == 'importGpgKey' and !empty($_POST['gpgkey'])) {
-    $mysource = new \Controllers\Source();
+    $mysource = new \Controllers\Repo\Source\Source();
 
     try {
         $mysource->importGpgKey($_POST['gpgkey']);

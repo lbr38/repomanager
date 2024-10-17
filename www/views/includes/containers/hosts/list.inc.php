@@ -9,12 +9,12 @@
                     <?php
                     if (IS_ADMIN) : ?>
                         <div id="title-button-container">
-                            <div class="slide-btn slide-panel-btn" slide-panel="hosts/groups" title="Manage hosts groups">
+                            <div class="slide-btn get-panel-btn" panel="hosts/groups/list" title="Manage hosts groups">
                                 <img src="/assets/icons/folder.svg" />
                                 <span>Manage groups</span>
                             </div>
 
-                            <div class="slide-btn slide-panel-btn" slide-panel="hosts/settings" title="Edit display settings">
+                            <div class="slide-btn get-panel-btn" panel="hosts/settings" title="Edit display settings">
                                 <img src="/assets/icons/cog.svg" />
                                 <span>Settings</span>
                             </div>

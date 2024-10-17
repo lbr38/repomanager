@@ -2,7 +2,7 @@
 /**
  *  3.7.2 database update
  */
-$mysource = new \Controllers\Source();
+$mysource = new \Controllers\Repo\Source\Source();
 
 /**
  *  Sources GPG keys

@@ -63,10 +63,10 @@ if ($action == "getTable" && !empty($_POST['table']) && isset($_POST['offset']))
 /**
  *  Return specified panel content
  */
-if ($action == "get-panel" && !empty($_POST['name'])) {
+if ($action == "get-panel" && !empty($_POST['name']) && isset($_POST['params'])) {
     try {
         ob_start();
-        \Controllers\Layout\Panel\Render::render($_POST['name']);
+        \Controllers\Layout\Panel\Render::render($_POST['name'], $_POST['params']);
         $content = ob_get_clean();
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());

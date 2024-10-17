@@ -80,7 +80,7 @@ if (!empty($hostGroupsList)) : ?>
 endif;
 
 $content = ob_get_clean();
-$slidePanelName = 'hosts/groups';
+$slidePanelName = 'hosts/groups/list';
 $slidePanelTitle = 'GROUPS';
 
 include(ROOT . '/views/includes/slide-panel.inc.php');

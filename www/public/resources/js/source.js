@@ -5,29 +5,25 @@
 /**
  *  Event: Add source repo
  */
-$(document).on('submit','#addSourceForm',function () {
+$(document).on('submit','#add-source-repo-form',function () {
     event.preventDefault();
+
+    var params = {};
 
     /**
      *  Retrieve source repo type
      */
-    var repoType = $('input[name=addSourceRepoType]:checked').val();
+    params['type'] = $('input[name=addSourceRepoType]:checked').val();
 
     /**
      *  Retrieve source repo name
      */
-    var name = $('input[name=addSourceName]').val();
+    params['name'] = $('input[name=addSourceName]').val();
 
     /**
      *  Retrieve source repo url
      */
-    var url = $('input[name=addSourceUrl]').val();
-
-    /**
-     *  Retrieve source repo gpg key url or text
-     */
-    var gpgKeyURL = $('input[name=gpgKeyURL]').val();
-    var gpgKeyText = $('#gpgKeyText').val();
+    params['url'] = $('input[name=addSourceUrl]').val();
 
     ajaxRequest(
         // Controller:
@@ -36,11 +32,7 @@ $(document).on('submit','#addSourceForm',function () {
         'new',
         // Data:
         {
-            repoType: repoType,
-            name: name,
-            url: url,
-            gpgKeyURL: gpgKeyURL,
-            gpgKeyText: gpgKeyText
+            params: params
         },
         // Print success alert:
         true,
@@ -50,7 +42,7 @@ $(document).on('submit','#addSourceForm',function () {
         [],
         // Execute functions on success:
         [
-            "reloadPanel('sources-repos/list')",
+            "reloadPanel('repos/sources/list')",
             "reloadNewRepoDiv()"
         ]
     );
@@ -84,7 +76,7 @@ $(document).on('submit','#import-source-repos',function () {
         [],
         // Execute functions on success:
         [
-            "reloadPanel('sources-repos/list')",
+            "reloadPanel('repos/sources/list')",
             "reloadNewRepoDiv()"
         ]
     );
@@ -95,16 +87,21 @@ $(document).on('submit','#import-source-repos',function () {
 /**
  *  Event: Edit source repo
  */
-$(document).on('submit','.source-form',function () {
+$(document).on('click','.source-repo-form-submit-btn',function () {
     event.preventDefault();
-
+    
     var id = $(this).attr('source-id');
-    var name = $(this).find('.source-input-name').val();
-    var url = $(this).find('.source-input-url').val();
-    var gpgkey = $(this).find('.source-gpgkey-input').val();
-    var sslCertificatePath = $(this).find('.source-ssl-crt-input').val();
-    var sslPrivateKeyPath = $(this).find('.source-ssl-key-input').val();
-    var sslCaCertificatePath = $(this).find('.source-ssl-cacrt-input').val();
+    var params = {};
+
+    /**
+     *  Retrieve the parameters entered by the user and push them into the object
+     */
+    $('form.source-repo-form[source-id="' + id + '"]').find('.source-param').each(function () {
+        var name = $(this).attr('param-name');
+        var value = $(this).val();
+
+        params[name] = value;
+    });
 
     ajaxRequest(
         // Controller:
@@ -114,12 +111,7 @@ $(document).on('submit','.source-form',function () {
         // Data:
         {
             id: id,
-            name: name,
-            url: url,
-            gpgkey: gpgkey,
-            sslCertificatePath: sslCertificatePath,
-            sslPrivateKeyPath: sslPrivateKeyPath,
-            sslCaCertificatePath: sslCaCertificatePath
+            params: params
         },
         // Print success alert:
         true,
@@ -129,7 +121,7 @@ $(document).on('submit','.source-form',function () {
         [],
         // Execute functions on success:
         [
-            "reloadPanel('sources-repos/list')",
+            "reloadPanel('repos/sources/list')",
             "reloadNewRepoDiv()"
         ]
     );
@@ -144,6 +136,19 @@ $(document).on('click','.source-repo-edit-param-btn',function () {
     var sourceId = $(this).attr('source-id');
 
     slide('.source-repo-param-div[source-id="' + sourceId + '"]');
+});
+
+/**
+ *  Event: Show/hide source repo distribution params
+ */
+$(document).on('click','.source-repo-distribution-edit-param-btn',function () {
+    var id = $(this).attr('source-id');
+    var distribution = $(this).attr('distribution');
+
+    getPanel('repos/sources/edit-distribution', {
+        id: id,
+        distribution: distribution
+    });
 });
 
 /**
@@ -174,7 +179,7 @@ $(document).on('click','.source-repo-delete-btn',function (e) {
             [],
             // Execute functions on success:
             [
-                "reloadPanel('sources-repos/list')",
+                "reloadPanel('repos/sources/list')",
                 "reloadNewRepoDiv()"
             ]
         );
@@ -206,7 +211,7 @@ $(document).on('click','.gpgKeyDeleteBtn',function () {
             [],
             // Execute functions on success:
             [
-                "reloadPanel('sources-repos/list')"
+                "reloadPanel('repos/sources/list')"
             ]
         );
     });
@@ -237,7 +242,7 @@ $(document).on('submit','#source-repo-add-key-form',function () {
         [],
         // Execute functions on success:
         [
-            "reloadPanel('sources-repos/list')"
+            "reloadPanel('repos/sources/list')"
         ]
     );
 

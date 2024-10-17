@@ -2,7 +2,7 @@
  * Get panel by name
  * @param {*} name
  */
-function getPanel(name)
+function getPanel(name, params = [''])
 {
     ajaxRequest(
         // Controller:
@@ -11,7 +11,8 @@ function getPanel(name)
         'get-panel',
         // Data:
         {
-            name: name
+            name: name,
+            params: params
         },
         // Print success alert:
         false,

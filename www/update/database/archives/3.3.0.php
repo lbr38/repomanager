@@ -91,7 +91,7 @@ foreach ($repoFiles as $repoFile) {
     $repoName = '';
     $repoUrl = '';
     $repoGpgKey = '';
-    $mysource = new \Controllers\Source();
+    $mysource = new \Controllers\Repo\Source\Source();
 
     $repoFileContent = file_get_contents($repoFile);
 

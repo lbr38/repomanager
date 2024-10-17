@@ -146,7 +146,7 @@ trait Sync
          *  3. Retrieving packages
          */
         try {
-            $mysource = new \Controllers\Source();
+            $mysource = new \Controllers\Repo\Source\Source();
 
             if ($this->repo->getPackageType() == 'rpm') {
                 /**

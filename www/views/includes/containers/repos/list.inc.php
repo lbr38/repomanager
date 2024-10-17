@@ -6,17 +6,17 @@
             <div class="flex justify-space-between">
                 <?php
                 if (IS_ADMIN) : ?>
-                    <div class="slide-btn slide-panel-btn" slide-panel="repos/groups" title="Manage repos groups">
+                    <div class="slide-btn get-panel-btn" panel="repos/groups/list" title="Manage repos groups">
                         <img src="/assets/icons/folder.svg" />
                         <span>Manage groups</span>
                     </div>
 
-                    <div class="slide-btn slide-panel-btn" slide-panel="sources-repos/list" title="Manage source repositories">
+                    <div class="slide-btn get-panel-btn" panel="repos/sources/list" title="Manage source repositories">
                         <img src="/assets/icons/internet.svg" />
                         <span>Manage source repos</span>
                     </div>
 
-                    <div class="slide-btn slide-panel-btn" slide-panel="repos/new" title="Create a new mirror or local repository">
+                    <div class="slide-btn get-panel-btn" panel="repos/new" title="Create a new mirror or local repository">
                         <img src="/assets/icons/plus.svg" />
                         <span>Create a new repository</span>
                     </div>
