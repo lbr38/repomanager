@@ -89,4 +89,24 @@ if ($_POST['action'] == 'importGpgKey' and !empty($_POST['gpgkey'])) {
     response(HTTP_OK, "GPG key has been imported");
 }
 
+/**
+ *  Edit a distribution
+ */
+if ($_POST['action'] == 'distribution/edit' and !empty($_POST['id']) and !empty($_POST['distribution']) and !empty($_POST['params'])) {
+    $mysource = new \Controllers\Repo\Source\Deb();
+
+    try {
+        $mysource->editDistribution($_POST['id'], $_POST['distribution'], $_POST['params']);
+    } catch (\Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, 'Distribution edited');
+}
+
+
+
+
+
+
 response(HTTP_BAD_REQUEST, 'Invalid action');

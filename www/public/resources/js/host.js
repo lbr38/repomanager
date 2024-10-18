@@ -1,5 +1,3 @@
-selectToSelect2('select.group-hosts-list', 'Add host...');
-
 /**
  *  Fonctions
  */
@@ -1132,7 +1130,7 @@ function newGroup(name)
         // Execute functions on success:
         [
             // Reload group panel
-            "reloadPanel('hosts/groups', function () { selectToSelect2('select.group-hosts-list', 'Add host...'); })",
+            "reloadPanel('hosts/groups/list')"
         ]
     );
 }
@@ -1162,7 +1160,7 @@ function deleteGroup(id)
         // Execute functions on success:
         [
             // Reload group panel
-            "reloadPanel('hosts/groups', function () { selectToSelect2('select.group-hosts-list', 'Add host...'); })",
+            "reloadPanel('hosts/groups/list')"
         ]
     );
 }
@@ -1196,7 +1194,7 @@ function editGroup(id, name, hostsId)
         // Execute functions on success:
         [
             // Reload group panel
-            "reloadPanel('hosts/groups', function () { selectToSelect2('select.group-hosts-list', 'Add host...'); })",
+            "reloadPanel('hosts/groups/list')"
         ]
     );
 }

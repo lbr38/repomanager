@@ -43,7 +43,7 @@ $(document).on('submit','#add-source-repo-form',function () {
         // Execute functions on success:
         [
             "reloadPanel('repos/sources/list')",
-            "reloadNewRepoDiv()"
+            "reloadPanel('repos/new')"
         ]
     );
 
@@ -77,7 +77,7 @@ $(document).on('submit','#import-source-repos',function () {
         // Execute functions on success:
         [
             "reloadPanel('repos/sources/list')",
-            "reloadNewRepoDiv()"
+            "reloadPanel('repos/new')"
         ]
     );
 
@@ -122,7 +122,7 @@ $(document).on('click','.source-repo-form-submit-btn',function () {
         // Execute functions on success:
         [
             "reloadPanel('repos/sources/list')",
-            "reloadNewRepoDiv()"
+            "reloadPanel('repos/new')"
         ]
     );
 
@@ -180,7 +180,7 @@ $(document).on('click','.source-repo-delete-btn',function (e) {
             // Execute functions on success:
             [
                 "reloadPanel('repos/sources/list')",
-                "reloadNewRepoDiv()"
+                "reloadPanel('repos/new')"
             ]
         );
     });

@@ -1,5 +1,3 @@
-selectToSelect2('select.group-repos-list', 'Add repository');
-
 /**
  *  Events listeners
  */
@@ -85,9 +83,9 @@ function newGroup(name)
         // Execute functions on success:
         [
             // Reload group panel
-            "reloadPanel('repos/groups/list', function () { selectToSelect2('select.group-repos-list', 'Add repository'); })",
+            "reloadPanel('repos/groups/list')",
             // Reload create repo div
-            "reloadNewRepoDiv()"
+            "reloadPanel('repos/new')",
         ]
     );
 }
@@ -117,9 +115,9 @@ function deleteGroup(id)
         // Execute functions on success:
         [
             // Reload group panel
-            "reloadPanel('repos/groups/list', function () { selectToSelect2('select.group-repos-list', 'Add repository'); })",
+            "reloadPanel('repos/groups/list')",
             // Reload create repo div
-            "reloadNewRepoDiv()"
+            "reloadPanel('repos/new')"
         ]
     );
 }
@@ -153,7 +151,7 @@ function editGroup(id, name, reposId)
         // Execute functions on success:
         [
             // Reload group panel
-            "reloadPanel('repos/groups/list', function () { selectToSelect2('select.group-repos-list', 'Add repository'); })",
+            "reloadPanel('repos/groups/list')"
         ]
     );
 }

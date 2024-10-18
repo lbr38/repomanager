@@ -137,26 +137,6 @@ class Source extends \Models\Model
     }
 
     /**
-     *  Edit a source repo
-     */
-    // public function edit(string $id, string $name, string $url, string|null $gpgKeyURL, string|null $sslCertificatePath, string|null $sslPrivateKeyPath, string|null $sslCaCertificatePath)
-    // {
-    //     try {
-    //         $stmt = $this->db->prepare('UPDATE sources SET Name = :name, Url = :url, Gpgkey = :gpgKeyUrl, Ssl_certificate_path = :sslCertificatePath, Ssl_private_key_path = :sslPrivateKeyPath, Ssl_ca_certificate_path = :sslCaCertificatePath WHERE Id = :id');
-    //         $stmt->bindValue(':id', $id);
-    //         $stmt->bindValue(':name', $name);
-    //         $stmt->bindValue(':url', $url);
-    //         $stmt->bindValue(':gpgKeyUrl', $gpgKeyURL);
-    //         $stmt->bindValue(':sslCertificatePath', $sslCertificatePath);
-    //         $stmt->bindValue(':sslPrivateKeyPath', $sslPrivateKeyPath);
-    //         $stmt->bindValue(':sslCaCertificatePath', $sslCaCertificatePath);
-    //         $stmt->execute();
-    //     } catch (\Exception $e) {
-    //         $this->db->logError($e);
-    //     }
-    // }
-
-    /**
      *  Delete a source repository
      */
     public function delete(string $id)
@@ -249,5 +229,21 @@ class Source extends \Models\Model
         }
 
         return $data;
+    }
+
+    /**
+     *  Edit a source repository distribution
+     */
+    public function editDistribution(int $id, string $name, string $params)
+    {
+        try {
+            $stmt = $this->db->prepare('UPDATE sources SET Name = :name, Details = :params WHERE Id = :id');
+            $stmt->bindValue(':id', $id);
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':params', $params);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            $this->db->logError($e);
+        }
     }
 }

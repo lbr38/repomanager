@@ -78,6 +78,10 @@ if (!empty($repoGroupsList)) : ?>
     endforeach;
 endif; ?>
 
+<script>
+    selectToSelect2('select.group-repos-list', 'Add repository');
+</script>
+
 <?php
 $content = ob_get_clean();
 $slidePanelName = 'repos/groups/list';

@@ -53,17 +53,19 @@ function closePanel(name = null)
         $('.slide-panel-container[slide-panel="' + name + '"]').find('.slide-panel').animate({
             right: '-1000px',
         }).promise().done(function () {
-            $('.slide-panel-container[slide-panel="' + name + '"]').css({
-                visibility: 'hidden'
-            })
+            // $('.slide-panel-container[slide-panel="' + name + '"]').css({
+            //     visibility: 'hidden'
+            // })
+            $('.slide-panel-container[slide-panel="' + name + '"]').remove();
         })
     } else {
         $('.slide-panel').animate({
             right: '-1000px',
         }).promise().done(function () {
-            $('.slide-panel-container').css({
-                visibility: 'hidden'
-            })
+            // $('.slide-panel-container').css({
+            //     visibility: 'hidden'
+            // })
+            $('.slide-panel-container').remove();
         })
     }
 }
@@ -293,25 +295,6 @@ function copyToClipboard(containerid)
     window.getSelection().removeAllRanges();
 
     printAlert('Copied to clipboard', 'success');
-}
-
-/**
- *  Convert select tag to a select2 by specified element
- *  @param {*} element
- */
-function selectToSelect2(element, placeholder = null, tags = false)
-{
-    if (placeholder == null) {
-        placeholder = 'Select...';
-    }
-
-    $(element).select2({
-        closeOnSelect: false,
-        placeholder: placeholder,
-        tags: tags,
-        minimumResultsForSearch: Infinity, /* disable search box */
-        allowClear: true /* add a clear button */
-    });
 }
 
 /**

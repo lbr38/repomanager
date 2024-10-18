@@ -185,7 +185,40 @@ function reloadOpenedClosedElements()
  * @param {*} panel
  * @param {*} myfunction
  */
-function reloadPanel(panel, myfunction = null)
+// function reloadPanel(panel, myfunction = null)
+// {
+//     /**
+//      *  Print a loading icon on the bottom of the page
+//      */
+//     printLoading();
+
+//     /**
+//      *  Check if panel has children with class .veil-on-reload
+//      *  If so print a veil on them
+//      */
+//     printLoadingVeilByParentClass('slide-panel-reloadable-div[slide-panel="' + panel + '"]');
+
+//     $('.slide-panel-reloadable-div[slide-panel="' + panel + '"]').load(' .slide-panel-reloadable-div[slide-panel="' + panel + '"] > *', function () {
+//         /**
+//          *  If myfunction is not null, execute it after reloading
+//          */
+//         if (myfunction != null) {
+//             myfunction();
+//         }
+
+//         /**
+//          *  Reload opened or closed elements that where opened/closed before reloading
+//          */
+//         reloadOpenedClosedElements();
+//     });
+
+//     /**
+//      *  Hide loading icon
+//      */
+//     hideLoading();
+// }
+
+function reloadPanel(name)
 {
     /**
      *  Print a loading icon on the bottom of the page
@@ -196,21 +229,32 @@ function reloadPanel(panel, myfunction = null)
      *  Check if panel has children with class .veil-on-reload
      *  If so print a veil on them
      */
-    printLoadingVeilByParentClass('slide-panel-reloadable-div[slide-panel="' + panel + '"]');
+    printLoadingVeilByParentClass('slide-panel-reloadable-div[slide-panel="' + name + '"]');
 
-    $('.slide-panel-reloadable-div[slide-panel="' + panel + '"]').load(' .slide-panel-reloadable-div[slide-panel="' + panel + '"] > *', function () {
-        /**
-         *  If myfunction is not null, execute it after reloading
-         */
-        if (myfunction != null) {
-            myfunction();
-        }
-
-        /**
-         *  Reload opened or closed elements that where opened/closed before reloading
-         */
-        reloadOpenedClosedElements();
-    });
+    ajaxRequest(
+        // Controller:
+        'general',
+        // Action:
+        'get-panel',
+        // Data:
+        {
+            name: name,
+            params: ['']
+        },
+        // Print success alert:
+        false,
+        // Print error alert:
+        true,
+        // Reload containers:
+        [],
+        // Execute function on success:
+        [
+            // Reload panel content
+            "$('.slide-panel-reloadable-div[slide-panel=\"" + name + "\"]').replaceWith($(jsonValue.message).find('.slide-panel-reloadable-div[slide-panel=\"" + name + "\"]'));",
+            // Reload opened or closed elements that where opened/closed before reloading
+            "reloadOpenedClosedElements();"
+        ]
+    );
 
     /**
      *  Hide loading icon

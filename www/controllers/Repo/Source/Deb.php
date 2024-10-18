@@ -8,6 +8,7 @@ class Deb extends \Controllers\Repo\Source\Source
 {
     /**
      *  Import a deb source repository
+     *  TODO : à terminer
      */
     public function import(array $repo)
     {
@@ -83,5 +84,39 @@ class Deb extends \Controllers\Repo\Source\Source
              */
             $this->new($repo);
         }
+    }
+
+    public function editDistribution(int $id, string $distribution, array $params)
+    {
+        $currentName = $params['current-name'];
+
+        /**
+         *  Check that the source repository exists
+         */
+        if (!$this->existsId($id)) {
+            throw new Exception('Source repository does not exist');
+        }
+
+        /**
+         *  Get complete source repository details
+         */
+        $currentParams = json_decode($this->getDetails($id), true);
+
+        /**
+         *  Get current distribution details
+         */
+        $currentDistribution = $currentParams['distributions'][$currentName];
+
+        /**
+         *  Remove the current distribution
+         */
+        unset($currentParams['distributions'][$currentName]);
+
+        /**
+         *  Add the new distribution
+         */
+        $currentParams['distributions'][$distribution] = $currentDistribution;
+
+        $this->editDistribution($id, $distribution, json_encode($currentParams));
     }
 }

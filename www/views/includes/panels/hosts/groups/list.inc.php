@@ -77,8 +77,13 @@ if (!empty($hostGroupsList)) : ?>
         </div>
     </div>
     <?php
-endif;
+endif; ?>
 
+<script>
+    selectToSelect2('select.group-hosts-list', 'Add host');
+</script>
+
+<?php
 $content = ob_get_clean();
 $slidePanelName = 'hosts/groups/list';
 $slidePanelTitle = 'GROUPS';

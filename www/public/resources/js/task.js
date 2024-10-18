@@ -1,36 +1,36 @@
 
-loadNewRepoFormJS();
+// loadNewRepoFormJS();
 
-function loadNewRepoFormJS()
-{
-    /**
-     *  Convert select to select2
-     */
-    selectToSelect2('.task-param[param-name="releasever"]', 'e.g: 8', true);
-    selectToSelect2('.task-param[param-name="dist"]', 'e.g: bullseye', true);
-    selectToSelect2('.task-param[param-name="section"]', 'e.g: main', true);
-    selectToSelect2('.task-param[param-name="arch"]', 'Select architecture', true);
-    selectToSelect2('.task-param[param-name="package-include"]', 'Specify package(s)', true);
-    selectToSelect2('.task-param[param-name="package-exclude"]', 'Specify package(s)', true);
-    selectToSelect2('select.task-param[param-name="schedule-day"]', 'Select day(s)...', true);
-    selectToSelect2('select.task-param[param-name="schedule-reminder"]', 'Select reminder...', true);
-    selectToSelect2('select.task-param[param-name="schedule-recipient"]', 'Select or add recipients...', true);
+// function loadNewRepoFormJS()
+// {
+//     /**
+//      *  Convert select to select2
+//      */
+//     selectToSelect2('.task-param[param-name="releasever"]', 'e.g: 8', true);
+//     selectToSelect2('.task-param[param-name="dist"]', 'e.g: bullseye', true);
+//     selectToSelect2('.task-param[param-name="section"]', 'e.g: main', true);
+//     selectToSelect2('.task-param[param-name="arch"]', 'Select architecture', true);
+//     selectToSelect2('.task-param[param-name="package-include"]', 'Specify package(s)', true);
+//     selectToSelect2('.task-param[param-name="package-exclude"]', 'Specify package(s)', true);
+//     selectToSelect2('select.task-param[param-name="schedule-day"]', 'Select day(s)...', true);
+//     selectToSelect2('select.task-param[param-name="schedule-reminder"]', 'Select reminder...', true);
+//     selectToSelect2('select.task-param[param-name="schedule-recipient"]', 'Select or add recipients...', true);
 
-    /**
-     *  Show / hide the necessary fields
-     */
-    newRepoFormPrintFields();
-}
+//     /**
+//      *  Show / hide the necessary fields
+//      */
+//     newRepoFormPrintFields();
+// }
 
 /**
  *  Reload the 'new repo' task div
  */
-function reloadNewRepoDiv()
-{
-    $(".slide-panel-reloadable-div[slide-panel='repos/new']").load(" .slide-panel-reloadable-div[slide-panel='repos/new'] > *",function () {
-        loadNewRepoFormJS();
-    });
-}
+// function reloadNewRepoDiv()
+// {
+//     $(".slide-panel-reloadable-div[slide-panel='repos/new']").load(" .slide-panel-reloadable-div[slide-panel='repos/new'] > *",function () {
+//         loadNewRepoFormJS();
+//     });
+// }
 
 /**
  *  Show / hide the fields according to the selected package type (rpm or deb)

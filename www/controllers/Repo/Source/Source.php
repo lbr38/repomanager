@@ -413,4 +413,9 @@ class Source
     {
         return $this->model->listAll($type, $withOffset, $offset);
     }
+
+    public function editDistribution(int $id, string $distribution, array $params)
+    {
+        $this->model->editDistribution($id, $distribution, $newDetails);
+    }
 }

@@ -85,29 +85,6 @@
                                         <img src="/assets/icons/delete.svg" class="source-repo-delete-distribution-btn icon-lowopacity" source-id="<?= $item['Id'] ?>" distribution="<?= $distributionName ?>" title="Delete <?= $distributionName ?> distribution" />
                                     </div>
                                 </div>
-
-                                <!-- Distribution details -->
-                                <!-- <div class="hide source-repo-distribution-param-div detailsDiv margin-bottom-5" source-id="<?= $item['Id'] ?>" distribution="<?= $distributionName ?>">
-                                    <form class="source-repo-distribution-form" source-id="<?= $item['Id'] ?>" distribution="<?= $distributionName ?>" autocomplete="off">
-                                        <h6 class="required">NAME</h6>
-                                        <input class="source-distribution-name-input" type="text" value="<?= $distributionName ?>" />
-
-                                        <h6>DESCRIPTION</h6>
-                                        <input class="source-distribution-description-input" type="text" value="<?= $distributionDetails['description'] ?>" />
-
-                                        <h6>COMPONENTS</h6>
-                                        <p class="note">Embedded components.</p>
-                                        <select class="source-distribution-component-select" multiple>
-                                            <?php
-                                            // foreach ($distributionDetails['components'] as $componentName => $componentDetails) {
-                                            //     echo '<option value="' . $componentName . '">' . $componentName . '</option>';
-                                            // } ?>
-                                        </select>
-
-                                        <br><br>
-                                        <button type="button" class="btn-medium-green" title="Save">Save</button>
-                                    </form>
-                                </div> -->
                                 <?php
                             endforeach;
                         endif;
