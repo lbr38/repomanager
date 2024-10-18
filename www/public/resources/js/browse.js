@@ -9,20 +9,6 @@ function printTree()
     // hide all the sub-menus
     $("div.explorer-toggle").next().hide();
 
-    // add a link nudging animation effect to each link
-    $("#explorer a, #explorer div.explorer-toggle").hover(
-        function () {
-            $(this).stop().animate({
-                paddingLeft: '10px',
-            }, 200);
-        },
-        function () {
-            $(this).stop().animate({
-                paddingLeft: '0',
-            }, 200);
-        }
-    );
-
     // set the cursor of the toggling span elements
     $("div.explorer-toggle").css("cursor", "pointer");
 
@@ -32,7 +18,8 @@ function printTree()
     // add a click function that toggles the sub-menu when the corresponding
     // span element is clicked
     $("div.explorer-toggle").click(function () {
-        $(this).next().toggle(200);
+        $(this).next().toggle(100);
+
         // switch the plus to a minus sign or vice-versa
         var v = $(this).html().substring(0, 1);
         if ( v == "+" ) {

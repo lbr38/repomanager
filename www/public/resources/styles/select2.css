@@ -264,7 +264,7 @@ https://github.com/select2/select2/issues/3278#issuecomment-258481272 : */
     left: 0;
     top: 0; }
     .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover, .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:focus {
-      background-color: #ff0044;
+      background-color: #F32F63;
       color: #333;
       outline: none; }
 

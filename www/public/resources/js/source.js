@@ -5,31 +5,81 @@
 /**
  *  Event: Add source repo
  */
-$(document).on('submit','#addSourceForm',function () {
+$(document).on('submit','#add-source-repo-form',function () {
     event.preventDefault();
+
+    var params = {};
 
     /**
      *  Retrieve source repo type
      */
-    var repoType = $('input[name=addSourceRepoType]:checked').val();
+    params['type'] = $('input[name=addSourceRepoType]:checked').val();
 
     /**
      *  Retrieve source repo name
      */
-    var name = $('input[name=addSourceName]').val();
+    params['name'] = $('input[name=addSourceName]').val();
 
     /**
      *  Retrieve source repo url
      */
-    var url = $('input[name=addSourceUrl]').val();
+    params['url'] = $('input[name=addSourceUrl]').val();
 
-    /**
-     *  Retrieve source repo gpg key url or text
-     */
-    var gpgKeyURL = $('input[name=gpgKeyURL]').val();
-    var gpgKeyText = $('#gpgKeyText').val();
+    ajaxRequest(
+        // Controller:
+        'source',
+        // Action:
+        'new',
+        // Data:
+        {
+            params: params
+        },
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload containers:
+        [],
+        // Execute functions on success:
+        [
+            "reloadPanel('repos/sources/list')",
+            "reloadPanel('repos/new')"
+        ]
+    );
 
-    newSource(repoType, name, url, gpgKeyURL, gpgKeyText);
+    return false;
+});
+
+/**
+ *  Event: import source repositories from list
+ */
+$(document).on('submit','#import-source-repos',function () {
+    event.preventDefault();
+
+    var list = $(this).find('select[name="source-repos-list"]').val();
+
+    console.log(list);
+    ajaxRequest(
+        // Controller:
+        'source',
+        // Action:
+        'import-source-repos',
+        // Data:
+        {
+            list: list
+        },
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload containers:
+        [],
+        // Execute functions on success:
+        [
+            "reloadPanel('repos/sources/list')",
+            "reloadPanel('repos/new')"
+        ]
+    );
 
     return false;
 });
@@ -37,18 +87,44 @@ $(document).on('submit','#addSourceForm',function () {
 /**
  *  Event: Edit source repo
  */
-$(document).on('submit','.source-form',function () {
+$(document).on('click','.source-repo-form-submit-btn',function () {
     event.preventDefault();
-
+    
     var id = $(this).attr('source-id');
-    var name = $(this).find('.source-input-name').val();
-    var url = $(this).find('.source-input-url').val();
-    var gpgkey = $(this).find('.source-gpgkey-input').val();
-    var sslCertificatePath = $(this).find('.source-ssl-crt-input').val();
-    var sslPrivateKeyPath = $(this).find('.source-ssl-key-input').val();
-    var sslCaCertificatePath = $(this).find('.source-ssl-cacrt-input').val();
+    var params = {};
 
-    editSource(id, name, url, gpgkey, sslCertificatePath, sslPrivateKeyPath, sslCaCertificatePath);
+    /**
+     *  Retrieve the parameters entered by the user and push them into the object
+     */
+    $('form.source-repo-form[source-id="' + id + '"]').find('.source-param').each(function () {
+        var name = $(this).attr('param-name');
+        var value = $(this).val();
+
+        params[name] = value;
+    });
+
+    ajaxRequest(
+        // Controller:
+        'source',
+        // Action:
+        'edit',
+        // Data:
+        {
+            id: id,
+            params: params
+        },
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload containers:
+        [],
+        // Execute functions on success:
+        [
+            "reloadPanel('repos/sources/list')",
+            "reloadPanel('repos/new')"
+        ]
+    );
 
     return false;
 });
@@ -63,6 +139,19 @@ $(document).on('click','.source-repo-edit-param-btn',function () {
 });
 
 /**
+ *  Event: Show/hide source repo distribution params
+ */
+$(document).on('click','.source-repo-distribution-edit-param-btn',function () {
+    var id = $(this).attr('source-id');
+    var distribution = $(this).attr('distribution');
+
+    getPanel('repos/sources/edit-distribution', {
+        id: id,
+        distribution: distribution
+    });
+});
+
+/**
  *  Event: Delete a source repo
  */
 $(document).on('click','.source-repo-delete-btn',function (e) {
@@ -73,7 +162,27 @@ $(document).on('click','.source-repo-delete-btn',function (e) {
     var name = $(this).attr('source-name');
 
     confirmBox('Are you sure you want to delete <b>' + name + '</b> source repo?', function () {
-        deleteSource(sourceId)
+        ajaxRequest(
+            // Controller:
+            'source',
+            // Action:
+            'delete',
+            // Data:
+            {
+                sourceId: sourceId
+            },
+            // Print success alert:
+            true,
+            // Print error alert:
+            true,
+            // Reload containers:
+            [],
+            // Execute functions on success:
+            [
+                "reloadPanel('repos/sources/list')",
+                "reloadPanel('repos/new')"
+            ]
+        );
     });
 });
 
@@ -85,7 +194,26 @@ $(document).on('click','.gpgKeyDeleteBtn',function () {
     var gpgkeyName = $(this).attr('gpgkey-name');
 
     confirmBox('Are you sure you want to delete <b>' + gpgkeyName + '</b> GPG key?', function () {
-        deleteGpgKey(gpgKeyId)
+        ajaxRequest(
+            // Controller:
+            'source',
+            // Action:
+            'deleteGpgKey',
+            // Data:
+            {
+                gpgKeyId: gpgKeyId
+            },
+            // Print success alert:
+            true,
+            // Print error alert:
+            true,
+            // Reload containers:
+            [],
+            // Execute functions on success:
+            [
+                "reloadPanel('repos/sources/list')"
+            ]
+        );
     });
 });
 
@@ -97,148 +225,6 @@ $(document).on('submit','#source-repo-add-key-form',function () {
 
     var gpgkey = $(this).find('#source-repo-add-key-textarea').val();
 
-    importGpgKey(gpgkey);
-
-    return false;
-});
-
-/**
- * Ajax: Add source repo
- * @param {string} name
- */
-function newSource(repoType, name, url, gpgKeyURL, gpgKeyText)
-{
-    ajaxRequest(
-        // Controller:
-        'source',
-        // Action:
-        'new',
-        // Data:
-        {
-            repoType: repoType,
-            name: name,
-            url: url,
-            gpgKeyURL: gpgKeyURL,
-            gpgKeyText: gpgKeyText
-        },
-        // Print success alert:
-        true,
-        // Print error alert:
-        true,
-        // Reload containers:
-        [],
-        // Execute functions on success:
-        [
-            "reloadPanel('repos/sources')",
-            "reloadNewRepoDiv()"
-        ]
-    );
-}
-
-/**
- * Ajax: Edit source repo
- * @param {*} id
- * @param {*} name
- * @param {*} url
- * @param {*} gpgkey
- * @param {*} sslCertificatePath
- * @param {*} sslPrivateKeyPath
- * @param {*} sslCaCertificatePath
- */
-function editSource(id, name, url, gpgkey, sslCertificatePath, sslPrivateKeyPath, sslCaCertificatePath)
-{
-    ajaxRequest(
-        // Controller:
-        'source',
-        // Action:
-        'edit',
-        // Data:
-        {
-            id: id,
-            name: name,
-            url: url,
-            gpgkey: gpgkey,
-            sslCertificatePath: sslCertificatePath,
-            sslPrivateKeyPath: sslPrivateKeyPath,
-            sslCaCertificatePath: sslCaCertificatePath
-        },
-        // Print success alert:
-        true,
-        // Print error alert:
-        true,
-        // Reload containers:
-        [],
-        // Execute functions on success:
-        [
-            "reloadPanel('repos/sources')",
-            "reloadNewRepoDiv()"
-        ]
-    );
-}
-
-/**
- * Ajax: Delete source repo
- * @param {string} sourceId
- */
-function deleteSource(sourceId)
-{
-    ajaxRequest(
-        // Controller:
-        'source',
-        // Action:
-        'delete',
-        // Data:
-        {
-            sourceId: sourceId
-        },
-        // Print success alert:
-        true,
-        // Print error alert:
-        true,
-        // Reload containers:
-        [],
-        // Execute functions on success:
-        [
-            "reloadPanel('repos/sources')",
-            "reloadNewRepoDiv()"
-        ]
-    );
-}
-
-/**
- * Ajax: Delete a gpg key
- * @param {string} gpgkey
- */
-function deleteGpgKey(gpgKeyId)
-{
-    ajaxRequest(
-        // Controller:
-        'source',
-        // Action:
-        'deleteGpgKey',
-        // Data:
-        {
-            gpgKeyId: gpgKeyId
-        },
-        // Print success alert:
-        true,
-        // Print error alert:
-        true,
-        // Reload containers:
-        [],
-        // Execute functions on success:
-        [
-            "reloadPanel('repos/sources')"
-        ]
-    );
-}
-
-/**
- * Ajax: Import a new gpg key
- * @param {string} gpgkey
- */
-function importGpgKey(gpgkey)
-{
     ajaxRequest(
         // Controller:
         'source',
@@ -256,7 +242,9 @@ function importGpgKey(gpgkey)
         [],
         // Execute functions on success:
         [
-            "reloadPanel('repos/sources')"
+            "reloadPanel('repos/sources/list')"
         ]
     );
-}
+
+    return false;
+});

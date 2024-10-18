@@ -24,7 +24,7 @@
                 <td><?= $this->repo->getDist() ?></td>
             </tr>
             <tr>
-                <th>SECTION</th>
+                <th>SECTION / COMPONENT</th>
                 <td><?= $this->repo->getSection() ?></td>
             </tr>
             <?php

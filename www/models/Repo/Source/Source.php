@@ -1,10 +1,10 @@
 <?php
 
-namespace Models;
+namespace Models\Repo\Source;
 
 use Exception;
 
-class Source extends Model
+class Source extends \Models\Model
 {
     public function __construct()
     {
@@ -83,23 +83,37 @@ class Source extends Model
     }
 
     /**
-     *  Add a new source repo in database
+     *  Get source repo details from its Id
      */
-    public function new(string $repoType, string $name, string $url, string $gpgKeyURL = null, string $gpgKeyText = null)
+    public function getDetails(string $id)
+    {
+        $data = '';
+
+        try {
+            $stmt = $this->db->prepare("SELECT Details FROM sources WHERE Id = :id");
+            $stmt->bindValue(':id', $id);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            $this->db->logError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data = $row['Details'];
+        }
+
+        return $data;
+    }
+
+    /**
+     *  Add a new source repository
+     */
+    public function new(string $repoType, string $name, string $params)
     {
         try {
-            /**
-             *  Case no GPG key URL has been specified
-             */
-            if (empty($gpgKeyURL)) {
-                $stmt = $this->db->prepare("INSERT INTO sources ('Type', 'Name', 'Url') VALUES (:type, :name, :url)");
-            } else {
-                $stmt = $this->db->prepare("INSERT INTO sources ('Type', 'Name', 'Url', 'Gpgkey') VALUES (:type, :name, :url, :gpgkey)");
-                $stmt->bindValue(':gpgkey', $gpgKeyURL);
-            }
+            $stmt = $this->db->prepare("INSERT INTO sources ('Type', 'Name', 'Details') VALUES (:type, :name, :params)");
             $stmt->bindValue(':type', $repoType);
             $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':url', $url);
+            $stmt->bindValue(':params', $params);
             $stmt->execute();
         } catch (\Exception $e) {
             $this->db->logError($e);
@@ -107,19 +121,15 @@ class Source extends Model
     }
 
     /**
-     *  Edit a source repo
+     *  Edit a source repository
      */
-    public function edit(string $id, string $name, string $url, string|null $gpgKeyURL, string|null $sslCertificatePath, string|null $sslPrivateKeyPath, string|null $sslCaCertificatePath)
+    public function edit(string $id, string $name, string $params)
     {
         try {
-            $stmt = $this->db->prepare('UPDATE sources SET Name = :name, Url = :url, Gpgkey = :gpgKeyUrl, Ssl_certificate_path = :sslCertificatePath, Ssl_private_key_path = :sslPrivateKeyPath, Ssl_ca_certificate_path = :sslCaCertificatePath WHERE Id = :id');
+            $stmt = $this->db->prepare('UPDATE sources SET Name = :name, Details = :params WHERE Id = :id');
             $stmt->bindValue(':id', $id);
             $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':url', $url);
-            $stmt->bindValue(':gpgKeyUrl', $gpgKeyURL);
-            $stmt->bindValue(':sslCertificatePath', $sslCertificatePath);
-            $stmt->bindValue(':sslPrivateKeyPath', $sslPrivateKeyPath);
-            $stmt->bindValue(':sslCaCertificatePath', $sslCaCertificatePath);
+            $stmt->bindValue(':params', $params);
             $stmt->execute();
         } catch (\Exception $e) {
             $this->db->logError($e);
@@ -127,13 +137,13 @@ class Source extends Model
     }
 
     /**
-     *  Delete a source repo
+     *  Delete a source repository
      */
-    public function delete(string $sourceId)
+    public function delete(string $id)
     {
         try {
             $stmt = $this->db->prepare("DELETE FROM sources WHERE Id = :id");
-            $stmt->bindValue(':id', $sourceId);
+            $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
             $this->db->logError($e);
@@ -143,12 +153,12 @@ class Source extends Model
     /**
      *  Check if source repo exists in database
      */
-    public function exists(string $type, string $source)
+    public function exists(string $type, string $name)
     {
         try {
             $stmt = $this->db->prepare("SELECT Id FROM sources WHERE Type = :type AND Name = :name");
             $stmt->bindValue(':type', $type);
-            $stmt->bindValue(':name', $source);
+            $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
         } catch (\Exception $e) {
             $this->db->logError($e);
@@ -219,5 +229,21 @@ class Source extends Model
         }
 
         return $data;
+    }
+
+    /**
+     *  Edit a source repository distribution
+     */
+    public function editDistribution(int $id, string $name, string $params)
+    {
+        try {
+            $stmt = $this->db->prepare('UPDATE sources SET Name = :name, Details = :params WHERE Id = :id');
+            $stmt->bindValue(':id', $id);
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':params', $params);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            $this->db->logError($e);
+        }
     }
 }

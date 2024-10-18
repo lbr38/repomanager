@@ -1,6 +1,6 @@
 <?php ob_start(); ?>
 
-<h5>CREATE A NEW GROUP</h5>
+<h6>CREATE A NEW GROUP</h6>
 
 <form id="newGroupForm" autocomplete="off">
     <input id="newGroupInput" type="text" class="input-medium" placeholder="Group name" /></td>
@@ -11,7 +11,7 @@
 
 <?php
 if (!empty($hostGroupsList)) : ?>
-    <h5>CURRENT GROUPS</h5>
+    <h6>CURRENT GROUPS</h6>
 
     <div class="groups-list-container">
         <?php
@@ -43,34 +43,32 @@ if (!empty($hostGroupsList)) : ?>
 
             <div class="group-config-div detailsDiv margin-bottom-5 hide" group-id="<?= $group['Id'] ?>">
                 <form class="group-form" group-id="<?= $group['Id'] ?>" autocomplete="off">
-                    <div class="grid grid-fr-1-2 align-item-center column-gap-10">
-                        <span>Name</span>
-                        <input class="group-name-input" type="text" group-id="<?= $group['Id'] ?>" value="<?= $group['Name'] ?>" />
+                    <h6 class="required">NAME</h6>
+                    <input class="group-name-input" type="text" group-id="<?= $group['Id'] ?>" value="<?= $group['Name'] ?>" />
 
-                        <span>Include hosts</span>
-                        <select class="group-hosts-list" group-id="<?= $group['Id'] ?>" name="group-hosts[]" multiple>
-                            <?php
-                            /**
-                             *  Hosts members of the group will be selected by default in the list
-                             */
-                            if (!empty($hostsIn)) {
-                                foreach ($hostsIn as $host) {
-                                    echo '<option value="' . $host['Id'] . '" selected>' . $host['Hostname'] . ' (' . $host['Ip'] . ')</option>';
-                                }
+                    <h6>HOSTS</h6>
+                    <select class="group-hosts-list" group-id="<?= $group['Id'] ?>" name="group-hosts[]" multiple>
+                        <?php
+                        /**
+                         *  Hosts members of the group will be selected by default in the list
+                         */
+                        if (!empty($hostsIn)) {
+                            foreach ($hostsIn as $host) {
+                                echo '<option value="' . $host['Id'] . '" selected>' . $host['Hostname'] . ' (' . $host['Ip'] . ')</option>';
                             }
+                        }
 
-                            /**
-                             *  Hosts not members of the group will be unselected in the list
-                             */
-                            if (!empty($hostsNotIn)) {
-                                foreach ($hostsNotIn as $host) {
-                                    echo '<option value="' . $host['Id'] . '">' . $host['Hostname'] . ' (' . $host['Ip'] . ')</option>';
-                                }
-                            } ?>
-                        </select>
-                    </div>
+                        /**
+                         *  Hosts not members of the group will be unselected in the list
+                         */
+                        if (!empty($hostsNotIn)) {
+                            foreach ($hostsNotIn as $host) {
+                                echo '<option value="' . $host['Id'] . '">' . $host['Hostname'] . ' (' . $host['Ip'] . ')</option>';
+                            }
+                        } ?>
+                    </select>
 
-                    <br>
+                    <br><br>
                     <button type="submit" class="btn-large-green" title="Save">Save</button>
                 </form>
             </div>
@@ -79,10 +77,15 @@ if (!empty($hostGroupsList)) : ?>
         </div>
     </div>
     <?php
-endif;
+endif; ?>
 
+<script>
+    selectToSelect2('select.group-hosts-list', 'Add host');
+</script>
+
+<?php
 $content = ob_get_clean();
-$slidePanelName = 'hosts/groups';
+$slidePanelName = 'hosts/groups/list';
 $slidePanelTitle = 'GROUPS';
 
 include(ROOT . '/views/includes/slide-panel.inc.php');
