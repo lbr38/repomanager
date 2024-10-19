@@ -41,7 +41,6 @@ $(document).on('click','button.source-repo-add-releasever-btn',function () {
     );
 });
 
-
 /**
  *  Event: edit source repository release version
  */
@@ -81,7 +80,8 @@ $(document).on('submit','form.source-repo-edit-releasever',function () {
         [],
         // Execute functions on success:
         [
-            "reloadPanel('repos/sources/list')"
+            "reloadPanel('repos/sources/list')",
+            "reloadPanel('repos/sources/edit-releasever', {id: " + id + ", releaseverId: " + releaseverId + "})"
         ]
     );
 
@@ -117,6 +117,42 @@ $(document).on('click','.source-repo-remove-releasever-btn',function (e) {
         // Execute functions on success:
         [
             "reloadPanel('repos/sources/list')"
+        ]
+    );
+});
+
+/**
+ *  Event: remove gpg key from release version
+ */
+$(document).on('click','.source-repo-edit-releasever-remove-gpgkey-btn',function (e) {
+    // Prevent parent to be triggered
+    e.stopPropagation();
+
+    var id = $(this).attr('source-id');
+    var releaseverId = $(this).attr('releasever-id');
+    var gpgkey = $(this).attr('gpgkey');
+
+    ajaxRequest(
+        // Controller:
+        'source',
+        // Action:
+        'releasever/remove-gpgkey',
+        // Data:
+        {
+            id: id,
+            releaseverId: releaseverId,
+            gpgkey: gpgkey,
+        },
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload containers:
+        [],
+        // Execute functions on success:
+        [
+            "reloadPanel('repos/sources/list')",
+            "reloadPanel('repos/sources/edit-releasever', {id: " + id + ", releaseverId: " + releaseverId + "})"
         ]
     );
 });

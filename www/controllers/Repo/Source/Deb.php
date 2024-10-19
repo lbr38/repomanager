@@ -170,4 +170,48 @@ class Deb extends \Controllers\Repo\Source\Source
          */
         $this->editDefinition($sourceId, json_encode($currentDefinition));
     }
+
+    /**
+     *  Remove a gpg key from a deb source repository distribution
+     */
+    public function removeGpgKey(int $id, int $distributionId, string $gpgKey)
+    {
+        $gpgKey = \Controllers\Common::validateData($gpgKey);
+
+        /**
+         *  Check that the source repository exists
+         */
+        if (!$this->existsId($id)) {
+            throw new Exception('Source repository does not exist');
+        }
+
+        /**
+         *  Get complete source repository definition
+         */
+        $currentParams = json_decode($this->getDefinition($id), true);
+
+        /**
+         *  Check that release version Id exists in the source repository
+         */
+        if (!isset($currentParams['distributions'][$distributionId])) {
+            throw new Exception('Distribution Id ' . $distributionId . ' does not exist');
+        }
+
+        /**
+         *  Check that the gpg key exists in the release version
+         */
+        if (!in_array($gpgKey, $currentParams['distributions'][$distributionId]['gpgkeys'])) {
+            throw new Exception('GPG key ' . $gpgKey . ' does not exist');
+        }
+
+        /**
+         *  Remove the gpg key
+         */
+        $currentParams['distributions'][$distributionId]['gpgkeys'] = array_diff($currentParams['distributions'][$distributionId]['gpgkeys'], array($gpgKey));
+
+        /**
+         *  Save the new source repository definition
+         */
+        $this->editDefinition($id, json_encode($currentParams));
+    }
 }

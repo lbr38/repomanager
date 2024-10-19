@@ -218,7 +218,7 @@ function reloadOpenedClosedElements()
 //     hideLoading();
 // }
 
-function reloadPanel(name)
+function reloadPanel(name, params = [''])
 {
     /**
      *  Print a loading icon on the bottom of the page
@@ -239,7 +239,7 @@ function reloadPanel(name)
         // Data:
         {
             name: name,
-            params: ['']
+            params: params
         },
         // Print success alert:
         false,

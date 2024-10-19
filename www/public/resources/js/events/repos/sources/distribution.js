@@ -80,7 +80,8 @@ $(document).on('submit','form.source-repo-edit-distribution',function () {
         [],
         // Execute functions on success:
         [
-            "reloadPanel('repos/sources/list')"
+            "reloadPanel('repos/sources/list')",
+            "reloadPanel('repos/sources/edit-releasever', {id: " + id + ", distributionId: " + distributionId + "})"
         ]
     );
 
@@ -116,6 +117,42 @@ $(document).on('click','.source-repo-remove-distribution-btn',function (e) {
         // Execute functions on success:
         [
             "reloadPanel('repos/sources/list')"
+        ]
+    );
+});
+
+/**
+ *  Event: remove gpg key from distribution
+ */
+$(document).on('click','.source-repo-edit-distribution-remove-gpgkey-btn',function (e) {
+    // Prevent parent to be triggered
+    e.stopPropagation();
+
+    var id = $(this).attr('source-id');
+    var distributionId = $(this).attr('distribution-id');
+    var gpgkey = $(this).attr('gpgkey');
+
+    ajaxRequest(
+        // Controller:
+        'source',
+        // Action:
+        'distribution/remove-gpgkey',
+        // Data:
+        {
+            id: id,
+            distributionId: distributionId,
+            gpgkey: gpgkey,
+        },
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload containers:
+        [],
+        // Execute functions on success:
+        [
+            "reloadPanel('repos/sources/list')",
+            "reloadPanel('repos/sources/edit-distribution', {id: " + id + ", distributionId: " + distributionId + "})"
         ]
     );
 });

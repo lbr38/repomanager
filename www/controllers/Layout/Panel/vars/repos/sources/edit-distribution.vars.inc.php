@@ -2,6 +2,7 @@
 $mysourceRepo = new \Controllers\Repo\Source\Source();
 $description = '';
 $components = [];
+$gpgKeys = [];
 
 /**
  *  Check that Id and distribution params have been sent
@@ -41,4 +42,11 @@ if (!empty($sourceDefinition['distributions'][$distributionId]['description'])) 
  */
 if (!empty($sourceDefinition['distributions'][$distributionId]['components'])) {
     $components = $sourceDefinition['distributions'][$distributionId]['components'];
+}
+
+/**
+ *  Retrieve gpg keys if any
+ */
+if (!empty($sourceDefinition['distributions'][$distributionId]['gpgkeys'])) {
+    $gpgKeys = $sourceDefinition['distributions'][$distributionId]['gpgkeys'];
 }

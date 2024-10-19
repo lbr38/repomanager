@@ -15,6 +15,21 @@
                 <input type="text" class="releasever-param" param-name="description" value="<?= $description ?>" placeholder="Name" />
 
                 <h6>GPG KEYS</h6>
+                <?php
+                if (!empty($gpgKeys)) :
+                    foreach ($gpgKeys as $gpgKey) : ?>
+                        <div class="table-container grid-2 bck-blue-alt pointer" source-id="<?= $sourceId ?>" releasever-id="<?= $releaseverId ?>">
+                            <div>
+                                <p><?= $gpgKey ?></p>
+                            </div>
+
+                            <div class="flex justify-end">
+                                <img src="/assets/icons/delete.svg" class="icon-lowopacity source-repo-edit-releasever-remove-gpgkey-btn" source-id="<?= $sourceId ?>" releasever-id="<?= $releaseverId ?>" gpgkey="<?= $gpgKey ?>" title="Remove GPG key <?= $gpgKey ?>" />
+                            </div>
+                        </div>
+                        <?php
+                    endforeach;
+                endif ?>
 
                 <br><br>
                 <button type="submit" class="btn-medium-green">Save</button>

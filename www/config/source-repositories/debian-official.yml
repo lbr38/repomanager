@@ -12,6 +12,7 @@
         - name: non-free
       gpgkeys:
         - xxx
+        - http://toto
     - name: bullseye
       description: Debian 11
       components:

@@ -6,7 +6,9 @@
     - name: 8
       description: CentOS 8 Stream
       gpgkeys:
-        - xxx
+        - http://gpgkey1
+        - http://gpgkey2
+        - AZKKKDKLSLSMDSML
   architectures: [x86_64, aarch64, ppc64le]
   keyserver:
     - xxx

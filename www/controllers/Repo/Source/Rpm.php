@@ -164,4 +164,48 @@ class Rpm extends \Controllers\Repo\Source\Source
          */
         $this->editDefinition($sourceId, json_encode($currentDefinition));
     }
+
+    /**
+     *  Remove a gpg key from a rpm source repository release version
+     */
+    public function removeGpgKey(int $id, int $releaseverId, string $gpgKey)
+    {
+        $gpgKey = \Controllers\Common::validateData($gpgKey);
+
+        /**
+         *  Check that the source repository exists
+         */
+        if (!$this->existsId($id)) {
+            throw new Exception('Source repository does not exist');
+        }
+
+        /**
+         *  Get complete source repository definition
+         */
+        $currentParams = json_decode($this->getDefinition($id), true);
+
+        /**
+         *  Check that release version Id exists in the source repository
+         */
+        if (!isset($currentParams['releasever'][$releaseverId])) {
+            throw new Exception('Release version Id ' . $releaseverId . ' does not exist');
+        }
+
+        /**
+         *  Check that the gpg key exists in the release version
+         */
+        if (!in_array($gpgKey, $currentParams['releasever'][$releaseverId]['gpgkeys'])) {
+            throw new Exception('GPG key ' . $gpgKey . ' does not exist');
+        }
+
+        /**
+         *  Remove the gpg key
+         */
+        $currentParams['releasever'][$releaseverId]['gpgkeys'] = array_diff($currentParams['releasever'][$releaseverId]['gpgkeys'], array($gpgKey));
+
+        /**
+         *  Save the new source repository definition
+         */
+        $this->editDefinition($id, json_encode($currentParams));
+    }
 }

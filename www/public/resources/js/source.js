@@ -58,7 +58,6 @@ $(document).on('submit','#import-source-repos',function () {
 
     var list = $(this).find('select[name="source-repos-list"]').val();
 
-    console.log(list);
     ajaxRequest(
         // Controller:
         'source',

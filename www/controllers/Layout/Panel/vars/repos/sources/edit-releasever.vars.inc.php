@@ -1,7 +1,7 @@
 <?php
 $mysourceRepo = new \Controllers\Repo\Source\Source();
 $description = '';
-$components = [];
+$gpgKeys = [];
 
 /**
  *  Check that Id and release version params have been sent
@@ -10,7 +10,7 @@ if (!isset($item['id'])) {
     throw new Exception('Repository Id required');
 }
 if (!isset($item['releaseverId'])) {
-    throw new Exception('Distribution Id required');
+    throw new Exception('Release version Id required');
 }
 
 /**
@@ -34,4 +34,11 @@ $releasever = $sourceDefinition['releasever'][$releaseverId]['name'];
  */
 if (!empty($sourceDefinition['releasever'][$releaseverId]['description'])) {
     $description = $sourceDefinition['releasever'][$releaseverId]['description'];
+}
+
+/**
+ *  Retrieve gpg keys if any
+ */
+if (!empty($sourceDefinition['releasever'][$releaseverId]['gpgkeys'])) {
+    $gpgKeys = $sourceDefinition['releasever'][$releaseverId]['gpgkeys'];
 }
