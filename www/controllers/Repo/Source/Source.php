@@ -291,7 +291,7 @@ class Source
     public function import(array $listFiles)
     {
         $debSource = new \Controllers\Repo\Source\Deb();
-        // $rpmSource = new \Controllers\Repo\Source\Rpm();
+        $rpmSource = new \Controllers\Repo\Source\Rpm();
 
         try {
             foreach ($listFiles as $sourceList) {

@@ -13,6 +13,7 @@
                 <select name="source-repos-list" multiple required>
                     <!-- <option value="" selected disabled>Select a source repository</option> -->
                     <option value="debian-official" type="deb" selected>Debian official repositories</option>
+                    <option value="centos-official" type="rpm" selected>CentOS 8 official repositories</option>
                     <!-- <option value="test" selected>test</option> -->
                 </select>
 

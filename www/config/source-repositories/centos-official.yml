@@ -1,0 +1,16 @@
+---
+- name: centos-test
+  type: rpm
+  url: http://vault.centos.org/$releasever-stream/BaseOS/$basearch/os/
+  releasever:
+    - name: 8
+      description: CentOS 8 Stream
+      gpgkeys:
+        - xxx
+  architectures: [x86_64, aarch64, ppc64le]
+  keyserver:
+    - xxx
+  ssl-authentication:
+    ssl-certificate: ''
+    ssl-private-key: ''
+    ssl-ca-certificate: ''

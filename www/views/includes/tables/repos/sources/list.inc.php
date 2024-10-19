@@ -3,6 +3,7 @@
     if (!empty($reloadableTableContent)) :
         foreach ($reloadableTableContent as $item) :
             $distAndComponent = null;
+            $releasevers = null;
             $sslCertificatePath = '';
             $sslPrivateKeyPath = '';
             $sslCaCertificatePath = '';
@@ -21,7 +22,11 @@
             }
 
             // Case it is a rpm source repository
-            // TODO
+            if ($type == 'rpm') {
+                if (isset($definition['releasever'])) {
+                    $releasevers = $definition['releasever'];
+                }
+            }
 
             // SSL authentication
             if (isset($definition['ssl-authentication']['certificate-path'])) {
@@ -85,7 +90,7 @@
                                     </div>
 
                                     <div class="flex justify-end">
-                                        <img src="/assets/icons/delete.svg" class="source-repo-delete-distribution-btn icon-lowopacity" source-id="<?= $item['Id'] ?>" distribution-id="<?= $distributionId ?>" title="Remove <?= $distributionDetails['name'] ?> distribution" />
+                                        <img src="/assets/icons/delete.svg" class="source-repo-remove-distribution-btn icon-lowopacity" source-id="<?= $item['Id'] ?>" distribution-id="<?= $distributionId ?>" title="Remove <?= $distributionDetails['name'] ?> distribution" />
                                     </div>
                                 </div>
                                 <?php
@@ -95,6 +100,34 @@
                         <div class="flex align-item-center column-gap-5">
                             <input type="text" class="source-repo-add-distribution-input" source-id="<?= $item['Id'] ?>" placeholder="Add distribution">
                             <button type="button" class="source-repo-add-distribution-btn btn-xxsmall-green" source-id="<?= $item['Id'] ?>" title="Add distribution">+</button>
+                        </div>
+                        <?php
+                    endif;
+                    
+                    if ($type == 'rpm') :
+                        echo '<h6>RELEASE VERSIONS</h6>';
+                        echo '<p class="note">Embedded release versions.</p>';
+
+                        if (!empty($releasevers)) :
+                            foreach ($releasevers as $releaseverId => $releaseverDefinition) : ?>
+                                <!-- Distributions -->
+                                <div class="table-container grid-2 bck-blue-alt source-repo-releasever-edit-param-btn pointer" source-id="<?= $item['Id'] ?>" releasever-id="<?= $releaseverId ?>">
+                                    <div>
+                                        <p><?= $releaseverDefinition['name'] ?></p>
+                                        <p class="note"><?= $releaseverDefinition['description'] ?></p>
+                                    </div>
+
+                                    <div class="flex justify-end">
+                                        <img src="/assets/icons/delete.svg" class="source-repo-remove-releasever-btn icon-lowopacity" source-id="<?= $item['Id'] ?>" releasever-id="<?= $releaseverId ?>" title="Remove <?= $releaseverDefinition['name'] ?> release version" />
+                                    </div>
+                                </div>
+                                <?php
+                            endforeach;
+                        endif ?>
+
+                        <div class="flex align-item-center column-gap-5">
+                            <input type="text" class="source-repo-add-releasever-input" source-id="<?= $item['Id'] ?>" placeholder="Add release version">
+                            <button type="button" class="source-repo-add-releasever-btn btn-xxsmall-green" source-id="<?= $item['Id'] ?>" title="Add release version">+</button>
                         </div>
                         <?php
                     endif ?>

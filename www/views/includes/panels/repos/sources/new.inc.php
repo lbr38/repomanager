@@ -39,13 +39,6 @@
                 <h6 class="required">URL</h6>
                 <input type="text" name="addSourceUrl" placeholder="https://..." required />
 
-                <h6>GPG KEY URL</h6>
-                <input type="text" name="gpgKeyURL" placeholder="https://...">
-
-                <h6>IMPORT A GPG KEY</h6>
-                <textarea id="gpgKeyText" class="textarea-100" placeholder="-----BEGIN PGP PUBLIC KEY BLOCK-----"></textarea>
-                <p class="note">Plain text format.</p>
-
                 <br><br>
                 <button type="submit" class="btn-small-green" title="Add source repository">Add</button>
             </form>

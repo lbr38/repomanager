@@ -4,10 +4,10 @@ namespace Controllers\Repo\Source;
 
 use Exception;
 
-class Deb extends \Controllers\Repo\Source\Source
+class Rpm extends \Controllers\Repo\Source\Source
 {
     /**
-     *  Import a deb source repository
+     *  Import a rpm source repository
      *  TODO : à finaliser
      */
     public function import(array $repo)
@@ -24,26 +24,21 @@ class Deb extends \Controllers\Repo\Source\Source
         if (empty($repo['architectures'])) {
             throw new Exception('source repository architectures is empty');
         }
-        if (empty($repo['distributions'])) {
-            throw new Exception('source repository distributions is empty');
-        }
-        foreach ($repo['distributions'] as $distribution) {
-            if (empty($distribution['components'])) {
-                throw new Exception('source repository distributions components is empty');
-            }
+        if (empty($repo['releasever'])) {
+            throw new Exception('source repository releasever is empty');
         }
 
-        // TODO : ajouter + de vérifications relatives à deb
+        // TODO : ajouter + de vérifications relatives à rpm
         // Les verifs des paramètres de base sont effectuées par la fonction new() de la classe parente
 
         /**
          *  If a repository with the same name already exists, then delete it before adding the new one
          */
-        if ($this->exists('deb', $repo['name'])) {
+        if ($this->exists('rpm', $repo['name'])) {
             /**
              *  Get it's Id
              */
-            $id = $this->getIdByTypeName('deb', $repo['name']);
+            $id = $this->getIdByTypeName('rpm', $repo['name']);
 
             /**
              *  Delete the existing source repository
@@ -58,9 +53,9 @@ class Deb extends \Controllers\Repo\Source\Source
     }
 
     /**
-     *  Add a new deb source repository distribution
+     *  Add a new rpm source repository release version
      */
-    public function addDistribution(int $id, string $name)
+    public function addReleasever(int $id, string $name)
     {
         $name = \Controllers\Common::validateData($name);
 
@@ -74,36 +69,35 @@ class Deb extends \Controllers\Repo\Source\Source
         /**
          *  Get complete source repository definition
          */
-        $currentDefinition = json_decode($this->getDefinition($id), true);
+        $currentParams = json_decode($this->getDefinition($id), true);
 
         /**
-         *  Check that a distribution with the same name does not already exist
+         *  Check that a release version with the same name does not already exist
          */
-        foreach ($currentDefinition['distributions'] as $distribution) {
-            if ($distribution['name'] == $name) {
-                throw new Exception('Distribution ' . $name . ' already exists');
+        foreach ($currentParams['releasever'] as $releasever) {
+            if ($releasever['name'] == $name) {
+                throw new Exception('Release version ' . $name . ' already exists');
             }
         }
 
         /**
-         *  Add the new distribution
+         *  Add the new release version
          */
-        $currentDefinition['distributions'][] = array(
+        $currentParams['releasever'][] = array(
             'name' => $name,
             'description' => '',
-            'components' => []
         );
 
         /**
          *  Save the new source repository definition
          */
-        $this->editDefinition($id, json_encode($currentDefinition));
+        $this->editDefinition($id, json_encode($currentParams));
     }
 
     /**
-     *  Edit a deb source repository distribution
+     *  Edit a deb source repository release version
      */
-    public function editDistribution(int $id, int $distributionId, array $params)
+    public function editReleasever(int $id, int $releaseverId, array $params)
     {
         /**
          *  Check that the source repository exists
@@ -118,17 +112,17 @@ class Deb extends \Controllers\Repo\Source\Source
         $currentDefinition = json_decode($this->getDefinition($id), true);
 
         /**
-         *  Check that distribution Id exists in the source repository
+         *  Check that release version Id exists in the source repository
          */
-        if (!isset($currentDefinition['distributions'][$distributionId])) {
-            throw new Exception('Distribution does not exist');
+        if (!isset($currentDefinition['releasever'][$releaseverId])) {
+            throw new Exception('Release version does not exist');
         }
 
         /**
-         *  Set new distribution params
+         *  Set new release version params
          */
-        $currentDefinition['distributions'][$distributionId]['name'] = $params['name'];
-        $currentDefinition['distributions'][$distributionId]['description'] = $params['description'];
+        $currentDefinition['releasever'][$releaseverId]['name'] = $params['name'];
+        $currentDefinition['releasever'][$releaseverId]['description'] = $params['description'];
 
         /**
          *  Save the new source repository definition
@@ -137,9 +131,9 @@ class Deb extends \Controllers\Repo\Source\Source
     }
 
     /**
-     *  Remove a distribution from a deb source repository
+     *  Remove a release version from a rpm source repository
      */
-    public function removeDistribution(int $sourceId, int $distributionId)
+    public function removeReleasever(int $sourceId, int $releaseverId)
     {
         /**
          *  Check that the source repository exists
@@ -154,16 +148,16 @@ class Deb extends \Controllers\Repo\Source\Source
         $currentDefinition = json_decode($this->getDefinition($sourceId), true);
 
         /**
-         *  Check that distribution Id exists in the source repository
+         *  Check that release version Id exists in the source repository
          */
-        if (!isset($currentDefinition['distributions'][$distributionId])) {
+        if (!isset($currentDefinition['releasever'][$releaseverId])) {
             throw new Exception('Distribution does not exist');
         }
 
         /**
-         *  Remove the distribution
+         *  Remove the release version
          */
-        unset($currentDefinition['distributions'][$distributionId]);
+        unset($currentDefinition['releasever'][$releaseverId]);
 
         /**
          *  Save the new source repository definition

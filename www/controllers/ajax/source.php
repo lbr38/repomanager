@@ -134,4 +134,49 @@ if ($_POST['action'] == 'distribution/remove' and !empty($_POST['id']) and isset
     response(HTTP_OK, 'Distribution removed');
 }
 
+/**
+ *  Add a new release version
+ */
+if ($_POST['action'] == 'releasever/add' and !empty($_POST['id']) and !empty($_POST['name'])) {
+    $myRpmSource = new \Controllers\Repo\Source\Rpm();
+
+    try {
+        $myRpmSource->addReleasever($_POST['id'], $_POST['name']);
+    } catch (\Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, 'Release version added');
+}
+
+/**
+ *  Edit a release version
+ */
+if ($_POST['action'] == 'releasever/edit' and !empty($_POST['id']) and isset($_POST['releaseverId']) and isset($_POST['params'])) {
+    $myRpmSource = new \Controllers\Repo\Source\Rpm();
+
+    try {
+        $myRpmSource->editReleasever($_POST['id'], $_POST['releaseverId'], $_POST['params']);
+    } catch (\Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, 'Release version edited');
+}
+
+/**
+ *  Remove a release version
+ */
+if ($_POST['action'] == 'releasever/remove' and !empty($_POST['id']) and isset($_POST['releaseverId'])) {
+    $myRpmSource = new \Controllers\Repo\Source\Rpm();
+
+    try {
+        $myRpmSource->removeReleasever($_POST['id'], $_POST['releaseverId']);
+    } catch (\Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, 'Release version removed');
+}
+
 response(HTTP_BAD_REQUEST, 'Invalid action');

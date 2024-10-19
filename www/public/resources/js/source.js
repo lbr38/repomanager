@@ -139,21 +139,6 @@ $(document).on('click','.source-repo-edit-param-btn',function () {
 });
 
 /**
- *  Event: Show/hide source repo distribution params
- */
-$(document).on('click','.source-repo-distribution-edit-param-btn',function () {
-    var id = $(this).attr('source-id');
-    var distributionId = $(this).attr('distribution-id');
-
-    console.log(distributionId)
-
-    getPanel('repos/sources/edit-distribution', {
-        id: id,
-        distributionId: distributionId
-    });
-});
-
-/**
  *  Event: Delete a source repo
  */
 $(document).on('click','.source-repo-delete-btn',function (e) {

@@ -1,28 +1,28 @@
 /**
- *  Event: Show/hide source repo distribution params
+ *  Event: Show/hide source repo release version params
  */
-$(document).on('click','.source-repo-distribution-edit-param-btn',function () {
+$(document).on('click','.source-repo-releasever-edit-param-btn',function () {
     var id = $(this).attr('source-id');
-    var distributionId = $(this).attr('distribution-id');
+    var releaseverId = $(this).attr('releasever-id');
 
-    getPanel('repos/sources/edit-distribution', {
+    getPanel('repos/sources/edit-releasever', {
         id: id,
-        distributionId: distributionId
+        releaseverId: releaseverId
     });
 });
 
 /**
- *  Event: add source repository distribution
+ *  Event: add source repository release version
  */
-$(document).on('click','button.source-repo-add-distribution-btn',function () {
+$(document).on('click','button.source-repo-add-releasever-btn',function () {
     var id = $(this).attr('source-id');
-    var name = $('input.source-repo-add-distribution-input[source-id="' + id + '"]').val();
+    var name = $('input.source-repo-add-releasever-input[source-id="' + id + '"]').val();
 
     ajaxRequest(
         // Controller:
         'source',
         // Action:
-        'distribution/add',
+        'releasever/add',
         // Data:
         {
             id: id,
@@ -41,20 +41,21 @@ $(document).on('click','button.source-repo-add-distribution-btn',function () {
     );
 });
 
+
 /**
- *  Event: edit source repository distribution
+ *  Event: edit source repository release version
  */
-$(document).on('submit','form.source-repo-edit-distribution',function () {
+$(document).on('submit','form.source-repo-edit-releasever',function () {
     event.preventDefault();
 
     var id = $(this).attr('source-id');
-    var distributionId = $(this).attr('distribution-id');
+    var releaseverId = $(this).attr('releasever-id');
     var params = {};
 
     /**
      *  Retrieve the parameters entered by the user and push them into the object
      */
-    $('form.source-repo-edit-distribution[source-id="' + id + '"][distribution-id="' + distributionId + '"]').find('.distribution-param').each(function () {
+    $('form.source-repo-edit-releasever[source-id="' + id + '"][releasever-id="' + releaseverId + '"]').find('.releasever-param').each(function () {
         var name = $(this).attr('param-name');
         var value = $(this).val();
 
@@ -65,11 +66,11 @@ $(document).on('submit','form.source-repo-edit-distribution',function () {
         // Controller:
         'source',
         // Action:
-        'distribution/edit',
+        'releasever/edit',
         // Data:
         {
             id: id,
-            distributionId: distributionId,
+            releaseverId: releaseverId,
             params: params
         },
         // Print success alert:
@@ -88,24 +89,24 @@ $(document).on('submit','form.source-repo-edit-distribution',function () {
 });
 
 /**
- *  Event: delete source repository distribution
+ *  Event: remove source repository release version
  */
-$(document).on('click','.source-repo-remove-distribution-btn',function (e) {
+$(document).on('click','.source-repo-remove-releasever-btn',function (e) {
     // Prevent parent to be triggered
     e.stopPropagation();
 
     var id = $(this).attr('source-id');
-    var distributionId = $(this).attr('distribution-id');
+    var releaseverId = $(this).attr('releasever-id');
 
     ajaxRequest(
         // Controller:
         'source',
         // Action:
-        'distribution/remove',
+        'releasever/remove',
         // Data:
         {
             id: id,
-            distributionId: distributionId,
+            releaseverId: releaseverId,
         },
         // Print success alert:
         true,
