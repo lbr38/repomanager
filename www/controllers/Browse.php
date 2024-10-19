@@ -106,7 +106,8 @@ class Browse
      *  Print a sub-directory
      */
     public static function printSubDir($dir, $path)
-    { ?>
+    {
+        ?>
         <li>
             <div class="explorer-toggle header-blue pointer flex column-gap-5 align-item-center" title="Directory <?= $dir ?>">
                 <img src="/assets/icons/folder.svg" class="icon" />

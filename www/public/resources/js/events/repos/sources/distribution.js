@@ -33,7 +33,7 @@ $(document).on('click','button.source-repo-add-distribution-btn',function () {
  */
 $(document).on('submit','form.source-repo-edit-distribution',function () {
     event.preventDefault();
-    
+
     var id = $(this).attr('source-id');
     var distributionId = $(this).attr('distribution-id');
     var params = {};
@@ -80,7 +80,7 @@ $(document).on('submit','form.source-repo-edit-distribution',function () {
 $(document).on('click','.source-repo-delete-distribution-btn',function (e) {
     // Prevent parent to be triggered
     e.stopPropagation();
-    
+
     var id = $(this).attr('source-id');
     var distributionId = $(this).attr('distribution-id');
 

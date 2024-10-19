@@ -116,7 +116,7 @@ class Deb extends \Controllers\Repo\Source\Source
          *  Get complete source repository details
          */
         $currentParams = json_decode($this->getDefinition($id), true);
-    
+
         /**
          *  Check that distribution Id exists in the source repository
          */

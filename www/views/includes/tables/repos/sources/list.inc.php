@@ -67,7 +67,7 @@
                     if ($type == 'deb') :
                         echo '<h6>DISTRIBUTIONS</h6>';
                         echo '<p class="note">Embedded distributions.</p>';
-                        
+
                         if (!empty($distAndComponent)) :
                             foreach ($distAndComponent as $distributionId => $distributionDetails) : ?>
                                 <!-- Distributions -->

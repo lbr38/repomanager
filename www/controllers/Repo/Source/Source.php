@@ -101,7 +101,7 @@ class Source
          */
         if (!\Controllers\Common::isAlphanumDash($url, array('http://', 'https://', '/', '.', '?', '&', '$', '@', ':'))) {
             throw new Exception('Specified URL contains invalid characters');
-        }        
+        }
 
         /**
          *  Check if a source repo with the same name does not already exist
