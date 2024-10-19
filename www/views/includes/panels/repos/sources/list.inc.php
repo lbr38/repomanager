@@ -9,6 +9,14 @@
 
             <p>Configure source repositories to mirror.</p>
 
+            <h6>CURRENT SOURCE REPOSITORIES</h6>
+
+            <div class="flex column-gap-10">
+                <button type="button" class="btn-small-green get-panel-btn" panel="repos/sources/new">Manually add</button>
+                <button type="button" class="btn-small-green get-panel-btn" panel="repos/sources/import">Import</button>
+            </div>
+            <br><br>
+
             <?php
             /**
              *  Print current sources repositories

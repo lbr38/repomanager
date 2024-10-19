@@ -17,35 +17,37 @@ class Source extends \Models\Model
     /**
      *  Return all source informations
      */
-    public function getAll(string $sourceType, string $sourceName)
-    {
-        $data = array();
+    // public function getAll(string $sourceType, string $sourceName)
+    // {
+    //     $data = array();
 
-        try {
-            $stmt = $this->db->prepare("SELECT * FROM sources WHERE Type = :type AND Name = :name");
-            $stmt->bindValue(':type', $sourceType);
-            $stmt->bindValue(':name', $sourceName);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
+    //     try {
+    //         $stmt = $this->db->prepare("SELECT * FROM sources WHERE Type = :type AND Name = :name");
+    //         $stmt->bindValue(':type', $sourceType);
+    //         $stmt->bindValue(':name', $sourceName);
+    //         $result = $stmt->execute();
+    //     } catch (\Exception $e) {
+    //         $this->db->logError($e);
+    //     }
 
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $data = $row;
-        }
+    //     while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+    //         $data = $row;
+    //     }
 
-        return $data;
-    }
+    //     return $data;
+    // }
 
     /**
-     *  Get source repo Id from its name
+     *  Get source repo Id from its type and name
      */
-    public function getIdByName(string $type, string $name)
+    public function getIdByTypeName(string $type, string $name)
     {
         $id = '';
 
         try {
-            $stmt = $this->db->prepare("SELECT Id FROM sources WHERE Type = :type AND Name = :name");
+            $stmt = $this->db->prepare("SELECT Id FROM sources
+            WHERE json_extract(COALESCE(Definition, '{}'), '$.type') = :type
+            AND json_extract(COALESCE(Definition, '{}'), '$.name') = :name");
             $stmt->bindValue(':type', $type);
             $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
@@ -60,37 +62,37 @@ class Source extends \Models\Model
         return $id;
     }
 
+    // /**
+    //  *  Get source repo type from its Id
+    //  */
+    // public function getType(string $id)
+    // {
+    //     $type = '';
+
+    //     try {
+    //         $stmt = $this->db->prepare("SELECT Type FROM sources WHERE Id = :id");
+    //         $stmt->bindValue(':id', $id);
+    //         $result = $stmt->execute();
+    //     } catch (\Exception $e) {
+    //         $this->db->logError($e);
+    //     }
+
+    //     while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+    //         $type = $row['Type'];
+    //     }
+
+    //     return $type;
+    // }
+
     /**
-     *  Get source repo type from its Id
+     *  Get source repo definition from its Id
      */
-    public function getType(string $id)
-    {
-        $type = '';
-
-        try {
-            $stmt = $this->db->prepare("SELECT Type FROM sources WHERE Id = :id");
-            $stmt->bindValue(':id', $id);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $type = $row['Type'];
-        }
-
-        return $type;
-    }
-
-    /**
-     *  Get source repo details from its Id
-     */
-    public function getDetails(string $id)
+    public function getDefinition(string $id)
     {
         $data = '';
 
         try {
-            $stmt = $this->db->prepare("SELECT Details FROM sources WHERE Id = :id");
+            $stmt = $this->db->prepare("SELECT Definition FROM sources WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
@@ -98,7 +100,47 @@ class Source extends \Models\Model
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $data = $row['Details'];
+            $data = $row['Definition'];
+        }
+
+        return $data;
+    }
+
+    /**
+     *  List all source repositories
+     */
+    public function listAll(string $type, bool $withOffset, int $offset)
+    {
+        $data = array();
+
+        $query = "SELECT * FROM sources";
+
+        /**
+         *  If a source type has been specified
+         */
+        if (!empty($type)) {
+            $query .= " WHERE json_extract(COALESCE(Definition, '{}'), '$.type') = :type";
+        }
+
+        $query .= " ORDER BY json_extract(COALESCE(Definition, '{}'), '$.type') ASC, json_extract(COALESCE(Definition, '{}'), '$.name') ASC";
+
+        /**
+         *  If offset is specified
+         */
+        if ($withOffset) {
+            $query .= " LIMIT 10 OFFSET :offset";
+        }
+
+        /**
+         *  Prepare query
+         */
+        $stmt = $this->db->prepare($query);
+        $stmt->bindValue(':type', $type);
+        $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
+        $result = $stmt->execute();
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
         }
 
         return $data;
@@ -107,12 +149,10 @@ class Source extends \Models\Model
     /**
      *  Add a new source repository
      */
-    public function new(string $repoType, string $name, string $params)
+    public function new(string $params)
     {
         try {
-            $stmt = $this->db->prepare("INSERT INTO sources ('Type', 'Name', 'Details') VALUES (:type, :name, :params)");
-            $stmt->bindValue(':type', $repoType);
-            $stmt->bindValue(':name', $name);
+            $stmt = $this->db->prepare("INSERT INTO sources ('Definition') VALUES (:params)");
             $stmt->bindValue(':params', $params);
             $stmt->execute();
         } catch (\Exception $e) {
@@ -120,26 +160,26 @@ class Source extends \Models\Model
         }
     }
 
-    /**
-     *  Edit a source repository
-     */
-    public function edit(string $id, string $name, string $params)
-    {
-        try {
-            $stmt = $this->db->prepare('UPDATE sources SET Name = :name, Details = :params WHERE Id = :id');
-            $stmt->bindValue(':id', $id);
-            $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':params', $params);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-    }
+    // /**
+    //  *  Edit a source repository
+    //  */
+    // public function edit(string $id, string $name, string $params)
+    // {
+    //     try {
+    //         $stmt = $this->db->prepare('UPDATE sources SET Name = :name, Definition = :params WHERE Id = :id');
+    //         $stmt->bindValue(':id', $id);
+    //         $stmt->bindValue(':name', $name);
+    //         $stmt->bindValue(':params', $params);
+    //         $stmt->execute();
+    //     } catch (\Exception $e) {
+    //         $this->db->logError($e);
+    //     }
+    // }
 
     /**
      *  Delete a source repository
      */
-    public function delete(string $id)
+    public function delete(int $id)
     {
         try {
             $stmt = $this->db->prepare("DELETE FROM sources WHERE Id = :id");
@@ -152,11 +192,14 @@ class Source extends \Models\Model
 
     /**
      *  Check if source repo exists in database
+     *  Using COALESCE to specify a default JSON value '{}' for the Definition column in case the column is empty (brand new table)
      */
     public function exists(string $type, string $name)
     {
         try {
-            $stmt = $this->db->prepare("SELECT Id FROM sources WHERE Type = :type AND Name = :name");
+            $stmt = $this->db->prepare("SELECT Id FROM sources
+            WHERE json_extract(COALESCE(Definition, '{}'), '$.type') = :type
+            AND json_extract(COALESCE(Definition, '{}'), '$.name') = :name");
             $stmt->bindValue(':type', $type);
             $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
@@ -192,55 +235,14 @@ class Source extends \Models\Model
     }
 
     /**
-     *  List all source repos
+     *  Edit source repository definition params
      */
-    public function listAll(string $type, bool $withOffset, int $offset)
-    {
-        $data = array();
-
-        $query = "SELECT * FROM sources";
-
-        /**
-         *  If a source type has been specified
-         */
-        if (!empty($type)) {
-            $query .= " WHERE Type = :type";
-        }
-
-        $query .= " ORDER BY Type ASC, Name ASC";
-
-        /**
-         *  If offset is specified
-         */
-        if ($withOffset) {
-            $query .= " LIMIT 10 OFFSET :offset";
-        }
-
-        /**
-         *  Prepare query
-         */
-        $stmt = $this->db->prepare($query);
-        $stmt->bindValue(':type', $type);
-        $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
-        $result = $stmt->execute();
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $data[] = $row;
-        }
-
-        return $data;
-    }
-
-    /**
-     *  Edit a source repository distribution
-     */
-    public function editDistribution(int $id, string $name, string $params)
+    public function editDefinition(int $id, string $definition)
     {
         try {
-            $stmt = $this->db->prepare('UPDATE sources SET Name = :name, Details = :params WHERE Id = :id');
+            $stmt = $this->db->prepare('UPDATE sources SET Definition = :definition WHERE Id = :id');
             $stmt->bindValue(':id', $id);
-            $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':params', $params);
+            $stmt->bindValue(':definition', $definition);
             $stmt->execute();
         } catch (\Exception $e) {
             $this->db->logError($e);

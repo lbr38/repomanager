@@ -6,7 +6,7 @@ if ($_POST['action'] == 'new' and !empty($_POST['params'])) {
     $mysource = new \Controllers\Repo\Source\Source();
 
     try {
-        $mysource->new($_POST['params']);
+        $mysource->new('manual', $_POST['params']);
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
@@ -90,13 +90,28 @@ if ($_POST['action'] == 'importGpgKey' and !empty($_POST['gpgkey'])) {
 }
 
 /**
- *  Edit a distribution
+ *  Add a new distribution
  */
-if ($_POST['action'] == 'distribution/edit' and !empty($_POST['id']) and !empty($_POST['distribution']) and !empty($_POST['params'])) {
-    $mysource = new \Controllers\Repo\Source\Deb();
+if ($_POST['action'] == 'distribution/add' and !empty($_POST['id']) and !empty($_POST['name'])) {
+    $myDebSource = new \Controllers\Repo\Source\Deb();
 
     try {
-        $mysource->editDistribution($_POST['id'], $_POST['distribution'], $_POST['params']);
+        $myDebSource->addDistribution($_POST['id'], $_POST['name']);
+    } catch (\Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, 'Distribution added');
+}
+
+/**
+ *  Edit a distribution
+ */
+if ($_POST['action'] == 'distribution/edit' and !empty($_POST['id']) and isset($_POST['distributionId']) and isset($_POST['params'])) {
+    $myDebSource = new \Controllers\Repo\Source\Deb();
+
+    try {
+        $myDebSource->editDistribution($_POST['id'], $_POST['distributionId'], $_POST['params']);
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
@@ -104,9 +119,19 @@ if ($_POST['action'] == 'distribution/edit' and !empty($_POST['id']) and !empty(
     response(HTTP_OK, 'Distribution edited');
 }
 
+/**
+ *  Remove a distribution
+ */
+if ($_POST['action'] == 'distribution/remove' and !empty($_POST['id']) and isset($_POST['distributionId'])) {
+    $myDebSource = new \Controllers\Repo\Source\Deb();
 
+    try {
+        $myDebSource->removeDistribution($_POST['id'], $_POST['distributionId']);
+    } catch (\Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
 
-
-
+    response(HTTP_OK, 'Distribution removed');
+}
 
 response(HTTP_BAD_REQUEST, 'Invalid action');

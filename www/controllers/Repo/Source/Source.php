@@ -16,40 +16,50 @@ class Source
     /**
      *  Return all source informations
      */
-    public function getAll(string $sourceType, string $sourceName)
+    // public function getAll(string $sourceType, string $sourceName)
+    // {
+    //     return $this->model->getAll($sourceType, $sourceName);
+    // }
+
+    /**
+     *  Get source repo Id from its type and name
+     */
+    public function getIdByTypeName(string $type, string $name)
     {
-        return $this->model->getAll($sourceType, $sourceName);
+        return $this->model->getIdByTypeName($type, $name);
+    }
+
+    // /**
+    //  *  Get source repo type from its Id
+    //  */
+    // public function getType(string $id)
+    // {
+    //     return $this->model->getType($id);
+    // }
+
+    /**
+     *  Get source repo definition from its Id
+     */
+    public function getDefinition(string $id)
+    {
+        return $this->model->getDefinition($id);
     }
 
     /**
-     *  Get source repo Id from its name
+     *  List all source repositories
      */
-    public function getIdByName(string $type, string $name)
+    public function listAll(string $type = null, bool $withOffset = false, int $offset = 0)
     {
-        return $this->model->getIdByName($type, $name);
-    }
-
-    /**
-     *  Get source repo type from its Id
-     */
-    public function getType(string $id)
-    {
-        return $this->model->getType($id);
-    }
-
-    /**
-     *  Get source repo details from its Id
-     */
-    public function getDetails(string $id)
-    {
-        return $this->model->getDetails($id);
+        return $this->model->listAll($type, $withOffset, $offset);
     }
 
     /**
      *  Add a new source repository
      */
-    public function new(array $params)
+    public function new(string $method, array $params)
     {
+        $validTypes = ['deb', 'rpm'];
+
         if (empty($params['name'])) {
             throw new Exception('Source repository name is empty');
         }
@@ -60,29 +70,23 @@ class Source
             throw new Exception('Source repository type is empty');
         }
 
-        $type = \Controllers\Common::validateData($params['type']);
         $name = \Controllers\Common::validateData($params['name']);
-
-        /**
-         *  Format specified URL
-         *  Delete spaces
-         *  Delete anti-slash
-         */
+        $type = \Controllers\Common::validateData($params['type']);
         $url = trim($params['url']);
         $url = stripslashes($url);
-
-        /**
-         *  Check that type is valid
-         */
-        if (!in_array($type, ['deb', 'rpm'])) {
-            throw new Exception('Invalid source repository type');
-        }
 
         /**
          *  Check that source repo name is valid
          */
         if (!\Controllers\Common::isAlphanumDash($name)) {
             throw new Exception('Source repository name cannot contain special characters except hyphen and underscore');
+        }
+
+        /**
+         *  Check that type is valid
+         */
+        if (!in_array($type, $validTypes)) {
+            throw new Exception('Invalid source repository type');
         }
 
         /**
@@ -107,161 +111,177 @@ class Source
         }
 
         /**
-         *  Rewrite params with the validated values
+         *  If the method is manual, get the params template and rewrite it with the validated values
          */
-        $params['name'] = $name;
-        $params['url'] = $url;
-        $params = json_encode($params);
+        if ($method == 'manual') {
+            /**
+             *  Get params template for the specified type
+             */
+            $template = $this->template($type);
+
+            /**
+             *  Rewrite template with the validated values
+             */
+            $template['name'] = $name;
+            $template['type'] = $type;
+            $template['url'] = $url;
+            $params = $template;
+        }
+
+        /**
+         *  If the method is import, rewrite the params with the validated values
+         */
+        if ($method == 'import') {
+            $params['name'] = $name;
+            $params['type'] = $type;
+            $params['url'] = $url;
+        }
 
         /**
          *  Add source repo in database
          */
-        $this->model->new($type, $name, $params);
+        $this->model->new(json_encode($params));
     }
 
-    
+    // /**
+    //  *  Edit a source repository
+    //  */
+    // public function edit(int $id, array $params)
+    // {
+    //     /**
+    //      *  Check that source repo exists
+    //      */
+    //     if (!$this->model->existsId($id)) {
+    //         throw new Exception('Source repository does not exist');
+    //     }
 
-    
+    //     /**
+    //      *  Check that source repo name is valid
+    //      */
+    //     if (empty($params['name'])) {
+    //         throw new Exception('Source repository name is empty');
+    //     }
 
-    /**
-     *  Edit a source repo
-     */
-    public function edit(int $id, array $params)
-    {
-        /**
-         *  Check that source repo exists
-         */
-        if (!$this->model->existsId($id)) {
-            throw new Exception('Source repository does not exist');
-        }
+    //     if (!\Controllers\Common::isAlphanumDash($params['name'])) {
+    //         throw new Exception('Source repository name cannot contain special characters except hyphen and underscore');
+    //     }
 
-        /**
-         *  Check that source repo name is valid
-         */
-        if (empty($params['name'])) {
-            throw new Exception('Source repository name is empty');
-        }
+    //     /**
+    //      *  Get source type
+    //      */
+    //     $type = $this->getType($id);
 
-        if (!\Controllers\Common::isAlphanumDash($params['name'])) {
-            throw new Exception('Source repository name cannot contain special characters except hyphen and underscore');
-        }
+    //     /**
+    //      *  Check that source repo name is not already used by another source repo
+    //      */
+    //     if ($this->exists($type, $params['name'])) {
+    //         /**
+    //          *  Retrieve the Id of the source repo with the same name
+    //          */
+    //         $testId = $this->getIdByName($type, $params['name']);
 
-        /**
-         *  Get source type
-         */
-        $type = $this->getType($id);
+    //         /**
+    //          *  If the Id is different from the one we are editing, then the name is already used
+    //          */
+    //         if ($testId !== false and $testId != $id) {
+    //             throw new Exception('<b>' . $params['name'] . '</b> source repository already exists');
+    //         }
+    //     }
 
-        /**
-         *  Check that source repo name is not already used by another source repo
-         */
-        if ($this->exists($type, $params['name'])) {
-            /**
-             *  Retrieve the Id of the source repo with the same name
-             */
-            $testId = $this->getIdByName($type, $params['name']);
+    //     /**
+    //      *  Format specified URL
+    //      *  Delete spaces
+    //      *  Delete anti-slash
+    //      */
+    //     $url = trim($params['url']);
+    //     $url = stripslashes($url);
 
-            /**
-             *  If the Id is different from the one we are editing, then the name is already used
-             */
-            if ($testId !== false and $testId != $id) {
-                throw new Exception('<b>' . $params['name'] . '</b> source repository already exists');
-            }
-        }
+    //     /**
+    //      *  Check that URL is valid
+    //      *  Allow ? and & characters for query strings
+    //      *  Allow $ character for variables (e.g $releasever)
+    //      *  Allow @ and : character for basic authentification (e.g http://user:password@url)
+    //      */
+    //     if (!\Controllers\Common::isAlphanumDash($url, array('http://', 'https://', '/', '.', '?', '&', '$', '@', ':'))) {
+    //         throw new Exception('specified URL contains invalid characters');
+    //     }
 
-        /**
-         *  Format specified URL
-         *  Delete spaces
-         *  Delete anti-slash
-         */
-        $url = trim($params['url']);
-        $url = stripslashes($url);
+    //     /**
+    //      *  Check that URL starts with http(s)://
+    //      */
+    //     if (!preg_match('#^https?://#', $url)) {
+    //         throw new Exception('specified URL must start with <b>http(s)://</b>');
+    //     }
 
-        /**
-         *  Check that URL is valid
-         *  Allow ? and & characters for query strings
-         *  Allow $ character for variables (e.g $releasever)
-         *  Allow @ and : character for basic authentification (e.g http://user:password@url)
-         */
-        if (!\Controllers\Common::isAlphanumDash($url, array('http://', 'https://', '/', '.', '?', '&', '$', '@', ':'))) {
-            throw new Exception('specified URL contains invalid characters');
-        }
+    //     /**
+    //      *  GPG key URL can either be empty, either start with http(s)://
+    //      */
+    //     // if (!empty($gpgKeyURL) and !preg_match('#^https?://#', $gpgKeyURL)) {
+    //     //     throw new Exception('GPG signing key URL must start with http(s)://');
+    //     // }
 
-        /**
-         *  Check that URL starts with http(s)://
-         */
-        if (!preg_match('#^https?://#', $url)) {
-            throw new Exception('specified URL must start with <b>http(s)://</b>');
-        }
+    //     // /**
+    //     //  *  SSL certificate file must be a file that exist and is readable
+    //     //  */
+    //     // if (!empty($sslCertificatePath)) {
+    //     //     if (!file_exists($sslCertificatePath)) {
+    //     //         throw new Exception('Specified certificate file does not exist');
+    //     //     }
+    //     //     if (!is_readable($sslCertificatePath)) {
+    //     //         throw new Exception('Specified certificate file is not readable');
+    //     //     }
+    //     // }
 
-        /**
-         *  GPG key URL can either be empty, either start with http(s)://
-         */
-        // if (!empty($gpgKeyURL) and !preg_match('#^https?://#', $gpgKeyURL)) {
-        //     throw new Exception('GPG signing key URL must start with http(s)://');
-        // }
+    //     // /**
+    //     //  *  SSL private key file must be a file that exists and is readable
+    //     //  */
+    //     // if (!empty($sslPrivateKeyPath)) {
+    //     //     if (!file_exists($sslPrivateKeyPath)) {
+    //     //         throw new Exception('Specified private key file does not exist');
+    //     //     }
+    //     //     if (!is_readable($sslPrivateKeyPath)) {
+    //     //         throw new Exception('Specified private key file is not readable');
+    //     //     }
+    //     // }
 
-        // /**
-        //  *  SSL certificate file must be a file that exist and is readable
-        //  */
-        // if (!empty($sslCertificatePath)) {
-        //     if (!file_exists($sslCertificatePath)) {
-        //         throw new Exception('Specified certificate file does not exist');
-        //     }
-        //     if (!is_readable($sslCertificatePath)) {
-        //         throw new Exception('Specified certificate file is not readable');
-        //     }
-        // }
+    //     // /**
+    //     //  *  SSL CA certificate file must be a file that exists and is readable
+    //     //  */
+    //     // if (!empty($sslCaCertificatePath)) {
+    //     //     if (!file_exists($sslCaCertificatePath)) {
+    //     //         throw new Exception('Specified CA certificate file does not exist');
+    //     //     }
+    //     //     if (!is_readable($sslCaCertificatePath)) {
+    //     //         throw new Exception('Specified CA certificate file is not readable');
+    //     //     }
+    //     // }
 
-        // /**
-        //  *  SSL private key file must be a file that exists and is readable
-        //  */
-        // if (!empty($sslPrivateKeyPath)) {
-        //     if (!file_exists($sslPrivateKeyPath)) {
-        //         throw new Exception('Specified private key file does not exist');
-        //     }
-        //     if (!is_readable($sslPrivateKeyPath)) {
-        //         throw new Exception('Specified private key file is not readable');
-        //     }
-        // }
+    //     /**
+    //      *  Get current source repo params
+    //      */
+    //     $currentParams = json_decode($this->getDefinition($id), true);
 
-        // /**
-        //  *  SSL CA certificate file must be a file that exists and is readable
-        //  */
-        // if (!empty($sslCaCertificatePath)) {
-        //     if (!file_exists($sslCaCertificatePath)) {
-        //         throw new Exception('Specified CA certificate file does not exist');
-        //     }
-        //     if (!is_readable($sslCaCertificatePath)) {
-        //         throw new Exception('Specified CA certificate file is not readable');
-        //     }
-        // }
+    //     /**
+    //      *  Modify current params with new ones
+    //      */
+    //     $currentParams['name'] = $params['name'];
+    //     $currentParams['url'] = $url;
 
-        /**
-         *  Get current source repo params
-         */
-        $currentParams = json_decode($this->getDetails($id), true);
+    //     /**
+    //      *  Convert the array to a JSON string
+    //      */
+    //     $newParams = json_encode($currentParams);
 
-        /**
-         *  Modify current params with new ones
-         */
-        $currentParams['name'] = $params['name'];
-        $currentParams['url'] = $url;
-
-        /**
-         *  Convert the array to a JSON string
-         */
-        $newParams = json_encode($currentParams);
-
-        /**
-         *  Edit source repo in database
-         */
-        $this->model->edit($id, $params['name'], $newParams);
-    }
+    //     /**
+    //      *  Edit source repo in database
+    //      */
+    //     $this->model->edit($id, $params['name'], $newParams);
+    // }
 
     /**
      *  Delete a source repository
      */
-    public function delete(string $id)
+    public function delete(int $id)
     {
         $this->model->delete($id);
     }
@@ -272,6 +292,7 @@ class Source
     public function import(array $listFiles)
     {
         $debSource = new \Controllers\Repo\Source\Deb();
+        // $rpmSource = new \Controllers\Repo\Source\Rpm();
 
         try {
             foreach ($listFiles as $sourceList) {
@@ -300,21 +321,26 @@ class Source
                     throw new Exception('list ' . $listFile . ' is empty');
                 }
 
+                /**
+                 *  For each source repository in the list, check that the name, URL and type are specified
+                 *  Then import the complete source repository details
+                 */
                 foreach ($lists as $repo) {
-                    # TODO debug
-                    file_put_contents(ROOT . '/toto', print_r($repo, true));
+                    if (empty($repo['type'])) {
+                        throw new Exception('source repository type is empty');
+                    }
 
-                    # TODO debug
-                    $type = 'deb';
-                
-                    // if (empty($repo['type'])) {
-                    //     throw new Exception('source repository type is empty');
-                    // }
+                    if (!in_array($repo['type'], ['deb', 'rpm'])) {
+                        throw new Exception('invalid source repository type');
+                    }
 
-                    if ($type == 'deb') {
+                    // Case it is a deb source repository
+                    if ($repo['type'] == 'deb') {
                         $debSource->import($repo);
                     }
-                    if ($type == 'rpm') {
+
+                    // Case it is a rpm source repository
+                    if ($repo['type'] == 'rpm') {
                         $rpmSource->import($repo);
                     }
                 }
@@ -327,68 +353,68 @@ class Source
     /**
      *  Import a new GPG key
      */
-    public function importGpgKey(string $gpgKey)
-    {
-        $gpgKey = \Controllers\Common::validateData($gpgKey);
-        $gpgKey = trim($gpgKey);
+    // public function importGpgKey(string $gpgKey)
+    // {
+    //     $gpgKey = \Controllers\Common::validateData($gpgKey);
+    //     $gpgKey = trim($gpgKey);
 
-        /**
-         *  Check if the ASCII text contains invalid characters
-         */
-        if (!\Controllers\Common::isAlphanum($gpgKey, array('-', '=', '+', '/', ' ', ':', '.', '(', ')', "\n", "\r"))) {
-            throw new Exception('ASCII GPG key contains invalid characters');
-        }
+    //     /**
+    //      *  Check if the ASCII text contains invalid characters
+    //      */
+    //     if (!\Controllers\Common::isAlphanum($gpgKey, array('-', '=', '+', '/', ' ', ':', '.', '(', ')', "\n", "\r"))) {
+    //         throw new Exception('ASCII GPG key contains invalid characters');
+    //     }
 
-        /**
-         *  Quit if the user tries to import a file on the system
-         */
-        if (file_exists($gpgKey)) {
-            throw new Exception('GPG key must be specified in ASCII text format');
-        }
+    //     /**
+    //      *  Quit if the user tries to import a file on the system
+    //      */
+    //     if (file_exists($gpgKey)) {
+    //         throw new Exception('GPG key must be specified in ASCII text format');
+    //     }
 
-        /**
-         *  Create a temporary file with the ASCII text
-         */
-        $gpgTempFile = TEMP_DIR . '/repomanager-newgpgkey.tmp';
-        file_put_contents($gpgTempFile, $gpgKey);
+    //     /**
+    //      *  Create a temporary file with the ASCII text
+    //      */
+    //     $gpgTempFile = TEMP_DIR . '/repomanager-newgpgkey.tmp';
+    //     file_put_contents($gpgTempFile, $gpgKey);
 
-        /**
-         *  Import file into the repomanager trusted keyring
-         */
-        $myprocess = new \Controllers\Process('/usr/bin/gpg --no-default-keyring --keyring ' . GPGHOME . '/trustedkeys.gpg --import ' . $gpgTempFile);
-        $myprocess->execute();
+    //     /**
+    //      *  Import file into the repomanager trusted keyring
+    //      */
+    //     $myprocess = new \Controllers\Process('/usr/bin/gpg --no-default-keyring --keyring ' . GPGHOME . '/trustedkeys.gpg --import ' . $gpgTempFile);
+    //     $myprocess->execute();
 
-        /**
-         *  Delete temp file
-         */
-        unlink($gpgTempFile);
+    //     /**
+    //      *  Delete temp file
+    //      */
+    //     unlink($gpgTempFile);
 
-        if ($myprocess->getExitCode() != 0) {
-            throw new Exception('Error while importing specified GPG key: <br>' . $myprocess->getOutput());
-        }
+    //     if ($myprocess->getExitCode() != 0) {
+    //         throw new Exception('Error while importing specified GPG key: <br>' . $myprocess->getOutput());
+    //     }
 
-        $myprocess->close();
-    }
+    //     $myprocess->close();
+    // }
 
     /**
      *  Delete a GPG key from Repomanager's trusted keyring
      */
-    public function deleteGpgKey(string $gpgKeyId)
-    {
-        $gpgKeyId = \Controllers\Common::validateData($gpgKeyId);
+    // public function deleteGpgKey(string $gpgKeyId)
+    // {
+    //     $gpgKeyId = \Controllers\Common::validateData($gpgKeyId);
 
-        /**
-         *  Deleting key from the keyring, using its ID
-         */
-        $myprocess = new \Controllers\Process('gpg --no-default-keyring --homedir ' . GPGHOME . ' --keyring ' . GPGHOME . '/trustedkeys.gpg --no-greeting --delete-key --batch --yes ' . $gpgKeyId);
-        $myprocess->execute();
+    //     /**
+    //      *  Deleting key from the keyring, using its ID
+    //      */
+    //     $myprocess = new \Controllers\Process('gpg --no-default-keyring --homedir ' . GPGHOME . ' --keyring ' . GPGHOME . '/trustedkeys.gpg --no-greeting --delete-key --batch --yes ' . $gpgKeyId);
+    //     $myprocess->execute();
 
-        if ($myprocess->getExitCode() != 0) {
-            throw new Exception("Error while deleting GPG key <b>$gpgKeyId</b>");
-        }
+    //     if ($myprocess->getExitCode() != 0) {
+    //         throw new Exception("Error while deleting GPG key <b>$gpgKeyId</b>");
+    //     }
 
-        $myprocess->close();
-    }
+    //     $myprocess->close();
+    // }
 
     /**
      *  Check if source repo exists in database
@@ -407,15 +433,37 @@ class Source
     }
 
     /**
-     *  List all source repos
+     *  Edit source repository definition params
      */
-    public function listAll(string $type = null, bool $withOffset = false, int $offset = 0)
+    public function editDefinition(int $id, string $definition)
     {
-        return $this->model->listAll($type, $withOffset, $offset);
+        $this->model->editDefinition($id, $definition);
     }
 
-    public function editDistribution(int $id, string $distribution, array $params)
+    /**
+     *  Return the params template for the specified type
+     */
+    private function template(string $type)
     {
-        $this->model->editDistribution($id, $distribution, $newDetails);
+        if ($type == 'deb') {
+            $template = [
+                'name' => '',
+                'type' => 'deb',
+                'url' => '',
+                'distributions' => [],
+                'architectures' => [],
+                'keyserver' => ''
+            ];
+        }
+
+        if ($type == 'rpm') {
+            $template = [
+                'name' => '',
+                'type' => 'rpm',
+                'url' => '',
+            ];
+        }
+
+        return $template;
     }
 }

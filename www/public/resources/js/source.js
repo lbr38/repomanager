@@ -143,11 +143,13 @@ $(document).on('click','.source-repo-edit-param-btn',function () {
  */
 $(document).on('click','.source-repo-distribution-edit-param-btn',function () {
     var id = $(this).attr('source-id');
-    var distribution = $(this).attr('distribution');
+    var distributionId = $(this).attr('distribution-id');
+
+    console.log(distributionId)
 
     getPanel('repos/sources/edit-distribution', {
         id: id,
-        distribution: distribution
+        distributionId: distributionId
     });
 });
 

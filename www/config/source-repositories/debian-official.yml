@@ -3,29 +3,63 @@
   type: deb
   url: https://deb.debian.org/debian
   distributions:
-    buster:
+    - name: buster
       description: Debian 10
       components:
-        main:
+        - name: main
           # arch: []
-        contrib:
-        non-free:
+        - name: contrib
+        - name: non-free
       gpgkeys:
         - xxx
-    bullseye:
+    - name: bullseye
       description: Debian 11
       components:
-        main:
-        contrib:
-        non-free:
+        - name: main
+        - name: contrib
+        - name: non-free
       gpgkeys:
         - xxx
-    bookworm:
+    - name: bookworm
       description: Debian 12
       components:
-        main:
-        contrib:
-        non-free:
+        - name: main
+        - name: contrib
+        - name: non-free
+      gpgkeys:
+        - xxx
+  architectures: [amd64, arm64, armhf, i386, mips, mips64el, mipsel, ppc64el, s390x]
+  keyserver:
+    - keyring.debian.org
+
+
+- name: debian-test-2
+  type: deb
+  url: https://deb.debian.org/debian-toto
+  distributions:
+    - name: buster
+      description: Debian 10
+      components:
+        - name: main
+          # arch: []
+        - name: contrib
+        - name: non-free
+      gpgkeys:
+        - xxx
+    - name: bullseye
+      description: Debian 11
+      components:
+        - name: main
+        - name: contrib
+        - name: non-free
+      gpgkeys:
+        - xxx
+    - name: bookworm
+      description: Debian 12
+      components:
+        - name: main
+        - name: contrib
+        - name: non-free
       gpgkeys:
         - xxx
   architectures: [amd64, arm64, armhf, i386, mips, mips64el, mipsel, ppc64el, s390x]

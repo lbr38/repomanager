@@ -33,62 +33,36 @@ class Deb extends \Controllers\Repo\Source\Source
             }
         }
 
-        /**
-         *  Format specified URL
-         *  Delete spaces
-         *  Delete anti-slash
-         */
-        $url = trim($repo['url']);
-        $url = stripslashes($url);
+        // TODO : ajouter + de vérifications relatives à deb
+        // Les verifs des paramètres de base sont effectuées par la fonction new() de la classe parente
 
         /**
-         *  Check that URL is valid
-         *  Allow ? and & characters for query strings
-         *  Allow $ character for variables (e.g $releasever)
-         *  Allow @ and : character for basic authentification (e.g http://user:password@url)
-         */
-        if (!\Controllers\Common::isAlphanumDash($url, array('http://', 'https://', '/', '.', '?', '&', '$', '@', ':'))) {
-            throw new Exception('Specified URL contains invalid characters');
-        }
-
-        /**
-         *  Check that URL starts with http(s)://
-         */
-        if (!preg_match('#^https?://#', $url)) {
-            throw new Exception('Specified URL must start with <b>http(s)://</b>');
-        }
-
-
-        // TODO : ajouter + de vérifications
-
-
-
-        /**
-         *  If a repository with the same name already exists, then update it
-         *  Otherwise, add it
+         *  If a repository with the same name already exists, then delete it before adding the new one
          */
         if ($this->exists('deb', $repo['name'])) {
             /**
-             *  If the repository already exists, then update it
-             *  First get it's Id
+             *  Get it's Id
              */
-            $id = $this->getIdByName('deb', $repo['name']);
+            $id = $this->getIdByTypeName('deb', $repo['name']);
 
             /**
-             *  Edit the source repository
+             *  Delete the existing source repository
              */
-            $this->edit($id, $repo);
-        } else {
-            /**
-             *  Add the new source repository
-             */
-            $this->new($repo);
+            $this->delete($id);
         }
+
+        /**
+         *  Add the new source repository
+         */
+        $this->new('import', $repo);
     }
 
-    public function editDistribution(int $id, string $distribution, array $params)
+    /**
+     *  Add a new deb source repository distribution
+     */
+    public function addDistribution(int $id, string $name)
     {
-        $currentName = $params['current-name'];
+        $name = \Controllers\Common::validateData($name);
 
         /**
          *  Check that the source repository exists
@@ -100,23 +74,100 @@ class Deb extends \Controllers\Repo\Source\Source
         /**
          *  Get complete source repository details
          */
-        $currentParams = json_decode($this->getDetails($id), true);
+        $currentParams = json_decode($this->getDefinition($id), true);
 
         /**
-         *  Get current distribution details
+         *  Check that a distribution with the same name does not already exist
          */
-        $currentDistribution = $currentParams['distributions'][$currentName];
-
-        /**
-         *  Remove the current distribution
-         */
-        unset($currentParams['distributions'][$currentName]);
+        foreach ($currentParams['distributions'] as $distribution) {
+            if ($distribution['name'] == $name) {
+                throw new Exception('Distribution ' . $name . ' already exists');
+            }
+        }
 
         /**
          *  Add the new distribution
          */
-        $currentParams['distributions'][$distribution] = $currentDistribution;
+        $currentParams['distributions'][] = array(
+            'name' => $name,
+            'description' => '',
+            'components' => []
+        );
 
-        $this->editDistribution($id, $distribution, json_encode($currentParams));
+        /**
+         *  Save the new source repository details
+         */
+        $this->editDefinition($id, json_encode($currentParams));
+    }
+
+    /**
+     *  Edit a deb source repository distribution
+     */
+    public function editDistribution(int $id, int $distributionId, array $params)
+    {
+        /**
+         *  Check that the source repository exists
+         */
+        if (!$this->existsId($id)) {
+            throw new Exception('Source repository does not exist');
+        }
+
+        /**
+         *  Get complete source repository details
+         */
+        $currentParams = json_decode($this->getDefinition($id), true);
+    
+        /**
+         *  Check that distribution Id exists in the source repository
+         */
+        if (!isset($currentParams['distributions'][$distributionId])) {
+            throw new Exception('Distribution does not exist');
+        }
+
+        /**
+         *  Set new distribution params
+         */
+        $currentParams['distributions'][$distributionId]['name'] = $params['name'];
+        $currentParams['distributions'][$distributionId]['description'] = $params['description'];
+
+        /**
+         *  Save the new source repository details
+         */
+        $this->editDefinition($id, json_encode($currentParams));
+    }
+
+    /**
+     *  Remove a distribution from a deb source repository
+     */
+    public function removeDistribution(int $sourceId, int $distributionId)
+    {
+        /**
+         *  Check that the source repository exists
+         */
+        if (!$this->existsId($sourceId)) {
+            throw new Exception('Source repository does not exist');
+        }
+
+        /**
+         *  Get complete source repository details
+         */
+        $currentParams = json_decode($this->getDefinition($sourceId), true);
+
+        /**
+         *  Check that distribution Id exists in the source repository
+         */
+        if (!isset($currentParams['distributions'][$distributionId])) {
+            throw new Exception('Distribution does not exist');
+        }
+
+        /**
+         *  Remove the distribution
+         */
+        unset($currentParams['distributions'][$distributionId]);
+
+        /**
+         *  Save the new source repository details
+         */
+        $this->editDefinition($sourceId, json_encode($currentParams));
     }
 }

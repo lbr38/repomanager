@@ -1,37 +1,44 @@
 <?php
 $mysourceRepo = new \Controllers\Repo\Source\Source();
-
-/**
- *  Check that Id and distribution params have been sent
- */
-if (empty($item['id'])) {
-    throw new Exception('Missing repository Id');
-}
-if (empty($item['distribution'])) {
-    throw new Exception('Missing distribution');
-}
-
-$id = $item['id'];
-$distribution = $item['distribution'];
 $description = '';
 $components = [];
 
 /**
+ *  Check that Id and distribution params have been sent
+ */
+if (!isset($item['id'])) {
+    throw new Exception('Repository Id required');
+}
+if (!isset($item['distributionId'])) {
+    throw new Exception('Distribution Id required');
+}
+
+/**
+ *  Retrieve source and distribution Ids
+ */
+$sourceId = $item['id'];
+$distributionId = $item['distributionId'];
+
+/**
  *  Retrieve source repo details
  */
-$details = json_decode($mysourceRepo->getDetails($item['id']), true);
+$sourceDefinition = json_decode($mysourceRepo->getDetails($item['id']), true);
+
+/**
+ *  Retrieve distribution name
+ */
+$distribution = $sourceDefinition['distributions'][$distributionId]['name'];
 
 /**
  *  Retrieve description if any
  */
-if (!empty($details['distributions'][$distribution]['description'])) {
-    $description = $details['distributions'][$distribution]['description'];
+if (!empty($sourceDefinition['distributions'][$distributionId]['description'])) {
+    $description = $sourceDefinition['distributions'][$distributionId]['description'];
 }
 
 /**
  *  Retrieve components if any
  */
-if (!empty($details['distributions'][$distribution]['components'])) {
-    $components = $details['distributions'][$distribution]['components'];
+if (!empty($sourceDefinition['distributions'][$distributionId]['components'])) {
+    $components = $sourceDefinition['distributions'][$distributionId]['components'];
 }
-
