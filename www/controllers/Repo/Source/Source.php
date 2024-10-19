@@ -29,13 +29,13 @@ class Source
         return $this->model->getIdByTypeName($type, $name);
     }
 
-    // /**
-    //  *  Get source repo type from its Id
-    //  */
-    // public function getType(string $id)
-    // {
-    //     return $this->model->getType($id);
-    // }
+    /**
+     *  Get source repository type from its Id
+     */
+    public function getType(string $id)
+    {
+        return $this->model->getType($id);
+    }
 
     /**
      *  Get source repo definition from its Id
@@ -143,140 +143,139 @@ class Source
         $this->model->new(json_encode($params));
     }
 
-    // /**
-    //  *  Edit a source repository
-    //  */
-    // public function edit(int $id, array $params)
-    // {
-    //     /**
-    //      *  Check that source repo exists
-    //      */
-    //     if (!$this->model->existsId($id)) {
-    //         throw new Exception('Source repository does not exist');
-    //     }
+    /**
+     *  Edit a source repository
+     */
+    public function edit(int $id, array $params)
+    {
+        /**
+         *  Check that source repo exists
+         */
+        if (!$this->model->existsId($id)) {
+            throw new Exception('Source repository does not exist');
+        }
 
-    //     /**
-    //      *  Check that source repo name is valid
-    //      */
-    //     if (empty($params['name'])) {
-    //         throw new Exception('Source repository name is empty');
-    //     }
+        /**
+         *  Check that source repo name is valid
+         */
+        if (empty($params['name'])) {
+            throw new Exception('Source repository name is empty');
+        }
 
-    //     if (!\Controllers\Common::isAlphanumDash($params['name'])) {
-    //         throw new Exception('Source repository name cannot contain special characters except hyphen and underscore');
-    //     }
+        if (!\Controllers\Common::isAlphanumDash($params['name'])) {
+            throw new Exception('Source repository name cannot contain special characters except hyphen and underscore');
+        }
 
-    //     /**
-    //      *  Get source type
-    //      */
-    //     $type = $this->getType($id);
+        /**
+         *  Get source type
+         */
+        $type = $this->getType($id);
 
-    //     /**
-    //      *  Check that source repo name is not already used by another source repo
-    //      */
-    //     if ($this->exists($type, $params['name'])) {
-    //         /**
-    //          *  Retrieve the Id of the source repo with the same name
-    //          */
-    //         $testId = $this->getIdByName($type, $params['name']);
+        /**
+         *  Check that source repo name is not already used by another source repo
+         */
+        if ($this->exists($type, $params['name'])) {
+            /**
+             *  Retrieve the Id of the source repo with the same name
+             */
+            $testId = $this->getIdByTypeName($type, $params['name']);
 
-    //         /**
-    //          *  If the Id is different from the one we are editing, then the name is already used
-    //          */
-    //         if ($testId !== false and $testId != $id) {
-    //             throw new Exception('<b>' . $params['name'] . '</b> source repository already exists');
-    //         }
-    //     }
+            /**
+             *  If the Id is different from the one we are editing, then the name is already used
+             */
+            if ($testId !== false and $testId != $id) {
+                throw new Exception('<b>' . $params['name'] . '</b> source repository already exists');
+            }
+        }
 
-    //     /**
-    //      *  Format specified URL
-    //      *  Delete spaces
-    //      *  Delete anti-slash
-    //      */
-    //     $url = trim($params['url']);
-    //     $url = stripslashes($url);
+        /**
+         *  Format specified URL
+         *  Delete spaces
+         *  Delete anti-slash
+         */
+        $url = trim($params['url']);
+        $url = stripslashes($url);
 
-    //     /**
-    //      *  Check that URL is valid
-    //      *  Allow ? and & characters for query strings
-    //      *  Allow $ character for variables (e.g $releasever)
-    //      *  Allow @ and : character for basic authentification (e.g http://user:password@url)
-    //      */
-    //     if (!\Controllers\Common::isAlphanumDash($url, array('http://', 'https://', '/', '.', '?', '&', '$', '@', ':'))) {
-    //         throw new Exception('specified URL contains invalid characters');
-    //     }
+        /**
+         *  Check that URL is valid
+         *  Allow ? and & characters for query strings
+         *  Allow $ character for variables (e.g $releasever)
+         *  Allow @ and : character for basic authentification (e.g http://user:password@url)
+         */
+        if (!\Controllers\Common::isAlphanumDash($url, array('http://', 'https://', '/', '.', '?', '&', '$', '@', ':'))) {
+            throw new Exception('specified URL contains invalid characters');
+        }
 
-    //     /**
-    //      *  Check that URL starts with http(s)://
-    //      */
-    //     if (!preg_match('#^https?://#', $url)) {
-    //         throw new Exception('specified URL must start with <b>http(s)://</b>');
-    //     }
+        /**
+         *  Check that URL starts with http(s)://
+         */
+        if (!preg_match('#^https?://#', $url)) {
+            throw new Exception('specified URL must start with <b>http(s)://</b>');
+        }
 
-    //     /**
-    //      *  GPG key URL can either be empty, either start with http(s)://
-    //      */
-    //     // if (!empty($gpgKeyURL) and !preg_match('#^https?://#', $gpgKeyURL)) {
-    //     //     throw new Exception('GPG signing key URL must start with http(s)://');
-    //     // }
+        /**
+         *  GPG key URL can either be empty, either start with http(s)://
+         */
+        // if (!empty($gpgKeyURL) and !preg_match('#^https?://#', $gpgKeyURL)) {
+        //     throw new Exception('GPG signing key URL must start with http(s)://');
+        // }
 
-    //     // /**
-    //     //  *  SSL certificate file must be a file that exist and is readable
-    //     //  */
-    //     // if (!empty($sslCertificatePath)) {
-    //     //     if (!file_exists($sslCertificatePath)) {
-    //     //         throw new Exception('Specified certificate file does not exist');
-    //     //     }
-    //     //     if (!is_readable($sslCertificatePath)) {
-    //     //         throw new Exception('Specified certificate file is not readable');
-    //     //     }
-    //     // }
+        /**
+         *  SSL certificate file must be a file that exist and is readable
+         */
+        if (!empty($params['ssl-certificate-path'])) {
+            if (!file_exists($params['ssl-certificate-path'])) {
+                throw new Exception('Specified certificate file does not exist');
+            }
+            if (!is_readable($params['ssl-certificate-path'])) {
+                throw new Exception('Specified certificate file is not readable');
+            }
+        }
 
-    //     // /**
-    //     //  *  SSL private key file must be a file that exists and is readable
-    //     //  */
-    //     // if (!empty($sslPrivateKeyPath)) {
-    //     //     if (!file_exists($sslPrivateKeyPath)) {
-    //     //         throw new Exception('Specified private key file does not exist');
-    //     //     }
-    //     //     if (!is_readable($sslPrivateKeyPath)) {
-    //     //         throw new Exception('Specified private key file is not readable');
-    //     //     }
-    //     // }
+        /**
+         *  SSL private key file must be a file that exists and is readable
+         */
+        if (!empty($params['ssl-private-key-path'])) {
+            if (!file_exists($params['ssl-private-key-path'])) {
+                throw new Exception('Specified private key file does not exist');
+            }
+            if (!is_readable($params['ssl-private-key-path'])) {
+                throw new Exception('Specified private key file is not readable');
+            }
+        }
 
-    //     // /**
-    //     //  *  SSL CA certificate file must be a file that exists and is readable
-    //     //  */
-    //     // if (!empty($sslCaCertificatePath)) {
-    //     //     if (!file_exists($sslCaCertificatePath)) {
-    //     //         throw new Exception('Specified CA certificate file does not exist');
-    //     //     }
-    //     //     if (!is_readable($sslCaCertificatePath)) {
-    //     //         throw new Exception('Specified CA certificate file is not readable');
-    //     //     }
-    //     // }
+        /**
+         *  SSL CA certificate file must be a file that exists and is readable
+         */
+        if (!empty($params['ssl-ca-certificate-path'])) {
+            if (!file_exists($params['ssl-ca-certificate-path'])) {
+                throw new Exception('Specified CA certificate file does not exist');
+            }
+            if (!is_readable($params['ssl-ca-certificate-path'])) {
+                throw new Exception('Specified CA certificate file is not readable');
+            }
+        }
 
-    //     /**
-    //      *  Get current source repo params
-    //      */
-    //     $currentParams = json_decode($this->getDefinition($id), true);
+        /**
+         *  Get current source repo params
+         */
+        $currentParams = json_decode($this->getDefinition($id), true);
 
-    //     /**
-    //      *  Modify current params with new ones
-    //      */
-    //     $currentParams['name'] = $params['name'];
-    //     $currentParams['url'] = $url;
+        /**
+         *  Modify current params with new ones
+         */
+        $currentParams['type'] = $type;
+        $currentParams['name'] = $params['name'];
+        $currentParams['url'] = $url;
+        $currentParams['ssl-authentication']['certificate-path'] = $params['ssl-certificate-path'];
+        $currentParams['ssl-authentication']['private-key-path'] = $params['ssl-private-key-path'];
+        $currentParams['ssl-authentication']['ca-certificate-path'] = $params['ssl-ca-certificate-path'];
 
-    //     /**
-    //      *  Convert the array to a JSON string
-    //      */
-    //     $newParams = json_encode($currentParams);
-
-    //     /**
-    //      *  Edit source repo in database
-    //      */
-    //     $this->model->edit($id, $params['name'], $newParams);
-    // }
+        /**
+         *  Edit source repo in database
+         */
+        $this->model->edit($id, json_encode($currentParams));
+    }
 
     /**
      *  Delete a source repository

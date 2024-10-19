@@ -31,7 +31,10 @@
   architectures: [amd64, arm64, armhf, i386, mips, mips64el, mipsel, ppc64el, s390x]
   keyserver:
     - keyring.debian.org
-
+  ssl-authentication:
+    ssl-certificate: ''
+    ssl-private-key: ''
+    ssl-ca-certificate: ''
 
 - name: debian-test-2
   type: deb
@@ -65,3 +68,7 @@
   architectures: [amd64, arm64, armhf, i386, mips, mips64el, mipsel, ppc64el, s390x]
   keyserver:
     - keyring.debian.org
+  ssl-authentication:
+    ssl-certificate: ''
+    ssl-private-key: ''
+    ssl-ca-certificate: ''

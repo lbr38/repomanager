@@ -22,7 +22,7 @@ $distributionId = $item['distributionId'];
 /**
  *  Retrieve source repo details
  */
-$sourceDefinition = json_decode($mysourceRepo->getDetails($item['id']), true);
+$sourceDefinition = json_decode($mysourceRepo->getDefinition($item['id']), true);
 
 /**
  *  Retrieve distribution name

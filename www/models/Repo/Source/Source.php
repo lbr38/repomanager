@@ -62,27 +62,28 @@ class Source extends \Models\Model
         return $id;
     }
 
-    // /**
-    //  *  Get source repo type from its Id
-    //  */
-    // public function getType(string $id)
-    // {
-    //     $type = '';
+    /**
+     *  Get source repository type from its Id
+     */
+    public function getType(string $id)
+    {
+        $type = '';
 
-    //     try {
-    //         $stmt = $this->db->prepare("SELECT Type FROM sources WHERE Id = :id");
-    //         $stmt->bindValue(':id', $id);
-    //         $result = $stmt->execute();
-    //     } catch (\Exception $e) {
-    //         $this->db->logError($e);
-    //     }
+        try {
+            $stmt = $this->db->prepare("SELECT json_extract(COALESCE(Definition, '{}'), '$.type') as Type
+            FROM sources WHERE Id = :id");
+            $stmt->bindValue(':id', $id);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            $this->db->logError($e);
+        }
 
-    //     while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-    //         $type = $row['Type'];
-    //     }
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $type = $row['Type'];
+        }
 
-    //     return $type;
-    // }
+        return $type;
+    }
 
     /**
      *  Get source repo definition from its Id
@@ -149,32 +150,31 @@ class Source extends \Models\Model
     /**
      *  Add a new source repository
      */
-    public function new(string $params)
+    public function new(string $definition)
     {
         try {
-            $stmt = $this->db->prepare("INSERT INTO sources ('Definition') VALUES (:params)");
-            $stmt->bindValue(':params', $params);
+            $stmt = $this->db->prepare("INSERT INTO sources ('Definition') VALUES (:definition)");
+            $stmt->bindValue(':definition', $definition);
             $stmt->execute();
         } catch (\Exception $e) {
             $this->db->logError($e);
         }
     }
 
-    // /**
-    //  *  Edit a source repository
-    //  */
-    // public function edit(string $id, string $name, string $params)
-    // {
-    //     try {
-    //         $stmt = $this->db->prepare('UPDATE sources SET Name = :name, Definition = :params WHERE Id = :id');
-    //         $stmt->bindValue(':id', $id);
-    //         $stmt->bindValue(':name', $name);
-    //         $stmt->bindValue(':params', $params);
-    //         $stmt->execute();
-    //     } catch (\Exception $e) {
-    //         $this->db->logError($e);
-    //     }
-    // }
+    /**
+     *  Edit a source repository
+     */
+    public function edit(string $id, string $definition)
+    {
+        try {
+            $stmt = $this->db->prepare('UPDATE sources SET Definition = :definition WHERE Id = :id');
+            $stmt->bindValue(':id', $id);
+            $stmt->bindValue(':definition', $definition);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            $this->db->logError($e);
+        }
+    }
 
     /**
      *  Delete a source repository

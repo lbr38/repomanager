@@ -3,28 +3,36 @@
     if (!empty($reloadableTableContent)) :
         foreach ($reloadableTableContent as $item) :
             $distAndComponent = null;
+            $sslCertificatePath = '';
+            $sslPrivateKeyPath = '';
+            $sslCaCertificatePath = '';
 
-            /**
-             *  Decode JSON details
-             */
-            $details = json_decode($item['Definition'], true);
-            $name = $details['name'];
-            $url  = $details['url'];
-            $type = $details['type'];
+            // Decode JSON definition
+            $definition = json_decode($item['Definition'], true);
+            $name = $definition['name'];
+            $url  = $definition['url'];
+            $type = $definition['type'];
 
-            /**
-             *  Case it is a deb source repository
-             */
+            // Case it is a deb source repository
             if ($type == 'deb') {
-                if (isset($details['distributions'])) {
-                    $distAndComponent = $details['distributions'];
+                if (isset($definition['distributions'])) {
+                    $distAndComponent = $definition['distributions'];
                 }
-            } 
-            
-            /**
-             *  Case it is a rpm source repository
-             *  TODO
-             */ ?>
+            }
+
+            // Case it is a rpm source repository
+            // TODO
+
+            // SSL authentication
+            if (isset($definition['ssl-authentication']['certificate-path'])) {
+                $sslCertificatePath = $definition['ssl-authentication']['certificate-path'];
+            }
+            if (isset($definition['ssl-authentication']['private-key-path'])) {
+                $sslPrivateKeyPath = $definition['ssl-authentication']['private-key-path'];
+            }
+            if (isset($definition['ssl-authentication']['ca-certificate-path'])) {
+                $sslCaCertificatePath = $definition['ssl-authentication']['ca-certificate-path'];
+            } ?>
 
             <div class="table-container-3 bck-blue-alt pointer source-repo-edit-param-btn" source-id="<?= $item['Id'] ?>">
                 <div>
@@ -90,25 +98,20 @@
                         </div>
                         <?php
                     endif ?>
-
-                    <!-- TODO -->
-
-                    <!-- <h6>GPG SIGNING KEY URL</h6>
-                    <input class="source-gpgkey-input" type="text" value="" placeholder="http://..." />
-
-                    <h4>SSL parameters</h4>
+                    
+                    <h6>SSL AUTHENTICATION</h6>
                     <p class="note">Use a SSL certificate and private key to authenticate to the source repository<a href="https://github.com/lbr38/repomanager/wiki/05.-Manage-sources-repositories#edit-a-source-repository" target="_blank" rel="noopener noreferrer" title="See documentation"><img src="/assets/icons/external-link.svg" class="icon margin-left-5" /></a></p>
 
                     <h6>PATH TO SSL CERTIFICATE</h6>
-                    <input class="source-ssl-crt-input" type="text" value="" placeholder="e.g. /var/lib/repomanager/ssl/my-editor/certificate.crt" />
+                    <input type="text" class="source-param" param-name="ssl-certificate-path" value="<?= $sslCertificatePath ?>" placeholder="e.g. /var/lib/repomanager/ssl/my-editor/certificate.crt" />
     
                     <h6>PATH TO SSL PRIVATE KEY</h6>
-                    <input class="source-ssl-key-input" type="text" value="" placeholder="e.g. /var/lib/repomanager/ssl/my-editor/private.key" />
+                    <input type="text" class="source-param" param-name="ssl-private-key-path" value="<?= $sslPrivateKeyPath ?>" placeholder="e.g. /var/lib/repomanager/ssl/my-editor/private.key" />
 
                     <h6>PATH TO SSL CA CERTIFICATE</h6>
-                    <input class="source-ssl-cacrt-input" type="text" value="" placeholder="e.g. /var/lib/repomanager/ssl/my-editor/ca-certificate.crt" /> -->
+                    <input type="text" class="source-param" param-name="ssl-ca-certificate-path" value="<?= $sslCaCertificatePath ?>" placeholder="e.g. /var/lib/repomanager/ssl/my-editor/ca-certificate.crt" />
 
-                    <br>
+                    <br><br>
                     <button type="button" class="source-repo-form-submit-btn btn-medium-green" source-id="<?= $item['Id'] ?>" title="Save">Save</button>
                 </form>
             </div>
