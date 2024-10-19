@@ -172,6 +172,41 @@ class Deb extends \Controllers\Repo\Source\Source
     }
 
     /**
+     *  Remove a distribution section from a deb source repository
+     */
+    public function removeSection(int $sourceId, int $distributionId, int $sectionId)
+    {
+        /**
+         *  Check that the source repository exists
+         */
+        if (!$this->existsId($sourceId)) {
+            throw new Exception('Source repository does not exist');
+        }
+
+        /**
+         *  Get complete source repository definition
+         */
+        $currentDefinition = json_decode($this->getDefinition($sourceId), true);
+
+        /**
+         *  Check that section Id exists in the distribution
+         */
+        if (!isset($currentDefinition['distributions'][$distributionId]['components'][$sectionId])) {
+            throw new Exception('Section does not exist');
+        }
+
+        /**
+         *  Remove the section
+         */
+        unset($currentDefinition['distributions'][$distributionId]['components'][$sectionId]);
+
+        /**
+         *  Save the new source repository definition
+         */
+        $this->editDefinition($sourceId, json_encode($currentDefinition));
+    }
+
+    /**
      *  Remove a gpg key from a deb source repository distribution
      */
     public function removeGpgKey(int $id, int $distributionId, string $gpgKey)

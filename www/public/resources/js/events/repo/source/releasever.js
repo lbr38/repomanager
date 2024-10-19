@@ -20,9 +20,9 @@ $(document).on('click','button.source-repo-add-releasever-btn',function () {
 
     ajaxRequest(
         // Controller:
-        'source',
+        'repo/source/releasever',
         // Action:
-        'releasever/add',
+        'add',
         // Data:
         {
             id: id,
@@ -63,9 +63,9 @@ $(document).on('submit','form.source-repo-edit-releasever',function () {
 
     ajaxRequest(
         // Controller:
-        'source',
+        'repo/source/releasever',
         // Action:
-        'releasever/edit',
+        'edit',
         // Data:
         {
             id: id,
@@ -100,9 +100,9 @@ $(document).on('click','.source-repo-remove-releasever-btn',function (e) {
 
     ajaxRequest(
         // Controller:
-        'source',
+        'repo/source/releasever',
         // Action:
-        'releasever/remove',
+        'remove',
         // Data:
         {
             id: id,
@@ -134,9 +134,9 @@ $(document).on('click','.source-repo-edit-releasever-remove-gpgkey-btn',function
 
     ajaxRequest(
         // Controller:
-        'source',
+        'repo/source/releasever',
         // Action:
-        'releasever/remove-gpgkey',
+        'remove-gpgkey',
         // Data:
         {
             id: id,

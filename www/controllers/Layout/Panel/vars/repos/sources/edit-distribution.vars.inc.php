@@ -1,7 +1,7 @@
 <?php
 $mysourceRepo = new \Controllers\Repo\Source\Source();
 $description = '';
-$components = [];
+$sections = [];
 $gpgKeys = [];
 
 /**
@@ -38,10 +38,10 @@ if (!empty($sourceDefinition['distributions'][$distributionId]['description'])) 
 }
 
 /**
- *  Retrieve components if any
+ *  Retrieve sections if any
  */
 if (!empty($sourceDefinition['distributions'][$distributionId]['components'])) {
-    $components = $sourceDefinition['distributions'][$distributionId]['components'];
+    $sections = $sourceDefinition['distributions'][$distributionId]['components'];
 }
 
 /**

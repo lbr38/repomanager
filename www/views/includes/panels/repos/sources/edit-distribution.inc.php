@@ -16,14 +16,18 @@
 
                 <h6>SECTIONS / COMPONENTS</h6>
                 <?php
-                foreach ($components as $componentId => $componentDetails) : ?>
+                if (empty($sections)) {
+                    echo '<p class="note">No sections.</p>';
+                }
+
+                foreach ($sections as $sectionId => $sectionDefinition) : ?>
                     <div class="table-container grid-2 bck-blue-alt pointer" source-id="<?= $sourceId ?>" distribution-id="<?= $distributionId ?>">
                         <div>
-                            <p><?= $componentDetails['name'] ?></p>
+                            <p><?= $sectionDefinition['name'] ?></p>
                         </div>
 
                         <div class="flex justify-end">
-                            <img src="/assets/icons/delete.svg" class="icon-lowopacity" source-id="<?= $sourceId ?>" distribution-id="<?= $distributionId ?>" section="<?= $componentDetails['name'] ?>" title="Delete <?= $componentDetails['name'] ?> section" />
+                            <img src="/assets/icons/delete.svg" class="icon-lowopacity source-repo-edit-distribution-remove-section-btn" source-id="<?= $sourceId ?>" distribution-id="<?= $distributionId ?>" section-id="<?= $sectionId ?>" title="Delete <?= $sectionDefinition['name'] ?> section" />
                         </div>
                     </div>
                     <?php
@@ -31,20 +35,22 @@
 
                 <h6>GPG KEYS</h6>
                 <?php
-                if (!empty($gpgKeys)) :
-                    foreach ($gpgKeys as $gpgKey) : ?>
-                        <div class="table-container grid-2 bck-blue-alt pointer" source-id="<?= $sourceId ?>" distribution-id="<?= $distributionId ?>">
-                            <div>
-                                <p><?= $gpgKey ?></p>
-                            </div>
+                if (empty($gpgKeys)) {
+                    echo '<p class="note">No GPG keys.</p>';
+                }
 
-                            <div class="flex justify-end">
-                                <img src="/assets/icons/delete.svg" class="icon-lowopacity source-repo-edit-distribution-remove-gpgkey-btn" source-id="<?= $sourceId ?>" distribution-id="<?= $distributionId ?>" gpgkey="<?= $gpgKey ?>" title="Remove GPG key <?= $gpgKey ?>" />
-                            </div>
+                foreach ($gpgKeys as $gpgKey) : ?>
+                    <div class="table-container grid-2 bck-blue-alt pointer" source-id="<?= $sourceId ?>" distribution-id="<?= $distributionId ?>">
+                        <div>
+                            <p><?= $gpgKey ?></p>
                         </div>
-                        <?php
-                    endforeach;
-                endif ?>
+
+                        <div class="flex justify-end">
+                            <img src="/assets/icons/delete.svg" class="icon-lowopacity source-repo-edit-distribution-remove-gpgkey-btn" source-id="<?= $sourceId ?>" distribution-id="<?= $distributionId ?>" gpgkey="<?= $gpgKey ?>" title="Remove GPG key <?= $gpgKey ?>" />
+                        </div>
+                    </div>
+                    <?php
+                endforeach; ?>
 
                 <br><br>
                 <button type="submit" class="btn-medium-green">Save</button>

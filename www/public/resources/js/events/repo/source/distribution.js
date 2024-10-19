@@ -20,9 +20,9 @@ $(document).on('click','button.source-repo-add-distribution-btn',function () {
 
     ajaxRequest(
         // Controller:
-        'source',
+        'repo/source/distribution',
         // Action:
-        'distribution/add',
+        'add',
         // Data:
         {
             id: id,
@@ -63,9 +63,9 @@ $(document).on('submit','form.source-repo-edit-distribution',function () {
 
     ajaxRequest(
         // Controller:
-        'source',
+        'repo/source/distribution',
         // Action:
-        'distribution/edit',
+        'edit',
         // Data:
         {
             id: id,
@@ -81,7 +81,7 @@ $(document).on('submit','form.source-repo-edit-distribution',function () {
         // Execute functions on success:
         [
             "reloadPanel('repos/sources/list')",
-            "reloadPanel('repos/sources/edit-releasever', {id: " + id + ", distributionId: " + distributionId + "})"
+            "reloadPanel('repos/sources/edit-distribution', {id: " + id + ", distributionId: " + distributionId + "})"
         ]
     );
 
@@ -89,7 +89,7 @@ $(document).on('submit','form.source-repo-edit-distribution',function () {
 });
 
 /**
- *  Event: delete source repository distribution
+ *  Event: remove source repository distribution
  */
 $(document).on('click','.source-repo-remove-distribution-btn',function (e) {
     // Prevent parent to be triggered
@@ -100,9 +100,9 @@ $(document).on('click','.source-repo-remove-distribution-btn',function (e) {
 
     ajaxRequest(
         // Controller:
-        'source',
+        'repo/source/distribution',
         // Action:
-        'distribution/remove',
+        'remove',
         // Data:
         {
             id: id,
@@ -122,6 +122,42 @@ $(document).on('click','.source-repo-remove-distribution-btn',function (e) {
 });
 
 /**
+ *  Event: remove source repository distribution section
+ */
+$(document).on('click','.source-repo-edit-distribution-remove-section-btn',function (e) {
+    // Prevent parent to be triggered
+    e.stopPropagation();
+
+    var id = $(this).attr('source-id');
+    var distributionId = $(this).attr('distribution-id');
+    var sectionId = $(this).attr('section-id');
+
+    ajaxRequest(
+        // Controller:
+        'repo/source/distribution',
+        // Action:
+        'remove-section',
+        // Data:
+        {
+            id: id,
+            distributionId: distributionId,
+            sectionId: sectionId,
+        },
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload containers:
+        [],
+        // Execute functions on success:
+        [
+            "reloadPanel('repos/sources/list')",
+            "reloadPanel('repos/sources/edit-distribution', {id: " + id + ", distributionId: " + distributionId + "})"
+        ]
+    );
+});
+
+/**
  *  Event: remove gpg key from distribution
  */
 $(document).on('click','.source-repo-edit-distribution-remove-gpgkey-btn',function (e) {
@@ -134,9 +170,9 @@ $(document).on('click','.source-repo-edit-distribution-remove-gpgkey-btn',functi
 
     ajaxRequest(
         // Controller:
-        'source',
+        'repo/source/distribution',
         // Action:
-        'distribution/remove-gpgkey',
+        'remove-gpgkey',
         // Data:
         {
             id: id,

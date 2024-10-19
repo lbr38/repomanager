@@ -27,7 +27,7 @@ $(document).on('submit','#add-source-repo-form',function () {
 
     ajaxRequest(
         // Controller:
-        'source',
+        'repo/source/source',
         // Action:
         'new',
         // Data:
@@ -60,7 +60,7 @@ $(document).on('submit','#import-source-repos',function () {
 
     ajaxRequest(
         // Controller:
-        'source',
+        'repo/source/source',
         // Action:
         'import-source-repos',
         // Data:
@@ -104,7 +104,7 @@ $(document).on('click','.source-repo-form-submit-btn',function () {
 
     ajaxRequest(
         // Controller:
-        'source',
+        'repo/source/source',
         // Action:
         'edit',
         // Data:
@@ -150,7 +150,7 @@ $(document).on('click','.source-repo-delete-btn',function (e) {
     confirmBox('Are you sure you want to delete <b>' + name + '</b> source repo?', function () {
         ajaxRequest(
             // Controller:
-            'source',
+            'repo/source/source',
             // Action:
             'delete',
             // Data:
@@ -182,7 +182,7 @@ $(document).on('click','.gpgKeyDeleteBtn',function () {
     confirmBox('Are you sure you want to delete <b>' + gpgkeyName + '</b> GPG key?', function () {
         ajaxRequest(
             // Controller:
-            'source',
+            'repo/source/source',
             // Action:
             'deleteGpgKey',
             // Data:
@@ -213,7 +213,7 @@ $(document).on('submit','#source-repo-add-key-form',function () {
 
     ajaxRequest(
         // Controller:
-        'source',
+        'repo/source/source',
         // Action:
         'importGpgKey',
         // Data:

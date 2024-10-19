@@ -37,8 +37,9 @@ if (__ACTUAL_URI__[1] == "") {
     echo '<script src="/resources/js/task.js?' . VERSION . '"></script>';
     echo '<script src="/resources/js/group.js?' . VERSION . '"></script>';
     echo '<script src="/resources/js/source.js?' . VERSION . '"></script>';
-    echo '<script src="/resources/js/events/repos/sources/distribution.js?' . VERSION . '"></script>';
-    echo '<script src="/resources/js/events/repos/sources/releasever.js?' . VERSION . '"></script>';
+    echo '<script src="/resources/js/events/repo/source/distribution.js?' . VERSION . '"></script>';
+    echo '<script src="/resources/js/events/repo/source/releasever.js?' . VERSION . '"></script>';
+    echo '<script src="/resources/js/events/repo/source/source.js?' . VERSION . '"></script>';
 }
 if (__ACTUAL_URI__[1] == "hosts" or __ACTUAL_URI__[1] == "host") {
     echo '<script src="/resources/js/host.js?' . VERSION . '"></script>';
