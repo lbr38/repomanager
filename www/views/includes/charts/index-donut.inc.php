@@ -10,7 +10,7 @@ if ($diskUsedSpace > 50 && $diskUsedSpace <= 70) {
     $donutColor = "'rgba(255, 124, 73, 0.8)',";
 }
 if ($diskUsedSpace > 70 && $diskUsedSpace <= 100) {
-    $donutColor = "'#ff0044',";
+    $donutColor = "'#F32F63',";
 }
 $donutColor .= "'rgb(247, 247, 247, 0)'"; // transparent (opacity 0) color for the free space ?>
 

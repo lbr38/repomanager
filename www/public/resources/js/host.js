@@ -1,5 +1,3 @@
-selectToSelect2('select.group-hosts-list', 'Add host...');
-
 /**
  *  Fonctions
  */
@@ -89,7 +87,7 @@ function searchHost()
     /**
      *  If the input is empty, quit
      */
-    if (!$("#searchHostInput").val()) {
+    if (!$("#search-host-input").val()) {
         // Show all containers and host lines before quit
         $('.hosts-group-container, .host-line, .js-select-all-button').show();
 
@@ -102,7 +100,7 @@ function searchHost()
      *  Retrieve the search term from the input
      *  Convert the search term to uppercase to ignore case when searching
      */
-    search = $("#searchHostInput").val().toUpperCase();
+    search = $("#search-host-input").val().toUpperCase();
 
     /**
      *  Print all group containers (in case they were hidden during a previous search)
@@ -1132,7 +1130,7 @@ function newGroup(name)
         // Execute functions on success:
         [
             // Reload group panel
-            "reloadPanel('hosts/groups', function () { selectToSelect2('select.group-hosts-list', 'Add host...'); })",
+            "reloadPanel('hosts/groups/list')"
         ]
     );
 }
@@ -1162,7 +1160,7 @@ function deleteGroup(id)
         // Execute functions on success:
         [
             // Reload group panel
-            "reloadPanel('hosts/groups', function () { selectToSelect2('select.group-hosts-list', 'Add host...'); })",
+            "reloadPanel('hosts/groups/list')"
         ]
     );
 }
@@ -1196,7 +1194,7 @@ function editGroup(id, name, hostsId)
         // Execute functions on success:
         [
             // Reload group panel
-            "reloadPanel('hosts/groups', function () { selectToSelect2('select.group-hosts-list', 'Add host...'); })",
+            "reloadPanel('hosts/groups/list')"
         ]
     );
 }

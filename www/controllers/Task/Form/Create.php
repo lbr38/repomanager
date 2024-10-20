@@ -9,7 +9,7 @@ class Create
     public function validate(array $formParams)
     {
         $myrepo = new \Controllers\Repo\Repo();
-        $mysource = new \Controllers\Source();
+        $mysource = new \Controllers\Repo\Source\Source();
         $myhistory = new \Controllers\History();
 
         /**

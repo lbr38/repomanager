@@ -6,6 +6,7 @@
     if (__LOAD_GENERAL_ERROR > 0) : ?>
         <section class="section-main">
             <div class="div-generic-blue">
+                <img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" />
                 <span class="yellowtext">Some settings from the <a href="/settings"><b>settings tab</b></a> contain missing or bad value that could generate errors on Repomanager. Please finalize the configuration before running any task.</span>
                 <br><br>
                 <?php

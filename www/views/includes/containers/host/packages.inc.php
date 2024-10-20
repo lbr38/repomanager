@@ -1,5 +1,5 @@
 <section class="flex-div-50 div-generic-blue reloadable-container" container="host/packages">
-    <h4>PACKAGES</h4>
+    <h5>PACKAGES</h5>
         
     <div class="grid grid-2">
         <div id="available-packages-btn" class="flex align-item-center column-gap-5 pointer">

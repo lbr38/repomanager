@@ -16,18 +16,15 @@ class Browse
             echo '<ul>';
 
             /**
-             *  Initialiation d'un array qui contiendra la liste de tous les fichiers et sous-répertoire dans le répertoire actuel
              *  Initialize array which will contain a list of the files inside the actual directory
              */
             $queue = array();
 
             /**
-             *  Scanne le répertoire spécifié et traite chaque fichier trouvé
              *  Scan the specified directory then process each file found
              */
             foreach (scandir($path) as $file) {
                 /**
-                 *  Cas où c'est un répertoire
                  *  Case it is a directory
                  */
                 if (is_dir($path . '/' . $file) && $file != '.' && $file != '..') {
@@ -36,13 +33,12 @@ class Browse
                 }
 
                 /**
-                 *  Cas où c'est un fichier
                  *  Case it is a file
                  */
                 if (is_file($path . '/' . $file) and $file != '.' and $file != '..') {
                     /**
-                     *  Si c'est un fichier alors on l'ajoute à l'array queue qui contient toute la liste des fichiers du répertoire ou sous-répertoire en cours
-                     *  On indexe le nom du fichier $file ainsi que son chemin $path/$file auquel on retire le début du chemin complet afin qu'il ne soit pas visible dans le code source
+                     *  If it is a file then we add it to the queue array which contains the list of all files in the current directory or sub-directory
+                     *  Index the file name $file and its path $path/$file by removing the beginning of the full path so it is not visible in the source code
                      */
                     $queue[$file] = str_replace(REPOS_DIR . '/', '', "$path/$file");
                 }
@@ -55,13 +51,11 @@ class Browse
     }
 
     /**
-     *  Affichage de tous les fichiers d'un répertoire
+     *  Print all files in a directory
      */
     public static function printQueue($queue)
     {
-        /**
-         *  D'abord on trie la liste par ordre alphabétique
-         */
+        // First we sort the list alphabetically
         ksort($queue);
 
         foreach ($queue as $file => $path) {
@@ -70,33 +64,67 @@ class Browse
     }
 
     /**
-     *  Affichage d'un fichier
+     *  Print a file
      */
     public static function printFile($file, $path)
     {
-        echo '<li>';
-        echo '<div class="explorer-file-pkg header-light-blue"><input type="checkbox" class="packageName-checkbox pointer" name="packageName[]" filename="' . $file . '" path="' . $path . '" /><img src="/assets/icons/package.svg" class="icon" /><span>' . $file . '</span></div>';
-        echo '</li>';
+        /**
+         *  If file has .deb or .rpm extension, then it is a package
+         *  If it has .db extension, then it is a metadate (database)
+         *  If it has .xml extension, then it is a metadata (xml)
+         *  Etc ...
+         */
+        $extension = pathinfo($file, PATHINFO_EXTENSION);
+        if ($extension == 'deb' || $extension == 'rpm') {
+            $title = 'Package file';
+            $icon = 'package';
+        } else if ($extension == 'db') {
+            $title = 'Metadata (database) file';
+            $icon = 'file';
+        } else if ($extension == 'xml') {
+            $title = 'Metadata (xml) file';
+            $icon = 'file';
+        } else {
+            $title = 'File';
+            $icon = 'file';
+        } ?>
+
+        <li>
+            <div class="explorer-file-pkg header-light-blue flex align-item-center justify-space-between">
+                <div class="flex column-gap-5 align-item-center" title="<?= $title ?>">
+                    <img src="/assets/icons/<?= $icon ?>.svg" class="icon" />
+                    <p><?= $file ?></p>
+                </div>
+                
+                <input type="checkbox" class="packageName-checkbox pointer" name="packageName[]" filename="<?= $file ?>" path="<?= $path ?>" />
+            </div>
+        </li>
+        <?php
     }
 
     /**
-     *  Affichage d'un sous-dossier
+     *  Print a sub-directory
      */
     public static function printSubDir($dir, $path)
     {
-        echo '<li>';
-        echo '<div class="explorer-toggle header-blue pointer"><img src="/assets/icons/folder.svg" class="icon" /><span>' . $dir . '</span></div>';
+        ?>
+        <li>
+            <div class="explorer-toggle header-blue pointer flex column-gap-5 align-item-center" title="Directory <?= $dir ?>">
+                <img src="/assets/icons/folder.svg" class="icon" />
+                <p><?= $dir ?></p>
+            </div>
+            <?php
+            /**
+             *  Calling main tree function again to print this sub-directory tree
+             */
+            \Controllers\Browse::tree($path . '/' . $dir); ?>
 
-        /**
-         *  Calling main tree function again to print this sub-directory tree
-         */
-        \Controllers\Browse::tree($path . '/' . $dir);
-
-        echo '</li>';
+        </li>
+        <?php
     }
 
     /**
-     *  Fonction permettant de reconstruire l'array $_FILES['packages'] qui est assez mal foutu et donc compliqué à parcourir
+     *  Function to rebuild the $_FILES['packages'] array which is quite badly done and therefore complicated to browse
      *  https://www.php.net/manual/fr/features.file-upload.multiple.php
      */
     public static function reArrayFiles(&$file_post)

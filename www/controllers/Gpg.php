@@ -53,12 +53,10 @@ class Gpg
          */
         if (!file_exists(GPGHOME . '/gpg.conf')) {
             /**
-             *  Configure gpg.conf (pinentry-mode loopback) only on non-RHEL systems and on RHEL >7 systems
+             *  Configure gpg.conf (pinentry-mode loopback)
              */
-            if (strtoupper(OS_FAMILY) != 'REDHAT' or (strtoupper(OS_FAMILY) == 'REDHAT' and OS_VERSION > '7')) {
-                if (!file_put_contents(GPGHOME . '/gpg.conf', 'pinentry-mode loopback' . PHP_EOL . 'passphrase-file ' . PASSPHRASE_FILE)) {
-                    throw new Exception('Cannot write to: ' . GPGHOME . '/gpg.conf');
-                }
+            if (!file_put_contents(GPGHOME . '/gpg.conf', 'pinentry-mode loopback' . PHP_EOL . 'passphrase-file ' . PASSPHRASE_FILE)) {
+                throw new Exception('Cannot write to: ' . GPGHOME . '/gpg.conf');
             }
         }
     }
@@ -275,5 +273,79 @@ class Gpg
                 throw new Exception('Cannot write to ' . MACROS_FILE);
             }
         }
+    }
+
+    /**
+     *  Import a GPG key
+     */
+    public function import(string $gpgKey)
+    {
+        $gpgKey = \Controllers\Common::validateData($gpgKey);
+
+        /**
+         *  Check if the ASCII text contains invalid characters
+         */
+        if (!\Controllers\Common::isAlphanum($gpgKey, array('-', '=', '+', '/', ' ', ':', '.', '(', ')', "\n", "\r"))) {
+            throw new Exception('ASCII GPG key contains invalid characters');
+        }
+
+        /**
+         *  Quit if user tries to import a GPG from url
+         */
+        if (preg_match('#http(s)?://#', $gpgKey)) {
+            throw new Exception('GPG key must be specified in ASCII text format');
+        }
+
+        /**
+         *  Quit if the user tries to import a file on the system
+         */
+        if (file_exists($gpgKey)) {
+            throw new Exception('GPG key must be specified in ASCII text format');
+        }
+
+        /**
+         *  Create a temporary file with the ASCII text
+         */
+        $gpgTempFile = TEMP_DIR . '/.repomanager-newgpgkey.tmp';
+        if (!file_put_contents($gpgTempFile, $gpgKey)) {
+            throw new Exception('Error: could not initialize GPG import');
+        }
+
+        /**
+         *  Import file into the repomanager trusted keyring
+         */
+        $myprocess = new \Controllers\Process('/usr/bin/gpg --no-default-keyring --keyring ' . GPGHOME . '/trustedkeys.gpg --import ' . $gpgTempFile);
+        $myprocess->execute();
+
+        /**
+         *  Delete temp file
+         */
+        unlink($gpgTempFile);
+
+        if ($myprocess->getExitCode() != 0) {
+            throw new Exception('Error while importing specified GPG key: <br>' . $myprocess->getOutput());
+        }
+
+        $myprocess->close();
+    }
+
+    /**
+     *  Delete a GPG key
+     */
+    public function delete(string $gpgKeyId)
+    {
+        $gpgKeyId = \Controllers\Common::validateData($gpgKeyId);
+
+        /**
+         *  Deleting key from the keyring, using its ID
+         */
+        $myprocess = new \Controllers\Process('/usr/bin/gpg --no-default-keyring --homedir ' . GPGHOME . ' --keyring ' . GPGHOME . '/trustedkeys.gpg --no-greeting --delete-key --batch --yes ' . $gpgKeyId);
+        $myprocess->execute();
+
+        if ($myprocess->getExitCode() != 0) {
+            throw new Exception('Error while deleting GPG key: <br>' . $myprocess->getOutput());
+        }
+
+        $myprocess->close();
     }
 }
