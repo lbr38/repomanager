@@ -16,20 +16,31 @@
 
                 <h6>GPG KEYS</h6>
                 <?php
-                if (!empty($gpgKeys)) :
-                    foreach ($gpgKeys as $gpgKey) : ?>
-                        <div class="table-container grid-2 bck-blue-alt pointer" source-id="<?= $sourceId ?>" releasever-id="<?= $releaseverId ?>">
-                            <div>
-                                <p><?= $gpgKey ?></p>
-                            </div>
+                foreach ($gpgKeys as $gpgKeyId => $gpgKeyDefinition) :
+                    if (isset($gpgKeyDefinition['link'])) {
+                        $gpgKey = $gpgKeyDefinition['link'];
+                    }
+                    if (isset($gpgKeyDefinition['fingerprint'])) {
+                        $gpgKey = $gpgKeyDefinition['fingerprint'];
+                    } ?>
 
-                            <div class="flex justify-end">
-                                <img src="/assets/icons/delete.svg" class="icon-lowopacity source-repo-edit-releasever-remove-gpgkey-btn" source-id="<?= $sourceId ?>" releasever-id="<?= $releaseverId ?>" gpgkey="<?= $gpgKey ?>" title="Remove GPG key <?= $gpgKey ?>" />
-                            </div>
+                    <div class="table-container grid-2 bck-blue-alt pointer" source-id="<?= $sourceId ?>" releasever-id="<?= $releaseverId ?>">
+                        <div>
+                            <p><?= $gpgKey ?></p>
                         </div>
-                        <?php
-                    endforeach;
-                endif ?>
+
+                        <div class="flex justify-end">
+                            <img src="/assets/icons/delete.svg" class="icon-lowopacity source-repo-edit-releasever-remove-gpgkey-btn" source-id="<?= $sourceId ?>" releasever-id="<?= $releaseverId ?>" gpgkey-id="<?= $gpgKeyId ?>" title="Remove GPG key <?= $gpgKey ?>" />
+                        </div>
+                    </div>
+                    <?php
+                endforeach ?>
+
+                <div class="flex align-item-center column-gap-5">
+                    <input type="text" class="source-repo-edit-releasever-add-gpgkey-input" source-id="<?= $sourceId ?>" releasever-id="<?= $releaseverId ?>" placeholder="Add GPG key">
+                    <button type="button" class="source-repo-edit-releasever-add-gpgkey-btn btn-xxsmall-green" source-id="<?= $sourceId ?>" releasever-id="<?= $releaseverId ?>" title="Add GPG key">+</button>
+                </div>
+                <p class="note">http(s):// link or fingerprint.</p>
 
                 <br><br>
                 <button type="submit" class="btn-medium-green">Save</button>

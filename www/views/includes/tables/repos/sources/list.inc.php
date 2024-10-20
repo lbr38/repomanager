@@ -103,7 +103,7 @@
                         </div>
                         <?php
                     endif;
-                    
+
                     if ($type == 'rpm') :
                         echo '<h6>RELEASE VERSIONS</h6>';
                         echo '<p class="note">Embedded release versions.</p>';

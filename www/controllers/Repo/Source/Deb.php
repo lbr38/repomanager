@@ -172,6 +172,54 @@ class Deb extends \Controllers\Repo\Source\Source
     }
 
     /**
+     *  Add a distribution section from a deb source repository
+     */
+    public function addSection(int $sourceId, int $distributionId, string $section)
+    {
+        $section = \Controllers\Common::validateData($section);
+
+        /**
+         *  Check that the source repository exists
+         */
+        if (!$this->existsId($sourceId)) {
+            throw new Exception('Source repository does not exist');
+        }
+
+        /**
+         *  Get complete source repository definition
+         */
+        $currentDefinition = json_decode($this->getDefinition($sourceId), true);
+
+        /**
+         *  Check that distribution Id exists in the source repository
+         */
+        if (!isset($currentDefinition['distributions'][$distributionId])) {
+            throw new Exception('Distribution Id ' . $distributionId . ' does not exist');
+        }
+
+        /**
+         *  Check that the section does not already exist in the distribution
+         */
+        foreach ($currentDefinition['distributions'][$distributionId]['components'] as $sectionDefinition) {
+            if ($sectionDefinition['name'] == $section) {
+                throw new Exception('Section ' . $section . ' already exists');
+            }
+        }
+
+        /**
+         *  Add the new section
+         */
+        $currentDefinition['distributions'][$distributionId]['components'][] = array(
+            'name' => $section
+        );
+
+        /**
+         *  Save the new source repository definition
+         */
+        $this->editDefinition($sourceId, json_encode($currentDefinition));
+    }
+
+    /**
      *  Remove a distribution section from a deb source repository
      */
     public function removeSection(int $sourceId, int $distributionId, int $sectionId)
@@ -207,11 +255,21 @@ class Deb extends \Controllers\Repo\Source\Source
     }
 
     /**
-     *  Remove a gpg key from a deb source repository distribution
+     *  Add a gpg key from a deb source repository distribution
      */
-    public function removeGpgKey(int $id, int $distributionId, string $gpgKey)
+    public function addGpgKey(int $id, int $distributionId, string $gpgKey)
     {
         $gpgKey = \Controllers\Common::validateData($gpgKey);
+
+        /**
+         *  If gpg key starts with http(s):// then it is a link
+         *  Otherwise it is a fingerprint
+         */
+        if (preg_match('#^http(s)?://#', $gpgKey)) {
+            $type = 'link';
+        } else {
+            $type = 'fingerprint';
+        }
 
         /**
          *  Check that the source repository exists
@@ -226,23 +284,85 @@ class Deb extends \Controllers\Repo\Source\Source
         $currentParams = json_decode($this->getDefinition($id), true);
 
         /**
-         *  Check that release version Id exists in the source repository
+         *  Check that distribution Id exists in the source repository
          */
         if (!isset($currentParams['distributions'][$distributionId])) {
             throw new Exception('Distribution Id ' . $distributionId . ' does not exist');
         }
 
         /**
-         *  Check that the gpg key exists in the release version
+         *  Check that the gpg key does not already exist in the distribution
          */
-        if (!in_array($gpgKey, $currentParams['distributions'][$distributionId]['gpgkeys'])) {
-            throw new Exception('GPG key ' . $gpgKey . ' does not exist');
+        if ($type == 'link') {
+            foreach ($currentParams['distributions'][$distributionId]['gpgkeys'] as $gpgKeyDefinition) {
+                if (isset($gpgKeyDefinition['link']) and $gpgKeyDefinition['link'] == $gpgKey) {
+                    throw new Exception('GPG key ' . $gpgKey . ' already exists');
+                }
+            }
+        }
+        if ($type == 'fingerprint') {
+            foreach ($currentParams['distributions'][$distributionId]['gpgkeys'] as $gpgKeyDefinition) {
+                if (isset($gpgKeyDefinition['fingerprint']) and $gpgKeyDefinition['fingerprint'] == $gpgKey) {
+                    throw new Exception('GPG key ' . $gpgKey . ' already exists');
+                }
+            }
+        }
+
+        /**
+         *  Add the new gpg key
+         */
+        if ($type == 'link') {
+            $currentParams['distributions'][$distributionId]['gpgkeys'][] = array(
+                'link' => $gpgKey
+            );
+        }
+        if ($type == 'fingerprint') {
+            $currentParams['distributions'][$distributionId]['gpgkeys'][] = array(
+                'fingerprint' => $gpgKey
+            );
+        }
+
+        /**
+         *  Save the new source repository definition
+         */
+        $this->editDefinition($id, json_encode($currentParams));
+    }
+
+    /**
+     *  Remove a gpg key from a deb source repository distribution
+     */
+    public function removeGpgKey(int $id, int $distributionId, int $gpgKeyId)
+    {
+        /**
+         *  Check that the source repository exists
+         */
+        if (!$this->existsId($id)) {
+            throw new Exception('Source repository does not exist');
+        }
+
+        /**
+         *  Get complete source repository definition
+         */
+        $currentParams = json_decode($this->getDefinition($id), true);
+
+        /**
+         *  Check that distribution Id exists in the source repository
+         */
+        if (!isset($currentParams['distributions'][$distributionId])) {
+            throw new Exception('Distribution Id ' . $distributionId . ' does not exist');
+        }
+
+        /**
+         *  Check that the gpg key exists in the distribution
+         */
+        if (!isset($currentParams['distributions'][$distributionId]['gpgkeys'][$gpgKeyId])) {
+            throw new Exception('GPG key does not exist');
         }
 
         /**
          *  Remove the gpg key
          */
-        $currentParams['distributions'][$distributionId]['gpgkeys'] = array_diff($currentParams['distributions'][$distributionId]['gpgkeys'], array($gpgKey));
+        unset($currentParams['distributions'][$distributionId]['gpgkeys'][$gpgKeyId]);
 
         /**
          *  Save the new source repository definition

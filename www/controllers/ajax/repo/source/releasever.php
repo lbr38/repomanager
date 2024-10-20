@@ -45,13 +45,28 @@ if ($_POST['action'] == 'remove' and !empty($_POST['id']) and isset($_POST['rele
 }
 
 /**
- *  Remove a release version GPG key
+ *  Add a release version GPG key
  */
-if ($_POST['action'] == 'remove-gpgkey' and !empty($_POST['id']) and isset($_POST['releaseverId']) and !empty($_POST['gpgkey'])) {
+if ($_POST['action'] == 'add-gpgkey' and !empty($_POST['id']) and isset($_POST['releaseverId']) and !empty($_POST['gpgkey'])) {
     $myRpmSource = new \Controllers\Repo\Source\Rpm();
 
     try {
-        $myRpmSource->removeGpgKey($_POST['id'], $_POST['releaseverId'], $_POST['gpgkey']);
+        $myRpmSource->addGpgKey($_POST['id'], $_POST['releaseverId'], $_POST['gpgkey']);
+    } catch (\Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, 'GPG key added');
+}
+
+/**
+ *  Remove a release version GPG key
+ */
+if ($_POST['action'] == 'remove-gpgkey' and !empty($_POST['id']) and isset($_POST['releaseverId']) and isset($_POST['gpgkeyId'])) {
+    $myRpmSource = new \Controllers\Repo\Source\Rpm();
+
+    try {
+        $myRpmSource->removeGpgKey($_POST['id'], $_POST['releaseverId'], $_POST['gpgkeyId']);
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }

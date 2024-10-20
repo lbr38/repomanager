@@ -151,7 +151,7 @@ class Rpm extends \Controllers\Repo\Source\Source
          *  Check that release version Id exists in the source repository
          */
         if (!isset($currentDefinition['releasever'][$releaseverId])) {
-            throw new Exception('Distribution does not exist');
+            throw new Exception('Release version does not exist');
         }
 
         /**
@@ -166,12 +166,84 @@ class Rpm extends \Controllers\Repo\Source\Source
     }
 
     /**
-     *  Remove a gpg key from a rpm source repository release version
+     *  Add a gpg key from a deb source repository release version
      */
-    public function removeGpgKey(int $id, int $releaseverId, string $gpgKey)
+    public function addGpgKey(int $id, int $releaseverId, string $gpgKey)
     {
         $gpgKey = \Controllers\Common::validateData($gpgKey);
 
+        /**
+         *  If gpg key starts with http(s):// then it is a link
+         *  Otherwise it is a fingerprint
+         */
+        if (preg_match('#^http(s)?://#', $gpgKey)) {
+            $type = 'link';
+        } else {
+            $type = 'fingerprint';
+        }
+
+        /**
+         *  Check that the source repository exists
+         */
+        if (!$this->existsId($id)) {
+            throw new Exception('Source repository does not exist');
+        }
+
+        /**
+         *  Get complete source repository definition
+         */
+        $currentParams = json_decode($this->getDefinition($id), true);
+
+        /**
+         *  Check that release version Id exists in the source repository
+         */
+        if (!isset($currentParams['releasever'][$releaseverId])) {
+            throw new Exception('Release version Id ' . $releaseverId . ' does not exist');
+        }
+
+        /**
+         *  Check that the gpg key does not already exist in the release version
+         */
+        if ($type == 'link') {
+            foreach ($currentParams['releasever'][$releaseverId]['gpgkeys'] as $gpgKeyDefinition) {
+                if (isset($gpgKeyDefinition['link']) and $gpgKeyDefinition['link'] == $gpgKey) {
+                    throw new Exception('GPG key ' . $gpgKey . ' already exists');
+                }
+            }
+        }
+        if ($type == 'fingerprint') {
+            foreach ($currentParams['releasever'][$releaseverId]['gpgkeys'] as $gpgKeyDefinition) {
+                if (isset($gpgKeyDefinition['fingerprint']) and $gpgKeyDefinition['fingerprint'] == $gpgKey) {
+                    throw new Exception('GPG key ' . $gpgKey . ' already exists');
+                }
+            }
+        }
+
+        /**
+         *  Add the new gpg key
+         */
+        if ($type == 'link') {
+            $currentParams['releasever'][$releaseverId]['gpgkeys'][] = array(
+                'link' => $gpgKey
+            );
+        }
+        if ($type == 'fingerprint') {
+            $currentParams['releasever'][$releaseverId]['gpgkeys'][] = array(
+                'fingerprint' => $gpgKey
+            );
+        }
+
+        /**
+         *  Save the new source repository definition
+         */
+        $this->editDefinition($id, json_encode($currentParams));
+    }
+
+    /**
+     *  Remove a gpg key from a rpm source repository release version
+     */
+    public function removeGpgKey(int $id, int $releaseverId, int $gpgKeyId)
+    {
         /**
          *  Check that the source repository exists
          */
@@ -194,14 +266,14 @@ class Rpm extends \Controllers\Repo\Source\Source
         /**
          *  Check that the gpg key exists in the release version
          */
-        if (!in_array($gpgKey, $currentParams['releasever'][$releaseverId]['gpgkeys'])) {
-            throw new Exception('GPG key ' . $gpgKey . ' does not exist');
+        if (!isset($currentParams['releasever'][$releaseverId]['gpgkeys'][$gpgKeyId])) {
+            throw new Exception('GPG key Id does not exist');
         }
 
         /**
          *  Remove the gpg key
          */
-        $currentParams['releasever'][$releaseverId]['gpgkeys'] = array_diff($currentParams['releasever'][$releaseverId]['gpgkeys'], array($gpgKey));
+        unset($currentParams['releasever'][$releaseverId]['gpgkeys'][$gpgKeyId]);
 
         /**
          *  Save the new source repository definition

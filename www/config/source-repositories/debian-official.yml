@@ -11,8 +11,10 @@
         - name: contrib
         - name: non-free
       gpgkeys:
-        - xxx
-        - http://toto
+        - fingerprint: xxx
+          description: ''
+        - link: http://toto
+          description: ''
     - name: bullseye
       description: Debian 11
       components:
@@ -20,7 +22,7 @@
         - name: contrib
         - name: non-free
       gpgkeys:
-        - xxx
+        - fingerprint: xxx
     - name: bookworm
       description: Debian 12
       components:
@@ -28,7 +30,7 @@
         - name: contrib
         - name: non-free
       gpgkeys:
-        - xxx
+        - fingerprint: xxx
   architectures: [amd64, arm64, armhf, i386, mips, mips64el, mipsel, ppc64el, s390x]
   keyserver:
     - keyring.debian.org
@@ -49,7 +51,7 @@
         - name: contrib
         - name: non-free
       gpgkeys:
-        - xxx
+        - fingerprint: xxx
     - name: bullseye
       description: Debian 11
       components:
@@ -57,7 +59,7 @@
         - name: contrib
         - name: non-free
       gpgkeys:
-        - xxx
+        - fingerprint: xxx
     - name: bookworm
       description: Debian 12
       components:
@@ -65,7 +67,7 @@
         - name: contrib
         - name: non-free
       gpgkeys:
-        - xxx
+        - fingerprint: xxx
   architectures: [amd64, arm64, armhf, i386, mips, mips64el, mipsel, ppc64el, s390x]
   keyserver:
     - keyring.debian.org

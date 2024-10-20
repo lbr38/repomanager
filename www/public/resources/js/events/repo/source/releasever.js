@@ -121,6 +121,43 @@ $(document).on('click','.source-repo-remove-releasever-btn',function (e) {
     );
 });
 
+
+/**
+ *  Event: add gpg key to release version
+ */
+$(document).on('click','.source-repo-edit-releasever-add-gpgkey-btn',function (e) {
+    // Prevent parent to be triggered
+    e.stopPropagation();
+
+    var id = $(this).attr('source-id');
+    var releaseverId = $(this).attr('releasever-id');
+    var gpgkey = $('.source-repo-edit-releasever-add-gpgkey-input[source-id="' + id + '"][releasever-id="' + releaseverId + '"]').val();
+
+    ajaxRequest(
+        // Controller:
+        'repo/source/releasever',
+        // Action:
+        'add-gpgkey',
+        // Data:
+        {
+            id: id,
+            releaseverId: releaseverId,
+            gpgkey: gpgkey,
+        },
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload containers:
+        [],
+        // Execute functions on success:
+        [
+            "reloadPanel('repos/sources/list')",
+            "reloadPanel('repos/sources/edit-releasever', {id: " + id + ", releaseverId: " + releaseverId + "})"
+        ]
+    );
+});
+
 /**
  *  Event: remove gpg key from release version
  */
@@ -130,7 +167,7 @@ $(document).on('click','.source-repo-edit-releasever-remove-gpgkey-btn',function
 
     var id = $(this).attr('source-id');
     var releaseverId = $(this).attr('releasever-id');
-    var gpgkey = $(this).attr('gpgkey');
+    var gpgkeyId = $(this).attr('gpgkey-id');
 
     ajaxRequest(
         // Controller:
@@ -141,7 +178,7 @@ $(document).on('click','.source-repo-edit-releasever-remove-gpgkey-btn',function
         {
             id: id,
             releaseverId: releaseverId,
-            gpgkey: gpgkey,
+            gpgkeyId: gpgkeyId,
         },
         // Print success alert:
         true,
