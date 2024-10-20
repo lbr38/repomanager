@@ -8,7 +8,6 @@ class Deb extends \Controllers\Repo\Source\Source
 {
     /**
      *  Import a deb source repository
-     *  TODO : à finaliser
      */
     public function import(array $repo)
     {
@@ -32,9 +31,6 @@ class Deb extends \Controllers\Repo\Source\Source
                 throw new Exception('source repository distributions components is empty');
             }
         }
-
-        // TODO : ajouter + de vérifications relatives à deb
-        // Les verifs des paramètres de base sont effectuées par la fonction new() de la classe parente
 
         /**
          *  If a repository with the same name already exists, then delete it before adding the new one

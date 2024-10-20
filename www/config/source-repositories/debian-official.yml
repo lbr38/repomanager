@@ -1,77 +1,80 @@
 ---
-- name: debian-test
-  type: deb
-  url: https://deb.debian.org/debian
-  distributions:
-    - name: buster
-      description: Debian 10
-      components:
-        - name: main
-          # arch: []
-        - name: contrib
-        - name: non-free
-      gpgkeys:
-        - fingerprint: xxx
-          description: ''
-        - link: http://link
-          description: ''
-    - name: bullseye
-      description: Debian 11
-      components:
-        - name: main
-        - name: contrib
-        - name: non-free
-      gpgkeys:
-        - fingerprint: xxx
-    - name: bookworm
-      description: Debian 12
-      components:
-        - name: main
-        - name: contrib
-        - name: non-free
-      gpgkeys:
-        - fingerprint: xxx
-  architectures: [amd64, arm64, armhf, i386, mips, mips64el, mipsel, ppc64el, s390x]
-  keyserver:
-    - keyring.debian.org
-  ssl-authentication:
-    ssl-certificate: ''
-    ssl-private-key: ''
-    ssl-ca-certificate: ''
+description: Debian official repositories
+type: deb
+repositories:
+  - name: debian-test
+    type: deb
+    url: https://deb.debian.org/debian
+    distributions:
+      - name: buster
+        description: Debian 10
+        components:
+          - name: main
+            # arch: []
+          - name: contrib
+          - name: non-free
+        gpgkeys:
+          - fingerprint: xxx
+            description: ''
+          - link: http://link
+            description: ''
+      - name: bullseye
+        description: Debian 11
+        components:
+          - name: main
+          - name: contrib
+          - name: non-free
+        gpgkeys:
+          - fingerprint: xxx
+      - name: bookworm
+        description: Debian 12
+        components:
+          - name: main
+          - name: contrib
+          - name: non-free
+        gpgkeys:
+          - fingerprint: xxx
+    architectures: [amd64, arm64, armhf, i386, mips, mips64el, mipsel, ppc64el, s390x]
+    keyserver:
+      - keyring.debian.org
+    ssl-authentication:
+      ssl-certificate: ''
+      ssl-private-key: ''
+      ssl-ca-certificate: ''
 
-- name: debian-test-2
-  type: deb
-  url: https://deb.debian.org/debian-test-2
-  distributions:
-    - name: buster
-      description: Debian 10
-      components:
-        - name: main
-          # arch: []
-        - name: contrib
-        - name: non-free
-      gpgkeys:
-        - fingerprint: xxx
-    - name: bullseye
-      description: Debian 11
-      components:
-        - name: main
-        - name: contrib
-        - name: non-free
-      gpgkeys:
-        - fingerprint: xxx
-    - name: bookworm
-      description: Debian 12
-      components:
-        - name: main
-        - name: contrib
-        - name: non-free
-      gpgkeys:
-        - fingerprint: xxx
-  architectures: [amd64, arm64, armhf, i386, mips, mips64el, mipsel, ppc64el, s390x]
-  keyserver:
-    - keyring.debian.org
-  ssl-authentication:
-    ssl-certificate: ''
-    ssl-private-key: ''
-    ssl-ca-certificate: ''
+  - name: debian-test-2
+    type: deb
+    url: https://deb.debian.org/debian-test-2
+    distributions:
+      - name: buster
+        description: Debian 10
+        components:
+          - name: main
+            # arch: []
+          - name: contrib
+          - name: non-free
+        gpgkeys:
+          - fingerprint: xxx
+      - name: bullseye
+        description: Debian 11
+        components:
+          - name: main
+          - name: contrib
+          - name: non-free
+        gpgkeys:
+          - fingerprint: xxx
+      - name: bookworm
+        description: Debian 12
+        components:
+          - name: main
+          - name: contrib
+          - name: non-free
+        gpgkeys:
+          - fingerprint: xxx
+    architectures: [amd64, arm64, armhf, i386, mips, mips64el, mipsel, ppc64el, s390x]
+    keyserver:
+      - keyring.debian.org
+    ssl-authentication:
+      ssl-certificate: ''
+      ssl-private-key: ''
+      ssl-ca-certificate: ''

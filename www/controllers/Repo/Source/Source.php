@@ -214,13 +214,6 @@ class Source
         }
 
         /**
-         *  GPG key URL can either be empty, either start with http(s)://
-         */
-        // if (!empty($gpgKeyURL) and !preg_match('#^https?://#', $gpgKeyURL)) {
-        //     throw new Exception('GPG signing key URL must start with http(s)://');
-        // }
-
-        /**
          *  SSL certificate file must be a file that exist and is readable
          */
         if (!empty($params['ssl-certificate-path'])) {
@@ -307,16 +300,16 @@ class Source
                 /**
                  *  Load the yaml file
                  */
-                $lists = yaml_parse_file(SOURCE_LISTS_DIR . '/' . $listFile . '.yml');
+                $yamlList = yaml_parse_file(SOURCE_LISTS_DIR . '/' . $listFile . '.yml');
 
-                if ($lists === false) {
+                if ($yamlList === false) {
                     throw new Exception('error while reading list ' . $listFile);
                 }
 
                 /**
                  *  Check that the yaml file is not empty
                  */
-                if (empty($lists)) {
+                if (empty($yamlList)) {
                     throw new Exception('list ' . $listFile . ' is empty');
                 }
 
@@ -324,7 +317,7 @@ class Source
                  *  For each source repository in the list, check that the name, URL and type are specified
                  *  Then import the complete source repository details
                  */
-                foreach ($lists as $repo) {
+                foreach ($yamlList['repositories'] as $repo) {
                     if (empty($repo['type'])) {
                         throw new Exception('source repository type is empty');
                     }

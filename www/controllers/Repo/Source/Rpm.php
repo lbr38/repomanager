@@ -8,7 +8,6 @@ class Rpm extends \Controllers\Repo\Source\Source
 {
     /**
      *  Import a rpm source repository
-     *  TODO : à finaliser
      */
     public function import(array $repo)
     {
@@ -27,9 +26,6 @@ class Rpm extends \Controllers\Repo\Source\Source
         if (empty($repo['releasever'])) {
             throw new Exception('source repository releasever is empty');
         }
-
-        // TODO : ajouter + de vérifications relatives à rpm
-        // Les verifs des paramètres de base sont effectuées par la fonction new() de la classe parente
 
         /**
          *  If a repository with the same name already exists, then delete it before adding the new one
