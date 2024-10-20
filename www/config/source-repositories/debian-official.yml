@@ -13,7 +13,7 @@
       gpgkeys:
         - fingerprint: xxx
           description: ''
-        - link: http://toto
+        - link: http://link
           description: ''
     - name: bullseye
       description: Debian 11
@@ -41,7 +41,7 @@
 
 - name: debian-test-2
   type: deb
-  url: https://deb.debian.org/debian-toto
+  url: https://deb.debian.org/debian-test-2
   distributions:
     - name: buster
       description: Debian 10
