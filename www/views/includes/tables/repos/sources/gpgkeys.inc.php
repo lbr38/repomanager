@@ -1,7 +1,8 @@
 <div class="reloadable-table" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
     <?php
     if (!empty($reloadableTableContent)) : ?>
-        <p>Imported GPG keys</p>
+        <h6>CURRENT GPG KEYS</h6>
+        <p class="note">Keys imported in Repomanager keyring.</p>
         <br>
 
         <?php

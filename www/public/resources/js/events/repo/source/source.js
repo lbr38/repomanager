@@ -184,7 +184,7 @@ $(document).on('click','.gpgKeyDeleteBtn',function () {
             // Controller:
             'repo/source/source',
             // Action:
-            'deleteGpgKey',
+            'delete-gpgkey',
             // Data:
             {
                 gpgKeyId: gpgKeyId
@@ -215,7 +215,7 @@ $(document).on('submit','#source-repo-add-key-form',function () {
         // Controller:
         'repo/source/source',
         // Action:
-        'importGpgKey',
+        'import-gpgkey',
         // Data:
         {
             gpgkey: gpgkey

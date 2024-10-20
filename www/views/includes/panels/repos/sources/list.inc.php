@@ -11,9 +11,10 @@
 
             <h6>CURRENT SOURCE REPOSITORIES</h6>
 
+            <br>
             <div class="flex column-gap-10">
-                <button type="button" class="btn-small-green get-panel-btn" panel="repos/sources/new">Manually add</button>
-                <button type="button" class="btn-small-green get-panel-btn" panel="repos/sources/import">Import</button>
+                <button type="button" class="btn-medium-tr get-panel-btn" panel="repos/sources/new">Manually add</button>
+                <button type="button" class="btn-medium-tr get-panel-btn" panel="repos/sources/import">Import</button>
             </div>
             <br><br>
 
@@ -23,11 +24,10 @@
              */
             \Controllers\Layout\Table\Render::render('repos/sources/list'); ?>
 
-            <h5>GPG SIGNING KEYS</h5>
+            <h6>GPG SIGNING KEYS</h6>
 
-            <p>Import a GPG key</p>
-
-            <br>
+            <h6>IMPORT A KEY</h6>
+            <p class="note">Plain text format.</p>
 
             <form id="source-repo-add-key-form" autocomplete="off">
                 <div class="flex align-content-center">
@@ -35,8 +35,6 @@
                     <button class="btn-xxsmall-green" title="Import">+</button>
                 </div>
             </form>
-
-            <br>
 
             <?php
             /**

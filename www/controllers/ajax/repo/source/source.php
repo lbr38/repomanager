@@ -62,11 +62,11 @@ if ($_POST['action'] == 'import-source-repos' and !empty($_POST['list'])) {
 /**
  *  Delete a GPG key
  */
-if ($_POST['action'] == 'deleteGpgKey' and !empty($_POST['gpgKeyId'])) {
-    $mysource = new \Controllers\Repo\Source\Source();
+if ($_POST['action'] == 'delete-gpgkey' and !empty($_POST['gpgKeyId'])) {
+    $myGpg = new \Controllers\Gpg();
 
     try {
-        $mysource->deleteGpgKey($_POST['gpgKeyId']);
+        $myGpg->delete($_POST['gpgKeyId']);
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
@@ -77,11 +77,11 @@ if ($_POST['action'] == 'deleteGpgKey' and !empty($_POST['gpgKeyId'])) {
 /**
  *  Import a new GPG key
  */
-if ($_POST['action'] == 'importGpgKey' and !empty($_POST['gpgkey'])) {
-    $mysource = new \Controllers\Repo\Source\Source();
+if ($_POST['action'] == 'import-gpgkey' and !empty($_POST['gpgkey'])) {
+    $myGpg = new \Controllers\Gpg();
 
     try {
-        $mysource->importGpgKey($_POST['gpgkey']);
+        $myGpg->import($_POST['gpgkey']);
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
