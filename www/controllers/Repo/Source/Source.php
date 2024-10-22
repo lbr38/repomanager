@@ -14,12 +14,12 @@ class Source
     }
 
     /**
-     *  Return all source informations
+     *  Get source repository definition
      */
-    // public function getAll(string $sourceType, string $sourceName)
-    // {
-    //     return $this->model->getAll($sourceType, $sourceName);
-    // }
+    public function get(string $sourceType, string $sourceName)
+    {
+        return $this->model->get($sourceType, $sourceName);
+    }
 
     /**
      *  Get source repo Id from its type and name
@@ -257,8 +257,8 @@ class Source
         /**
          *  Modify current params with new ones
          */
-        $currentParams['type'] = $type;
         $currentParams['name'] = $params['name'];
+        $currentParams['type'] = $type;
         $currentParams['url'] = $url;
         $currentParams['ssl-authentication']['certificate-path'] = $params['ssl-certificate-path'];
         $currentParams['ssl-authentication']['private-key-path'] = $params['ssl-private-key-path'];
@@ -369,7 +369,7 @@ class Source
     /**
      *  Return the params template for the specified type
      */
-    private function template(string $type)
+    public function template(string $type)
     {
         if ($type == 'deb') {
             $template = [

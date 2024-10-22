@@ -15,27 +15,29 @@ class Source extends \Models\Model
     }
 
     /**
-     *  Return all source informations
+     *  Get source repository definition
      */
-    // public function getAll(string $sourceType, string $sourceName)
-    // {
-    //     $data = array();
+    public function get(string $sourceType, string $sourceName)
+    {
+        $data = array();
 
-    //     try {
-    //         $stmt = $this->db->prepare("SELECT * FROM sources WHERE Type = :type AND Name = :name");
-    //         $stmt->bindValue(':type', $sourceType);
-    //         $stmt->bindValue(':name', $sourceName);
-    //         $result = $stmt->execute();
-    //     } catch (\Exception $e) {
-    //         $this->db->logError($e);
-    //     }
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM sources
+            WHERE json_extract(COALESCE(Definition, '{}'), '$.type') = :type
+            AND json_extract(COALESCE(Definition, '{}'), '$.name') = :name");
+            $stmt->bindValue(':type', $sourceType);
+            $stmt->bindValue(':name', $sourceName);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            $this->db->logError($e);
+        }
 
-    //     while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-    //         $data = $row;
-    //     }
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data = $row;
+        }
 
-    //     return $data;
-    // }
+        return $data;
+    }
 
     /**
      *  Get source repo Id from its type and name

@@ -16,6 +16,6 @@ repositories:
     keyserver:
       - xxx
     ssl-authentication:
-      ssl-certificate: ''
-      ssl-private-key: ''
-      ssl-ca-certificate: ''
+      certificate-path: ''
+      private-key-path: ''
+      ca-certificate-path: ''

@@ -148,26 +148,37 @@ trait Sync
         try {
             $mysource = new \Controllers\Repo\Source\Source();
 
+            /**
+             *  Get source repo informations
+             */
+            $sourceDefinition = $mysource->get($this->repo->getPackageType(), $this->repo->getSource());
+
+            /**
+             *  Check that source repo informations have been retrieved
+             */
+            if (empty($sourceDefinition)) {
+                throw new Exception('Could not retrieve source repo informations. Does the source repo still exists?');
+            }
+
+            /**
+             *  Extract source repo JSON definiton
+             */
+            try {
+                $sourceDefinition = json_decode($sourceDefinition, true);
+                $sourceUrl = $sourceDefinition['url'];
+            } catch (ValueError $e) {
+                throw new Exception('Could not extract source repository definition: ' . $e->getMessage());
+            }
+
+            if (empty($sourceUrl)) {
+                throw new Exception('Could not retrieve source repo URL. Check source repo configuration.');
+            }
+
+            unset($mysource);
+
             if ($this->repo->getPackageType() == 'rpm') {
-                /**
-                 *  Get source repo informations
-                 */
-                $sourceDetails = $mysource->getAll('rpm', $this->repo->getSource());
-
-                /**
-                 *  Check source repo informations
-                 */
-                if (empty($sourceDetails)) {
-                    throw new Exception('Could not retrieve source repo informations. Does the source repo still exists?');
-                }
-                if (empty($sourceDetails['Url'])) {
-                    throw new Exception('Could not retrieve source repo URL. Check source repo configuration.');
-                }
-
-                unset($mysource);
-
                 $mymirror = new \Controllers\Repo\Mirror\Rpm();
-                $mymirror->setUrl($sourceDetails['Url']);
+                $mymirror->setUrl($sourceUrl);
                 $mymirror->setWorkingDir($workingDir);
                 $mymirror->setReleasever($this->repo->getReleasever());
                 $mymirror->setArch($this->repo->getArch());
@@ -186,22 +197,23 @@ trait Sync
 
                 /**
                  *  If the source repo has a http:// GPG signing key, then it will be used to check for package signature
+                 *  TODO : à retirer, l'import des clés gpg doit se faire depuis manage sources
                  */
-                if (!empty($sourceDetails['Gpgkey'])) {
-                    $mymirror->setGpgKeyUrl($sourceDetails['Gpgkey']);
-                }
+                // if (!empty($sourceDefinition['Gpgkey'])) {
+                //     $mymirror->setGpgKeyUrl($sourceDefinition['Gpgkey']);
+                // }
 
                 /**
                  *  If the source repo requires a SSL certificate, private key or CA certificate, then they will be used
                  */
-                if (!empty($sourceDetails['Ssl_certificate_path'])) {
-                    $mymirror->setSslCustomCertificate($sourceDetails['Ssl_certificate_path']);
+                if (!empty($sourceDefinition['ssl-authentication']['certificate-path'])) {
+                    $mymirror->setSslCustomCertificate($sourceDefinition['ssl-authentication']['certificate-path']);
                 }
-                if (!empty($sourceDetails['Ssl_private_key_path'])) {
-                    $mymirror->setSslCustomPrivateKey($sourceDetails['Ssl_private_key_path']);
+                if (!empty($sourceDefinition['ssl-authentication']['private-key-path'])) {
+                    $mymirror->setSslCustomPrivateKey($sourceDefinition['ssl-authentication']['private-key-path']);
                 }
-                if (!empty($sourceDetails['Ssl_ca_certificate_path'])) {
-                    $mymirror->setSslCustomCaCertificate($sourceDetails['Ssl_ca_certificate_path']);
+                if (!empty($sourceDefinition['ssl-authentication']['ca-certificate-path'])) {
+                    $mymirror->setSslCustomCaCertificate($sourceDefinition['ssl-authentication']['ca-certificate-path']);
                 }
 
                 /**
@@ -221,25 +233,8 @@ trait Sync
             }
 
             if ($this->repo->getPackageType() == 'deb') {
-                /**
-                 *  Get source repo informations
-                 */
-                $sourceDetails = $mysource->getAll('deb', $this->repo->getSource());
-
-                /**
-                 *  Check source repo informations
-                 */
-                if (empty($sourceDetails)) {
-                    throw new Exception('Could not retrieve source repo informations. Does the source repo still exists?');
-                }
-                if (empty($sourceDetails['Url'])) {
-                    throw new Exception('Could not retrieve source repo URL. Check source repo configuration.');
-                }
-
-                unset($mysource);
-
                 $mymirror = new \Controllers\Repo\Mirror\Deb();
-                $mymirror->setUrl($sourceDetails['Url']);
+                $mymirror->setUrl($sourceUrl);
                 $mymirror->setWorkingDir($workingDir);
                 $mymirror->setDist($this->repo->getDist());
                 $mymirror->setSection($this->repo->getSection());
@@ -260,11 +255,14 @@ trait Sync
                 /**
                  *  If the source repo requires a SSL certificate, private key or CA certificate, then they will be used
                  */
-                if (!empty($sourceDetails['Ssl_certificate_path'])) {
-                    $mymirror->setSslCustomCertificate($sourceDetails['Ssl_certificate_path']);
+                if (!empty($sourceDefinition['ssl-authentication']['certificate-path'])) {
+                    $mymirror->setSslCustomCertificate($sourceDefinition['ssl-authentication']['certificate-path']);
                 }
-                if (!empty($sourceDetails['Ssl_private_key_path'])) {
-                    $mymirror->setSslCustomPrivateKey($sourceDetails['Ssl_private_key_path']);
+                if (!empty($sourceDefinition['ssl-authentication']['private-key-path'])) {
+                    $mymirror->setSslCustomPrivateKey($sourceDefinition['ssl-authentication']['private-key-path']);
+                }
+                if (!empty($sourceDefinition['ssl-authentication']['ca-certificate-path'])) {
+                    $mymirror->setSslCustomCaCertificate($sourceDefinition['ssl-authentication']['ca-certificate-path']);
                 }
 
                 /**

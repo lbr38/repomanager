@@ -42,11 +42,13 @@
             <?php
             if (RPM_REPO == 'true') : ?>
                 <select class="task-param" param-name="source" field-type="mirror rpm" package-type="rpm">
-                    <option value="">Select a source repo...</option>
+                    <option value="">Select a source repository</option>
                     <?php
                     if (!empty($newRepoRpmSourcesList)) {
                         foreach ($newRepoRpmSourcesList as $source) {
-                            echo '<option value="' . $source['Name'] . '">' . $source['Name'] . '</option>';
+                            $definition = json_decode($source['Definition'], true);
+                            $name = $definition['name'];
+                            echo '<option value="' . $name . '">' . $name . '</option>';
                         }
                     } ?>
                 </select>
@@ -55,11 +57,13 @@
 
             if (DEB_REPO == 'true') : ?>
                 <select class="task-param" param-name="source" field-type="mirror deb" package-type="deb">
-                    <option value="">Select a source repo...</option>
+                    <option value="">Select a source repository</option>
                     <?php
                     if (!empty($newRepoDebSourcesList)) {
                         foreach ($newRepoDebSourcesList as $source) {
-                            echo '<option value="' . $source['Name'] . '">' . $source['Name'] . '</option>';
+                            $definition = json_decode($source['Definition'], true);
+                            $name = $definition['name'];
+                            echo '<option value="' . $name . '">' . $name . '</option>';
                         }
                     } ?>
                 </select>
@@ -67,9 +71,15 @@
             endif ?>
         </div>
 
-        <div field-type="mirror rpm deb">
-            <h6>REPOSITORY NAME</h6>
-            <p class="note">Optional. Default will be the source repository name.</p>
+        <div>
+            <div field-type="mirror rpm deb">
+                <h6>REPOSITORY NAME</h6>
+                <p class="note">Optional. Default will be the source repository name.</p>
+            </div>
+
+            <div field-type="local rpm deb">
+                <h6 class="required">REPOSITORY NAME</h6>
+            </div>
             <input type="text" class="task-param" param-name="alias" package-type="all" />
         </div>
 
@@ -132,7 +142,7 @@
         if (!empty($newRepoFormGroupList)) : ?>
             <h6>ADD TO GROUP</h6>
             <select class="task-param" param-name="group" package-type="all" >
-                <option value="">Select group...</option>
+                <option value="">Select a group</option>
                 <?php
                 foreach ($newRepoFormGroupList as $group) {
                     echo '<option value="' . $group['Name'] . '">' . $group['Name'] . '</option>';
@@ -235,9 +245,9 @@ $(document).ready(function(){
     selectToSelect2('.task-param[param-name="arch"]', 'Select architecture', true);
     selectToSelect2('.task-param[param-name="package-include"]', 'Specify package(s)', true);
     selectToSelect2('.task-param[param-name="package-exclude"]', 'Specify package(s)', true);
-    selectToSelect2('select.task-param[param-name="schedule-day"]', 'Select day(s)...', true);
-    selectToSelect2('select.task-param[param-name="schedule-reminder"]', 'Select reminder...', true);
-    selectToSelect2('select.task-param[param-name="schedule-recipient"]', 'Select or add recipients...', true);
+    selectToSelect2('select.task-param[param-name="schedule-day"]', 'Select day(s)', true);
+    selectToSelect2('select.task-param[param-name="schedule-reminder"]', 'Select reminder(s)', true);
+    selectToSelect2('select.task-param[param-name="schedule-recipient"]', 'Select or add recipient(s)', true);
 
     /**
      *  Show / hide the necessary fields

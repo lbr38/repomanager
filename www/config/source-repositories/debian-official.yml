@@ -2,7 +2,7 @@
 description: Debian official repositories
 type: deb
 repositories:
-  - name: debian-test
+  - name: debian
     type: deb
     url: https://deb.debian.org/debian
     distributions:
@@ -10,7 +10,6 @@ repositories:
         description: Debian 10
         components:
           - name: main
-            # arch: []
           - name: contrib
           - name: non-free
         gpgkeys:
@@ -18,6 +17,7 @@ repositories:
             description: ''
           - link: http://link
             description: ''
+
       - name: bullseye
         description: Debian 11
         components:
@@ -26,6 +26,7 @@ repositories:
           - name: non-free
         gpgkeys:
           - fingerprint: xxx
+
       - name: bookworm
         description: Debian 12
         components:
@@ -34,47 +35,29 @@ repositories:
           - name: non-free
         gpgkeys:
           - fingerprint: xxx
-    architectures: [amd64, arm64, armhf, i386, mips, mips64el, mipsel, ppc64el, s390x]
     keyserver:
       - keyring.debian.org
     ssl-authentication:
-      ssl-certificate: ''
-      ssl-private-key: ''
-      ssl-ca-certificate: ''
+      certificate-path: ''
+      private-key-path: ''
+      ca-certificate-path: ''
 
-  - name: debian-test-2
+  - name: debian-archive
     type: deb
-    url: https://deb.debian.org/debian-test-2
+    url: https://archive.debian.org/debian
     distributions:
       - name: buster
         description: Debian 10
         components:
           - name: main
-            # arch: []
           - name: contrib
           - name: non-free
         gpgkeys:
           - fingerprint: xxx
-      - name: bullseye
-        description: Debian 11
-        components:
-          - name: main
-          - name: contrib
-          - name: non-free
-        gpgkeys:
-          - fingerprint: xxx
-      - name: bookworm
-        description: Debian 12
-        components:
-          - name: main
-          - name: contrib
-          - name: non-free
-        gpgkeys:
-          - fingerprint: xxx
-    architectures: [amd64, arm64, armhf, i386, mips, mips64el, mipsel, ppc64el, s390x]
+
     keyserver:
       - keyring.debian.org
     ssl-authentication:
-      ssl-certificate: ''
-      ssl-private-key: ''
-      ssl-ca-certificate: ''
+      certificate-path: ''
+      private-key-path: ''
+      ca-certificate-path: ''
