@@ -19,80 +19,87 @@
         endif ?>
     </div>
 
-    <div class="grid grid-2 justify-space-between align-item-center div-generic-blue">
-        <div class="grid grid-fr-1-2 align-item-center row-gap-20 margin-top-15 margin-bottom-15 margin-left-15">
-            <span>IP</span>
-            <span class="copy"><?= $ip ?></span>
-
-            <span>OS</span>
+    <div class="grid grid-2 justify-space-between align-item-center div-generic-blue padding-left-30 padding-right-30">
+        <div class="grid grid-3 column-gap-30">
             <div>
-                <span class="copy">
-                    <?php
-                    if (!empty($os) and !empty($osVersion)) {
-                        echo '<span>' . $os . ' ' . $osVersion . '</span>';
-                    } else {
-                        echo '<span>Unknow</span>';
-                    } ?>
-                </span>
-                <span>
+                <h6 class="margin-top-0">IP</h6>
+                <p class="copy"><?= $ip ?></p>
+
+                <h6>OS</h6>
+                <p class="flex align-item-center column-gap-5">
                     <?php
                     if (!empty($os)) {
                         echo \Controllers\Common::printOsIcon($os);
+                        echo $os;
+                    } else {
+                        echo 'Unknown';
                     } ?>
-                </span>
+                </p>
+
+                <h6>OS VERSION</h6>
+                <p class="copy">
+                    <?php
+                    if (!empty($osVersion)) {
+                        echo $osVersion;
+                    } else {
+                        echo 'Unknown';
+                    } ?>
+                </p>
             </div>
 
-            <span>PROFILE</span>
-            <span class="copy">
-                <?php
-                if (!empty($profile)) {
-                    echo '<span class="label-white">' . $profile . '</span>';
-                } else {
-                    echo 'Unknown';
-                } ?>
-            </span>
+            <div>
+                <h6 class="margin-top-0">PROFILE</h6>
+                <p class="copy">
+                    <?php
+                    if (!empty($profile)) {
+                        echo $profile;
+                    } else {
+                        echo 'Unknown';
+                    } ?>
+                </p>
 
-            <span>ENVIRONMENT</span>
-            <span class="copy">
-                <?php
-                if (!empty($env)) {
-                    echo Controllers\Common::envtag($env);
-                } else {
-                    echo 'Unknown';
-                } ?>
-            </span>
+                <h6>ENVIRONMENT</h6>
+                <p class="copy">
+                    <?php
+                    if (!empty($env)) {
+                        echo Controllers\Common::envtag($env);
+                    } else {
+                        echo 'Unknown';
+                    } ?>
+                </p>
+            </div>
 
-            <span>AGENT STATUS</span>
-            <span>
-                <?php
-                if ($agentStatus == 'running') {
-                    echo '<img src="/assets/icons/greencircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Running';
-                }
-                if ($agentStatus == "disabled") {
-                    echo '<img src="/assets/icons/yellowcircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Disabled';
-                }
-                if ($agentStatus == "stopped") {
-                    echo '<img src="/assets/icons/redcircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Stopped';
-                }
-                if ($agentStatus == "seems-stopped") {
-                    echo '<img src="/assets/icons/redcircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Seems stopped';
-                }
-                if ($agentStatus == "unknow") {
-                    echo '<img src="/assets/icons/graycircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . '." /> Unknown';
-                } ?>
-            </span>
+            <div>
+                <h6 class="margin-top-0">AGENT STATUS</h6>
+                <p class="flex align-item-center column-gap-5">
+                    <?php
+                    if ($agentStatus == 'running') {
+                        echo '<img src="/assets/icons/check.svg" class="icon" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Running';
+                    }
+                    if ($agentStatus == "disabled") {
+                        echo '<img src="/assets/icons/warning.svg" class="icon" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Disabled';
+                    }
+                    if ($agentStatus == "stopped") {
+                        echo '<img src="/assets/icons/warning-red.svg" class="icon" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Stopped';
+                    }
+                    if ($agentStatus == "seems-stopped") {
+                        echo '<img src="/assets/icons/warning-red.svg" class="icon" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Seems stopped';
+                    }
+                    if ($agentStatus == "unknow") {
+                        echo '<img src="/assets/icons/graycircle.png" class="icon" title="Linupdate agent state on this host: ' . $agentStatus . '." /> Unknown';
+                    } ?>
+                </p>
 
-            <span>AGENT VERSION</span>
-            <span class="copy">
-                <span class="label-black">
+                <h6>AGENT VERSION</h6>
+                <p class="copy">
                     <?php
                     if (!empty($agentVersion)) {
                         echo $agentVersion;
                     } else {
                         echo 'Unknown';
                     } ?>
-                </span>
-            </span>
+                </p>
+            </div>
         </div>
 
         <div>
@@ -125,7 +132,7 @@
                     {
                         label: 'Uninstalled',
                         data: [<?=$lineChartRemovedPackagesCount?>],
-                        borderColor: '#ff0044',
+                        borderColor: '#F32F63',
                         fill: false
                     }
                 ],

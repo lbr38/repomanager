@@ -24,7 +24,6 @@ class Mirror
     protected $rpmPackagesLocation = array();
     protected $packagesToSign = array();
     protected $workingDir;
-    protected $outputToFile = false;
     protected $outputFile;
     protected $sslCustomCertificate;
     protected $sslCustomPrivateKey;
@@ -240,26 +239,16 @@ class Mirror
     }
 
     /**
-     *  Enable output to log file
-     */
-    public function outputToFile(bool $enable = false)
-    {
-        if ($enable == true) {
-            $this->outputToFile = true;
-        }
-    }
-
-    /**
      *  Write specified message to log file
      */
     public function logOutput(string $message)
     {
-        /**
-         *  Only write if logging is enabled
-         */
-        if ($this->outputToFile === true and !empty($this->outputFile)) {
-            file_put_contents($this->outputFile, $message, FILE_APPEND);
-        }
+        file_put_contents($this->outputFile, '<span>' . $message . '</span>', FILE_APPEND);
+    }
+
+    public function logTitle(string $message, string $endMessage = null)
+    {
+        $this->logOutput('<div class="flex justify-space-between log-title"><p>' . $message . '</p><p title="Running time">' . date('H:i:s') . '</p></div>');
     }
 
     /**
@@ -268,9 +257,9 @@ class Mirror
     public function logOK(string $message = null)
     {
         if (!empty($message)) {
-            $this->logOutput('<div class="inline-block"><div class="flex align-item-center column-gap-5"><span class="label-ok">OK</span><span class="opacity-80-cst">' . $message . '</span></div></div>' . PHP_EOL);
+            $this->logOutput('<img src="/assets/icons/check.svg" class="icon margin-left-5 margin-right-5 vertical-align-text-top" />' . $message . '<br>');
         } else {
-            $this->logOutput('<div class="inline-block"><span class="label-ok">OK</span></div>' . PHP_EOL);
+            $this->logOutput('<img src="/assets/icons/check.svg" class="icon margin-left-5 vertical-align-text-top" /><br>');
         }
     }
 
@@ -286,7 +275,7 @@ class Mirror
             $exceptionMessage = $errorMessage;
         }
 
-        $this->logOutput('<div class="inline-block"><div class="flex align-item-center column-gap-5"><span class="label-ko">KO</span><span class="redtext">' . $errorMessage . '</span></div></div>' . PHP_EOL);
+        $this->logOutput('<img src="/assets/icons/error.svg" class="icon margin-left-5 margin-right-5 vertical-align-text-top" /><span class="redtext">' . $errorMessage . '</span><br>');
 
         throw new Exception($exceptionMessage);
     }
@@ -296,7 +285,7 @@ class Mirror
      */
     public function logWarning(string $message)
     {
-        $this->logOutput('<span class="yellowtext"><img src="/assets/icons/warning.png" class="icon" />' . $message . '</span>' . PHP_EOL);
+        $this->logOutput('<img src="/assets/icons/warning.svg" class="icon margin-left-5 margin-right-5 vertical-align-text-top" /><span class="yellowtext">' . $message . '</span><br>');
     }
 
     /**

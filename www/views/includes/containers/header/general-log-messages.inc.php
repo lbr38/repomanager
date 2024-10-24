@@ -14,10 +14,10 @@
                             <div class="flex align-item-center column-gap-10">
                                 <?php
                                 if ($log['Type'] == 'error') {
-                                    echo '<img src="/assets/icons/redcircle.png" class="icon-small">';
+                                    echo '<img src="/assets/icons/error.svg" class="icon">';
                                 }
                                 if ($log['Type'] == 'info') {
-                                    echo '<img src="/assets/icons/greencircle.png" class="icon-small">';
+                                    echo '<img src="/assets/icons/check.svg" class="icon">';
                                 } ?>
 
                                 <p><?= $log['Date'] . ' ' . $log['Time'] ?> - <code><?= $log['Component'] ?></code> - <?= $log['Message'] ?></p>

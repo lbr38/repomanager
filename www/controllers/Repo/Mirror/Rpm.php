@@ -14,7 +14,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
      */
     private function downloadRepomd(string $url)
     {
-        $this->logOutput(PHP_EOL . 'Getting <code>repomd.xml</code> from <span class="copy">' . $url . '/repodata/repomd.xml</span> ... ');
+        $this->logTitle('GETTING REPOMD.XML');
+        $this->logOutput('From <span class="copy">' . $url . '/repodata/repomd.xml</span>');
 
         if (!$this->download($url . '/repodata/repomd.xml', $this->workingDir . '/repomd.xml')) {
             $this->logError('error', 'Could not download <code>repomd.xml</code>');
@@ -28,7 +29,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
      */
     private function downloadPrimary(string $url)
     {
-        $this->logOutput(PHP_EOL . 'Getting <code>primary.xml.gz</code> from <span class="copy">' . $url . '/' . $this->primaryLocation . '</span> ... ');
+        $this->logTitle('GETTING PRIMARY.XML.GZ');
+        $this->logOutput('From <span class="copy">' . $url . '/' . $this->primaryLocation . '</span>');
 
         if (!$this->download($url . '/' . $this->primaryLocation, $this->workingDir . '/primary.xml.gz')) {
             throw new Exception('Could not download <code>primary.xml.gz</code>');
@@ -61,7 +63,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             return;
         }
 
-        $this->logOutput(PHP_EOL . 'Getting <code>comps.xml</code> from <span class="copy">' . $url . '/' . $this->compsLocation . '</span> ... ');
+        $this->logTitle('GETTING COMPS.XML');
+        $this->logOutput('From <span class="copy">' . $url . '/' . $this->compsLocation . '</span>');
 
         if (!$this->download($url . '/' . $this->compsLocation, $this->workingDir . '/comps.xml')) {
             throw new Exception('Could not download <code>comps.xml</code>');
@@ -94,7 +97,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             return;
         }
 
-        $this->logOutput(PHP_EOL . 'Getting <code>modules</code> file from <span class="copy">' . $url . '/' . $this->modulesLocation . '</span> ... ');
+        $this->logTitle('GETTING MODULES');
+        $this->logOutput('From <span class="copy">' . $url . '/' . $this->modulesLocation . '</span>');
 
         /**
          *  Get modules file extension
@@ -199,7 +203,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             return;
         }
 
-        $this->logOutput(PHP_EOL . 'Getting <code>updateinfo.xml.gz</code> from <span class="copy">' . $url . '/' . $this->updateInfoLocation . '</span> ... ');
+        $this->logTitle('GETTING UPDATEINFO.XML.GZ');
+        $this->logOutput('From <span class="copy">' . $url . '/' . $this->updateInfoLocation . '</span>');
 
         if (pathinfo($this->updateInfoLocation, PATHINFO_EXTENSION) == 'gz') {
             $updateInfoFileExtension = 'gz';
@@ -301,7 +306,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             $jsonArray = json_decode(json_encode($xml), true);
             unset($xml);
         } catch (Exception $e) {
-            $this->logError('Could not parse ' . $this->workingDir . '/repomd.xml: ' . $e->getMessage() . PHP_EOL . $error, 'Could not retrieve package list');
+            $this->logError('Could not parse ' . $this->workingDir . '/repomd.xml: ' . $e->getMessage(), 'Could not retrieve package list');
         }
 
         gc_collect_cycles();
@@ -439,7 +444,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         $error = 0;
         $this->rpmPackagesLocation = array();
 
-        $this->logOutput(PHP_EOL . 'Retrieving packages list from <span class="copy">' . $primaryFile . '</span> ... ');
+        $this->logTitle('PARSING PACKAGES LIST');
+        $this->logOutput('From <span class="copy">' . $primaryFile . '</span>');
 
         /**
          *  Get primary.xml.gz mime type
@@ -471,7 +477,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              *  Case it's another mime type, throw an error
              */
             } else {
-                throw new Exception('MIME type not supported: ' . $mime . PHP_EOL . 'Please contact the developer to add support for this MIME type');
+                throw new Exception('MIME type not supported: ' . $mime . '. Please contact the developer to add support for this MIME type.');
             }
         } catch (Exception $e) {
             $this->logError($e, 'Error while uncompressing <code>'. end(explode('/', $primaryFile)) . '</code>');
@@ -497,7 +503,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             $jsonArray = json_decode(json_encode($xml), true);
             unset($xml);
         } catch (Exception $e) {
-            $this->logError('Could not parse ' . $primaryFile . ': ' . $e->getMessage() . PHP_EOL . $error, 'Could not retrieve package list');
+            $this->logError('Could not parse ' . $primaryFile . ': ' . $e->getMessage(), 'Could not retrieve package list');
         }
 
         gc_collect_cycles();
@@ -515,7 +521,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              *  If package arch is not part of the archs selected by the user then skip it
              */
             if (!in_array($jsonArray['package']['arch'], $this->arch)) {
-                $this->logOutput(PHP_EOL . ' <span class="yellowtext"> Package architecture ' . $jsonArray['package']['arch'] . ' is not matching any of the desired architecture (ignored)</span>' . PHP_EOL);
+                $this->logWarning('Package architecture ' . $jsonArray['package']['arch'] . ' is not matching any of the desired architecture (ignored)');
                 $error++;
             }
 
@@ -529,7 +535,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                  *  If package checksum is not found then it can not be retrieved
                  */
                 if (empty($jsonArray['package']['checksum'])) {
-                    $this->logOutput(PHP_EOL . ' <span class="yellowtext"> Could not find checksum value for package ' . $packageLocation . '</span>' . PHP_EOL);
+                    $this->logWarning('Could not find checksum value for package ' . $packageLocation);
                     $error++;
                 } else {
                     $packageChecksum = $jsonArray['package']['checksum'];
@@ -615,35 +621,6 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             $mygpg = new \Controllers\GPG();
 
             /**
-             *  If the source repo has a distant http:// gpg signing key, then download it
-             */
-            if (!empty($this->gpgKeyUrl)) {
-                if (!$this->download($this->gpgKeyUrl, TEMP_DIR . '/gpgkey-to-import.gpg')) {
-                    $this->logError('Could not retrieve distant GPG signing key: ' . $this->gpgKeyUrl, 'Could not retrieve distant GPG signing key');
-                }
-
-                /**
-                 *  Import key inside trusted keyring
-                 */
-                $myprocess = new \Controllers\Process('/usr/bin/gpg --no-default-keyring --keyring ' . GPGHOME . '/trustedkeys.gpg --import ' . TEMP_DIR . '/gpgkey-to-import.gpg');
-                $myprocess->execute();
-
-                /**
-                 *  Delete temporary GPG key file
-                 */
-                unlink(TEMP_DIR . '/gpgkey-to-import.gpg');
-
-                /**
-                 *  Quits if import has failed
-                 */
-                if ($myprocess->getExitCode() != 0) {
-                    $this->logError('Error while importing distant GPG signing key', 'Could not import distant GPG signing key');
-                }
-
-                $myprocess->close();
-            }
-
-            /**
              *  Get all known editors GPG public keys imported into repomanager keyring
              */
             $knownPublicKeys = $mygpg->getTrustedKeys();
@@ -659,7 +636,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         /**
          *  Print URL from which packages are downloaded
          */
-        $this->logOutput(PHP_EOL . 'Downloading packages from <span class="copy">' . $url . '</span>:' . PHP_EOL);
+        $this->logTitle('DOWNLOADING PACKAGES');
+        $this->logOutput('From <span class="copy">' . $url . '</span>');
 
         /**
          *  Count total packages to print progression during syncing
@@ -671,13 +649,6 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          *  Download each package and check its md5
          */
         foreach ($this->rpmPackagesLocation as $rpmPackage) {
-            /**
-             *  Before downloading each package, check if there is enough disk space left (2GB minimum)
-             */
-            if (disk_free_space(REPOS_DIR) < 2000000000) {
-                $this->logError('Repo storage has reached 2GB (minimum) of free space left. Task automatically stopped.', 'Low disk space');
-            }
-
             /**
              *  Retrieve package informations from $rpmPackagesLocation array (what has been parsed from primary.xml file)
              */
@@ -691,7 +662,15 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             /**
              *  Output package to download to log file
              */
-            $this->logOutput('<span class="opacity-80-cst">(' . $packageCounter . '/' . $totalPackages . ')  ➙ ' . $rpmPackageLocation . ' ... </span>');
+            $this->logTitle('DOWNLOADING PACKAGE (' . $packageCounter . '/' . $totalPackages . ')');
+            $this->logOutput($rpmPackageLocation);
+
+            /**
+             *  Before downloading package, check if there is enough disk space left (2GB minimum)
+             */
+            if (disk_free_space(REPOS_DIR) < 2000000000) {
+                $this->logError('Repo storage has reached 2GB (minimum) of free space left. Task automatically stopped.', 'Low disk space');
+            }
 
             /**
              *  If a list of package(s) to include has been provided, check if the package is in the list
@@ -710,7 +689,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                  *  If package is not in the list of packages to include, skip it
                  */
                 if (!$isIn) {
-                    $this->logOutput('<span class="opacity-80-cst">not in the list of packages to include (ignoring)</span>' . PHP_EOL);
+                    $this->logOutput(' not in the list of packages to include (ignoring)');
                     continue;
                 }
             }
@@ -732,7 +711,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                  *  If package is in the list of packages to exclude, skip it
                  */
                 if ($isIn) {
-                    $this->logOutput('<span class="opacity-80-cst">in the list of packages to exclude (ignoring)</span>' . PHP_EOL);
+                    $this->logOutput(' in the list of packages to exclude (ignoring)');
                     continue;
                 }
             }
@@ -782,7 +761,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              *  Check if file does not already exists before downloading it (e.g. copied from a previously snapshot)
              */
             if (file_exists($absoluteDir . '/' . $rpmPackageName)) {
-                $this->logOutput('already exists (ignoring)' . PHP_EOL);
+                $this->logOutput(' already exists (ignoring)');
                 continue;
             }
 
@@ -1049,7 +1028,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          *  )
          */
         foreach ($this->archUrls as $url) {
-            $urlReachable = \Controllers\Common::urlReachable($url . '/repodata/repomd.xml', $this->sslCustomCertificate, $this->sslCustomPrivateKey, $this->sslCustomCaCertificate);
+            $urlReachable = \Controllers\Common::urlReachable($url . '/repodata/repomd.xml', 30, $this->sslCustomCertificate, $this->sslCustomPrivateKey, $this->sslCustomCaCertificate);
 
             /**
              *  If url is not reachable
@@ -1089,16 +1068,16 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                 }
             }
 
-            $this->logError('No reachable URL found. The source repository URL might be incorrect or unreachable. Tested URLs:' . PHP_EOL . $errorUrlsString, 'No reachable URL found');
+            $this->logError('No reachable URL found. The source repository URL might be incorrect or unreachable. Tested URLs:<br>' . $errorUrlsString, 'No reachable URL found');
         }
 
         /**
          *  If there was no error, print the URLs that will be used to retrieve packages
          */
-        $this->logOutput(PHP_EOL . 'Packages will be retrieved from following URLs:' . PHP_EOL);
+        $this->logTitle('RETRIEVING METADATA AND PACKAGES FROM URL(s)');
 
         foreach ($this->archUrls as $url) {
-            $this->logOutput(' • <span class="copy">' . $url . '</span>' . PHP_EOL);
+            $this->logOutput('  • <span class="copy">' . $url . '</span><br>');
         }
 
         /**

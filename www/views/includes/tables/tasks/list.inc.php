@@ -159,7 +159,7 @@
                     } ?>
                 </div>
 
-                <div class="flex align-item-center justify-end">
+                <div class="flex align-item-center justify-end column-gap-15">
                     <?php
                     /**
                      *  If task is a scheduled task
@@ -196,11 +196,11 @@
                          *  Task status icon
                          */
                         if ($item['Status'] == 'scheduled') {
-                            echo '<img class="icon-small" src="/assets/icons/yellowcircle.png" title="Task is scheduled" />';
+                            echo '<img class="icon" src="/assets/icons/pending.svg" title="Task is scheduled" />';
                         }
 
                         if ($item['Status'] == 'disabled') {
-                            echo '<img class="icon-small" src="/assets/icons/graycircle.png" title="Task execution is disabled" />';
+                            echo '<img class="icon" src="/assets/icons/graycircle.png" title="Task execution is disabled" />';
                         }
                     }
 
@@ -225,7 +225,7 @@
                     }
 
                     if ($item['Status'] == 'stopped') {
-                        echo '<img class="icon" src="/assets/icons/error.svg" title="Task stopped by the user" />';
+                        echo '<img class="icon" src="/assets/icons/warning-red.svg" title="Task stopped by the user" />';
                     } ?>
                 </div>
             </div>
@@ -303,7 +303,7 @@
                                 if ($taskRawParams['gpg-check'] == 'true') {
                                     echo '<img src="/assets/icons/check.svg" class="icon" />Enabled';
                                 } else {
-                                    echo '<img src="/assets/icons/error.svg" class="icon" />Disabled';
+                                    echo '<img src="/assets/icons/warning-red.svg" class="icon" />Disabled';
                                 } ?>
                             </span>
                             <?php
@@ -316,7 +316,7 @@
                                 if ($taskRawParams['gpg-sign'] == 'true') {
                                     echo '<img src="/assets/icons/check.svg" class="icon" />Enabled';
                                 } else {
-                                    echo '<img src="/assets/icons/error.svg" class="icon" />Disabled';
+                                    echo '<img src="/assets/icons/warning-red.svg" class="icon" />Disabled';
                                 } ?>
                             </span>
                             <?php
@@ -329,30 +329,38 @@
                                 echo 'None';
                             } else {
                                 foreach ($taskRawParams['schedule']['schedule-reminder'] as $reminder) {
-                                    echo $reminder . ' day(s) before<br>';
+                                    if ($reminder == 1) {
+                                        echo '1 day before<br>';
+                                    } else {
+                                        echo $reminder . ' days before<br>';
+                                    }
                                 }
                             } ?>
                         </span>
 
                         <span>Notify on error</span>
-                        <span>
+                        <div class="flex align-item-center column-gap-5">
                             <?php
                             if ($taskRawParams['schedule']['schedule-notify-error'] == 'true') {
-                                echo '<img src="/assets/icons/check.svg" class="icon" />Enabled';
+                                echo '<img src="/assets/icons/check.svg" class="icon" />';
+                                echo '<span>Enabled</span>';
                             } else {
-                                echo '<img src="/assets/icons/error.svg" class="icon" />Disabled';
+                                echo '<img src="/assets/icons/warning-red.svg" class="icon" />';
+                                echo '<span>Disabled</span>';
                             } ?>
-                        </span>
+                        </div>
 
                         <span>Notify on success</span>
-                        <span>
+                        <div class="flex align-item-center column-gap-5">
                             <?php
                             if ($taskRawParams['schedule']['schedule-notify-success'] == 'true') {
-                                echo '<img src="/assets/icons/check.svg" class="icon" />Enabled';
+                                echo '<img src="/assets/icons/check.svg" class="icon" />';
+                                echo '<span>Enabled</span>';
                             } else {
-                                echo '<img src="/assets/icons/error.svg" class="icon" />Disabled';
+                                echo '<img src="/assets/icons/warning-red.svg" class="icon" />';
+                                echo '<span>Disabled</span>';
                             } ?>
-                        </span>
+                        </div>
 
                         <span>Contact</span>
                         <span>

@@ -1,37 +1,3 @@
-
-loadNewRepoFormJS();
-
-function loadNewRepoFormJS()
-{
-    /**
-     *  Convert select to select2
-     */
-    selectToSelect2('.task-param[param-name="releasever"]', 'e.g: 8', true);
-    selectToSelect2('.task-param[param-name="dist"]', 'e.g: bullseye', true);
-    selectToSelect2('.task-param[param-name="section"]', 'e.g: main', true);
-    selectToSelect2('.task-param[param-name="arch"]', 'Select architecture', true);
-    selectToSelect2('.task-param[param-name="package-include"]', 'Specify package(s)', true);
-    selectToSelect2('.task-param[param-name="package-exclude"]', 'Specify package(s)', true);
-    selectToSelect2('select.task-param[param-name="schedule-day"]', 'Select day(s)...', true);
-    selectToSelect2('select.task-param[param-name="schedule-reminder"]', 'Select reminder...', true);
-    selectToSelect2('select.task-param[param-name="schedule-recipient"]', 'Select or add recipients...', true);
-
-    /**
-     *  Show / hide the necessary fields
-     */
-    newRepoFormPrintFields();
-}
-
-/**
- *  Reload the 'new repo' task div
- */
-function reloadNewRepoDiv()
-{
-    $(".slide-panel-reloadable-div[slide-panel='repos/new']").load(" .slide-panel-reloadable-div[slide-panel='repos/new'] > *",function () {
-        loadNewRepoFormJS();
-    });
-}
-
 /**
  *  Show / hide the fields according to the selected package type (rpm or deb)
  */
@@ -83,17 +49,18 @@ $(document).on('change','input:radio[name="task-schedule-type"]',function () {
      *  Case it is a unique task
      */
     if ($('input:radio[name="task-schedule-type"][action="' + action + '"][value="unique"]').is(":checked")) {
-        $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-unique-input').css('display', 'table-row');
-        $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-time-input').css('display', 'table-row');
+        $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-unique-input').show();
+        $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-time-input').show();
         $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-recurring-frequency-input').hide();
         $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-recurring-day-input').hide();
+        $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-recurring-monthly-input').hide();
     }
 
     /**
      *  Case it is a recurring task
      */
     if ($('input:radio[name="task-schedule-type"][action="' + action + '"][value="recurring"]').is(":checked")) {
-        $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-recurring-frequency-input').css('display', 'table-row');
+        $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-recurring-frequency-input').show();
         $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-unique-input').hide();
     }
 }).trigger('change');
@@ -112,19 +79,19 @@ $(document).on('change','select.task-param[param-name="schedule-frequency"]',fun
 
     if (frequency == 'daily') {
         $('.task-schedule-recurring-day-input').hide();
-        $('.task-schedule-time-input').css('display', 'table-row');
+        $('.task-schedule-time-input').show();
         $('.task-schedule-recurring-monthly-input').hide();
     }
 
     if (frequency == 'weekly') {
-        $('.task-schedule-recurring-day-input').css('display', 'table-row');
-        $('.task-schedule-time-input').css('display', 'table-row');
+        $('.task-schedule-recurring-day-input').show();
+        $('.task-schedule-time-input').show();
         $('.task-schedule-recurring-monthly-input').hide();
     }
 
     if (frequency == 'monthly') {
-        $('.task-schedule-recurring-monthly-input').css('display', 'table-row');
-        $('.task-schedule-time-input').css('display', 'table-row');
+        $('.task-schedule-recurring-monthly-input').show();
+        $('.task-schedule-time-input').show();
         $('.task-schedule-recurring-day-input').hide();
         $('task-schedule-recurring-day-input').hide();
     }
@@ -300,12 +267,11 @@ $(document).on('click',".repos-list-group-select-all-latest-snap-btn",function (
     }
 });
 
-
 /**
  *  Event: Click on an action button
  */
 $(document).on('click',".repo-action-btn",function () {
-    var repos_array = [];
+    var repos = [];
 
     /**
      *  Hide all tasks buttons
@@ -331,39 +297,21 @@ $(document).on('click',".repo-action-btn",function () {
         obj['env-id'] = $(this).attr('env-id');
         obj['repo-status'] = $(this).attr('repo-status');
 
-        repos_array.push(obj);
+        repos.push(obj);
     });
 
     /**
      *  Execute the selected action
      */
-    var repos_array = JSON.stringify(repos_array);
+    var repos = JSON.stringify(repos);
 
     /**
-     *  Get the form for the selected action and open the panel
+     *  Get the panel and form for the selected action
      */
-    ajaxRequest(
-        // Controller:
-        'task',
-        // Action:
-        'getForm',
-        // Data:
-        {
-            taskAction: action,
-            repos_array: repos_array
-        },
-        // Print success alert:
-        false,
-        // Print error alert:
-        true,
-        // Reload container:
-        [],
-        // Execute functions on success:
-        [
-            "$('.slide-panel-container[slide-panel=\"repos/task\"]').find('.slide-panel-reloadable-div').html(jsonValue.message)",
-            "openPanel('repos/task')"
-        ]
-    );
+    getPanel('repos/task', {
+        action: action,
+        repos: repos
+    });
 });
 
 /**
@@ -384,7 +332,7 @@ $(document).on('click',".task-schedule-btn", function () {
         form.find('.task-confirm-btn').html('Schedule');
     } else {
         form.find('.task-schedule-params').hide();
-        form.find('.task-confirm-btn').css('background-color', '#ff0044');
+        form.find('.task-confirm-btn').css('background-color', '#F32F63');
         form.find('.task-confirm-btn').html('Execute now');
     }
 });

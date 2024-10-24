@@ -18,14 +18,14 @@
         <?php
         if ($totalHosts >= 1) : ?>
             <div class="hosts-chart-sub-container div-generic-blue">
-                <span class="hosts-chart-title">Hosts (<?= $totalHosts ?>)</span>
+                <h6>HOSTS (<?= $totalHosts ?>)</h6>
                 <canvas id="hosts-count-chart" class="host-pie-chart"></canvas>
             </div>
 
             <?php
             if (!empty(HOSTS_KERNEL_LIST)) : ?>
                 <div class="hosts-chart-sub-container div-generic-blue">
-                    <span class="hosts-chart-title">Kernels</span>
+                    <h6>KERNELS</h6>
                 
                     <div class="hosts-charts-list-column-container">
                         <?php
@@ -55,7 +55,7 @@
 
             if (!empty(HOSTS_PROFILES_LIST)) : ?>
                 <div class="hosts-chart-sub-container div-generic-blue">
-                    <span class="hosts-chart-title">Profiles</span>
+                    <h6>PROFILES</h6>
                     <div class="hosts-charts-list-column-container">
                         <?php
                         foreach (HOSTS_PROFILES_LIST as $profile) {
@@ -84,7 +84,7 @@
 
             if (!empty(HOSTS_OS_LIST)) : ?>
                 <div class="hosts-chart-sub-container div-generic-blue">
-                    <span class="hosts-chart-title">Operating systems</span>
+                    <h6>OPERATING SYSTEMS</h6>
                     <canvas id="hosts-os-chart" class="host-bar-chart"></canvas>
                 </div>
                 <?php
@@ -92,7 +92,7 @@
 
             if (!empty(HOSTS_ARCHS_LIST)) : ?>
                 <div class="hosts-chart-sub-container div-generic-blue">
-                    <span class="hosts-chart-title">Architectures</span>
+                    <h6>ARCHITECTURES</h6>
                     <canvas id="hosts-arch-chart" class="host-pie-chart"></canvas>
                 </div>
                 <?php
@@ -100,7 +100,7 @@
 
             if (!empty(HOSTS_ENVS_LIST)) : ?>
                 <div class="hosts-chart-sub-container div-generic-blue">
-                    <span class="hosts-chart-title">Environments</span>
+                    <h6>ENVIRONMENTS</h6>
                     <canvas id="hosts-env-chart" class="host-pie-chart"></canvas>
                 </div>
                 <?php
@@ -108,7 +108,7 @@
 
             if (!empty(HOSTS_AGENT_STATUS_LIST)) : ?>
                 <div class="hosts-chart-sub-container div-generic-blue">
-                    <span class="hosts-chart-title">Agent status</span>
+                    <h6>AGENT STATUS</h6>
                     <canvas id="hosts-agent-status-chart" class="host-pie-chart"></canvas>
                 </div>
                 <?php
@@ -116,14 +116,14 @@
 
             if (!empty(HOSTS_AGENT_VERSION_LIST)) : ?>
                 <div class="hosts-chart-sub-container div-generic-blue">
-                    <span class="hosts-chart-title">Agent version</span>
+                    <h6>AGENT VERSION</h6>
                     <canvas id="hosts-agent-version-chart" class="host-pie-chart"></canvas>
                 </div>
                 <?php
             endif ?>
 
             <div class="hosts-chart-sub-container div-generic-blue">
-                <span class="hosts-chart-title">Hosts requiring reboot</span>
+                <h6>HOSTS REQUIRING REBOOT</h6>
                 
                 <div id="hosts-requiring-reboot-chart" class="flex justify-center align-item-center">
                     <div>

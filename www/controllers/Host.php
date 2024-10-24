@@ -297,7 +297,7 @@ class Host
         $content .= '<div class="grid grid-2 column-gap-10 row-gap-6 justify-space-between">';
 
         foreach ($packages as $package) {
-            $content .= '<div class="flex align-item-center min-width-200">';
+            $content .= '<div class="flex align-item-center column-gap-5 min-width-200">';
             $content .= \Controllers\Common::printProductIcon($package['Name']);
             $content .= '<span class="copy">' . $package['Name'] . '</span>';
             $content .= '</div>';

@@ -1,0 +1,60 @@
+---
+description: CentOS official vaulted (EOL) repositories
+type: rpm
+repositories:
+  #
+  # CentOS 8
+  #
+
+  # CentOS 8 BaseOS
+  - name: centos8-stream-baseos
+    type: rpm
+    url: http://vault.centos.org/8-stream/BaseOS/$basearch/os/
+    releasever:
+      - name: 8
+        description: CentOS 8 Stream
+        gpgkeys:
+          - fingerprint: 
+  # CentOS 8 AppStream
+  - name: centos8-stream-appstream
+    type: rpm
+    url: http://vault.centos.org/8-stream/AppStream/$basearch/os/
+    releasever:
+      - name: 8
+        description: CentOS 8 Stream
+        gpgkeys:
+          - fingerprint:
+
+  #
+  # CentOS 7
+  #
+
+  # CentOS 7 Base
+  - name: centos7-base
+    type: rpm
+    url: https://vault.centos.org/7.9.2009/os/$basearch/
+    releasever:
+      - name: 7
+        description: CentOS 7
+        gpgkeys:
+          - fingerprint:
+
+  # CentOS 7 Updates
+  - name: centos7-updates
+    type: rpm
+    url: https://vault.centos.org/7.9.2009/updates/$basearch/
+    releasever:
+      - name: 7
+        description: CentOS 7
+        gpgkeys:
+          - fingerprint:
+  
+  # CentOS 7 Extras
+  - name: centos7-extras
+    type: rpm
+    url: https://vault.centos.org/7.9.2009/extras/$basearch/
+    releasever:
+      - name: 7
+        description: CentOS 7
+        gpgkeys:
+          - fingerprint:

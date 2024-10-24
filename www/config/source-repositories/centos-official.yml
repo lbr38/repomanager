@@ -1,0 +1,22 @@
+---
+description: CentOS official repositories
+type: rpm
+repositories:
+  # CentOS9 BaseOS
+  - name: centos9-stream-baseos
+    type: rpm
+    url: https://mirror.stream.centos.org/9-stream/BaseOS/$basearch/os/
+    releasever:
+      - name: 9
+        description: CentOS 9 Stream
+        gpgkeys:
+          # - fingerprint:
+  # CentOS9 AppStream
+  - name: centos9-stream-appstream
+    type: rpm
+    url: https://mirror.stream.centos.org/9-stream/AppStream/$basearch/os/
+    releasever:
+      - name: 9
+        description: CentOS 9 Stream
+        gpgkeys:
+          # - fingerprint: 

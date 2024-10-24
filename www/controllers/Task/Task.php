@@ -734,7 +734,7 @@ class Task
             file_put_contents(
                 MAIN_LOGS_DIR . '/' . $logfile,
                 '<style>
-                .op-step-div { background-color: #ff0044 !important; }
+                .op-step-div { background-color: #F32F63 !important; }
                 .op-step-loading { display: none !important; }
                 .op-step-title-ok { display: none !important; }
                 .op-step-title-stopped { display: inline-block !important; }

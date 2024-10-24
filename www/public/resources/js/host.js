@@ -1,5 +1,3 @@
-selectToSelect2('select.group-hosts-list', 'Add host...');
-
 /**
  *  Fonctions
  */
@@ -89,7 +87,7 @@ function searchHost()
     /**
      *  If the input is empty, quit
      */
-    if (!$("#searchHostInput").val()) {
+    if (!$("#search-host-input").val()) {
         // Show all containers and host lines before quit
         $('.hosts-group-container, .host-line, .js-select-all-button').show();
 
@@ -102,7 +100,7 @@ function searchHost()
      *  Retrieve the search term from the input
      *  Convert the search term to uppercase to ignore case when searching
      */
-    search = $("#searchHostInput").val().toUpperCase();
+    search = $("#search-host-input").val().toUpperCase();
 
     /**
      *  Print all group containers (in case they were hidden during a previous search)
@@ -470,7 +468,28 @@ $(document).on('submit','#newGroupForm',function () {
      */
     var name = $("#newGroupInput").val();
 
-    newGroup(name);
+    ajaxRequest(
+        // Controller:
+        'group',
+        // Action:
+        'new',
+        // Data:
+        {
+            name: name,
+            type: 'host'
+        },
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload container:
+        ['hosts/list'],
+        // Execute functions on success:
+        [
+            // Reload group panel
+            "reloadPanel('hosts/groups/list')"
+        ]
+    );
 
     return false;
 });
@@ -511,7 +530,30 @@ $(document).on('submit','.group-form',function () {
     var name = $(this).find('.group-name-input[group-id="' + id + '"]').val();
     var hostsId = $(this).find('select.group-hosts-list[group-id="' + id + '"]').val();
 
-    editGroup(id, name, hostsId);
+    ajaxRequest(
+        // Controller:
+        'group',
+        // Action:
+        'edit',
+        // Data:
+        {
+            id: id,
+            name: name,
+            data: hostsId,
+            type: 'host'
+        },
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload container:
+        ['hosts/list'],
+        // Execute functions on success:
+        [
+            // Reload group panel
+            "reloadPanel('hosts/groups/list')"
+        ]
+    );
 
     return false;
 });
@@ -1108,36 +1150,6 @@ $(document).on('mouseleave', '.event-packages-details', function () {
 });
 
 /**
- * Ajax: Create a new group
- * @param {string} name
- */
-function newGroup(name)
-{
-    ajaxRequest(
-        // Controller:
-        'group',
-        // Action:
-        'new',
-        // Data:
-        {
-            name: name,
-            type: 'host'
-        },
-        // Print success alert:
-        true,
-        // Print error alert:
-        true,
-        // Reload container:
-        ['hosts/list'],
-        // Execute functions on success:
-        [
-            // Reload group panel
-            "reloadPanel('hosts/groups', function () { selectToSelect2('select.group-hosts-list', 'Add host...'); })",
-        ]
-    );
-}
-
-/**
  * Ajax: Delete a group
  * @param {string} id
  */
@@ -1162,41 +1174,7 @@ function deleteGroup(id)
         // Execute functions on success:
         [
             // Reload group panel
-            "reloadPanel('hosts/groups', function () { selectToSelect2('select.group-hosts-list', 'Add host...'); })",
-        ]
-    );
-}
-
-/**
- * Ajax: Edit a group
- * @param {string} id
- * @param {string} name
- * @param {string} hostsId
- */
-function editGroup(id, name, hostsId)
-{
-    ajaxRequest(
-        // Controller:
-        'group',
-        // Action:
-        'edit',
-        // Data:
-        {
-            id: id,
-            name: name,
-            data: hostsId,
-            type: 'host'
-        },
-        // Print success alert:
-        true,
-        // Print error alert:
-        true,
-        // Reload container:
-        ['hosts/list'],
-        // Execute functions on success:
-        [
-            // Reload group panel
-            "reloadPanel('hosts/groups', function () { selectToSelect2('select.group-hosts-list', 'Add host...'); })",
+            "reloadPanel('hosts/groups/list')"
         ]
     );
 }
@@ -1233,7 +1211,7 @@ function getHostsWithPackageAjax(hostsId_array, package)
                         /**
                          *  Build package list
                          */
-                        packagesFound += '<span><img src="/assets/icons/package.svg" class="icon-np">' + packageName + ' (' + packageVersion + ')</span>';
+                        packagesFound += '<div class="flex align-item-center column-gap-5"><img src="/assets/icons/package.svg" class="icon-np">   <span>' + packageName + ' (' + packageVersion + ')</span></div>';
                     }
 
                     /**

@@ -3,19 +3,6 @@ $myTaskForm = new \Controllers\Task\Form\Form();
 $myTask = new \Controllers\Task\Task();
 
 /**
- *  Retrieve a task form
- */
-if ($_POST['action'] == 'getForm' and !empty($_POST['taskAction']) and !empty($_POST['repos_array'])) {
-    try {
-        $content = $myTaskForm->get($_POST['taskAction'], json_decode($_POST['repos_array'], true));
-    } catch (\Exception $e) {
-        response(HTTP_BAD_REQUEST, $e->getMessage());
-    }
-
-    response(HTTP_OK, $content);
-}
-
-/**
  *  Validate and execute a task form
  */
 if ($_POST['action'] == 'validateForm' and !empty($_POST['taskParams'])) {
