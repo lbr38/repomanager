@@ -531,12 +531,13 @@ class Common
      *  Return true if distant URL is reachable
      *  The target URL can be a file or a directory
      */
-    public static function urlReachable(string $url, string $sslCertificatePath = null, string $sslPrivateKeyPath = null, string $sslCustomCaCertificate = null)
+    public static function urlReachable(string $url, int $timeout = 3, string $sslCertificatePath = null, string $sslPrivateKeyPath = null, string $sslCustomCaCertificate = null)
     {
         $ch = curl_init($url);
 
         curl_setopt($ch, CURLOPT_NOBODY, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
 
         /**
          *  If a proxy has been specified

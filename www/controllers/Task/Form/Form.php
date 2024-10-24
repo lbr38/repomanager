@@ -11,7 +11,7 @@ class Form
     /**
      *  Return the task form to the user according to his selection
      */
-    public function get(string $action, array $repos_array)
+    public function get(string $action, array $repos)
     {
         if (!in_array($action, $this->validActions)) {
             throw new Exception('Task action is invalid');
@@ -35,7 +35,7 @@ class Form
 
         $content = $title . '<form class="task-form" autocomplete="off">';
 
-        foreach ($repos_array as $repo) {
+        foreach ($repos as $repo) {
             $myrepo = new \Controllers\Repo\Repo();
             $repoId = \Controllers\Common::validateData($repo['repo-id']);
             $snapId = \Controllers\Common::validateData($repo['snap-id']);

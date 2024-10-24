@@ -32,10 +32,10 @@ class Source
     /**
      *  Get source repository type from its Id
      */
-    public function getType(string $id)
-    {
-        return $this->model->getType($id);
-    }
+    // public function getType(string $id)
+    // {
+    //     return $this->model->getType($id);
+    // }
 
     /**
      *  Get source repo definition from its Id
@@ -59,6 +59,7 @@ class Source
     public function new(string $method, array $params)
     {
         $validTypes = ['deb', 'rpm'];
+        $gpgController = new \Controllers\Gpg();
 
         if (empty($params['name'])) {
             throw new Exception('Source repository name is empty');
@@ -138,6 +139,108 @@ class Source
         }
 
         /**
+         *  Import GPG keys if any
+         *  Only if it is an import from a file
+         */
+        if ($method == 'import') {
+            // Case it is a deb source repository
+            if ($type == 'deb') {
+                if (!empty($params['distributions'])) {
+                    foreach ($params['distributions'] as $distributionId => $distribution) {
+                        if (!empty($distribution['gpgkeys'])) {
+                            $distributionGpgKeys = [];
+
+                            foreach ($distribution['gpgkeys'] as $gpgKey) {
+                                // Case the key is a fingerprint, the key has to be downloaded from a keyserver
+                                if (!empty($gpgKey['fingerprint'])) {
+                                    $fingerprints = $gpgController->importFromUrl('https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x' . $gpgKey['fingerprint']);
+                                }
+
+                                // Case the key is a URL
+                                if (!empty($gpgKey['link'])) {
+                                    $fingerprints = $gpgController->importFromUrl($gpgKey['link']);
+                                }
+
+                                if (empty($fingerprints)) {
+                                    throw new Exception('No fingerprints found in the GPG key ' . $gpgKey);
+                                }
+
+                                /**
+                                 *  Rewrite the distribution gpg keys with the new ones
+                                 */
+                                foreach ($fingerprints as $fingerprint) {
+                                    // Ignore fingerprint if already exists in $distributionGpgKeys[]
+                                    foreach ($distributionGpgKeys as $gpgKeyDefinition) {
+                                        if (isset($gpgKeyDefinition['fingerprint']) and $gpgKeyDefinition['fingerprint'] == $fingerprint) {
+                                            continue 2;
+                                        }
+                                    }
+
+                                    $distributionGpgKeys[] = array(
+                                        'fingerprint' => $fingerprint
+                                    );
+                                }
+                            }
+
+                            /**
+                             *  Rewrite the distribution gpg keys with the new ones
+                             */
+                            $params['distributions'][$distributionId]['gpgkeys'] = $distributionGpgKeys;
+                        }
+                    }
+                }
+            }
+
+            // Case it is a rpm source repository
+            if ($type == 'rpm') {
+                if (!empty($params['releasever'])) {
+                    foreach ($params['releasever'] as $releaseverId => $releasever) {
+                        if (!empty($releasever['gpgkeys'])) {
+                            $releaseverGpgKeys = [];
+
+                            foreach ($releasever['gpgkeys'] as $gpgKey) {
+                                // Case the key is a fingerprint, the key has to be downloaded from a keyserver
+                                if (!empty($gpgKey['fingerprint'])) {
+                                    $fingerprints = $gpgController->importFromUrl('https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x' . $gpgKey['fingerprint']);
+                                }
+
+                                // Case the key is a URL, the key file has to be downloaded
+                                if (!empty($gpgKey['link'])) {
+                                    $fingerprints = $gpgController->importFromUrl($gpgKey['link']);
+                                }
+
+                                if (empty($fingerprints)) {
+                                    throw new Exception('No fingerprints found in the GPG key ' . $gpgKey);
+                                }
+
+                                /**
+                                 *  Rewrite the distribution gpg keys with the new ones
+                                 */
+                                foreach ($fingerprints as $fingerprint) {
+                                    // Ignore fingerprint if already exists in $releaseverGpgKeys[]
+                                    foreach ($releaseverGpgKeys as $gpgKeyDefinition) {
+                                        if (isset($gpgKeyDefinition['fingerprint']) and $gpgKeyDefinition['fingerprint'] == $fingerprint) {
+                                            continue 2;
+                                        }
+                                    }
+
+                                    $releaseverGpgKeys[] = array(
+                                        'fingerprint' => $fingerprint
+                                    );
+                                }
+
+                                /**
+                                 *  Rewrite the releasever gpg keys with the new ones
+                                 */
+                                $params['releasever'][$releaseverId]['gpgkeys'] = $releaseverGpgKeys;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        /**
          *  Add source repo in database
          */
         $this->model->new(json_encode($params));
@@ -148,6 +251,8 @@ class Source
      */
     public function edit(int $id, array $params)
     {
+        $validTypes = ['deb', 'rpm'];
+
         /**
          *  Check that source repo exists
          */
@@ -167,18 +272,29 @@ class Source
         }
 
         /**
+         *  Check that the type is valid
+         */
+        if (empty($params['type'])) {
+            throw new Exception('Source repository type is empty');
+        }
+
+        if (!in_array($params['type'], $validTypes)) {
+            throw new Exception('Invalid source repository type');
+        }
+
+        /**
          *  Get source type
          */
-        $type = $this->getType($id);
+        // $type = $this->getType($id);
 
         /**
          *  Check that source repo name is not already used by another source repo
          */
-        if ($this->exists($type, $params['name'])) {
+        if ($this->exists($params['type'], $params['name'])) {
             /**
              *  Retrieve the Id of the source repo with the same name
              */
-            $testId = $this->getIdByTypeName($type, $params['name']);
+            $testId = $this->getIdByTypeName($params['type'], $params['name']);
 
             /**
              *  If the Id is different from the one we are editing, then the name is already used
@@ -258,11 +374,17 @@ class Source
          *  Modify current params with new ones
          */
         $currentParams['name'] = $params['name'];
-        $currentParams['type'] = $type;
+        $currentParams['type'] = $params['type'];
         $currentParams['url'] = $url;
-        $currentParams['ssl-authentication']['certificate-path'] = $params['ssl-certificate-path'];
-        $currentParams['ssl-authentication']['private-key-path'] = $params['ssl-private-key-path'];
-        $currentParams['ssl-authentication']['ca-certificate-path'] = $params['ssl-ca-certificate-path'];
+        if (!empty($params['ssl-certificate-path'])) {
+            $currentParams['ssl-authentication']['certificate-path'] = $params['ssl-certificate-path'];
+        }
+        if (!empty($params['ssl-private-key-path'])) {
+            $currentParams['ssl-authentication']['private-key-path'] = $params['ssl-private-key-path'];
+        }
+        if (!empty($params['ssl-ca-certificate-path'])) {
+            $currentParams['ssl-authentication']['ca-certificate-path'] = $params['ssl-ca-certificate-path'];
+        }
 
         /**
          *  Edit source repo in database

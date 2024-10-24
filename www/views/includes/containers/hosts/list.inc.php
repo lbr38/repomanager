@@ -29,10 +29,20 @@
                      *  If there is at least 1 active host then we display the search fields
                      */
                     if ($totalHosts != 0) : ?>
-                        <h6>SEARCH HOST</h6>
-                        <input type="text" id="search-host-input" onkeyup="searchHost()" autocomplete="off" placeholder="Hostname, IP" />
+                        <div class="grid grid-2 justify-space-between column-gap-20">
+                            <div>
+                                <h6>SEARCH HOST</h6>
+                                <input type="text" id="search-host-input" onkeyup="searchHost()" autocomplete="off" placeholder="Hostname, IP" />
+                            </div>
 
-                        <div class="searchInput-container">
+                            <div>
+                            <h6>SEARCH PACKAGE</h6>
+                            <input type="text" id="getHostsWithPackageInput" onkeyup="getHostsWithPackage()" autocomplete="off" placeholder="Package name" />
+                            </div>
+                        </div>
+                        <br><br>
+
+                        <!-- <div class="searchInput-container">
                             <div class="searchInput-subcontainer">
                                 <div>
                                     <div class="flex align-item-center column-gap-10 justify-center">
@@ -49,7 +59,7 @@
                                     <input type="text" id="getHostsWithPackageInput" onkeyup="getHostsWithPackage()" class="input-large" autocomplete="off" placeholder="Package name" />
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         <?php
                     endif ?>
                     

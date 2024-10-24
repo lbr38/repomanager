@@ -151,7 +151,8 @@ trait Sync
             /**
              *  Get source repo informations
              */
-            $sourceDefinition = $mysource->get($this->repo->getPackageType(), $this->repo->getSource());
+            $source = $mysource->get($this->repo->getPackageType(), $this->repo->getSource());
+            $sourceDefinition = $source['Definition'];
 
             /**
              *  Check that source repo informations have been retrieved
@@ -174,7 +175,7 @@ trait Sync
                 throw new Exception('Could not retrieve source repo URL. Check source repo configuration.');
             }
 
-            unset($mysource);
+            unset($mysource, $source);
 
             if ($this->repo->getPackageType() == 'rpm') {
                 $mymirror = new \Controllers\Repo\Mirror\Rpm();

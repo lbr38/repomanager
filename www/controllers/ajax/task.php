@@ -5,9 +5,9 @@ $myTask = new \Controllers\Task\Task();
 /**
  *  Retrieve a task form
  */
-if ($_POST['action'] == 'getForm' and !empty($_POST['taskAction']) and !empty($_POST['repos_array'])) {
+if ($_POST['action'] == 'getForm' and !empty($_POST['taskAction']) and !empty($_POST['repos'])) {
     try {
-        $content = $myTaskForm->get($_POST['taskAction'], json_decode($_POST['repos_array'], true));
+        $content = $myTaskForm->get($_POST['taskAction'], json_decode($_POST['repos'], true));
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }

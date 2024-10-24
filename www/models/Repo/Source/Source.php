@@ -67,25 +67,25 @@ class Source extends \Models\Model
     /**
      *  Get source repository type from its Id
      */
-    public function getType(string $id)
-    {
-        $type = '';
+    // public function getType(string $id)
+    // {
+    //     $type = '';
 
-        try {
-            $stmt = $this->db->prepare("SELECT json_extract(COALESCE(Definition, '{}'), '$.type') as Type
-            FROM sources WHERE Id = :id");
-            $stmt->bindValue(':id', $id);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
+    //     try {
+    //         $stmt = $this->db->prepare("SELECT json_extract(COALESCE(Definition, '{}'), '$.type') as Type
+    //         FROM sources WHERE Id = :id");
+    //         $stmt->bindValue(':id', $id);
+    //         $result = $stmt->execute();
+    //     } catch (\Exception $e) {
+    //         $this->db->logError($e);
+    //     }
 
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $type = $row['Type'];
-        }
+    //     while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+    //         $type = $row['Type'];
+    //     }
 
-        return $type;
-    }
+    //     return $type;
+    // }
 
     /**
      *  Get source repo definition from its Id

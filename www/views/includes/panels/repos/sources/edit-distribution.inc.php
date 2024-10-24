@@ -41,19 +41,44 @@
                 
                 <?php
                 foreach ($gpgKeys as $gpgKeyId => $gpgKeyDefinition) :
+                    $imported = false;
+                    $gpgKeyName = null;
+                    $gpgType = null;
+
                     if (isset($gpgKeyDefinition['link'])) {
+                        $gpgType = 'link';
                         $gpgKey = $gpgKeyDefinition['link'];
                     }
                     if (isset($gpgKeyDefinition['fingerprint'])) {
+                        $gpgType = 'fingerprint';
                         $gpgKey = $gpgKeyDefinition['fingerprint'];
                     } ?>
 
                     <div class="table-container grid-2 bck-blue-alt pointer" source-id="<?= $sourceId ?>" distribution-id="<?= $distributionId ?>">
                         <div>
-                            <p><?= $gpgKey ?></p>
+                            <?php
+                            /**
+                             *  If the GPG key is in the trusted keyring, mark it as imported and retrieve its name
+                             */
+                            if ($gpgType == 'fingerprint' and in_array($gpgKey, array_column($trustedGpgKeys, 'id'))) {
+                                $imported = true;
+                                $gpgKeyName = $trustedGpgKeys[array_search($gpgKey, array_column($trustedGpgKeys, 'id'))]['name'];
+                            }
+
+                            if (!empty($gpgKeyName)) {
+                                echo '<p>' . $gpgKeyName . '</p>';
+                                echo '<p class="note">' . $gpgKey . '</p>';
+                            } else {
+                                echo '<p>' . $gpgKey . '</p>';
+                            } ?>
                         </div>
 
-                        <div class="flex justify-end">
+                        <div class="flex justify-end column-gap-10">
+                            <?php
+                            if ($imported) {
+                                echo '<img src="/assets/icons/check.svg" class="icon-np" title="Imported GPG key" />';
+                            } ?>
+
                             <img src="/assets/icons/delete.svg" class="icon-lowopacity source-repo-edit-distribution-remove-gpgkey-btn" source-id="<?= $sourceId ?>" distribution-id="<?= $distributionId ?>" gpgkey-id="<?= $gpgKeyId ?>" title="Remove GPG key <?= $gpgKey ?>" />
                         </div>
                     </div>
@@ -64,7 +89,7 @@
                     <input type="text" class="source-repo-edit-distribution-add-gpgkey-input" source-id="<?= $sourceId ?>" distribution-id="<?= $distributionId ?>" placeholder="Add GPG key">
                     <button type="button" class="source-repo-edit-distribution-add-gpgkey-btn btn-xxsmall-green" source-id="<?= $sourceId ?>" distribution-id="<?= $distributionId ?>" title="Add GPG key">+</button>
                 </div>
-                <p class="note">http(s):// link or fingerprint.</p>
+                <p class="note">HTTP link or fingerprint.</p>
 
                 <br><br>
                 <button type="submit" class="btn-medium-green">Save</button>

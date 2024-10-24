@@ -1,5 +1,6 @@
 <?php
 $mysourceRepo = new \Controllers\Repo\Source\Source();
+$myGpg = new \Controllers\Gpg();
 $description = '';
 $sections = [];
 $gpgKeys = [];
@@ -50,3 +51,8 @@ if (!empty($sourceDefinition['distributions'][$distributionId]['components'])) {
 if (!empty($sourceDefinition['distributions'][$distributionId]['gpgkeys'])) {
     $gpgKeys = $sourceDefinition['distributions'][$distributionId]['gpgkeys'];
 }
+
+/**
+ *  Retrieve all trusted GPG keys from keyring
+ */
+$trustedGpgKeys = $myGpg->getTrustedKeys();

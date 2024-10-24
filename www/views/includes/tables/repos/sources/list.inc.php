@@ -62,6 +62,8 @@
 
             <div class="hide source-repo-param-div detailsDiv margin-bottom-5" source-id="<?= $item['Id'] ?>">
                 <form class="source-repo-form" source-id="<?= $item['Id'] ?>" autocomplete="off">
+                    <input type="hidden" class="source-param" param-name="type" value="<?= $type ?>" />
+
                     <h6 class="required">NAME</h6>
                     <input type="text" class="source-param" param-name="name" value="<?= $name ?>" />
 

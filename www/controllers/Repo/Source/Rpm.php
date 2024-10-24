@@ -20,9 +20,9 @@ class Rpm extends \Controllers\Repo\Source\Source
         if (empty($repo['url'])) {
             throw new Exception('source repository URL is empty');
         }
-        if (empty($repo['architectures'])) {
-            throw new Exception('source repository architectures is empty');
-        }
+        // if (empty($repo['architectures'])) {
+        //     throw new Exception('source repository architectures is empty');
+        // }
         if (empty($repo['releasever'])) {
             throw new Exception('source repository releasever is empty');
         }
@@ -166,6 +166,7 @@ class Rpm extends \Controllers\Repo\Source\Source
      */
     public function addGpgKey(int $id, int $releaseverId, string $gpgKey)
     {
+        $gpgController = new \Controllers\Gpg();
         $gpgKey = \Controllers\Common::validateData($gpgKey);
 
         /**
@@ -198,34 +199,46 @@ class Rpm extends \Controllers\Repo\Source\Source
         }
 
         /**
-         *  Check that the gpg key does not already exist in the release version
+         *  Import GPG key
          */
+
+        // Case it is a link
         if ($type == 'link') {
-            foreach ($currentParams['releasever'][$releaseverId]['gpgkeys'] as $gpgKeyDefinition) {
-                if (isset($gpgKeyDefinition['link']) and $gpgKeyDefinition['link'] == $gpgKey) {
-                    throw new Exception('GPG key ' . $gpgKey . ' already exists');
-                }
-            }
+            // Import the key and get all the fingerprints GPG has found in it
+            $fingerprints = $gpgController->importFromUrl($gpgKey);
         }
+
+        // Case it is a fingerprint
         if ($type == 'fingerprint') {
+            // Check if the fingerprint already exists
             foreach ($currentParams['releasever'][$releaseverId]['gpgkeys'] as $gpgKeyDefinition) {
                 if (isset($gpgKeyDefinition['fingerprint']) and $gpgKeyDefinition['fingerprint'] == $gpgKey) {
                     throw new Exception('GPG key ' . $gpgKey . ' already exists');
                 }
             }
+
+            // Import the key and get all the fingerprints GPG has found in it
+            $fingerprints = $gpgController->importFromUrl('https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x' . $gpgKey);
+        }
+
+        if (empty($fingerprints)) {
+            throw new Exception('No fingerprints found in the GPG key' . $gpgKey);
         }
 
         /**
          *  Add the new gpg key
+         *  Instead of adding the provided gpg key, we add all the fingerprints found in the key
          */
-        if ($type == 'link') {
+        foreach ($fingerprints as $fingerprint) {
+            // Ignore fingerprint if already exists
+            foreach ($currentParams['releasever'][$releaseverId]['gpgkeys'] as $gpgKeyDefinition) {
+                if (isset($gpgKeyDefinition['fingerprint']) and $gpgKeyDefinition['fingerprint'] == $fingerprint) {
+                    continue 2;
+                }
+            }
+
             $currentParams['releasever'][$releaseverId]['gpgkeys'][] = array(
-                'link' => $gpgKey
-            );
-        }
-        if ($type == 'fingerprint') {
-            $currentParams['releasever'][$releaseverId]['gpgkeys'][] = array(
-                'fingerprint' => $gpgKey
+                'fingerprint' => $fingerprint
             );
         }
 

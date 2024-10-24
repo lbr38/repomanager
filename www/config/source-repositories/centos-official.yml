@@ -9,12 +9,7 @@ repositories:
       - name: 8
         description: CentOS 8 Stream
         gpgkeys:
-          - link: http://gpgkey1
-          - link: http://gpgkey2
-          - fingerprint: AZKKKDKLSLSMDSML
-    architectures: [x86_64, aarch64, ppc64le]
-    keyserver:
-      - xxx
+
     ssl-authentication:
       certificate-path: ''
       private-key-path: ''
