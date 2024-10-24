@@ -178,46 +178,11 @@ function reloadOpenedClosedElements()
     });
 }
 
-
-
 /**
- * Reload panel and execute function if needed
+ * Reload panel content
  * @param {*} panel
- * @param {*} myfunction
+ * @param {*} params
  */
-// function reloadPanel(panel, myfunction = null)
-// {
-//     /**
-//      *  Print a loading icon on the bottom of the page
-//      */
-//     printLoading();
-
-//     /**
-//      *  Check if panel has children with class .veil-on-reload
-//      *  If so print a veil on them
-//      */
-//     printLoadingVeilByParentClass('slide-panel-reloadable-div[slide-panel="' + panel + '"]');
-
-//     $('.slide-panel-reloadable-div[slide-panel="' + panel + '"]').load(' .slide-panel-reloadable-div[slide-panel="' + panel + '"] > *', function () {
-//         /**
-//          *  If myfunction is not null, execute it after reloading
-//          */
-//         if (myfunction != null) {
-//             myfunction();
-//         }
-
-//         /**
-//          *  Reload opened or closed elements that where opened/closed before reloading
-//          */
-//         reloadOpenedClosedElements();
-//     });
-
-//     /**
-//      *  Hide loading icon
-//      */
-//     hideLoading();
-// }
-
 function reloadPanel(name, params = [''])
 {
     /**

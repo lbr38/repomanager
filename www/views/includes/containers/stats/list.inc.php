@@ -9,24 +9,24 @@
         $repo = $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection();
     } ?>
 
-    <div class="div-generic-blue grid grid-4">
+    <div class="div-generic-blue grid grid-4 margin-bottom-15">
         <div>
-            <h6>REPOSITORY</h6>
+            <h6 class="margin-top-0">REPOSITORY</h6>
             <p><span class="label-white"><?= $repo ?></span></p>
         </div>
 
         <div>
-            <h6>SNAPSHOT</h6>
+            <h6 class="margin-top-0">SNAPSHOT</h6>
             <p><span class="label-black"><?= $myrepo->getDateFormatted() ?></span></p>
         </div>
 
         <div>
-            <h6>SIZE</h6>
+            <h6 class="margin-top-0">SIZE</h6>
             <p><?= $repoSize ?></p>
         </div>
 
         <div>
-            <h6>PACKAGES</h6>
+            <h6 class="margin-top-0">PACKAGES</h6>
             <p><?= $packagesCount ?></p>
         </div>
 
@@ -41,11 +41,13 @@
     <div id="repo-access-chart-div" class="div-generic-blue">
         <?php
         if (!empty($repoAccessChartDates) and !empty($repoAccessChartData)) : ?>
-            <span class="btn-small-green repo-access-chart-filter-button" filter="1week">1 week</span>
-            <span class="btn-small-green repo-access-chart-filter-button" filter="1month">1 month</span>
-            <span class="btn-small-green repo-access-chart-filter-button" filter="3months">3 months</span>
-            <span class="btn-small-green repo-access-chart-filter-button" filter="6months">6 months</span>
-            <span class="btn-small-green repo-access-chart-filter-button" filter="1year">1 year</span>
+            <div class="flex column-gap-10">
+                <span class="btn-medium-tr repo-access-chart-filter-button" filter="1week">1 week</span>
+                <span class="btn-medium-tr repo-access-chart-filter-button" filter="1month">1 month</span>
+                <span class="btn-medium-tr repo-access-chart-filter-button" filter="3months">3 months</span>
+                <span class="btn-medium-tr repo-access-chart-filter-button" filter="6months">6 months</span>
+                <span class="btn-medium-tr repo-access-chart-filter-button" filter="1year">1 year</span>
+            </div>
 
             <br><br>
 

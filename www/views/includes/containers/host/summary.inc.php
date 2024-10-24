@@ -22,7 +22,7 @@
     <div class="grid grid-2 justify-space-between align-item-center div-generic-blue padding-left-30 padding-right-30">
         <div class="grid grid-3 column-gap-30">
             <div>
-                <h6>IP</h6>
+                <h6 class="margin-top-0">IP</h6>
                 <p class="copy"><?= $ip ?></p>
 
                 <h6>OS</h6>
@@ -48,7 +48,7 @@
             </div>
 
             <div>
-                <h6>PROFILE</h6>
+                <h6 class="margin-top-0">PROFILE</h6>
                 <p class="copy">
                     <?php
                     if (!empty($profile)) {
@@ -70,7 +70,7 @@
             </div>
 
             <div>
-                <h6>AGENT STATUS</h6>
+                <h6 class="margin-top-0">AGENT STATUS</h6>
                 <p class="flex align-item-center column-gap-5">
                     <?php
                     if ($agentStatus == 'running') {

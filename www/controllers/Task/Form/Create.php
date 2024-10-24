@@ -9,7 +9,6 @@ class Create
     public function validate(array $formParams)
     {
         $myrepo = new \Controllers\Repo\Repo();
-        // $mysource = new \Controllers\Repo\Source\Source();
         $myhistory = new \Controllers\History();
 
         /**
@@ -145,16 +144,6 @@ class Create
                 }
             }
         }
-
-        /**
-         *  Check that the source repo exists
-         *  TODO : to remove (already checked in Param\Source)
-         */
-        // if ($formParams['repo-type'] == 'mirror') {
-        //     if ($mysource->exists($formParams['package-type'], $source) === false) {
-        //         throw new Exception("There is no source repository named " . $source);
-        //     }
-        // }
 
         /**
          *  Check scheduling parameters

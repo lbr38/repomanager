@@ -621,36 +621,6 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             $mygpg = new \Controllers\GPG();
 
             /**
-             *  If the source repo has a distant http:// gpg signing key, then download it
-             *  TODO : à retirer, l'import des clés gpg doit se faire depuis manage sources
-             */
-            // if (!empty($this->gpgKeyUrl)) {
-            //     if (!$this->download($this->gpgKeyUrl, TEMP_DIR . '/gpgkey-to-import.gpg')) {
-            //         $this->logError('Could not retrieve distant GPG signing key: ' . $this->gpgKeyUrl, 'Could not retrieve distant GPG signing key');
-            //     }
-
-            //     /**
-            //      *  Import key inside trusted keyring
-            //      */
-            //     $myprocess = new \Controllers\Process('/usr/bin/gpg --no-default-keyring --keyring ' . GPGHOME . '/trustedkeys.gpg --import ' . TEMP_DIR . '/gpgkey-to-import.gpg');
-            //     $myprocess->execute();
-
-            //     /**
-            //      *  Delete temporary GPG key file
-            //      */
-            //     unlink(TEMP_DIR . '/gpgkey-to-import.gpg');
-
-            //     /**
-            //      *  Quits if import has failed
-            //      */
-            //     if ($myprocess->getExitCode() != 0) {
-            //         $this->logError('Error while importing distant GPG signing key', 'Could not import distant GPG signing key');
-            //     }
-
-            //     $myprocess->close();
-            // }
-
-            /**
              *  Get all known editors GPG public keys imported into repomanager keyring
              */
             $knownPublicKeys = $mygpg->getTrustedKeys();

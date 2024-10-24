@@ -1211,7 +1211,7 @@ function getHostsWithPackageAjax(hostsId_array, package)
                         /**
                          *  Build package list
                          */
-                        packagesFound += '<span><img src="/assets/icons/package.svg" class="icon-np">' + packageName + ' (' + packageVersion + ')</span>';
+                        packagesFound += '<div class="flex align-item-center column-gap-5"><img src="/assets/icons/package.svg" class="icon-np">   <span>' + packageName + ' (' + packageVersion + ')</span></div>';
                     }
 
                     /**

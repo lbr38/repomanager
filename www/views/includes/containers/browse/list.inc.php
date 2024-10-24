@@ -11,22 +11,22 @@
 
     <div class="div-generic-blue grid grid-4">
         <div>
-            <h6>REPOSITORY</h6>
+            <h6 class="margin-top-0">REPOSITORY</h6>
             <p><span class="label-white"><?= $repo ?></span></p>
         </div>
 
         <div>
-            <h6>SNAPSHOT</h6>
+            <h6 class="margin-top-0">SNAPSHOT</h6>
             <p><span class="label-black"><?= $myrepo->getDateFormatted() ?></span></p>
         </div>
 
         <div>
-            <h6>SIZE</h6>
+            <h6 class="margin-top-0">SIZE</h6>
             <p><?= $repoSize ?></p>
         </div>
 
         <div>
-            <h6>PACKAGES</h6>
+            <h6 class="margin-top-0">PACKAGES</h6>
             <p><?= $packagesCount ?></p>
         </div>
     </div>

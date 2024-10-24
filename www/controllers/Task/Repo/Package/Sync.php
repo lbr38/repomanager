@@ -197,14 +197,6 @@ trait Sync
                 }
 
                 /**
-                 *  If the source repo has a http:// GPG signing key, then it will be used to check for package signature
-                 *  TODO : à retirer, l'import des clés gpg doit se faire depuis manage sources
-                 */
-                // if (!empty($sourceDefinition['Gpgkey'])) {
-                //     $mymirror->setGpgKeyUrl($sourceDefinition['Gpgkey']);
-                // }
-
-                /**
                  *  If the source repo requires a SSL certificate, private key or CA certificate, then they will be used
                  */
                 if (!empty($sourceDefinition['ssl-authentication']['certificate-path'])) {

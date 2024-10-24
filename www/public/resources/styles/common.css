@@ -429,23 +429,23 @@ input[type=checkbox]:not(.onoff-switch-input):checked {
     background-color: #ffb536;
 }
 /* All large buttons */
-.btn-large, .btn-large-blue, .btn-large-green, .btn-large-red {
+.btn-large, .btn-large-blue, .btn-large-green, .btn-large-red, .btn-large-tr {
     width: 100%;
 }
 /* All medium buttons */
-.btn-medium, .btn-medium-blue, .btn-medium-green, .btn-medium-red {
+.btn-medium, .btn-medium-blue, .btn-medium-green, .btn-medium-red, .btn-medium-tr {
     width: 150px;
 }
 /* All small buttons */
-.btn-small, .btn-small-blue, .btn-small-green, .btn-small-red {
+.btn-small, .btn-small-blue, .btn-small-green, .btn-small-red, .btn-small-tr {
     width: 100px;
 }
 /* All very small buttons */
-.btn-xsmall, .btn-xsmall-blue, .btn-xsmall-green, .btn-xsmall-red {
+.btn-xsmall, .btn-xsmall-blue, .btn-xsmall-green, .btn-xsmall-red, .btn-xsmall-tr {
     width: 50px;
 }
 /* All very very small buttons */
-.btn-xxsmall, .btn-xxsmall-blue, .btn-xxsmall-green, .btn-xxsmall-red {
+.btn-xxsmall, .btn-xxsmall-blue, .btn-xxsmall-green, .btn-xxsmall-red, .btn-xxsmall-tr {
     margin: 2px;
     width: 30px;
 }
