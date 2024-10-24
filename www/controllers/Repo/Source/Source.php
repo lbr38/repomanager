@@ -30,14 +30,6 @@ class Source
     }
 
     /**
-     *  Get source repository type from its Id
-     */
-    // public function getType(string $id)
-    // {
-    //     return $this->model->getType($id);
-    // }
-
-    /**
      *  Get source repo definition from its Id
      */
     public function getDefinition(string $id)
@@ -162,11 +154,11 @@ class Source
                                 }
 
                                 if (empty($fingerprints)) {
-                                    throw new Exception('No fingerprints found in the GPG key ' . $gpgKey);
+                                    throw new Exception('no fingerprints found');
                                 }
 
                                 /**
-                                 *  Rewrite the distribution gpg keys with the new ones
+                                 *  Rewrite all the distribution gpg keys with the new ones
                                  */
                                 foreach ($fingerprints as $fingerprint) {
                                     // Ignore fingerprint if already exists in $distributionGpgKeys[]
@@ -210,11 +202,11 @@ class Source
                                 }
 
                                 if (empty($fingerprints)) {
-                                    throw new Exception('No fingerprints found in the GPG key ' . $gpgKey);
+                                    throw new Exception('no fingerprints found');
                                 }
 
                                 /**
-                                 *  Rewrite the distribution gpg keys with the new ones
+                                 *  Rewrite all the release version gpg keys with the new ones
                                  */
                                 foreach ($fingerprints as $fingerprint) {
                                     // Ignore fingerprint if already exists in $releaseverGpgKeys[]
@@ -241,9 +233,9 @@ class Source
         }
 
         /**
-         *  Add source repo in database
+         *  Add source repository in database
          */
-        $this->model->new(json_encode($params));
+        $this->model->new(json_encode($params), $method);
     }
 
     /**
@@ -281,11 +273,6 @@ class Source
         if (!in_array($params['type'], $validTypes)) {
             throw new Exception('Invalid source repository type');
         }
-
-        /**
-         *  Get source type
-         */
-        // $type = $this->getType($id);
 
         /**
          *  Check that source repo name is not already used by another source repo

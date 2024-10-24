@@ -56,7 +56,14 @@
                 </div>
 
                 <div class="flex justify-end">
-                    <img src="/assets/icons/delete.svg" class="source-repo-delete-btn icon-lowopacity" source-id="<?= $item['Id'] ?>" source-name="<?= $name ?>" title="Delete <?= $name ?> source repository" />
+                    <div class="flex alig-item-center column-gap-10">
+                        <?php
+                        if ($item['Method'] == 'import') {
+                            echo '<img src="/assets/icons/github.svg" class="icon-np" title="Imported from github" />';
+                        } ?>
+
+                        <img src="/assets/icons/delete.svg" class="source-repo-delete-btn icon-lowopacity" source-id="<?= $item['Id'] ?>" source-name="<?= $name ?>" title="Delete <?= $name ?> source repository" />
+                    </div>
                 </div>
             </div>
 

@@ -13,27 +13,7 @@ class Form
      */
     public function get(string $action, array $repos)
     {
-        if (!in_array($action, $this->validActions)) {
-            throw new Exception('Task action is invalid');
-        }
-
-        if ($action == 'update') {
-            $title = '<h3>UPDATE</h3>';
-        }
-        if ($action == 'env') {
-            $title = '<h3>NEW ENVIRONMENT</h3>';
-        }
-        if ($action == 'duplicate') {
-            $title = '<h3>DUPLICATE</h3>';
-        }
-        if ($action == 'delete') {
-            $title = '<h3>DELETE REPOSITORY SNAPSHOT</h3>';
-        }
-        if ($action == 'rebuild') {
-            $title = '<h3>REBUILD REPOSITORY</h3>';
-        }
-
-        $content = $title . '<form class="task-form" autocomplete="off">';
+        $content = '<form class="task-form" autocomplete="off">';
 
         foreach ($repos as $repo) {
             $myrepo = new \Controllers\Repo\Repo();
@@ -131,6 +111,10 @@ class Form
              */
             if (empty($task['action'])) {
                 throw new Exception('No action has been specified');
+            }
+
+            if (!in_array($task['action'], $this->validActions)) {
+                throw new Exception('Invalid action: ' . $task['action']);
             }
 
             /**

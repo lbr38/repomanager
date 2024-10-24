@@ -11,6 +11,13 @@ if (!$this->db->columnExist('sources', 'Definition') === true) {
 }
 
 /**
+ *  Add new 'Method' column to the sources table
+ */
+if (!$this->db->columnExist('sources', 'Method') === true) {
+    $this->db->exec("ALTER TABLE sources ADD COLUMN Method VARCHAR(255)");
+}
+
+/**
  *  Migrate all source repositories to the new 'Definition' column
  */
 $mysource = new \Controllers\Repo\Source\Source();

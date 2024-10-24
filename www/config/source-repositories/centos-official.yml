@@ -2,15 +2,21 @@
 description: CentOS official repositories
 type: rpm
 repositories:
-  - name: centos-test
+  # CentOS9 BaseOS
+  - name: centos9-stream-baseos
     type: rpm
-    url: http://vault.centos.org/$releasever-stream/BaseOS/$basearch/os/
+    url: https://mirror.stream.centos.org/9-stream/BaseOS/$basearch/os/
     releasever:
-      - name: 8
-        description: CentOS 8 Stream
+      - name: 9
+        description: CentOS 9 Stream
         gpgkeys:
-
-    ssl-authentication:
-      certificate-path: ''
-      private-key-path: ''
-      ca-certificate-path: ''
+          # - fingerprint:
+  # CentOS9 AppStream
+  - name: centos9-stream-appstream
+    type: rpm
+    url: https://mirror.stream.centos.org/9-stream/AppStream/$basearch/os/
+    releasever:
+      - name: 9
+        description: CentOS 9 Stream
+        gpgkeys:
+          # - fingerprint: 

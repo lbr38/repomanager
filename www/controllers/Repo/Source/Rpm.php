@@ -222,7 +222,7 @@ class Rpm extends \Controllers\Repo\Source\Source
         }
 
         if (empty($fingerprints)) {
-            throw new Exception('No fingerprints found in the GPG key' . $gpgKey);
+            throw new Exception('no fingerprints found in the GPG key' . $gpgKey);
         }
 
         /**

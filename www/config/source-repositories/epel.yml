@@ -1,0 +1,27 @@
+---
+description: EPEL repositories
+type: rpm
+repositories:
+  # EPEL 8 & 9
+  - name: epel
+    type: rpm
+    url: https://dl.fedoraproject.org/pub/epel/$releasever/Everything/$basearch/
+    releasever:
+      - name: 9
+        description: EPEL 9
+        gpgkeys:
+          - fingerprint:
+      - name: 8
+        description: EPEL 8
+        gpgkeys:
+          - fingerprint:
+  
+  # EPEL 7
+  - name: epel-7
+    type: rpm
+    url: https://archives.fedoraproject.org/pub/archive/epel/7/$basearch/
+    releasever:
+      - name: 7
+        description: EPEL 7
+        gpgkeys:
+          - fingerprint:

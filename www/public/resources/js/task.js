@@ -267,12 +267,11 @@ $(document).on('click',".repos-list-group-select-all-latest-snap-btn",function (
     }
 });
 
-
 /**
  *  Event: Click on an action button
  */
 $(document).on('click',".repo-action-btn",function () {
-    var repos_array = [];
+    var repos = [];
 
     /**
      *  Hide all tasks buttons
@@ -298,39 +297,21 @@ $(document).on('click',".repo-action-btn",function () {
         obj['env-id'] = $(this).attr('env-id');
         obj['repo-status'] = $(this).attr('repo-status');
 
-        repos_array.push(obj);
+        repos.push(obj);
     });
 
     /**
      *  Execute the selected action
      */
-    var repos_array = JSON.stringify(repos_array);
+    var repos = JSON.stringify(repos);
 
     /**
-     *  Get the form for the selected action and open the panel
+     *  Get the panel and form for the selected action
      */
-    ajaxRequest(
-        // Controller:
-        'task',
-        // Action:
-        'getForm',
-        // Data:
-        {
-            taskAction: action,
-            repos_array: repos_array
-        },
-        // Print success alert:
-        false,
-        // Print error alert:
-        true,
-        // Reload container:
-        [],
-        // Execute functions on success:
-        [
-            "$('.slide-panel-container[slide-panel=\"repos/task\"]').find('.slide-panel-reloadable-div').html(jsonValue.message)",
-            "openPanel('repos/task')"
-        ]
-    );
+    getPanel('repos/task', {
+        action: action,
+        repos: repos
+    });
 });
 
 /**

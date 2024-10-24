@@ -468,7 +468,28 @@ $(document).on('submit','#newGroupForm',function () {
      */
     var name = $("#newGroupInput").val();
 
-    newGroup(name);
+    ajaxRequest(
+        // Controller:
+        'group',
+        // Action:
+        'new',
+        // Data:
+        {
+            name: name,
+            type: 'host'
+        },
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload container:
+        ['hosts/list'],
+        // Execute functions on success:
+        [
+            // Reload group panel
+            "reloadPanel('hosts/groups/list')"
+        ]
+    );
 
     return false;
 });
@@ -509,7 +530,30 @@ $(document).on('submit','.group-form',function () {
     var name = $(this).find('.group-name-input[group-id="' + id + '"]').val();
     var hostsId = $(this).find('select.group-hosts-list[group-id="' + id + '"]').val();
 
-    editGroup(id, name, hostsId);
+    ajaxRequest(
+        // Controller:
+        'group',
+        // Action:
+        'edit',
+        // Data:
+        {
+            id: id,
+            name: name,
+            data: hostsId,
+            type: 'host'
+        },
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload container:
+        ['hosts/list'],
+        // Execute functions on success:
+        [
+            // Reload group panel
+            "reloadPanel('hosts/groups/list')"
+        ]
+    );
 
     return false;
 });
@@ -1106,36 +1150,6 @@ $(document).on('mouseleave', '.event-packages-details', function () {
 });
 
 /**
- * Ajax: Create a new group
- * @param {string} name
- */
-function newGroup(name)
-{
-    ajaxRequest(
-        // Controller:
-        'group',
-        // Action:
-        'new',
-        // Data:
-        {
-            name: name,
-            type: 'host'
-        },
-        // Print success alert:
-        true,
-        // Print error alert:
-        true,
-        // Reload container:
-        ['hosts/list'],
-        // Execute functions on success:
-        [
-            // Reload group panel
-            "reloadPanel('hosts/groups/list')"
-        ]
-    );
-}
-
-/**
  * Ajax: Delete a group
  * @param {string} id
  */
@@ -1149,40 +1163,6 @@ function deleteGroup(id)
         // Data:
         {
             id: id,
-            type: 'host'
-        },
-        // Print success alert:
-        true,
-        // Print error alert:
-        true,
-        // Reload container:
-        ['hosts/list'],
-        // Execute functions on success:
-        [
-            // Reload group panel
-            "reloadPanel('hosts/groups/list')"
-        ]
-    );
-}
-
-/**
- * Ajax: Edit a group
- * @param {string} id
- * @param {string} name
- * @param {string} hostsId
- */
-function editGroup(id, name, hostsId)
-{
-    ajaxRequest(
-        // Controller:
-        'group',
-        // Action:
-        'edit',
-        // Data:
-        {
-            id: id,
-            name: name,
-            data: hostsId,
             type: 'host'
         },
         // Print success alert:

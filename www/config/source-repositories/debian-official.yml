@@ -6,16 +6,7 @@ repositories:
     type: deb
     url: https://deb.debian.org/debian
     distributions:
-      - name: bullseye
-        description: Debian 11
-        components:
-          - name: main
-          - name: contrib
-          - name: non-free
-        gpgkeys:
-          - fingerprint: 1F89983E0081FDE018F3CC9673A4F27B8DD47936
-          - fingerprint: A7236886F3CCCAAD148A27F80E98404D386FA1D9
-
+      # Debian 12
       - name: bookworm
         description: Debian 12
         components:
@@ -23,25 +14,22 @@ repositories:
           - name: contrib
           - name: non-free
         gpgkeys:
-
-    ssl-authentication:
-      certificate-path: ''
-      private-key-path: ''
-      ca-certificate-path: ''
-
-  - name: debian-archive
-    type: deb
-    url: https://archive.debian.org/debian
-    distributions:
-      - name: buster
-        description: Debian 10
+          - fingerprint: A7236886F3CCCAAD148A27F80E98404D386FA1D9
+          - fingerprint: 4CB50190207B4758A3F73A796ED0E7B82643E131
+          - fingerprint: 4D64FEC119C2029067D6E791F8D2585B8783D481
+      # Debian 11
+      - name: bullseye
+        description: Debian 11
         components:
           - name: main
           - name: contrib
           - name: non-free
         gpgkeys:
-
-    ssl-authentication:
-      certificate-path: ''
-      private-key-path: ''
-      ca-certificate-path: ''
+          - fingerprint: A7236886F3CCCAAD148A27F80E98404D386FA1D9
+          - fingerprint: 4CB50190207B4758A3F73A796ED0E7B82643E131
+          - fingerprint: A4285295FC7B1A81600062A9605C66F00D6C9793
+    # In case the repository URL is protected by SSL authentication
+    # ssl-authentication:
+    #   certificate-path: ''
+    #   private-key-path: ''
+    #   ca-certificate-path: ''

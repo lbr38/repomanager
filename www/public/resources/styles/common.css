@@ -297,7 +297,8 @@ td {
  *  Icons
  */
 .icon, .icon-small, .icon-medium, .icon-lowopacity, .icon-mediumopacity, .icon-nf, .icon-np {
-    height: 16px;
+    /* height: 16px; */
+    height: 17px;
     vertical-align: middle;
     cursor: pointer;
 }

@@ -110,7 +110,7 @@
                     endif;
                     if ($this->repo->getGpgCheck() == 'false') : ?>
                         <div class="flex column-gap-5">
-                            <img src="/assets/icons/error.svg" class="icon" />
+                            <img src="/assets/icons/warning-red.svg" class="icon" />
                             <span>Disabled</span>
                         </div>
                         <?php
@@ -134,7 +134,7 @@
                     endif;
                     if ($this->repo->getGpgSign() == 'false') : ?>
                         <div class="flex column-gap-5">
-                            <img src="/assets/icons/error.svg" class="icon" />
+                            <img src="/assets/icons/warning-red.svg" class="icon" />
                             <span>Disabled</span>
                         </div>
                         <?php

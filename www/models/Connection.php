@@ -329,7 +329,8 @@ class Connection extends SQLite3
          */
         $this->exec("CREATE TABLE IF NOT EXISTS sources (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        Definition TEXT)");
+        Definition TEXT,
+        Method VARCHAR(255))");
 
         /**
          *  users table
