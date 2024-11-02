@@ -1,0 +1,61 @@
+---
+description: Debian official repositories
+type: deb
+repositories:
+  - name: debian
+    type: deb
+    description: Debian official repositories
+    url: https://deb.debian.org/debian
+    distributions:
+      # Debian 12
+      - name: bookworm
+        description: Debian 12
+        components:
+          - name: main
+          - name: contrib
+          - name: non-free
+        gpgkeys:
+          - fingerprint: A7236886F3CCCAAD148A27F80E98404D386FA1D9
+          - fingerprint: 4CB50190207B4758A3F73A796ED0E7B82643E131
+          - fingerprint: 4D64FEC119C2029067D6E791F8D2585B8783D481
+
+      # Debian 11
+      - name: bullseye
+        description: Debian 11
+        components:
+          - name: main
+          - name: contrib
+          - name: non-free
+        gpgkeys:
+          - fingerprint: A7236886F3CCCAAD148A27F80E98404D386FA1D9
+          - fingerprint: 4CB50190207B4758A3F73A796ED0E7B82643E131
+          - fingerprint: A4285295FC7B1A81600062A9605C66F00D6C9793
+
+  - name: debian-security
+    type: deb
+    description: Debian security repositories
+    url: https://deb.debian.org/debian-security
+    distributions:
+      # Debian 12
+      - name: bookworm-security
+        description: Debian 12
+        components:
+          - name: main
+          - name: contrib
+          - name: non-free
+          - name: non-free-firmware
+        gpgkeys:
+          - fingerprint: ED541312A33F1128F10B1C6C54404762BBB6E853
+          - fingerprint: B0CAB9266E8C3929798B3EEEBDE6D2B9216EC7A8
+
+      # Debian 11
+      - name: bullseye-security
+        description: Debian 11
+        components:
+          - name: main
+          - name: contrib
+          - name: non-free
+          - name: non-free-firmware
+        gpgkeys:
+          - fingerprint: 5237CEEEF212F3D51C74ABE0112695A0E562B32A
+          - fingerprint: ED541312A33F1128F10B1C6C54404762BBB6E853

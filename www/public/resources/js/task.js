@@ -1,37 +1,3 @@
-
-loadNewRepoFormJS();
-
-function loadNewRepoFormJS()
-{
-    /**
-     *  Convert select to select2
-     */
-    selectToSelect2('.task-param[param-name="releasever"]', 'e.g: 8', true);
-    selectToSelect2('.task-param[param-name="dist"]', 'e.g: bullseye', true);
-    selectToSelect2('.task-param[param-name="section"]', 'e.g: main', true);
-    selectToSelect2('.task-param[param-name="arch"]', 'Select architecture', true);
-    selectToSelect2('.task-param[param-name="package-include"]', 'Specify package(s)', true);
-    selectToSelect2('.task-param[param-name="package-exclude"]', 'Specify package(s)', true);
-    selectToSelect2('select.task-param[param-name="schedule-day"]', 'Select day(s)...', true);
-    selectToSelect2('select.task-param[param-name="schedule-reminder"]', 'Select reminder...', true);
-    selectToSelect2('select.task-param[param-name="schedule-recipient"]', 'Select or add recipients...', true);
-
-    /**
-     *  Show / hide the necessary fields
-     */
-    newRepoFormPrintFields();
-}
-
-/**
- *  Reload the 'new repo' task div
- */
-function reloadNewRepoDiv()
-{
-    $(".slide-panel-reloadable-div[slide-panel='repos/new']").load(" .slide-panel-reloadable-div[slide-panel='repos/new'] > *",function () {
-        loadNewRepoFormJS();
-    });
-}
-
 /**
  *  Show / hide the fields according to the selected package type (rpm or deb)
  */
@@ -83,17 +49,18 @@ $(document).on('change','input:radio[name="task-schedule-type"]',function () {
      *  Case it is a unique task
      */
     if ($('input:radio[name="task-schedule-type"][action="' + action + '"][value="unique"]').is(":checked")) {
-        $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-unique-input').css('display', 'table-row');
-        $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-time-input').css('display', 'table-row');
+        $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-unique-input').show();
+        $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-time-input').show();
         $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-recurring-frequency-input').hide();
         $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-recurring-day-input').hide();
+        $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-recurring-monthly-input').hide();
     }
 
     /**
      *  Case it is a recurring task
      */
     if ($('input:radio[name="task-schedule-type"][action="' + action + '"][value="recurring"]').is(":checked")) {
-        $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-recurring-frequency-input').css('display', 'table-row');
+        $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-recurring-frequency-input').show();
         $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-unique-input').hide();
     }
 }).trigger('change');
@@ -112,19 +79,19 @@ $(document).on('change','select.task-param[param-name="schedule-frequency"]',fun
 
     if (frequency == 'daily') {
         $('.task-schedule-recurring-day-input').hide();
-        $('.task-schedule-time-input').css('display', 'table-row');
+        $('.task-schedule-time-input').show();
         $('.task-schedule-recurring-monthly-input').hide();
     }
 
     if (frequency == 'weekly') {
-        $('.task-schedule-recurring-day-input').css('display', 'table-row');
-        $('.task-schedule-time-input').css('display', 'table-row');
+        $('.task-schedule-recurring-day-input').show();
+        $('.task-schedule-time-input').show();
         $('.task-schedule-recurring-monthly-input').hide();
     }
 
     if (frequency == 'monthly') {
-        $('.task-schedule-recurring-monthly-input').css('display', 'table-row');
-        $('.task-schedule-time-input').css('display', 'table-row');
+        $('.task-schedule-recurring-monthly-input').show();
+        $('.task-schedule-time-input').show();
         $('.task-schedule-recurring-day-input').hide();
         $('task-schedule-recurring-day-input').hide();
     }
@@ -169,7 +136,7 @@ $(document).on('click','.delete-env-btn',function () {
             // Reload container:
             [],
         )
-    });
+    }, 'Remove');
 });
 
 /**
@@ -197,7 +164,7 @@ $(document).on('click',"input[name=checkbox-repo]",function () {
     if (count_checked == 0) {
         $('#repo-actions-btn-container').hide();
         $('.reposList').find('input[name=checkbox-repo]').removeAttr('style');
-        $('.repos-list-group[group-id=' + groupId + ']').find('.repos-list-group-select-all-latest-snap-btn').hide();
+        $('.repos-list-group[group-id=' + groupId + ']').find('.repos-list-group-select-all-btns').hide();
         return;
     }
 
@@ -210,7 +177,7 @@ $(document).on('click',"input[name=checkbox-repo]",function () {
     /**
      *  Show 'select all latest snapshots' buttons
      */
-    $('.repos-list-group[group-id=' + groupId + ']').find('.repos-list-group-select-all-latest-snap-btn').css('display', 'flex');
+    $('.repos-list-group[group-id=' + groupId + ']').find('.repos-list-group-select-all-btns').css('display', 'flex');
     // If the checkbox has an environment name then display 'select all xx env' snapshot button
     // TODO
     // if (envName != '') {
@@ -237,7 +204,7 @@ $(document).on('click',"input[name=checkbox-repo]",function () {
 /**
  *  Event: Click on 'select all latest snapshots' button
  */
-$(document).on('click',".repos-list-group-select-all-latest-snap-btn",function () {
+$(document).on('click',".repos-list-group-select-all-btns",function () {
     /**
      *  Retrieve group Id
      */
@@ -282,6 +249,11 @@ $(document).on('click',".repos-list-group-select-all-latest-snap-btn",function (
         // Set status
         $(this).attr('status', 'selected');
 
+        // Make sure the 'Select latest snapshots' button is visible and its checkbox is checked
+        $('.repos-list-group-select-all-btns[group-id="' + groupId + '"]').css('display', 'flex');
+        $('.repos-list-group-select-all-btns[group-id="' + groupId + '"]').css('opacity', '1');
+        $('.repos-list-group-select-all-btns[group-id="' + groupId + '"]').find('input[type="checkbox"]').prop('checked', true);
+
     /**
      *  Otherwise, uncheck all checkboxes
      */
@@ -295,17 +267,18 @@ $(document).on('click',".repos-list-group-select-all-latest-snap-btn",function (
         // Set status
         $(this).attr('status', '');
 
-        // Hide 'select all' buttons
-        $(this).hide();
+        // Make sure the 'Select latest snapshots' button is hidden and its checkbox is unchecked
+        $('.repos-list-group-select-all-btns[group-id="' + groupId + '"]').hide();
+        $('.repos-list-group-select-all-btns[group-id="' + groupId + '"]').css('opacity', '');
+        $('.repos-list-group-select-all-btns[group-id="' + groupId + '"]').find('input[type="checkbox"]').prop('checked', false);
     }
 });
-
 
 /**
  *  Event: Click on an action button
  */
 $(document).on('click',".repo-action-btn",function () {
-    var repos_array = [];
+    var repos = [];
 
     /**
      *  Hide all tasks buttons
@@ -331,39 +304,21 @@ $(document).on('click',".repo-action-btn",function () {
         obj['env-id'] = $(this).attr('env-id');
         obj['repo-status'] = $(this).attr('repo-status');
 
-        repos_array.push(obj);
+        repos.push(obj);
     });
 
     /**
      *  Execute the selected action
      */
-    var repos_array = JSON.stringify(repos_array);
+    var repos = JSON.stringify(repos);
 
     /**
-     *  Get the form for the selected action and open the panel
+     *  Get the panel and form for the selected action
      */
-    ajaxRequest(
-        // Controller:
-        'task',
-        // Action:
-        'getForm',
-        // Data:
-        {
-            taskAction: action,
-            repos_array: repos_array
-        },
-        // Print success alert:
-        false,
-        // Print error alert:
-        true,
-        // Reload container:
-        [],
-        // Execute functions on success:
-        [
-            "$('.slide-panel-container[slide-panel=\"repos/task\"]').find('.slide-panel-reloadable-div').html(jsonValue.message)",
-            "openPanel('repos/task')"
-        ]
-    );
+    getPanel('repos/task', {
+        action: action,
+        repos: repos
+    });
 });
 
 /**
@@ -384,7 +339,7 @@ $(document).on('click',".task-schedule-btn", function () {
         form.find('.task-confirm-btn').html('Schedule');
     } else {
         form.find('.task-schedule-params').hide();
-        form.find('.task-confirm-btn').css('background-color', '#ff0044');
+        form.find('.task-confirm-btn').css('background-color', '#F32F63');
         form.find('.task-confirm-btn').html('Execute now');
     }
 });
@@ -581,3 +536,130 @@ $(document).on('submit','.task-form',function () {
 
     return false;
 });
+
+/**
+ *  Event: on source repository selection
+ */
+$(document).on('change','select[param-name="source"]',function () {
+    /**
+     *  Get package type and source
+     */
+    var packageType = $(this).attr('package-type');
+    var source = $(this).val();
+
+    /**
+     *  Quit if no source selected
+     */
+    if (source == '') {
+        return;
+    }
+
+    /**
+     *  Get predefined values
+     */
+
+    // Case of a deb source
+    if (packageType == 'deb') {
+        // Get predefined distributions for the selected source
+        ajaxRequest(
+            // Controller:
+            'repo/source/distribution',
+            // Action:
+            'get-predefined-distributions',
+            // Data:
+            {
+                source: source
+            },
+            // Print success alert:
+            false,
+            // Print error alert:
+            true,
+            // Reload container:
+            [],
+            // Execute functions on success:
+            [
+                // Update select2 with the new values
+                "updateSelect2('.task-param[param-name=\"dist\"]', jsonValue.message, 'Select distribution', true)"
+            ]
+        );
+    }
+
+    // Case of a rpm source
+    if (packageType == 'rpm') {
+        // Get predefined release versions for the selected source
+        ajaxRequest(
+            // Controller:
+            'repo/source/releasever',
+            // Action:
+            'get-predefined-releasevers',
+            // Data:
+            {
+                source: source
+            },
+            // Print success alert:
+            false,
+            // Print error alert:
+            true,
+            // Reload container:
+            [],
+            // Execute functions on success:
+            [
+                // Update select2 with the new values
+                "updateSelect2('.task-param[param-name=\"releasever\"]', jsonValue.message, 'Select release version', true)"
+            ]
+        );
+    }
+}).trigger('change');
+
+/**
+ *  Event: on repository distribution selection
+ */
+$(document).on('change','select[param-name="dist"]',function () {
+    /**
+     *  Get source and distribution
+     */
+    var source = $('select[param-name="source"][package-type="deb"]').val();
+    var distribution = $(this).val();
+
+    /**
+     *  Quit if no source selected
+     */
+    if (source == '') {
+        return;
+    }
+
+    /**
+     *  Quit if no distribution selected
+     */
+    if (distribution == '') {
+        return;
+    }
+
+    /**
+     *  Get predefined values
+     */
+
+    // Get predefined components for the selected distribution
+    ajaxRequest(
+        // Controller:
+        'repo/source/distribution',
+        // Action:
+        'get-predefined-components',
+        // Data:
+        {
+            source: source,
+            distribution: distribution
+        },
+        // Print success alert:
+        false,
+        // Print error alert:
+        true,
+        // Reload container:
+        [],
+        // Execute functions on success:
+        [
+            // Update select2 with the new values
+            "updateSelect2('.task-param[param-name=\"section\"]', jsonValue.message, 'Select component', true)"
+        ]
+    );
+}).trigger('change');

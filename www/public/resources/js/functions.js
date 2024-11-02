@@ -1,12 +1,49 @@
 /**
- *
- *  Fonctions utiles
- *
+ * Get panel by name
+ * @param {*} name
+ */
+function getPanel(name, params = [''])
+{
+    ajaxRequest(
+        // Controller:
+        'general',
+        // Action:
+        'get-panel',
+        // Data:
+        {
+            name: name,
+            params: params
+        },
+        // Print success alert:
+        false,
+        // Print error alert:
+        true,
+        // Reload containers:
+        [],
+        // Execute function on success:
+        [
+            "$('footer').append(jsonValue.message);",
+            "openPanel('" + name + "');"
+        ]
+    );
+}
+
+/**
+ * Open a panel by name
+ * @param {*} name
  */
 function openPanel(name)
 {
+    // If there is another panel opened, the background of the new panel should be transparent to avoid overlay
+    if ($('.slide-panel-container').length > 1) {
+        var background = '#00000000';
+    } else {
+        var background = '#0000001f';
+    }
+
     $('.slide-panel-container[slide-panel="' + name + '"]').css({
-        visibility: 'visible'
+        visibility: 'visible',
+        background: background
     }).promise().done(function () {
         $('.slide-panel-container[slide-panel="' + name + '"]').find('.slide-panel').animate({
             right: '0'
@@ -14,24 +51,42 @@ function openPanel(name)
     })
 }
 
-function closePanel()
+/**
+ * Close a panel by name
+ * @param {*} name
+ */
+function closePanel(name = null)
 {
-    $('.slide-panel').animate({
-        right: '-1000px',
-    }).promise().done(function () {
-        $('.slide-panel-container').css({
-            visibility: 'hidden'
+    if (name != null) {
+        $('.slide-panel-container[slide-panel="' + name + '"]').find('.slide-panel').animate({
+            right: '-1000px',
+        }).promise().done(function () {
+            // $('.slide-panel-container[slide-panel="' + name + '"]').css({
+            //     visibility: 'hidden'
+            // })
+            $('.slide-panel-container[slide-panel="' + name + '"]').remove();
         })
-    })
+    } else {
+        $('.slide-panel').animate({
+            right: '-1000px',
+        }).promise().done(function () {
+            // $('.slide-panel-container').css({
+            //     visibility: 'hidden'
+            // })
+            $('.slide-panel-container').remove();
+        })
+    }
 }
 
 /**
- * Afficher un message d'alerte (success ou error)
+ * Print a success or error alert message
  * @param {*} message
  * @param {*} type
  */
 function printAlert(message, type = null, timeout = 2500)
 {
+    random = Math.floor(Math.random() * (100000 - 100 + 1) + 100)
+
     closeConfirmBox();
     $('#newalert').remove();
 
@@ -46,12 +101,12 @@ function printAlert(message, type = null, timeout = 2500)
         var alertClass = 'alert-success';
     }
 
-    $('footer').append('<div id="newalert" class="' + alertClass + '"><div>' + message + '</div></div>');
+    $('footer').append('<div id="newalert" class="' + alertClass + ' ' + random + '"><div>' + message + '</div></div>');
 
-    if (timeout != 'none') {
+    if (timeout != null) {
         window.setTimeout(function () {
-            $('#newalert').fadeTo(1500, 0).slideUp(1000, function () {
-                $('#newalert').remove();
+            $('#newalert.' + random).fadeTo(1500, 0).slideUp(1000, function () {
+                $('#newalert.' + random).remove();
             });
         }, timeout);
     }
@@ -250,25 +305,6 @@ function copyToClipboard(containerid)
     window.getSelection().removeAllRanges();
 
     printAlert('Copied to clipboard', 'success');
-}
-
-/**
- *  Convert select tag to a select2 by specified element
- *  @param {*} element
- */
-function selectToSelect2(element, placeholder = null, tags = false)
-{
-    if (placeholder == null) {
-        placeholder = 'Select...';
-    }
-
-    $(element).select2({
-        closeOnSelect: false,
-        placeholder: placeholder,
-        tags: tags,
-        minimumResultsForSearch: Infinity, /* disable search box */
-        allowClear: true /* add a clear button */
-    });
 }
 
 /**

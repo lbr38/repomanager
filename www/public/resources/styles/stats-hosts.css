@@ -34,7 +34,7 @@ td:last-child {
 
 .hosts-table-title, .host-line {
     display: grid;
-    grid-template-columns: 3% 4% 47% 11% 11% 8% 8% 8%;
+    grid-template-columns: 5% 47% 11% 11% 8% 8% 8%;
     align-items: center;
     text-wrap: balance;
 }
@@ -130,17 +130,8 @@ td:last-child {
 }
 
 .hosts-chart-sub-container {
+    height: 250px;
     position: relative;
-}
-
-.hosts-chart-title {
-    display: block;
-    width: 100%;
-    margin-bottom: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    text-align: center;
-    color: #5f5f5f;
 }
 
 .hosts-charts-list-column-container {
@@ -162,7 +153,7 @@ td:last-child {
 }
 
 .hosts-charts-list-label span {
-    font-size: 13.5px;
+    font-size: 14px;
     color: #ffffffd9;
 }
 

@@ -1,0 +1,41 @@
+---
+description: Ubuntu official archived (EOL) repositories
+type: deb
+repositories:
+  - name: ubuntu
+    type: deb
+    description: Ubuntu official archived (EOL) repositories
+    url: https://old-releases.ubuntu.com/ubuntu
+    distributions:
+      # Ubuntu 21.10
+      - name: impish
+        description: Ubuntu 21.10
+        components:
+          - name: main
+          - name: restricted
+          - name: universe
+          - name: multiverse
+        gpgkeys:
+          - fingerprint: 871920D1991BC93C
+
+      # Ubuntu 21.04
+      - name: hirsute
+        description: Ubuntu 21.04
+        components:
+          - name: main
+          - name: restricted
+          - name: universe
+          - name: multiverse
+        gpgkeys:
+          - fingerprint: 871920D1991BC93C
+
+      # Ubuntu 20.10
+      - name: groovy
+        description: Ubuntu 20.10
+        components:
+          - name: main
+          - name: restricted
+          - name: universe
+          - name: multiverse
+        gpgkeys:
+          - fingerprint: 871920D1991BC93C

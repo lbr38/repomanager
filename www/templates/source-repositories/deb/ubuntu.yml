@@ -1,0 +1,70 @@
+---
+description: Ubuntu official repositories
+type: deb
+repositories:
+  - name: ubuntu
+    type: deb
+    description: Ubuntu official repositories
+    url: http://archive.ubuntu.com/ubuntu
+    distributions:
+      # Ubuntu 24.04
+      - name: noble
+        description: Ubuntu 24.04
+        components:
+          - name: main
+          - name: restricted
+          - name: universe
+          - name: multiverse
+        gpgkeys:
+          - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
+
+      # Ubuntu 22.04
+      - name: jammy
+        description: Ubuntu 22.04
+        components:
+          - name: main
+          - name: restricted
+          - name: universe
+          - name: multiverse
+        gpgkeys:
+          - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
+
+      # Ubuntu 20.04
+      - name: focal
+        description: Ubuntu 20.04
+        components:
+          - name: main
+          - name: restricted
+          - name: universe
+          - name: multiverse
+        gpgkeys:
+          - fingerprint: 3B4FE6ACC0B21F32
+          - fingerprint: 871920D1991BC93C
+
+  - name: ubuntu-security
+    type: deb
+    url: http://security.ubuntu.com/ubuntu
+    description: Ubuntu security repositories
+    distributions:
+      # Ubuntu 24.04
+      - name: noble-updates
+        description: Ubuntu 24.04 Security Updates
+        components:
+          - name: main
+          - name: restricted
+          - name: universe
+          - name: multiverse
+        gpgkeys:
+          - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
+      
+      # Ubuntu 22.04
+      - name: jammy-updates
+        description: Ubuntu 22.04 Security Updates
+        components:
+          - name: main
+          - name: restricted
+          - name: universe
+          - name: multiverse
+        gpgkeys:
+          - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
+      

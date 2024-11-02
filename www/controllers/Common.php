@@ -113,39 +113,6 @@ class Common
     }
 
     /**
-     *  Fonction permettant d'afficher une bulle d'alerte en bas de l'écran
-     */
-    public static function printAlert(string $message, string $alertType = null)
-    {
-        if ($alertType == "error") {
-            echo '<div class="alert-error">';
-        }
-        if ($alertType == "success") {
-            echo '<div class="alert-success">';
-        }
-        if (empty($alertType)) {
-            echo '<div class="alert">';
-        }
-
-        echo '<span>' . $message . '</span>';
-        echo '</div>';
-
-        echo '<script type="text/javascript">';
-        echo '$(document).ready(function () {';
-        echo 'window.setTimeout(function() {';
-        if ($alertType == "error" or $alertType == "success") {
-            echo "$('.alert-${alertType}').fadeTo(1500, 0).slideUp(1000, function(){";
-        } else {
-            echo "$('.alert').fadeTo(1500, 0).slideUp(1000, function(){";
-        }
-        echo '$(this).remove();';
-        echo '});';
-        echo '}, 2500);';
-        echo '});';
-        echo '</script>';
-    }
-
-    /**
      *  Colore l'environnement d'une étiquette rouge ou blanche
      */
     public static function envtag($env, $css = null)
@@ -531,43 +498,76 @@ class Common
      *  Return true if distant URL is reachable
      *  The target URL can be a file or a directory
      */
-    public static function urlReachable(string $url, string $sslCertificatePath = null, string $sslPrivateKeyPath = null, string $sslCustomCaCertificate = null)
+    public static function urlReachable(string $url, int $timeout = 3, string $sslCertificatePath = null, string $sslPrivateKeyPath = null, string $sslCustomCaCertificate = null)
     {
-        $ch = curl_init($url);
+        try {
+            $ch = curl_init($url);
 
-        curl_setopt($ch, CURLOPT_NOBODY, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_NOBODY, true);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
 
-        /**
-         *  If a proxy has been specified
-         */
-        if (!empty(PROXY)) {
-            curl_setopt($ch, CURLOPT_PROXY, PROXY);
-        }
+            /**
+             *  If a proxy has been specified
+             */
+            if (!empty(PROXY)) {
+                curl_setopt($ch, CURLOPT_PROXY, PROXY);
+            }
 
-        /**
-         *  If a custom SSL certificate / private key / ca certificate have been specified
-         */
-        if (!empty($sslCertificatePath)) {
-            curl_setopt($ch, CURLOPT_SSLCERT, $sslCertificatePath);
-        }
-        if (!empty($sslPrivateKeyPath)) {
-            curl_setopt($ch, CURLOPT_SSLKEY, $sslPrivateKeyPath);
-        }
-        if (!empty($sslCustomCaCertificate)) {
-            curl_setopt($ch, CURLOPT_CAINFO, $sslCustomCaCertificate);
-        }
+            /**
+             *  If a custom SSL certificate / private key / ca certificate have been specified
+             */
+            if (!empty($sslCertificatePath)) {
+                curl_setopt($ch, CURLOPT_SSLCERT, $sslCertificatePath);
+            }
+            if (!empty($sslPrivateKeyPath)) {
+                curl_setopt($ch, CURLOPT_SSLKEY, $sslPrivateKeyPath);
+            }
+            if (!empty($sslCustomCaCertificate)) {
+                curl_setopt($ch, CURLOPT_CAINFO, $sslCustomCaCertificate);
+            }
 
-        if (curl_exec($ch) === false) {
-            return false;
-        }
+            /**
+             *  If curl fails with an error, try to retrieve the error message and error number and throw an exception
+             */
+            if (curl_exec($ch) === false) {
+                $exception = 'curl error';
+                $errorNumber = curl_errno($ch);
+                $error = curl_error($ch);
 
-        $responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                // Add curl error number
+                if (!empty($errorNumber)) {
+                    $exception .= ' (' . $errorNumber . ')';
+                }
 
-        curl_close($ch);
+                // Add curl error message
+                if (!empty($error)) {
+                    $exception .= ': ' . $error;
+                }
 
-        if ($responseCode != 200) {
-            return array('responseCode' => $responseCode);
+                throw new Exception($exception);
+            }
+
+            /**
+             *  If curl execution succeeded, retrieve the HTTP response code
+             */
+            $responseCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+
+            if (empty($responseCode)) {
+                throw new Exception('could not retrieve HTTP response code');
+            }
+
+            /**
+             *  If the response code is different from 200, then return the response code
+             */
+            if ($responseCode != 200) {
+                throw new Exception('HTTP response code: ' . $responseCode);
+            }
+        } catch (Exception $e) {
+            throw new Exception('URL reachability check failed: ' . $e->getMessage());
+        } finally {
+            curl_close($ch);
         }
 
         return true;

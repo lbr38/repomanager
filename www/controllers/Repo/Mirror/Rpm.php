@@ -14,13 +14,14 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
      */
     private function downloadRepomd(string $url)
     {
-        $this->logOutput(PHP_EOL . 'Getting <code>repomd.xml</code> from <span class="copy">' . $url . '/repodata/repomd.xml</span> ... ');
+        $this->logTitle('GETTING REPOMD.XML');
+        $this->logNote('From ' . $url . '/repodata/repomd.xml');
 
         if (!$this->download($url . '/repodata/repomd.xml', $this->workingDir . '/repomd.xml')) {
             $this->logError('error', 'Could not download <code>repomd.xml</code>');
         }
 
-        $this->logOK();
+        $this->logOK('Done');
     }
 
     /**
@@ -28,10 +29,11 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
      */
     private function downloadPrimary(string $url)
     {
-        $this->logOutput(PHP_EOL . 'Getting <code>primary.xml.gz</code> from <span class="copy">' . $url . '/' . $this->primaryLocation . '</span> ... ');
+        $this->logTitle('GETTING PRIMARY.XML.GZ');
+        $this->logNote('From ' . $url . '/' . $this->primaryLocation);
 
         if (!$this->download($url . '/' . $this->primaryLocation, $this->workingDir . '/primary.xml.gz')) {
-            throw new Exception('Could not download <code>primary.xml.gz</code>');
+            $this->logError('Could not download <code>primary.xml.gz</code>');
         }
 
         /**
@@ -41,12 +43,12 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         if (hash_file('sha512', $this->workingDir . '/primary.xml.gz') != $this->primaryChecksum) {
             if (hash_file('sha256', $this->workingDir . '/primary.xml.gz') != $this->primaryChecksum) {
                 if (hash_file('sha1', $this->workingDir . '/primary.xml.gz') != $this->primaryChecksum) {
-                    throw new Exception('<code>primary.xml.gz</code> checksum does not match provided checksum');
+                    $this->logError('<code>primary.xml.gz</code> checksum does not match provided checksum');
                 }
             }
         }
 
-        $this->logOK();
+        $this->logOK('Done');
     }
 
     /**
@@ -61,10 +63,11 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             return;
         }
 
-        $this->logOutput(PHP_EOL . 'Getting <code>comps.xml</code> from <span class="copy">' . $url . '/' . $this->compsLocation . '</span> ... ');
+        $this->logTitle('GETTING COMPS.XML');
+        $this->logNote('From ' . $url . '/' . $this->compsLocation);
 
         if (!$this->download($url . '/' . $this->compsLocation, $this->workingDir . '/comps.xml')) {
-            throw new Exception('Could not download <code>comps.xml</code>');
+            $this->logError('Could not download <code>comps.xml</code>');
         }
 
         /**
@@ -74,12 +77,12 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         if (hash_file('sha512', $this->workingDir . '/comps.xml') != $this->compsChecksum) {
             if (hash_file('sha256', $this->workingDir . '/comps.xml') != $this->compsChecksum) {
                 if (hash_file('sha1', $this->workingDir . '/comps.xml') != $this->compsChecksum) {
-                    throw new Exception('<code>comps.xml</code> checksum does not match provided checksum');
+                    $this->logError('<code>comps.xml</code> checksum does not match provided checksum');
                 }
             }
         }
 
-        $this->logOK();
+        $this->logOK('Done');
     }
 
     /**
@@ -94,7 +97,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             return;
         }
 
-        $this->logOutput(PHP_EOL . 'Getting <code>modules</code> file from <span class="copy">' . $url . '/' . $this->modulesLocation . '</span> ... ');
+        $this->logTitle('GETTING MODULES');
+        $this->logNote('From ' . $url . '/' . $this->modulesLocation);
 
         /**
          *  Get modules file extension
@@ -114,14 +118,14 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             $modulesFileExtension = 'yaml';
             $modulesFileTargetName = 'modules-temp.yaml';
         } else {
-            throw new Exception('Unsupported file extension ' . pathinfo($this->modulesLocation, PATHINFO_EXTENSION) . ' for <code>modules</code> file. Please contact the developer to add support for this file extension.');
+            $this->logError('Unsupported file extension ' . pathinfo($this->modulesLocation, PATHINFO_EXTENSION) . ' for <code>modules</code> file. Please contact the developer to add support for this file extension.');
         }
 
         /**
          *  Download modules file
          */
         if (!$this->download($url . '/' . $this->modulesLocation, $this->workingDir . '/' . $modulesFileTargetName)) {
-            throw new Exception('Could not download <code>' . $modulesFileTargetName . '</code> file');
+            $this->logError('Could not download <code>' . $modulesFileTargetName . '</code> file');
         }
 
         /**
@@ -131,7 +135,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         if (hash_file('sha512', $this->workingDir . '/' . $modulesFileTargetName) != $this->modulesChecksum) {
             if (hash_file('sha256', $this->workingDir . '/' . $modulesFileTargetName) != $this->modulesChecksum) {
                 if (hash_file('sha1', $this->workingDir . '/' . $modulesFileTargetName) != $this->modulesChecksum) {
-                    throw new Exception('<code>' . $modulesFileTargetName . '</code> checksum does not match provided checksum');
+                    $this->logError('<code>' . $modulesFileTargetName . '</code> checksum does not match provided checksum');
                 }
             }
         }
@@ -143,14 +147,14 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             try {
                 \Controllers\Common::gunzip($this->workingDir . '/' . $modulesFileTargetName);
             } catch (Exception $e) {
-                throw new Exception('Could not uncompress <code>' . $modulesFileTargetName . '</code>: ' . $e->getMessage());
+                $this->logError('Could not uncompress <code>' . $modulesFileTargetName . '</code>: ' . $e->getMessage());
             }
 
             /**
              *  Delete original .gz file
              */
             if (!unlink($this->workingDir . '/' . $modulesFileTargetName)) {
-                throw new Exception('Could not delete <code>' . $modulesFileTargetName . '</code> file');
+                $this->logError('Could not delete <code>' . $modulesFileTargetName . '</code> file');
             }
         }
 
@@ -158,14 +162,14 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             try {
                 \Controllers\Common::bunzip2($this->workingDir . '/' . $modulesFileTargetName, $this->workingDir . '/modules.yaml');
             } catch (Exception $e) {
-                throw new Exception('Could not uncompress <code>' . $modulesFileTargetName . '</code>: ' . $e->getMessage());
+                $this->logError('Could not uncompress <code>' . $modulesFileTargetName . '</code>: ' . $e->getMessage());
             }
 
             /**
              *  Delete original .bz2 file
              */
             if (!unlink($this->workingDir . '/' . $modulesFileTargetName)) {
-                throw new Exception('Could not delete <code>' . $modulesFileTargetName . '</code> file');
+                $this->logError('Could not delete <code>' . $modulesFileTargetName . '</code> file');
             }
         }
 
@@ -173,18 +177,18 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             try {
                 \Controllers\Common::xzUncompress($this->workingDir . '/' . $modulesFileTargetName, $this->workingDir . '/modules.yaml');
             } catch (Exception $e) {
-                throw new Exception('Could not uncompress <code>' . $modulesFileTargetName . '</code>: ' . $e->getMessage());
+                $this->logError('Could not uncompress <code>' . $modulesFileTargetName . '</code>: ' . $e->getMessage());
             }
 
             /**
              *  Delete original .xz file
              */
             if (!unlink($this->workingDir . '/' . $modulesFileTargetName)) {
-                throw new Exception('Could not delete <code>' . $modulesFileTargetName . '</code> file');
+                $this->logError('Could not delete <code>' . $modulesFileTargetName . '</code> file');
             }
         }
 
-        $this->logOK();
+        $this->logOK('Done');
     }
 
     /**
@@ -199,7 +203,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             return;
         }
 
-        $this->logOutput(PHP_EOL . 'Getting <code>updateinfo.xml.gz</code> from <span class="copy">' . $url . '/' . $this->updateInfoLocation . '</span> ... ');
+        $this->logTitle('GETTING UPDATEINFO.XML.GZ');
+        $this->logNote('From ' . $url . '/' . $this->updateInfoLocation);
 
         if (pathinfo($this->updateInfoLocation, PATHINFO_EXTENSION) == 'gz') {
             $updateInfoFileExtension = 'gz';
@@ -214,11 +219,11 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             $updateInfoFileExtension = 'xml';
             $updateInfoFileTargetName = 'updateinfo.xml';
         } else {
-            throw new Exception('Unsupported file extension ' . pathinfo($this->updateInfoLocation, PATHINFO_EXTENSION) . ' for <code>updateinfo</code> file. Please contact the developer to add support for this file extension.');
+            $this->logError('Unsupported file extension ' . pathinfo($this->updateInfoLocation, PATHINFO_EXTENSION) . ' for <code>updateinfo</code> file. Please contact the developer to add support for this file extension.');
         }
 
         if (!$this->download($url . '/' . $this->updateInfoLocation, $this->workingDir . '/' . $updateInfoFileTargetName)) {
-            throw new Exception('Could not download <code>updateinfo.xml.gz</code>');
+            $this->logError('Could not download <code>updateinfo.xml.gz</code>');
         }
 
         /**
@@ -228,7 +233,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         if (hash_file('sha512', $this->workingDir . '/' . $updateInfoFileTargetName) != $this->updateInfoChecksum) {
             if (hash_file('sha256', $this->workingDir . '/' . $updateInfoFileTargetName) != $this->updateInfoChecksum) {
                 if (hash_file('sha1', $this->workingDir . '/' . $updateInfoFileTargetName) != $this->updateInfoChecksum) {
-                    throw new Exception('<code>' . $updateInfoFileTargetName . '</code> checksum does not match provided checksum');
+                    $this->logError('<code>' . $updateInfoFileTargetName . '</code> checksum does not match provided checksum');
                 }
             }
         }
@@ -240,14 +245,14 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             try {
                 \Controllers\Common::gunzip($this->workingDir . '/' . $updateInfoFileTargetName);
             } catch (Exception $e) {
-                throw new Exception('Could not uncompress <code>' . $updateInfoFileTargetName . '</code>: ' . $e->getMessage());
+                $this->logError('Could not uncompress <code>' . $updateInfoFileTargetName . '</code>: ' . $e->getMessage());
             }
 
             /**
              *  Delete original .gz file
              */
             if (!unlink($this->workingDir . '/' . $updateInfoFileTargetName)) {
-                throw new Exception('Could not delete <code>' . $updateInfoFileTargetName . '</code> file');
+                $this->logError('Could not delete <code>' . $updateInfoFileTargetName . '</code> file');
             }
         }
 
@@ -255,14 +260,14 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             try {
                 \Controllers\Common::bunzip2($this->workingDir . '/' . $updateInfoFileTargetName, $this->workingDir . '/updateinfo.xml');
             } catch (Exception $e) {
-                throw new Exception('Could not uncompress <code>' . $updateInfoFileTargetName . '</code>: ' . $e->getMessage());
+                $this->logError('Could not uncompress <code>' . $updateInfoFileTargetName . '</code>: ' . $e->getMessage());
             }
 
             /**
              *  Delete original .bz2 file
              */
             if (!unlink($this->workingDir . '/' . $updateInfoFileTargetName)) {
-                throw new Exception('Could not delete <code>' . $updateInfoFileTargetName . '</code> file');
+                $this->logError('Could not delete <code>' . $updateInfoFileTargetName . '</code> file');
             }
         }
 
@@ -270,18 +275,18 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             try {
                 \Controllers\Common::xzUncompress($this->workingDir . '/' . $updateInfoFileTargetName, $this->workingDir . '/updateinfo.xml');
             } catch (Exception $e) {
-                throw new Exception('Could not uncompress <code>' . $updateInfoFileTargetName . '</code>: ' . $e->getMessage());
+                $this->logError('Could not uncompress <code>' . $updateInfoFileTargetName . '</code>: ' . $e->getMessage());
             }
 
             /**
              *  Delete original .xz file
              */
             if (!unlink($this->workingDir . '/' . $updateInfoFileTargetName)) {
-                throw new Exception('Could not delete <code>' . $updateInfoFileTargetName . '</code> file');
+                $this->logError('Could not delete <code>' . $updateInfoFileTargetName . '</code> file');
             }
         }
 
-        $this->logOK();
+        $this->logOK('Done');
     }
 
     /**
@@ -301,7 +306,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             $jsonArray = json_decode(json_encode($xml), true);
             unset($xml);
         } catch (Exception $e) {
-            $this->logError('Could not parse ' . $this->workingDir . '/repomd.xml: ' . $e->getMessage() . PHP_EOL . $error, 'Could not retrieve package list');
+            $this->logError('Could not parse ' . $this->workingDir . '/repomd.xml: ' . $e->getMessage(), 'Could not retrieve package list');
         }
 
         gc_collect_cycles();
@@ -439,7 +444,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         $error = 0;
         $this->rpmPackagesLocation = array();
 
-        $this->logOutput(PHP_EOL . 'Retrieving packages list from <span class="copy">' . $primaryFile . '</span> ... ');
+        $this->logTitle('PARSING PACKAGES LIST');
+        $this->logNote('From ' . $primaryFile);
 
         /**
          *  Get primary.xml.gz mime type
@@ -471,7 +477,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              *  Case it's another mime type, throw an error
              */
             } else {
-                throw new Exception('MIME type not supported: ' . $mime . PHP_EOL . 'Please contact the developer to add support for this MIME type');
+                throw new Exception('MIME type not supported: ' . $mime . '. Please contact the developer to add support for this MIME type.');
             }
         } catch (Exception $e) {
             $this->logError($e, 'Error while uncompressing <code>'. end(explode('/', $primaryFile)) . '</code>');
@@ -497,7 +503,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             $jsonArray = json_decode(json_encode($xml), true);
             unset($xml);
         } catch (Exception $e) {
-            $this->logError('Could not parse ' . $primaryFile . ': ' . $e->getMessage() . PHP_EOL . $error, 'Could not retrieve package list');
+            $this->logError('Could not parse ' . $primaryFile . ': ' . $e->getMessage(), 'Could not retrieve package list');
         }
 
         gc_collect_cycles();
@@ -515,7 +521,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              *  If package arch is not part of the archs selected by the user then skip it
              */
             if (!in_array($jsonArray['package']['arch'], $this->arch)) {
-                $this->logOutput(PHP_EOL . ' <span class="yellowtext"> Package architecture ' . $jsonArray['package']['arch'] . ' is not matching any of the desired architecture (ignored)</span>' . PHP_EOL);
+                $this->logWarning('Package architecture ' . $jsonArray['package']['arch'] . ' is not matching any of the desired architecture (ignored)');
                 $error++;
             }
 
@@ -529,7 +535,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                  *  If package checksum is not found then it can not be retrieved
                  */
                 if (empty($jsonArray['package']['checksum'])) {
-                    $this->logOutput(PHP_EOL . ' <span class="yellowtext"> Could not find checksum value for package ' . $packageLocation . '</span>' . PHP_EOL);
+                    $this->logWarning('Could not find checksum value for package ' . $packageLocation);
                     $error++;
                 } else {
                     $packageChecksum = $jsonArray['package']['checksum'];
@@ -597,7 +603,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          *  Print OK if there was no warning
          */
         if ($error == 0) {
-            $this->logOK();
+            $this->logOK('Done');
         }
 
         unset($jsonArray, $data);
@@ -615,35 +621,6 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             $mygpg = new \Controllers\GPG();
 
             /**
-             *  If the source repo has a distant http:// gpg signing key, then download it
-             */
-            if (!empty($this->gpgKeyUrl)) {
-                if (!$this->download($this->gpgKeyUrl, TEMP_DIR . '/gpgkey-to-import.gpg')) {
-                    $this->logError('Could not retrieve distant GPG signing key: ' . $this->gpgKeyUrl, 'Could not retrieve distant GPG signing key');
-                }
-
-                /**
-                 *  Import key inside trusted keyring
-                 */
-                $myprocess = new \Controllers\Process('/usr/bin/gpg --no-default-keyring --keyring ' . GPGHOME . '/trustedkeys.gpg --import ' . TEMP_DIR . '/gpgkey-to-import.gpg');
-                $myprocess->execute();
-
-                /**
-                 *  Delete temporary GPG key file
-                 */
-                unlink(TEMP_DIR . '/gpgkey-to-import.gpg');
-
-                /**
-                 *  Quits if import has failed
-                 */
-                if ($myprocess->getExitCode() != 0) {
-                    $this->logError('Error while importing distant GPG signing key', 'Could not import distant GPG signing key');
-                }
-
-                $myprocess->close();
-            }
-
-            /**
              *  Get all known editors GPG public keys imported into repomanager keyring
              */
             $knownPublicKeys = $mygpg->getTrustedKeys();
@@ -659,7 +636,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         /**
          *  Print URL from which packages are downloaded
          */
-        $this->logOutput(PHP_EOL . 'Downloading packages from <span class="copy">' . $url . '</span>:' . PHP_EOL);
+        $this->logTitle('DOWNLOADING PACKAGES');
+        $this->logNote('From ' . $url);
 
         /**
          *  Count total packages to print progression during syncing
@@ -671,13 +649,6 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          *  Download each package and check its md5
          */
         foreach ($this->rpmPackagesLocation as $rpmPackage) {
-            /**
-             *  Before downloading each package, check if there is enough disk space left (2GB minimum)
-             */
-            if (disk_free_space(REPOS_DIR) < 2000000000) {
-                $this->logError('Repo storage has reached 2GB (minimum) of free space left. Task automatically stopped.', 'Low disk space');
-            }
-
             /**
              *  Retrieve package informations from $rpmPackagesLocation array (what has been parsed from primary.xml file)
              */
@@ -691,7 +662,15 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             /**
              *  Output package to download to log file
              */
-            $this->logOutput('<span class="opacity-80-cst">(' . $packageCounter . '/' . $totalPackages . ')  ➙ ' . $rpmPackageLocation . ' ... </span>');
+            $this->logTitle('DOWNLOADING PACKAGE (' . $packageCounter . '/' . $totalPackages . ')');
+            $this->logNote($url . '/' . $rpmPackageLocation);
+
+            /**
+             *  Before downloading package, check if there is enough disk space left (2GB minimum)
+             */
+            if (disk_free_space(REPOS_DIR) < 2000000000) {
+                $this->logError('Repo storage has reached 2GB (minimum) of free space left. Task automatically stopped.', 'Low disk space');
+            }
 
             /**
              *  If a list of package(s) to include has been provided, check if the package is in the list
@@ -710,7 +689,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                  *  If package is not in the list of packages to include, skip it
                  */
                 if (!$isIn) {
-                    $this->logOutput('<span class="opacity-80-cst">not in the list of packages to include (ignoring)</span>' . PHP_EOL);
+                    $this->logWarning('Not in the list of packages to include (ignoring)');
                     continue;
                 }
             }
@@ -732,7 +711,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                  *  If package is in the list of packages to exclude, skip it
                  */
                 if ($isIn) {
-                    $this->logOutput('<span class="opacity-80-cst">in the list of packages to exclude (ignoring)</span>' . PHP_EOL);
+                    $this->logWarning('In the list of packages to exclude (ignoring)');
                     continue;
                 }
             }
@@ -782,7 +761,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              *  Check if file does not already exists before downloading it (e.g. copied from a previously snapshot)
              */
             if (file_exists($absoluteDir . '/' . $rpmPackageName)) {
-                $this->logOutput('already exists (ignoring)' . PHP_EOL);
+                $this->logOK('Already exists (ignoring)');
                 continue;
             }
 
@@ -792,7 +771,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              */
             if (isset($this->previousSnapshotDirPath)) {
                 if (file_exists($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $rpmPackageName)) {
-                    $this->logOK('(linked to previous snapshot)');
+                    $this->logOK('Linked to previous snapshot');
 
                     /**
                      *  Create hard link to the package
@@ -818,7 +797,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              */
             if (hash_file('sha256', $absoluteDir . '/' . $rpmPackageName) != $rpmPackageChecksum) {
                 if (hash_file('sha1', $absoluteDir . '/' . $rpmPackageName) != $rpmPackageChecksum) {
-                    $this->logError('checksum of the downloaded package does not match the checksum indicated by the source repository metadata (tested sha256 and sha1)', 'Error while retrieving packages');
+                    $this->logError('Checksum of the downloaded package does not match the checksum indicated by the source repository metadata (tested sha256 and sha1)', 'Error while retrieving packages');
                 }
             }
 
@@ -961,7 +940,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             /**
              *  Print OK if package has been downloaded and verified successfully
              */
-            $this->logOK();
+            $this->logOK('Done');
 
             unset($myprocess, $content, $keyId, $matches);
         }
@@ -980,7 +959,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          *  Quit if rpm is not present on the system and that signature check is enabled
          */
         if ($this->checkSignature == 'true' and !file_exists('/usr/bin/rpm')) {
-            throw new Exception('rpm is not present on the system (searched in /usr/bin/rpm)');
+            $this->logError('RPM binary is not present on the system (searched in <code>/usr/bin/rpm</code>)');
         }
 
         /**
@@ -1049,16 +1028,13 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          *  )
          */
         foreach ($this->archUrls as $url) {
-            $urlReachable = \Controllers\Common::urlReachable($url . '/repodata/repomd.xml', $this->sslCustomCertificate, $this->sslCustomPrivateKey, $this->sslCustomCaCertificate);
-
-            /**
-             *  If url is not reachable
-             */
-            if ($urlReachable !== true) {
+            try {
+                \Controllers\Common::urlReachable($url . '/repodata/repomd.xml', 30, $this->sslCustomCertificate, $this->sslCustomPrivateKey, $this->sslCustomCaCertificate);
+            } catch (Exception $e) {
                 /**
-                 *  Add URL to errorUrls array with the response code
+                 *  If the URL is not reachable, add it to the errorUrls array
                  */
-                $errorUrls[] = array('url' => $url, 'responseCode' => $urlReachable['responseCode']);
+                $errorUrls[] = array('url' => $url, 'error' => $e->getMessage());
 
                 /**
                  *  Remove the unreachable URL from possible URLs array, others URLs will be tested
@@ -1079,26 +1055,20 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              *  For each URL that has been tested and returned an error, add it to the error message
              */
             foreach ($errorUrls as $errorUrl) {
-                /**
-                 *  If response code is 403, add some explanation to the error message
-                 */
-                if ($errorUrl['responseCode'] == '403') {
-                    $errorUrlsString .= '<p> • <span class="copy">' . $errorUrl['url'] . '</span> (response code: ' . $errorUrl['responseCode'] . ' forbidden. The URL might require authentication, has IP filtering or is non-existent.)</p>';
-                } else {
-                    $errorUrlsString .= '<p> • <span class="copy">' . $errorUrl['url'] . '</span> (response code: ' . $errorUrl['responseCode'] . ')</p>';
-                }
+                $errorUrlsString .= '<p> 🠶 <span class="copy">' . $errorUrl['url'] . '</span></p>';
+                $errorUrlsString .= '<p class="note">Error details: ' . $errorUrl['error'] . '</p>';
             }
 
-            $this->logError('No reachable URL found. The source repository URL might be incorrect or unreachable. Tested URLs:' . PHP_EOL . $errorUrlsString, 'No reachable URL found');
+            $this->logError('No reachable URL found. The source repository URL might be incorrect, unreachable, require SSL authentication, has IP filtering or is non-existent. Tested URLs:<br>' . $errorUrlsString, 'No reachable URL found');
         }
 
         /**
          *  If there was no error, print the URLs that will be used to retrieve packages
          */
-        $this->logOutput(PHP_EOL . 'Packages will be retrieved from following URLs:' . PHP_EOL);
+        $this->logTitle('RETRIEVING METADATA AND PACKAGES FROM URL(s)');
 
         foreach ($this->archUrls as $url) {
-            $this->logOutput(' • <span class="copy">' . $url . '</span>' . PHP_EOL);
+            $this->logOutput(' 🠶 <span class="copy">' . $url . '</span><br>');
         }
 
         /**

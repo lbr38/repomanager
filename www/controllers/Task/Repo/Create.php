@@ -160,7 +160,7 @@ class Create
             /**
              *  Print task details
              */
-            $this->printDetails(strtoupper($this->repo->getPackageType()) . ' MIRROR REPOSITORY');
+            $this->printDetails('new');
 
             /**
              *  Sync packages

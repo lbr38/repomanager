@@ -161,6 +161,18 @@ class Main
         }
 
         /**
+         *  Source repositories lists dir
+         */
+        // Default source repositories lists dir (from github)
+        if (!defined('DEFAULT_SOURCES_REPOS_LISTS_DIR')) {
+            define('DEFAULT_SOURCES_REPOS_LISTS_DIR', ROOT . '/templates/source-repositories');
+        }
+        // Custom source repositories lists dir (made by the user)
+        if (!defined('CUSTOM_SOURCES_REPOS_LISTS_DIR')) {
+            define('CUSTOM_SOURCES_REPOS_LISTS_DIR', DATA_DIR . '/templates/source-repositories');
+        }
+
+        /**
          *  Load system constants
          */
         System::get();

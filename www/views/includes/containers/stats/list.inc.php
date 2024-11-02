@@ -3,50 +3,51 @@
 
     <?php
     if ($myrepo->getPackageType() == 'rpm') {
-        echo '<p>Statistics of <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟶' . \Controllers\Common::envtag($myrepo->getEnv()) . '</p>';
+        $repo = $myrepo->getName();
     }
     if ($myrepo->getPackageType() == 'deb') {
-        echo '<p>Statistics of <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟶' . \Controllers\Common::envtag($myrepo->getEnv()) . '</p>';
+        $repo = $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection();
     } ?>
 
-    <br>
-
-    <div class="div-generic-blue grid grid-2">
+    <div class="div-generic-blue grid grid-4 margin-bottom-15">
         <div>
-            <div class="circle-div-container">
-                <div class="circle-div-container-count-green">
-                    <span>
-                        <?= $repoSize ?>
-                    </span>
-                </div>
-                <div>
-                    <span>Repository size</span>
-                </div>
-            </div>
+            <h6 class="margin-top-0">REPOSITORY</h6>
+            <p><span class="label-white"><?= $repo ?></span></p>
         </div>
 
         <div>
-            <div class="circle-div-container">
-                <div class="circle-div-container-count-green">
-                    <span>
-                        <?= $packagesCount ?>
-                    </span>
-                </div>
-                <div>
-                    <span>Total packages</span>
-                </div>
-            </div>
+            <h6 class="margin-top-0">SNAPSHOT</h6>
+            <p><span class="label-black"><?= $myrepo->getDateFormatted() ?></span></p>
+        </div>
+
+        <div>
+            <h6 class="margin-top-0">SIZE</h6>
+            <p><?= $repoSize ?></p>
+        </div>
+
+        <div>
+            <h6 class="margin-top-0">PACKAGES</h6>
+            <p><?= $packagesCount ?></p>
+        </div>
+
+        <div></div>
+
+        <div>
+            <h6>ENVIRONMENT</h6>
+            <p><?= \Controllers\Common::envtag($myrepo->getEnv()) ?></p>
         </div>
     </div>
 
     <div id="repo-access-chart-div" class="div-generic-blue">
         <?php
         if (!empty($repoAccessChartDates) and !empty($repoAccessChartData)) : ?>
-            <span class="btn-small-green repo-access-chart-filter-button" filter="1week">1 week</span>
-            <span class="btn-small-green repo-access-chart-filter-button" filter="1month">1 month</span>
-            <span class="btn-small-green repo-access-chart-filter-button" filter="3months">3 months</span>
-            <span class="btn-small-green repo-access-chart-filter-button" filter="6months">6 months</span>
-            <span class="btn-small-green repo-access-chart-filter-button" filter="1year">1 year</span>
+            <div class="flex column-gap-10">
+                <span class="btn-medium-blue repo-access-chart-filter-button" filter="1week">1 week</span>
+                <span class="btn-medium-blue repo-access-chart-filter-button" filter="1month">1 month</span>
+                <span class="btn-medium-blue repo-access-chart-filter-button" filter="3months">3 months</span>
+                <span class="btn-medium-blue repo-access-chart-filter-button" filter="6months">6 months</span>
+                <span class="btn-medium-blue repo-access-chart-filter-button" filter="1year">1 year</span>
+            </div>
 
             <br><br>
 

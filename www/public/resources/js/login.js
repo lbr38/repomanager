@@ -2,7 +2,13 @@
  *  Event: generate new apikey
  */
 $(document).on('click','#user-generate-apikey-btn',function () {
-    generateApikey();
+    confirmBox(
+        'Once you generate a new API key, the old one will be invalid. Are you sure you want to generate a new API key?',
+        function () {
+            ajaxRequest('login', 'generateApikey', {}, false, true, [], [ "$('.slide-panel-container[slide-panel=\"general/userspace\"]').find('#user-apikey').html(jsonValue.message);", "$('.slide-panel-container[slide-panel=\"general/userspace\"]').find('#user-apikey').addClass('copy');" ])
+        },
+        'Generate'
+    );
 
     event.stopPropagation();
 });
@@ -38,37 +44,6 @@ $(document).on('submit','#user-change-password',function () {
 
     return false;
 });
-
-
-/**
- *  Ajax: generate new apikey
- */
-function generateApikey()
-{
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "login",
-            action: "generateApikey"
-        },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message.message, 'success');
-
-            /**
-             *  Print API key
-             */
-            $('.slide-panel-container[slide-panel="general/userspace"]').find('#user_apikey').html(jsonValue.message.apikey);
-            $('.slide-panel-container[slide-panel="general/userspace"]').find('#user-apikey-copy-btn').css('display', 'inline-block');
-        },
-        error: function (jqXHR, ajaxOptions, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
-}
 
 /**
  * Ajax: edit personnal informations

@@ -94,12 +94,12 @@ class Import
 
             foreach ($this->feeds as $feedUrl) {
                 /**
-                 *  Check that feed URL exist
+                 *  Check if the URL is reachable
                  */
-                $urlReachable = \Controllers\Common::urlReachable($feedUrl);
-
-                if ($urlReachable !== true) {
-                    throw new Exception('Feed URL is not reachable (http error ' . $urlReachable['responseCode'] . ')');
+                try {
+                    \Controllers\Common::urlReachable($feedUrl, 5);
+                } catch (Exception $e) {
+                    throw new Exception('Feed error: ' . $e->getMessage());
                 }
 
                 /**

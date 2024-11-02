@@ -143,7 +143,7 @@ class Update
             /**
              *  Print task details
              */
-            $this->printDetails('UPDATE REPOSITORY');
+            $this->printDetails('update');
 
             /**
              *  Sync packages

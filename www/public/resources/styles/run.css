@@ -14,17 +14,14 @@
     width: 100%;
 }
 
-#log-op-title {
-    width: auto;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    padding: 20px;
-}
-
-#log-op-title h3 {
+#log h3 {
     margin-top: 0 !important;
     margin-bottom: 0 !important;
     border: none;
+}
+
+#log h6 {
+    margin-top: 30px;
 }
 
 #log pre { /* empecher le contenu des <pre> de dépasser */
@@ -41,9 +38,16 @@
     margin: 0;
 }
 
+.getPackagesDiv, .signRepoDiv, .createRepoDiv {
+    background-color: #182b3e;
+    padding: 15px;
+}
+.getPackagesDiv span, .signRepoDiv span, .createRepoDiv span {
+    line-height: 2 !important;
+}
+
 /* Boutons Top et Down pour atteindre le haut ou le bas de page */
 #scrollButtons-container {
-    /* flex: 0 4%; */
     order: 2;
 }
 /* Les boutons scroll sont fixes à l'intérieur du container */

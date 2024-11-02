@@ -47,7 +47,7 @@
                         $borderColor = 'green';
                     } ?>
 
-                    <h5>Last scheduled task</h5>
+                    <h6>LAST SCHEDULED TASK</h6>
 
                     <div class="circle-div-container">
                         <div class="circle-div-container-count-<?= $borderColor ?>">
@@ -65,7 +65,7 @@
                 endif;
 
                 if (!empty($nextScheduledTasks)) : ?>
-                    <h5>Next scheduled tasks</h5>
+                    <h6>NEXT SCHEDULED TASKS</h6>
 
                     <?php
                     foreach ($nextScheduledTasks as $scheduledTask) : ?>

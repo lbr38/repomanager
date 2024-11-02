@@ -2,7 +2,7 @@
     <div>
         <h5>HELP</h5>
         <a target="_blank" rel="noopener noreferrer" href="https://github.com/lbr38/repomanager/wiki">
-            <span class="lowopacity">Documentation<img src="/assets/icons/external-link.svg" class="icon" /></span>
+            <span class="lowopacity">Documentation <img src="/assets/icons/external-link.svg" class="icon" /></span>
         </a>
         
         <br><br>
@@ -37,6 +37,9 @@ if (__ACTUAL_URI__[1] == "") {
     echo '<script src="/resources/js/task.js?' . VERSION . '"></script>';
     echo '<script src="/resources/js/group.js?' . VERSION . '"></script>';
     echo '<script src="/resources/js/source.js?' . VERSION . '"></script>';
+    echo '<script src="/resources/js/events/repo/source/distribution.js?' . VERSION . '"></script>';
+    echo '<script src="/resources/js/events/repo/source/releasever.js?' . VERSION . '"></script>';
+    echo '<script src="/resources/js/events/repo/source/source.js?' . VERSION . '"></script>';
 }
 if (__ACTUAL_URI__[1] == "hosts" or __ACTUAL_URI__[1] == "host") {
     echo '<script src="/resources/js/host.js?' . VERSION . '"></script>';

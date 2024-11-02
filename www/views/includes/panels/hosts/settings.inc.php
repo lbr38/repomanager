@@ -1,9 +1,9 @@
 <?php ob_start(); ?>
 
 <form id="hostsSettingsForm" action="/hosts" method="post" autocomplete="off">
-    <h5>AVAILABLE PACKAGE UPDATES</h5>
+    <h6>AVAILABLE PACKAGE UPDATES</h6>
 
-    <p class="lowopacity-cst">Display color labels depending on the number of available updates to help you quickly identify hosts that need to be updated.</p>
+    <p class="note">Display color labels depending on the number of available updates to help you quickly identify hosts that need to be updated.</p>
 
     <br>
 

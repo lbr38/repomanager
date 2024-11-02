@@ -53,10 +53,10 @@
                         </td>
                         <?php
                         if ($historyLine['State'] == "success") {
-                            echo '<td><img src="/assets/icons/greencircle.png" class="icon-small" />Success</td>';
+                            echo '<td><img src="/assets/icons/greencircle.png" class="icon-small" /> <span>Success</span></td>';
                         }
                         if ($historyLine['State'] == "error") {
-                            echo '<td><img src="/assets/icons/redcircle.png" class="icon-small" />Error</td>';
+                            echo '<td><img src="/assets/icons/redcircle.png" class="icon-small" /> <span>Error</span></td>';
                         } ?>
                     </tr>
                     <?php

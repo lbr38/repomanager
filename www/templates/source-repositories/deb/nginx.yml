@@ -1,0 +1,32 @@
+---
+description: Nginx webserver repositories
+type: deb
+repositories:
+  - name: nginx
+    type: deb
+    description: Nginx webserver
+    url: http://nginx.org/packages/debian
+    distributions:
+      # Debian 12
+      - name: bookworm
+        description: Debian 12
+        components:
+          - name: nginx
+        gpgkeys:
+          - link: https://nginx.org/keys/nginx_signing.key
+
+      # Debian 11
+      - name: bullseye
+        description: Debian 11
+        components:
+          - name: nginx
+        gpgkeys:
+          - link: https://nginx.org/keys/nginx_signing.key
+
+      # Debian 10
+      - name: buster
+        description: Debian 10
+        components:
+          - name: nginx
+        gpgkeys:
+          - link: https://nginx.org/keys/nginx_signing.key

@@ -1,0 +1,108 @@
+---
+description: OpenSUSE official repositories
+type: rpm
+repositories:
+  # OpenSUSE Leap OSS
+  - name: opensuse-leap-oss
+    type: rpm
+    description: OpenSUSE Leap
+    url: http://download.opensuse.org/distribution/leap/$releasever/repo/oss
+    releasever:
+      - name: 15.6
+        description: OpenSUSE Leap 15.6
+        gpgkeys:
+          - link: http://download.opensuse.org/distribution/leap/15.6/repo/oss/repodata/repomd.xml.key
+      - name: 15.5
+        description: OpenSUSE Leap 15.5
+        gpgkeys:
+          - link: http://download.opensuse.org/distribution/leap/15.5/repo/oss/repodata/repomd.xml.key
+      - name: 15.4
+        description: OpenSUSE Leap 15.4
+        gpgkeys:
+          - link: http://download.opensuse.org/distribution/leap/15.4/repo/oss/repodata/repomd.xml.key
+      - name: 15.3
+        description: OpenSUSE Leap 15.3
+        gpgkeys:
+          - link: http://download.opensuse.org/distribution/leap/15.3/repo/oss/repodata/repomd.xml.key
+      - name: 15.2
+        description: OpenSUSE Leap 15.2
+        gpgkeys:
+          - link: http://download.opensuse.org/distribution/leap/15.2/repo/oss/repodata/repomd.xml.key
+      - name: 15.1
+        description: OpenSUSE Leap 15.1
+        gpgkeys:
+          - link: http://download.opensuse.org/distribution/leap/15.1/repo/oss/repodata/repomd.xml.key
+      - name: 15.0
+        description: OpenSUSE Leap 15.0
+        gpgkeys:
+          - link: http://download.opensuse.org/distribution/leap/15.0/repo/oss/repodata/repomd.xml.key
+    
+  # OpenSUSE Leap Non-OSS
+  - name: opensuse-leap-non-oss
+    type: rpm
+    description: OpenSUSE Leap Non-OSS
+    url: http://download.opensuse.org/distribution/leap/$releasever/repo/non-oss
+    releasever:
+      - name: 15.6
+        description: OpenSUSE Leap 15.6
+        gpgkeys:
+          - link: http://download.opensuse.org/distribution/leap/15.6/repo/non-oss/repodata/repomd.xml.key
+      - name: 15.5
+        description: OpenSUSE Leap 15.5
+        gpgkeys:
+          - link: http://download.opensuse.org/distribution/leap/15.5/repo/non-oss/repodata/repomd.xml.key
+      - name: 15.4
+        description: OpenSUSE Leap 15.4
+        gpgkeys:
+          - link: http://download.opensuse.org/distribution/leap/15.4/repo/non-oss/repodata/repomd.xml.key
+      - name: 15.3
+        description: OpenSUSE Leap 15.3
+        gpgkeys:
+          - link: http://download.opensuse.org/distribution/leap/15.3/repo/non-oss/repodata/repomd.xml.key
+      - name: 15.2
+        description: OpenSUSE Leap 15.2
+        gpgkeys:
+          - link: http://download.opensuse.org/distribution/leap/15.2/repo/non-oss/repodata/repomd.xml.key
+      - name: 15.1
+        description: OpenSUSE Leap 15.1
+        gpgkeys:
+          - link: http://download.opensuse.org/distribution/leap/15.1/repo/non-oss/repodata/repomd.xml.key
+      - name: 15.0
+        description: OpenSUSE Leap 15.0
+        gpgkeys:
+          - link: http://download.opensuse.org/distribution/leap/15.0/repo/non-oss/repodata/repomd.xml.key
+
+  # OpenSUSE Leap Update
+  - name: opensuse-leap-update
+    type: rpm
+    description: OpenSUSE Leap Update
+    url: http://download.opensuse.org/update/leap/$releasever/oss
+    releasever:
+      - name: 15.6
+        description: OpenSUSE Leap 15.6
+        gpgkeys:
+          - link: http://download.opensuse.org/update/leap/15.6/oss/repodata/repomd.xml.key
+      - name: 15.5
+        description: OpenSUSE Leap 15.5
+        gpgkeys:
+          - link: http://download.opensuse.org/update/leap/15.5/oss/repodata/repomd.xml.key
+      - name: 15.4
+        description: OpenSUSE Leap 15.4
+        gpgkeys:
+          - link: http://download.opensuse.org/update/leap/15.4/oss/repodata/repomd.xml.key
+      - name: 15.3
+        description: OpenSUSE Leap 15.3
+        gpgkeys:
+          - link: http://download.opensuse.org/update/leap/15.3/oss/repodata/repomd.xml.key
+      - name: 15.2
+        description: OpenSUSE Leap 15.2
+        gpgkeys:
+          - link: http://download.opensuse.org/update/leap/15.2/oss/repodata/repomd.xml.key
+      - name: 15.1
+        description: OpenSUSE Leap 15.1
+        gpgkeys:
+          - link: http://download.opensuse.org/update/leap/15.1/oss/repodata/repomd.xml.key
+      - name: 15.0
+        description: OpenSUSE Leap 15.0
+        gpgkeys:
+          - link: http://download.opensuse.org/update/leap/15.0/oss/repodata/repomd.xml.key

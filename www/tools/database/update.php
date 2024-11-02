@@ -45,7 +45,7 @@ try {
         $myupdate->updateDB();
     }
 } catch (Exception $e) {
-    echo 'There was an error while executing update: ' . $e->getMessage();
+    echo 'There was an error while executing update: ' . $e->getMessage() . PHP_EOL;
     $error++;
 }
 

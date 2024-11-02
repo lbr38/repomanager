@@ -36,7 +36,7 @@ trait Sign
          */
         $this->taskLog->step('SIGNING PACKAGES (GPG)');
 
-        echo '<div class="hide signRepoDiv"><pre>';
+        echo '<div class="hide signRepoDiv">';
 
         try {
             $this->taskLog->steplogWrite();
@@ -81,7 +81,7 @@ trait Sign
              *  If no packages are found or no packages were marked for signing, print a message and nothing will be signed
              */
             if (empty($rpmFiles)) {
-                $this->taskLog->steplogWrite('No packages marked for signing.' . PHP_EOL);
+                $this->taskLog->steplogWrite('<p class="note">No packages marked for signing.</p>' . PHP_EOL);
             }
 
             /**
@@ -100,10 +100,10 @@ trait Sign
                  *  Print if all packages are to be signed or if specific packages are to be signed
                  */
                 if (!is_array($this->packagesToSign) and $this->packagesToSign == 'all') {
-                    $this->taskLog->steplogWrite('Signing all packages:' . PHP_EOL);
+                    $this->taskLog->steplogWrite('<div class="flex justify-space-between align-flex-end"><h6>SIGNING ALL PACKAGES</h6><p title="Running time" class="lowopacity-cst">' . date('H:i:s') . '</p></div>');
                 }
                 if (is_array($this->packagesToSign)) {
-                    $this->taskLog->steplogWrite('Signing ' . $totalPackages . ' package(s):' . PHP_EOL);
+                    $this->taskLog->steplogWrite('<div class="flex justify-space-between align-flex-end"><h6>SIGNING ' . $totalPackages . ' PACKAGE(S)</h6><p title="Running time">' . date('H:i:s') . '</p></div>');
                 }
 
                 /**
@@ -124,9 +124,8 @@ trait Sign
                     /**
                      *  Print package counter
                      */
-                    echo '<span class="opacity-80-cst">(' . $packageCounter . '/' . $totalPackages . ')  ➙ <span class="copy">' . $rpmFile . '</span> ... </span>';
-
-                    $this->taskLog->steplogWrite();
+                    $this->taskLog->steplogWrite('<div class="flex justify-space-between align-flex-end"><h6>SIGNING PACKAGE (' . $packageCounter . '/' . $totalPackages . ')</h6><p title="Running time" class="lowopacity-cst">' . date('H:i:s') . '</p></div>');
+                    $this->taskLog->steplogWrite('<p><span class="note">' . basename($rpmFile) . '</span></p>');
 
                     /**
                      *  Sign package
@@ -147,7 +146,7 @@ trait Sign
                      *  If the signature of the current package failed, we increment $signError to indicate an error and we exit the loop to not process the next package
                      */
                     if ($myprocess->getExitCode() != 0) {
-                        echo '<span class="label-ko inline-block">KO</span> <span class="redtext">error while signing package:</span>' . PHP_EOL;
+                        echo '<p><img src="/assets/icons/error.svg" class="icon margin-right-5 vertical-align-text-top" /><span class="redtext">Error while signing package</span><br></p>';
                         echo '<pre class="codeblock margin-top-10">' . $output . '</pre>';
                         $signError++;
                         break;
@@ -155,13 +154,15 @@ trait Sign
 
                     $myprocess->close();
 
-                    echo '<span class="label-ok inline-block">OK</span>' . PHP_EOL;
+                    echo '<p><img src="/assets/icons/check.svg" class="icon margin-right-5 vertical-align-text-top" />Done<br></p>';
+
+                    $this->taskLog->steplogWrite();
 
                     $packageCounter++;
                 }
             }
         } catch (Exception $e) {
-            echo '</pre></div>';
+            echo '</div>';
 
             /**
              *  Throw exception with error message
@@ -169,7 +170,7 @@ trait Sign
             throw new Exception($e->getMessage());
         }
 
-        echo '</pre></div>';
+        echo '</div>';
 
         $this->taskLog->steplogWrite();
 

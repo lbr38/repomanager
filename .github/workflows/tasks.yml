@@ -19,6 +19,11 @@ jobs:
       - name: Print PHP version
         run: php --version
 
+      # TODO : temporaire
+      # A retirer une fois que 4.12.0 est publiée
+      - name: Install PHP yaml extension
+        run: apt-get update -y && apt-get install -y php8.3-yaml
+
       # Copy latest source code to the root directory
       - name: Setup latest source code
         run: |
@@ -87,6 +92,11 @@ jobs:
 
       - name: Print PHP version
         run: php --version
+
+      # TODO : temporaire
+      # A retirer une fois que 4.12.0 est publiée
+      - name: Install PHP yaml extension
+        run: apt-get update -y && apt-get install -y php8.3-yaml
 
       # Copy latest source code to the root directory
       - name: Setup latest source code

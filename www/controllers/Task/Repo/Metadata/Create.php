@@ -18,7 +18,7 @@ trait Create
 
         $this->taskLog->step('CREATING REPOSITORY');
 
-        echo '<div class="hide createRepoDiv"><pre>';
+        echo '<div class="hide createRepoDiv"><pre class="codeblock">';
 
         $this->taskLog->steplogWrite();
 

@@ -74,6 +74,65 @@ function ajaxRequest(controller, action, additionalData = null, printSuccessAler
             if (printErrorAlert) {
                 printAlert(jsonValue.message, 'error');
             }
+
+            /**
+             *  Execute function(s) if specified
+             */
+            if (execOnError != null) {
+                for (let i = 0; i < execOnError.length; i++) {
+                    eval(execOnError[i]);
+                }
+            }
         },
     });
+}
+
+/**
+ *  Convert select tag to a select2 by specified element
+ *  @param {*} element
+ */
+function selectToSelect2(element, placeholder = 'Select...', tags = false)
+{
+    $(element).select2({
+        closeOnSelect: false,
+        placeholder: placeholder,
+        tags: tags,
+        minimumResultsForSearch: Infinity, /* disable search box */
+        allowClear: true /* add a clear button */
+    });
+}
+
+/**
+ * Update a select2 with new data
+ * @param {*} select
+ * @param {*} data
+ * @param {*} placeholder
+ * @param {*} tags
+ * @returns
+ */
+function updateSelect2(select, data, placeholder = '', tags = false)
+{
+    /**
+     *  Quit if the select is not found
+     */
+    if (!$(select).length) {
+        return;
+    }
+
+    /**
+     *  Clear current select options
+     */
+    $(select).empty();
+
+    /**
+     *  Update select2 with new data
+     */
+    $(select).select2({
+        data: data,
+        closeOnSelect: false,
+        placeholder: placeholder,
+        tags: tags,
+        minimumResultsForSearch: Infinity, /* disable search box */
+        allowClear: true
+    })
 }

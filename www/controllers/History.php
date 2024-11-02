@@ -28,11 +28,6 @@ class History
     {
         $userId = \Controllers\Common::validateData($userId);
 
-        if (!is_numeric($userId)) {
-            printAlert('User Id is invalid', 'error');
-            return;
-        }
-
         return $this->model->getByUser($userId);
     }
 

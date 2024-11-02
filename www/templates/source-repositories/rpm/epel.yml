@@ -1,0 +1,39 @@
+---
+description: EPEL repositories
+type: rpm
+repositories:
+  # EPEL 10
+  - name: epel
+    type: rpm
+    description: EPEL
+    url: https://dl.fedoraproject.org/pub/epel/$releasever/Everything/$basearch
+    releasever:
+      # EPEL 10
+      - name: 10
+        description: EPEL 10
+        gpgkeys:
+          - link: https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-10
+      
+      # EPEL 9
+      - name: 9
+        description: EPEL 9
+        gpgkeys:
+          - link: https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-9
+
+      # EPEL 8
+      - name: 8
+        description: EPEL 8
+        gpgkeys:
+          - link: https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-8
+
+  # EPEL 7
+  - name: epel-archive
+    type: rpm
+    url: https://archives.fedoraproject.org/pub/archive/epel/7/$basearch
+    description: EPEL archive
+    releasever:
+      # EPEL 7
+      - name: 7
+        description: EPEL 7
+        gpgkeys:
+          - link: https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7

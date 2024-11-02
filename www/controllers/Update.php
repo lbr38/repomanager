@@ -58,12 +58,16 @@ class Update
                  *  Execute file if it has not been done yet
                  */
                 if (!file_exists(DB_UPDATE_DONE_DIR . '/' . $targetVersion . '.done')) {
-                    $this->model->updateDB($updateFile);
+                    try {
+                        $this->model->updateDB($updateFile);
 
-                    /**
-                     *  Create a file to indicate that the update has been done
-                     */
-                    touch(DB_UPDATE_DONE_DIR . '/' . $targetVersion . '.done');
+                        /**
+                         *  Create a file to indicate that the update has been done
+                         */
+                        touch(DB_UPDATE_DONE_DIR . '/' . $targetVersion . '.done');
+                    } catch (Exception $e) {
+                        throw new Exception('error while executing update file ' . $updateFile . ': ' . $e->getMessage());
+                    }
                 }
             }
 
@@ -94,12 +98,16 @@ class Update
                      *  Execute file if it has not been done yet
                      */
                     if (!file_exists(DB_UPDATE_DONE_DIR . '/' . $targetVersion . '.done')) {
-                        $this->model->updateDB($updateFile);
+                        try {
+                            $this->model->updateDB($updateFile);
 
-                        /**
-                         *  Create a file to indicate that the update has been done
-                         */
-                        touch(DB_UPDATE_DONE_DIR . '/' . $targetVersion . '.done');
+                            /**
+                             *  Create a file to indicate that the update has been done
+                             */
+                            touch(DB_UPDATE_DONE_DIR . '/' . $targetVersion . '.done');
+                        } catch (Exception $e) {
+                            throw new Exception('error while executing update file ' . $updateFile . ': ' . $e->getMessage());
+                        }
                     }
                 }
             }

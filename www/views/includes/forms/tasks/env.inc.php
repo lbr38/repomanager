@@ -1,41 +1,31 @@
-<tr>
-    <td colspan="100%">
-        <?php
-        if ($myrepo->getPackageType() == 'rpm') {
-            echo 'Point an environment on:<br><br><span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>';
+<h6>POINT AN ENVIRONMENT</h6>
+<p class="note">The repository snapshot to point the environment to.</p>
+
+<?php
+if ($myrepo->getPackageType() == 'rpm') {
+    echo '<span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>';
+}
+if ($myrepo->getPackageType() == 'deb') {
+    echo '<span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>';
+} ?>
+
+<h6 class="required">ENVIRONMENT</h6>
+<select class="task-param" param-name="env" required>
+    <?php
+    foreach (ENVS as $env) {
+        /**
+         *  Don't display the environment if it already exists
+         */
+        if ($myrepo->existsSnapIdEnv($myrepo->getSnapId(), $env)) {
+            continue;
         }
-        if ($myrepo->getPackageType() == 'deb') {
-            echo 'Point an environment on:<br><br><span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>';
-        } ?>
-        <br><br>
-    </td>
-</tr>
 
-<tr>
-    <td>Target environment</td>
-    <td>
-        <select class="task-param" param-name="env" required>
-            <?php
-            foreach (ENVS as $env) {
-                /**
-                 *  Don't display the environment if it already exists
-                 */
-                if ($myrepo->existsSnapIdEnv($myrepo->getSnapId(), $env)) {
-                    continue;
-                }
+        echo '<option value="' . $env . '">' . $env . '</option>';
+    } ?>
+</select>
 
-                echo '<option value="' . $env . '">' . $env . '</option>';
-            } ?>
-        </select>
-    </td>
-</tr>
-
-<tr>
-    <td>
-        <span>Description</span> <span class="lowopacity-cst">(optional)</span>
-    </td>
-    <td><input type="text" class="task-param" param-name="description" /></td>
-</tr>
+<h6>DESCRIPTION</h6>
+<input type="text" class="task-param" param-name="description" />
 
 <?php
 /**

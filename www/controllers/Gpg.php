@@ -53,12 +53,10 @@ class Gpg
          */
         if (!file_exists(GPGHOME . '/gpg.conf')) {
             /**
-             *  Configure gpg.conf (pinentry-mode loopback) only on non-RHEL systems and on RHEL >7 systems
+             *  Configure gpg.conf (pinentry-mode loopback)
              */
-            if (strtoupper(OS_FAMILY) != 'REDHAT' or (strtoupper(OS_FAMILY) == 'REDHAT' and OS_VERSION > '7')) {
-                if (!file_put_contents(GPGHOME . '/gpg.conf', 'pinentry-mode loopback' . PHP_EOL . 'passphrase-file ' . PASSPHRASE_FILE)) {
-                    throw new Exception('Cannot write to: ' . GPGHOME . '/gpg.conf');
-                }
+            if (!file_put_contents(GPGHOME . '/gpg.conf', 'pinentry-mode loopback' . PHP_EOL . 'passphrase-file ' . PASSPHRASE_FILE)) {
+                throw new Exception('Cannot write to: ' . GPGHOME . '/gpg.conf');
             }
         }
     }
@@ -142,7 +140,7 @@ class Gpg
         /**
          *  Sort keys array by name
          */
-        array_multisort(array_column($knownGpgKeys, 'name'), SORT_ASC, $knownGpgKeys);
+        array_multisort(array_column($knownGpgKeys, 'name'), SORT_ASC|SORT_NATURAL|SORT_FLAG_CASE, $knownGpgKeys);
 
         return $knownGpgKeys;
     }
@@ -169,7 +167,7 @@ class Gpg
         /**
          *  Generate random passphrase
          */
-        $this->passphrase = Common::randomStrongString(64);
+        $this->passphrase = \Controllers\Common::randomStrongString(64);
 
         /**
          *  Generate template
@@ -275,5 +273,266 @@ class Gpg
                 throw new Exception('Cannot write to ' . MACROS_FILE);
             }
         }
+    }
+
+    /**
+     *  Import a GPG key from URL, fingerprint or plain text
+     *  Return an array with all fingerprints found in the GPG key
+     */
+    public function import(string $gpgKeyUrl, string $gpgKeyFingerprint, string $gpgKeyPlainText)
+    {
+        $gpgKeyUrl = \Controllers\Common::validateData($gpgKeyUrl);
+        $gpgKeyFingerprint = \Controllers\Common::validateData($gpgKeyFingerprint);
+        $gpgKeyPlainText = \Controllers\Common::validateData($gpgKeyPlainText);
+
+        /**
+         *  If more than one parameter is specified, quit
+         */
+        if (!empty($gpgKeyUrl) and !empty($gpgKeyFingerprint)) {
+            throw new Exception('Cannot import GPG key from URL and fingerprint at the same time');
+        }
+        if (!empty($gpgKeyUrl) and !empty($gpgKeyPlainText)) {
+            throw new Exception('Cannot import GPG key from URL and plain text at the same time');
+        }
+        if (!empty($gpgKeyFingerprint) and !empty($gpgKeyPlainText)) {
+            throw new Exception('Cannot import GPG key from fingerprint and plain text at the same time');
+        }
+
+        /**
+         *  If gpg key starts with http(s):// then it is a link
+         *  Otherwise it is a fingerprint
+         */
+        if (!empty($gpgKeyUrl) and !preg_match('#^http(s)?://#', $gpgKeyUrl)) {
+            throw new Exception('Invalid URL');
+        }
+
+        try {
+            /**
+             *  Import GPG key from URL
+             */
+            if (!empty($gpgKeyUrl)) {
+                $fingerprints = $this->importFromUrl($gpgKeyUrl);
+            }
+
+            /**
+             *  Import GPG key from fingerprint
+             */
+            if (!empty($gpgKeyFingerprint)) {
+                $fingerprints = $this->importFromUrl('https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x' . $gpgKeyFingerprint);
+            }
+
+            /**
+             *  Import GPG key from plain text
+             */
+            if (!empty($gpgKeyPlainText)) {
+                $fingerprints = $this->importPlainText($gpgKeyPlainText);
+            }
+
+            if (empty($fingerprints)) {
+                throw new Exception('no fingerprints found in the GPG key');
+            }
+        } catch (Exception $e) {
+            throw new Exception('Error while importing GPG key: ' . $e->getMessage());
+        }
+
+        return $fingerprints;
+    }
+
+    /**
+     *  Import a plain text GPG key
+     */
+    public function importPlainText(string $gpgKey)
+    {
+        $gpgKey = \Controllers\Common::validateData($gpgKey);
+        $gpgTempFile = TEMP_DIR . '/.repomanager-newgpgkey.tmp';
+
+        /**
+         *  Check if the ASCII text contains invalid characters
+         */
+        if (!\Controllers\Common::isAlphanum($gpgKey, array('-', '=', '+', '/', ' ', ':', '.', '(', ')', "\n", "\r"))) {
+            throw new Exception('ASCII GPG key contains invalid characters');
+        }
+
+        /**
+         *  Quit if user tries to import a GPG from url
+         */
+        if (preg_match('#http(s)?://#', $gpgKey)) {
+            throw new Exception('GPG key must be specified in ASCII text format');
+        }
+
+        /**
+         *  Quit if the user tries to import a file on the system
+         */
+        if (file_exists($gpgKey)) {
+            throw new Exception('GPG key must be specified in ASCII text format');
+        }
+
+        /**
+         *  Create a temporary file with the ASCII text
+         */
+        if (!file_put_contents($gpgTempFile, $gpgKey)) {
+            throw new Exception('could not initialize GPG import');
+        }
+
+        /**
+         *  First, extract the fingerprints from the GPG key (there could be one or multiple)
+         */
+        $myprocess = new Process("/usr/bin/gpg --homedir " . GPGHOME . " --no-default-keyring --keyring " . GPGHOME . "/trustedkeys.gpg --show-keys --with-fingerprint --with-colons " . $gpgTempFile . " | grep '^fpr' | cut -d: -f10");
+        $myprocess->execute();
+        $content = $myprocess->getOutput();
+        $myprocess->close();
+
+        if ($myprocess->getExitCode() != 0) {
+            throw new Exception('could not retrieve fingerprint(s) from GPG key: <br><br><pre class="codeblock">"' . $content . '</pre>');
+        }
+
+        /**
+         *  Output will print all fingerprints on multiple lines (one per fingerprint)
+         */
+        $fingerprints = explode(PHP_EOL, $content);
+
+        /**
+         *  Import file into the repomanager trusted keyring
+         */
+        $myprocess = new \Controllers\Process('/usr/bin/gpg --no-default-keyring --keyring ' . GPGHOME . '/trustedkeys.gpg --import ' . $gpgTempFile);
+        $myprocess->execute();
+        $content = $myprocess->getOutput();
+        $myprocess->close();
+
+        /**
+         *  Delete temp file
+         */
+        unlink($gpgTempFile);
+
+        if ($myprocess->getExitCode() != 0) {
+            throw new Exception('<pre class="codeblock margin-top-5">' . $content . '</pre>');
+        }
+
+        return $fingerprints;
+    }
+
+    /**
+     *  Import a key from a URL
+     *  Return an array with all fingerprints found in the GPG key
+     */
+    public function importFromUrl(string $url) : array
+    {
+        $fingerprints = [];
+        $tempFile = TEMP_DIR . '/import-gpgkey.asc';
+
+        /**
+         *  Quit if the URL is not valid
+         */
+        if (!preg_match('#http(s)?://#', $url)) {
+            throw new Exception('Invalid URL');
+        }
+
+        /**
+         *  Check if the URL is reachable
+         */
+        \Controllers\Common::urlReachable($url, 5);
+
+        /**
+         *  Init curl
+         */
+        $ch = curl_init();
+        $targetFile = fopen($tempFile, 'w');
+
+        /**
+         *  Download GPG key from URL
+         */
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_FILE, $targetFile);    // set output file
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);           // set timeout
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // follow redirect
+        curl_setopt($ch, CURLOPT_ENCODING, '');         // use compression if any
+
+        /**
+         *  If a proxy has been specified
+         */
+        if (!empty(PROXY)) {
+            curl_setopt($ch, CURLOPT_PROXY, PROXY);
+        }
+
+        if (curl_exec($ch) === false) {
+            /**
+             *  If curl has failed (meaning a curl param might be invalid)
+             */
+            throw new Exception('curl error: ' . curl_error($ch));
+
+            curl_close($ch);
+            fclose($targetFile);
+        }
+
+        /**
+         *  Check that the http return code is 200 (the file has been downloaded)
+         */
+        $status = curl_getinfo($ch);
+
+        if ($status["http_code"] != 200) {
+            /**
+             *  If return code is 404
+             */
+            if ($status["http_code"] == '404') {
+                throw new Exception('404 file not found');
+            } else {
+                throw new Exception('file could not be downloaded (http return code is: ' . $status["http_code"] . ')');
+            }
+
+            curl_close($ch);
+            fclose($targetFile);
+
+            return false;
+        }
+
+        fclose($targetFile);
+        curl_close($ch);
+
+        /**
+         *  Get GPG key content
+         */
+        $gpgKey = file_get_contents($tempFile);
+
+        if ($gpgKey === false) {
+            throw new Exception('error while reading temporary file: ' . $tempFile);
+        }
+
+        if (empty($gpgKey)) {
+            throw new Exception('empty while reading temporary file: ' . $tempFile . ' (file is empty)');
+        }
+
+        /**
+         *  Import GPG key
+         */
+        $fingerprints = $this->importPlainText($gpgKey);
+
+        /**
+         *  Delete temp file
+         */
+        if (!unlink($tempFile)) {
+            throw new Exception('cannot delete temporary file: ' . $tempFile);
+        }
+
+        return $fingerprints;
+    }
+
+    /**
+     *  Delete a GPG key
+     */
+    public function delete(string $gpgKeyId)
+    {
+        $gpgKeyId = \Controllers\Common::validateData($gpgKeyId);
+
+        /**
+         *  Deleting key from the keyring, using its ID
+         */
+        $myprocess = new \Controllers\Process('/usr/bin/gpg --no-default-keyring --homedir ' . GPGHOME . ' --keyring ' . GPGHOME . '/trustedkeys.gpg --no-greeting --delete-key --batch --yes ' . $gpgKeyId);
+        $myprocess->execute();
+
+        if ($myprocess->getExitCode() != 0) {
+            throw new Exception('Error while deleting GPG key: <br>' . $myprocess->getOutput());
+        }
+
+        $myprocess->close();
     }
 }

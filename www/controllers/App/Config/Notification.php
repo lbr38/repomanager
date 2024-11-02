@@ -38,8 +38,8 @@ class Notification
                 $message = '<span>A new release is available: ';
             }
 
-            $message .= '<a href="https://github.com/lbr38/repomanager/releases/latest" target="_blank" rel="noopener noreferrer" title="See changelog"><code>' . GIT_VERSION . '</code><img src="/assets/icons/external-link.svg" class="icon" /></a>';
-            $message .= '<br><br><span>Please update your docker image by following the steps documented <b><a href="' . PROJECT_UPDATE_DOC_URL . '"><code>here</code></a></b></span>';
+            $message .= '<a href="https://github.com/lbr38/repomanager/releases/latest" target="_blank" rel="noopener noreferrer" title="See changelog"><code>' . GIT_VERSION . '</code> <img src="/assets/icons/external-link.svg" class="icon" /></a>';
+            $message .= '<br><br><span>Please update your docker image by following the steps documented <b><a href="' . PROJECT_UPDATE_DOC_URL . '" target="_blank" rel="noopener noreferrer"><code>here</code></b> <img src="/assets/icons/external-link.svg" class="icon" /></a></span>';
 
             $NOTIFICATION_MESSAGES[] = array('Title' => 'Update available', 'Message' =>  $message);
             $NOTIFICATION++;

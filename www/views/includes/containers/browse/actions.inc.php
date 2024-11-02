@@ -7,9 +7,6 @@ if (IS_ADMIN) : ?>
 
         <h3>UPLOAD PACKAGES</h3>
 
-        <p>Import <?= $myrepo->getPackageType() ?> packages into the repository</p>
-        <br>
-
         <?php
         /**
          *  If a task is already running on this repo then print a message
@@ -26,14 +23,19 @@ if (IS_ADMIN) : ?>
          */
         if (empty($rebuild) or (!empty($rebuild) and $rebuild != 'running')) : ?>
             <div class="div-generic-blue">
+                <h5>Upload <?= $myrepo->getPackageType() ?> packages into the repository snapshot</h5>
+
                 <form action="" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="action" value="uploadPackage" />
                     <input type="hidden" name="snapId" value="<?= $snapId ?>" />
-                    <input type="file" name="packages[]" accept="application/vnd.debian.binary-package" multiple />
 
-                    <p class="lowopacity-cst margin-top-5">Valid MIME types are <code>application/x-rpm</code> and <code>application/vnd.debian.binary-package</code></p>
+                    <h6>SELECT PACKAGES</h6>
+                    <p class="note">Valid MIME types are <code>application/x-rpm</code> and <code>application/vnd.debian.binary-package</code></p>
                     <br>
-                    <button type="submit" class="btn-large-green">Upload package(s)</button>
+                    <input type="file" name="packages[]" accept="application/vnd.debian.binary-package" multiple />
+                    
+                    <br><br>
+                    <button type="submit" class="btn-large-green">Upload package</button>
                 </form>
 
                 <?php
@@ -54,12 +56,8 @@ if (IS_ADMIN) : ?>
             
             <h3>REBUILD REPO</h3>
 
-            <p>Rebuild repository metadata files</p>
-
-            <br>
-
             <?php
-                $gpgSignChecked = '';
+            $gpgSignChecked = '';
 
             if ($myrepo->getPackageType() == 'rpm' && RPM_SIGN_PACKAGES == 'true') {
                 $gpgSignChecked = 'checked';
@@ -69,18 +67,17 @@ if (IS_ADMIN) : ?>
             } ?>
 
             <div class="div-generic-blue">
-                <div class="flex align-item-center column-gap-4">
-                    <span>Sign with GPG</span>
-                    <label class="onoff-switch-label">
-                        <input name="gpgSign" type="checkbox" class="onoff-switch-input" <?= $gpgSignChecked ?>>
-                        <span class="onoff-switch-slider"></span>
-                    </label>
-                </div>
+                <h5>Rebuild repository snapshot metadata</h5>
 
-                <span class="lowopacity-cst">Signature can extend the task duration</span>
+                <h6>SIGN WITH GPG</h6>
+                <p class="note">Signature can extend the task duration.</p>
+                <label class="onoff-switch-label">
+                    <input name="gpgSign" type="checkbox" class="onoff-switch-input" <?= $gpgSignChecked ?>>
+                    <span class="onoff-switch-slider"></span>
+                </label>
+
                 <br><br>
-
-                <button id="rebuildBtn" snap-id="<?= $snapId ?>" type="button" class="btn-large-red"><img src="/assets/icons/rocket.svg" class="icon" />Execute</button>
+                <button id="rebuildBtn" snap-id="<?= $snapId ?>" type="button" class="btn-large-red">Execute</button>
             </div>
             <?php
         endif ?>

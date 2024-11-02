@@ -68,7 +68,7 @@ class Settings
                 define('EMAIL_RECIPIENT', explode(',', $settings['EMAIL_RECIPIENT']));
             } else {
                 define('EMAIL_RECIPIENT', array());
-                $__LOAD_SETTINGS_MESSAGES[] = '<code>Default contact</code> setting is not defined. At least one email address should be defined.';
+                $__LOAD_SETTINGS_MESSAGES[] = '<code>DEFAULT CONTACT</code> setting is not defined. At least one email address should be defined.';
             }
         }
 
@@ -175,7 +175,7 @@ class Settings
                  *  Print a message only if RPM repositories are enabled.
                  */
                 if (RPM_REPO == 'true') {
-                    $__LOAD_SETTINGS_MESSAGES[] = "<code>Default release version</code> setting is not defined.";
+                    $__LOAD_SETTINGS_MESSAGES[] = "<code>DEFAULT RELEASE VERSION</code> setting is not defined.";
                 }
             }
         }
@@ -264,7 +264,7 @@ class Settings
                 define('STATS_ENABLED', $settings['STATS_ENABLED']);
             } else {
                 define('STATS_ENABLED', '');
-                $__LOAD_SETTINGS_MESSAGES[] = "<code>Enable repositories statistics</code> setting is not defined.";
+                $__LOAD_SETTINGS_MESSAGES[] = "<code>ENABLE REPOSITORIES STATISTICS</code> setting is not defined.";
             }
         }
 
@@ -301,7 +301,7 @@ class Settings
                 define('MANAGE_HOSTS', $settings['MANAGE_HOSTS']);
             } else {
                 define('MANAGE_HOSTS', '');
-                $__LOAD_SETTINGS_MESSAGES[] = "<code>Manage hosts</code> setting is not defined.";
+                $__LOAD_SETTINGS_MESSAGES[] = "<code>MANAGE HOSTS</code> setting is not defined.";
             }
         }
 
@@ -310,7 +310,7 @@ class Settings
                 define('MANAGE_PROFILES', $settings['MANAGE_PROFILES']);
             } else {
                 define('MANAGE_PROFILES', '');
-                $__LOAD_SETTINGS_MESSAGES[] = "<code>Manage profiles</code> setting is not defined.";
+                $__LOAD_SETTINGS_MESSAGES[] = "<code>MANAGE PROFILES</code> setting is not defined.";
             }
         }
 

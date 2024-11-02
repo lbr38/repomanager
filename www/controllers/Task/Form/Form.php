@@ -11,31 +11,11 @@ class Form
     /**
      *  Return the task form to the user according to his selection
      */
-    public function get(string $action, array $repos_array)
+    public function get(string $action, array $repos)
     {
-        if (!in_array($action, $this->validActions)) {
-            throw new Exception('Task action is invalid');
-        }
+        $content = '<form class="task-form" autocomplete="off">';
 
-        if ($action == 'update') {
-            $title = '<h3>UPDATE</h3>';
-        }
-        if ($action == 'env') {
-            $title = '<h3>NEW ENVIRONMENT</h3>';
-        }
-        if ($action == 'duplicate') {
-            $title = '<h3>DUPLICATE</h3>';
-        }
-        if ($action == 'delete') {
-            $title = '<h3>DELETE</h3>';
-        }
-        if ($action == 'rebuild') {
-            $title = '<h3>REBUILD REPO</h3>';
-        }
-
-        $content = $title . '<form class="task-form" autocomplete="off">';
-
-        foreach ($repos_array as $repo) {
+        foreach ($repos as $repo) {
             $myrepo = new \Controllers\Repo\Repo();
             $repoId = \Controllers\Common::validateData($repo['repo-id']);
             $snapId = \Controllers\Common::validateData($repo['snap-id']);
@@ -94,15 +74,15 @@ class Form
             ob_start();
 
             echo '<div class="task-form-params" repo-id="' . $repoId . '" snap-id="' . $snapId . '" env-id="' . $envId . '" action="' . $action . '">';
-            echo '<table class="task-table">';
 
             /**
              *  Include form template
              */
             include(ROOT . '/views/includes/forms/tasks/' . $action . '.inc.php');
 
-            echo '</table>';
             echo '</div>';
+
+            echo '<br><hr>';
 
             $content .= ob_get_clean();
         }
@@ -133,6 +113,10 @@ class Form
              */
             if (empty($task['action'])) {
                 throw new Exception('No action has been specified');
+            }
+
+            if (!in_array($task['action'], $this->validActions)) {
+                throw new Exception('Invalid action: ' . $task['action']);
             }
 
             /**
