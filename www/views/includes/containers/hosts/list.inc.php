@@ -144,62 +144,62 @@
                                             if (!empty($host['Hostname'])) {
                                                 $hostname = $host['Hostname'];
                                             } else {
-                                                $hostname = 'unknow';
+                                                $hostname = 'unknown';
                                             }
                                             if (!empty($host['Ip'])) {
                                                 $ip = $host['Ip'];
                                             } else {
-                                                $ip = 'unknow';
+                                                $ip = 'unknown';
                                             }
                                             if (!empty($host['Os'])) {
                                                 $os = $host['Os'];
                                             } else {
-                                                $os = 'unknow';
+                                                $os = 'unknown';
                                             }
                                             if (!empty($host['Os_version'])) {
                                                 $os_version = $host['Os_version'];
                                             } else {
-                                                $os_version = 'unknow';
+                                                $os_version = 'unknown';
                                             }
                                             if (!empty($host['Os_family'])) {
                                                 $os_family = $host['Os_family'];
                                             } else {
-                                                $os_family = 'unknow';
+                                                $os_family = 'unknown';
                                             }
                                             if (!empty($host['Type'])) {
                                                 $type = $host['Type'];
                                             } else {
-                                                $type = 'unknow';
+                                                $type = 'unknown';
                                             }
                                             if (!empty($host['Kernel'])) {
                                                 $kernel = $host['Kernel'];
                                             } else {
-                                                $kernel = 'unknow';
+                                                $kernel = 'unknown';
                                             }
                                             if (!empty($host['Arch'])) {
                                                 $arch = $host['Arch'];
                                             } else {
-                                                $arch = 'unknow';
+                                                $arch = 'unknown';
                                             }
                                             if (!empty($host['Profile'])) {
                                                 $profile = $host['Profile'];
                                             } else {
-                                                $profile = 'unknow';
+                                                $profile = 'unknown';
                                             }
                                             if (!empty($host['Env'])) {
                                                 $env = $host['Env'];
                                             } else {
-                                                $env = 'unknow';
+                                                $env = 'unknown';
                                             }
                                             if (!empty($host['Linupdate_version'])) {
                                                 $agentVersion = $host['Linupdate_version'];
                                             } else {
-                                                $agentVersion = 'unknow';
+                                                $agentVersion = 'unknown';
                                             }
                                             if (!empty($host['Reboot_required'])) {
                                                 $rebootRequired = $host['Reboot_required'];
                                             } else {
-                                                $rebootRequired = 'unknow';
+                                                $rebootRequired = 'unknown';
                                             }
 
                                             /**
@@ -267,8 +267,8 @@
                                                     if ($agentStatus == "seems-stopped") {
                                                         echo '<img src="/assets/icons/warning-red.svg" class="icon" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
                                                     }
-                                                    if ($agentStatus == "unknow") {
-                                                        echo '<img src="/assets/icons/graycircle.png" class="icon" title="Linupdate agent state on the host: unknow." />';
+                                                    if ($agentStatus == "unknown") {
+                                                        echo '<img src="/assets/icons/graycircle.png" class="icon" title="Linupdate agent state on the host: unknown." />';
                                                     } ?>
                                                 </div>
 

@@ -13,7 +13,7 @@ class Render
              *  Check if table exists
              */
             if (!file_exists(ROOT . '/views/includes/tables/' . $table . '.inc.php')) {
-                throw new Exception('Could not retrieve content: unknow table ' . $table);
+                throw new Exception('Could not retrieve content: unknown table ' . $table);
             }
 
             /**

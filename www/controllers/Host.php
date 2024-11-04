@@ -587,7 +587,7 @@ class Host
                 if (!empty($packageDetails[1])) {
                     $this->setPackageVersion($packageDetails[1]);
                 } else {
-                    $this->setPackageVersion('unknow');
+                    $this->setPackageVersion('unknown');
                 }
 
                 /**
@@ -707,7 +707,7 @@ class Host
                 if (!empty($packageDetails[1])) {
                     $this->setPackageVersion($packageDetails[1]);
                 } else {
-                    $this->setPackageVersion('unknow');
+                    $this->setPackageVersion('unknown');
                 }
 
                 /**
@@ -1054,9 +1054,9 @@ class Host
         $this->token = bin2hex(openssl_random_pseudo_bytes(16));
 
         /**
-         *  The agent status is set to 'unknow' when we register a new host for the first time
+         *  The agent status is set to 'unknown' when we register a new host for the first time
          */
-        $this->onlineStatus = 'unknow';
+        $this->onlineStatus = 'unknown';
 
         /**
          *  Ajout en BDD

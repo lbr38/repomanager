@@ -92,7 +92,7 @@ repositories:
   - name: almalinux-crb
     type: rpm
     description: Alma Linux CRB
-    url: https://repo.almalinux.org/almalinux/$releasever/crb/$basearch/os
+    url: https://repo.almalinux.org/almalinux/$releasever/CRB/$basearch/os
     releasever:
       - name: 9
         description: Alma Linux 9

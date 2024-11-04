@@ -594,7 +594,7 @@ class Connection extends SQLite3
                 'false',
                 'repomanager-',
                 'Europe/Paris',
-                '512',
+                '1024',
                 '300',
                 'true',
                 'true',
@@ -931,7 +931,7 @@ class Connection extends SQLite3
         Date_end DATE NOT NULL,
         Time_end TIME NOT NULL,
         Report VARCHAR(255),
-        Status VARCHAR(7))"); /* error / warning / unknow / done */
+        Status VARCHAR(7))"); /* error / warning / unknown / done */
 
         /**
          *  Create indexes

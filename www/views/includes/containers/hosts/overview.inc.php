@@ -18,16 +18,16 @@
         <?php
         if ($totalHosts >= 1) : ?>
             <div class="hosts-chart-sub-container div-generic-blue">
-                <h6>HOSTS (<?= $totalHosts ?>)</h6>
+                <h6 class="margin-top-0">HOSTS (<?= $totalHosts ?>)</h6>
                 <canvas id="hosts-count-chart" class="host-pie-chart"></canvas>
             </div>
 
             <?php
             if (!empty(HOSTS_KERNEL_LIST)) : ?>
                 <div class="hosts-chart-sub-container div-generic-blue">
-                    <h6>KERNELS</h6>
+                    <h6 class="margin-top-0">KERNELS</h6>
                 
-                    <div class="hosts-charts-list-column-container">
+                    <div class="grid grid-2 row-gap-5 column-gap-40 margin-15">
                         <?php
                         foreach (HOSTS_KERNEL_LIST as $kernel) :
                             if (empty($kernel['Kernel'])) {
@@ -36,15 +36,13 @@
                                 $kernelName = $kernel['Kernel'];
                             } ?>
 
-                            <div class="hosts-charts-list-container">
-                                <div class="hosts-charts-list-label flex justify-space-between" chart-type="kernel" kernel="<?= $kernelName ?>">
-                                    <div class="flex column-gap-5 align-item-center">
-                                        <!-- square figure -->
-                                        <span style="background-color: <?= $mycolor->randomColor() ?>"></span>
-                                        <span><?= $kernelName ?></span>
-                                    </div>
-                                    <span><?= $kernel['Kernel_count'] ?></span>
+                            <div class="hosts-charts-list-label flex justify-space-between align-item-center" chart-type="kernel" kernel="<?= $kernelName ?>">
+                                <div class="flex column-gap-5 align-item-center">
+                                    <!-- square figure -->
+                                    <span style="background-color: <?= $mycolor->randomColor() ?>"></span>
+                                    <p class="font-size-14"><?= $kernelName ?></p>
                                 </div>
+                                <p class="font-size-14"><?= $kernel['Kernel_count'] ?></p>
                             </div>
                             <?php
                         endforeach ?>
@@ -55,8 +53,8 @@
 
             if (!empty(HOSTS_PROFILES_LIST)) : ?>
                 <div class="hosts-chart-sub-container div-generic-blue">
-                    <h6>PROFILES</h6>
-                    <div class="hosts-charts-list-column-container">
+                    <h6 class="margin-top-0">PROFILES</h6>
+                    <div class="grid grid-2 row-gap-5 column-gap-40 margin-15">
                         <?php
                         foreach (HOSTS_PROFILES_LIST as $profile) {
                             if (empty($profile['Profile'])) {
@@ -65,15 +63,13 @@
                                 $profileName = $profile['Profile'];
                             } ?>
                             
-                            <div class="hosts-charts-list-container">
-                                <div class="hosts-charts-list-label flex justify-space-between" chart-type="profile" profile="<?= $profileName ?>">
-                                    <div class="flex column-gap-5 align-item-center">
-                                        <!-- square figure -->
-                                        <span style="background-color: <?= $mycolor->randomColor() ?>"></span>
-                                        <span><?= $profileName ?></span>
-                                    </div>
-                                    <span><?= $profile['Profile_count'] ?></span>
+                            <div class="hosts-charts-list-label flex justify-space-between align-item-center" chart-type="profile" profile="<?= $profileName ?>">
+                                <div class="flex column-gap-5 align-item-center">
+                                    <!-- square figure -->
+                                    <span style="background-color: <?= $mycolor->randomColor() ?>"></span>
+                                    <p class="font-size-14"><?= $profileName ?></p>
                                 </div>
+                                <p class="font-size-14"><?= $profile['Profile_count'] ?></p>
                             </div>
                             <?php
                         } ?>
@@ -84,7 +80,7 @@
 
             if (!empty(HOSTS_OS_LIST)) : ?>
                 <div class="hosts-chart-sub-container div-generic-blue">
-                    <h6>OPERATING SYSTEMS</h6>
+                    <h6 class="margin-top-0">OPERATING SYSTEMS</h6>
                     <canvas id="hosts-os-chart" class="host-bar-chart"></canvas>
                 </div>
                 <?php
@@ -92,7 +88,7 @@
 
             if (!empty(HOSTS_ARCHS_LIST)) : ?>
                 <div class="hosts-chart-sub-container div-generic-blue">
-                    <h6>ARCHITECTURES</h6>
+                    <h6 class="margin-top-0">ARCHITECTURES</h6>
                     <canvas id="hosts-arch-chart" class="host-pie-chart"></canvas>
                 </div>
                 <?php
@@ -100,7 +96,7 @@
 
             if (!empty(HOSTS_ENVS_LIST)) : ?>
                 <div class="hosts-chart-sub-container div-generic-blue">
-                    <h6>ENVIRONMENTS</h6>
+                    <h6 class="margin-top-0">ENVIRONMENTS</h6>
                     <canvas id="hosts-env-chart" class="host-pie-chart"></canvas>
                 </div>
                 <?php
@@ -108,7 +104,7 @@
 
             if (!empty(HOSTS_AGENT_STATUS_LIST)) : ?>
                 <div class="hosts-chart-sub-container div-generic-blue">
-                    <h6>AGENT STATUS</h6>
+                    <h6 class="margin-top-0">AGENT STATUS</h6>
                     <canvas id="hosts-agent-status-chart" class="host-pie-chart"></canvas>
                 </div>
                 <?php
@@ -116,14 +112,14 @@
 
             if (!empty(HOSTS_AGENT_VERSION_LIST)) : ?>
                 <div class="hosts-chart-sub-container div-generic-blue">
-                    <h6>AGENT VERSION</h6>
+                    <h6 class="margin-top-0">AGENT VERSION</h6>
                     <canvas id="hosts-agent-version-chart" class="host-pie-chart"></canvas>
                 </div>
                 <?php
             endif ?>
 
             <div class="hosts-chart-sub-container div-generic-blue">
-                <h6>HOSTS REQUIRING REBOOT</h6>
+                <h6 class="margin-top-0">HOSTS REQUIRING REBOOT</h6>
                 
                 <div id="hosts-requiring-reboot-chart" class="flex justify-center align-item-center">
                     <div>

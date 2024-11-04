@@ -85,7 +85,7 @@
                     if ($agentStatus == "seems-stopped") {
                         echo '<img src="/assets/icons/warning-red.svg" class="icon" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Seems stopped';
                     }
-                    if ($agentStatus == "unknow") {
+                    if ($agentStatus == "unknown") {
                         echo '<img src="/assets/icons/graycircle.png" class="icon" title="Linupdate agent state on this host: ' . $agentStatus . '." /> Unknown';
                     } ?>
                 </p>

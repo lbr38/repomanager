@@ -25,7 +25,7 @@ trait Sync
              *  Task action must be specified ('create' or 'update')
              */
             if (empty($this->task->getAction())) {
-                throw new Exception('Task action unknow (empty)');
+                throw new Exception('Empty task action');
             }
             if ($this->task->getAction() != 'create' and $this->task->getAction() != 'update') {
                 throw new Exception('Task action is invalid');
