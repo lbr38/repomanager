@@ -304,7 +304,7 @@ if (!empty($groupsList)) {
                                             } elseif ($type == "local") {
                                                 echo '<img class="icon-np lowopacity-cst" src="/assets/icons/pin.svg" title="Type: local&#10;Arch: ' . $arch . '" />';
                                             } else {
-                                                echo '<img class="icon-np lowopacity-cst" src="/assets/icons/unknow.svg" title="Type: unknow" />';
+                                                echo '<img class="icon-np lowopacity-cst" src="/assets/icons/unknown.svg" title="Type: unknown" />';
                                             } ?>
                                         </span>
                                         
@@ -315,7 +315,7 @@ if (!empty($groupsList)) {
                                             } elseif ($signed == "false") {
                                                 echo '<img class="icon-np" src="/assets/icons/key2.svg" title="Not signed with GPG" />';
                                             } else {
-                                                echo '<img class="icon-np lowopacity-cst" src="/assets/icons/unknow.svg" title="GPG signature: unknow" />';
+                                                echo '<img class="icon-np lowopacity-cst" src="/assets/icons/unknown.svg" title="GPG signature: unknown" />';
                                             } ?>
                                         </span>
                                     </div>

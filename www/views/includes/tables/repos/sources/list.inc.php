@@ -100,7 +100,7 @@
                         if (!empty($distAndComponent)) :
                             foreach ($distAndComponent as $distributionId => $distributionDetails) : ?>
                                 <!-- Distributions -->
-                                <div class="table-container grid-2 bck-blue-alt source-repo-distribution-edit-param-btn pointer" source-id="<?= $item['Id'] ?>" distribution-id="<?= $distributionId ?>">
+                                <div class="table-container grid-fr-4-1 bck-blue-alt source-repo-distribution-edit-param-btn pointer" source-id="<?= $item['Id'] ?>" distribution-id="<?= $distributionId ?>">
                                     <div>
                                         <p><?= $distributionDetails['name'] ?></p>
                                         <p class="note"><?= $distributionDetails['description'] ?></p>
@@ -135,7 +135,7 @@
                         if (!empty($releasevers)) :
                             foreach ($releasevers as $releaseverId => $releaseverDefinition) : ?>
                                 <!-- Distributions -->
-                                <div class="table-container grid-2 bck-blue-alt source-repo-releasever-edit-param-btn pointer" source-id="<?= $item['Id'] ?>" releasever-id="<?= $releaseverId ?>">
+                                <div class="table-container grid-fr-4-1 bck-blue-alt source-repo-releasever-edit-param-btn pointer" source-id="<?= $item['Id'] ?>" releasever-id="<?= $releaseverId ?>">
                                     <div>
                                         <p><?= $releaseverDefinition['name'] ?></p>
                                         <p class="note"><?= $releaseverDefinition['description'] ?></p>

@@ -130,19 +130,8 @@ td:last-child {
 }
 
 .hosts-chart-sub-container {
-    height: 250px;
+    min-height: 230px;
     position: relative;
-}
-
-.hosts-charts-list-column-container {
-    column-count: 2;
-}
-
-.hosts-charts-list-container {
-    width: 80%;
-    margin: auto;
-    padding-top: 3px;
-    padding-bottom: 3px;
 }
 
 .hosts-charts-list-label > div > span:first-child {
@@ -170,8 +159,9 @@ td:last-child {
 
 #hosts-requiring-reboot-chart {
     position: relative;
-    height: 150px;
+    height: 80%;
 }
+
 #hosts-requiring-reboot-chart p {
     font-size: 35px;
 }
