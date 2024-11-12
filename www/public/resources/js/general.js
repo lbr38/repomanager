@@ -64,6 +64,8 @@ $(document).on('click','.modal-window-close-btn',function () {
 $(document).keyup(function (e) {
     if (e.key === "Escape") {
         closePanel();
+        closeAlert();
+        closeConfirmBox();
         $(".modal-window-container").remove();
     }
 });
@@ -94,7 +96,7 @@ $(document).on('click','.stop-task-btn',function () {
  *  Event: print a copy icon on element with .copy class
  */
 $(document).on('mouseenter','.copy',function () {
-    $(this).append('<img src="/assets/icons/duplicate.svg" class="icon-lowopacity icon-copy margin-left-5 vertical-align-text-top" title="Copy to clipboard">');
+    $(this).append('<img src="/assets/icons/duplicate.svg" class="icon-lowopacity icon-copy margin-left-5" title="Copy to clipboard">');
 });
 
 /**
@@ -379,34 +381,4 @@ function reloadTable(table, offset)
      *  Hide loading icon
      */
     hideLoading();
-}
-
-/**
- * Ajax: Get and print alert box
- * @param {*} name
- */
-function getConfirmBox(name)
-{
-    ajaxRequest(
-        // Controller:
-        'general',
-        // Action:
-        'getConfirmBox',
-        // Data:
-        {
-            name: name
-        },
-        // Print success alert:
-        false,
-        // Print error alert:
-        true,
-        // Reload containers:
-        [],
-        // Execute functions on success:
-        [
-            "closeConfirmBox()",
-            "$('#newalert').remove()",
-            "$('footer').append(jsonValue.message)"
-        ]
-    );
 }

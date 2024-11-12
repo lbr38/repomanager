@@ -10,7 +10,22 @@ $(document).on('submit','#newProfileForm',function () {
 
     var name = $("#newProfileInput").val();
 
-    newProfile(name);
+    ajaxRequest(
+        // Controller:
+        'profile',
+        // Action:
+        'new',
+        // Data:
+        {
+            name: name
+        },
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload container:
+        ['profiles/list']
+    );
 
     return false;
 });
@@ -23,9 +38,37 @@ $(document).on('click','.profile-delete-btn',function (e) {
     e.stopPropagation();
 
     var id = $(this).attr('profile-id');
+    var name = $(this).attr('profile-name');
 
-    confirmBox('Are you sure you want to delete profile <b>' + name + '</b>?', function () {
-        deleteProfile(id)});
+    confirmBox(
+        {
+            'title': 'Delete profile',
+            'message': 'Are you sure you want to delete profile <b>' + name + '</b>?',
+            'buttons': [
+            {
+                'text': 'Delete',
+                'color': 'red',
+                'callback': function () {
+                    ajaxRequest(
+                        // Controller:
+                        'profile',
+                        // Action:
+                        'delete',
+                        // Data:
+                        {
+                            id: id
+                        },
+                        // Print success alert:
+                        true,
+                        // Print error alert:
+                        true,
+                        // Reload container:
+                        ['profiles/list']
+                    );
+                }
+            }]
+        }
+    );
 });
 
 /**
@@ -37,7 +80,22 @@ $(document).on('click','.profile-duplicate-btn',function (e) {
 
     var id = $(this).attr('profile-id');
 
-    duplicate(id);
+    ajaxRequest(
+        // Controller:
+        'profile',
+        // Action:
+        'duplicate',
+        // Data:
+        {
+            id: id
+        },
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload container:
+        ['profiles/list']
+    );
 });
 
 /**
@@ -65,95 +123,6 @@ $(document).on('submit','.profile-config-form',function () {
     var serviceRestart = $(this).find('select[name=profile-service-restart]').val();
     var notes = $(this).find('textarea[name=profile-notes]').val();
 
-    configure(id, name, reposList, exclude, excludeMajor, serviceRestart, notes);
-
-    return false;
-});
-
-/**
- * Ajax: Create a new profile
- * @param {string} name
- */
-function newProfile(name)
-{
-    ajaxRequest(
-        // Controller:
-        'profile',
-        // Action:
-        'new',
-        // Data:
-        {
-            name: name
-        },
-        // Print success alert:
-        true,
-        // Print error alert:
-        true,
-        // Reload container:
-        ['profiles/list']
-    );
-}
-
-/**
- * Ajax: Delete a profile
- * @param {string} id
- */
-function deleteProfile(id)
-{
-    ajaxRequest(
-        // Controller:
-        'profile',
-        // Action:
-        'delete',
-        // Data:
-        {
-            id: id
-        },
-        // Print success alert:
-        true,
-        // Print error alert:
-        true,
-        // Reload container:
-        ['profiles/list']
-    );
-}
-
-/**
- * Ajax: Duplicate a profile
- * @param {string} id
- */
-function duplicate(id)
-{
-    ajaxRequest(
-        // Controller:
-        'profile',
-        // Action:
-        'duplicate',
-        // Data:
-        {
-            id: id
-        },
-        // Print success alert:
-        true,
-        // Print error alert:
-        true,
-        // Reload container:
-        ['profiles/list']
-    );
-}
-
-/**
- * Ajax: Modify profile configuration
- * @param {string} id
- * @param {string} name
- * @param {string} reposList
- * @param {string} exclude
- * @param {string} excludeMajor
- * @param {string} serviceRestart
- * @param {string} notes
- */
-function configure(id, name, reposList, exclude, excludeMajor, serviceRestart, notes)
-{
     ajaxRequest(
         // Controller:
         'profile',
@@ -176,4 +145,6 @@ function configure(id, name, reposList, exclude, excludeMajor, serviceRestart, n
         // Reload container:
         ['profiles/list']
     );
-}
+
+    return false;
+});

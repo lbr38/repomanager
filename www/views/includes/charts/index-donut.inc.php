@@ -17,43 +17,45 @@ $donutColor .= "'rgb(247, 247, 247, 0)'"; // transparent (opacity 0) color for t
 <canvas id="diskSpaceChart-<?= $donutChartName ?>" class="donut-chart"></canvas>
 
 <script>
-// Data
-var doughnutChartData = {
-    datasets: [{
-        labels: ['Used space', 'Free space'],
-        borderWidth: 3,
-        data: [<?= "$diskUsedSpace, $diskFreeSpace" ?>],
-        backgroundColor: [<?= $donutColor ?>],
-        borderColor: [
-            'gray',
-            'gray'
-        ],
-        borderWidth: 0.4
-    }],
-    labels: ['Used space %', 'Free space %']
-};
+$(document).ready(function() {
+    // Data
+    var doughnutChartData = {
+        datasets: [{
+            labels: ['Used space', 'Free space'],
+            borderWidth: 3,
+            data: [<?= "$diskUsedSpace, $diskFreeSpace" ?>],
+            backgroundColor: [<?= $donutColor ?>],
+            borderColor: [
+                'gray',
+                'gray'
+            ],
+            borderWidth: 0.4
+        }],
+        labels: ['Used space %', 'Free space %']
+    };
 
-// Options
-var doughnutChartOptions = {
-    responsive: true,
-    plugins: {
-        legend: {
-            display: false
+    // Options
+    var doughnutChartOptions = {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            },
         },
-    },
-    cutout: 55,
-    elements: {
-        point: {
-            radius: 0
-        }
-    },
-}
+        cutout: 55,
+        elements: {
+            point: {
+                radius: 0
+            }
+        },
+    }
 
-// Print chart
-var ctx = document.getElementById('diskSpaceChart-<?=$donutChartName?>').getContext("2d");
-window.myDoughnut = new Chart(ctx, {
-    type: "doughnut",
-    data: doughnutChartData,
-    options: doughnutChartOptions
+    // Print chart
+    var ctx = document.getElementById('diskSpaceChart-<?=$donutChartName?>').getContext("2d");
+    window.myDoughnut = new Chart(ctx, {
+        type: "doughnut",
+        data: doughnutChartData,
+        options: doughnutChartOptions
+    });
 });
 </script>

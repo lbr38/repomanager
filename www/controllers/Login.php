@@ -321,7 +321,7 @@ class Login
          *  Check that new specified password and its retype are the same
          */
         if ($newPassword !== $newPasswordRetype) {
-            throw new Exception('New password and password re-type are different');
+            throw new Exception('New password and password confirm are different');
         }
 
         /**

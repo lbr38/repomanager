@@ -50,8 +50,43 @@ $(document).on('click','.delete-group-btn',function (e) {
     var id = $(this).attr('group-id');
     var name = $(this).attr('group-name');
 
-    confirmBox('Are you sure you want to delete group ' + name + '?', function () {
-        deleteGroup(id)});
+    confirmBox(
+        {
+            'title': 'Delete group',
+            'message': 'Are you sure you want to delete group <b>' + name + '</b>?',
+            'buttons': [
+            {
+                'text': 'Delete',
+                'color': 'red',
+                'callback': function () {
+                    ajaxRequest(
+                        // Controller:
+                        'group',
+                        // Action:
+                        'delete',
+                        // Data:
+                        {
+                            id: id,
+                            type: 'repo'
+                        },
+                        // Print success alert:
+                        true,
+                        // Print error alert:
+                        true,
+                        // Reload container:
+                        ['repos/list'],
+                        // Execute functions on success:
+                        [
+                            // Reload group panel
+                            "reloadPanel('repos/groups/list')",
+                            // Reload create repo div
+                            "reloadPanel('repos/new')"
+                        ]
+                    );
+                }
+            }]
+        }
+    );
 });
 
 /**
@@ -103,35 +138,3 @@ $(document).on('click','.group-config-btn',function () {
 
     slide('.group-config-div[group-id="' + id + '"]');
 });
-
-/**
- * Ajax: Delete a group
- * @param {string} id
- */
-function deleteGroup(id)
-{
-    ajaxRequest(
-        // Controller:
-        'group',
-        // Action:
-        'delete',
-        // Data:
-        {
-            id: id,
-            type: 'repo'
-        },
-        // Print success alert:
-        true,
-        // Print error alert:
-        true,
-        // Reload container:
-        ['repos/list'],
-        // Execute functions on success:
-        [
-            // Reload group panel
-            "reloadPanel('repos/groups/list')",
-            // Reload create repo div
-            "reloadPanel('repos/new')"
-        ]
-    );
-}

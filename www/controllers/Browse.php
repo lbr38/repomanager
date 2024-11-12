@@ -68,6 +68,8 @@ class Browse
      */
     public static function printFile($file, $path)
     {
+        $checkbox = false;
+
         /**
          *  If file has .deb or .rpm extension, then it is a package
          *  If it has .db extension, then it is a metadate (database)
@@ -78,6 +80,7 @@ class Browse
         if ($extension == 'deb' || $extension == 'rpm') {
             $title = 'Package file';
             $icon = 'package';
+            $checkbox = true;
         } else if ($extension == 'db') {
             $title = 'Metadata (database) file';
             $icon = 'file';
@@ -96,7 +99,11 @@ class Browse
                     <p><?= $file ?></p>
                 </div>
                 
-                <input type="checkbox" class="packageName-checkbox pointer" name="packageName[]" filename="<?= $file ?>" path="<?= $path ?>" />
+                <?php
+                if ($checkbox) : ?>
+                    <input type="checkbox" class="package-checkbox pointer" name="packageName[]" filename="<?= $file ?>" path="<?= $path ?>" />
+                    <?php
+                endif ?>
             </div>
         </li>
         <?php
@@ -109,7 +116,7 @@ class Browse
     {
         ?>
         <li>
-            <div class="explorer-toggle header-blue pointer flex column-gap-5 align-item-center" title="Directory <?= $dir ?>">
+            <div class="explorer-toggle div-generic-blue pointer flex column-gap-5 align-item-center" title="Directory <?= $dir ?>">
                 <img src="/assets/icons/folder.svg" class="icon" />
                 <p><?= $dir ?></p>
             </div>

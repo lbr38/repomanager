@@ -1,11 +1,3 @@
-.settings-div {
-    display: grid;
-    grid-template-columns: 25px 35% 25% 2% auto;
-    align-items: center;
-    width: 100%;
-    min-height: 35px;
-}
-
 .health-div {
     display: grid;
     grid-template-columns: 25px 35% auto;

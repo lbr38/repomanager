@@ -73,4 +73,24 @@ if ($action == "deleteUser" and !empty($_POST['id'])) {
     response(HTTP_OK, 'User has been deleted');
 }
 
+/**
+ *  Get websocker server log content
+ */
+if ($action == 'get-wss-log' and !empty([$_POST['logfile']])) {
+    // Check if the log file exists
+    if (!file_exists(WS_LOGS_DIR . '/' . $_POST['logfile'])) {
+        response(HTTP_BAD_REQUEST, 'Log file not found');
+    }
+
+    // Get the log content
+    $content = file_get_contents(WS_LOGS_DIR . '/' . $_POST['logfile']);
+
+    // Check if the log content was read successfully
+    if ($content === false) {
+        response(HTTP_BAD_REQUEST, 'Unable to read log file');
+    }
+
+    response(HTTP_OK, $content);
+}
+
 response(HTTP_BAD_REQUEST, 'Invalid action');

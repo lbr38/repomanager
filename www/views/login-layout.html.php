@@ -109,8 +109,8 @@ if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST[
 <body>
     <div id="loginDiv-container">
         <div id="loginDiv">
-            <h3>AUTHENTICATION</h3>
-            <br>
+            <img src="/assets/icons/package.svg" class="margin-bottom-30 mediumopacity-cst" />
+
             <form action="/login" method="post" autocomplete="off">
                 <input type="hidden" name="authType" value="local" />
                 <!-- <div class="switch-field">

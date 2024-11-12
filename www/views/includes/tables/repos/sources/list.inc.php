@@ -161,15 +161,15 @@
 
                     <h6>SSL CERTIFICATE</h6>
                     <p class="note">Plain text format.</p>
-                    <textarea class="source-param textarea-100" param-name="ssl-certificate" placeholder="-----BEGIN CERTIFICATE-----"><?= $sslCertificate ?></textarea>
+                    <textarea class="source-param textarea-100 resize-disabled" param-name="ssl-certificate" placeholder="-----BEGIN CERTIFICATE-----"><?= $sslCertificate ?></textarea>
     
                     <h6>SSL PRIVATE KEY</h6>
                     <p class="note">Plain text format.</p>
-                    <textarea class="source-param textarea-100" param-name="ssl-private-key" placeholder="-----BEGIN PRIVATE KEY-----"><?= $sslPrivateKey ?></textarea>
+                    <textarea class="source-param textarea-100 resize-disabled" param-name="ssl-private-key" placeholder="-----BEGIN PRIVATE KEY-----"><?= $sslPrivateKey ?></textarea>
 
                     <h6>SSL CA CERTIFICATE</h6>
                     <p class="note">Plain text format.</p>
-                    <textarea class="source-param textarea-100" param-name="ssl-ca-certificate" placeholder="-----BEGIN CERTIFICATE-----"><?= $sslCaCertificate ?></textarea>
+                    <textarea class="source-param textarea-100 resize-disabled" param-name="ssl-ca-certificate" placeholder="-----BEGIN CERTIFICATE-----"><?= $sslCaCertificate ?></textarea>
 
                     <br><br>
                     <button type="button" class="source-repo-form-submit-btn btn-medium-green" source-id="<?= $item['Id'] ?>" title="Save">Save</button>

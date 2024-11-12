@@ -5,7 +5,7 @@ $(".repo-access-chart-filter-button").click(function () {
     /**
      *  Print a "loading" icon
      */
-    $('#repo-access-chart-div').append('<div class="chart-loading"><span>Loading data<img src="/assets/icons/loading.svg" class="icon" /></span></div>');
+    $('#repo-access-chart-div').append('<div class="chart-loading"><span>Loading data <img src="/assets/icons/loading.svg" class="icon" /></span></div>');
 
     /**
      *  Retrieve the value of the selected filter (1week, 1month...)

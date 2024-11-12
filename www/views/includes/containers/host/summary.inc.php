@@ -5,12 +5,12 @@
         <?php
         if (IS_ADMIN) : ?>
             <div class="flex justify-space-between">
-                <div class="slide-btn-yellow host-action-btn" host-id="<?= $id ?>" action="reset" title="Reset host informations">
+                <div id="host-reset-btn" class="slide-btn-yellow" host-id="<?= $id ?>" title="Reset host informations">
                     <img src="/assets/icons/update.svg">
                     <span>Reset</span>
                 </div>
 
-                <div class="slide-btn-red host-action-btn" host-id="<?= $id ?>" action="delete" title="Delete host">
+                <div id="host-delete-btn" class="slide-btn-red" host-id="<?= $id ?>" title="Delete host">
                     <img src="/assets/icons/delete.svg">
                     <span>Delete</span>
                 </div>
@@ -74,19 +74,19 @@
                 <p class="flex align-item-center column-gap-5">
                     <?php
                     if ($agentStatus == 'running') {
-                        echo '<img src="/assets/icons/check.svg" class="icon" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Running';
+                        echo '<img src="/assets/icons/check.svg" class="icon" title="Agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Running';
                     }
                     if ($agentStatus == "disabled") {
-                        echo '<img src="/assets/icons/warning.svg" class="icon" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Disabled';
+                        echo '<img src="/assets/icons/warning-red.svg" class="icon" title="Agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Disabled';
                     }
                     if ($agentStatus == "stopped") {
-                        echo '<img src="/assets/icons/warning-red.svg" class="icon" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Stopped';
+                        echo '<img src="/assets/icons/warning-red.svg" class="icon" title="Agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Stopped';
                     }
                     if ($agentStatus == "seems-stopped") {
-                        echo '<img src="/assets/icons/warning-red.svg" class="icon" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Seems stopped';
+                        echo '<img src="/assets/icons/warning-red.svg" class="icon" title="Agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Seems stopped';
                     }
                     if ($agentStatus == "unknown") {
-                        echo '<img src="/assets/icons/graycircle.png" class="icon" title="Linupdate agent state on this host: ' . $agentStatus . '." /> Unknown';
+                        echo '<img src="/assets/icons/warning-red.svg" class="icon" title="Agent state on this host: ' . $agentStatus . '." /> Unknown';
                     } ?>
                 </p>
 

@@ -408,37 +408,7 @@ if (!empty($groupsList)) {
         </div>
         <?php
     endforeach;
-}
-
-/**
- *  Action buttons
- */
-if (IS_ADMIN) : ?>
-    <div id="repo-actions-btn-container" class="action hide">
-        <div>
-            <div class="repo-action-btn btn-doGeneric" action="update" type="active-btn" title="Update selected snapshot(s)">
-                <img class="icon" src="/assets/icons/update.svg" />
-                <span>Update</span>
-            </div>
-            <div class="repo-action-btn btn-doGeneric" action="duplicate" type="active-btn" title="Duplicate select snapshot(s)">
-                <img class="icon" src="/assets/icons/duplicate.svg" />
-                <span>Duplicate</span>
-            </div>
-            <div class="repo-action-btn btn-doGeneric" action="env" type="active-btn" title="Point an environment to the selected snapshot(s)">
-                <img class="icon" src="/assets/icons/link.svg" />
-                <span>Point an environment</span>
-            </div>
-            <div class="repo-action-btn btn-doGeneric" action="rebuild" type="active-btn" title="Rebuild selected snapshot(s) metadata">
-                <img class="icon" src="/assets/icons/update.svg" />
-                <span>Rebuild</span>
-            </div>
-            <div class="repo-action-btn btn-doConfirm" action="delete" type="active-btn" title="Delete selected snapshot(s)">
-                <span>Delete</span>
-            </div>
-        </div>
-    </div>
-    <?php
-endif ?>
+} ?>
 
 <script>
     getReposSize();

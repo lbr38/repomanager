@@ -2,6 +2,7 @@
 $mygroup = new \Controllers\Group('host');
 $myhost = new \Controllers\Host();
 $hostDb = new \Controllers\Host();
+$compactView = true;
 
 /**
  *  Initializing counters for doughnut chart
@@ -33,3 +34,18 @@ $packagesCountConsideredOutdated = $hostsSettings['pkgs_count_considered_outdate
  *  Threshold of the maximum number of available update above which the host is considered as 'not up to date' (critical)
  */
 $packagesCountConsideredCritical = $hostsSettings['pkgs_count_considered_critical'];
+
+if (isset($_COOKIE['hosts/compact-view']) and $_COOKIE['hosts/compact-view'] == false) {
+    $compactView = false;
+}
+
+/**
+ *  Setting layout variables depending on the view mode
+ */
+if ($compactView) {
+    $layoutPackagesTitle = 'PKG.';
+    $layoutGridClass = 'grid-5';
+} else {
+    $layoutPackagesTitle = 'PACKAGES';
+    $layoutGridClass = 'grid-4';
+}

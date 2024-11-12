@@ -314,14 +314,16 @@ class Connection extends SQLite3
          */
         $this->exec("CREATE TABLE IF NOT EXISTS env (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        Name VARCHAR(255) NOT NULL)");
+        Name VARCHAR(255) NOT NULL,
+        Color VARCHAR(255))");
 
         /**
          *  Insert default env if table is empty
          */
         $result = $this->query("SELECT Id FROM env");
         if ($this->isempty($result) === true) {
-            $this->exec("INSERT INTO env ('Name') VALUES ('preprod')");
+            $this->exec("INSERT INTO env ('Name', 'Color') VALUES ('preprod', '#ffffff')");
+            $this->exec("INSERT INTO env ('Name', 'Color') VALUES ('prod', '#F32F63')");
         }
 
         /**

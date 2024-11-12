@@ -14,13 +14,13 @@ class Mail
     public function __construct(string $to, string $subject, string $content, string $link = null, string $linkName = 'Click here', string $attachmentFilePath = null)
     {
         if (empty($to)) {
-            throw new \Exception('Error: mail recipient cannot be empty');
+            throw new \Exception('Cannot send email: no recipient specified.');
         }
         if (empty($subject)) {
-            throw new \Exception('Error: mail subject cannot be empty');
+            throw new \Exception('Cannot send email: no subject specified.');
         }
         if (empty($content)) {
-            throw new \Exception('Error: mail message cannot be empty');
+            throw new \Exception('Cannot send email: no message specified.');
         }
 
         /**
@@ -75,7 +75,7 @@ class Mail
 
             $mail->send();
         } catch (Exception $e) {
-            throw new Exception('Error: mail could not be sent. Mailer Error: ' . $mail->ErrorInfo);
+            throw new Exception('Error while sending email: ' . $mail->ErrorInfo);
         }
     }
 }

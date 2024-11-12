@@ -30,7 +30,7 @@ class Settings
             /**
              *  Following parameters can be empty (or equal to 0), we don't increment the error counter in their case
              */
-            $ignoreEmptyParam = array('PROXY', 'RPM_DEFAULT_ARCH', 'DEB_DEFAULT_ARCH', 'DEB_DEFAULT_TRANSLATION', 'REPO_CONF_FILES_PREFIX', 'RETENTION');
+            $ignoreEmptyParam = array('EMAIL_RECIPIENT', 'PROXY', 'RPM_DEFAULT_ARCH', 'DEB_DEFAULT_ARCH', 'DEB_DEFAULT_TRANSLATION', 'REPO_CONF_FILES_PREFIX', 'RETENTION');
 
             if (in_array($key, $ignoreEmptyParam)) {
                 continue;
@@ -68,7 +68,6 @@ class Settings
                 define('EMAIL_RECIPIENT', explode(',', $settings['EMAIL_RECIPIENT']));
             } else {
                 define('EMAIL_RECIPIENT', array());
-                $__LOAD_SETTINGS_MESSAGES[] = '<code>DEFAULT CONTACT</code> setting is not defined. At least one email address should be defined.';
             }
         }
 

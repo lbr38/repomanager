@@ -53,7 +53,7 @@ function filterPackage()
  */
 function countChecked(group)
 {
-    var countTotal = $('body').find('input[name=checkbox-host\\[\\]][group=' + group + ']:checked').length
+    var countTotal = $('body').find('input[name="checkbox-host[]"][group="' + group + '"]:checked').length
     return countTotal;
 };
 
@@ -63,7 +63,7 @@ function countChecked(group)
  */
 function countTotalCheckboxInGroup(group)
 {
-    var countTotal = $('body').find('input[name=checkbox-host\\[\\]][group=' + group + ']').length
+    var countTotal = $('body').find('input[name="checkbox-host[]"][group="' + group + '"]').length
     return countTotal;
 };
 
@@ -283,9 +283,7 @@ function getHostsWithPackage()
      *  et on supprime les éventuelles infos dans le 'host-additionnal-info'
      */
     $('.hosts-group-container').show();
-    $('.host-line').css('align-items', 'center');
     $('.host-line').show();
-    $('div.host-update-status').show();
     $('div.host-additionnal-info').html('');
     $('div.host-additionnal-info').hide();
 
@@ -305,19 +303,17 @@ function getHostsWithPackage()
          *  Récupération du terme recherché dans l'input
          */
         var package = $("#getHostsWithPackageInput").val();
-        var hostsId_array = [];
-
-        $("div.host-update-status").hide();
+        var hosts = [];
 
         /**
          *  Pour chaque id, on fait appel à la fonction getHostsWithPackage pour vérifier si le paquet existe sur l'hôte
          */
         $('.hosts-table').find(".host-line").each(function () {
             var hostid = $(this).attr('hostid');
-            hostsId_array.push(hostid);
+            hosts.push(hostid);
         });
 
-        getHostsWithPackageAjax(hostsId_array, package);
+        getHostsWithPackageAjax(hosts, package);
 
         getHostsWithPackage_locked = false;
 
@@ -504,8 +500,41 @@ $(document).on('click','.delete-group-btn',function (e) {
     var id = $(this).attr('group-id');
     var name = $(this).attr('group-name');
 
-    confirmBox('Are you sure you want to delete group ' + name + '?', function () {
-        deleteGroup(id)});
+    confirmBox(
+        {
+            'title': 'Delete group',
+            'message': 'Are you sure you want to delete group <b>' + name + '</b>?',
+            'buttons': [
+            {
+                'text': 'Delete',
+                'color': 'red',
+                'callback': function () {
+                    ajaxRequest(
+                        // Controller:
+                        'group',
+                        // Action:
+                        'delete',
+                        // Data:
+                        {
+                            id: id,
+                            type: 'host'
+                        },
+                        // Print success alert:
+                        true,
+                        // Print error alert:
+                        true,
+                        // Reload container:
+                        ['hosts/list'],
+                        // Execute functions on success:
+                        [
+                            // Reload group panel
+                            "reloadPanel('hosts/groups/list')"
+                        ]
+                    );
+                }
+            }]
+        }
+    );
 });
 
 /**
@@ -589,193 +618,72 @@ $(document).on('submit','#hostsSettingsForm',function () {
 });
 
 /**
- *  Event: when a host checkbox is checked
+ *  Event: when a 'Select all' button is clicked, it selects all checkbox-host[] of the group
  */
-$(document).on('click',"input[name=checkbox-host\\[\\]]",function () {
-    // Get the group name of the host which checkbox has been checked
-    var group = $(this).attr('group');
-
-    // Then we count the number of checked checkbox in this group
-    var count = countChecked(group);
-
-    // If there is at least 1 checkbox checked then display actions buttons
-    if (count > 0) {
-        getConfirmBox('hosts/all-actions');
-    } else {
-        closeConfirmBox();
-    }
-});
-
-/**
- *  Event: when a 'Select all' button is clicked, it select all checkbox-host[] of the group
- */
-$(document).on('click',".js-select-all-button",function () {
+$(document).on('click','input[type="checkbox"].js-select-all-button',function () {
     // Retrieve the group name of the button which has been clicked
     var group = $(this).attr('group');
 
     // Count the total number of checkbox in the group (checked or not)
     // If the number of checked checkbox = total number of checkbox, then the 'Select all' button will uncheck all checkbox, else it will check all checkbox
-    var countTotal = countTotalCheckboxInGroup(group);
-    var count_checked = countChecked(group);
+    var countTotalCheckboxes = countTotalCheckboxInGroup(group);
+    var countCheckedCheckboxes = countChecked(group);
 
-    if (countTotal == count_checked) {
-        $('input[name=checkbox-host\\[\\]][group=' + group + ']').prop('checked', false);
+    if (countTotalCheckboxes == countCheckedCheckboxes) {
+        $('input[name="checkbox-host[]"][group="' + group + '"]').each(function () {
+            if ($(this).is(':checked')) {
+                // Simulate a click on the checkbox to trigger confirm box
+                $(this).click();
+            }
+        });
     } else {
         // Check all checkbox-host[] of the same group
-        $('input[name=checkbox-host\\[\\]][group=' + group + ']').prop('checked', true);
+        $('input[name="checkbox-host[]"][group="' + group + '"]').each(function () {
+            if (!$(this).is(':checked')) {
+                // Simulate a click on the checkbox to trigger confirm box
+                $(this).click();
+            }
+        });
     }
 
     // Count again the number of checked checkbox
-    var count_checked = countChecked(group);
+    var countCheckedCheckboxes = countChecked(group);
 
-    // If there is at least 1 checkbox checked then display action buttons
-    if (count_checked >= 1) {
-        getConfirmBox('hosts/all-actions');
-    }
-
-    // If no checkbox is checked then hide action buttons
-    if (count_checked == 0) {
+    // If no checkbox is checked then close confirm box
+    if (countCheckedCheckboxes == 0) {
         closeConfirmBox();
     }
 });
 
 /**
- *  Event: When a host action button is clicked
+ * Execute an action on selected hosts
+ * @param {*} action
+ * @param {*} hosts
  */
-$(document).on('click','.hostsActionBtn',function () {
-    var hostsArray = [];
+function executeAction(action, hosts)
+{
+    ajaxRequest(
+        // Controller:
+        'host',
+        // Action:
+        'executeAction',
+        // Data:
+        {
+            exec: action,
+            hosts: hosts
+        },
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload container:
+        ['hosts/list', 'host/requests', 'host/history'],
+        // Execute functions on success:
+        []
+    )
+}
 
-    /**
-     *  Retrieve action to execute
-     */
-    var action = $(this).attr('action');
 
-    /**
-     *  Get all checked checkbox
-     */
-    $('input[type="checkbox"][name="checkbox-host[]"]').each(function () {
-        /**
-         *  If checkbox is checked then add host id to hostsArray
-         */
-        if (this.checked) {
-            hostId = $(this).val();
-            hostsArray.push(hostId);
-        }
-    });
-
-    /**
-     *  Define confirmation message and button text
-     */
-    if (action == 'request-general-infos') {
-        confirmMessage = 'Request selected hosts to send general informations?';
-        confirmBtn = 'Request';
-    } else if (action == 'request-packages-infos') {
-        confirmMessage = 'Request selected hosts to send packages informations?';
-        confirmBtn = 'Request';
-    } else if (action == 'update-all-packages') {
-        confirmMessage = 'Request selected hosts to update their packages?';
-        confirmBtn = 'Request';
-    } else if (action == 'reset') {
-        confirmMessage = 'Reset selected hosts?';
-        confirmBtn = 'Reset';
-    } else if (action == 'delete') {
-        confirmMessage = 'Delete selected hosts?';
-        confirmBtn = 'Delete';
-    } else {
-        printAlert('Unknown action', 'error');
-        return
-    }
-
-    /**
-     *  Print confirmation box and execute action
-     */
-    confirmBox(confirmMessage, function () {
-        ajaxRequest(
-            // Controller:
-            'host',
-            // Action:
-            'executeAction',
-            // Data:
-            {
-                exec: action,
-                hosts_array: hostsArray
-            },
-            // Print success alert:
-            true,
-            // Print error alert:
-            true,
-            // Reload container:
-            ['hosts/list', 'host/requests', 'host/history'],
-            // Execute functions on success:
-            []
-        )
-    }, confirmBtn);
-});
-
-/**
- *  Event : lorsqu'on clique sur un bouton d'action 'Mettre à jour les paquets'... depuis la page d'un hote
- */
-$(document).on('click','.host-action-btn',function () {
-    var hostsArray = [];
-
-    /**
-     *  Récupère l'id de l'hôte
-     */
-    hostsArray.push($(this).attr('host-id'));
-
-    /**
-     *  Récupère l'action à exécuter
-     */
-    var action = $(this).attr('action');
-
-    /**
-     *  Define confirmation message and button text
-     */
-    if (action == 'request-general-infos') {
-        confirmMessage = 'Request host to send general informations?';
-        confirmBtn = 'Request';
-    } else if (action == 'request-packages-infos') {
-        confirmMessage = 'Request host to send packages informations?';
-        confirmBtn = 'Request';
-    } else if (action == 'update-all-packages') {
-        confirmMessage = 'Request host to update its packages?';
-        confirmBtn = 'Request';
-    } else if (action == 'reset') {
-        confirmMessage = 'Reset host?';
-        confirmBtn = 'Reset';
-    } else if (action == 'delete') {
-        confirmMessage = 'Delete host?';
-        confirmBtn = 'Delete';
-    } else {
-        printAlert('Unknown action', 'error');
-        return
-    }
-
-    /**
-     *  Print confirmation box and execute action
-     */
-    confirmBox(confirmMessage, function () {
-        ajaxRequest(
-            // Controller:
-            'host',
-            // Action:
-            'executeAction',
-            // Data:
-            {
-                exec: action,
-                hosts_array: hostsArray
-            },
-            // Print success alert:
-            true,
-            // Print error alert:
-            true,
-            // Reload container:
-            ['hosts/list', 'host/requests', 'host/history'],
-            // Execute functions on success:
-            []
-        )
-    }, confirmBtn);
-});
 
 /**
  *  Event: show/hide the list of packages available on the host
@@ -804,99 +712,6 @@ $(document).on('click','#installed-packages-btn',function () {
             $("#installed-packages-div").show();
             $("#packagesContainerLoader").hide();
         },100);
-    }
-});
-
-/**
- *  Event: available package checkbox selection
- */
-$(document).on('click','input[type="checkbox"].available-package-checkbox',function (e) {
-    // Prevent parent to be triggered
-    e.stopPropagation();
-
-    /**
-     *  Retrieve host Id
-     */
-    var hostId = $(this).attr('host-id');
-
-    /**
-     *  If a cookie exists, retrieve it
-     */
-    if (getCookie('temp/host-av-package-selected')) {
-        var packages = JSON.parse(getCookie('temp/host-av-package-selected'));
-    } else {
-        var packages = {
-            packages: []
-        }
-    }
-
-    /**
-     *  Append the package to the array if the checkbox is checked
-     *  Otherwise remove the package from the array
-     */
-    if (this.checked) {
-        /**
-         *  Check if the package is already in the array
-         */
-        for (var i = 0; i < packages['packages'].length; i++) {
-            if (packages['packages'][i]['name'] == $(this).attr('package')) {
-                return;
-            }
-        }
-
-        packages['packages'].push({
-            name: $(this).attr('package'),
-            available_version: $(this).attr('version')
-        });
-    } else {
-        for (var i = 0; i < packages['packages'].length; i++) {
-            if (packages['packages'][i]['name'] == $(this).attr('package')) {
-                packages['packages'].splice(i, 1);
-            }
-        }
-    }
-
-    /**
-     *  Save the array in a cookie
-     */
-    setCookie('temp/host-av-package-selected', JSON.stringify(packages), 1);
-
-    /**
-     *  Count the number of checked checkboxes
-     */
-    var countChecked = $('input[type="checkbox"].available-package-checkbox:checked').length;
-
-    /**
-     *  If number of checked checkboxes > 0 then display the action button
-     */
-    if (countChecked > 0) {
-        confirmBox('Request to install selected package(s)?', function () {
-            ajaxRequest(
-                // Controller:
-                'host',
-                // Action:
-                'installSelectedAvailablePackages',
-                // Data:
-                {
-                    hostId: hostId,
-                    packages: packages
-                },
-                // Print success alert:
-                true,
-                // Print error alert:
-                true,
-                // Reload container:
-                [],
-                // Execute functions on success:
-                []
-            );
-
-            // Remove cookie
-            setCookie('temp/host-av-package-selected', '', -1);
-        },
-        'Request');
-    } else {
-        closeConfirmBox();
     }
 });
 
@@ -1150,41 +965,11 @@ $(document).on('mouseleave', '.event-packages-details', function () {
 });
 
 /**
- * Ajax: Delete a group
- * @param {string} id
- */
-function deleteGroup(id)
-{
-    ajaxRequest(
-        // Controller:
-        'group',
-        // Action:
-        'delete',
-        // Data:
-        {
-            id: id,
-            type: 'host'
-        },
-        // Print success alert:
-        true,
-        // Print error alert:
-        true,
-        // Reload container:
-        ['hosts/list'],
-        // Execute functions on success:
-        [
-            // Reload group panel
-            "reloadPanel('hosts/groups/list')"
-        ]
-    );
-}
-
-/**
  * Ajax: get hosts with a specific package
- * @param {array} hostsId_array
+ * @param {array} hosts
  * @param {string} package
  */
-function getHostsWithPackageAjax(hostsId_array, package)
+function getHostsWithPackageAjax(hosts, package)
 {
     $.ajax({
         type: "POST",
@@ -1192,7 +977,7 @@ function getHostsWithPackageAjax(hostsId_array, package)
         data: {
             controller: "host",
             action: "getHostsWithPackage",
-            hostsIdArray: hostsId_array,
+            hostsIdArray: hosts,
             package: package
         },
         dataType: "json",
@@ -1217,8 +1002,7 @@ function getHostsWithPackageAjax(hostsId_array, package)
                     /**
                      *  Show the host and print the package(s) found
                      */
-                    $('.host-line[hostid=' + hostId + ']').css('align-items', 'flex-start');
-                    $('.host-line[hostid=' + hostId + ']').find('div.host-additionnal-info').html(packagesFound);
+                    $('.host-line[hostid=' + hostId + ']').find('div.host-additionnal-info').html('<h6>RESULTS</h6>' + packagesFound);
                     $('.host-line[hostid=' + hostId + ']').find('div.host-additionnal-info').css('display', 'flex');
                     $('.host-line[hostid=' + hostId + ']').show();
                 } else {

@@ -241,8 +241,6 @@ class Log
     {
         $duration = \Controllers\Common::convertMicrotime(microtime(true) - $this->stepTimeStart);
 
-        $this->steplogWrite('<p><img src="/assets/icons/error.svg" class="icon margin-right-5 vertical-align-text-top" /><span class="redtext">' . $error . '</span><br></p>');
-
         echo '<div class="op-step-title-error">' . $error . '</div>';
 
         /**

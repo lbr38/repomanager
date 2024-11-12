@@ -57,6 +57,8 @@ class Settings
             }
 
             $settingsToApply['EMAIL_RECIPIENT'] = implode(',', $sendSettings['emailRecipient']);
+        } else {
+            $settingsToApply['EMAIL_RECIPIENT'] = '';
         }
 
         if (!empty($sendSettings['proxy'])) {

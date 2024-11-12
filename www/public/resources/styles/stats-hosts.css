@@ -27,34 +27,6 @@ td:last-child {
 
 .hosts-table {
     width: 100%;
-    margin: auto;
-    margin-bottom: 15px;
-    white-space: nowrap;
-}
-
-.hosts-table-title, .host-line {
-    display: grid;
-    grid-template-columns: 5% 47% 11% 11% 8% 8% 8%;
-    align-items: center;
-    text-wrap: balance;
-}
-
-.hosts-table-title {
-    padding: 0 15px 15px 15px;
-}
-
-.host-line {
-    padding: 9px 15px 9px 15px;
-    margin-bottom: 6px;
-    border-radius: 8px;
-    background-color: #1d3349;
-    -webkit-box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
-    box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
-}
-
-.host-update-status p {
-    font-size: 12px;
-    text-wrap: wrap;
 }
 
 .host-additionnal-info {

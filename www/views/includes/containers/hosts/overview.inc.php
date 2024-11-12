@@ -2,8 +2,6 @@
 
     <h3>OVERVIEW</h3>
 
-    <br>
-
     <?php
     if ($totalHosts == 0) : ?>
         <p>No host registered yet.<br><br></p>
@@ -19,6 +17,9 @@
         if ($totalHosts >= 1) : ?>
             <div class="hosts-chart-sub-container div-generic-blue">
                 <h6 class="margin-top-0">HOSTS (<?= $totalHosts ?>)</h6>
+                <div id="hosts-count-chart-loading" class="loading-veil">
+                    <p class="lowopacity-cst">Loading</p>
+                </div>
                 <canvas id="hosts-count-chart" class="host-pie-chart"></canvas>
             </div>
 
@@ -81,6 +82,9 @@
             if (!empty(HOSTS_OS_LIST)) : ?>
                 <div class="hosts-chart-sub-container div-generic-blue">
                     <h6 class="margin-top-0">OPERATING SYSTEMS</h6>
+                    <div id="hosts-os-chart-loading" class="loading-veil">
+                        <p class="lowopacity-cst">Loading</p>
+                    </div>
                     <canvas id="hosts-os-chart" class="host-bar-chart"></canvas>
                 </div>
                 <?php
@@ -89,6 +93,9 @@
             if (!empty(HOSTS_ARCHS_LIST)) : ?>
                 <div class="hosts-chart-sub-container div-generic-blue">
                     <h6 class="margin-top-0">ARCHITECTURES</h6>
+                    <div id="hosts-arch-chart-loading" class="loading-veil">
+                        <p class="lowopacity-cst">Loading</p>
+                    </div>
                     <canvas id="hosts-arch-chart" class="host-pie-chart"></canvas>
                 </div>
                 <?php
@@ -97,6 +104,9 @@
             if (!empty(HOSTS_ENVS_LIST)) : ?>
                 <div class="hosts-chart-sub-container div-generic-blue">
                     <h6 class="margin-top-0">ENVIRONMENTS</h6>
+                    <div id="hosts-env-chart-loading" class="loading-veil">
+                        <p class="lowopacity-cst">Loading</p>
+                    </div>
                     <canvas id="hosts-env-chart" class="host-pie-chart"></canvas>
                 </div>
                 <?php
@@ -105,6 +115,9 @@
             if (!empty(HOSTS_AGENT_STATUS_LIST)) : ?>
                 <div class="hosts-chart-sub-container div-generic-blue">
                     <h6 class="margin-top-0">AGENT STATUS</h6>
+                    <div id="hosts-agent-status-chart-loading" class="loading-veil">
+                        <p class="lowopacity-cst">Loading</p>
+                    </div>
                     <canvas id="hosts-agent-status-chart" class="host-pie-chart"></canvas>
                 </div>
                 <?php
@@ -113,6 +126,9 @@
             if (!empty(HOSTS_AGENT_VERSION_LIST)) : ?>
                 <div class="hosts-chart-sub-container div-generic-blue">
                     <h6 class="margin-top-0">AGENT VERSION</h6>
+                    <div id="hosts-agent-version-chart-loading" class="loading-veil">
+                        <p class="lowopacity-cst">Loading</p>
+                    </div>
                     <canvas id="hosts-agent-version-chart" class="host-pie-chart"></canvas>
                 </div>
                 <?php
@@ -265,11 +281,7 @@
             }
             $envCountList .= "'" . $env['Env_count'] . "',";
 
-            if ($env['Env'] == LAST_ENV) {
-                $envBackgroundColor .= "'rgb(255, 99, 132)',";
-            } else {
-                $envBackgroundColor .= "'" . $mycolor->randomColor() . "',";
-            }
+            $envBackgroundColor .= '"' . \Controllers\Environment::getEnvColor($env['Env']) . '",';
         }
 
         $labels = rtrim($envNameList, ',');

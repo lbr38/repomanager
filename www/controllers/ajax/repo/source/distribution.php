@@ -71,7 +71,7 @@ if ($_POST['action'] == 'remove-section' and !empty($_POST['id']) and isset($_PO
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, 'Section removed');
+    response(HTTP_OK, 'Component removed');
 }
 
 /**

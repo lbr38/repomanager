@@ -851,6 +851,14 @@ class Host
     }
 
     /**
+     *  Return true if the host Id exists in the database
+     */
+    public function existsId(int $id)
+    {
+        return $this->model->existsId($id);
+    }
+
+    /**
      *  Vérifie si l'Ip existe en BDD parmis les hôtes actifs
      */
     private function ipExists(string $ip)
@@ -1135,7 +1143,7 @@ class Host
             throw new Exception('You are not allowed to perform this action');
         }
 
-        $validActions = ['update-all-packages', 'reset', 'delete', 'request-general-infos', 'request-packages-infos'];
+        $validActions = ['reset', 'delete', 'request-general-infos', 'request-packages-infos'];
 
         /**
          *  Check if the action to execute is valid
@@ -1221,16 +1229,6 @@ class Host
             }
 
             /**
-             *  Case where the requested action is an update
-             */
-            if ($action == 'update-all-packages') {
-                /**
-                 *  Add a new websocket request in the database
-                 */
-                $this->newWsRequest($hostId, 'update-all-packages');
-            }
-
-            /**
              *  Case where the requested action is a general status update
              */
             if ($action == 'request-general-infos') {
@@ -1283,7 +1281,7 @@ class Host
             $this->layoutContainerStateController->update('hosts/list');
         }
 
-        if ($action == 'update-all-packages') {
+        if ($action == 'request-all-packages-update') {
             $message = 'Requesting packages update to the following hosts:';
             $this->layoutContainerStateController->update('host/requests');
         }
@@ -1298,11 +1296,24 @@ class Host
             $this->layoutContainerStateController->update('host/requests');
         }
 
-        $message .= '<br><br>';
+        $message .= '<div class="grid grid-2 column-gap-10 row-gap-10 margin-top-5">';
 
+        /**
+         *  Print the hostname and ip of the hosts on which the action has been performed
+         *  Do not print more than 10 hosts, print +X more if there are more than 10 hosts
+         */
+        $count = 1;
         foreach ($hosts as $host) {
+            if ($count > 10) {
+                $message .= '<p><b>+' . (count($hosts) - 10) . ' more</b></p>';
+                break;
+            }
+
             $message .= '<span class="label-white">' . $host['hostname'] . ' (' . $host['ip'] . ')</span> ';
+            $count++;
         }
+
+        $message .= '</div>';
 
         return $message;
     }
@@ -1459,7 +1470,7 @@ class Host
                 /**
                  *  On vérifie que l'Id de l'hôte spécifié existe en base de données
                  */
-                if ($this->model->existsId($hostId) === false) {
+                if ($this->existsId($hostId) === false) {
                     throw new Exception("Specified host <b>$hostId</b> Id does not exist");
                 }
 

@@ -16,10 +16,10 @@ if ($_POST['action'] == 'validateForm' and !empty($_POST['taskParams'])) {
     }
 
     if (isset($taskRawParams[0]['schedule']['scheduled']) and $taskRawParams[0]['schedule']['scheduled'] == 'true') {
-        response(HTTP_OK, '<span>Task is scheduled: <a href="/run?task-log=latest"><b>visualize</b></a></span>');
+        response(HTTP_OK, 'Task is scheduled: <a href="/run?task-log=latest"><b>visualize</b></a>');
     }
 
-    response(HTTP_OK, '<span>Task is running: <a href="/run?task-log=latest"><b>visualize</b></a></span>');
+    response(HTTP_OK, 'Task is running: <a href="/run?task-log=latest"><b>visualize</b></a>');
 }
 
 /**

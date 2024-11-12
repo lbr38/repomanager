@@ -299,6 +299,8 @@ class Stat extends Model
     public function clean(string $dateStart, string $dateEnd)
     {
         try {
+            // Use a transaction to group all the delete operations
+            $this->db->exec("BEGIN TRANSACTION");
             $stmt = $this->db->prepare("DELETE FROM stats WHERE Date >= :dateStart and Date <= :dateEnd");
             $stmt->bindValue(':dateStart', $dateStart);
             $stmt->bindValue(':dateEnd', $dateEnd);
@@ -314,11 +316,8 @@ class Stat extends Model
             $stmt->bindValue(':dateEnd', $dateEnd);
             $stmt->execute();
 
-            /**
-             *  Clean empty space
-             */
-            $this->db->exec("VACUUM");
-            $this->db->exec("ANALYZE");
+            // Commit the transaction
+            $this->db->exec("COMMIT");
         } catch (\Exception $e) {
             $this->db->logError($e);
         }

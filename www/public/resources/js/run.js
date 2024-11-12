@@ -144,22 +144,33 @@ $(document).on('click','.cancel-scheduled-task-btn',function (e) {
 
     var taskId = $(this).attr('task-id');
 
-    confirmBox('Cancel and delete scheduled task?', function () {
-        ajaxRequest(
-            // Controller:
-            'task',
-            // Action:
-            'deleteTask',
-            // Data:
+    confirmBox(
+        {
+            'title': 'Cancel and delete scheduled task',
+            'message': 'Are you sure you want to cancel and delete this task?',
+            'buttons': [
             {
-                taskId: taskId,
-            },
-            // Print success alert:
-            true,
-            // Print error alert:
-            true,
-            // Reload containers:
-            ['tasks/list']
-        )
-    });
+                'text': 'Delete',
+                'color': 'red',
+                'callback': function () {
+                    ajaxRequest(
+                        // Controller:
+                        'task',
+                        // Action:
+                        'deleteTask',
+                        // Data:
+                        {
+                            taskId: taskId,
+                        },
+                        // Print success alert:
+                        true,
+                        // Print error alert:
+                        true,
+                        // Reload containers:
+                        ['tasks/list']
+                    )
+                }
+            }]
+        }
+    );
 });

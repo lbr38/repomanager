@@ -19,10 +19,10 @@ if ($myrepo->getPackageType() == 'deb') {
     <option value=""></option>
     <?php
     foreach (ENVS as $env) {
-        if ($env == DEFAULT_ENV) {
-            echo '<option value="' . $env . '" selected>' . $env . '</option>';
+        if ($env['Name'] == DEFAULT_ENV) {
+            echo '<option value="' . $env['Name'] . '" selected>' . $env['Name'] . '</option>';
         } else {
-            echo '<option value="' . $env . '">' . $env . '</option>';
+            echo '<option value="' . $env['Name'] . '">' . $env['Name'] . '</option>';
         }
     } ?>
 </select>

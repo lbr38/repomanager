@@ -10,7 +10,6 @@
         <a href="mailto:repomanager@protonmail.com">
              <span class="lowopacity">Contact</span>
         </a>
-    
     </div>
 
     <div>
@@ -31,35 +30,56 @@
 <script src="/resources/js/general.js?<?= VERSION ?>"></script>
 <script src="/resources/js/login.js?<?= VERSION ?>"></script>
 <script src="/resources/js/notification.js?<?= VERSION ?>"></script>
+
+<script>
 <?php
-if (__ACTUAL_URI__[1] == "") {
-    echo '<script src="/resources/js/repo.js?' . VERSION . '"></script>';
-    echo '<script src="/resources/js/task.js?' . VERSION . '"></script>';
-    echo '<script src="/resources/js/group.js?' . VERSION . '"></script>';
-    echo '<script src="/resources/js/source.js?' . VERSION . '"></script>';
-    echo '<script src="/resources/js/events/repo/source/distribution.js?' . VERSION . '"></script>';
-    echo '<script src="/resources/js/events/repo/source/releasever.js?' . VERSION . '"></script>';
-    echo '<script src="/resources/js/events/repo/source/source.js?' . VERSION . '"></script>';
+/**
+ *  Store each environment and its colors in browser localStorage for later use
+ */
+if (!empty(ENVS)) {
+    foreach (ENVS as $env) {
+        $name = $env['Name'];
+        $background = $env['Color'];
+        $color = \Controllers\Common::getContrastingTextColor($background); ?>
+
+        localStorage.setItem("env/<?= $name ?>", "{\"background\":\"<?= $background ?>\",\"color\":\"<?= $color ?>\"}");
+        <?php
+    }
+} ?>
+</script>
+
+<?php
+/**
+ *  Additional JS files
+ */
+if (__ACTUAL_URI__[1] == '') {
+    $jsFiles = ['repo', 'task', 'group', 'source', 'events/repo/source/distribution', 'events/repo/source/releasever', 'events/repo/source/source'];
 }
-if (__ACTUAL_URI__[1] == "hosts" or __ACTUAL_URI__[1] == "host") {
-    echo '<script src="/resources/js/host.js?' . VERSION . '"></script>';
+if (__ACTUAL_URI__[1] == 'hosts' or __ACTUAL_URI__[1] == 'host') {
+    $jsFiles = ['host', 'events/host/layout', 'events/host/actions'];
 }
-if (__ACTUAL_URI__[1] == "browse") {
-    echo '<script src="/resources/js/browse.js?' . VERSION . '"></script>';
+if (__ACTUAL_URI__[1] == 'browse') {
+    $jsFiles = ['functions/browse', 'events/browse/repository'];
 }
-if (__ACTUAL_URI__[1] == "profiles") {
-    echo '<script src="/resources/js/profile.js?' . VERSION . '"></script>';
+if (__ACTUAL_URI__[1] == 'profiles') {
+    $jsFiles = ['profile'];
 }
-if (__ACTUAL_URI__[1] == "stats") {
-    echo '<script src="/resources/js/stats.js?' . VERSION . '"></script>';
+if (__ACTUAL_URI__[1] == 'stats') {
+    $jsFiles = ['stats'];
 }
-if (__ACTUAL_URI__[1] == "settings") {
-    echo '<script src="/resources/js/settings.js?' . VERSION . '"></script>';
-    echo '<script src="/resources/js/environment.js?' . VERSION . '"></script>';
+if (__ACTUAL_URI__[1] == 'settings') {
+    $jsFiles = ['functions/environment', 'events/environment/actions', 'settings'];
 }
-if (__ACTUAL_URI__[1] == "run") {
-    echo '<script src="/resources/js/run.js?' . VERSION . '"></script>';
+if (__ACTUAL_URI__[1] == 'run') {
+    $jsFiles = ['run'];
 }
-if (__ACTUAL_URI__[1] == "cves") {
-    echo '<script src="/resources/js/cve.js?' . VERSION . '"></script>';
+if (__ACTUAL_URI__[1] == 'cves') {
+    $jsFiles = ['cve'];
+}
+if (!empty($jsFiles)) {
+    foreach ($jsFiles as $jsFile) {
+        if (is_file(ROOT . '/public/resources/js/' . $jsFile . '.js')) {
+            echo '<script src="/resources/js/' . $jsFile . '.js?' . VERSION . '"></script>';
+        }
+    }
 } ?>

@@ -39,7 +39,7 @@
 
         <div field-type="mirror rpm deb">
             <h6 class="required">SOURCE REPOSITORY</h6>
-            <p class="note">The repository to mirror from.</p>
+            <p class="note">The repository to mirror from. Want more? <span class="note pointer lowopacity get-panel-btn" panel="repos/sources/list">Add or import a source repository</span>.</p>
             <?php
             if (RPM_REPO == 'true') :
                 if (empty($newRepoRpmSourcesList)) {
@@ -114,10 +114,10 @@
             <option value=""></option>
             <?php
             foreach (ENVS as $env) {
-                if ($env == DEFAULT_ENV) {
-                    echo '<option value="' . $env . '" selected>' . $env . '</option>';
+                if ($env['Name'] == DEFAULT_ENV) {
+                    echo '<option value="' . $env['Name'] . '" selected>' . $env['Name'] . '</option>';
                 } else {
-                    echo '<option value="' . $env . '">' . $env . '</option>';
+                    echo '<option value="' . $env['Name'] . '">' . $env['Name'] . '</option>';
                 }
             } ?>
         </select>
