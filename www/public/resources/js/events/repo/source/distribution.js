@@ -98,29 +98,39 @@ $(document).on('click','.source-repo-remove-distribution-btn',function (e) {
     var id = $(this).attr('source-id');
     var distributionId = $(this).attr('distribution-id');
 
-    confirmBox('Remove distribution?', function () {
-        ajaxRequest(
-            // Controller:
-            'repo/source/distribution',
-            // Action:
-            'remove',
-            // Data:
+    confirmBox(
+        {
+            'title': 'Remove distribution',
+            'buttons': [
             {
-                id: id,
-                distributionId: distributionId,
-            },
-            // Print success alert:
-            true,
-            // Print error alert:
-            true,
-            // Reload containers:
-            [],
-            // Execute functions on success:
-            [
-                "reloadPanel('repos/sources/list')"
-            ]
-        );
-    }, 'Remove');
+                'text': 'Remove',
+                'color': 'red',
+                'callback': function () {
+                    ajaxRequest(
+                        // Controller:
+                        'repo/source/distribution',
+                        // Action:
+                        'remove',
+                        // Data:
+                        {
+                            id: id,
+                            distributionId: distributionId,
+                        },
+                        // Print success alert:
+                        true,
+                        // Print error alert:
+                        true,
+                        // Reload containers:
+                        [],
+                        // Execute functions on success:
+                        [
+                            "reloadPanel('repos/sources/list')"
+                        ]
+                    );
+                }
+            }]
+        }
+    );
 });
 
 /**
@@ -171,31 +181,41 @@ $(document).on('click','.source-repo-edit-distribution-remove-section-btn',funct
     var distributionId = $(this).attr('distribution-id');
     var sectionId = $(this).attr('section-id');
 
-    confirmBox('Remove component?', function () {
-        ajaxRequest(
-            // Controller:
-            'repo/source/distribution',
-            // Action:
-            'remove-section',
-            // Data:
+    confirmBox(
+        {
+            'title': 'Remove component',
+            'buttons': [
             {
-                id: id,
-                distributionId: distributionId,
-                sectionId: sectionId,
-            },
-            // Print success alert:
-            true,
-            // Print error alert:
-            true,
-            // Reload containers:
-            [],
-            // Execute functions on success:
-            [
-                "reloadPanel('repos/sources/list')",
-                "reloadPanel('repos/sources/edit-distribution', {id: " + id + ", distributionId: " + distributionId + "})"
-            ]
-        );
-    }, 'Remove');
+                'text': 'Remove',
+                'color': 'red',
+                'callback': function () {
+                    ajaxRequest(
+                        // Controller:
+                        'repo/source/distribution',
+                        // Action:
+                        'remove-section',
+                        // Data:
+                        {
+                            id: id,
+                            distributionId: distributionId,
+                            sectionId: sectionId,
+                        },
+                        // Print success alert:
+                        true,
+                        // Print error alert:
+                        true,
+                        // Reload containers:
+                        [],
+                        // Execute functions on success:
+                        [
+                            "reloadPanel('repos/sources/list')",
+                            "reloadPanel('repos/sources/edit-distribution', {id: " + id + ", distributionId: " + distributionId + "})"
+                        ]
+                    );
+                }
+            }]
+        }
+    );
 });
 
 /**
@@ -250,29 +270,39 @@ $(document).on('click','.source-repo-edit-distribution-remove-gpgkey-btn',functi
     var distributionId = $(this).attr('distribution-id');
     var gpgkeyId = $(this).attr('gpgkey-id');
 
-    confirmBox('Remove GPG key?', function () {
-        ajaxRequest(
-            // Controller:
-            'repo/source/distribution',
-            // Action:
-            'remove-gpgkey',
-            // Data:
+    confirmBox(
+        {
+            'title': 'Remove GPG key',
+            'buttons': [
             {
-                id: id,
-                distributionId: distributionId,
-                gpgkeyId: gpgkeyId,
-            },
-            // Print success alert:
-            true,
-            // Print error alert:
-            true,
-            // Reload containers:
-            [],
-            // Execute functions on success:
-            [
-                "reloadPanel('repos/sources/list')",
-                "reloadPanel('repos/sources/edit-distribution', {id: " + id + ", distributionId: " + distributionId + "})"
-            ]
-        );
-    }, 'Remove');
+                'text': 'Remove',
+                'color': 'red',
+                'callback': function () {
+                    ajaxRequest(
+                        // Controller:
+                        'repo/source/distribution',
+                        // Action:
+                        'remove-gpgkey',
+                        // Data:
+                        {
+                            id: id,
+                            distributionId: distributionId,
+                            gpgkeyId: gpgkeyId,
+                        },
+                        // Print success alert:
+                        true,
+                        // Print error alert:
+                        true,
+                        // Reload containers:
+                        [],
+                        // Execute functions on success:
+                        [
+                            "reloadPanel('repos/sources/list')",
+                            "reloadPanel('repos/sources/edit-distribution', {id: " + id + ", distributionId: " + distributionId + "})"
+                        ]
+                    );
+                }
+            }]
+        }
+    );
 });

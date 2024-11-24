@@ -26,16 +26,15 @@ $(document).on('click','#send-test-email-btn',function () {
 /**
  *  Event: apply settings
  */
-$(document).on('submit','#settingsForm',function () {
+$(document).on('submit','.settings-form',function () {
     event.preventDefault();
 
-    /**
-     *  Gettings all params in the form
-     */
-    var settings_params = $(this).find('.settings-param');
     var settings_params_obj = {};
 
-    settings_params.each(function () {
+    /**
+     *  Loop through each input in the settings form
+     */
+    $('.reloadable-container[container="settings/settings"]').find('.settings-param').each(function () {
         /**
          *  Getting param name in the 'param-name' attribute of each input
          */
@@ -95,16 +94,8 @@ $(document).on('submit','#settingsForm',function () {
         // Reload container:
         [
             'header/menu',
-            'header/general-error-messages'
-        ],
-        // Execute functions on success:
-        [
-            // Reload settings and select2
-            "$('#settingsDiv').load(' #settingsDiv > *',function () { \
-                selectToSelect2('#emailRecipientSelect', 'Select recipients...', true); \
-                selectToSelect2('#debArchitectureSelect', 'Select architectures...'); \
-                selectToSelect2('#rpmArchitectureSelect', 'Select architectures...'); \
-            });"
+            'header/general-error-messages',
+            'settings/settings',
         ]
     );
 
@@ -155,29 +146,40 @@ $(document).on('click','.reset-password-btn',function () {
     var username = $(this).attr('username');
     var id = $(this).attr('user-id');
 
-    confirmBox('Reset password of user ' + username + '?', function () {
-        ajaxRequest(
-            // Controller:
-            'settings',
-            // Action:
-            'resetPassword',
-            // Data:
+    confirmBox(
+        {
+            'title': 'Reset password',
+            'message': 'Reset password of user ' + username + '?',
+            'buttons': [
             {
-                id: id
-            },
-            // Print success alert:
-            false,
-            // Print error alert:
-            true,
-            // Reload container:
-            [],
-            // Execute functions on success:
-            [
-                // Print new generated password
-                "$('#users-settings-container').find('#user-settings-generated-passwd').html('<p>New password generated for <b>" + username + "</b>:<br><span class=\"greentext copy\">' + jsonValue.message.password + '</span></p>');"
-            ]
-        );
-    }, 'Reset');
+                'text': 'Reset',
+                'color': 'red',
+                'callback': function () {
+                    ajaxRequest(
+                        // Controller:
+                        'settings',
+                        // Action:
+                        'resetPassword',
+                        // Data:
+                        {
+                            id: id
+                        },
+                        // Print success alert:
+                        false,
+                        // Print error alert:
+                        true,
+                        // Reload container:
+                        [],
+                        // Execute functions on success:
+                        [
+                            // Print new generated password
+                            "$('#users-settings-container').find('#user-settings-generated-passwd').html('<p>New password generated for <b>" + username + "</b>:<br><span class=\"greentext copy\">' + jsonValue.message.password + '</span></p>');"
+                        ]
+                    );
+                }
+            }]
+        }
+    );
 });
 
 /**
@@ -187,27 +189,67 @@ $(document).on('click','.delete-user-btn',function () {
     var username = $(this).attr('username');
     var id = $(this).attr('user-id');
 
-    confirmBox('Delete user ' + username + '?', function () {
-        ajaxRequest(
-            // Controller:
-            'settings',
-            // Action:
-            'deleteUser',
-            // Data:
+    confirmBox(
+        {
+            'title': 'Delete user',
+            'message': 'Delete user ' + username + '?',
+            'buttons': [
             {
-                id: id
-            },
-            // Print success alert:
-            true,
-            // Print error alert:
-            true,
-            // Reload container:
-            [],
-            // Execute functions on success:
-            [
-                // Reload current users div
-                "reloadContentById('currentUsers');",
-            ]
-        );
-    }, 'Delete');
+                'text': 'Delete',
+                'color': 'red',
+                'callback': function () {
+                    ajaxRequest(
+                        // Controller:
+                        'settings',
+                        // Action:
+                        'deleteUser',
+                        // Data:
+                        {
+                            id: id
+                        },
+                        // Print success alert:
+                        true,
+                        // Print error alert:
+                        true,
+                        // Reload container:
+                        [],
+                        // Execute functions on success:
+                        [
+                            // Reload current users div
+                            "reloadContentById('currentUsers');",
+                        ]
+                    );
+                }
+            }]
+        }
+    );
+});
+
+/**
+ *  Event: select and view websocket server log file
+ */
+$(document).on('click','#websocket-log-btn',function () {
+    // Retrieve log file name
+    var logfile = $('select#websocket-log-select').val();
+
+    ajaxRequest(
+        // Controller:
+        'settings',
+        // Action:
+        'get-wss-log',
+        // Data:
+        {
+            logfile: logfile
+        },
+        // Print success alert:
+        false,
+        // Print error alert:
+        true,
+        // Reload container:
+        [],
+        // Execute functions on success:
+        [
+            'printModalWindow(jsonValue.message, "' + logfile + '")'
+        ]
+    );
 });

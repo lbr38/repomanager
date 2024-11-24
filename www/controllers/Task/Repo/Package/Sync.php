@@ -36,7 +36,7 @@ trait Sync
              *  If it must be a local repo then quit because we can't update a local repo
              */
             if ($this->repo->getType() == 'local') {
-                throw new Exception('Local repo snapshot cannot be updated');
+                throw new Exception('Local repository snapshot cannot be updated');
             }
 
             /**

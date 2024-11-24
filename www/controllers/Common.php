@@ -113,21 +113,50 @@ class Common
     }
 
     /**
-     *  Colore l'environnement d'une étiquette rouge ou blanche
+     *  Get the best contrasting text color for a given background color
      */
-    public static function envtag($env, $css = null)
+    public static function getContrastingTextColor($backgroundColor)
     {
-        if ($env == LAST_ENV) {
-            $class = 'last-env';
-        } else {
-            $class = 'env';
+        // Convert hexadecimal color to RGB
+        $r = hexdec(substr($backgroundColor, 1, 2));
+        $g = hexdec(substr($backgroundColor, 3, 2));
+        $b = hexdec(substr($backgroundColor, 5, 2));
+
+        // Calculate YIQ (luma) value
+        $yiq = (($r * 299) + ($g * 587) + ($b * 114)) / 1000;
+
+        // Return white for dark colors and black for light colors
+        return ($yiq >= 128) ? '#000000' : '#ffffff';
+    }
+
+    /**
+     *  Generate environment tag
+     */
+    public static function envtag(string $name, string $css = null)
+    {
+        // Default class
+        $class = 'env';
+
+        // Default colors
+        $backgroundColor = '#ffffff';
+        $color = '#000000';
+
+        // Retrieve color from ENVS array
+        if (defined('ENVS')) {
+            foreach (ENVS as $env) {
+                if ($env['Name'] == $name and !empty($env['Color'])) {
+                    $backgroundColor = $env['Color'];
+                    // Get contrasting text color
+                    $color = Common::getContrastingTextColor($backgroundColor);
+                }
+            }
         }
 
         if ($css == 'fit') {
-            $class .= '-fit';
+            $class = 'env-fit';
         }
 
-        return '<span class="' . $class . '">' . $env . '</span>';
+        return '<span class="' . $class . '" style="background-color: ' . $backgroundColor . '; color: ' . $color . '">' . $name . '</span>';
     }
 
     /**
@@ -698,5 +727,17 @@ class Common
     public static function isMd5(string $md5)
     {
         return preg_match('/^[a-f0-9]{32}$/', $md5);
+    }
+
+    /**
+     *  Convert a string to a boolean
+     *  Possible return values:
+     *   Returns TRUE for "1", "true", "on" and "yes"
+     *   Returns FALSE for "0", "false", "off" and "no"
+     *   Returns NULL on failure if FILTER_NULL_ON_FAILURE is set
+     */
+    public static function toBool(string $string)
+    {
+        return filter_var($string, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
     }
 }

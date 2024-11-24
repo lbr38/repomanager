@@ -1,47 +1,7 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Generator: Adobe Illustrator 22.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-
-<svg
-   version="1.1"
-   id="Layer_1"
-   x="0px"
-   y="0px"
-   viewBox="0 0 24 24"
-   style="enable-background:new 0 0 24 24;"
-   xml:space="preserve"
-   sodipodi:docname="shipment-upload.svg"
-   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg"><defs
-   id="defs3964" /><sodipodi:namedview
-   id="namedview3962"
-   pagecolor="#ffffff"
-   bordercolor="#666666"
-   borderopacity="1.0"
-   inkscape:pageshadow="2"
-   inkscape:pageopacity="0.0"
-   inkscape:pagecheckerboard="0"
-   showgrid="false"
-   inkscape:zoom="30.291667"
-   inkscape:cx="12"
-   inkscape:cy="12"
-   inkscape:window-width="1920"
-   inkscape:window-height="985"
-   inkscape:window-x="506"
-   inkscape:window-y="1109"
-   inkscape:window-maximized="1"
-   inkscape:current-layer="g3959" />
-<g
-   id="g3959">
-	<title
-   id="title3951">shipment-upload</title>
-	<path
-   d="M12.5,23.916c-0.049,0-0.098-0.007-0.146-0.022c-0.165-0.014-0.311-0.048-0.447-0.104L0.923,19.213   C0.362,18.979,0,18.436,0,17.829V6.151c0-0.597,0.353-1.136,0.9-1.375l10.5-4.565C11.59,0.128,11.792,0.086,12,0.086   s0.41,0.042,0.6,0.125l10.499,4.565C23.647,5.014,24,5.554,24,6.151v11.7c0,0.587-0.345,1.124-0.879,1.366L13.107,23.77   c-0.131,0.06-0.276,0.098-0.443,0.117C12.61,23.906,12.555,23.916,12.5,23.916z M1,17.829c0,0.202,0.121,0.384,0.308,0.462   L12,22.744V10.828L7,8.745v2.841c0,0.276-0.224,0.5-0.5,0.5S6,11.862,6,11.586V8.328L1,6.245V17.829z M13,22.72l9.707-4.413   C22.885,18.226,23,18.047,23,17.851V6.272l-10,4.545V22.72z M12.491,9.95l9.779-4.444l-4.791-2.083L7.668,7.94L12.491,9.95z    M6.412,7.417l9.837-4.529l-4.049-1.76C12.137,1.1,12.069,1.086,12,1.086s-0.137,0.014-0.2,0.042L1.776,5.485L6.412,7.417z"
-   id="path3953"
-   style="fill:#ffffff;fill-opacity:1" />
-	
-	
-</g>
-</svg>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
+<svg fill="#ffffff" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="256px" height="256px" viewBox="0 0 612 612" xml:space="preserve" stroke="#ffffff">
+<g id="SVGRepo_bgCarrier" stroke-width="0"/>
+<g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+<g id="SVGRepo_iconCarrier"> <g> <path d="M1.659,484.737L1.001,206.595c-0.032-13.686,13.95-22.938,26.534-17.559l253.206,108.241 c6.997,2.991,11.542,9.859,11.56,17.468l0.658,278.142c0.032,13.687-13.95,22.939-26.534,17.56L13.219,502.206 C6.222,499.215,1.676,492.347,1.659,484.737z M581.805,219.687L348.142,320.883l0.608,257.406l233.664-101.196L581.805,219.687 M591.26,186.131c10.043-0.025,19.056,8.054,19.081,19.022l0.658,278.142c0.018,7.609-4.495,14.5-11.478,17.523l-252.69,109.438 c-2.493,1.079-5.047,1.583-7.534,1.59c-10.044,0.023-19.058-8.055-19.083-19.022l-0.658-278.143 c-0.019-7.609,4.495-14.5,11.479-17.523l252.69-109.437C586.218,186.64,588.771,186.137,591.26,186.131L591.26,186.131z M304.152,29.466L61.767,137.691l242.894,107.075l242.386-108.224L304.152,29.466 M304.083,0c2.632-0.006,5.266,0.533,7.728,1.618 l266.403,117.439c15.112,6.663,15.163,28.088,0.082,34.821L312.451,272.577c-2.456,1.097-5.088,1.648-7.721,1.655 c-2.632,0.006-5.266-0.533-7.728-1.618L30.6,155.175c-15.113-6.662-15.163-28.088-0.083-34.821L296.361,1.655 C298.818,0.558,301.449,0.006,304.083,0L304.083,0z"/> </g> </g>
+</svg>

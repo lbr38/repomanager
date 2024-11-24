@@ -119,6 +119,15 @@ class Schedule
         self::checkReminder($scheduleParams['schedule-reminder']);
 
         /**
+         *  If a notify or a reminder is set, check that the schedule recipient is set
+         */
+        if ($scheduleParams['schedule-notify-error'] == 'true' || $scheduleParams['schedule-notify-success'] == 'true' || !empty($scheduleParams['schedule-reminder'])) {
+            if (empty($scheduleParams['schedule-recipient'])) {
+                throw new Exception('A recipient must be specified');
+            }
+        }
+
+        /**
          *  If a schedule recipient is set, check that it is valid
          */
         if (!empty($scheduleParams['schedule-recipient'])) {

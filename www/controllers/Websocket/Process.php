@@ -2,6 +2,8 @@
 
 namespace Controllers\Websocket;
 
+use Exception;
+
 /**
  *  Class Process extends WebsocketServer to gain access to the log method and hostController
  *  Processes requests to send to hosts

@@ -29,6 +29,7 @@ class Autoloader
             \Controllers\App\Config\Properties::get();
             \Controllers\App\Config\Main::get();
             \Controllers\App\Config\Settings::get();
+            \Controllers\App\Config\Env::get();
             \Controllers\App\Structure\Directory::create();
             \Controllers\App\Structure\File::create();
         }
@@ -77,7 +78,7 @@ class Autoloader
          *  Errors related to the loading of the main configuration
          */
         if (defined('__LOAD_SETTINGS_ERROR') && __LOAD_SETTINGS_ERROR > 0) {
-            $__LOAD_ERROR_MESSAGES[] = "<b>Some settings are not properly configured</b>:<br>";
+            $__LOAD_ERROR_MESSAGES[] = "<b>Some settings are not properly configured</b>:";
             $__LOAD_ERROR_MESSAGES = array_merge($__LOAD_ERROR_MESSAGES, __LOAD_SETTINGS_MESSAGES);
             ++$__LOAD_GENERAL_ERROR;
         }
@@ -86,7 +87,7 @@ class Autoloader
          *  Create dirs errors
          */
         if (defined('__CREATE_DIRS_ERROR') && __CREATE_DIRS_ERROR > 0) {
-            $__LOAD_ERROR_MESSAGES[] = "<br><b>Some directories could not be generated</b>:<br>";
+            $__LOAD_ERROR_MESSAGES[] = "<b>Some directories could not be generated</b>:";
             $__LOAD_ERROR_MESSAGES = array_merge($__LOAD_ERROR_MESSAGES, __CREATE_DIRS_MESSAGES);
             ++$__LOAD_GENERAL_ERROR;
         }
@@ -95,7 +96,7 @@ class Autoloader
          *  Create files errors
          */
         if (defined('__CREATE_FILES_ERROR') && __CREATE_FILES_ERROR > 0) {
-            $__LOAD_ERROR_MESSAGES[] = "<br><b>Some files could not be generated</b>:<br>";
+            $__LOAD_ERROR_MESSAGES[] = "<b>Some files could not be generated</b>:";
             $__LOAD_ERROR_MESSAGES = array_merge($__LOAD_ERROR_MESSAGES, __CREATE_FILES_MESSAGES);
             ++$__LOAD_GENERAL_ERROR;
         }
@@ -104,7 +105,7 @@ class Autoloader
          *  Errors related to the loading of the environments
          */
         if (defined('__LOAD_ERROR_EMPTY_ENVS') && __LOAD_ERROR_EMPTY_ENVS > 0) {
-            $__LOAD_ERROR_MESSAGES[] = '<br><b>You must at least configure 1 environment.</b>';
+            $__LOAD_ERROR_MESSAGES[] = '<b>You must at least configure 1 environment.</b>';
             ++$__LOAD_GENERAL_ERROR;
         }
 

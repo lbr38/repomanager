@@ -17,11 +17,12 @@ class Environment extends Model
     /**
      *  Add new environment in database
      */
-    public function new(string $name)
+    public function add(string $name, string $color) : void
     {
         try {
-            $stmt = $this->db->prepare("INSERT INTO env (Name) VALUES (:name)");
+            $stmt = $this->db->prepare("INSERT INTO env (Name, Color) VALUES (:name, :color)");
             $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':color', $color);
             $stmt->execute();
         } catch (\Exception $e) {
             $this->db->logError($e);
@@ -31,11 +32,11 @@ class Environment extends Model
     /**
      *  Delete env from database
      */
-    public function delete(string $name)
+    public function delete(int $id) : void
     {
         try {
-            $stmt = $this->db->prepare("DELETE FROM env WHERE Name = :name");
-            $stmt->bindValue(':name', $name);
+            $stmt = $this->db->prepare("DELETE FROM env WHERE Id = :id");
+            $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
             $this->db->logError($e);
@@ -57,10 +58,10 @@ class Environment extends Model
     {
         $datas = array();
 
-        $result = $this->db->query("SELECT Name FROM env");
+        $result = $this->db->query("SELECT * FROM env");
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $datas[] = $row['Name'];
+            $datas[] = $row;
         }
 
         return $datas;
@@ -99,9 +100,29 @@ class Environment extends Model
     }
 
     /**
+     *  Return true if env Id exists in database
+     */
+    public function existsId(int $id) : bool
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT Id FROM env WHERE Id = :id");
+            $stmt->bindValue(':id', $id);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            $this->db->logError($e);
+        }
+
+        if ($this->db->isempty($result)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      *  Return true if env exists in database
      */
-    public function exists(string $name)
+    public function exists(string $name) : bool
     {
         try {
             $stmt = $this->db->prepare("SELECT Id FROM env WHERE Name = :env");

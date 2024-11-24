@@ -41,9 +41,9 @@
                             endif ?>
                         </div>
 
-                        <div class="flex column-gap-10 justify-end">
+                        <div class="flex column-gap-15 justify-end">
                             <img src="/assets/icons/duplicate.svg" class="profile-duplicate-btn icon-lowopacity" profile-id="<?= $profile['Id'] ?>" title="Duplicate <?= $profile['Name'] ?> profile configuration" />
-                            <img src="/assets/icons/delete.svg" class="profile-delete-btn icon-lowopacity" profile-id="<?= $profile['Id'] ?>" title="Delete <?= $profile['Name'] ?> profile" />
+                            <img src="/assets/icons/delete.svg" class="profile-delete-btn icon-lowopacity" profile-id="<?= $profile['Id'] ?>" profile-name="<?= $profile['Name'] ?>" title="Delete <?= $profile['Name'] ?> profile" />
                         </div>
                     </div>
 
@@ -53,7 +53,7 @@
                             <input type="text" name="profile-name" value="<?= $profile['Name'] ?>" />
 
                             <h6>REPOSITORIES</h6>
-                            <p class="note">Specify which repositories the client host(s) will have access to.</p>
+                            <p class="note">Specify which repositories the host will have access to.</p>
                             <select name="profile-repos" multiple>
                                 <?php
                                 /**
@@ -89,7 +89,8 @@
                             <h6>PACKAGE EXCLUSION</h6>
                             
                             <h6>EXCLUDE MAJOR VERSION</h6>
-                            <p class="note">Specify which packages the client host(s) should exclude from updates based on their major version.</p>
+                            <p class="note">Specify which packages the host should exclude from updates if the update is a major version change.</p>
+                            <p class="note">You can use <code>.*</code> as a wildcard. <code>mysql.*</code></p>
                             <select name="profile-exclude-major" multiple>
                                 <?php
                                 /**
@@ -113,8 +114,9 @@
                                 } ?>
                             </select>
                             
-                            <h6>EXCLUDE ALWAYS</h6>
-                            <p class="note">Specify which packages the client host(s) should exclude from updates (no matter the version).</p>
+                            <h6>ALWAYS EXCLUDE</h6>
+                            <p class="note">Specify which packages the host should exclude from updates (no matter the version).</p>
+                            <p class="note">You can use <code>.*</code> as a wildcard. <code>mysql.*</code></p>
                             <select name="profile-exclude" multiple>
                                 <?php
                                 foreach ($listPackages as $package) {
@@ -136,8 +138,8 @@
                             </select>
 
                             <h6>RESTART SERVICES</h6>
-                            <p class="note">Specify what services the client host(s) should restart after updates.</p>
-                            <p class="note">You can conditionnaly restart a service from a package update by using the following syntax: <code>service_name:package_name</code></p>
+                            <p class="note">Specify what services the host should restart after updates.</p>
+                            <p class="note">You can conditionally restart a service from a package update by using the following syntax: <code>service_name:package_name</code></p>
                             <p class="note">e.g: restart httpd if any php package is updated: <code>httpd:php.*</code></p>
 
                             <?php

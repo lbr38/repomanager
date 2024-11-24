@@ -69,23 +69,11 @@ if ($action == "getHostsWithPackage" and !empty($_POST['hostsIdArray']) and !emp
 /*
  *  Execute an action on selected host(s)
  */
-if ($action == "executeAction" and !empty($_POST['exec']) and !empty($_POST['hosts_array'])) {
+if ($action == "executeAction" and !empty($_POST['exec']) and !empty($_POST['hosts'])) {
     $myhost = new \Controllers\Host();
 
     try {
-        $content = $myhost->hostExec($_POST['hosts_array'], $_POST['exec']);
-    } catch (\Exception $e) {
-        response(HTTP_BAD_REQUEST, $e->getMessage());
-    }
-
-    response(HTTP_OK, $content);
-}
-
-if ($action == 'installSelectedAvailablePackages' and !empty($_POST['hostId']) and !empty($_POST['packages'])) {
-    $hostExecuteController = new \Controllers\Host\Execute();
-
-    try {
-        $content = $hostExecuteController->installSelectedAvailablePackages($_POST['hostId'], $_POST['packages']);
+        $content = $myhost->hostExec($_POST['hosts'], $_POST['exec']);
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }

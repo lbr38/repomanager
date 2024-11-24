@@ -13,6 +13,9 @@ class Form
      */
     public function get(string $action, array $repos)
     {
+        $mylogin = new \Controllers\Login();
+        $usersEmail = $mylogin->getEmails();
+
         $content = '<form class="task-form" autocomplete="off">';
 
         foreach ($repos as $repo) {

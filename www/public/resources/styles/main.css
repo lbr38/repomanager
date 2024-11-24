@@ -252,7 +252,6 @@ article {
 }
 
 .repos-list-group-flex-div [class^="item"] {
-    /* padding: 4px 0px 4px 8px; */
     padding: 4px 0px 4px 0px;
     position: relative;
 }
@@ -423,15 +422,6 @@ article {
     visibility: visible;
 }
 
-#repo-actions-btn-container > div {
-    height: 60px;
-    display: flex;
-    align-items: center;
-    margin: auto;
-    align-self: center;
-    justify-content: center;
-}
-
 .divReposConf {
     width: 100%;
     padding-top: 15px;
@@ -469,11 +459,6 @@ article {
     margin-bottom: 30px;
     background-color: #1d3349;
     border: 1px solid #24405c;
-}
-
-.repo-action-btn {
-    margin-left: 5px;
-    margin-right: 5px;
 }
 
 /* Menu gestion des profils */
@@ -539,12 +524,6 @@ input::placeholder {
 }
 .label-pkg-deb {
     background-color: #F32F63;
-}
-
-.div-flex {
-    display: flex;
-    justify-content: space-between;
-    vertical-align: top;
 }
 
 footer {
@@ -692,31 +671,6 @@ footer #github img { width: 25px; }
 .header-blue, .header-blue-min { background-color: #1d3349; }
 .header-light-red, .header-light-red-min { background-color: #ff3369 !important; }
 .header-light-blue, .header-light-blue-min { background-color: #2b4d6e !important; }
-
-#loginDiv-container {
-    height: 90vh;
-    position: relative;
-}
-#loginDiv {
-    width: 250px;
-    margin: 0;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    -ms-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
-    text-align: center;
-}
-#loginDiv h3 {
-    margin-left: auto;
-    margin-right: auto;
-}
-#loginDiv form input {
-    display: block;
-}
-#loginDiv div {
-    margin: auto;
-}
 
 #maintenance-container {
     position: fixed;

@@ -6,6 +6,7 @@ if (!IS_ADMIN) {
 $myrepo = new \Controllers\Repo\Repo();
 $mygroup = new \Controllers\Group('repo');
 $mysource = new \Controllers\Repo\Source\Source();
+$mylogin = new \Controllers\Login();
 
 /**
  *  New repo form variables
@@ -13,3 +14,7 @@ $mysource = new \Controllers\Repo\Source\Source();
 $newRepoRpmSourcesList = $mysource->listAll('rpm');
 $newRepoDebSourcesList = $mysource->listAll('deb');
 $newRepoFormGroupList = $mygroup->listAll();
+
+$usersEmail = $mylogin->getEmails();
+
+unset($mylogin);

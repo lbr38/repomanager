@@ -98,31 +98,40 @@ $(document).on('click','.source-repo-remove-releasever-btn',function (e) {
     var id = $(this).attr('source-id');
     var releaseverId = $(this).attr('releasever-id');
 
-    confirmBox('Remove release version?', function () {
-        ajaxRequest(
-            // Controller:
-            'repo/source/releasever',
-            // Action:
-            'remove',
-            // Data:
+    confirmBox(
+        {
+            'title': 'Remove release version',
+            'buttons': [
             {
-                id: id,
-                releaseverId: releaseverId,
-            },
-            // Print success alert:
-            true,
-            // Print error alert:
-            true,
-            // Reload containers:
-            [],
-            // Execute functions on success:
-            [
-                "reloadPanel('repos/sources/list')"
-            ]
-        );
-    }, 'Remove');
+                'text': 'Remove',
+                'color': 'red',
+                'callback': function () {
+                    ajaxRequest(
+                        // Controller:
+                        'repo/source/releasever',
+                        // Action:
+                        'remove',
+                        // Data:
+                        {
+                            id: id,
+                            releaseverId: releaseverId,
+                        },
+                        // Print success alert:
+                        true,
+                        // Print error alert:
+                        true,
+                        // Reload containers:
+                        [],
+                        // Execute functions on success:
+                        [
+                            "reloadPanel('repos/sources/list')"
+                        ]
+                    );
+                }
+            }]
+        }
+    );
 });
-
 
 /**
  *  Event: add gpg key to release version
@@ -176,29 +185,39 @@ $(document).on('click','.source-repo-edit-releasever-remove-gpgkey-btn',function
     var releaseverId = $(this).attr('releasever-id');
     var gpgkeyId = $(this).attr('gpgkey-id');
 
-    confirmBox('Remove GPG key?', function () {
-        ajaxRequest(
-            // Controller:
-            'repo/source/releasever',
-            // Action:
-            'remove-gpgkey',
-            // Data:
+    confirmBox(
+        {
+            'title': 'Remove GPG key',
+            'buttons': [
             {
-                id: id,
-                releaseverId: releaseverId,
-                gpgkeyId: gpgkeyId,
-            },
-            // Print success alert:
-            true,
-            // Print error alert:
-            true,
-            // Reload containers:
-            [],
-            // Execute functions on success:
-            [
-                "reloadPanel('repos/sources/list')",
-                "reloadPanel('repos/sources/edit-releasever', {id: " + id + ", releaseverId: " + releaseverId + "})"
-            ]
-        );
-    }, 'Remove');
+                'text': 'Remove',
+                'color': 'red',
+                'callback': function () {
+                    ajaxRequest(
+                        // Controller:
+                        'repo/source/releasever',
+                        // Action:
+                        'remove-gpgkey',
+                        // Data:
+                        {
+                            id: id,
+                            releaseverId: releaseverId,
+                            gpgkeyId: gpgkeyId,
+                        },
+                        // Print success alert:
+                        true,
+                        // Print error alert:
+                        true,
+                        // Reload containers:
+                        [],
+                        // Execute functions on success:
+                        [
+                            "reloadPanel('repos/sources/list')",
+                            "reloadPanel('repos/sources/edit-releasever', {id: " + id + ", releaseverId: " + releaseverId + "})"
+                        ]
+                    );
+                }
+            }]
+        }
+    );
 });

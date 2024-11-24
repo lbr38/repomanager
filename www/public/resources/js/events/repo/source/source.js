@@ -149,29 +149,40 @@ $(document).on('click','.source-repo-delete-btn',function (e) {
     var sourceId = $(this).attr('source-id');
     var name = $(this).attr('source-name');
 
-    confirmBox('Are you sure you want to delete <b>' + name + '</b> source repo?', function () {
-        ajaxRequest(
-            // Controller:
-            'repo/source/source',
-            // Action:
-            'delete',
-            // Data:
+    confirmBox(
+        {
+            'title': 'Delete source repository',
+            'message': 'Are you sure you want to delete <b>' + name + '</b> source repository?',
+            'buttons': [
             {
-                sourceId: sourceId
-            },
-            // Print success alert:
-            true,
-            // Print error alert:
-            true,
-            // Reload containers:
-            [],
-            // Execute functions on success:
-            [
-                "reloadPanel('repos/sources/list')",
-                "reloadPanel('repos/new')"
-            ]
-        );
-    });
+                'text': 'Delete',
+                'color': 'red',
+                'callback': function () {
+                    ajaxRequest(
+                        // Controller:
+                        'repo/source/source',
+                        // Action:
+                        'delete',
+                        // Data:
+                        {
+                            sourceId: sourceId
+                        },
+                        // Print success alert:
+                        true,
+                        // Print error alert:
+                        true,
+                        // Reload containers:
+                        [],
+                        // Execute functions on success:
+                        [
+                            "reloadPanel('repos/sources/list')",
+                            "reloadPanel('repos/new')"
+                        ]
+                    );
+                }
+            }]
+        }
+    );
 });
 
 /**
@@ -181,26 +192,37 @@ $(document).on('click','.gpgKeyDeleteBtn',function () {
     var gpgKeyId = $(this).attr('gpgkey-id');
     var gpgkeyName = $(this).attr('gpgkey-name');
 
-    confirmBox('Are you sure you want to delete <b>' + gpgkeyName + '</b> GPG key?', function () {
-        ajaxRequest(
-            // Controller:
-            'repo/source/source',
-            // Action:
-            'delete-gpgkey',
-            // Data:
+    confirmBox(
+        {
+            'title': 'Delete GPG key',
+            'message': 'Are you sure you want to delete <b>' + gpgkeyName + '</b> GPG key?',
+            'buttons': [
             {
-                gpgKeyId: gpgKeyId
-            },
-            // Print success alert:
-            true,
-            // Print error alert:
-            true,
-            // Reload containers:
-            [],
-            // Execute functions on success:
-            [
-                "reloadPanel('repos/sources/list')"
-            ]
-        );
-    });
+                'text': 'Delete',
+                'color': 'red',
+                'callback': function () {
+                    ajaxRequest(
+                        // Controller:
+                        'repo/source/source',
+                        // Action:
+                        'delete-gpgkey',
+                        // Data:
+                        {
+                            gpgKeyId: gpgKeyId
+                        },
+                        // Print success alert:
+                        true,
+                        // Print error alert:
+                        true,
+                        // Reload containers:
+                        [],
+                        // Execute functions on success:
+                        [
+                            "reloadPanel('repos/sources/list')"
+                        ]
+                    );
+                }
+            }]
+        }
+    );
 });

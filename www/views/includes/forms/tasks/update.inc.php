@@ -16,10 +16,10 @@ if ($myrepo->getPackageType() == 'deb') {
     <option value=""></option>
     <?php
     foreach (ENVS as $env) {
-        if ($env == DEFAULT_ENV) {
-            echo '<option value="' . $env . '" selected>' . $env . '</option>';
+        if ($env['Name'] == DEFAULT_ENV) {
+            echo '<option value="' . $env['Name'] . '" selected>' . $env['Name'] . '</option>';
         } else {
-            echo '<option value="' . $env . '">' . $env . '</option>';
+            echo '<option value="' . $env['Name'] . '">' . $env['Name'] . '</option>';
         }
     } ?>
 </select>
@@ -119,47 +119,27 @@ $(document).ready(function(){
     /**
      *  Update repo->date<-env schema if an env is selected
      */
-    var selectName = '#update-repo-target-env-select-<?= $myrepo->getSnapId() ?>';
-    var envSpan = '#update-repo-show-target-env-<?= $myrepo->getSnapId() ?>';
+    var selectId = '#update-repo-target-env-select-<?= $myrepo->getSnapId() ?>';
+    var envSelector = '#update-repo-show-target-env-<?= $myrepo->getSnapId() ?>';
+    var selectedEnv = $(selectId).val();
 
-    function printEnv() {
-        /**
-         *  Name of the last environment of the chain
-         */
-        var lastEnv = '<?= LAST_ENV ?>';
+    // If no environment is selected, don't display anything
+    if (selectedEnv == "") {
+        $(envSelector).html('');
 
-        /**
-         *  Retrieve the selected environment in the list
-         */
-        var selectValue = $(selectName).val();
-        
-        /**
-         *  If the environment corresponds to the last environment of the chain then it will be displayed in red
-         */
-        if (selectValue == lastEnv) {
-            var envSpanClass = 'last-env';
-        } else {            
-            var envSpanClass = 'env';
-        }
-
-        /**
-         *  If there is no environment selected by the user then nothing is displayed
-         */
-        if (selectValue == "") {
-            $(envSpan).html('');
-        
-        /**
-         *  Else we display the environment that points to the new snapshot that will be created
-         */
-        } else {
-            $(envSpan).html('⟵<span class="'+envSpanClass+'">'+selectValue+'</span>');
-        }
+    // Else we display the environment that points to the new snapshot that will be created
+    } else {
+        printEnv(selectedEnv, envSelector);
     }
 
-    printEnv();
-
-    $(document).on('change',selectName,function(){
-        printEnv();
+    // Update the environment when another environment is selected
+    $(document).on('change', selectId, function() {
+        var selectedEnv = $(this).val();
+        if (selectedEnv == "") {
+            $(envSelector).html('');
+        } else {
+            printEnv(selectedEnv, envSelector);
+        }
     }).trigger('change');
 });
 </script>

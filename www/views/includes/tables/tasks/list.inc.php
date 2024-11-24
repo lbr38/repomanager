@@ -17,7 +17,7 @@
                 $headerColor = 'header-light-blue';
             }
 
-            $tableClass = 'table-container ' . $headerColor;
+            $tableClass = 'table-container grid-40p-45p-10p column-gap-10 justify-space-between ' . $headerColor;
 
             /**
              *  If task has a logfile, we add the pointer class to the table container
@@ -28,121 +28,123 @@
             } ?>
 
             <div class="<?= $tableClass ?>" logfile="<?= $item['Logfile'] ?>" title="<?= $tableTitle ?>">
-                <div>
-                    <?php
-                    if ($taskRawParams['action'] == 'create') {
-                        $icon = 'plus';
+                <div class="flex align-item-center column-gap-15">
+                    <div>
+                        <?php
+                        if ($taskRawParams['action'] == 'create') {
+                            $icon = 'plus';
 
-                        /**
-                         *  To keep compatibility with old tasks (old operations table)
-                         *  TODO: delete this in 1year
-                         */
-                        if (!isset($taskRawParams['repo-type'])) {
-                            $actionTitle = 'New repository';
-                        } else {
-                            if ($taskRawParams['repo-type'] == 'local') {
-                                $actionTitle = 'New local repository';
-                            }
-                            if ($taskRawParams['repo-type'] == 'mirror') {
-                                $actionTitle = 'New mirror repository';
+                            /**
+                             *  To keep compatibility with old tasks (old operations table)
+                             *  TODO: delete this in 1year
+                             */
+                            if (!isset($taskRawParams['repo-type'])) {
+                                $actionTitle = 'New repository';
+                            } else {
+                                if ($taskRawParams['repo-type'] == 'local') {
+                                    $actionTitle = 'New local repository';
+                                }
+                                if ($taskRawParams['repo-type'] == 'mirror') {
+                                    $actionTitle = 'New mirror repository';
+                                }
                             }
                         }
-                    }
 
-                    if ($taskRawParams['action'] == 'update') {
-                        $icon = 'update';
-                        $actionTitle = 'Update repository';
-                    }
+                        if ($taskRawParams['action'] == 'update') {
+                            $icon = 'update';
+                            $actionTitle = 'Update repository';
+                        }
 
-                    if ($taskRawParams['action'] == 'rebuild') {
-                        $icon = 'update';
-                        $actionTitle = 'Rebuild metadata';
-                    }
+                        if ($taskRawParams['action'] == 'rebuild') {
+                            $icon = 'update';
+                            $actionTitle = 'Rebuild metadata';
+                        }
 
-                    if ($taskRawParams['action'] == 'env') {
-                        $icon = 'link';
-                        $actionTitle = 'Point an environment';
-                    }
+                        if ($taskRawParams['action'] == 'env') {
+                            $icon = 'link';
+                            $actionTitle = 'Point an environment';
+                        }
 
-                    if ($taskRawParams['action'] == 'duplicate') {
-                        $icon = 'duplicate';
-                        $actionTitle = 'Duplicate repository';
-                    }
+                        if ($taskRawParams['action'] == 'duplicate') {
+                            $icon = 'duplicate';
+                            $actionTitle = 'Duplicate repository';
+                        }
 
-                    if ($taskRawParams['action'] == 'delete') {
-                        $icon = 'delete';
-                        $actionTitle = 'Delete repository';
-                    }
+                        if ($taskRawParams['action'] == 'delete') {
+                            $icon = 'delete';
+                            $actionTitle = 'Delete repository';
+                        }
 
-                    if ($taskRawParams['action'] == 'removeEnv') {
-                        $icon = 'delete';
-                        $actionTitle = 'Remove environment';
-                    } ?>
-
-                    <img class="icon" src="/assets/icons/<?= $icon ?>.svg" title="<?= $actionTitle ?>" />
-                </div>
-
-                <div class="flex flex-direction-column row-gap-4">
-                    <span>
-                        <b>
-                            <?php
-                            /**
-                             *  If task is immediate, display the date and time
-                             */
-                            if (!empty($item['Date']) and !empty($item['Time'])) :
-                                echo DateTime::createFromFormat('Y-m-d', $item['Date'])->format('d-m-Y') . ' ' . $item['Time'];
-                            endif ?>
-                        </b>
-                    </span>
-
-                    <?php
-                    /**
-                     *  If task is scheduled
-                     */
-                    if ($item['Type'] == 'scheduled') :
-                        if (!empty($item['Date']) and !empty($item['Time'])) {
-                            $class = 'margin-top-5';
-                        } else {
-                            $class = '';
+                        if ($taskRawParams['action'] == 'removeEnv') {
+                            $icon = 'delete';
+                            $actionTitle = 'Remove environment';
                         } ?>
 
-                        <span class="<?= $class ?>">
-                            <?php
-                            /**
-                             *  Case it is a unique scheduled task
-                             */
-                            if ($taskRawParams['schedule']['schedule-type'] == 'unique') {
-                                echo 'Scheduled on<br>';
-                                echo DateTime::createFromFormat('Y-m-d', $taskRawParams['schedule']['schedule-date'])->format('d-m-Y') . ' ' . $taskRawParams['schedule']['schedule-time'] . ':00';
-                            }
+                        <img class="icon" src="/assets/icons/<?= $icon ?>.svg" title="<?= $actionTitle ?>" />
+                    </div>
 
-                            /**
-                             *  Case it is a recurring scheduled task
-                             */
-                            if ($taskRawParams['schedule']['schedule-type'] == 'recurring') {
-                                if ($taskRawParams['schedule']['schedule-frequency'] == 'hourly') {
-                                    echo 'Hourly scheduled task';
-                                }
-
-                                if ($taskRawParams['schedule']['schedule-frequency'] == 'daily') {
-                                    echo 'Daily scheduled task';
-                                }
-
-                                if ($taskRawParams['schedule']['schedule-frequency'] == 'weekly') {
-                                    echo 'Weekly scheduled task';
-                                }
-
-                                if ($taskRawParams['schedule']['schedule-frequency'] == 'monthly') {
-                                    echo 'Monthly scheduled task';
-                                }
-                            } ?>
+                    <div class="flex flex-direction-column row-gap-4">
+                        <span>
+                            <b>
+                                <?php
+                                /**
+                                 *  If task is immediate, display the date and time
+                                 */
+                                if (!empty($item['Date']) and !empty($item['Time'])) :
+                                    echo DateTime::createFromFormat('Y-m-d', $item['Date'])->format('d-m-Y') . ' ' . $item['Time'];
+                                endif ?>
+                            </b>
                         </span>
-                        <?php
-                    endif ?>
 
-                    <span class="lowopacity-cst">
-                        <?= $actionTitle ?>
-                    </span>
+                        <?php
+                        /**
+                         *  If task is scheduled
+                         */
+                        if ($item['Type'] == 'scheduled') :
+                            if (!empty($item['Date']) and !empty($item['Time'])) {
+                                $class = 'margin-top-5';
+                            } else {
+                                $class = '';
+                            } ?>
+
+                            <span class="<?= $class ?>">
+                                <?php
+                                /**
+                                 *  Case it is a unique scheduled task
+                                 */
+                                if ($taskRawParams['schedule']['schedule-type'] == 'unique') {
+                                    echo 'Scheduled on<br>';
+                                    echo DateTime::createFromFormat('Y-m-d', $taskRawParams['schedule']['schedule-date'])->format('d-m-Y') . ' ' . $taskRawParams['schedule']['schedule-time'] . ':00';
+                                }
+
+                                /**
+                                 *  Case it is a recurring scheduled task
+                                 */
+                                if ($taskRawParams['schedule']['schedule-type'] == 'recurring') {
+                                    if ($taskRawParams['schedule']['schedule-frequency'] == 'hourly') {
+                                        echo 'Hourly scheduled task';
+                                    }
+
+                                    if ($taskRawParams['schedule']['schedule-frequency'] == 'daily') {
+                                        echo 'Daily scheduled task';
+                                    }
+
+                                    if ($taskRawParams['schedule']['schedule-frequency'] == 'weekly') {
+                                        echo 'Weekly scheduled task';
+                                    }
+
+                                    if ($taskRawParams['schedule']['schedule-frequency'] == 'monthly') {
+                                        echo 'Monthly scheduled task';
+                                    }
+                                } ?>
+                            </span>
+                            <?php
+                        endif ?>
+
+                        <span class="lowopacity-cst">
+                            <?= $actionTitle ?>
+                        </span>
+                    </div>
                 </div>
   
                 <div class="flex row-gap-5 column-gap-5 flex-wrap">
@@ -159,7 +161,7 @@
                     } ?>
                 </div>
 
-                <div class="flex align-item-center justify-end column-gap-15">
+                <div class="flex align-item-center justify-end column-gap-10 row-gap-10 flex-wrap">
                     <?php
                     /**
                      *  If task is a scheduled task
@@ -189,18 +191,18 @@
                          *  Delete task button
                          */
                         if ($item['Status'] == 'scheduled') {
-                            echo '<img class="icon-lowopacity cancel-scheduled-task-btn" src="/assets/icons/delete.svg" task-id="' . $item['Id'] . '" title="Cancel scheduled task" />';
+                            echo '<img class="icon-lowopacity cancel-scheduled-task-btn" src="/assets/icons/delete.svg" task-id="' . $item['Id'] . '" title="Cancel and delete scheduled task" />';
                         }
 
                         /**
                          *  Task status icon
                          */
                         if ($item['Status'] == 'scheduled') {
-                            echo '<img class="icon" src="/assets/icons/pending.svg" title="Task is scheduled" />';
+                            echo '<img class="icon-np" src="/assets/icons/pending.svg" title="Task is scheduled" />';
                         }
 
                         if ($item['Status'] == 'disabled') {
-                            echo '<img class="icon" src="/assets/icons/graycircle.png" title="Task execution is disabled" />';
+                            echo '<img class="icon-np" src="/assets/icons/warning.svg" title="Task execution is disabled" />';
                         }
                     }
 
@@ -238,7 +240,7 @@
                 <div class="scheduled-task-info detailsDiv margin-bottom-10 hide" task-id="<?= $item['Id'] ?>">
                     <div class="grid grid-2">
                         <div>
-                            <h6>SCHEDULE TYPE</h6>
+                            <h6 class="margin-top-0">SCHEDULE TYPE</h6>
                             <?php
                             // Case it is a unique scheduled task
                             if ($taskRawParams['schedule']['schedule-type'] == 'unique') : ?>
@@ -257,14 +259,14 @@
                             <?php
                             // Case it is a unique scheduled task
                             if ($taskRawParams['schedule']['schedule-type'] == 'unique') : ?>
-                                <h6>SCHEDULE DATE</h6>
+                                <h6 class="margin-top-0">SCHEDULE DATE</h6>
                                 <p><?=  DateTime::createFromFormat('Y-m-d', $taskRawParams['schedule']['schedule-date'])->format('d-m-Y') . ' ' . $taskRawParams['schedule']['schedule-time'] . ':00' ?></p>
                                 <?php
                             endif;
 
                             // Case it is a recurring scheduled task
                             if ($taskRawParams['schedule']['schedule-type'] == 'recurring') : ?>
-                                <h6>SCHEDULE FREQUENCY</h6>
+                                <h6 class="margin-top-0">SCHEDULE FREQUENCY</h6>
                                 <p>
                                     <?php
                                     if ($taskRawParams['schedule']['schedule-frequency'] == 'hourly') {
@@ -272,15 +274,15 @@
                                     }
 
                                     if ($taskRawParams['schedule']['schedule-frequency'] == 'daily') {
-                                        echo 'Daily<br>Every day at ' . $taskRawParams['schedule']['schedule-time'] . ':00';
+                                        echo 'Daily: every day at ' . $taskRawParams['schedule']['schedule-time'] . ':00';
                                     }
 
                                     if ($taskRawParams['schedule']['schedule-frequency'] == 'weekly') {
-                                        echo 'Weekly<br>Every week on ' . implode(', ', $taskRawParams['schedule']['schedule-day']) . ' at ' . $taskRawParams['schedule']['schedule-time'] . ':00';
+                                        echo 'Weekly: every week on ' . implode(', ', $taskRawParams['schedule']['schedule-day']) . ' at ' . $taskRawParams['schedule']['schedule-time'] . ':00';
                                     }
 
                                     if ($taskRawParams['schedule']['schedule-frequency'] == 'monthly') {
-                                        echo 'Monthly<br>Every ' . $taskRawParams['schedule']['schedule-monthly-day-position'] . ' ' . $taskRawParams['schedule']['schedule-monthly-day'] . ' of each month at ' . $taskRawParams['schedule']['schedule-time'] . ':00';
+                                        echo 'Monthly: every ' . $taskRawParams['schedule']['schedule-monthly-day-position'] . ' ' . $taskRawParams['schedule']['schedule-monthly-day'] . ' of each month at ' . $taskRawParams['schedule']['schedule-time'] . ':00';
                                     } ?>
                                 </p>
                                 <?php

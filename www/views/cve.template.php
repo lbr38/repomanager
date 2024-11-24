@@ -3,7 +3,7 @@
 
         <h3><?= strtoupper($nameId) ?></h3>
 
-        <div class="div-flex">
+        <div class="flex justify-space-between">
             <div class="flex-div-100 div-generic-blue">
                 <table class="table-generic">
                     <tr>
@@ -56,7 +56,7 @@
             <p><?= $cveDetails['Description'] ?></p>
         </div>
 
-        <div class="div-flex">
+        <div class="flex justify-space-between">
             <div class="flex-div-50 div-generic-blue">
                             
                 <h4>AFFECTED PRODUCTS</h4>
@@ -185,7 +185,7 @@
                 endif ?>
             </div>
         </div>
-        <div class="div-flex">
+        <div class="flex justify-space-between">
             <div class="flex-div-50 div-generic-blue">
                             
                 <h4>REFERENCES</h4>

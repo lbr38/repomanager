@@ -29,6 +29,10 @@
     padding-left: 15px;
 }
 
+#explorer ul:first-child {
+    padding-left: 0;
+}
+
 #delete-packages-btn {
     margin-left: 15px;
 }

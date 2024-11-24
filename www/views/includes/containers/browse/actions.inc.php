@@ -13,7 +13,8 @@ if (IS_ADMIN) : ?>
          */
         if (!empty($rebuild) and $rebuild == 'running') : ?>
             <div class="div-generic-blue">
-                <p>A task is running on this repository snapshot<img src="/assets/icons/loading.svg" class="icon" /></p>
+                <h6 class="margin-top-0">TASK RUNNING</h6>
+                <p class="note"><img src="/assets/icons/loading.svg" class="icon" /> A task is running on this repository snapshot.</p>
             </div>
             <?php
         endif;
@@ -23,14 +24,13 @@ if (IS_ADMIN) : ?>
          */
         if (empty($rebuild) or (!empty($rebuild) and $rebuild != 'running')) : ?>
             <div class="div-generic-blue">
-                <h5>Upload <?= $myrepo->getPackageType() ?> packages into the repository snapshot</h5>
-
                 <form action="" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="action" value="uploadPackage" />
                     <input type="hidden" name="snapId" value="<?= $snapId ?>" />
 
-                    <h6>SELECT PACKAGES</h6>
-                    <p class="note">Valid MIME types are <code>application/x-rpm</code> and <code>application/vnd.debian.binary-package</code></p>
+                    <h6 class="margin-top-0">SELECT PACKAGES TO UPLOAD</h6>
+                    <p class="note">Valid MIME types: <code class="font-size-11">application/x-rpm</code> and <code class="font-size-11">application/vnd.debian.binary-package</code>
+                    </p>
                     <br>
                     <input type="file" name="packages[]" accept="application/vnd.debian.binary-package" multiple />
                     
@@ -67,9 +67,7 @@ if (IS_ADMIN) : ?>
             } ?>
 
             <div class="div-generic-blue">
-                <h5>Rebuild repository snapshot metadata</h5>
-
-                <h6>SIGN WITH GPG</h6>
+                <h6 class="margin-top-0">SIGN WITH GPG</h6>
                 <p class="note">Signature can extend the task duration.</p>
                 <label class="onoff-switch-label">
                     <input name="gpgSign" type="checkbox" class="onoff-switch-input" <?= $gpgSignChecked ?>>
@@ -77,7 +75,7 @@ if (IS_ADMIN) : ?>
                 </label>
 
                 <br><br>
-                <button id="rebuildBtn" snap-id="<?= $snapId ?>" type="button" class="btn-large-red">Execute</button>
+                <button id="rebuild-btn" snap-id="<?= $snapId ?>" type="button" class="btn-large-red">Execute</button>
             </div>
             <?php
         endif ?>

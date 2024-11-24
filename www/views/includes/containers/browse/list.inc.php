@@ -31,7 +31,7 @@
         </div>
     </div>
 
-    <div class="div-generic-blue">
+    <div>
         <?php
         if ($myrepo->getRebuild() == 'needed') {
             echo '<p class="yellowtext">Repository snapshot content has been modified. You have to rebuild metadata.<br><br></p>';

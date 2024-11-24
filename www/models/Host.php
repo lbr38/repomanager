@@ -1918,7 +1918,8 @@ class Host extends Model
              *  Extract the log of the specified package in the specified status
              */
             $stmt = $this->db->prepare("SELECT json_extract(Response_json, :path) as log FROM ws_requests WHERE Id = :id");
-            $stmt->bindValue(':path', '$.update.' . $status . '.packages.' . $package . '.log');
+            // Add quotes around the package name to avoid issues with package names containing dots (e.g. php8.1)
+            $stmt->bindValue(':path', '$.update.' . $status . '.packages."' . $package . '".log');
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {

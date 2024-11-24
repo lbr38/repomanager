@@ -79,112 +79,197 @@ function closePanel(name = null)
 }
 
 /**
- * Print a success or error alert message
+ * Print an alert
  * @param {*} message
  * @param {*} type
+ * @param {*} timeout
  */
-function printAlert(message, type = null, timeout = 2500)
+function printAlert(message, type = null, timeout = 3000)
 {
     random = Math.floor(Math.random() * (100000 - 100 + 1) + 100)
 
-    closeConfirmBox();
-    $('#newalert').remove();
-
     if (type == null) {
-        var alertClass = 'alert';
-    }
-    if (type == "error") {
-        var alertClass = 'alert-error';
-        var timeout = 4000;
-    }
-    if (type == "success") {
-        var alertClass = 'alert-success';
+        var classes = 'alert ' + random;
+        var selector = '.alert.' + random;
+        var icon = 'info';
     }
 
-    $('footer').append('<div id="newalert" class="' + alertClass + ' ' + random + '"><div>' + message + '</div></div>');
+    if (type == 'success') {
+        var classes = 'alert-success ' + random;
+        var selector = '.alert-success.' + random;
+        var icon = 'check';
+    }
+
+    if (type == 'error') {
+        var classes = 'alert-error ' + random;
+        var selector = '.alert-error.' + random;
+        var icon = 'error';
+        timeout = 4000;
+    }
+
+    // Remove any existing alert
+    $('.alert').remove();
+
+    $('footer').append(' \
+    <div class="' + classes + '"> \
+        <div class="flex align-item-center column-gap-8 padding-left-15 padding-right-15"> \
+            <img src="/assets/icons/' + icon + '.svg" class="icon-np" /> \
+            <div> \
+                <p>' + message + '</p> \
+            </div> \
+        </div> \
+    </div>');
+
+    $(selector).css({
+        visibility: 'visible'
+    }).promise().done(function () {
+        $(selector).animate({
+            right: '0'
+        }, 150)
+    })
 
     if (timeout != null) {
         window.setTimeout(function () {
-            $('#newalert.' + random).fadeTo(1500, 0).slideUp(1000, function () {
-                $('#newalert.' + random).remove();
-            });
+            closeAlert(selector);
         }, timeout);
     }
 }
 
 /**
- * Print a confirm alert box before executing specified function
- * @param {*} message
- * @param {*} myfunction1
- * @param {*} confirmBox1
- * @param {*} myfunction2
- * @param {*} confirmBox2
+ * Print a confirm box
+ * @param {*} title
+ * @param {*} confirmBoxFunction1
+ * @param {*} confirmBtn1
+ * @param {*} confirmBoxFunction2
+ * @param {*} confirmBtn2
  */
-function confirmBox(message, myfunction1, confirmBox1 = 'Delete', myfunction2 = null, confirmBox2 = null)
+function confirmBox(data)
 {
-    /**
-     *  Case there is three choices
-     */
-    if (myfunction2 != null && confirmBox2 != null) {
-        var $content = '<div id="new-confirm-box" class="confirmAlert"><span></span><span>' + message + '</span><div class="confirmAlert-buttons-container"><span class="pointer btn-doConfirm1">' + confirmBox1 + '</span><span class="pointer btn-doConfirm2">' + confirmBox2 + '</span><span class="pointer btn-doCancel">Cancel</span></div></div>';
-    /**
-     *  Case there is two choices
-     */
-    } else {
-        var $content = '<div id="new-confirm-box" class="confirmAlert"><span></span><span>' + message + '</span><div class="confirmAlert-buttons-container"><span class="pointer btn-doConfirm1">' + confirmBox1 + '</span><span class="pointer btn-doCancel">Cancel</span></div></div>';
+    // Confirm box html
+    var confirmBoxHtml = '<div id="confirm-box" class="confirm-box">'
+
+    // Confirm box inner content
+    var innerHtml = '<div class="flex flex-direction-column row-gap-10 padding-left-15 padding-right-15">'
+
+    // Container for title and message
+    innerHtml += '<div>';
+
+    // If there is a title
+    if (data.title != "") {
+        innerHtml += '<div class="flex justify-space-between">';
+        innerHtml += '<h6 class="margin-top-0 margin-bottom-0 wordbreakall">' + data.title.toUpperCase() + '</h6>';
+        innerHtml += '<img src="/assets/icons/close.svg" class="icon-large lowopacity confirm-box-cancel-btn" title="Close" />';
+        innerHtml += '</div>';
     }
 
-    $('footer').append($content);
+    // If there is a message
+    if (!empty(data.message)) {
+        innerHtml += '<p class="note">' + data.message + '</p>';
+    }
+
+    // Close container for title and message
+    innerHtml += '</div>';
+
+    // Container for buttons
+    innerHtml += '<div class="grid grid-2 column-gap-15 row-gap-15">';
+
+    // Loop through data to print each button
+    if (!empty(data.buttons)) {
+        var id = 0;
+        for (const [key, value] of Object.entries(data.buttons)) {
+            innerHtml += '<div class="confirm-box-btn btn-auto-' + value.color + '" confirm-btn-id="' + id + '" pointer">' + value.text + '</div>';
+            id++;
+        }
+    }
+
+    // Close container for buttons
+    innerHtml += '</div>'
+
+    // Close base html
+    innerHtml += '</div>'
+
+    // Append inner html to confirm box container
+    confirmBoxHtml += innerHtml;
+
+    // Close confirm box container
+    confirmBoxHtml += '</div>'
 
     /**
-     *  Remove all old confirm boxes if any
+     *  If there is already a confirm box with the same id, do not remove it to avoid blinking
+     *  but replace its content
      */
-    $('#confirm-box').remove();
+    if (!empty(data.id) && $('#confirm-box').length > 0 && $('#confirm-box').attr('confirm-box-id') == data.id) {
+        // Replace confirm box inner content
+        $('#confirm-box[confirm-box-id="' + data.id + '"]').html(innerHtml);
+    } else {
+        // Remove any existing confirm box
+        $("#confirm-box").remove();
 
-    /**
-     *  Rename new confirm box to 'confirm-box'
-     */
-    $('#new-confirm-box').attr('id', 'confirm-box');
+        // Append html to footer
+        $('footer').append(confirmBoxHtml);
 
-    /**
-     *  If choice one is clicked
-     */
-    $('.btn-doConfirm1').click(function () {
-        /**
-         *  Execute function 1
-         */
-        myfunction1();
+        // Set confirm box id if specified
+        if (!empty(data.id)) {
+            $('#confirm-box').attr('confirm-box-id', data.id);
+        }
 
-        // Then remove confirm box
-        closeConfirmBox();
+        // Show confirm box
+        $('#confirm-box').css({
+            visibility: 'visible'
+        }).promise().done(function () {
+            $('#confirm-box').animate({
+                right: '0'
+            }, 150)
+        });
+    }
+
+    // If a button is clicked
+    $('.confirm-box-btn').click(function () {
+        // Get button id
+        var id = $(this).attr('confirm-btn-id');
+
+        // Get function from data
+        if (empty(data.buttons[id].callback)) {
+            printAlert('Error: no function specified for this button', 'error');
+            return;
+        }
+
+        // Execute function
+        data.buttons[id].callback();
+
+        // Close confirm box unless closeBox is set to false
+        if (empty(data.buttons[id].closeBox) || (!empty(data.buttons[id].closeBox) && data.buttons[id].closeBox == true)) {
+            closeConfirmBox();
+        }
     });
 
-    /**
-     *  If choice two is clicked
-     */
-    $('.btn-doConfirm2').click(function () {
-        /**
-         *  Execute function 2
-         */
-        myfunction2();
-
-        // Then remove confirm box
-        closeConfirmBox();
-    });
-
-    /**
-     *  If 'cancel' choice is clicked
-     */
-    $('.btn-doCancel').click(function () {
-        // Remove confirm box
+    // If 'cancel' choice is clicked
+    $('.confirm-box-cancel-btn').click(function () {
         closeConfirmBox();
     });
 }
 
+/**
+ *  Close alert and confirm box modal
+ */
+function closeAlert(selector = '.alert')
+{
+    $(selector).animate({
+        right: '-1000px'
+    }, 150).promise().done(function () {
+        $(selector).remove();
+    });
+}
+
+/**
+ *  Close confirm box
+ */
 function closeConfirmBox()
 {
-    $("#confirm-box").slideToggle(50, function () {
-        $("#confirm-box").remove();
+    $('#confirm-box').animate({
+        right: '-1000px'
+    }, 150).promise().done(function () {
+        $('#confirm-box').remove();
     });
 }
 
@@ -415,3 +500,33 @@ function getGetParams()
     return array;
 }
 
+function empty(value)
+{
+    // Check if the value is null or undefined
+    if (value == null) {
+        return true;
+    }
+
+    // Check if the value is a string and is empty
+    if (typeof value === 'string' && value.trim() === '') {
+        return true;
+    }
+
+    // Check if the value is an empty array
+    if (Array.isArray(value) && value.length === 0) {
+        return true;
+    }
+
+    // Check if the value is an empty object
+    if (typeof value === 'object' && Object.keys(value).length === 0) {
+        return true;
+    }
+
+    // Check if the value is a number and is NaN
+    if (typeof value === 'number' && isNaN(value)) {
+        return true;
+    }
+
+    // If none of the above conditions are met, the value is not empty
+    return false;
+}

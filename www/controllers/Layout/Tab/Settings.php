@@ -14,10 +14,7 @@ class Settings
             exit;
         }
 
-        $mylogin = new \Controllers\Login();
-        $users = $mylogin->getUsers();
-        $usersEmail = $mylogin->getEmails();
-
-        include_once(ROOT . '/views/settings.template.php');
+        \Controllers\Layout\Container\Render::render('settings/settings');
+        \Controllers\Layout\Container\Render::render('settings/health');
     }
 }

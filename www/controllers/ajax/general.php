@@ -75,26 +75,4 @@ if ($action == "get-panel" && !empty($_POST['name']) && isset($_POST['params']))
     response(HTTP_OK, $content);
 }
 
-/**
- *  Return specified confirm box content
- */
-if ($action == "getConfirmBox" && !empty($_POST['name'])) {
-    try {
-        /**
-         *  Check if confirm box exists
-         */
-        if (!file_exists(ROOT . '/views/templates/confirm-box/' . $_POST['name'] . '.php')) {
-            throw new \Exception('Invalid confirm box');
-        }
-
-        ob_start();
-        include_once(ROOT . '/views/templates/confirm-box/' . $_POST['name'] . '.php');
-        $content = ob_get_clean();
-    } catch (\Exception $e) {
-        response(HTTP_BAD_REQUEST, $e->getMessage());
-    }
-
-    response(HTTP_OK, $content);
-}
-
 response(HTTP_BAD_REQUEST, 'Invalid action');

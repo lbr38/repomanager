@@ -70,59 +70,26 @@ function downloadPackage()
 }
 
 /**
- *  Event: when we click on a checkbox, we show the 'Delete' button
+ * Delete packages
+ * @param {*} snapId
  */
-$(document).on('click',".packageName-checkbox",function () {
-    // Count the number of checked checkbox
-    var checked = $('body').find('input[name=packageName\\[\\]]:checked').length;
+function deletePackages(snapId)
+{
+    var packages = [];
 
-    // If there is at least 1 checkbox selected then we show the 'Delete' button
-    if (checked >= 1) {
-        var snapId = $('#packages-list').attr('snap-id');
-        var packages = [];
-
-        // Get the path of the selected packages
-        $('body').find('input[name=packageName\\[\\]]:checked').each(function () {
-            packages.push($(this).attr('path'));
-        });
-
-        confirmBox(
-            '',
-            function () {
-                ajaxRequest('browse', 'deletePackage', {snapId: snapId, packages: packages}, true, true, ['browse/list', 'browse/actions']); },
-            'Delete',
-            function () {
-                downloadPackage(); },
-            'Download'
-        );
-    }
-
-    // If no checkbox is selected then we hide the 'Delete' button
-    if (checked == 0) {
-        closeConfirmBox();
-    }
-});
-
-/**
- *  Event: rebuild metadata
- */
-$(document).on('click',"#rebuildBtn",function () {
-    var snapId = $(this).attr('snap-id');
-    var gpgSign = 'false';
-
-    if ($('input[type=checkbox][name=gpgSign]').is(':checked')) {
-        var gpgSign = 'true';
-    }
+    // Get the path of the selected packages
+    $('body').find('input[name=packageName\\[\\]]:checked').each(function () {
+        packages.push($(this).attr('path'));
+    });
 
     ajaxRequest(
         // Controller:
         'browse',
         // Action:
-        'rebuild',
-        // Data:
+        'deletePackage',
         {
             snapId: snapId,
-            gpgSign: gpgSign
+            packages: packages
         },
         // Print success alert:
         true,
@@ -131,4 +98,4 @@ $(document).on('click',"#rebuildBtn",function () {
         // Reload containers:
         ['browse/list', 'browse/actions']
     );
-});
+}

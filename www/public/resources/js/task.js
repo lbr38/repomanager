@@ -30,6 +30,32 @@ function newRepoFormPrintFields()
 }
 
 /**
+ * Print environment tag with color, in task form
+ * Environment colors must be set in localStorage
+ * @param {*} env
+ * @param {*} selector
+ */
+function printEnv(env, selector)
+{
+    // Default colors
+    var background = '#ffffff';
+    var color = '#000000';
+
+    // Check if the environment color is set in localStorage
+    if (localStorage.getItem('env/' + env) !== null) {
+        definition = JSON.parse(localStorage.getItem('env/' + env));
+        color = definition.color;
+        background = definition.background;
+    }
+
+    // Generate html
+    var html = '⟵<span class="env" style="background-color: ' + background + '; color: ' + color + ';">' + env + '</span>';
+
+    // Print environment
+    $(selector).html(html);
+}
+
+/**
  *  Event: show / hide task inputs depending on the selected repo type or package type
  */
 $(document).on('change','input:radio[name="repo-type"], input:radio[name="package-type"]',function () {
@@ -119,35 +145,41 @@ $(document).on('click','.delete-env-btn',function () {
 
     var taskParamsJson = JSON.stringify(taskParams);
 
-    confirmBox('Remove <b>' + envName + '</b> environment?', function () {
-        ajaxRequest(
-            // Controller:
-            'task',
-            // Action:
-            'validateForm',
-            // Data:
+    confirmBox(
+        {
+            'title': 'Remove environment',
+            'message': 'Remove <b>' + envName + '</b> environment?',
+            'buttons': [
             {
-                taskParams: taskParamsJson,
-            },
-            // Print success alert:
-            true,
-            // Print error alert:
-            true,
-            // Reload container:
-            [],
-        )
-    }, 'Remove');
+                'text': 'Remove',
+                'color': 'red',
+                'callback': function () {
+                    ajaxRequest(
+                        // Controller:
+                        'task',
+                        // Action:
+                        'validateForm',
+                        // Data:
+                        {
+                            taskParams: taskParamsJson,
+                        },
+                        // Print success alert:
+                        true,
+                        // Print error alert:
+                        true,
+                        // Reload container:
+                        [],
+                    )
+                }
+            }]
+        }
+    );
 });
 
 /**
  *  Event: when a checkbox is checked/unchecked
  */
 $(document).on('click',"input[name=checkbox-repo]",function () {
-    /**
-     *  Retrieve checkbox's environment name
-     */
-    var envName = $(this).attr('env-name');
-
     /**
      *  Retrieve checkbox's group id
      */
@@ -159,30 +191,90 @@ $(document).on('click',"input[name=checkbox-repo]",function () {
     var count_checked = $('.reposList').find('input[name=checkbox-repo]:checked').length;
 
     /**
+     *  Define if 'Update' action is available in the action buttons
+     */
+    var updateAction = true;
+
+    /**
      *  If all checkboxes are unchecked then we hide all action buttons
      */
     if (count_checked == 0) {
-        $('#repo-actions-btn-container').hide();
+        closeConfirmBox();
         $('.reposList').find('input[name=checkbox-repo]').removeAttr('style');
         $('.repos-list-group[group-id=' + groupId + ']').find('.repos-list-group-select-all-btns').hide();
         return;
     }
 
     /**
-     *  Otherwise, display action buttons
+     *  If a 'local' repo is checked then we hide the 'update' button
      */
-    $('#newalert').remove();
-    $('#repo-actions-btn-container').show();
+    if ($('.reposList').find('input[name=checkbox-repo][repo-type=local]:checked').length > 0) {
+        // TODO: avoid displaying the Update button when a local repo is selected
+        // updateAction = false;
+        // closeConfirmBox();
+    }
+
+    /**
+     *  Define confirm box buttons
+     */
+    var buttons = [];
+
+    // If 'update' action is available then we add the 'update' button. This happens when no 'local' repo is checked
+    if (updateAction) {
+        buttons.push({
+            'text': 'Update',
+            'color': 'blue-alt',
+            'callback': function () {
+                executeAction('update')
+            }
+        });
+    }
+
+    // Add all other buttons
+    buttons.push(
+        {
+            'text': 'Duplicate',
+            'color': 'blue-alt',
+            'callback': function () {
+                executeAction('duplicate');
+            }
+        },
+        {
+            'text': 'Point an environment',
+            'color': 'blue-alt',
+            'callback': function () {
+                executeAction('env');
+            }
+        },
+        {
+            'text': 'Rebuild',
+            'color': 'blue-alt',
+            'callback': function () {
+                executeAction('rebuild');
+            }
+        },
+        {
+            'text': 'Delete',
+            'color': 'red',
+            'callback': function () {
+                executeAction('delete');
+            }
+        }
+    );
+
+    confirmBox(
+        {
+            'title': 'Execute',
+            'message': 'Select an action to execute on the selected repositories.',
+            'id': 'repo-actions-confirm-box',
+            'buttons': buttons
+        }
+    );
 
     /**
      *  Show 'select all latest snapshots' buttons
      */
     $('.repos-list-group[group-id=' + groupId + ']').find('.repos-list-group-select-all-btns').css('display', 'flex');
-    // If the checkbox has an environment name then display 'select all xx env' snapshot button
-    // TODO
-    // if (envName != '') {
-    //     console.log(envName);
-    // }
 
     /**
      *  If there is at least 1 checkbox checked then we display all the other checkboxes
@@ -190,16 +282,42 @@ $(document).on('click',"input[name=checkbox-repo]",function () {
      */
     $('.reposList').find('input[name=checkbox-repo]').css("visibility", "visible");
     $('.reposList').find('input[name=checkbox-repo]:checked').css("opacity", "1");
+});
+
+function executeAction(action)
+{
+    var repos = [];
 
     /**
-     *  If a 'local' repo is checked then we hide the 'update' button
+     *  Loop through all checked repos and retrieve their id
      */
-    if ($('.reposList').find('input[name=checkbox-repo][repo-type=local]:checked').length > 0) {
-        $('.repo-action-btn[action=update]').hide();
-    } else {
-        $('.repo-action-btn[action=update]').show();
-    }
-});
+    $('.reposList').find('input[name=checkbox-repo]:checked').each(function () {
+        var obj = {};
+
+        /**
+         *  Retrieving the repo id and status
+         */
+        obj['repo-id'] = $(this).attr('repo-id');
+        obj['snap-id'] = $(this).attr('snap-id');
+        obj['env-id'] = $(this).attr('env-id');
+        obj['repo-status'] = $(this).attr('repo-status');
+
+        repos.push(obj);
+    });
+
+    /**
+     *  Execute the selected action
+     */
+    var repos = JSON.stringify(repos);
+
+    /**
+     *  Get the panel and form for the selected action
+     */
+    getPanel('repos/task', {
+        action: action,
+        repos: repos
+    });
+}
 
 /**
  *  Event: Click on 'select all latest snapshots' button
@@ -252,6 +370,7 @@ $(document).on('click',".repos-list-group-select-all-btns",function () {
         // Make sure the 'Select latest snapshots' button is visible and its checkbox is checked
         $('.repos-list-group-select-all-btns[group-id="' + groupId + '"]').css('display', 'flex');
         $('.repos-list-group-select-all-btns[group-id="' + groupId + '"]').css('opacity', '1');
+        $('.repos-list-group-select-all-btns[group-id="' + groupId + '"]').css('filter', 'initial');
         $('.repos-list-group-select-all-btns[group-id="' + groupId + '"]').find('input[type="checkbox"]').prop('checked', true);
 
     /**
@@ -270,55 +389,9 @@ $(document).on('click',".repos-list-group-select-all-btns",function () {
         // Make sure the 'Select latest snapshots' button is hidden and its checkbox is unchecked
         $('.repos-list-group-select-all-btns[group-id="' + groupId + '"]').hide();
         $('.repos-list-group-select-all-btns[group-id="' + groupId + '"]').css('opacity', '');
+        $('.repos-list-group-select-all-btns[group-id="' + groupId + '"]').css('filter', '');
         $('.repos-list-group-select-all-btns[group-id="' + groupId + '"]').find('input[type="checkbox"]').prop('checked', false);
     }
-});
-
-/**
- *  Event: Click on an action button
- */
-$(document).on('click',".repo-action-btn",function () {
-    var repos = [];
-
-    /**
-     *  Hide all tasks buttons
-     */
-    $('#repo-actions-btn-container').hide();
-
-    /**
-     *  Retrive the selected action
-     */
-    var action = $(this).attr('action');
-
-    /**
-     *  Loop through all checked repos and retrieve their id
-     */
-    $('.reposList').find('input[name=checkbox-repo]:checked').each(function () {
-        var obj = {};
-
-        /**
-         *  Retrieving the repo id and status
-         */
-        obj['repo-id'] = $(this).attr('repo-id');
-        obj['snap-id'] = $(this).attr('snap-id');
-        obj['env-id'] = $(this).attr('env-id');
-        obj['repo-status'] = $(this).attr('repo-status');
-
-        repos.push(obj);
-    });
-
-    /**
-     *  Execute the selected action
-     */
-    var repos = JSON.stringify(repos);
-
-    /**
-     *  Get the panel and form for the selected action
-     */
-    getPanel('repos/task', {
-        action: action,
-        repos: repos
-    });
 });
 
 /**

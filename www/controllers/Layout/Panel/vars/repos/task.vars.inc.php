@@ -19,7 +19,7 @@ if ($item['action'] == 'update') {
     $slidePanelTitle = 'UPDATE';
 }
 if ($item['action'] == 'env') {
-    $slidePanelTitle = 'NEW ENVIRONMENT';
+    $slidePanelTitle = 'POINT AN ENVIRONMENT';
 }
 if ($item['action'] == 'duplicate') {
     $slidePanelTitle = 'DUPLICATE';

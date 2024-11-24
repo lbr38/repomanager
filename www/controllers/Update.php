@@ -84,10 +84,25 @@ class Update
         $updateFiles = glob($this->sqlQueriesDir . '/*.php');
 
         /**
+         *  Execute always-before file
+         */
+        if (file_exists($this->sqlQueriesDir . '/_always-before.php')) {
+            $this->model->updateDB($this->sqlQueriesDir . '/_always-before.php');
+        }
+
+        /**
          *  For each files found execute its queries
          */
         if (!empty($updateFiles)) {
             foreach ($updateFiles as $updateFile) {
+                /**
+                 *  Ignore always-before and always-after files as they are special files that
+                 *  are executed before and after all other update files
+                 */
+                if (in_array(basename($updateFile), ['_always-before.php', '_always-after.php'])) {
+                    continue;
+                }
+
                 if (file_exists($updateFile)) {
                     /**
                      *  Get target version from filename
@@ -111,6 +126,13 @@ class Update
                     }
                 }
             }
+        }
+
+        /**
+         *  Execute always-after file
+         */
+        if (file_exists($this->sqlQueriesDir . '/_always-after.php')) {
+            $this->model->updateDB($this->sqlQueriesDir . '/_always-after.php');
         }
     }
 }
