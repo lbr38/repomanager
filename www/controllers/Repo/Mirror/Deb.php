@@ -231,8 +231,8 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             /**
              *  Then check that the Packages.xx file's checksum matches the one that what specified in Release file
              */
-            if (hash_file('sha256', $this->workingDir . '/' . $packageIndicesName) !== $packageIndicesChecksum) {
-                $this->logError('<code>' . $packageIndicesName . '</code> indices file\'s SHA256 checksum does not match the SHA256 checksum specified in the <code>Release</code> file ' . $packageIndicesChecksum, 'Could not verify <code>Packages</code> indices file');
+            if (!$this->checksum($this->workingDir . '/' . $packageIndicesName, $packageIndicesChecksum)) {
+                $this->logError('<code>' . $packageIndicesName . '</code> indices file\'s checksum does not match the checksum specified in the <code>Release</code> file ' . $packageIndicesChecksum, 'Could not verify <code>Packages</code> indices file');
             }
 
             /**
@@ -333,8 +333,8 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             /**
              *  Then check that the Sources.xx file's checksum matches the one that what specified in Release file
              */
-            if (hash_file('sha256', $this->workingDir . '/' . $sourcesIndicesName) !== $sourcesIndexChecksum) {
-                $this->logError('<code>' . $sourcesIndicesName . '</code> indices file\'s SHA256 checksum does not match the SHA256 checksum specified in the <code>Release</code> file ' . $packageIndicesChecksum, 'Could not verify <code>Packages</code> indices file');
+            if (!$this->checksum($this->workingDir . '/' . $sourcesIndicesName, $sourcesIndexChecksum)) {
+                $this->logError('<code>' . $sourcesIndicesName . '</code> indices file\'s checksum does not match the checksum specified in the <code>Release</code> file ' . $packageIndicesChecksum, 'Could not verify <code>Packages</code> indices file');
             }
 
             /**
@@ -740,8 +740,10 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  Check if file does not already exists before downloading it (e.g. copied from a previously snapshot)
              */
             if (file_exists($absoluteDir . '/' . $debPackageName)) {
-                $this->logOK('Already exists (ignoring)');
-                continue;
+                if ($this->checksum($absoluteDir . '/' . $debPackageName, $debPackageChecksum)) {
+                    $this->logOK('Already exists (ignoring)');
+                    continue;
+                }
             }
 
             /**
@@ -773,8 +775,8 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             /**
              *  Check that downloaded deb package's sha256 matches the sha256 specified by the Packages file
              */
-            if (hash_file('sha256', $absoluteDir . '/' . $debPackageName) != $debPackageChecksum) {
-                $this->logError('Checksum of the downloaded package does not match the checksum indicated by the source repository metadata (tested sha256)', 'Error while retrieving packages');
+            if (!$this->checksum($absoluteDir . '/' . $debPackageName, $debPackageChecksum)) {
+                $this->logError('Checksum of the downloaded package does not match the checksum indicated by the source repository metadata', 'Error while retrieving packages');
             }
 
             /**
@@ -851,8 +853,10 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  Check if file does not already exists before downloading it (e.g. copied from a previously snapshot)
              */
             if (file_exists($absoluteDir . '/' . $sourcePackageName)) {
-                $this->logOK('Already exists (ignoring)');
-                continue;
+                if ($this->checksum($absoluteDir . '/' . $sourcePackageName, $sourcePackageMd5)) {
+                    $this->logOK('Already exists (ignoring)');
+                    continue;
+                }
             }
 
             /**
@@ -866,7 +870,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  Check that downloaded source package's md5 matches the md5sum specified by the Sources indices file
              */
             if (md5_file($absoluteDir . '/' . $sourcePackageName) != $sourcePackageMd5) {
-                $this->logError('MD5 sum of the file does not match ' . $sourcePackageMd5, 'Error while retrieving sources packages');
+                $this->logError('Checksum of the file does not match ' . $sourcePackageMd5, 'Error while retrieving sources packages');
             }
 
             /**

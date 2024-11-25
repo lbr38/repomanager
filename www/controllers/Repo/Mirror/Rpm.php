@@ -38,14 +38,9 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
 
         /**
          *  Check that downloaded file checksum is the same as the provided checksum from repomd.xml
-         *  Try with sha512, sha256 then sha1
          */
-        if (hash_file('sha512', $this->workingDir . '/primary.xml.gz') != $this->primaryChecksum) {
-            if (hash_file('sha256', $this->workingDir . '/primary.xml.gz') != $this->primaryChecksum) {
-                if (hash_file('sha1', $this->workingDir . '/primary.xml.gz') != $this->primaryChecksum) {
-                    $this->logError('<code>primary.xml.gz</code> checksum does not match provided checksum');
-                }
-            }
+        if (!$this->checksum($this->workingDir . '/primary.xml.gz', $this->primaryChecksum)) {
+            $this->logError('<code>primary.xml.gz</code> checksum does not match provided checksum');
         }
 
         $this->logOK('Done');
@@ -72,14 +67,9 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
 
         /**
          *  Check that downloaded file checksum is the same as the provided checksum from repomd.xml
-         *  Try with sha512, sha256 then sha1
          */
-        if (hash_file('sha512', $this->workingDir . '/comps.xml') != $this->compsChecksum) {
-            if (hash_file('sha256', $this->workingDir . '/comps.xml') != $this->compsChecksum) {
-                if (hash_file('sha1', $this->workingDir . '/comps.xml') != $this->compsChecksum) {
-                    $this->logError('<code>comps.xml</code> checksum does not match provided checksum');
-                }
-            }
+        if (!$this->checksum($this->workingDir . '/comps.xml', $this->compsChecksum)) {
+            $this->logError('<code>comps.xml</code> checksum does not match provided checksum');
         }
 
         $this->logOK('Done');
@@ -130,14 +120,9 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
 
         /**
          *  Check that downloaded file checksum is the same as the provided checksum from repomd.xml
-         *  Try with sha512, sha256 then sha1
          */
-        if (hash_file('sha512', $this->workingDir . '/' . $modulesFileTargetName) != $this->modulesChecksum) {
-            if (hash_file('sha256', $this->workingDir . '/' . $modulesFileTargetName) != $this->modulesChecksum) {
-                if (hash_file('sha1', $this->workingDir . '/' . $modulesFileTargetName) != $this->modulesChecksum) {
-                    $this->logError('<code>' . $modulesFileTargetName . '</code> checksum does not match provided checksum');
-                }
-            }
+        if (!$this->checksum($this->workingDir . '/' . $modulesFileTargetName, $this->modulesChecksum)) {
+            $this->logError('<code>' . $modulesFileTargetName . '</code> checksum does not match provided checksum');
         }
 
         /**
@@ -228,14 +213,9 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
 
         /**
          *  Check that downloaded file checksum is the same as the provided checksum from repomd.xml
-         *  Try with sha512, sha256 then sha1
          */
-        if (hash_file('sha512', $this->workingDir . '/' . $updateInfoFileTargetName) != $this->updateInfoChecksum) {
-            if (hash_file('sha256', $this->workingDir . '/' . $updateInfoFileTargetName) != $this->updateInfoChecksum) {
-                if (hash_file('sha1', $this->workingDir . '/' . $updateInfoFileTargetName) != $this->updateInfoChecksum) {
-                    $this->logError('<code>' . $updateInfoFileTargetName . '</code> checksum does not match provided checksum');
-                }
-            }
+        if (!$this->checksum($this->workingDir . '/' . $updateInfoFileTargetName, $this->updateInfoChecksum)) {
+            $this->logError('<code>' . $updateInfoFileTargetName . '</code> checksum does not match provided checksum');
         }
 
         /**
@@ -761,8 +741,10 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              *  Check if file does not already exists before downloading it (e.g. copied from a previously snapshot)
              */
             if (file_exists($absoluteDir . '/' . $rpmPackageName)) {
-                $this->logOK('Already exists (ignoring)');
-                continue;
+                if ($this->checksum($absoluteDir . '/' . $rpmPackageName, $rpmPackageChecksum)) {
+                    $this->logOK('Already exists (ignoring)');
+                    continue;
+                }
             }
 
             /**
@@ -793,12 +775,9 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
 
             /**
              *  Check that downloaded rpm package matches the checksum specified by the primary.xml file
-             *  Try with sha256 then sha1
              */
-            if (hash_file('sha256', $absoluteDir . '/' . $rpmPackageName) != $rpmPackageChecksum) {
-                if (hash_file('sha1', $absoluteDir . '/' . $rpmPackageName) != $rpmPackageChecksum) {
-                    $this->logError('Checksum of the downloaded package does not match the checksum indicated by the source repository metadata (tested sha256 and sha1)', 'Error while retrieving packages');
-                }
+            if (!$this->checksum($absoluteDir . '/' . $rpmPackageName, $rpmPackageChecksum)) {
+                $this->logError('Checksum of the downloaded package does not match the checksum indicated by the source repository metadata (tested sha512, sha256 and sha1)', 'Error while retrieving packages');
             }
 
             /**

@@ -184,7 +184,7 @@ class Mirror
             if ($currentRetry != $retries) {
                 $currentRetry++;
                 $this->logWarning('Curl error (' . curl_errno($this->curlHandle) . '): ' . curl_error($this->curlHandle));
-                $this->logOutput('<span class="opacity-80-cst">Retrying (' . $currentRetry . '/' . $retries . ') ... </span>');
+                $this->logNote('Retrying (' . $currentRetry . '/' . $retries . ') ...');
                 continue;
             }
 
@@ -297,6 +297,28 @@ class Mirror
     public function logWarning(string $message)
     {
         $this->logOutput('<img src="/assets/icons/warning.svg" class="icon margin-right-5 vertical-align-text-top" /><span class="yellowtext">' . $message . '</span><br>');
+    }
+
+    /**
+     *  Check if a file has the expected checksum
+     */
+    protected function checksum(string $file, string $expectedChecksum)
+    {
+        /**
+         *  Check if expected checksum matches the file checksum
+         *  Try with sha512, sha256, sha1, then md5
+         */
+        if (hash_file('sha512', $file) != $expectedChecksum) {
+            if (hash_file('sha256', $file) != $expectedChecksum) {
+                if (hash_file('sha1', $file) != $expectedChecksum) {
+                    if (hash_file('md5', $file) != $expectedChecksum) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
     /**

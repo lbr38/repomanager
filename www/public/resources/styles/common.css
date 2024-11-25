@@ -954,6 +954,7 @@ textarea {
     display: flex;
     justify-content: center;
     align-items: center;
+    column-gap: 5px;
     position: absolute;
     top: 0;
     left: 0;
