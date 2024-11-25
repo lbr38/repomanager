@@ -42,6 +42,10 @@
     background-color: #182b3e;
     padding: 15px;
 }
+.getPackagesDiv p, .signRepoDiv p, .createRepoDiv p {
+    word-break: break-word;
+
+}
 .getPackagesDiv span, .signRepoDiv span, .createRepoDiv span {
     line-height: 2 !important;
 }

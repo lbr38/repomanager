@@ -11,11 +11,14 @@ repositories:
       - name: 15.6
         description: OpenSUSE Leap 15.6
         gpgkeys:
-          - link: http://download.opensuse.org/distribution/leap/15.6/repo/oss/repodata/repomd.xml.key
+          - fingerprint: 7F009157B127B994D5CFBE76F74F09BC3FA1D6CE
+          - fingerprint: F044C2C507A1262B538AAADD8A49EB0325DB7AE0
+          - fingerprint: FEAB502539D846DB2C0961CA70AF9E8139DB7C82
       - name: 15.5
         description: OpenSUSE Leap 15.5
         gpgkeys:
           - link: http://download.opensuse.org/distribution/leap/15.5/repo/oss/repodata/repomd.xml.key
+          - fingerprint: F044C2C507A1262B538AAADD8A49EB0325DB7AE0
       - name: 15.4
         description: OpenSUSE Leap 15.4
         gpgkeys:
