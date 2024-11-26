@@ -197,4 +197,12 @@
             <?php
         endif ?>
     </div>
+
+    <div class="flex justify-space-between margin-top-15">
+        <?php
+        /**
+         *  Print access logs
+         */
+        \Controllers\Layout\Table\Render::render('stats/ip-access'); ?>
+    </div>
 </section>

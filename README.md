@@ -14,11 +14,11 @@ Designed for an enterprise usage and to help deployment of packages updates on l
 - Schedule tasks
 - ...
 
-![alt text](https://github.com/lbr38/repomanager/assets/54670129/1cc4e053-cd74-4744-8f6b-f78fa1eef1cb)
-![alt text](https://github.com/lbr38/repomanager/assets/54670129/250f2fa3-349d-4fbb-bd1c-dd5ae7556fa4)
-![alt text](https://github.com/lbr38/repomanager/assets/54670129/8b2ad760-95a7-4735-bd88-f8630b1e4060)
-![alt text](https://github.com/lbr38/repomanager/assets/54670129/774b7f52-6972-4aeb-8723-77c64b7afeaf)
-![alt text](https://github.com/lbr38/repomanager/assets/54670129/38a325dd-22a9-4785-a8fd-7273bc97d047)
+![alt text](https://github.com/user-attachments/assets/ba69056e-97cd-4e69-a3bb-7f1cc1d79cac)
+![alt text](https://github.com/user-attachments/assets/873e502a-7745-453f-b6b7-c9f06d2f91a7)
+![alt text](https://github.com/user-attachments/assets/ed169e95-3b3e-4eda-904a-ef49e039d19a)
+![alt text](https://github.com/user-attachments/assets/3e409d30-a17f-494d-b817-d5f840ce14bb)
+![alt text](https://github.com/user-attachments/assets/71cbcbb9-cce0-49d5-9499-521879fb065d)
 
 <h2>Requirements</h2>
 

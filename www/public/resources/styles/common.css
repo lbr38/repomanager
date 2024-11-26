@@ -191,7 +191,8 @@ pre.codeblock {
 .justify-items-center{justify-items: center}
 .align-content-center {align-content: center}
 .align-content-right {align-content: flex-end}
-.align-item-start, .align-flex-start {align-items: flex-start}
+.align-item-start {align-items: start !important}
+.align-flex-start {align-items: flex-start !important}
 .align-item-center {align-items: center}
 .align-item-right, .align-flex-end {align-items: flex-end}
 .align-self-center{align-self: center}

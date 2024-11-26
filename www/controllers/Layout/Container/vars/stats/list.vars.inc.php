@@ -121,11 +121,10 @@ while ($dateCounter != date('Y-m-d', strtotime('+1 day', strtotime(DATE_YMD)))) 
         $dateAccessCount = $mystats->getDailyAccessCount('deb', $myrepo->getName(), $myrepo->getDist(), $myrepo->getSection(), $myrepo->getEnv(), $dateCounter);
     }
 
-    if (!empty($dateAccessCount)) {
-        $repoAccessChartData .= $dateAccessCount . ', ';
-    } else {
-        $repoAccessChartData .= '0, ';
-    }
+    /**
+     *  Add the current count to the data
+     */
+    $repoAccessChartData .= $dateAccessCount . ', ';
 
     /**
      *  Add the current date to the labels

@@ -73,6 +73,9 @@ if (__ACTUAL_URI__[1] == 'settings') {
 if (__ACTUAL_URI__[1] == 'run') {
     $jsFiles = ['run'];
 }
+if (__ACTUAL_URI__[1] == 'history') {
+    $jsFiles = ['events/history/actions'];
+}
 if (__ACTUAL_URI__[1] == 'cves') {
     $jsFiles = ['cve'];
 }

@@ -16,13 +16,27 @@ class History extends Model
 
     /**
      *  Retrieve all history
+     *  It is possible to add an offset to the request
      */
-    public function getAll()
+    public function getAll(bool $withOffset = false, int $offset = 0)
     {
         $datas = array();
 
         try {
-            $result = $this->db->query("SELECT history.Id, history.Date, history.Time, history.Action, history.State, users.First_name, users.Last_name, users.Username FROM history JOIN users ON history.Id_user = users.Id ORDER BY Date DESC, Time DESC");
+            $query = "SELECT history.Id, history.Date, history.Time, history.Action, history.State, users.First_name, users.Last_name, users.Username
+            FROM history JOIN users ON history.Id_user = users.Id
+            ORDER BY Date DESC, Time DESC";
+
+            /**
+             *  Add offset if needed
+             */
+            if ($withOffset === true) {
+                $query .= " LIMIT 10 OFFSET :offset";
+            }
+
+            $stmt = $this->db->prepare($query);
+            $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
+            $result = $stmt->execute();
         } catch (\Exception $e) {
             $this->db->logError($e);
             return;
@@ -37,14 +51,28 @@ class History extends Model
 
     /**
      *  Retrieve all history from a user
+     *  It is possible to add an offset to the request
      */
-    public function getByUser(int $userId)
+    public function getByUserId(int $id, bool $withOffset = false, int $offset = 0)
     {
         $datas = array();
 
         try {
-            $stmt = $this->db->prepare("SELECT history.Id, history.Date, history.Time, history.Action, history.State, users.First_name, users.Last_name, users.Username FROM history JOIN users ON history.Id_user = users.Id WHERE history.Id_user = :userid ORDER BY Date DESC, Time DESC");
-            $stmt->bindValue(':userid', $userId);
+            $query = "SELECT history.Id, history.Date, history.Time, history.Action, history.State, users.First_name, users.Last_name, users.Username
+            FROM history JOIN users ON history.Id_user = users.Id
+            WHERE history.Id_user = :id
+            ORDER BY Date DESC, Time DESC";
+
+            /**
+             *  Add offset if needed
+             */
+            if ($withOffset === true) {
+                $query .= " LIMIT 10 OFFSET :offset";
+            }
+
+            $stmt = $this->db->prepare($query);
+            $stmt->bindValue(':id', $id);
+            $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
             $result = $stmt->execute();
         } catch (\Exception $e) {
             $this->db->logError($e);
