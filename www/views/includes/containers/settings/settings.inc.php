@@ -49,6 +49,10 @@
             <p class="note">Specify the proxy URL to use to access the internet. e.g. https://myproxy.com:8080</p>
             <input class="settings-param" param-name="proxy" type="text" value="<?= PROXY ?>" placeholder="https://">
 
+            <h6>SET NOPROXY LIST</h6>
+            <p class="note">Specify list of Hostnames and IPs which should not be sent through the proxy. e.g. "*.example.com,example.com,::1,127.0.0.0/8"</p>
+            <input class="settings-param" param-name="noproxy" type="text" value="<?= NOPROXY ?>" placeholder="127.0.0.0/8">
+
             <h6 class="required">TASK EXECUTION MEMORY LIMIT (in MB)</h6>
             <p class="note">Set PHP memory limit for tasks execution. It is recommended to set this value to a higher value when mirroring large repositories.</p>
             <input class="settings-param" param-name="task-execution-memory-limit" type="number" min="2" value="<?= TASK_EXECUTION_MEMORY_LIMIT ?>" placeholder="default is 512">

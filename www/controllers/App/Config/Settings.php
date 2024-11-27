@@ -101,6 +101,14 @@ class Settings
             }
         }
 
+        if (!defined('NOPROXY')) {
+            if (!empty($settings['NOPROXY'])) {
+                define('NOPROXY', $settings['NOPROXY']);
+            } else {
+                define('NOPROXY', '');
+            }
+        }
+
         if (!defined('TASK_EXECUTION_MEMORY_LIMIT')) {
             if (!empty($settings['TASK_EXECUTION_MEMORY_LIMIT'])) {
                 define('TASK_EXECUTION_MEMORY_LIMIT', $settings['TASK_EXECUTION_MEMORY_LIMIT']);

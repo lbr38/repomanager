@@ -542,6 +542,7 @@ class Common
              */
             if (!empty(PROXY)) {
                 curl_setopt($ch, CURLOPT_PROXY, PROXY);
+                curl_setopt($ch, CURLOPT_NOPROXY, NOPROXY);
             }
 
             /**

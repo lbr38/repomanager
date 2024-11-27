@@ -74,6 +74,12 @@ class Settings
             $settingsToApply['PROXY'] = '';
         }
 
+        if (!empty($sendSettings['noproxy'])) {
+            $settingsToApply['NOPROXY'] = \Controllers\Common::validateData($sendSettings['noproxy']);
+        } else {
+            $settingsToApply['NOPROXY'] = '';
+        }
+
         if (!empty($sendSettings['task-execution-memory-limit']) and is_numeric($sendSettings['task-execution-memory-limit']) and $sendSettings['task-execution-memory-limit'] > 2) {
             $settingsToApply['TASK_EXECUTION_MEMORY_LIMIT'] = \Controllers\Common::validateData($sendSettings['task-execution-memory-limit']);
         }
