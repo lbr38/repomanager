@@ -347,7 +347,7 @@ function getContainerState()
  * @param {*} table
  * @param {*} offset
  */
-function reloadTable(table, offset)
+function reloadTable(table, offset = 0)
 {
     printLoading();
 

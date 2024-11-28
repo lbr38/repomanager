@@ -194,7 +194,10 @@
                     echo '<p class="note">No logs for now.</p>';
                 }
 
-                if (!empty($logFiles)) : ?>
+                if (!empty($logFiles)) :
+                    // Sort logs in reverse order
+                    rsort($logFiles); ?>
+
                     <p class="note">Select a log file to view.</p>
                     <div class="flex align-item-center column-gap-10">
                         <select id="websocket-log-select">

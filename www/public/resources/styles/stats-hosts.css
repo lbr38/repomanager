@@ -37,7 +37,7 @@ td:last-child {
 }
 
 .stats-access-request {
-    grid-template-columns: 1% 10% 20% auto;
+    grid-template-columns: 1% 15% 20% auto;
 }
 
 .chart-loading {

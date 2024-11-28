@@ -15,20 +15,20 @@ class History
 
     /**
      *  Retrieve all history
+     *  It is possible to add an offset to the request
      */
-    public function getAll()
+    public function getAll(bool $withOffset = false, int $offset = 0)
     {
-        return $this->model->getAll();
+        return $this->model->getAll($withOffset, $offset);
     }
 
     /**
      *  Retrieve all history from a user
+     *  It is possible to add an offset to the request
      */
-    public function getByUser(int $userId)
+    public function getByUserId(int $id, bool $withOffset = false, int $offset = 0)
     {
-        $userId = \Controllers\Common::validateData($userId);
-
-        return $this->model->getByUser($userId);
+        return $this->model->getByUserId($id, $withOffset, $offset);
     }
 
     /**

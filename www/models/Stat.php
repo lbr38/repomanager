@@ -268,11 +268,11 @@ class Stat extends Model
     {
         try {
             if ($type == 'deb') {
-                $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM access_deb
+                $stmt = $this->db->prepare("SELECT COUNT(Id) as Count FROM access_deb
                 WHERE Name = :name AND Dist = :dist AND Section = :section AND Env = :env AND Date = :date");
             }
             if ($type == 'rpm') {
-                $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM access_rpm
+                $stmt = $this->db->prepare("SELECT COUNT(Id) as Count FROM access_rpm
                 WHERE Name = :name AND Env = :env AND Date = :date");
             }
 
@@ -289,8 +289,54 @@ class Stat extends Model
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            return $row['count'];
+            return $row['Count'];
         }
+    }
+
+    /**
+     *  Get the total number of access requests to the specified repo/section, on a given date, by IP
+     *  It is possible to add an offset to the request
+     */
+    public function getAccessIpCount(string $type, string $name, string|null $dist, string|null $section, string $env, string $date, bool $withOffset, int $offset)
+    {
+        $data = [];
+
+        try {
+            if ($type == 'deb') {
+                $query = "SELECT Source, IP, COUNT(*) as Count FROM access_deb WHERE Name = :name AND Dist = :dist AND Section = :section AND Env = :env AND Date = :date";
+            }
+            if ($type == 'rpm') {
+                $query = "SELECT Source, IP, COUNT(*) as Count FROM access_rpm WHERE Name = :name AND Env = :env AND Date = :date";
+            }
+            $query .= " GROUP BY IP ORDER BY Count DESC";
+
+             /**
+             *  If offset is specified
+             */
+            if ($withOffset) {
+                $query .= " LIMIT 10 OFFSET :offset";
+            }
+
+            $stmt = $this->db->prepare($query);
+
+            if ($type == 'deb') {
+                $stmt->bindValue(':dist', $dist);
+                $stmt->bindValue(':section', $section);
+            }
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':env', $env);
+            $stmt->bindValue(':date', $date);
+            $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            $this->db->logError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return $data;
     }
 
     /**

@@ -56,6 +56,15 @@ class Stat
     }
 
     /**
+     *  Get the total number of access requests to the specified repo/section, on a given date, by IP
+     *  It is possible to add an offset to the request
+     */
+    public function getAccessIpCount(string $type, string $name, string|null $dist = null, string|null $section = null, string $env, string $date, bool $withOffset = false, int $offset = 0)
+    {
+        return $this->model->getAccessIpCount($type, $name, $dist, $section, $env, $date, $withOffset, $offset);
+    }
+
+    /**
      *  Ajoute de nouvelles statistiques à la table stats
      */
     public function add(string $date, string $time, string $repoSize, string $packagesCount, string $envId)

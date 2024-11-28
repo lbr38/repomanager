@@ -332,7 +332,7 @@
                         <?php
                         // Print each package with its version and log
                         foreach ($successPackages as $package => $details) : ?>
-                            <div class="flex align-item-start column-gap-5">
+                            <div class="flex align-flex-start column-gap-5">
                                 <?= \Controllers\Common::printProductIcon($package) ?>
                                 <p class="wordbreakall copy"><?= $package ?></p>
                             </div>
@@ -362,7 +362,7 @@
                         <?php
                         // Print each package with its version and log
                         foreach ($failedPackages as $package => $details) : ?>
-                            <div class="flex align-item-start column-gap-5">
+                            <div class="flex align-flex-start column-gap-5">
                                 <?= \Controllers\Common::printProductIcon($package) ?>
                                 <p class="wordbreakall copy"><?= $package ?></p>
                             </div>

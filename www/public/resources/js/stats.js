@@ -43,3 +43,16 @@ $(".repo-access-chart-filter-button").click(function () {
         $(".chart-loading").remove();
     });
 });
+
+/**
+ *  Event: select ip access date
+ */
+$(document).on('change', '#ip-access-date-input', function () {
+    var date = $(this).val();
+
+    // Add a cookie with the selected date for the table to display the right data
+    setCookie('tables/stats/ip-access/date', date, 1);
+
+    // Then reload table
+    reloadTable('stats/ip-access');
+});
