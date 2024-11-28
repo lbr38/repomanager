@@ -511,6 +511,7 @@ class Connection extends SQLite3
         TIMEZONE VARCHAR(255),
         EMAIL_RECIPIENT VARCHAR(255),
         PROXY VARCHAR(255),
+        NOPROXY VARCHAR(255),
         TASK_EXECUTION_MEMORY_LIMIT INTEGER,
         /* Repo settings */
         RETENTION INTEGER,
