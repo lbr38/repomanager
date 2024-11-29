@@ -12,11 +12,6 @@
         https://wiki.archlinux.org/title/DeveloperWiki:NewMirrors
 
 
-    [ TASKS ]
-
-    - Use standard websocket client to update tasks log output https://github.com/websockets/ws
-
-
     [ CVE ]
 
     - Check for affected hosts when sending packages with linupdate

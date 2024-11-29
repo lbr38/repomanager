@@ -752,14 +752,14 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              */
             if (isset($this->previousSnapshotDirPath)) {
                 if (file_exists($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName)) {
-                    $this->logOK('Linked to previous snapshot');
-
                     /**
                      *  Create hard link to the package
                      */
                     if (!link($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName, $absoluteDir . '/' . $debPackageName)) {
                         $this->logError('Cannot create hard link to package: ' . $this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName, 'Error while creating hard link');
                     }
+
+                    $this->logOK('Linked to previous snapshot');
 
                     continue;
                 }
@@ -850,13 +850,12 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             }
 
             /**
-             *  Check if file does not already exists before downloading it (e.g. copied from a previously snapshot)
+             *  Check if file does not already exists in the working dir before downloading it (e.g. when a package has multiple possible archs, it can have
+             *  been downloaded or linked already from another arch)
              */
             if (file_exists($absoluteDir . '/' . $sourcePackageName)) {
-                if ($this->checksum($absoluteDir . '/' . $sourcePackageName, $sourcePackageMd5)) {
-                    $this->logOK('Already exists (ignoring)');
-                    continue;
-                }
+                $this->logOK('Already exists (ignoring)');
+                continue;
             }
 
             /**

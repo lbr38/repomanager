@@ -351,7 +351,7 @@ class Log
      */
     public function logBuilder(int $taskId, string $logFile)
     {
-        $mylayoutContainer = new \Controllers\Layout\ContainerState();
+        $mylayoutContainer = new \Controllers\Layout\ContainerReload();
 
         /**
          *  While the "completed" file doesn't exist in the temporary directory, we rewrite the main log file to make sure it's up to date
@@ -362,7 +362,7 @@ class Log
             /**
              *  Make the following container refreshable by the client
              */
-            $mylayoutContainer->update('tasks/log');
+            $mylayoutContainer->reload('tasks/log');
 
             sleep(1);
         }
@@ -375,7 +375,7 @@ class Log
         /**
          *  Make the following container refreshable by the client
          */
-        $mylayoutContainer->update('tasks/log');
+        $mylayoutContainer->reload('tasks/log');
 
         /**
          *  Clean temporary directory

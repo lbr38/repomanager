@@ -9,7 +9,7 @@ require_once(ROOT . '/controllers/Autoloader.php');
 new \Controllers\Autoloader('minimal');
 
 try {
-    $databases = array('main', 'stats', 'hosts');
+    $databases = array('main', 'stats', 'hosts', 'ws');
 
     /**
      *  Open a connection to each database and create tables if they do not exist

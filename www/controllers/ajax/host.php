@@ -85,10 +85,10 @@ if ($action == "executeAction" and !empty($_POST['exec']) and !empty($_POST['hos
  *  Show request log details
  */
 if ($action == "getRequestLog" and !empty($_POST['id'])) {
-    $myhost = new \Controllers\Host();
+    $hostRequestController = new \Controllers\Host\Request();
 
     try {
-        $content = $myhost->getRequestLog($_POST['id']);
+        $content = $hostRequestController->getRequestLog($_POST['id']);
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
@@ -100,10 +100,10 @@ if ($action == "getRequestLog" and !empty($_POST['id'])) {
  *  Show request package log details
  */
 if ($action == "getRequestPackageLog" and !empty($_POST['id']) and !empty($_POST['package']) and !empty($_POST['status'])) {
-    $myhost = new \Controllers\Host();
+    $hostRequestController = new \Controllers\Host\Request();
 
     try {
-        $content = $myhost->getRequestPackageLog($_POST['id'], $_POST['package'], $_POST['status']);
+        $content = $hostRequestController->getRequestPackageLog($_POST['id'], $_POST['package'], $_POST['status']);
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
@@ -115,10 +115,10 @@ if ($action == "getRequestPackageLog" and !empty($_POST['id']) and !empty($_POST
  *  Cancel a request sent to a host
  */
 if ($action == "cancelRequest" and !empty($_POST['id'])) {
-    $myhost = new \Controllers\Host();
+    $hostRequestController = new \Controllers\Host\Request();
 
     try {
-        $myhost->cancelWsRequest($_POST['id']);
+        $hostRequestController->cancel($_POST['id']);
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }

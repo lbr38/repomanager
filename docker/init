@@ -39,6 +39,9 @@ fi
 /bin/su -s /bin/bash -c "/usr/bin/php $WWW_DIR/tools/database/initialize.php" www-data
 /bin/su -s /bin/bash -c "/usr/bin/php $WWW_DIR/tools/database/update.php" www-data
 
+# Start shell service in background
+/bin/bash "$WWW_DIR/bin/service" &
+
 # Start repomanager service
 /bin/su -s /bin/bash -c "/usr/bin/php $WWW_DIR/tools/service.php" www-data
 

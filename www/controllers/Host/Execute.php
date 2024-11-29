@@ -3,10 +3,16 @@
 namespace Controllers\Host;
 
 use Exception;
-use Datetime;
 
-class Execute extends \Controllers\Host
+class Execute
 {
+    private $hostRequestController;
+
+    public function __construct()
+    {
+        $this->hostRequestController = new \Controllers\Host\Request();
+    }
+
     /**
      *  Update selected available packages on a host
      */
@@ -22,7 +28,7 @@ class Execute extends \Controllers\Host
         /**
          *  Add a new request to the database
          */
-        $this->newWsRequest($hostId, 'request-packages-update', $packages);
+        $this->hostRequestController->new($hostId, 'request-packages-update', $packages);
     }
 
     /**
@@ -55,7 +61,7 @@ class Execute extends \Controllers\Host
     //      *  Add a new request to the database, for each host
     //      */
     //     foreach ($params['hosts'] as $hostId) {
-    //         $this->newWsRequest($hostId, 'request-packages-installation', $params['packages']);
+    //         $this->hostRequestController->new($hostId, 'request-packages-installation', $params['packages']);
     //     }
     // }
 
@@ -142,7 +148,7 @@ class Execute extends \Controllers\Host
         foreach ($params['hosts'] as $hostId) {
             // Case of all packages
             if ($params['update-type'] == 'all') {
-                $this->newWsRequest(
+                $this->hostRequestController->new(
                     $hostId,
                     'request-all-packages-update',
                     array(
@@ -158,7 +164,7 @@ class Execute extends \Controllers\Host
 
             // Case of specific packages
             if ($params['update-type'] == 'specific') {
-                $this->newWsRequest(
+                $this->hostRequestController->new(
                     $hostId,
                     'request-packages-update',
                     array(

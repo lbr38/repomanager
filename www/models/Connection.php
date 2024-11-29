@@ -88,6 +88,12 @@ class Connection extends SQLite3
                 $this->enableExceptions(true);
                 $this->enableWAL();
                 $this->generateHostTables();
+            } elseif ($database == 'ws') {
+                $this->open(WS_DB);
+                $this->busyTimeout(30000);
+                $this->enableExceptions(true);
+                $this->enableWAL();
+                $this->generateWsTables();
 
             /**
              *  Case where database is not 'main', 'stats', 'hosts' or 'host'
@@ -178,8 +184,7 @@ class Connection extends SQLite3
     public function countHostsTables()
     {
         $result = $this->query("SELECT name FROM sqlite_master WHERE type='table'
-        and name='ws_connections'
-        OR name='ws_requests'
+        and name='requests'
         OR name='hosts'
         OR name='groups'
         OR name='group_members'
@@ -241,7 +246,7 @@ class Connection extends SQLite3
      */
     public function checkHostsTables()
     {
-        $required = 6;
+        $required = 5;
 
         /**
          *  If the number of tables != $required then we try to regenerate the tables
@@ -700,8 +705,7 @@ class Connection extends SQLite3
          *  Generate layout_container_state table if not exists
          */
         $this->exec("CREATE TABLE IF NOT EXISTS layout_container_state (
-        Container VARCHAR(255) NOT NULL,
-        Id INTEGER NOT NULL)");
+        Container VARCHAR(255) NOT NULL)");
     }
 
     /**
@@ -776,17 +780,9 @@ class Connection extends SQLite3
     private function generateHostsTables()
     {
         /**
-         *  ws_connections table
+         *  requests table
          */
-        $this->exec("CREATE TABLE IF NOT EXISTS ws_connections (
-        Connection_id INTEGER,
-        Id_host INTEGER,
-        Authenticated CHAR(5))"); /* true, false */
-
-        /**
-         *  ws_requests table
-         */
-        $this->exec("CREATE TABLE IF NOT EXISTS ws_requests (
+        $this->exec("CREATE TABLE IF NOT EXISTS requests (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Date DATE NOT NULL,
         Time TIME NOT NULL,
@@ -871,14 +867,10 @@ class Connection extends SQLite3
         $this->exec("CREATE INDEX IF NOT EXISTS group_members_index ON group_members (Id_host, Id_group)");
         $this->exec("CREATE INDEX IF NOT EXISTS group_members_id_host_index ON group_members (Id_host)");
         $this->exec("CREATE INDEX IF NOT EXISTS group_members_id_group_index ON group_members (Id_group)");
-        // ws_connections table indexes:
-        $this->exec("CREATE INDEX IF NOT EXISTS ws_connections_authenticated ON ws_connections (Authenticated)");
-        $this->exec("CREATE INDEX IF NOT EXISTS ws_connections_connection_id ON ws_connections (Connection_id)");
-        $this->exec("CREATE INDEX IF NOT EXISTS ws_connections_id_host ON ws_connections (Id_host)");
-        // ws_requests table indexes:
-        $this->exec("CREATE INDEX IF NOT EXISTS ws_requests_id_host ON ws_requests (Id_host)");
-        $this->exec("CREATE INDEX IF NOT EXISTS ws_requests_status ON ws_requests (Status)");
-        $this->exec("CREATE INDEX IF NOT EXISTS ws_requests_date_time ON ws_requests (Date, Time)");
+        // requests table indexes:
+        $this->exec("CREATE INDEX IF NOT EXISTS requests_id_host ON requests (Id_host)");
+        $this->exec("CREATE INDEX IF NOT EXISTS requests_status ON requests (Status)");
+        $this->exec("CREATE INDEX IF NOT EXISTS requests_date_time ON requests (Date, Time)");
     }
 
     /**
@@ -949,6 +941,27 @@ class Connection extends SQLite3
         $this->exec("CREATE INDEX IF NOT EXISTS host_packages_history_name ON packages_history (Name)");
         $this->exec("CREATE INDEX IF NOT EXISTS host_packages_history_state ON packages_history (State)");
         $this->exec("CREATE INDEX IF NOT EXISTS host_packages_history_state_date ON packages_history (State, Date)");
+    }
+
+    /**
+     *  Generate tables in the ws database
+     */
+    public function generateWsTables()
+    {
+        /**
+         *  ws_connections table
+         */
+        $this->exec("CREATE TABLE IF NOT EXISTS ws_connections (
+        Connection_id INTEGER,
+        Type VARCHAR(255),
+        Id_host INTEGER,
+        Authenticated CHAR(5))"); /* true, false */
+
+        // ws_connections table indexes:
+        $this->exec("CREATE INDEX IF NOT EXISTS ws_connections_type ON ws_connections (Type)");
+        $this->exec("CREATE INDEX IF NOT EXISTS ws_connections_authenticated ON ws_connections (Authenticated)");
+        $this->exec("CREATE INDEX IF NOT EXISTS ws_connections_connection_id ON ws_connections (Connection_id)");
+        $this->exec("CREATE INDEX IF NOT EXISTS ws_connections_id_host ON ws_connections (Id_host)");
     }
 
     /**

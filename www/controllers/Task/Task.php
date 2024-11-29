@@ -25,13 +25,13 @@ class Task
 
     private $taskNotifyController;
     private $profileController;
-    private $layoutContainerStateController;
+    private $layoutContainerReloadController;
 
     public function __construct()
     {
         $this->model = new \Models\Task\Task();
         $this->profileController = new \Controllers\Profile();
-        $this->layoutContainerStateController = new \Controllers\Layout\ContainerState();
+        $this->layoutContainerReloadController = new \Controllers\Layout\ContainerReload();
     }
 
     public function getId()
@@ -512,11 +512,11 @@ class Task
         /**
          *  Update layout containers states
          */
-        $this->layoutContainerStateController->update('header/menu');
-        $this->layoutContainerStateController->update('repos/list');
-        $this->layoutContainerStateController->update('tasks/list');
-        $this->layoutContainerStateController->update('browse/list');
-        $this->layoutContainerStateController->update('browse/actions');
+        $this->layoutContainerReloadController->reload('header/menu');
+        $this->layoutContainerReloadController->reload('repos/list');
+        $this->layoutContainerReloadController->reload('tasks/list');
+        $this->layoutContainerReloadController->reload('browse/list');
+        $this->layoutContainerReloadController->reload('browse/actions');
 
         /**
          *  Create the PID file
@@ -612,12 +612,12 @@ class Task
         /**
          *  Update layout containers states
          */
-        $this->layoutContainerStateController->update('header/menu');
-        $this->layoutContainerStateController->update('repos/list');
-        $this->layoutContainerStateController->update('repos/properties');
-        $this->layoutContainerStateController->update('tasks/list');
-        $this->layoutContainerStateController->update('browse/list');
-        $this->layoutContainerStateController->update('browse/actions');
+        $this->layoutContainerReloadController->reload('header/menu');
+        $this->layoutContainerReloadController->reload('repos/list');
+        $this->layoutContainerReloadController->reload('repos/properties');
+        $this->layoutContainerReloadController->reload('tasks/list');
+        $this->layoutContainerReloadController->reload('browse/list');
+        $this->layoutContainerReloadController->reload('browse/actions');
     }
 
     /**
@@ -746,9 +746,9 @@ class Task
         /**
          *  Update layout containers states
          */
-        $this->layoutContainerStateController->update('header/menu');
-        $this->layoutContainerStateController->update('repos/list');
-        $this->layoutContainerStateController->update('tasks/list');
+        $this->layoutContainerReloadController->reload('header/menu');
+        $this->layoutContainerReloadController->reload('repos/list');
+        $this->layoutContainerReloadController->reload('tasks/list');
 
         if (!empty($killError)) {
             throw new Exception($killError);

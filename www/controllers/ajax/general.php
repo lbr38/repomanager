@@ -31,21 +31,6 @@ if ($action == "getContainer" && !empty($_POST['container'])) {
 }
 
 /**
- *  Get all layout containers state
- */
-if ($action == "getContainerState") {
-    $mycontainerState = new \Controllers\Layout\ContainerState();
-
-    try {
-        $result = $mycontainerState->get();
-    } catch (\Exception $e) {
-        response(HTTP_BAD_REQUEST, $e->getMessage());
-    }
-
-    response(HTTP_OK, json_encode($result));
-}
-
-/**
  *  Return specified table content
  */
 if ($action == "getTable" && !empty($_POST['table']) && isset($_POST['offset'])) {
