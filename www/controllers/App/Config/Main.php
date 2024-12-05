@@ -32,6 +32,10 @@ class Main
         if (!defined('HOSTS_DB')) {
             define('HOSTS_DB', DB_DIR . "/repomanager-hosts.db");
         }
+        // Websocket server database
+        if (!defined('WS_DB')) {
+            define('WS_DB', DB_DIR . "/repomanager-ws.db");
+        }
         // GnuPG home
         if (!defined('GPGHOME')) {
             define('GPGHOME', DATA_DIR . "/.gnupg");

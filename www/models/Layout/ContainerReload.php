@@ -4,7 +4,7 @@ namespace Models\Layout;
 
 use Exception;
 
-class ContainerState extends \Models\Model
+class ContainerReload extends \Models\Model
 {
     public function __construct()
     {
@@ -34,26 +34,10 @@ class ContainerState extends \Models\Model
     /**
      *  Add a new layout container state
      */
-    public function add(string $name, string $id)
+    public function add(string $name)
     {
         try {
-            $stmt = $this->db->prepare("INSERT INTO layout_container_state (Container, Id) VALUES (:name, :id)");
-            $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Update a layout container state
-     */
-    public function update(string $name, $id)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE layout_container_state SET Id = :id WHERE Container = :name");
-            $stmt->bindValue(':id', $id);
+            $stmt = $this->db->prepare("INSERT INTO layout_container_state (Container) VALUES (:name)");
             $stmt->bindValue(':name', $name);
             $stmt->execute();
         } catch (\Exception $e) {
@@ -79,5 +63,17 @@ class ContainerState extends \Models\Model
         }
 
         return true;
+    }
+
+    /**
+     *  Clean all containers entries
+     */
+    public function clean()
+    {
+        try {
+            $this->db->exec("DELETE FROM layout_container_state");
+        } catch (\Exception $e) {
+            $this->db->logError($e);
+        }
     }
 }

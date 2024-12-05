@@ -25,9 +25,9 @@ RUN apt-get install findutils iputils-ping git gnupg2 rpm librpmsign9 createrepo
 RUN apt-get install postfix -y
 
 # Add nginx and PHP 8.3 repositories
-RUN curl -sS https://packages.bespin.ovh/repo/gpgkeys/packages.bespin.ovh.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/packages.bespin.ovh.gpg
-RUN echo "deb https://packages.bespin.ovh/repo/repomanager-nginx/bookworm/nginx_prod bookworm nginx" > /etc/apt/sources.list.d/nginx.list
-RUN echo "deb https://packages.bespin.ovh/repo/repomanager-php/bookworm/main_prod bookworm main" > /etc/apt/sources.list.d/php.list
+RUN curl -sS https://packages.repomanager.net/repo/gpgkeys/packages.repomanager.net.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/packages.repomanager.net.gpg
+RUN echo "deb https://packages.repomanager.net/repo/repomanager-nginx/bookworm/nginx_prod bookworm nginx" > /etc/apt/sources.list.d/nginx.list
+RUN echo "deb https://packages.repomanager.net/repo/repomanager-php/bookworm/main_prod bookworm main" > /etc/apt/sources.list.d/php.list
 RUN apt-get update -y
 
 # Install nginx and PHP 8.3

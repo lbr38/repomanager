@@ -9,13 +9,13 @@ class FatalErrorHandler
 {
     private $taskId;
     private $logController;
-    private $layoutContainerStateController;
+    private $layoutContainerReloadController;
     private $reservedMemory;
 
     public function __construct()
     {
         $this->logController = new \Controllers\Log\Log();
-        $this->layoutContainerStateController = new \Controllers\Layout\ContainerState();
+        $this->layoutContainerReloadController = new \Controllers\Layout\ContainerReload();
 
         /**
          *   Keep some memory reserved for fatalHandler() to run even in a memory error state
@@ -62,7 +62,7 @@ class FatalErrorHandler
                     $this->logController->log('error', 'Fatal error occured', $error['message']);
                 }
 
-                $this->layoutContainerStateController->update('header/general-log-messages');
+                $this->layoutContainerReloadController->reload('header/general-log-messages');
 
                 /**
                  *  Exit

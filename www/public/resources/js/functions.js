@@ -1,4 +1,64 @@
 /**
+ *  Open websocket connection with server
+ */
+function websocket_client()
+{
+    const server = window.location.hostname;
+
+    // If the target server uses https, then use wss://
+    if (window.location.protocol == 'https:') {
+        var path = 'wss://' + server + '/ws';
+    } else {
+        var path = 'ws://' + server + '/ws';
+    }
+
+    const socket = new WebSocket(path);
+
+    // Handle connection open
+    socket.onopen = function (event) {
+        console.log('Websocket connection opened at ' + path);
+
+        // Send connection type to server
+        message = JSON.stringify({
+            'connection-type': 'browser-client'
+        });
+
+        sendMessage(message);
+    };
+
+    // Handle received message
+    socket.onmessage = function (event) {
+        // Parse message
+        message = JSON.parse(event.data);
+
+        // If message type is reload-container, then reload container
+        if (message.type == 'reload-container') {
+            reloadContainer(message.container);
+        }
+    };
+
+    // Handle connection close
+    socket.onclose = function (event) {
+        console.log('Websocket connection closed with ' + server);
+
+        // If the connection was closed cleanly
+        if (event.wasClean) {
+            console.log('Websocket connection with ' + server + ' closed (code=' + event.code + ' reason=' + event.reason + ')');
+
+        // If the connection was closed unexpectedly
+        // For example, the server process was killed or network problems occurred
+        } else {
+            console.log('Websocket connection with ' + server + ' closed unexpectedly');
+        }
+    };
+
+    function sendMessage(message)
+    {
+        socket.send(message);
+    }
+}
+
+/**
  * Get panel by name
  * @param {*} name
  */

@@ -273,11 +273,9 @@ class Service
             }
 
             /**
-             *  Start websocket server if manage hosts is enabled
+             *  Start websocket server
              */
-            if ($this->manageHostsEnabled == 'true') {
-                $this->runService('websocket server', 'wss');
-            }
+            $this->runService('websocket server', 'wss');
 
             /**
              *  Parse access logs to generate stats (if enabled)

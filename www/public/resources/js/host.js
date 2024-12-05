@@ -863,7 +863,7 @@ $(document).on('click','.cancel-request-btn',function () {
         // Print error alert:
         true,
         // Reload container:
-        ['host/requests']
+        ['hosts/list', 'host/requests']
     );
 });
 
@@ -924,14 +924,14 @@ $(document).on('mouseenter', '.event-packages-btn', function (e) {
     /**
      *  Create a new <div> event-packages-details
      */
-    $('footer').append('<div class="event-packages-details">Loading<img src="/assets/icons/loading.svg" class="icon"/></div>');
+    $('footer').append('<div class="event-packages-details">Loading <img src="/assets/icons/loading.svg" class="icon"/></div>');
 
     /**
      *  Get screen width
      *  Then reduce the width of screen by 200px to have some margin
      */
     var screenWidth = window.screen.width;
-    screenWidth = screenWidth - 200;
+    screenWidth = screenWidth - 500;
 
     /**
      *  If event-packages-details is outside the screen on the right

@@ -9,7 +9,7 @@ class Host
 {
     protected $host_db; // BDD dédiée de l'hôte
     private $model;
-    private $layoutContainerStateController;
+    private $layoutContainerReloadController;
     private $id;
     private $idArray = array();
     private $ip;
@@ -35,11 +35,8 @@ class Host
 
     public function __construct()
     {
-        /**
-         *  Ouverture de la base de données 'hosts' (repomanager-hosts.db)
-         */
         $this->model = new \Models\Host();
-        $this->layoutContainerStateController = new \Controllers\Layout\ContainerState();
+        $this->layoutContainerReloadController = new \Controllers\Layout\ContainerReload();
     }
 
     public function setId(string $id)
@@ -1136,6 +1133,8 @@ class Host
      */
     public function hostExec(array $hostsId, string $action)
     {
+        $hostRequestController = new \Controllers\Host\Request();
+
         /**
          *  Only admins should be able to perform actions
          */
@@ -1152,16 +1151,16 @@ class Host
             throw new Exception('Action to execute is invalid');
         }
 
-        $hostUpdateError                  = array();
-        $hostUpdateOK                     = array();
-        $hostResetError                   = array();
-        $hostResetOK                      = array();
-        $hostDeleteError                  = array();
-        $hostDeleteOK                     = array();
-        $hostGeneralUpdateError           = array();
-        $hostGeneralUpdateOK              = array();
-        $hostPackagesStatusUpdateError    = array();
-        $hostPackagesStatusUpdateOK       = array();
+        $hostUpdateError               = array();
+        $hostUpdateOK                  = array();
+        $hostResetError                = array();
+        $hostResetOK                   = array();
+        $hostDeleteError               = array();
+        $hostDeleteOK                  = array();
+        $hostGeneralUpdateError        = array();
+        $hostGeneralUpdateOK           = array();
+        $hostPackagesStatusUpdateError = array();
+        $hostPackagesStatusUpdateOK    = array();
 
         /**
          *  First check that hosts Id are valid
@@ -1225,7 +1224,7 @@ class Host
                 /**
                  *  Add a new ws request to disconnect the host
                  */
-                $this->newWsRequest($hostId, 'disconnect');
+                $hostRequestController->new($hostId, 'disconnect');
             }
 
             /**
@@ -1235,7 +1234,7 @@ class Host
                 /**
                  *  Add a new websocket request in the database
                  */
-                $this->newWsRequest($hostId, 'request-general-infos');
+                $hostRequestController->new($hostId, 'request-general-infos');
             }
 
             /**
@@ -1245,7 +1244,7 @@ class Host
                 /**
                  *  Add a new websocket request in the database
                  */
-                $this->newWsRequest($hostId, 'request-packages-infos');
+                $hostRequestController->new($hostId, 'request-packages-infos');
             }
 
             /**
@@ -1268,32 +1267,32 @@ class Host
          */
         if ($action == 'reset') {
             $message = 'Following hosts have been reseted:';
-            $this->layoutContainerStateController->update('hosts/overview');
-            $this->layoutContainerStateController->update('hosts/list');
-            $this->layoutContainerStateController->update('host/summary');
-            $this->layoutContainerStateController->update('host/packages');
-            $this->layoutContainerStateController->update('host/history');
+            $this->layoutContainerReloadController->reload('hosts/overview');
+            $this->layoutContainerReloadController->reload('hosts/list');
+            $this->layoutContainerReloadController->reload('host/summary');
+            $this->layoutContainerReloadController->reload('host/packages');
+            $this->layoutContainerReloadController->reload('host/history');
         }
 
         if ($action == 'delete') {
             $message = 'Following hosts have been deleted:';
-            $this->layoutContainerStateController->update('hosts/overview');
-            $this->layoutContainerStateController->update('hosts/list');
+            $this->layoutContainerReloadController->reload('hosts/overview');
+            $this->layoutContainerReloadController->reload('hosts/list');
         }
 
         if ($action == 'request-all-packages-update') {
             $message = 'Requesting packages update to the following hosts:';
-            $this->layoutContainerStateController->update('host/requests');
+            $this->layoutContainerReloadController->reload('host/requests');
         }
 
         if ($action == 'request-general-infos') {
             $message = 'Requesting general informations to the following hosts:';
-            $this->layoutContainerStateController->update('host/requests');
+            $this->layoutContainerReloadController->reload('host/requests');
         }
 
         if ($action == 'request-packages-infos') {
             $message = 'Requesting packages informations to the following hosts:';
-            $this->layoutContainerStateController->update('host/requests');
+            $this->layoutContainerReloadController->reload('host/requests');
         }
 
         $message .= '<div class="grid grid-2 column-gap-10 row-gap-10 margin-top-5">';
@@ -1503,172 +1502,5 @@ class Host
                 $this->model->removeFromGroup($actualHostId, $groupId);
             }
         }
-    }
-
-    /**
-     *  Clean websocket connections from database
-     */
-    public function cleanWsConnections()
-    {
-        $this->model->cleanWsConnections();
-    }
-
-    /**
-     *  Return all websocket connections from database
-     *  If a status is specified, only requests with this status will be returned, otherwise all requests will be returned
-     */
-    public function getWsConnections(string|null $status = null)
-    {
-        return $this->model->getWsConnections($status);
-    }
-
-    /**
-     *  Add new websocket connection in database
-     */
-    public function newWsConnection(int $connectionId)
-    {
-        $this->model->newWsConnection($connectionId);
-    }
-
-    /**
-     *  Delete websocket connection from database
-     */
-    public function deleteWsConnection(int $connectionId)
-    {
-        $this->model->deleteWsConnection($connectionId);
-    }
-
-    /**
-     *  Update websocket connection in database
-     */
-    public function updateWsConnection(int $connectionId, int $hostId, string $authenticated)
-    {
-        $this->model->updateWsConnection($connectionId, $hostId, $authenticated);
-    }
-
-    /**
-     *  Add new websocket request in database
-     */
-    public function newWsRequest(int $hostId, string $request, array $requestData = [])
-    {
-        /**
-         *  Define the request name
-         */
-        $json['request'] = $request;
-
-        /**
-         *  If additional json data is provided, we add it to the request
-         */
-        if (!empty($requestData)) {
-            $json['data'] = $requestData;
-        }
-
-        $this->model->newWsRequest($hostId, json_encode($json));
-    }
-
-    /**
-     *  Return all websocket requests from database
-     *  If a status is specified, only requests with this status will be returned, otherwise all requests will be returned
-     */
-    public function getWsRequests(string|null $status = null)
-    {
-        return $this->model->getWsRequests($status);
-    }
-
-    /**
-     *  Update websocket request in database
-     */
-    public function updateWsRequest(int $id, string $status, string $info, string $responseJson)
-    {
-        $this->model->updateWsRequest($id, $status, $info, $responseJson);
-    }
-
-    /**
-     *  Update websocket request status in database
-     */
-    public function updateWsRequestStatus(int $id, string $status)
-    {
-        $this->model->updateWsRequestStatus($id, $status);
-    }
-
-    /**
-     *  Update websocket request info message in database
-     */
-    public function updateWsRequestInfo(int $id, string $info)
-    {
-        $this->model->updateWsRequestInfo($id, $info);
-    }
-
-    /**
-     *  Update websocket request retry in database
-     */
-    public function updateWsRequestRetry(int $id, int $retry)
-    {
-        $this->model->updateWsRequestRetry($id, $retry);
-    }
-
-    /**
-     *  Update websocket request next retry time in database
-     */
-    public function updateWsRequestNextRetry(int $id, string $nextRetry)
-    {
-        $this->model->updateWsRequestNextRetry($id, $nextRetry);
-    }
-
-    /**
-     *  Return websocket connection Id by host Id
-     */
-    public function getWsConnectionIdByHostId(int $hostId)
-    {
-        return $this->model->getWsConnectionIdByHostId($hostId);
-    }
-
-    /**
-     *  Cancel websocket request in database
-     */
-    public function cancelWsRequest(int $id)
-    {
-        $this->model->cancelWsRequest($id);
-    }
-
-    /**
-     *  Delete websocket request from database
-     */
-    public function deleteWsRequest(int $id)
-    {
-        $this->model->deleteWsRequest($id);
-    }
-
-    /**
-     *  Get request log details
-     *  Request log is a file stored in the websocket-requests logs directory
-     */
-    public function getRequestLog(int $id) : string
-    {
-        $logFile = WS_REQUESTS_LOGS_DIR . '/request-' . $id . '.log';
-
-        if (!file_exists($logFile)) {
-            throw new Exception('Log file does not exist');
-        }
-
-        if (!is_readable($logFile)) {
-            throw new Exception('Log file is not readable');
-        }
-
-        $content = file_get_contents($logFile);
-
-        if ($content === false) {
-            throw new Exception('Error while reading log file');
-        }
-
-        return $content;
-    }
-
-    /**
-     *  Get request package log details
-     */
-    public function getRequestPackageLog(int $id, string $package, string $status) : string|null
-    {
-        return $this->model->getRequestPackageLog($id, $package, $status);
     }
 }

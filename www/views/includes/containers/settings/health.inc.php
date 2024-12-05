@@ -30,7 +30,7 @@
         if ($statusError == 0) {
             echo '<p><img src="/assets/icons/check.svg" class="icon vertical-align-text-top" /> Healthy</p>';
         } else {
-            echo '<p><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" />' . $statusMsg . '</p>';
+            echo '<p><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /> ' . $statusMsg . '</p>';
         }
 
         if (STATS_ENABLED == "true") : ?>
@@ -65,7 +65,7 @@
             if ($statusError == 0) {
                 echo '<p><img src="/assets/icons/check.svg" class="icon vertical-align-text-top" /> Healthy</p>';
             } else {
-                echo '<p><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" />' . $statusMsg . '</p>';
+                echo '<p><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /> ' . $statusMsg . '</p>';
             }
         endif;
 
@@ -101,7 +101,7 @@
             if ($statusError == 0) {
                 echo '<p><img src="/assets/icons/check.svg" class="icon vertical-align-text-top" /> Healthy</p>';
             } else {
-                echo '<p><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" />' . $statusMsg . '</p>';
+                echo '<p><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /> ' . $statusMsg . '</p>';
             }
         endif ?>
 

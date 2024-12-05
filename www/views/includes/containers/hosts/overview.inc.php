@@ -4,11 +4,7 @@
 
     <?php
     if ($totalHosts == 0) : ?>
-        <p>No host registered yet.<br><br></p>
-
-        <p>
-            You can register hosts that use <a href="https://github.com/lbr38/linupdate"><b>linupdate</b></a> with <b>reposerver</b> module enabled. This page will then display dashboards and informations about your hosts and their packages status (installed, available, updated...).
-        </p>
+        <p class="note">No host registered yet!<br>Install <a href="https://github.com/lbr38/linupdate" target="_blank" rel="noopener noreferrer" class="font-size-13"><b>linupdate</b> <img src="/assets/icons/external-link.svg" class="icon" /></a> on your hosts to register them to Repomanager. This page will display dashboards and informations about the hosts and their packages (installed, available, updated...). See <a href="https://github.com/lbr38/linupdate/wiki/Module:-reposerver#quick-setup-example" class="font-size-13"><b>quick setup example</b> <img src="/assets/icons/external-link.svg" class="icon" /></a>.
         <?php
     endif ?>
 

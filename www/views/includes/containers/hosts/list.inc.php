@@ -133,6 +133,7 @@
                                             $agentVersion = 'unknown';
                                             $rebootRequired = 'unknown';
                                             $agentStatus = 'unknown';
+                                            $requestInfo = null;
                                             $responseDetails = null;
 
                                             if (!empty($host['Hostname'])) {
@@ -388,6 +389,11 @@
                                                                         }
 
                                                                         /**
+                                                                         *  Request info
+                                                                         */
+                                                                        $requestInfo = $lastPendingRequest['Info'];
+
+                                                                        /**
                                                                          *  Request title
                                                                          */
                                                                         if ($request == 'request-general-infos') {
@@ -478,6 +484,10 @@
                                                                                 <p class="mediumopacity-cst" title="<?= $requestTitle ?>">
                                                                                     <?php
                                                                                     echo $requestTitleShort;
+
+                                                                                    if (!empty($requestInfo)) {
+                                                                                        echo ' - ' . $requestInfo;
+                                                                                    }
 
                                                                                     if (!empty($responseDetails)) {
                                                                                         echo ' - ' . $responseDetails;

@@ -1,20 +1,27 @@
 <?php
 
-namespace Controllers\Websocket;
+namespace Controllers\Websocket\Host;
 
 use Exception;
 
 /**
- *  Class Process extends WebsocketServer to gain access to the log method and hostController
- *  Processes requests to send to hosts
- *  Processes responses sent by hosts
+ *  Class Process extends WebsocketServer to gain access to its methods
  */
-class Process extends WebsocketServer
+class Process extends \Controllers\Websocket\WebsocketServer
 {
+    private $hostRequestController;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->hostRequestController = new \Controllers\Host\Request();
+    }
+
     /**
      *  Process host authentication
      */
-    public function authentication($conn, $message)
+    public function authenticate($conn, $message)
     {
         $this->log('[conn #' . $conn->resourceId . '] Authenticating...');
 
@@ -47,7 +54,7 @@ class Process extends WebsocketServer
             /**
              *  Update connection in database with host Id
              */
-            $this->hostController->updateWsConnection($conn->resourceId, $hostId, 'true');
+            $this->updateWsConnection($conn->resourceId, $hostId, 'true');
         } catch (Exception $e) {
             $this->log('conn #' . $conn->resourceId . '] Error while finishing authentication: ' . $e->getMessage());
             throw new Exception('Error while finishing authentication');
@@ -109,7 +116,7 @@ class Process extends WebsocketServer
         /**
          *  Update request status and response in database
          */
-        $this->hostController->updateWsRequest($requestId, $status, $info, $responseJson);
+        $this->hostRequestController->update($requestId, $status, $info, $responseJson);
 
         /**
          *  Send a message to the client to inform that the response was received
@@ -145,12 +152,12 @@ class Process extends WebsocketServer
          */
         $conn->send(json_encode($confirmMessage));
 
-        $this->layoutContainerStateController->update('hosts/overview');
-        $this->layoutContainerStateController->update('hosts/list');
-        $this->layoutContainerStateController->update('host/summary');
-        $this->layoutContainerStateController->update('host/packages');
-        $this->layoutContainerStateController->update('host/history');
-        $this->layoutContainerStateController->update('host/requests');
+        $this->layoutContainerReloadController->reload('hosts/overview');
+        $this->layoutContainerReloadController->reload('hosts/list');
+        $this->layoutContainerReloadController->reload('host/summary');
+        $this->layoutContainerReloadController->reload('host/packages');
+        $this->layoutContainerReloadController->reload('host/history');
+        $this->layoutContainerReloadController->reload('host/requests');
     }
 
     /**
@@ -159,14 +166,14 @@ class Process extends WebsocketServer
     public function requests($socket)
     {
         /**
-         *  Retrieve all 'new' websocket requests from database
+         *  Retrieve all 'new' requests from database
          */
-        $requests = $this->hostController->getWsRequests('new');
+        $requests = $this->hostRequestController->get('new');
 
         /**
          *  Retrieve all authenticated (true) clients
          */
-        $clients = $this->hostController->getWsConnections('true');
+        $clients = $this->getAuthenticatedWsConnections();
 
         /**
          *  If no new requests, quit
@@ -204,7 +211,7 @@ class Process extends WebsocketServer
                  *  If retry count is less than 3, increment it and set new retry date in database
                  */
                 if ($request['Retry'] < 3) {
-                    $this->hostController->updateWsRequestRetry($request['Id'], $request['Retry'] + 1);
+                    $this->hostRequestController->updateRetry($request['Id'], $request['Retry'] + 1);
 
                     /**
                      *  Calculate timestamp for next retry
@@ -223,9 +230,9 @@ class Process extends WebsocketServer
                     /**
                      *  Set new retry date in database and add an info message
                      */
-                    $this->hostController->updateWsRequestNextRetry($request['Id'], $nextRetry);
-                    $this->hostController->updateWsRequestInfo($request['Id'], 'Host is not connected or not authenticated (retry ' . $request['Retry'] . '/3 - next retry ~' . date('H:i:s', $nextRetry) . ')');
-                    $this->layoutContainerStateController->update('host/requests');
+                    $this->hostRequestController->updateNextRetry($request['Id'], $nextRetry);
+                    $this->hostRequestController->updateInfo($request['Id'], 'Host is not connected or not authenticated (retry ' . $request['Retry'] . '/3 - next retry ~' . date('H:i:s', $nextRetry) . ')');
+                    $this->layoutContainerReloadController->reload('host/requests');
                     continue;
                 }
 
@@ -235,16 +242,16 @@ class Process extends WebsocketServer
                  *  If all retries failed, update request status to 'failed' in database
                  *  Update request status to 'failed' in database
                  */
-                $this->hostController->updateWsRequestStatus($request['Id'], 'failed');
-                $this->hostController->updateWsRequestInfo($request['Id'], 'Host is not connected or not authenticated (retried 3 times)');
-                $this->layoutContainerStateController->update('host/requests');
+                $this->hostRequestController->updateStatus($request['Id'], 'failed');
+                $this->hostRequestController->updateInfo($request['Id'], 'Host is not connected or not authenticated (retried 3 times)');
+                $this->layoutContainerReloadController->reload('host/requests');
                 continue;
             }
 
             /**
              *  First, retrieve websocket connection Id of target host
              */
-            $hostWsConnectionId = $this->hostController->getWsConnectionIdByHostId($request['Id_host']);
+            $hostWsConnectionId = $this->getWsConnectionIdByHostId($request['Id_host']);
 
             /**
              *  If request is 'disconnect', close connection and remove it from database
@@ -268,7 +275,7 @@ class Process extends WebsocketServer
                 /**
                  *  Delete the disconnect request from database
                  */
-                $this->hostController->deleteWsRequest($request['Id']);
+                $this->hostRequestController->delete($request['Id']);
                 continue;
             }
 
@@ -292,9 +299,9 @@ class Process extends WebsocketServer
                     /**
                      *  Update request status to 'sent' in database
                      */
-                    $this->hostController->updateWsRequestStatus($request['Id'], 'sent');
-                    $this->hostController->updateWsRequestInfo($request['Id'], 'Request sent to the host');
-                    $this->layoutContainerStateController->update('host/requests');
+                    $this->hostRequestController->updateStatus($request['Id'], 'sent');
+                    $this->hostRequestController->updateInfo($request['Id'], 'Request sent to the host');
+                    $this->layoutContainerReloadController->reload('host/requests');
                 }
             }
         }

@@ -12,7 +12,7 @@ use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
 
 /**
- *  Class Socker extends WebsocketServer to gain access to the log method and hostController
+ *  Class Socker extends WebsocketServer to gain access to its methods
  */
 class Socket extends WebsocketServer implements MessageComponentInterface
 {
@@ -31,10 +31,10 @@ class Socket extends WebsocketServer implements MessageComponentInterface
 
         /**
          *  Clean database from old connections
-         *  (connections that were not removed from database because of a crash or a bug)
+         *  (e.g. connections that were not removed from database because of a crash or a bug)
          */
         try {
-            $this->hostController->cleanWsConnections();
+            $this->cleanWsConnections();
         } catch (Exception $e) {
             $this->log('Error while cleaning database from old connections: ' . $e->getMessage());
         }
@@ -54,15 +54,15 @@ class Socket extends WebsocketServer implements MessageComponentInterface
     public function onOpen(ConnectionInterface $conn)
     {
         $this->clients->attach($conn);
-        $this->log('[conn #' . $conn->resourceId . '] New connection!');
+        $this->log('[connection #' . $conn->resourceId . '] New connection!');
 
         /**
          *  Adding connection Id to database, waiting for a message from the host to authenticate
          */
         try {
-            $this->hostController->newWsConnection($conn->resourceId);
+            $this->newWsConnection($conn->resourceId);
         } catch (Exception $e) {
-            $this->log('[conn #' . $conn->resourceId . '] Error while adding connection to database: ' . $e->getMessage());
+            $this->log('[connection #' . $conn->resourceId . '] Error while adding connection to database: ' . $e->getMessage());
 
             /**
              *  Send a message to the host to inform that the connection is not allowed, and close it
@@ -71,26 +71,43 @@ class Socket extends WebsocketServer implements MessageComponentInterface
             $conn->send(json_encode(array('error' => "You've been connected but an error occured on the server side. Please try again later.")));
             $conn->close();
         }
-
-        /**
-         *  Ask the host to authenticate
-         */
-        $conn->send(json_encode(array('request' => 'authenticate')));
     }
 
     /**
      *  On websocket message received
      */
-    public function onMessage(ConnectionInterface $conn, $msg)
+    public function onMessage(ConnectionInterface $conn, $message)
     {
         /**
          *  Decode JSON message
          */
         try {
-            $message = json_decode($msg, true);
+            $message = json_decode($message, true);
         } catch (Exception $e) {
-            $this->log('[conn #' . $conn->resourceId . '] Error while decoding message: ' . $e->getMessage());
+            $this->log('[connection #' . $conn->resourceId . '] Error while decoding message: ' . $e->getMessage());
             return;
+        }
+
+        /**
+         *  If the client is sending its connection type
+         */
+        if (!empty($message['connection-type'])) {
+            // Connection type must be either 'host' or 'browser-client'
+            if (!in_array($message['connection-type'], array('host', 'browser-client'))) {
+                $this->log('[connection #' . $conn->resourceId . '] Invalid connection type: ' . $message['connection-type']);
+
+                // Close connection
+                $conn->close();
+            }
+
+            // Set connection type in database
+            $this->setWsConnectionType($conn->resourceId, $message['connection-type']);
+
+            // If the connection type is 'host'
+            if ($message['connection-type'] == 'host') {
+                // Ask the host to authenticate
+                $conn->send(json_encode(array('request' => 'authenticate')));
+            }
         }
 
         /**
@@ -99,30 +116,30 @@ class Socket extends WebsocketServer implements MessageComponentInterface
          */
         if (!empty($message['response-to-request'])) {
             try {
-                $process = new \Controllers\Websocket\Process();
+                $hostProcessController = new \Controllers\Websocket\Host\Process();
 
                 /**
                  *  If the host is trying to authenticate
                  */
                 if (isset($message['response-to-request']['request']) and $message['response-to-request']['request'] == 'authenticate') {
-                    $process->authentication($conn, $message);
+                    $hostProcessController->authenticate($conn, $message);
                 }
 
                 /**
                  *  If the host is sending a response to a request, with a request Id
                  */
                 if (isset($message['response-to-request']['request-id'])) {
-                    $process->responseFromRequestId($conn, $message);
+                    $hostProcessController->responseFromRequestId($conn, $message);
                 }
             } catch (Exception $e) {
                 /**
                  *  Print, send an error message to the host and close connection
                  */
                 if (isset($message['response-to-request']['request'])) {
-                    $this->log('[conn #' . $conn->resourceId . '] Error while processing host\'s response to request "' . $message['response-to-request']['request'] . '": ' . $e->getMessage());
+                    $this->log('[connection #' . $conn->resourceId . '] Error while processing host\'s response to request "' . $message['response-to-request']['request'] . '": ' . $e->getMessage());
                     $conn->send(json_encode(array('error' => 'error while processing response to request "' . $message['response-to-request']['request'] . '"')));
                 } else if (isset($message['response-to-request']['request-id'])) {
-                    $this->log('[conn #' . $conn->resourceId . '] Error while processing host\'s response to request #' . $message['response-to-request']['request-id'] . ': ' . $e->getMessage());
+                    $this->log('[connection #' . $conn->resourceId . '] Error while processing host\'s response to request #' . $message['response-to-request']['request-id'] . ': ' . $e->getMessage());
                     $conn->send(json_encode(array('error' => 'error while processing response to request #' . $message['response-to-request']['request-id'])));
                 }
 
@@ -138,15 +155,15 @@ class Socket extends WebsocketServer implements MessageComponentInterface
     public function onClose(ConnectionInterface $conn)
     {
         $this->clients->detach($conn);
-        $this->log('[conn #' . $conn->resourceId . '] Connection is gone');
+        $this->log('[connection #' . $conn->resourceId . '] Connection closed');
 
         /**
          *  Removing connection Id from database
          */
         try {
-            $this->hostController->deleteWsConnection($conn->resourceId);
+            $this->deleteWsConnection($conn->resourceId);
         } catch (Exception $e) {
-            $this->log('[conn #' . $conn->resourceId . '] Error while removing connection from database: ' . $e->getMessage());
+            $this->log('[connection #' . $conn->resourceId . '] Error while removing connection from database: ' . $e->getMessage());
         }
     }
 
@@ -155,7 +172,7 @@ class Socket extends WebsocketServer implements MessageComponentInterface
      */
     public function onError(ConnectionInterface $conn, \Exception $e)
     {
-        $this->log('[conn #' . $conn->resourceId . '] An error occured with connection: ' . $e->getMessage());
+        $this->log('[connection #' . $conn->resourceId . '] An error occured with connection: ' . $e->getMessage());
         $conn->close();
     }
 }

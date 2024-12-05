@@ -11,6 +11,7 @@
             $class = 'table-container bck-blue-alt';
             $request = '';
             $requestData = [];
+            $requestInfo = null;
             $requestDetails = null;
             $responseDetails = null;
             $responseJson = null;
@@ -62,6 +63,11 @@
                     $keepConfigFiles = \Controllers\Common::toBool($requestData['update-params']['keep-config-files']);
                 }
             }
+
+            /**
+             *  Request info
+             */
+            $requestInfo = $item['Info'];
 
             /**
              *  Response data
@@ -220,7 +226,7 @@
                     <?php
                     if (!empty($requestStatusIcon)) {
                         if (str_ends_with($requestStatusIcon, '.svg')) {
-                            echo '<img class="icon" src="/assets/icons/' . $requestStatusIcon . '" title="' . $requestStatus . '">';
+                            echo '<img class="icon-np" src="/assets/icons/' . $requestStatusIcon . '" title="' . $requestStatus . '">';
                         } else {
                             echo '<span class="' . $requestStatusIcon . '" title="' . $requestStatus . '"></span> ';
                         }
@@ -238,6 +244,10 @@
                     <p class="lowopacity-cst">
                         <?php
                         echo $requestStatus;
+
+                        if (!empty($requestInfo)) {
+                            echo ' - ' . $requestInfo;
+                        }
 
                         if (!empty($responseDetails)) {
                             echo ' - ' . $responseDetails;

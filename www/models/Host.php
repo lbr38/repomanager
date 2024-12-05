@@ -1122,7 +1122,7 @@ class Host extends Model
         $data = array();
 
         try {
-            $query = "SELECT * FROM ws_requests WHERE Id_host = :id ORDER BY Date DESC, Time DESC";
+            $query = "SELECT * FROM requests WHERE Id_host = :id ORDER BY Date DESC, Time DESC";
 
             /**
              *  Add offset if needed
@@ -1158,7 +1158,7 @@ class Host extends Model
         $data = array();
 
         try {
-            $stmt = $this->db->prepare("SELECT * from ws_requests WHERE Id_host = :id ORDER BY DATE DESC, TIME DESC LIMIT 1");
+            $stmt = $this->db->prepare("SELECT * from requests WHERE Id_host = :id ORDER BY DATE DESC, TIME DESC LIMIT 1");
             $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
             $result = $stmt->execute();
         } catch (\Exception $e) {
@@ -1480,7 +1480,7 @@ class Host extends Model
             /**
              *  Retrieve all requests made to the host
              */
-            $stmt = $this->db->prepare("SELECT Id FROM ws_requests WHERE Id_host = :id");
+            $stmt = $this->db->prepare("SELECT Id FROM requests WHERE Id_host = :id");
             $stmt->bindValue(':id', $hostId);
             $result = $stmt->execute();
 
@@ -1496,9 +1496,9 @@ class Host extends Model
             }
 
             /**
-             *  Delete all requests in ws_requests table
+             *  Delete all requests in requests table
              */
-            $stmt = $this->db->prepare("DELETE FROM ws_requests WHERE Id_host = :id");
+            $stmt = $this->db->prepare("DELETE FROM requests WHERE Id_host = :id");
             $stmt->bindValue(':id', $hostId);
             $stmt->execute();
 
@@ -1624,312 +1624,5 @@ class Host extends Model
         }
 
         return count($hosts);
-    }
-
-    /**
-     *  Clean ws connections from database
-     */
-    public function cleanWsConnections()
-    {
-        try {
-            $stmt = $this->db->prepare("DELETE FROM ws_connections");
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Return all websocket connections from database
-     *  If a status is specified, only requests with this status will be returned, otherwise all requests will be returned
-     */
-    public function getWsConnections(string|null $status)
-    {
-        $connections = array();
-
-        try {
-            /**
-             *  If a status is specified, we only get requests with this status
-             */
-            if (!empty($status)) {
-                $stmt = $this->db->prepare("SELECT * FROM ws_connections WHERE Authenticated = :status");
-                $stmt->bindValue(':status', $status);
-            } else {
-                $stmt = $this->db->prepare("SELECT * FROM ws_connections");
-            }
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $connections[] = $row;
-        }
-
-        return $connections;
-    }
-
-    /**
-     *  Add new ws connection in database
-     */
-    public function newWsConnection(int $connectionId)
-    {
-        try {
-            $stmt = $this->db->prepare("INSERT INTO ws_connections ('Connection_id', 'Authenticated') VALUES (:id, 'false')");
-            $stmt->bindValue(':id', $connectionId);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Delete ws connection from database
-     */
-    public function deleteWsConnection(int $connectionId)
-    {
-        try {
-            $stmt = $this->db->prepare("DELETE FROM ws_connections WHERE Connection_id = :id");
-            $stmt->bindValue(':id', $connectionId);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Update ws connection in database
-     */
-    public function updateWsConnection(int $connectionId, int $hostId, string $authenticated)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE ws_connections SET Id_host = :hostId, Authenticated = :authenticated WHERE Connection_id = :connectionId");
-            $stmt->bindValue(':hostId', $hostId);
-            $stmt->bindValue(':authenticated', $authenticated);
-            $stmt->bindValue(':connectionId', $connectionId);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Add new websocket request in database
-     */
-    public function newWsRequest(int $hostId, string $request)
-    {
-        try {
-            $stmt = $this->db->prepare("INSERT INTO ws_requests ('Date', 'Time', 'Request', 'Status', 'Retry', 'Id_host') VALUES (:date, :time, :request, 'new', '0', :hostId)");
-            $stmt->bindValue(':date', date('Y-m-d'));
-            $stmt->bindValue(':time', date('H:i:s'));
-            $stmt->bindValue(':request', $request);
-            $stmt->bindValue(':hostId', $hostId);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Return all websocket requests from database
-     */
-    public function getWsRequests(string|null $status)
-    {
-        $requests = array();
-
-        try {
-            /**
-             *  If a status is specified, we only get requests with this status
-             */
-            if (!empty($status)) {
-                $stmt = $this->db->prepare("SELECT * FROM ws_requests WHERE Status = :status ORDER BY Date DESC, Time DESC");
-                $stmt->bindValue(':status', $status);
-            } else {
-                $stmt = $this->db->prepare("SELECT * FROM ws_requests ORDER BY Date DESC, Time DESC");
-            }
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $requests[] = $row;
-        }
-
-        return $requests;
-    }
-
-    /**
-     *  Update websocket request in database
-     */
-    public function updateWsRequest(int $id, string $status, string $info, string $responseJson)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE ws_requests SET Status = :status, Info = :info, Response_json = :responseJson WHERE Id = :id");
-            $stmt->bindValue(':status', $status);
-            $stmt->bindValue(':info', $info);
-            $stmt->bindValue(':responseJson', $responseJson);
-            $stmt->bindValue(':id', $id);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Update websocket request status in database
-     */
-    public function updateWsRequestStatus(int $id, string $status)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE ws_requests SET Status = :status WHERE Id = :id");
-            $stmt->bindValue(':status', $status);
-            $stmt->bindValue(':id', $id);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Update websocket request info message in database
-     */
-    public function updateWsRequestInfo(int $id, string $info)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE ws_requests SET Info = :info WHERE Id = :id");
-            $stmt->bindValue(':info', $info);
-            $stmt->bindValue(':id', $id);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Update websocket request retry in database
-     */
-    public function updateWsRequestRetry(int $id, int $retry)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE ws_requests SET Retry = :retry WHERE Id = :id");
-            $stmt->bindValue(':retry', $retry);
-            $stmt->bindValue(':id', $id);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Update websocket request next retry time in database
-     */
-    public function updateWsRequestNextRetry(int $id, string $nextRetry)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE ws_requests SET Next_retry = :nextRetry WHERE Id = :id");
-            $stmt->bindValue(':nextRetry', $nextRetry);
-            $stmt->bindValue(':id', $id);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Return websocket connection Id by host Id
-     */
-    public function getWsConnectionIdByHostId(int $hostId)
-    {
-        $connectionId = '';
-
-        try {
-            $stmt = $this->db->prepare("SELECT Connection_id FROM ws_connections WHERE Id_host = :hostId");
-            $stmt->bindValue(':hostId', $hostId);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-
-        $connectionId = '';
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $connectionId = $row['Connection_id'];
-        }
-
-        return $connectionId;
-    }
-
-    /**
-     *  Cancel websocket request in database
-     */
-    public function cancelWsRequest(int $id)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE ws_requests SET Status = 'canceled', Info = Info || ' (canceled)' WHERE Id = :id");
-            $stmt->bindValue(':id', $id);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Delete websocket request from database
-     */
-    public function deleteWsRequest(int $id)
-    {
-        try {
-            $stmt = $this->db->prepare("DELETE FROM ws_requests WHERE Id = :id");
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Get request package log details
-     */
-    public function getRequestPackageLog(int $id, string $package, string $status) : string|null
-    {
-        $data = '';
-
-        // Example of Response_json content:
-        // "update":{
-        //     "status":"done",
-        //     "success":{
-        //         "count":7,
-        //         "packages":{
-        //             "brave-browser":{
-        //                 "version":"xxxx",
-        //                 "log":"xxxx"
-        //             },
-        //             "firefox":{
-        //                 "version":"xxxx",
-        //                 "log":"xxxx"
-        //             },
-        //         }
-        //     }
-        // }
-
-        try {
-            /**
-             *  Extract the log of the specified package in the specified status
-             */
-            $stmt = $this->db->prepare("SELECT json_extract(Response_json, :path) as log FROM ws_requests WHERE Id = :id");
-            // Add quotes around the package name to avoid issues with package names containing dots (e.g. php8.1)
-            $stmt->bindValue(':path', '$.update.' . $status . '.packages."' . $package . '".log');
-            $stmt->bindValue(':id', $id);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $data = $row['log'];
-        }
-
-        return $data;
     }
 }
