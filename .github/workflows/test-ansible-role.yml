@@ -1,0 +1,33 @@
+name: Test ansible role
+
+on:
+  push:
+    branches: [ devel ]
+  pull_request:
+    push:
+      branches: [ stable ]
+jobs:
+  ansible:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install requirements
+        run: |
+          sudo apt update
+          sudo apt install nginx ansible -y
+
+      - name: Generate self-signed SSL certificate
+        run: |
+          sudo mkdir -p /etc/nginx/ssl
+          sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/private.key -out /etc/nginx/ssl/certificate.crt -subj "/C=DE/ST=NRW/L=Earth/O=Random Company/OU=IT/CN=repomanager.example.com"
+
+      - name: Start nginx
+        run: sudo systemctl start nginx
+
+      - name: Execute ansible playbook
+        run: sudo ansible-playbook --connection=local --inventory 127.0.0.1, $GITHUB_WORKSPACE/ansible/repomanager-playbook.yml
+
+      - name: Print docker containers
+        run: sudo docker ps

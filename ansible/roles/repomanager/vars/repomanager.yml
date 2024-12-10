@@ -1,0 +1,15 @@
+---
+# The FQDN of Repomanager
+repomanager_fqdn: repomanager.example.com
+
+# The port the container listens on (default: 8080)
+repomanager_listen_port: 8080
+
+# The maximum upload size in MB (default: 32M)
+repomanager_vhost_max_upload_size: 32
+
+# Path to the SSL certificate
+repomanager_vhost_certificate_path: /etc/nginx/ssl/certificate.crt
+
+# Path to the SSL private key
+repomanager_vhost_private_key_path: /etc/nginx/ssl/private.key

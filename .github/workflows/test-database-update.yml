@@ -1,0 +1,135 @@
+name: Database update tests
+
+on:
+  push:
+    branches: [ devel ]
+  pull_request:
+    push:
+      branches: [ stable ]
+jobs:
+  test-database-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install docker-compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      # Get all releases
+      # Format them to a key-value array
+      # Start from release index which is 4.0.0
+      # Pull images starting from release 4.0.0
+      # Then pull the next image of the index, etc..
+      - name: Test all releases update from lbr38/repomanager
+        run: |
+          RELEASES=$(curl -s https://api.github.com/repos/lbr38/repomanager/releases?per_page=10000 | jq -r '.[].name' | tac)
+
+          index="0"
+          declare -A RELEASES_ARRAY
+          for release in $RELEASES; do
+              RELEASES_ARRAY["$index"]="$release"
+              index=$((index+1))
+          done
+
+          for i in "${!RELEASES_ARRAY[@]}"; do
+              if [[ "${RELEASES_ARRAY[$i]}" == "4.0.0" ]]; then
+                  start_index="$i"
+                  break
+              fi
+          done
+
+          for ((i=start_index; i<${#RELEASES_ARRAY[@]}; i++)); do
+              release="${RELEASES_ARRAY[$i]}"
+
+              docker rm -f repomanager
+              docker system prune -a -f
+
+              echo -e "\nPulling image for release $release\n"
+
+              docker run -d --restart always --name repomanager \
+              -e FQDN=repomanager.test.com \
+              -e MAX_UPLOAD_SIZE=32M \
+              -p 8080:8080 \
+              -v /etc/localtime:/etc/localtime:ro \
+              -v /var/lib/docker/volumes/repomanager-data:/var/lib/repomanager \
+              -v /var/lib/docker/volumes/repomanager-repo:/home/repo \
+              lbr38/repomanager:$release
+
+              if [ $? -ne 0 ]; then
+                  echo "Failed to pull image for release $release"
+                  exit 1
+              fi
+
+              # Retrieve and check errors in container logs
+              while true; do
+                  OUTPUT=$(docker logs repomanager -n10000)
+
+                  # Check if the logs contains failed message
+                  if echo "$OUTPUT" | grep -q -i "failed"; then
+                      echo "Database update seems to have failed: $OUTPUT"
+                      exit 1
+                  fi
+
+                  if echo "$OUTPUT" | grep -q -i "error"; then
+                      echo "Database update seems to have failed: $OUTPUT"
+                      exit 1
+                  fi
+
+                  # Quit the loop if the maintenance page is disabled (meaning the update is done)
+                  if echo "$OUTPUT" | grep -q "Disabling maintenance page"; then
+                      break
+                  fi
+
+                  sleep 2
+              done
+          done
+
+      # Finally, test the devel image
+      - name: Test devel image from lbr38/repomanager
+        run: |
+          docker rm -f repomanager
+          docker system prune -a -f
+
+          echo -e "\Build devel image\n"
+
+          cd ${GITHUB_WORKSPACE}/docker
+
+          sed -i 's/env:.*/env: devel/g' docker-compose.yml
+          sed -i 's/fqdn:.*/fqdn: repomanager.test.com/g' docker-compose.yml
+
+          docker-compose -f docker-compose.yml up -d
+
+          if [ $? -ne 0 ]; then
+              echo "Failed to build devel image"
+              exit 1
+          fi
+
+          # Retrieve and check errors in container logs
+          while true; do
+              OUTPUT=$(docker logs repomanager -n10000)
+
+              # Check if the logs contains failed message
+              if echo "$OUTPUT" | grep -q -i "failed"; then
+                  echo "Database update seems to have failed: $OUTPUT"
+                  exit 1
+              fi
+
+              # Check if the logs contains error message
+              if echo "$OUTPUT" | grep -q -i "error"; then
+                  echo "Database update seems to have failed: $OUTPUT"
+                  exit 1
+              fi
+
+              # Quit the loop if the maintenance page is disabled (meaning the update is done)
+              if echo "$OUTPUT" | grep -q "Disabling maintenance page"; then
+                  break
+              fi
+
+              sleep 2
+          done
+
+          # Print final container logs output
+          echo "$OUTPUT"

@@ -88,6 +88,7 @@
 
             <div field-type="local rpm deb">
                 <h6 class="required">REPOSITORY NAME</h6>
+                <p class="note">The name of the local repository.</p>
             </div>
             <input type="text" class="task-param" param-name="alias" package-type="all" />
         </div>

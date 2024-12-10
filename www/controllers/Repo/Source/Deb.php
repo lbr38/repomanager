@@ -346,12 +346,12 @@ class Deb extends \Controllers\Repo\Source\Source
                     $name = $distribution['name'];
                 }
                 if (!empty($distribution['description'])) {
-                    $description = $distribution['description'];
+                    $description = '(' . $distribution['description'] . ')';
                 }
 
                 $predefinedDistributions[] = [
                     'id' => $name,
-                    'text' => $name . ' (' . $description . ')',
+                    'text' => $name . ' ' . $description
                 ];
             }
         }

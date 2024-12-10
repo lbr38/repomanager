@@ -1,0 +1,36 @@
+---
+description: Grafana repositories
+type: rpm
+repositories:
+  # Stable
+  - name: grafana
+    type: rpm
+    description: Grafana stable repository for RHEL and derivatives
+    url: https://rpm.grafana.com
+    releasever:
+      - name: 9
+        description: RHEL 9 and derivatives
+        gpgkeys:
+          - link: https://rpm.grafana.com/gpg.key
+
+      - name: 8
+        description: RHEL 8 and derivatives
+        gpgkeys:
+          - link: https://rpm.grafana.com/gpg.key
+
+  # Beta
+  - name: grafana-beta
+    type: rpm
+    description: Grafana beta repository for RHEL and derivatives
+    url: https://rpm-beta.grafana.com
+    releasever:
+      # RHEL/CentOS 9
+      - name: 9
+        description: RHEL 9 and derivatives
+        gpgkeys:
+          - link: https://rpm-beta.grafana.com/gpg.key
+
+      - name: 8
+        description: RHEL 8 and derivatives
+        gpgkeys:
+          - link: https://rpm-beta.grafana.com/gpg.key

@@ -262,12 +262,12 @@ class Rpm extends \Controllers\Repo\Source\Source
                     $name = $releasever['name'];
                 }
                 if (!empty($releasever['description'])) {
-                    $description = $releasever['description'];
+                    $description = '(' . $releasever['description'] . ')';
                 }
 
                 $predefinedReleaseVersions[] = [
                     'id' => $name,
-                    'text' => $name . ' (' . $description . ')'
+                    'text' => $name . ' ' . $description
                 ];
             }
         }

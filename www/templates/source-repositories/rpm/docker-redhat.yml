@@ -1,0 +1,26 @@
+---
+description: Docker repositories for Redhat
+type: rpm
+repositories:
+  - name: docker-redhat
+    type: rpm
+    description: Docker stable repository
+    url: https://download.docker.com/linux/rhel/$releasever/$basearch/stable
+    releasever:
+      # Redhat 9
+      - name: 9
+        description: Redhat 9
+        gpgkeys:
+          - link: https://download.docker.com/linux/rhel/gpg
+
+      # Redhat 8
+      - name: 8
+        description: Redhat 8
+        gpgkeys:
+          - link: https://download.docker.com/linux/rhel/gpg
+
+      # Redhat 7
+      - name: 7
+        description: Redhat 7
+        gpgkeys:
+          - link: https://download.docker.com/linux/rhel/gpg
