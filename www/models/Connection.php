@@ -946,7 +946,7 @@ class Connection extends SQLite3
     /**
      *  Generate tables in the ws database
      */
-    public function generateWsTables()
+    private function generateWsTables()
     {
         /**
          *  ws_connections table

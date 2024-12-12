@@ -1,0 +1,11 @@
+---
+- name: Install or update Repomanager
+  hosts: all
+  order: sorted
+  become: true
+  become_user: root
+
+  tasks:
+    - name: Execute repomanager role
+      ansible.builtin.include_role:
+        name: repomanager

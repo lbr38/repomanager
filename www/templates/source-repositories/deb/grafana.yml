@@ -1,0 +1,24 @@
+---
+description: Grafana repositories
+type: deb
+repositories:
+  - name: grafana
+    type: deb
+    description: Grafana repository
+    url: https://apt.grafana.com
+    distributions:
+      # Stable
+      - name: stable
+        description: Stable releases of Grafana
+        components:
+          - name: main
+        gpgkeys:
+          - link: https://apt.grafana.com/gpg.key
+
+      # Beta
+      - name: beta
+        description: Beta releases of Grafana
+        components:
+          - name: main
+        gpgkeys:
+          - link: https://apt.grafana.com/gpg.key

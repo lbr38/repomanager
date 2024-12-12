@@ -1,0 +1,32 @@
+---
+description: Docker repositories for Ubuntu
+type: deb
+repositories:
+  - name: docker-ubuntu
+    type: deb
+    description: Docker repository
+    url: https://download.docker.com/linux/ubuntu
+    distributions:
+      # Ubuntu 24.04
+      - name: noble
+        description: Ubuntu 24.04
+        components:
+          - name: stable
+        gpgkeys:
+          - link: https://download.docker.com/linux/ubuntu/gpg
+
+      # Ubuntu 22.04
+      - name: jammy
+        description: Ubuntu 22.04
+        components:
+          - name: stable
+        gpgkeys:
+          - link: https://download.docker.com/linux/ubuntu/gpg
+
+      # Ubuntu 20.04
+      - name: focal
+        description: Ubuntu 20.04
+        components:
+          - name: stable
+        gpgkeys:
+          - link: https://download.docker.com/linux/ubuntu/gpg

@@ -1,0 +1,32 @@
+---
+description: Docker repositories for Debian
+type: deb
+repositories:
+  - name: docker-debian
+    type: deb
+    description: Docker repository
+    url: https://download.docker.com/linux/debian
+    distributions:
+      # Debian 12
+      - name: bookworm
+        description: Debian 12
+        components:
+          - name: stable
+        gpgkeys:
+          - link: https://download.docker.com/linux/debian/gpg
+
+      # Debian 11
+      - name: bullseye
+        description: Debian 11
+        components:
+          - name: stable
+        gpgkeys:
+          - link: https://download.docker.com/linux/debian/gpg
+
+      # Debian 10
+      - name: buster
+        description: Debian 10
+        components:
+          - name: stable
+        gpgkeys:
+          - link: https://download.docker.com/linux/debian/gpg

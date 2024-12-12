@@ -723,18 +723,20 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
 
             /**
              *  Rename package if arch is not correctly specified in its name
+             *  e.g. filebeat-8.0.0-amd64.deb -> filebeat-8.0.0_amd64.deb
+             *  e.g. filebeat-8.0.0.amd64.deb -> filebeat-8.0.0_amd64.deb
              */
-            $debPackageName = preg_replace('/-amd64.deb$/', '_amd64.deb', $debPackageName);
-            $debPackageName = preg_replace('/-arm64.deb$/', '_arm64.deb', $debPackageName);
-            $debPackageName = preg_replace('/-armel.deb$/', '_armel.deb', $debPackageName);
-            $debPackageName = preg_replace('/-armhf.deb$/', '_armhf.deb', $debPackageName);
-            $debPackageName = preg_replace('/-i386.deb$/', '_i386.deb', $debPackageName);
-            $debPackageName = preg_replace('/-mips.deb$/', '_mips.deb', $debPackageName);
-            $debPackageName = preg_replace('/-mips64el.deb$/', '_mips64el.deb', $debPackageName);
-            $debPackageName = preg_replace('/-mipsel.deb$/', '_mipsel.deb', $debPackageName);
-            $debPackageName = preg_replace('/-ppc64el.deb$/', '_ppc64el.deb', $debPackageName);
-            $debPackageName = preg_replace('/-s390x.deb$/', '_s390x.deb', $debPackageName);
-            $debPackageName = preg_replace('/-all.deb$/', '_all.deb', $debPackageName);
+            $debPackageName = preg_replace('/[-.]amd64.deb$/', '_amd64.deb', $debPackageName);
+            $debPackageName = preg_replace('/[-.]arm64.deb$/', '_arm64.deb', $debPackageName);
+            $debPackageName = preg_replace('/[-.]armel.deb$/', '_armel.deb', $debPackageName);
+            $debPackageName = preg_replace('/[-.]armhf.deb$/', '_armhf.deb', $debPackageName);
+            $debPackageName = preg_replace('/[-.]i386.deb$/', '_i386.deb', $debPackageName);
+            $debPackageName = preg_replace('/[-.]mips.deb$/', '_mips.deb', $debPackageName);
+            $debPackageName = preg_replace('/[-.]mips64el.deb$/', '_mips64el.deb', $debPackageName);
+            $debPackageName = preg_replace('/[-.]mipsel.deb$/', '_mipsel.deb', $debPackageName);
+            $debPackageName = preg_replace('/[-.]ppc64el.deb$/', '_ppc64el.deb', $debPackageName);
+            $debPackageName = preg_replace('/[-.]s390x.deb$/', '_s390x.deb', $debPackageName);
+            $debPackageName = preg_replace('/[-.]all.deb$/', '_all.deb', $debPackageName);
 
             /**
              *  Check if file does not already exists before downloading it (e.g. copied from a previously snapshot)

@@ -1,0 +1,32 @@
+---
+description: Docker repositories for CentOS
+type: rpm
+repositories:
+  - name: docker-centos
+    type: rpm
+    description: Docker stable repository
+    url: https://download.docker.com/linux/centos/$releasever/$basearch/stable
+    releasever:
+      # CentOS 10
+      - name: 10
+        description: CentOS 10
+        gpgkeys:
+          - link: https://download.docker.com/linux/centos/gpg
+
+      # CentOS 9
+      - name: 9
+        description: CentOS 9
+        gpgkeys:
+          - link: https://download.docker.com/linux/centos/gpg
+
+      # CentOS 8
+      - name: 8
+        description: CentOS 8
+        gpgkeys:
+          - link: https://download.docker.com/linux/centos/gpg
+
+      # CentOS 7
+      - name: 7
+        description: CentOS 7
+        gpgkeys:
+          - link: https://download.docker.com/linux/centos/gpg

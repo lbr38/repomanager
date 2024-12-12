@@ -411,5 +411,7 @@ if (!empty($groupsList)) {
 } ?>
 
 <script>
+$(document).ready(function() {
     getReposSize();
+});
 </script>

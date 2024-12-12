@@ -1,0 +1,38 @@
+---
+# Requirements:
+# - docker installed and service running
+# - nginx installed and service running
+# - variables in vars/repomanager.yml must be set
+
+# Include the variables
+- name: Include repomanager variables
+  ansible.builtin.include_vars: repomanager.yml
+
+# Pull the latest docker image and start the container
+# This also works in a case of a new version, the image will be pulled and the container will be restarted
+- name: Pull latest docker image
+  community.docker.docker_container:
+    name: repomanager
+    image: lbr38/repomanager:latest
+    env:
+      FQDN: "{{ repomanager_fqdn }}"
+      MAX_UPLOAD_SIZE: "{{ repomanager_vhost_max_upload_size | default('32') }}M"
+    ports:
+      - "{{ repomanager_listen_port | default('8080') }}:8080"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/lib/docker/volumes/repomanager-data:/var/lib/repomanager
+      - /var/lib/docker/volumes/repomanager-repo:/home/repo
+    restart_policy: unless-stopped
+    pull: true
+    state: started
+
+# Deploy the reverse-proxy vhost
+- name: Deploy reverse-proxy
+  ansible.builtin.template:
+    src: repomanager-reverse-proxy.j2
+    dest: /etc/nginx/conf.d/repomanager-reverse-proxy.conf
+    owner: root
+    group: root
+    mode: "0600"
+  notify: Reload nginx
