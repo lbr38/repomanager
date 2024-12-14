@@ -7,22 +7,22 @@ use Exception;
 abstract class Model
 {
     protected $db;
-    protected $host_db;
+    protected $dedicatedDb;
 
     /**
-     *  Nouvelle connexion à la base de données
+     *  Open a new connection to the database
      */
-    public function getConnection(string $database, ?string $hostId = null)
+    public function getConnection(string $database, int|null $databaseId = null)
     {
-        if (!empty($hostId)) {
-            $this->host_db = new Connection($database, $hostId);
+        if (!empty($databaseId)) {
+            $this->dedicatedDb = new Connection($database, $databaseId);
         } else {
             $this->db = new Connection($database);
         }
     }
 
     /**
-     *  Retourne l'Id de la dernière ligne insérée en base de données
+     *  Return the Id of the last inserted row in the database
      */
     public function getLastInsertRowID()
     {

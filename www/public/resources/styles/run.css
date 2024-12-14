@@ -1,30 +1,18 @@
-#log-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-}
-
 #log-refresh-container {
     flex: 0 0 94%;
 }
 
-#log {
-    order: 1;
-    font-size: 14px;
-    width: 100%;
-}
-
-#log h3 {
+#log-refresh-container h3 {
     margin-top: 0 !important;
     margin-bottom: 0 !important;
     border: none;
 }
 
-#log h6 {
+#log-refresh-container h6 {
     margin-top: 30px;
 }
 
-#log pre { /* empecher le contenu des <pre> de dépasser */
+#log-refresh-container pre { /* empecher le contenu des <pre> de dépasser */
     white-space: pre-wrap;       /* css-3 */
     white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
     white-space: -pre-wrap;      /* Opera 4-6 */
@@ -35,7 +23,7 @@
     font-size: 14px;
     line-height: 1.5;
     padding: 20px;
-    margin: 0;
+    margin: 10px 0 0 0;
 }
 
 .getPackagesDiv, .signRepoDiv, .createRepoDiv {
@@ -51,11 +39,11 @@
 }
 
 /* Boutons Top et Down pour atteindre le haut ou le bas de page */
-#scrollButtons-container {
+#scroll-btns-container {
     order: 2;
 }
 /* Les boutons scroll sont fixes à l'intérieur du container */
-#scrollButtons {
+#scroll-btns {
     position: sticky;
     top: 570px;
     display: flex;
@@ -69,7 +57,7 @@
     margin-left: 15px;
 }
 
-/* Tableau des détails de l'opération, dans chaque fichier de log */
+/* Legacy task log layout */
 .op-table {
     width: 100%;
     margin: 5px;
@@ -116,4 +104,64 @@
 
 .op-step-title-stopped {
     display: none;
+}
+
+/* New task log layout */
+.task-step {
+    display: flex;
+    flex-direction: column;
+    margin-top: 5px;
+    border-radius: 8px;
+    border: 1px solid #24405c;
+    background-color: #182b3e;
+    -webkit-box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
+    box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
+}
+
+.task-step-title {
+    display: grid;
+    grid-template-columns: 30% 50% 10%;
+    justify-content: space-between;
+    align-items: center;
+    column-gap: 10px;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.task-step-content {
+    grid-template-columns: 96% 4%;
+    justify-content: space-between;
+    min-height: 250px;
+    max-height: 700px;
+    overflow-y: auto;
+    border-radius: 8px;
+    margin-top: 4px;
+    border-left: 1px solid #24405c;
+    border-right: 1px solid #24405c;
+    border-bottom: 1px solid #24405c;
+    background-color: #182b3e;
+    -webkit-box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
+    box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
+}
+
+.task-sub-step-container {
+    border-right: 1px solid #24405c;
+}
+
+.task-sub-step-content, .step-loading {
+    display: grid;
+    grid-template-columns: minmax(20px, 20px) auto;
+    column-gap: 10px;
+    border-top: 1px solid #24405c;
+    padding: 15px;
+}
+
+.step-content-btns {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 5px;
+    position: sticky;
+    top: 50%;
+    transform: translateY(-50%);
 }

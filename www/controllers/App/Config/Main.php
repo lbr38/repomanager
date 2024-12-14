@@ -101,10 +101,6 @@ class Main
         if (!defined('CVE_IMPORT_HOSTS_DIR')) {
             define('CVE_IMPORT_HOSTS_DIR', TEMP_DIR . '/cve');
         }
-        // Logbuilder
-        if (!defined('LOGBUILDER')) {
-            define('LOGBUILDER', ROOT . '/tasks/logbuilder.php');
-        }
         // Actual release version and available version on github
         if (!defined('VERSION')) {
             define('VERSION', trim(file_get_contents(ROOT . '/version')));

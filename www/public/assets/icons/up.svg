@@ -1,124 +1,38 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Generator: Adobe Illustrator 19.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-
 <svg
+   width="512"
+   height="512"
+   viewBox="0 0 512 512"
    version="1.1"
-   id="Capa_1"
-   x="0px"
-   y="0px"
-   viewBox="0 0 60 60"
-   style="enable-background:new 0 0 60 60;"
-   xml:space="preserve"
+   id="svg4"
    sodipodi:docname="up.svg"
    inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg"><defs
-   id="defs5681" /><sodipodi:namedview
-   id="namedview5679"
-   pagecolor="#ffffff"
-   bordercolor="#666666"
-   borderopacity="1.0"
-   inkscape:pageshadow="2"
-   inkscape:pageopacity="0.0"
-   inkscape:pagecheckerboard="0"
-   showgrid="false"
-   inkscape:zoom="12.116667"
-   inkscape:cx="13.658872"
-   inkscape:cy="30"
-   inkscape:window-width="1920"
-   inkscape:window-height="985"
-   inkscape:window-x="506"
-   inkscape:window-y="1109"
-   inkscape:window-maximized="1"
-   inkscape:current-layer="Capa_1" />
-<g
-   id="g5646"
-   transform="matrix(0,-1,-1,0,60,60)"
-   style="fill:#ffffff;fill-opacity:1">
-	<path
-   d="m 45.563,29.174 -22,-15 C 23.256,13.966 22.86,13.943 22.532,14.116 22.205,14.289 22,14.629 22,15 v 30 c 0,0.371 0.205,0.711 0.533,0.884 C 22.679,45.962 22.84,46 23,46 c 0.197,0 0.394,-0.059 0.563,-0.174 l 22,-15 C 45.836,30.64 46,30.331 46,30 46,29.669 45.836,29.36 45.563,29.174 Z M 24,43.107 V 16.893 L 43.225,30 Z"
-   id="path5642"
-   style="fill:#ffffff;fill-opacity:1" />
-	<path
-   d="M 30,0 C 13.458,0 0,13.458 0,30 0,46.542 13.458,60 30,60 46.542,60 60,46.542 60,30 60,13.458 46.542,0 30,0 Z m 0,58 C 14.561,58 2,45.439 2,30 2,14.561 14.561,2 30,2 45.439,2 58,14.561 58,30 58,45.439 45.439,58 30,58 Z"
-   id="path5644"
-   style="fill:#ffffff;fill-opacity:1" />
-</g>
-<g
-   id="g5648"
-   transform="matrix(0,-1,-1,0,0,60)"
-   style="fill:#ffffff;fill-opacity:1">
-</g>
-<g
-   id="g5650"
-   transform="matrix(0,-1,-1,0,0,60)"
-   style="fill:#ffffff;fill-opacity:1">
-</g>
-<g
-   id="g5652"
-   transform="matrix(0,-1,-1,0,0,60)"
-   style="fill:#ffffff;fill-opacity:1">
-</g>
-<g
-   id="g5654"
-   transform="matrix(0,-1,-1,0,0,60)"
-   style="fill:#ffffff;fill-opacity:1">
-</g>
-<g
-   id="g5656"
-   transform="matrix(0,-1,-1,0,0,60)"
-   style="fill:#ffffff;fill-opacity:1">
-</g>
-<g
-   id="g5658"
-   transform="matrix(0,-1,-1,0,0,60)"
-   style="fill:#ffffff;fill-opacity:1">
-</g>
-<g
-   id="g5660"
-   transform="matrix(0,-1,-1,0,0,60)"
-   style="fill:#ffffff;fill-opacity:1">
-</g>
-<g
-   id="g5662"
-   transform="matrix(0,-1,-1,0,0,60)"
-   style="fill:#ffffff;fill-opacity:1">
-</g>
-<g
-   id="g5664"
-   transform="matrix(0,-1,-1,0,0,60)"
-   style="fill:#ffffff;fill-opacity:1">
-</g>
-<g
-   id="g5666"
-   transform="matrix(0,-1,-1,0,0,60)"
-   style="fill:#ffffff;fill-opacity:1">
-</g>
-<g
-   id="g5668"
-   transform="matrix(0,-1,-1,0,0,60)"
-   style="fill:#ffffff;fill-opacity:1">
-</g>
-<g
-   id="g5670"
-   transform="matrix(0,-1,-1,0,0,60)"
-   style="fill:#ffffff;fill-opacity:1">
-</g>
-<g
-   id="g5672"
-   transform="matrix(0,-1,-1,0,0,60)"
-   style="fill:#ffffff;fill-opacity:1">
-</g>
-<g
-   id="g5674"
-   transform="matrix(0,-1,-1,0,0,60)"
-   style="fill:#ffffff;fill-opacity:1">
-</g>
-<g
-   id="g5676"
-   transform="matrix(0,-1,-1,0,0,60)"
-   style="fill:#ffffff;fill-opacity:1">
-</g>
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs8" />
+  <sodipodi:namedview
+     id="namedview6"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     showgrid="false"
+     inkscape:zoom="1.4199219"
+     inkscape:cx="256.35213"
+     inkscape:cy="256"
+     inkscape:window-width="1920"
+     inkscape:window-height="977"
+     inkscape:window-x="598"
+     inkscape:window-y="1111"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg4" />
+  <path
+     d="m 256.00001,1.62427 c -140.48145,0 -254.37574,113.89429 -254.37574,254.37574 0,140.48143 113.89429,254.37572 254.37574,254.37572 140.48143,0 254.37572,-113.89429 254.37572,-254.37572 0,-140.48145 -113.89429,-254.37574 -254.37572,-254.37574 z m 131.23585,317.12582 a 19.567364,19.567364 0 0 1 -27.66336,0 L 256.00001,215.18981 152.4275,318.75009 A 19.567364,19.567364 0 0 1 124.76414,291.08673 L 242.16832,173.68254 a 19.567364,19.567364 0 0 1 27.66336,0 l 117.40418,117.40419 a 19.567364,19.567364 0 0 1 0,27.66336 z"
+     id="path2"
+     style="fill:#ffffff;fill-opacity:1;stroke-width:1.22296" />
 </svg>

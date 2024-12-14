@@ -109,7 +109,7 @@ $(document).on('click','#hideAllReposGroups',function () {
          *  Change state to 'hidden'
          */
         $(this).attr('state', 'hidden');
-        $(this).find('img').attr('src', 'assets/icons/down.svg');
+        $(this).find('img').attr('src', 'assets/icons/view-off.svg');
 
         /**
          *  Retrieve all groups and hide them if they are visible
@@ -131,7 +131,7 @@ $(document).on('click','#hideAllReposGroups',function () {
         /**
          *  Change all up/down icons to 'down'
          */
-        $('img.hideGroup').attr('src', 'assets/icons/down.svg');
+        $('img.hideGroup').attr('src', 'assets/icons/view-off.svg');
     }
 
     /**
@@ -142,7 +142,7 @@ $(document).on('click','#hideAllReposGroups',function () {
          *  Change state to 'visible'
          */
         $(this).attr('state', 'visible');
-        $(this).find('img').attr('src', 'assets/icons/up.svg');
+        $(this).find('img').attr('src', 'assets/icons/view.svg');
 
         /**
          *  Retrieve all groups and show them if they are hidden
@@ -164,7 +164,7 @@ $(document).on('click','#hideAllReposGroups',function () {
         /**
          *  Change all up/down icons to 'up'
          */
-        $('img.hideGroup').attr('src', 'assets/icons/up.svg');
+        $('img.hideGroup').attr('src', 'assets/icons/view.svg');
     }
 });
 
@@ -177,12 +177,12 @@ $(document).on('click','.hideGroup',function () {
 
     if (state == 'visible') {
         $(this).attr('state', 'hidden');
-        $(this).attr('src', 'assets/icons/down.svg');
+        $(this).attr('src', 'assets/icons/view-off.svg');
     }
 
     if (state == 'hidden') {
         $(this).attr('state', 'visible');
-        $(this).attr('src', 'assets/icons/up.svg');
+        $(this).attr('src', 'assets/icons/view.svg');
     }
 
     slide('.repo-list-group-container[group-id="' + id + '"]');
@@ -261,7 +261,7 @@ $(document).on('click','.client-configuration-btn',function () {
         var commands = 'echo -e "[' + repo_conf_files_prefix + '' + repoName + '_' + repoEnv + ']\nname=' + repoName + ' repo on ' + www_hostname + '\nbaseurl=' + repo_dir_url + '/' + repoName + '_' + repoEnv + '\nenabled=1\ngpgkey=' + repo_dir_url + '/gpgkeys/' + www_hostname + '.pub\ngpgcheck=1" > /etc/yum.repos.d/' + repo_conf_files_prefix + '' + repoName + '.repo';
     }
     if (packageType == "deb") {
-        var commands = 'curl -sS ' + repo_dir_url + '/gpgkeys/' + www_hostname + '.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/' + www_hostname + '.gpg\n\n';
+        var commands = 'curl -sS ' + repo_dir_url + '/gpgkeys/' + www_hostname + '.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/' + www_hostname + '.gpg\n';
         commands    += 'echo "deb ' + repo_dir_url + '/' + repoName + '/' + repoDist + '/' + repoSection + '_' + repoEnv + ' ' + repoDist + ' ' + repoSection + '" > /etc/apt/sources.list.d/' + repo_conf_files_prefix + '' + repoName + '_' + repoDistFormatted + '_' + repoSection + '.list';
 
         /**
@@ -275,7 +275,7 @@ $(document).on('click','.client-configuration-btn',function () {
     /**
      *  Generation of the div
      */
-    $('body').append('<div class="divReposConf hide"><span><img title="Close" class="divReposConf-close close-btn lowopacity" src="/assets/icons/close.svg" /></span><h3>INSTALLATION</h3><h5>Use the code below to install the repo on a host:</h5><div id="divReposConfCommands-container"><pre id="divReposConfCommands">' + commands + '</pre><img src="/assets/icons/duplicate.svg" class="icon-lowopacity" title="Copy to clipboard" onclick="copyToClipboard(divReposConfCommands)" /></div></div>');
+    $('body').append('<div class="divReposConf hide"><span><img title="Close" class="divReposConf-close close-btn lowopacity" src="/assets/icons/close.svg" /></span><h3>INSTALLATION</h3><p class="note">Use the commands below to install the repository on a host.</p><div id="divReposConfCommands-container"><pre id="divReposConfCommands">' + commands + '</pre><img src="/assets/icons/duplicate.svg" class="icon-lowopacity" title="Copy to clipboard" onclick="copyToClipboard(divReposConfCommands)" /></div></div>');
 
     /**
      *  Print

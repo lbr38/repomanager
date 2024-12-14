@@ -4,23 +4,16 @@ namespace Controllers\Task\Repo\Metadata;
 
 use Exception;
 
-class Deb
+class Deb extends Metadata
 {
     private $root;
     private $repo;
     private $dist;
     private $section;
     private $arch;
-    private $gpgResign = false;
+    private $gpgSign = false;
     private $aptftparchive = '/usr/bin/apt-ftparchive';
-    private $logfile;
-    private $pid;
     private $task;
-
-    public function __construct()
-    {
-        $this->task = new \Controllers\Task\Task(false);
-    }
 
     public function setRoot(string $root)
     {
@@ -47,19 +40,9 @@ class Deb
         $this->arch = $arch;
     }
 
-    public function setGpgResign(string $gpgResign)
+    public function setGpgSign(string $gpgSign)
     {
-        $this->gpgResign = $gpgResign;
-    }
-
-    public function setLogfile(string $logfile)
-    {
-        $this->logfile = $logfile;
-    }
-
-    public function setPid(string $pid)
-    {
-        $this->pid = $pid;
+        $this->gpgSign = $gpgSign;
     }
 
     /**
@@ -75,11 +58,6 @@ class Deb
         }
 
         /**
-         *  Set task pid to the main pid passed
-         */
-        $this->task->setPid($this->pid);
-
-        /**
          *  Check if root path exists
          */
         if (!is_dir($this->root)) {
@@ -92,6 +70,8 @@ class Deb
         if (empty($this->arch)) {
             throw new Exception('Packages architecture(s) must be specified');
         }
+
+        $this->taskLogSubStepController->new('create-metadata', 'GENERATING REPOSITORY METADATA');
 
         /**
          *  Define directory to create for the repository
@@ -165,7 +145,7 @@ class Deb
         /**
          *  Create Packages file
          */
-        $myprocess = new \Controllers\Process('/usr/bin/apt-ftparchive generate ' . $this->root . '/apt-ftparchive.conf');
+        $myprocess = new \Controllers\Process($this->aptftparchive . ' generate ' . $this->root . '/apt-ftparchive.conf');
         $myprocess->setBackground(true);
         $myprocess->execute();
 
@@ -173,17 +153,17 @@ class Deb
          *  Retrieve PID of the launched process
          *  Then write PID to main PID file
          */
-        $this->task->addsubpid($myprocess->getPid());
+        $this->taskController->addsubpid($myprocess->getPid());
 
         /**
-         *  Print output to logfile
+         *  Retrieve output from process
          */
-        $output = $myprocess->getOutput($this->logfile);
+        $output = $myprocess->getOutput();
+
+        $this->taskLogSubStepController->output($output, 'pre');
 
         if ($myprocess->getExitCode() != 0) {
-            echo '<img src="/assets/icons/error.svg" class="icon margin-left-5 margin-right-5 vertical-align-text-top" /><span class="redtext">failed to generate Packages metadata file</span><br>';
-            echo $output;
-            throw new Exception('Failed to generate Packages metadata file');
+            throw new Exception('Failed to generate Packages metadata file.');
         }
 
         $myprocess->close();
@@ -191,7 +171,7 @@ class Deb
         /**
          *  Generate Release file
          */
-        $myprocess = new \Controllers\Process('/usr/bin/apt-ftparchive -c ' . $this->root . '/dist.conf release ' . $this->root . '/dists/' . $this->dist . ' > ' . $this->root . '/dists/' . $this->dist . '/Release');
+        $myprocess = new \Controllers\Process($this->aptftparchive . ' -c ' . $this->root . '/dist.conf release ' . $this->root . '/dists/' . $this->dist . ' > ' . $this->root . '/dists/' . $this->dist . '/Release');
         $myprocess->setBackground(true);
         $myprocess->execute();
 
@@ -199,12 +179,14 @@ class Deb
          *  Retrieve PID of the launched process
          *  Then write PID to main PID file
          */
-        $this->task->addsubpid($myprocess->getPid());
+        $this->taskController->addsubpid($myprocess->getPid());
 
         /**
-         *  Print output to logfile
+         *  Retrieve output from process
          */
-        $myprocess->getOutput($this->logfile);
+        $output = $myprocess->getOutput();
+
+        $this->taskLogSubStepController->output($output, 'pre');
 
         if ($myprocess->getExitCode() != 0) {
             throw new Exception('Failed to generate Release metadata file');
@@ -227,9 +209,10 @@ class Deb
         }
 
         /**
-         *  Quit here if GPG resign is not enabled
+         *  Quit here if GPG signature is not enabled
          */
-        if ($this->gpgResign != 'true') {
+        if ($this->gpgSign != 'true') {
+            $this->taskLogSubStepController->completed();
             return;
         }
 
@@ -243,13 +226,15 @@ class Deb
          *  Retrieve PID of the launched process
          *  Then write PID to main PID file
          */
-        $this->task->addsubpid($myprocess->getPid());
+        $this->taskController->addsubpid($myprocess->getPid());
 
         if ($myprocess->getExitCode() != 0) {
             throw new Exception('Failed to sign Release metadata file');
         }
 
         $myprocess->close();
+
+        $this->taskLogSubStepController->completed();
     }
 
     /**

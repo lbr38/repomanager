@@ -460,6 +460,16 @@ function printOsIcon(os = '', os_family = '')
     if (os != '') {
         if (os.toLowerCase() == 'centos') {
             return '<img src="/assets/icons/products/centos.png" class="icon-np" title="' + os + '">';
+        } else if (os.toLowerCase().match(/rocky/i)) {
+            return '<img src="/assets/icons/products/rockylinux.png" class="icon-np" title="' + os + '">';
+        } else if (os.toLowerCase().match(/alma/i)) {
+            return '<img src="/assets/icons/products/almalinux.png" class="icon-np" title="' + os + '">';
+        } else if (os.toLowerCase().match(/oracle/i)) {
+            return '<img src="/assets/icons/products/oracle.png" class="icon-np" title="' + os + '">';
+        } else if (os.toLowerCase().match(/fedora/i)) {
+            return '<img src="/assets/icons/products/fedora.png" class="icon-np" title="' + os + '">';
+        } else if (os.toLowerCase().match(/redhat/i)) {
+            return '<img src="/assets/icons/products/redhat.png" class="icon-np" title="' + os + '">';
         } else if (os.toLowerCase().match(/debian|armbian/i)) {
             return '<img src="/assets/icons/products/debian.png" class="icon-np" title="' + os + '">';
         } else if (os.toLowerCase().match(/ubuntu|kubuntu|xubuntu|mint/i)) {

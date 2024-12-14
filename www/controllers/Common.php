@@ -219,7 +219,7 @@ class Common
     }
 
     /**
-     *  Convertit une durée microtime au format HHhMMmSSs
+     *  Converts a microtime duration to a time format HHhMMmSSs
      */
     public static function convertMicrotime(string $duration)
     {
@@ -239,7 +239,19 @@ class Common
             $time .= $seconds . 's';
         }
 
+        if (empty($time)) {
+            $time = '0s';
+        }
+
         return $time;
+    }
+
+    /**
+     *  Converts a microtime to a time format
+     */
+    public static function microtimeToTime(string $microtime)
+    {
+        return date('H:i:s', $microtime);
     }
 
     /**
@@ -658,33 +670,51 @@ class Common
     /**
      *  Print OS icon image
      */
-    public static function printOsIcon(string $os = null, string $osFamily = null)
+    public static function printOsIcon(string $os)
     {
-        if (!empty($os)) {
-            if (preg_match('/centos/i', $os)) {
-                return '<img src="/assets/icons/products/centos.png" class="icon-np" title="' . $os . '" />';
-            } elseif (preg_match('/debian|armbian/i', $os)) {
-                return '<img src="/assets/icons/products/debian.png" class="icon-np" title="' . $os . '" />';
-            } elseif (preg_match('/ubuntu|kubuntu|xubuntu|mint/i', $os)) {
-                return '<img src="/assets/icons/products/ubuntu.png" class="icon-np" title="' . $os . '" />';
-            }
-        }
-
-        /**
-         *  If OS could not be found and OS family is specified
-         */
-        if (!empty($osFamily)) {
-            if (preg_match('/debian|ubuntu|kubuntu|xubuntu|armbian|mint/i', $osFamily)) {
-                return '<img src="/assets/icons/products/debian.png" class="icon-np" title="' . $os . '" />';
-            } elseif (preg_match('/rhel|centos|fedora/i', $osFamily)) {
-                return '<img src="/assets/icons/products/redhat.png" class="icon-np" title="' . $os . '" />';
-            }
+        if (preg_match('/centos/i', $os)) {
+            return '<img src="/assets/icons/products/centos.png" class="icon-np" title="' . $os . '" />';
+        } elseif (preg_match('/rocky/i', $os)) {
+            return '<img src="/assets/icons/products/rockylinux.png" class="icon-np" title="' . $os . '" />';
+        } elseif (preg_match('/alma/i', $os)) {
+            return '<img src="/assets/icons/products/almalinux.png" class="icon-np" title="' . $os . '" />';
+        } elseif (preg_match('/oracle/i', $os)) {
+            return '<img src="/assets/icons/products/oracle.png" class="icon-np" title="' . $os . '" />';
+        } elseif (preg_match('/fedora/i', $os)) {
+            return '<img src="/assets/icons/products/fedora.png" class="icon-np" title="' . $os . '" />';
+        } elseif (preg_match('/redhat/i', $os)) {
+            return '<img src="/assets/icons/products/redhat.png" class="icon-np" title="' . $os . '" />';
+        } elseif (preg_match('/debian|armbian/i', $os)) {
+            return '<img src="/assets/icons/products/debian.png" class="icon-np" title="' . $os . '" />';
+        } elseif (preg_match('/ubuntu|kubuntu|xubuntu|mint/i', $os)) {
+            return '<img src="/assets/icons/products/ubuntu.png" class="icon-np" title="' . $os . '" />';
         }
 
         /**
          *  Else return generic icon
          */
         return '<img src="/assets/icons/products/tux.png" class="icon-np" title="' . $os . '" />';
+    }
+
+    /**
+     *  Print type icon image
+     */
+    public static function printTypeIcon(string $type)
+    {
+        $type = ucfirst($type);
+
+        if (preg_match('/kvm/i', $type)) {
+            return '<img src="/assets/icons/products/kvm.png" class="icon-np" title="' . $type . '" />';
+        } elseif (preg_match('/lxc/i', $type)) {
+            return '<img src="/assets/icons/products/lxc.png" class="icon-np" title="' . $type . '" />';
+        } elseif (preg_match('/docker/i', $type)) {
+            return '<img src="/assets/icons/products/docker.png" class="icon-np" title="' . $type . '" />';
+        }
+
+        /**
+         *  Else return generic icon
+         */
+        return '<img src="/assets/icons/server.svg" class="icon-np" title="' . $type . '" />';
     }
 
     /**

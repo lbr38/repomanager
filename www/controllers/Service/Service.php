@@ -141,7 +141,7 @@ class Service
         try {
             $outputFile = fopen(DATA_DIR . '/version.available', "w");
 
-            curl_setopt($this->curlHandle, CURLOPT_URL, 'https://raw.githubusercontent.com/lbr38/repomanager/stable/www/version');
+            curl_setopt($this->curlHandle, CURLOPT_URL, 'https://raw.githubusercontent.com/lbr38/repomanager/main/www/version');
             curl_setopt($this->curlHandle, CURLOPT_FILE, $outputFile);
             curl_setopt($this->curlHandle, CURLOPT_TIMEOUT, 120);
 

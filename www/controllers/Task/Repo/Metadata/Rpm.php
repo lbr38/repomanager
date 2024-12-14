@@ -4,34 +4,16 @@ namespace Controllers\Task\Repo\Metadata;
 
 use Exception;
 
-class Rpm
+class Rpm extends Metadata
 {
     private $root;
     private $createrepo = '/usr/bin/createrepo_c';
     private $createrepoArgs = '-v --compress-type=gz --general-compress-type=gz';
     private $modifyrepo = '/usr/bin/modifyrepo_c';
-    private $logfile;
-    private $pid;
-    private $task;
-
-    public function __construct()
-    {
-        $this->task = new \Controllers\Task\Task(false);
-    }
 
     public function setRoot(string $root)
     {
         $this->root = $root;
-    }
-
-    public function setLogfile(string $logfile)
-    {
-        $this->logfile = $logfile;
-    }
-
-    public function setPid(string $pid)
-    {
-        $this->pid = $pid;
     }
 
     /**
@@ -47,11 +29,6 @@ class Rpm
         }
 
         /**
-         *  Set task pid to the main pid passed
-         */
-        $this->task->setPid($this->pid);
-
-        /**
          *  Check if root path exists
          */
         if (!is_dir($this->root)) {
@@ -65,7 +42,7 @@ class Rpm
             $this->createrepoArgs .= ' --groupfile=' . $this->root . '/comps.xml';
         }
 
-        file_put_contents($this->logfile, 'Creating repository metadata' . PHP_EOL, FILE_APPEND);
+        $this->taskLogSubStepController->new('create-metadata', 'GENERATING REPOSITORY METADATA');
 
         /**
          *  Create repository metadata
@@ -78,12 +55,14 @@ class Rpm
          *  Retrieve PID of the launched process
          *  Then write PID to main PID file
          */
-        $this->task->addsubpid($myprocess->getPid());
+        $this->taskController->addsubpid($myprocess->getPid());
 
         /**
-         *  Print output to logfile
+         *  Retrieve output from process
          */
-        $myprocess->getOutput($this->logfile);
+        $output = $myprocess->getOutput();
+
+        $this->taskLogSubStepController->output($output, 'pre');
 
         if ($myprocess->getExitCode() != 0) {
             throw new Exception('Could not generate repository metadata');
@@ -100,13 +79,15 @@ class Rpm
             }
         }
 
+        $this->taskLogSubStepController->completed();
+
         /**
          *  If a 'modules-temp.yaml' file exists in the root directory, include it in the metadata
          *  This file has been given a temporary name to avoid being included automatically by createrepo (which seems to fail to parse it correctly)
          *  So it has to be renamed to modules.yaml and then added to the metadata by modifyrepo
          */
         if (file_exists($this->root . '/modules-temp.yaml')) {
-            file_put_contents($this->logfile, PHP_EOL . 'Adding <code>modules.yaml</code> to repository metadata', FILE_APPEND);
+            $this->taskLogSubStepController->new('add-modules', 'ADDING MODULES.YAML TO REPOSITORY METADATA');
 
             /**
              *  Rename to modules.yaml
@@ -126,12 +107,14 @@ class Rpm
              *  Retrieve PID of the launched process
              *  Then write PID to main PID file
              */
-            $this->task->addsubpid($myprocess->getPid());
+            $this->taskController->addsubpid($myprocess->getPid());
 
             /**
-             *  Print output to logfile
+             *  Retrieve output from process
              */
-            $myprocess->getOutput($this->logfile);
+            $output = $myprocess->getOutput();
+
+            $this->taskLogSubStepController->output($output, 'pre');
 
             if ($myprocess->getExitCode() != 0) {
                 throw new Exception('Failed to add modules.yaml to repository metadata');
@@ -147,13 +130,15 @@ class Rpm
                     throw new Exception('Could not delete ' . $this->root . '/modules.yaml');
                 }
             }
+
+            $this->taskLogSubStepController->completed();
         }
 
         /**
          *  If updateinfo.xml file exists in the root directory, include it in the metadata
          */
         if (file_exists($this->root . '/updateinfo.xml')) {
-            file_put_contents($this->logfile, PHP_EOL . 'Adding <code>updateinfo.xml</code> to repository metadata', FILE_APPEND);
+            $this->taskLogSubStepController->new('add-updateinfo', 'ADDING UPDATEINFO.XML TO REPOSITORY METADATA');
 
             /**
              *  Include updateinfo.xml in the metadata
@@ -166,12 +151,14 @@ class Rpm
              *  Retrieve PID of the launched process
              *  Then write PID to main PID file
              */
-            $this->task->addsubpid($myprocess->getPid());
+            $this->taskController->addsubpid($myprocess->getPid());
 
             /**
-             *  Print output to logfile
+             *  Retrieve output from process
              */
-            $myprocess->getOutput($this->logfile);
+            $output = $myprocess->getOutput();
+
+            $this->taskLogSubStepController->output($output, 'pre');
 
             if ($myprocess->getExitCode() != 0) {
                 throw new Exception('Failed to add updateinfo.xml to repository metadata');
@@ -187,6 +174,8 @@ class Rpm
                     throw new Exception('Could not delete ' . $this->root . '/updateinfo.xml');
                 }
             }
+
+            $this->taskLogSubStepController->completed();
         }
     }
 }

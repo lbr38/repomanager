@@ -260,14 +260,6 @@ class Settings
             }
         }
 
-        if (!empty($sendSettings['manageProfiles'])) {
-            if ($sendSettings['manageProfiles'] == "true") {
-                $settingsToApply['MANAGE_PROFILES'] = 'true';
-            } else {
-                $settingsToApply['MANAGE_PROFILES'] = 'false';
-            }
-        }
-
         /**
          *  CVE
          */

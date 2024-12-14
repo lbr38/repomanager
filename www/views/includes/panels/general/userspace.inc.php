@@ -1,21 +1,20 @@
 <?php ob_start(); ?>
 
 <h6>LOGIN</h6>
-<p><?= $_SESSION['username'] ?></p>
+<input type="text" value="<?= $_SESSION['username'] ?>" readonly />
 
 <h6>ROLE</h6>
-<p><?= $_SESSION['role'] ?></p>
+<input type="text" value="<?= $_SESSION['role'] ?>" readonly />
 
 <h6>API KEY</h6>
-<p id="user-apikey">(hashed) Generate a new key to retrieve it in clear.</p>
+<p class="note">The API key is used to authenticate for most of the API endpoints. Keep it secret.</p>
+<input type="text" id="user-apikey" value="(hashed) Generate a new key to retrieve it in clear." />
 
-<br>
-<div class="flex column-gap-10">
+<div class="flex column-gap-10 margin-top-5">
     <button type="button" id="user-generate-apikey-btn" class="btn-medium-blue" title="Generate a new key">Generate new key</button>
 </div>
 
-<br><br>
-
+<h6 class="margin-bottom-5">LOGOUT FROM REPOMANAGER</h6>
 <a href="/logout" title="Logout">
     <button class="btn-small-red" >Logout</button>
 </a>
@@ -44,13 +43,13 @@
 <div>
     <form id="user-change-password" autocomplete="off">
         <input type="hidden" name="username" value="<?= $_SESSION['username'] ?>" />
-        <h6>CURRENT PASSWORD</h6>
+        <h6 class="required">CURRENT PASSWORD</h6>
         <input type="password" class="input-large" name="actual-password" required />
 
-        <h6>NEW PASSWORD</h6>
+        <h6 class="required">NEW PASSWORD</h6>
         <input type="password" class="input-large" name="new-password" required />
 
-        <h6>NEW PASSWORD (confirm)</h6>
+        <h6 class="required">NEW PASSWORD (confirm)</h6>
         <input type="password" class="input-large" name="new-password-confirm" required />
 
         <br><br>

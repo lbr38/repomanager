@@ -2,7 +2,7 @@
     <mj-body width="600px" background-color="#112334">
         <mj-section>
             <mj-column width="100%">
-                <mj-image width="150px" align="center" src="https://github.com/lbr38/repomanager/raw/stable/www/public/assets/images/repomanager.png"></mj-image>
+                <mj-image width="150px" align="center" src="https://github.com/lbr38/repomanager/raw/main/www/public/assets/images/repomanager.png"></mj-image>
             </mj-column>
         </mj-section>
     

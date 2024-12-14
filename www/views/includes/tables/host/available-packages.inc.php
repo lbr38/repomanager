@@ -10,7 +10,7 @@
         } ?>
 
         <div class="flex justify-space-between align-item-center">
-            <p class="margin-top-15 margin-bottom-15"><?=  $reloadableTableTotalItems ?> package(s) to update</p>
+            <p class="margin-top-15 margin-bottom-15 mediumopacity-cst"><?=  $reloadableTableTotalItems ?> package(s) to update</p>
             <input type="checkbox" class="available-package-select-all lowopacity margin-right-20" title="Select all packages" />
         </div>
 

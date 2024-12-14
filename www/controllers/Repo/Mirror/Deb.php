@@ -11,8 +11,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
      */
     private function downloadReleaseFile()
     {
-        $this->logTitle('GETTING INRELEASE / RELEASE FILE');
-        $this->logNote('From ' . $this->url . '/dists/' . $this->dist . '/');
+        $this->taskLogSubStepController->new('getting-release', 'GETTING INRELEASE / RELEASE FILE', 'From ' . $this->url . '/dists/' . $this->dist . '/');
 
         /**
          *  Check that Release.xx file exists before downloading it to prevent error message displaying for nothing
@@ -40,10 +39,10 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
          *  Print an error and quit if no Release file has been found
          */
         if (!file_exists($this->workingDir . '/InRelease') and !file_exists($this->workingDir . '/Release') and !file_exists($this->workingDir . '/Release.gpg')) {
-            $this->logError('No <code>InRelease</code> or <code>Release</code> file has been found in the source repository <code>' . $this->url . '/dists/' . $this->dist . '/</code> (looked for <code>InRelease</code>, <code>Release</code> and <code>Release.gpg</code>). Is the URL of the repository correct?', '<code>Release</code> file not found');
+            throw new Exception('No <code>InRelease</code> or <code>Release</code> file has been found in the source repository <code>' . $this->url . '/dists/' . $this->dist . '/</code> (looked for <code>InRelease</code>, <code>Release</code> and <code>Release.gpg</code>). Is the URL of the repository correct?');
         }
 
-        $this->logOK('Done');
+        $this->taskLogSubStepController->completed();
     }
 
     /**
@@ -67,7 +66,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  If the arch is 'src' then the indices file is named 'Sources'
              */
             if ($arch == 'src') {
-                $this->logTitle('SEARCHING FOR SOURCES INDICES FILE LOCATION');
+                $this->taskLogSubStepController->new('searching-source-indices', 'SEARCHING FOR SOURCES INDICES FILE LOCATION');
 
                 /**
                  *  Sources pattern to search in the Release file
@@ -80,7 +79,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  If the arch is not 'src' then the indices file is named 'Packages'
              */
             if ($arch != 'src') {
-                $this->logTitle('SEARCHING FOR PACKAGES INDICES FILE FOR ARCH ' . strtoupper($arch));
+                $this->taskLogSubStepController->new('searching-packages-indices', 'SEARCHING FOR PACKAGES INDICES FILE FOR ARCH ' . strtoupper($arch));
 
                 /**
                  *  Packages pattern to search in the Release file
@@ -127,7 +126,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                             $this->packagesIndicesLocation[] = array('location' => $location, 'checksum' => $checksum);
                         }
 
-                        $this->logOK('Done');
+                        $this->taskLogSubStepController->completed();
 
                         /**
                          *  Then ignore all next Packages.xx/Sources.xx indices file from the same arch as at least one has been found
@@ -141,10 +140,10 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  If no Packages.xx/Sources.xx file has been found for this arch, throw an error
              */
             if ($arch == 'src') {
-                $this->logError('No ' . $arch . ' <code>Sources</code> indices file has been found in the <code>' . $this->validReleaseFile . '</code> file.', 'Cannot retrieve <code>' . $arch . '</code> <code>Packages</code> indices file');
+                throw new Exception('No ' . $arch . ' <code>Sources</code> indices file has been found in the <code>' . $this->validReleaseFile . '</code> file.');
             }
             if ($arch != 'src') {
-                $this->logError('No ' . $arch . ' <code>Packages</code> indices file has been found in the <code>' . $this->validReleaseFile . '</code> file.', 'Cannot retrieve <code>' . $arch . '</code> <code>Packages</code> indices file');
+                throw new Exception('No ' . $arch . ' <code>Packages</code> indices file has been found in the <code>' . $this->validReleaseFile . '</code> file.');
             }
         }
 
@@ -152,17 +151,17 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
          *  Throw an error if no Packages indices file location has been found
          */
         if (empty($this->packagesIndicesLocation)) {
-            $this->logError('No <code>Packages</code> indices file location has been found.', 'Cannot retrieve <code>Packages</code> indices file');
+            throw new Exception('No <code>Packages</code> indices file location has been found.');
         }
         if (in_array('src', $this->arch) and empty($this->sourcesIndicesLocation)) {
-            $this->logError('No <code>Sources</code> indices file location has been found.', 'Cannot retrieve <code>Sources</code> indices file');
+            throw new Exception('No <code>Sources</code> indices file location has been found.');
         }
 
         /**
          *  Process research of Translation files for each requested translation language
          */
         if (!empty($this->translation)) {
-            $this->logTitle('SEARCHING FOR TRANSLATION FILE LOCATION');
+            $this->taskLogSubStepController->new('searching-translation', 'SEARCHING FOR TRANSLATION FILE LOCATION');
 
             foreach ($this->translation as $translation) {
                 /**
@@ -196,10 +195,10 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  Throw an error if no Translation file location has been found
              */
             if (empty($this->translationsLocation)) {
-                $this->logError('No <code>Translation</code> file location has been found. There may have no translation available for this repository.', 'Cannot retrieve translations files');
+                throw new Exception('No <code>Translation</code> file location has been found. There may have no translation available for this repository.');
             }
 
-            $this->logOK('Done');
+            $this->taskLogSubStepController->completed();
         }
 
         unset($content);
@@ -210,7 +209,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
      */
     private function parsePackagesIndiceFile()
     {
-        $this->logTitle('RETRIEVING DEB PACKAGES LIST');
+        $this->taskLogSubStepController->new('retrieving-deb-packages-list', 'RETRIEVING DEB PACKAGES LIST');
 
         /**
          *  Process research for each Package file (could have multiple if multiple archs have been specified)
@@ -225,14 +224,14 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  Download Packages.xx file using its location
              */
             if (!$this->download($this->url . '/dists/' . $this->dist . '/' . $packageIndicesLocation, $this->workingDir . '/' . $packageIndicesName)) {
-                $this->logError('Error while downloading <code>' . $packageIndicesName . '</code> indices file: <code>' . $this->url . '/' . $packageIndicesLocation . '</code>', 'Could not download <code>' . $packageIndicesName . '</code> indices file');
+                throw new Exception('Error while downloading <code>' . $packageIndicesName . '</code> indices file: <code>' . $this->url . '/' . $packageIndicesLocation . '</code>');
             }
 
             /**
              *  Then check that the Packages.xx file's checksum matches the one that what specified in Release file
              */
             if (!$this->checksum($this->workingDir . '/' . $packageIndicesName, $packageIndicesChecksum)) {
-                $this->logError('<code>' . $packageIndicesName . '</code> indices file\'s checksum does not match the checksum specified in the <code>Release</code> file ' . $packageIndicesChecksum, 'Could not verify <code>Packages</code> indices file');
+                throw new Exception('<code>' . $packageIndicesName . '</code> indices file\'s checksum does not match the checksum specified in the <code>Release</code> file ' . $packageIndicesChecksum);
             }
 
             /**
@@ -242,14 +241,14 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                 try {
                     \Controllers\Common::gunzip($this->workingDir . '/' . $packageIndicesName);
                 } catch (Exception $e) {
-                    $this->logError($e, 'Error while uncompressing <code>' . $packageIndicesName . '</code>');
+                    throw new Exception('Error while uncompressing <code>' . $packageIndicesName . '</code>');
                 }
             }
             if (preg_match('/.xz$/i', $packageIndicesName)) {
                 try {
                     \Controllers\Common::xzUncompress($this->workingDir . '/' . $packageIndicesName);
                 } catch (Exception $e) {
-                    $this->logError($e, 'Error while uncompressing <code>' . $packageIndicesName . '</code>');
+                    throw new Exception('Error while uncompressing <code>' . $packageIndicesName . '</code>');
                 }
             }
 
@@ -294,10 +293,10 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
          *  Quit if no packages have been found
          */
         if (empty($this->debPackagesLocation)) {
-            $this->logError('No packages found in <code>Packages</code> indices file');
+            throw new Exception('No packages found in <code>Packages</code> indices file');
         }
 
-        $this->logOK('Done');
+        $this->taskLogSubStepController->completed();
     }
 
     /**
@@ -312,7 +311,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             return;
         }
 
-        $this->logTitle('RETRIEVING SOURCES PACKAGES LIST');
+        $this->taskLogSubStepController->new('retrieving-sources-packages-list', 'RETRIEVING SOURCES PACKAGES LIST');
 
         /**
          *  Process research for each Sources file
@@ -327,14 +326,14 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  Download Sources file using its location
              */
             if (!$this->download($this->url . '/dists/' . $this->dist . '/' . $sourcesIndicesLocation, $this->workingDir . '/' . $sourcesIndicesName)) {
-                $this->logError('Error while downloading <code>' . $sourcesIndicesName . '</code> indices file: <code>' . $this->url . '/dists/' . $this->dist . '/' . $sourcesIndicesLocation . '</code>', 'Could not download <code>Sources</code> indices file');
+                throw new Exception('Error while downloading <code>' . $sourcesIndicesName . '</code> indices file: <code>' . $this->url . '/dists/' . $this->dist . '/' . $sourcesIndicesLocation . '</code>');
             }
 
             /**
              *  Then check that the Sources.xx file's checksum matches the one that what specified in Release file
              */
             if (!$this->checksum($this->workingDir . '/' . $sourcesIndicesName, $sourcesIndexChecksum)) {
-                $this->logError('<code>' . $sourcesIndicesName . '</code> indices file\'s checksum does not match the checksum specified in the <code>Release</code> file ' . $packageIndicesChecksum, 'Could not verify <code>Packages</code> indices file');
+                throw new Exception('<code>' . $sourcesIndicesName . '</code> indices file\'s checksum does not match the checksum specified in the <code>Release</code> file ' . $packageIndicesChecksum);
             }
 
             /**
@@ -344,14 +343,14 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                 try {
                     \Controllers\Common::gunzip($this->workingDir . '/' . $sourcesIndicesName);
                 } catch (Exception $e) {
-                    $this->logError($e, 'Error while uncompressing <code>' . $sourcesIndicesName . '</code>');
+                    throw new Exception('Error while uncompressing <code>' . $sourcesIndicesName . '</code>');
                 }
             }
             if (preg_match('/.xz$/i', $sourcesIndicesName)) {
                 try {
                     \Controllers\Common::xzUncompress($this->workingDir . '/' . $sourcesIndicesName);
                 } catch (Exception $e) {
-                    $this->logError($e, 'Error while uncompressing <code>' . $sourcesIndicesName . '</code>');
+                    throw new Exception('Error while uncompressing <code>' . $sourcesIndicesName . '</code>');
                 }
             }
 
@@ -452,10 +451,10 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
          *  Quit if no sources packages have been found
          */
         if (empty($this->sourcesPackagesLocation)) {
-            $this->logError('No packages found in <code>Sources</code> indices file');
+            throw new Exception('No packages found in <code>Sources</code> indices file');
         }
 
-        $this->logOK('Done');
+        $this->taskLogSubStepController->completed();
     }
 
     /**
@@ -494,7 +493,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  If no valid Release file has been found, throw an error
              */
             if (empty($this->validReleaseFile)) {
-                $this->logError('No valid <code>InRelease</code> or <code>Release</code> file found. Please ensure that the remote repository is correctly built.', 'Release file check fail');
+                throw new Exception('No valid <code>InRelease</code> or <code>Release</code> file found. Please ensure that the remote repository is correctly built.');
             }
 
             return;
@@ -508,7 +507,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                 continue;
             }
 
-            $this->logTitle('CHECKING ' . strtoupper($releaseFile['name']) . ' FILE GPG SIGNATURE');
+            $this->taskLogSubStepController->new('checking-' . $releaseFile['name'] . 'gpg-signature', 'CHECKING ' . strtoupper($releaseFile['name']) . ' FILE GPG SIGNATURE');
 
             /**
              *  Check that GPG signature is valid (signed with a known key)
@@ -525,16 +524,16 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                  */
                 $this->validReleaseFile = $releaseFile['name'];
 
-                $this->logOK('GPG signature is valid');
+                $this->taskLogSubStepController->completed('GPG signature is valid');
 
                 break;
             } catch (Exception $e) {
                 if (DEB_INVALID_SIGNATURE == 'error') {
-                    $this->logError($e->getMessage(), 'GPG signature check failed');
+                    throw new Exception('GPG signature check failed: ' . $e->getMessage());
                 }
 
                 if (DEB_INVALID_SIGNATURE == 'ignore') {
-                    $this->logWarning($e->getMessage());
+                    $this->taskLogSubStepController->warning($e->getMessage());
                     continue;
                 }
             }
@@ -544,7 +543,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
          *  If no valid Release file has been found, throw an error
          */
         if (empty($this->validReleaseFile)) {
-            $this->logError('No <code>InRelease</code> or <code>Release</code> file found with a valid GPG signature. Please check that you have imported the GPG key used to sign the repository.', 'GPG signature check failed');
+            throw new Exception('No <code>InRelease</code> or <code>Release</code> file found with a valid GPG signature. Please check that you have imported the GPG key used to sign the repository.');
         }
     }
 
@@ -625,15 +624,14 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
          */
         if (!is_dir($absoluteDir)) {
             if (!mkdir($absoluteDir, 0770, true)) {
-                $this->logError('Cannot create directory: <code>' . $absoluteDir . '</code>', 'Error while creating target directory');
+                throw new Exception('Cannot create directory: <code>' . $absoluteDir . '</code>');
             }
         }
 
         /**
          *  Print URL from which packages are downloaded
          */
-        $this->logTitle('DOWNLOADING PACKAGES');
-        $this->logNote('From ' . $url);
+        $this->taskLogSubStepController->new('downloading-packages', 'DOWNLOADING PACKAGES', 'From ' . $url);
 
         /**
          *  Count total packages to print progression during syncing
@@ -654,14 +652,13 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             /**
              *  Output package to download to log file
              */
-            $this->logTitle('DOWNLOADING PACKAGE (' . $packageCounter . '/' . $totalPackages . ')');
-            $this->logNote($url . '/' . $debPackageLocation);
+            $this->taskLogSubStepController->new('downloading-package-' . $packageCounter, 'DOWNLOADING PACKAGE (' . $packageCounter . '/' . $totalPackages . ')', $url . '/' . $debPackageLocation);
 
             /**
              *  Before downloading package, check if there is enough disk space left (2GB minimum)
              */
             if (disk_free_space(REPOS_DIR) < 2000000000) {
-                $this->logError('Repo storage has reached 2GB (minimum) of free space left. Task automatically stopped.', 'Low disk space');
+                throw new Exception('Low disk space: repository storage has reached 2GB (minimum) of free space left. Task automatically stopped.');
             }
 
             /**
@@ -681,7 +678,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                  *  If package is not in the list of packages to include, skip it
                  */
                 if (!$isIn) {
-                    $this->logWarning('not in the list of packages to include (ignoring)');
+                    $this->taskLogSubStepController->warning('Not in the list of packages to include (ignoring)');
                     continue;
                 }
             }
@@ -703,7 +700,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                  *  If package is in the list of packages to exclude, skip it
                  */
                 if ($isIn) {
-                    $this->logWarning('in the list of packages to exclude (ignoring)');
+                    $this->taskLogSubStepController->warning('In the list of packages to exclude (ignoring)');
                     continue;
                 }
             }
@@ -718,7 +715,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  First check if package has arch in its name, else ignore it
              */
             if (!preg_match('/(amd64|arm64|armel|armhf|i386|mips|mips64el|mipsel|ppc64el|s390x|all).deb$/', $debPackageName)) {
-                $this->logWarning('Package does not have a valid arch in its name (ignoring)');
+                $this->taskLogSubStepController->warning('Package does not have a valid arch in its name (ignoring)');
             }
 
             /**
@@ -743,7 +740,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              */
             if (file_exists($absoluteDir . '/' . $debPackageName)) {
                 if ($this->checksum($absoluteDir . '/' . $debPackageName, $debPackageChecksum)) {
-                    $this->logOK('Already exists (ignoring)');
+                    $this->taskLogSubStepController->completed('Already exists (ignoring)');
                     continue;
                 }
             }
@@ -758,10 +755,10 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                      *  Create hard link to the package
                      */
                     if (!link($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName, $absoluteDir . '/' . $debPackageName)) {
-                        $this->logError('Cannot create hard link to package: ' . $this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName, 'Error while creating hard link');
+                        throw new Exception('Cannot create hard link to package: ' . $this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName);
                     }
 
-                    $this->logOK('Linked to previous snapshot');
+                    $this->taskLogSubStepController->completed('Linked to previous snapshot');
 
                     continue;
                 }
@@ -771,21 +768,24 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  Download
              */
             if (!$this->download($url . '/' . $debPackageLocation, $absoluteDir . '/' . $debPackageName, 3)) {
-                $this->logError('error', 'Error while retrieving packages');
+                throw new Exception('Error while downloading package');
             }
 
             /**
              *  Check that downloaded deb package's sha256 matches the sha256 specified by the Packages file
              */
             if (!$this->checksum($absoluteDir . '/' . $debPackageName, $debPackageChecksum)) {
-                $this->logError('Checksum of the downloaded package does not match the checksum indicated by the source repository metadata', 'Error while retrieving packages');
+                throw new Exception('Checksum of the downloaded package does not match the checksum indicated by the source repository metadata');
             }
 
             /**
              *  Print OK if package has been downloaded and verified successfully
              */
-            $this->logOK('Done');
+            $this->taskLogSubStepController->completed();
         }
+
+        // Set the main substep as completed
+        $this->taskLogSubStepController->completed('', 'downloading-packages');
 
         unset($this->debPackagesLocation, $totalPackages, $packageCounter);
     }
@@ -812,15 +812,14 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
          */
         if (!is_dir($absoluteDir)) {
             if (!mkdir($absoluteDir, 0770, true)) {
-                $this->logError('Cannot create directory: <code>' . $absoluteDir . '</code>', 'Error while creating target directory');
+                throw new Exception('Cannot create directory: <code>' . $absoluteDir . '</code>');
             }
         }
 
         /**
          *  Print URL from which sources packages are downloaded
          */
-        $this->logTitle('DOWNLOADING SOURCES PACKAGES');
-        $this->logNote('From ' . $url);
+        $this->taskLogSubStepController->new('downloading-sources-packages', 'DOWNLOADING SOURCES PACKAGES', 'From ' . $url);
 
         /**
          *  Count total packages to print progression during syncing
@@ -841,14 +840,13 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             /**
              *  Output source package to download to log file
              */
-            $this->logTitle('DOWNLOADING SOURCE PACKAGE (' . $packageCounter . '/' . $totalPackages . ')');
-            $this->logNote($sourcePackageLocation);
+            $this->taskLogSubStepController->new('downloading-source-package-' . $packageCounter, 'DOWNLOADING SOURCE PACKAGE (' . $packageCounter . '/' . $totalPackages . ')', $sourcePackageLocation);
 
             /**
              *  Before downloading package, check if there is enough disk space left (2GB minimum)
              */
             if (disk_free_space(REPOS_DIR) < 2000000000) {
-                $this->logError('Repo storage has reached 2GB (minimum) of free space left. Task automatically stopped.', 'Low disk space');
+                throw new Exception('Low disk space: repository storage has reached 2GB (minimum) of free space left. Task automatically stopped.');
             }
 
             /**
@@ -856,7 +854,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  been downloaded or linked already from another arch)
              */
             if (file_exists($absoluteDir . '/' . $sourcePackageName)) {
-                $this->logOK('Already exists (ignoring)');
+                $this->taskLogSubStepController->completed('Already exists (ignoring)');
                 continue;
             }
 
@@ -864,20 +862,20 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  Download
              */
             if (!$this->download($url . '/' . $sourcePackageLocation, $absoluteDir . '/' . $sourcePackageName)) {
-                $this->logError('error', 'Error while retrieving sources packages');
+                throw new Exception('Error while doawnloading sources package');
             }
 
             /**
              *  Check that downloaded source package's md5 matches the md5sum specified by the Sources indices file
              */
             if (md5_file($absoluteDir . '/' . $sourcePackageName) != $sourcePackageMd5) {
-                $this->logError('Checksum of the file does not match ' . $sourcePackageMd5, 'Error while retrieving sources packages');
+                throw new Exception('Checksum of the file does not match ' . $sourcePackageMd5);
             }
 
             /**
              *  Print OK if source package has been downloaded and verified successfully
              */
-            $this->logOK('Done');
+            $this->taskLogSubStepController->completed();
         }
 
         unset($this->sourcesPackagesLocation, $totalPackages, $packageCounter);
@@ -910,27 +908,26 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             /**
              *  Output package to download to log file
              */
-            $this->logTitle('DOWNLOADING TRANSLATION');
-            $this->logNote($translationUrl);
+            $this->taskLogSubStepController->new('downloading-translation', 'DOWNLOADING TRANSLATION', $translationUrl);
 
             /**
              *  Download
              */
             if (!$this->download($translationUrl, $this->workingDir . '/translations/' . $translationName)) {
-                $this->logError('error', 'Error while retrieving packages');
+                throw new Exception('Error while downloading translation');
             }
 
             /**
              *  Check that downloaded deb package's md5 matches the md5sum specified by the Release file
              */
             if (md5_file($this->workingDir . '/translations/' . $translationName) != $translationMd5) {
-                $this->logError('MD5 sum does not match', 'Error while retrieving packages');
+                throw new Exception('Checksum of the file does not match ' . $translationMd5);
             }
 
             /**
              *  Print OK if package has been downloaded and verified successfully
              */
-            $this->logOK('Done');
+            $this->taskLogSubStepController->completed();
         }
 
         unset($this->translationsLocation);

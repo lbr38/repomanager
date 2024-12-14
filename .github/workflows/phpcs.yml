@@ -5,7 +5,7 @@ on:
     branches: [ devel ]
   pull_request:
     push:
-      branches: [ stable ]
+      branches: [ main ]
 jobs:
   phpcs:
     runs-on: ubuntu-latest

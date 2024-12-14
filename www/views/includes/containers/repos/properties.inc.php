@@ -59,7 +59,7 @@
                             </div>
                             <div>
                                 <span>
-                                    <a href="/run?task-log=<?= $lastScheduledTask['Logfile'] ?>"><?= DateTime::createFromFormat('Y-m-d', $lastScheduledTask['Date'])->format('d-m-Y') . ' ' . $lastScheduledTask['Time'] ?></a>
+                                    <a href="/run/<?= $lastScheduledTask['Id'] ?>"><?= DateTime::createFromFormat('Y-m-d', $lastScheduledTask['Date'])->format('d-m-Y') . ' ' . $lastScheduledTask['Time'] ?></a>
                                 </span>
                             </div>
                         </div>

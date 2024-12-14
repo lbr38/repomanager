@@ -37,7 +37,7 @@ if (!empty($groupsList)) {
                     <p class="font-size-16"><?= $group['Name'] ?></p>
                     <p class="lowopacity-cst"><?= $countMessage ?></p>
                 </div>
-                <img src="/assets/icons/up.svg" class="hideGroup pointer icon-lowopacity" group-id="<?= $group['Id'] ?>" state="visible" />
+                <img src="/assets/icons/view.svg" class="hideGroup pointer icon-lowopacity" group-id="<?= $group['Id'] ?>" state="visible" title="Hide/Show group">
             </div>
 
             <div class="repos-list-group-select-all-btns mediumopacity pointer hide" group-id="<?= $group['Id'] ?>">
@@ -180,19 +180,10 @@ if (!empty($groupsList)) {
                             }
 
                             /**
-                             *  Print empty line
-                             */
-                            // if ($printEmptyLine) {
-                                // echo '<div class="item-empty-line"></div>';
-                                // continue;
-                            // }
-
-                            /**
                              *  Print double empty line
                              */
                             if ($printDoubleEmptyLine) {
                                 echo '<div class="item-empty-line"></div>';
-                                // echo '<div class="item-empty-line"></div>';
                             } ?>
 
                             <div class="item-repo" name="<?= $name ?>" dist="<?= $dist ?>" section="<?= $section ?>" releasever="<?= $releaseVersion ?>">
@@ -200,7 +191,7 @@ if (!empty($groupsList)) {
                                 if ($printRepoName) : ?>
                                     <div class="flex align-item-center column-gap-8">
                                         <span class="copy bold wordbreakall"><?= $name ?></span>
-                                        <span class="label-pkg-<?= $packageType ?>" title="This repository contains <?= $packageType ?> packages"><?= $packageType ?></span>
+                                        <span class="label-pkg-<?= $packageType ?>" title="This repository contains <?= $packageType ?> packages"><?= strtoupper($packageType) ?></span>
                                     </div>
                                     <?php
                                 endif;
@@ -296,15 +287,13 @@ if (!empty($groupsList)) {
                                     </div>
 
                                     <div class="item-info">
-                                        <span class="item-size lowopacity-cst" title="Repository snapshot size" repo-id="<?= $repoId ?>" snap-id="<?= $snapId ?>" repo-relative-path="<?= $repoRelativePath ?>">Calc.</span>
                                         <span>
                                             <?php
                                             if ($type == "mirror") {
                                                 echo '<img class="icon-np lowopacity-cst" src="/assets/icons/internet.svg" title="Type: mirror (source repository: ' . $source . ')&#10;Arch: ' . $arch . '" />';
-                                            } elseif ($type == "local") {
+                                            }
+                                            if ($type == "local") {
                                                 echo '<img class="icon-np lowopacity-cst" src="/assets/icons/pin.svg" title="Type: local&#10;Arch: ' . $arch . '" />';
-                                            } else {
-                                                echo '<img class="icon-np lowopacity-cst" src="/assets/icons/unknown.svg" title="Type: unknown" />';
                                             } ?>
                                         </span>
                                         
@@ -312,12 +301,13 @@ if (!empty($groupsList)) {
                                             <?php
                                             if ($signed == "true") {
                                                 echo '<img class="icon-np lowopacity-cst" src="/assets/icons/key.svg" title="Signed with GPG" />';
-                                            } elseif ($signed == "false") {
+                                            }
+                                            if ($signed == "false") {
                                                 echo '<img class="icon-np" src="/assets/icons/key2.svg" title="Not signed with GPG" />';
-                                            } else {
-                                                echo '<img class="icon-np lowopacity-cst" src="/assets/icons/unknown.svg" title="GPG signature: unknown" />';
                                             } ?>
                                         </span>
+
+                                        <span class="item-size lowopacity-cst" title="Repository snapshot size" repo-id="<?= $repoId ?>" snap-id="<?= $snapId ?>" repo-relative-path="<?= $repoRelativePath ?>">Calc.</span>
                                     </div>
                                     <?php
                                 endif ?>

@@ -11,14 +11,7 @@ trait Sync
      */
     private function syncPackage()
     {
-        ob_start();
-
-        $this->taskLog->step('SYNCING PACKAGES');
-
-        echo '<div class="hide getPackagesDiv">';
-        $this->taskLog->steplogWrite();
-
-        //// CHECKS ////
+        $this->taskLogStepController->new('sync-packages', 'SYNCING PACKAGES');
 
         try {
             /**
@@ -94,19 +87,15 @@ trait Sync
                 throw new Exception('Packages arch must be specified');
             }
 
-            $this->taskLog->steplogWrite();
-
             /**
              *  2. Define final repo/section directory path
              */
             if ($this->repo->getPackageType() == 'rpm') {
                 $repoPath = REPOS_DIR . '/' . DATE_DMY . '_' . $this->repo->getName();
-                // $workingDir = REPOS_DIR . '/download-mirror-' . $this->repo->getName() . '-' . time();
                 $workingDir = REPOS_DIR . '/download-mirror-' . $this->repo->getName() . '-task-' . $this->task->getId();
             }
             if ($this->repo->getPackageType() == 'deb') {
                 $repoPath = REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . DATE_DMY . '_' . $this->repo->getSection();
-                // $workingDir = REPOS_DIR . '/download-mirror-' . $this->repo->getName() . '-' . $this->repo->getDist() . '-' . $this->repo->getSection()  . '-' . time();
                 $workingDir = REPOS_DIR . '/download-mirror-' . $this->repo->getName() . '-task-' . $this->repo->getDist() . '-' . $this->repo->getSection()  . '-' . $this->task->getId();
             }
 
@@ -136,8 +125,6 @@ trait Sync
                 }
             }
         } catch (Exception $e) {
-            echo '</div>';
-
             /**
              *  Throw exception with mirror error message
              */
@@ -183,11 +170,11 @@ trait Sync
              *  Define mirroring params
              */
             if ($this->repo->getPackageType() == 'rpm') {
-                $mymirror = new \Controllers\Repo\Mirror\Rpm();
+                $mymirror = new \Controllers\Repo\Mirror\Rpm($this->task->getId());
                 $mymirror->setReleasever($this->repo->getReleasever());
             }
             if ($this->repo->getPackageType() == 'deb') {
-                $mymirror = new \Controllers\Repo\Mirror\Deb();
+                $mymirror = new \Controllers\Repo\Mirror\Deb($this->task->getId());
                 $mymirror->setDist($this->repo->getDist());
                 $mymirror->setSection($this->repo->getSection());
             }
@@ -197,7 +184,6 @@ trait Sync
             $mymirror->setCheckSignature($this->repo->getGpgCheck());
             $mymirror->setPackagesToInclude($this->repo->getPackagesToInclude());
             $mymirror->setPackagesToExclude($this->repo->getPackagesToExclude());
-            $mymirror->setOutputFile($this->taskLog->getStepLog());
 
             /**
              *  If the task is an update, set the previous repo directory path
@@ -322,8 +308,6 @@ trait Sync
                 throw new Exception('Could not rename working directory ' . $workingDir);
             }
         } catch (Exception $e) {
-            echo '</div>';
-
             /**
              *  If there was an error while mirroring, delete working dir if exists
              */
@@ -337,10 +321,6 @@ trait Sync
             throw new Exception($e->getMessage());
         }
 
-        echo '</div>';
-
-        $this->taskLog->stepOK();
-
-        return true;
+        $this->taskLogStepController->completed();
     }
 }

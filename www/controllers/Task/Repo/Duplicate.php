@@ -12,14 +12,16 @@ class Duplicate
     private $sourceRepo;
     private $repo;
     private $task;
-    private $taskLog;
+    private $taskLogStepController;
+    private $taskLogSubStepController;
 
     public function __construct(string $taskId)
     {
         $this->sourceRepo = new \Controllers\Repo\Repo();
         $this->repo = new \Controllers\Repo\Repo();
         $this->task = new \Controllers\Task\Task();
-        $this->taskLog = new \Controllers\Task\Log($taskId);
+        $this->taskLogStepController = new \Controllers\Task\Log\Step($taskId);
+        $this->taskLogSubStepController = new \Controllers\Task\Log\SubStep($taskId);
 
         /**
          *  Retrieve task params
@@ -70,33 +72,13 @@ class Duplicate
         $this->task->setAction('duplicate');
 
         /**
-         *  Generate PID for the task
-         */
-        $this->task->generatePid();
-
-        /**
-         *  Generate log file
-         */
-        $this->taskLog->generateLog();
-
-        /**
-         *  Set PID
-         */
-        $this->task->updatePid($taskId, $this->task->getPid());
-
-        /**
-         *  Set log file location
-         */
-        $this->task->updateLogfile($taskId, $this->taskLog->getName());
-
-        /**
          *  Start task
          */
         $this->task->setDate(date('Y-m-d'));
         $this->task->setTime(date('H:i:s'));
         $this->task->updateDate($taskId, $this->task->getDate());
         $this->task->updateTime($taskId, $this->task->getTime());
-        $this->task->start($taskId, 'running');
+        $this->task->start();
     }
 
     /**
@@ -104,26 +86,14 @@ class Duplicate
      */
     public function execute()
     {
-        /**
-         *  Launch external script that will build the main log file from the small log files of each step
-         */
-        $this->taskLog->runLogBuilder($this->task->getId(), $this->taskLog->getLocation());
-
         try {
-            ob_start();
-
-            /**
-             *  Generate task summary table
-             */
-            include(ROOT . '/views/templates/tasks/duplicate.inc.php');
-
-            $this->taskLog->step('DUPLICATING');
+            $this->taskLogStepController->new('duplicating', 'DUPLICATING');
 
             /**
              *  Check if source repo snapshot exists
              */
             if ($this->sourceRepo->existsSnapId($this->sourceRepo->getSnapId()) === false) {
-                throw new Exception("Source repository snapshot does not exist");
+                throw new Exception('Source repository snapshot does not exist');
             }
 
             /**
@@ -131,12 +101,12 @@ class Duplicate
              */
             if ($this->repo->getPackageType() == 'rpm') {
                 if ($this->repo->isActive($this->repo->getName()) === true) {
-                    throw new Exception('a repo <span class="label-black">' . $this->repo->getName() . '</span> already exists');
+                    throw new Exception('A repo <span class="label-black">' . $this->repo->getName() . '</span> already exists');
                 }
             }
             if ($this->repo->getPackageType() == 'deb') {
                 if ($this->repo->isActive($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection()) === true) {
-                    throw new Exception('a repo <span class="label-black">' . $this->repo->getName() . ' ❯ ' . $this->repo->getDist() . ' ❯ ' . $this->repo->getSection() . '</span> already exists');
+                    throw new Exception('A repo <span class="label-black">' . $this->repo->getName() . ' ❯ ' . $this->repo->getDist() . ' ❯ ' . $this->repo->getSection() . '</span> already exists');
                 }
             }
 
@@ -146,14 +116,14 @@ class Duplicate
             if ($this->repo->getPackageType() == 'rpm') {
                 if (!file_exists(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName())) {
                     if (!mkdir(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName(), 0770, true)) {
-                        throw new Exception("cannot create directory for the new repo <b>" . $this->repo->getName() . "</b>");
+                        throw new Exception('Cannot create directory for the new repo <span class="label-black">' . $this->repo->getName() . '</span>');
                     }
                 }
             }
             if ($this->repo->getPackageType() == 'deb') {
                 if (!file_exists(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection())) {
                     if (!mkdir(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection(), 0770, true)) {
-                        throw new Exception("cannot create directory for the new repo <b>" . $this->repo->getName() . "</b>");
+                        throw new Exception('Cannot create directory for the new repo <span class="label-black">' . $this->repo->getName() . '</span>');
                     }
                 }
             }
@@ -172,7 +142,7 @@ class Duplicate
                 throw new Exception('Could not copy data from the source repo to the new repo');
             }
 
-            $this->taskLog->stepOK();
+            $this->taskLogStepController->completed();
 
             /**
              *  On a deb repo, the duplicated repo metadata must be rebuilded
@@ -181,7 +151,7 @@ class Duplicate
                 $this->createMetadata();
             }
 
-            $this->taskLog->step('FINALIZING');
+            $this->taskLogStepController->new('finalizing', 'FINALIZING');
 
             /**
              *  Create a symlink to the new repo, only if the user has specified an environment
@@ -276,20 +246,20 @@ class Duplicate
                 \Controllers\Filesystem\File::recursiveChown(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection(), WWW_USER, 'repomanager');
             }
 
-            $this->taskLog->stepOK();
+            $this->taskLogStepController->completed();
 
             /**
              *  Add the new repo to a group if a group has been specified
              */
             if (!empty($this->repo->getGroup())) {
-                $this->taskLog->step('ADDING TO GROUP');
+                $this->taskLogStepController->new('adding-to-group', 'ADDING REPOSITORY TO GROUP');
 
                 /**
                  *  Add the new repo to the specified group
                  */
                 $this->repo->addRepoIdToGroup($targetRepoId, $this->repo->getGroup());
 
-                $this->taskLog->stepOK();
+                $this->taskLogStepController->completed();
             }
 
             /**
@@ -302,29 +272,27 @@ class Duplicate
              */
             $this->task->setStatus('done');
             $this->task->updateStatus($this->task->getId(), 'done');
-        } catch (\Exception $e) {
-            /**
-             *  Print a red error message in the log file
-             */
-            $this->taskLog->stepError($e->getMessage());
+        } catch (Exception $e) {
+            // Set sub step error message and mark step as error
+            $this->taskLogSubStepController->error($e->getMessage());
+            $this->taskLogStepController->error();
 
-            /**
-             *  Set task status to error
-             */
+            // Set task status to error
             $this->task->setStatus('error');
             $this->task->updateStatus($this->task->getId(), 'error');
-            $this->task->setError($e->getMessage());
+            $this->task->setError('Failed');
         }
 
         /**
          *  Get total duration
          */
-        $duration = $this->task->getDuration();
+        $duration = \Controllers\Common::convertMicrotime($this->task->getDuration());
 
         /**
          *  End task
          */
-        $this->taskLog->stepDuration($duration);
+        $this->taskLogStepController->new('duration', 'DURATION');
+        $this->taskLogStepController->none('Total duration: ' . $duration);
         $this->task->end();
     }
 }

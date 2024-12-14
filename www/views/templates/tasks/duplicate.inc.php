@@ -3,8 +3,8 @@
         <h3>DUPLICATE REPOSITORY SNAPSHOT</h3>
 
         <div class="text-right">
-            <p title="Task execution date"><?= DateTime::createFromFormat('Y-m-d', $this->task->getDate())->format('d-m-Y') . ' ' . $this->task->getTime() ?></p>
-            <p title="Task Id">Task #<?= $this->task->getId() ?></p>
+            <p title="Task execution date"><?= DateTime::createFromFormat('Y-m-d', $taskInfo['Date'])->format('d-m-Y') . ' ' . $taskInfo['Time'] ?></p>
+            <p title="Task Id">Task #<?= $taskId ?></p>
         </div>
     </div>
 </div>
@@ -16,11 +16,11 @@
             <p>
                 <span class="label-white">
                     <?php
-                    if ($this->sourceRepo->getPackageType() == 'rpm') {
-                        echo $this->sourceRepo->getName();
+                    if ($repoController->getPackageType() == 'rpm') {
+                        echo $repoController->getName();
                     }
-                    if ($this->sourceRepo->getPackageType() == 'deb') {
-                        echo $this->sourceRepo->getName() . ' ❯ ' . $this->sourceRepo->getDist() . ' ❯ ' . $this->sourceRepo->getSection();
+                    if ($repoController->getPackageType() == 'deb') {
+                        echo $repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection();
                     } ?>
                 </span>
             </p>
@@ -29,7 +29,7 @@
         <div>
             <h6 class="margin-top-0">SNAPSHOT</h6>
             <p>
-                <span class="label-black"><?= $this->sourceRepo->getDateFormatted() ?></span>
+                <span class="label-black"><?= $repoController->getDateFormatted() ?></span>
             </p>
         </div>
     </div>
@@ -40,31 +40,42 @@
             <p>
                 <span class="label-white">
                     <?php
-                    if ($this->sourceRepo->getPackageType() == 'rpm') {
-                        echo $this->repo->getName();
+                    if ($repoController->getPackageType() == 'rpm') {
+                        echo $rawParams['name'];
                     }
-                    if ($this->sourceRepo->getPackageType() == 'deb') {
-                        echo $this->repo->getName() . ' ❯ ' . $this->sourceRepo->getDist() . ' ❯ ' . $this->sourceRepo->getSection();
+                    if ($repoController->getPackageType() == 'deb') {
+                        echo $rawParams['name'] . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection();
                     } ?>
                 </span>
             </p>
         </div>
+
+        <?php
+        if (!empty($rawParams['env'])) : ?>
+            <div>
+                <h6>POINT AN ENVIRONMENT</h6>
+                <p>
+                    <?= \Controllers\Common::envtag($rawParams['env']) ?>
+                </p>
+            </div>
+            <?php
+        endif ?>
     </div>
 
     <div class="grid grid-2">
         <?php
-        if (!empty($this->repo->getDescription())) : ?>
+        if (!empty($repoController->getDescription())) : ?>
             <div>
                 <h6>DESCRIPTION</h6>
-                <p><?= $this->repo->getDescription() ?></p>
+                <p><?= $repoController->getDescription() ?></p>
             </div>
             <?php
         endif;
 
-        if (!empty($this->repo->getGroup())) : ?>
+        if (!empty($repoController->getGroup())) : ?>
             <div>
                 <h6>ADD TO GROUP</h6>
-                <p><?= $this->repo->getGroup() ?></p>
+                <p><?= $repoController->getGroup() ?></p>
             </div>
             <?php
         endif ?>

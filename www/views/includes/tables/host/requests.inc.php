@@ -1,5 +1,5 @@
 <div class="reloadable-table" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
-    <p class="lowopacity-cst margin-bottom-15">Requests sent to the host</p>
+    <p class="note margin-bottom-15">Requests sent to the host.</p>
 
     <?php
     if (empty($reloadableTableContent)) :
@@ -216,8 +216,8 @@
                 $class .= ' request-show-more-info-btn pointer';
             }
 
-            // If the request was a disconnect, skip it
-            if ($request == 'disconnect') {
+            // If the request was a profile update or a disconnect, skip it
+            if ($request == 'update-profile' or $request == 'disconnect') {
                 continue;
             } ?>
 
@@ -258,11 +258,11 @@
                 <div class="flex align-item-center justify-end column-gap-15">
                     <?php
                     if (!empty($dryRun) and $dryRun) {
-                        echo '<img class="icon-np lowopacity-cst" src="/assets/icons/dryrun.svg" title="Task as been executed in dry-run mode">';
+                        echo '<img class="icon-np lowopacity-cst" src="/assets/icons/build.svg" title="Task as been executed in dry-run mode">';
                     }
 
                     if (file_exists(WS_REQUESTS_LOGS_DIR . '/request-' . $item['Id'] . '.log')) : ?>
-                        <img class="icon-lowopacity request-show-log-btn" request-id="<?= $item['Id'] ?>" src="/assets/icons/file.svg" title="Show global log">
+                        <img class="icon-lowopacity request-show-log-btn" request-id="<?= $item['Id'] ?>" src="/assets/icons/view.svg" title="Show global log">
                         <?php
                     endif;
 
@@ -352,7 +352,7 @@
                             <p class="text-right">
                                 <?php
                                 if (!empty($details['log'])) : ?>
-                                    <img class="icon-lowopacity request-show-package-log-btn" request-id="<?= $item['Id'] ?>" package="<?= $package ?>" status="success" src="/assets/icons/file.svg" title="Show package log" />
+                                    <img class="icon-lowopacity request-show-package-log-btn" request-id="<?= $item['Id'] ?>" package="<?= $package ?>" status="success" src="/assets/icons/view.svg" title="Show package log" />
                                     <?php
                                 endif ?>
                             </p>
@@ -382,7 +382,7 @@
                             <p class="text-right">
                                 <?php
                                 if (!empty($details['log'])) : ?>
-                                    <img class="icon-lowopacity request-show-package-log-btn" request-id="<?= $item['Id'] ?>" package="<?= $package ?>" status="failed" src="/assets/icons/file.svg" title="Show package log" />
+                                    <img class="icon-lowopacity request-show-package-log-btn" request-id="<?= $item['Id'] ?>" package="<?= $package ?>" status="failed" src="/assets/icons/view.svg" title="Show package log" />
                                     <?php
                                 endif ?>
                             </p>

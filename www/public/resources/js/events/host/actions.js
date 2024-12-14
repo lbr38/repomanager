@@ -125,8 +125,6 @@ $(document).on('click','input[type="checkbox"][name="checkbox-host[]"]',function
             }
         });
 
-        console.log(hosts);
-
         confirmBox(
             {
                 'title': 'Execute action',

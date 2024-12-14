@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
-
 <svg
-   width="800px"
-   height="800px"
+   width="512"
+   height="512"
    viewBox="0 0 512 512"
    version="1.1"
-   id="svg12"
+   id="svg4"
    sodipodi:docname="previous.svg"
    inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs8" />
   <sodipodi:namedview
-     id="namedview14"
+     id="namedview6"
      pagecolor="#ffffff"
      bordercolor="#666666"
      borderopacity="1.0"
@@ -22,41 +22,17 @@
      inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
      showgrid="false"
-     inkscape:zoom="0.90875"
-     inkscape:cx="400"
-     inkscape:cy="400"
+     inkscape:zoom="1.4199219"
+     inkscape:cx="256.35213"
+     inkscape:cy="256"
      inkscape:window-width="1920"
-     inkscape:window-height="979"
-     inkscape:window-x="701"
-     inkscape:window-y="1109"
+     inkscape:window-height="977"
+     inkscape:window-x="598"
+     inkscape:window-y="1111"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg12" />
-  <defs
-     id="defs4">
-    <style
-       id="style2">.cls-1{fill:none;stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:20px;}</style>
-  </defs>
-  <g
-     data-name="Layer 2"
-     id="Layer_2"
-     style="fill:none;fill-opacity:1;stroke:#ffffff;stroke-opacity:1"
-     transform="matrix(-1,0,0,1,512,0)">
-    <g
-       data-name="E415, next, Media, media player, multimedia"
-       id="E415_next_Media_media_player_multimedia"
-       style="fill:none;fill-opacity:1;stroke:#ffffff;stroke-opacity:1">
-      <circle
-         class="cls-1"
-         cx="256"
-         cy="256"
-         r="246"
-         id="circle6"
-         style="fill:none;fill-opacity:1;stroke:#ffffff;stroke-opacity:1" />
-      <polyline
-         class="cls-1"
-         points="178.18 411.63 333.82 256 178.18 100.37"
-         id="polyline8"
-         style="fill:none;fill-opacity:1;stroke:#ffffff;stroke-opacity:1" />
-    </g>
-  </g>
+     inkscape:current-layer="svg4" />
+  <path
+     d="M 255.7669,1.7555888 C 115.22923,1.7555888 1.289375,115.69545 1.289375,256.2331 c 0,140.53766 113.939855,254.47753 254.477525,254.47753 140.53765,0 254.47751,-113.93987 254.47751,-254.47753 0,-140.53765 -113.93986,-254.4775112 -254.47751,-254.4775112 z m 43.2,358.0914612 a 19.575194,19.575194 0 1 1 -27.67443,27.67443 L 153.8413,270.07032 a 19.575194,19.575194 0 0 1 0,-27.67443 L 271.29247,124.94473 a 19.575194,19.575194 0 0 1 27.67443,27.67443 L 195.36519,256.2331 Z"
+     id="path2"
+     style="fill:#ffffff;fill-opacity:1;stroke-width:1.22345" />
 </svg>

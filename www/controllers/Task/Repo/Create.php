@@ -14,7 +14,8 @@ class Create
 
     private $repo;
     private $task;
-    private $taskLog;
+    private $taskLogStepController;
+    private $taskLogSubStepController;
     private $type;
     private $packagesToSign = null;
 
@@ -22,7 +23,8 @@ class Create
     {
         $this->repo = new \Controllers\Repo\Repo();
         $this->task = new \Controllers\Task\Task();
-        $this->taskLog = new \Controllers\Task\Log($taskId);
+        $this->taskLogStepController = new \Controllers\Task\Log\Step($taskId);
+        $this->taskLogSubStepController = new \Controllers\Task\Log\SubStep($taskId);
 
         /**
          *  Retrieve task params
@@ -92,33 +94,13 @@ class Create
         $this->task->setAction('create');
 
         /**
-         *  Generate PID for the task
-         */
-        $this->task->generatePid();
-
-        /**
-         *  Generate log file
-         */
-        $this->taskLog->generateLog();
-
-        /**
-         *  Set PID
-         */
-        $this->task->updatePid($taskId, $this->task->getPid());
-
-        /**
-         *  Set log file location
-         */
-        $this->task->updateLogfile($taskId, $this->taskLog->getName());
-
-        /**
          *  Start task
          */
         $this->task->setDate(date('Y-m-d'));
         $this->task->setTime(date('H:i:s'));
         $this->task->updateDate($taskId, $this->task->getDate());
         $this->task->updateTime($taskId, $this->task->getTime());
-        $this->task->start($taskId, 'running');
+        $this->task->start();
 
         /**
          *  Set repo type for the task to be executed
@@ -151,17 +133,7 @@ class Create
         $this->repo->setDate(date('Y-m-d'));
         $this->repo->setTime(date('H:i'));
 
-        /**
-         *  Run the external script that will build the main log file from the small log files of each step
-         */
-        $this->taskLog->runLogBuilder($this->task->getId(), $this->taskLog->getLocation());
-
         try {
-            /**
-             *  Print task details
-             */
-            $this->printDetails('new');
-
             /**
              *  Sync packages
              */
@@ -187,26 +159,27 @@ class Create
              */
             $this->task->setStatus('done');
             $this->task->updateStatus($this->task->getId(), 'done');
-        } catch (\Exception $e) {
-            $this->taskLog->stepError($e->getMessage());
+        } catch (Exception $e) {
+            // Set sub step error message and mark step as error
+            $this->taskLogSubStepController->error($e->getMessage());
+            $this->taskLogStepController->error();
 
-            /**
-             *  Set task status to 'error'
-             */
+            // Set task status to error
             $this->task->setStatus('error');
             $this->task->updateStatus($this->task->getId(), 'error');
-            $this->task->setError($e->getMessage());
+            $this->task->setError('Failed');
         }
 
         /**
          *  Get total duration
          */
-        $duration = $this->task->getDuration();
+        $duration = \Controllers\Common::convertMicrotime($this->task->getDuration());
 
         /**
          *  End task
          */
-        $this->taskLog->stepDuration($duration);
+        $this->taskLogStepController->new('duration', 'DURATION');
+        $this->taskLogStepController->none('Total duration: ' . $duration);
         $this->task->end();
     }
 
@@ -221,20 +194,8 @@ class Create
         $this->repo->setDate(date('Y-m-d'));
         $this->repo->setTime(date("H:i"));
 
-        /**
-         *  Launch the external script that will build the main log file from the small log files of each step
-         */
-        $this->taskLog->runLogBuilder($this->task->getId(), $this->taskLog->getLocation());
-
         try {
-            ob_start();
-
-            /**
-             *  Generate task summary table
-             */
-            include(ROOT . '/views/templates/tasks/new-local.inc.php');
-
-            $this->taskLog->step('CREATING REPOSITORY');
+            $this->taskLogStepController->new('create-metadata', 'CREATING REPOSITORY');
 
             /**
              *  Check if a repo/section with the same name is already active with snapshots
@@ -391,15 +352,15 @@ class Create
                 \Controllers\Filesystem\File::recursiveChown(REPOS_DIR . '/' . $this->repo->getName(), WWW_USER, 'repomanager');
             }
 
-            $this->taskLog->stepOK();
+            $this->taskLogStepController->completed();
 
             /**
              *  Add repo to group if a group has been specified
              */
             if (!empty($this->repo->getGroup())) {
-                $this->taskLog->step('ADDING TO GROUP');
+                $this->taskLogStepController->new('add-to-group', 'ADDING REPOSITORY TO GROUP');
                 $this->repo->addRepoIdToGroup($this->repo->getRepoId(), $this->repo->getGroup());
-                $this->taskLog->stepOK();
+                $this->taskLogStepController->completed();
             }
 
             /**
@@ -412,29 +373,27 @@ class Create
              */
             $this->task->setStatus('done');
             $this->task->updateStatus($this->task->getId(), 'done');
-        } catch (\Exception $e) {
-            /**
-             *  Print a red error message in the log file
-             */
-            $this->taskLog->stepError($e->getMessage());
+        } catch (Exception $e) {
+            // Set sub step error message and mark step as error
+            $this->taskLogSubStepController->error($e->getMessage());
+            $this->taskLogStepController->error();
 
-            /**
-             *  Set task status to 'error'
-             */
+            // Set task status to error
             $this->task->setStatus('error');
             $this->task->updateStatus($this->task->getId(), 'error');
-            $this->task->setError($e->getMessage());
+            $this->task->setError('Failed');
         }
 
         /**
          *  Get total duration
          */
-        $duration = $this->task->getDuration();
+        $duration = \Controllers\Common::convertMicrotime($this->task->getDuration());
 
         /**
          *  End task
          */
-        $this->taskLog->stepDuration($duration);
+        $this->taskLogStepController->new('duration', 'DURATION');
+        $this->taskLogStepController->none('Total duration: ' . $duration);
         $this->task->end();
     }
 }

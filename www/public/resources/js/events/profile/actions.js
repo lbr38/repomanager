@@ -5,10 +5,10 @@
 /**
  *  Event: Create new profile
  */
-$(document).on('submit','#newProfileForm',function () {
+$(document).on('submit','#create-new-profile-form',function () {
     event.preventDefault();
 
-    var name = $("#newProfileInput").val();
+    var name = $(this).find("input#profile-name").val();
 
     ajaxRequest(
         // Controller:
@@ -24,7 +24,12 @@ $(document).on('submit','#newProfileForm',function () {
         // Print error alert:
         true,
         // Reload container:
-        ['profiles/list']
+        [],
+        // Execute functions on success:
+        [
+            // Reload profile list
+            "reloadPanel('hosts/profiles')"
+        ]
     );
 
     return false;
@@ -63,7 +68,12 @@ $(document).on('click','.profile-delete-btn',function (e) {
                         // Print error alert:
                         true,
                         // Reload container:
-                        ['profiles/list']
+                        [],
+                        // Execute functions on success:
+                        [
+                            // Reload profile list
+                            "reloadPanel('hosts/profiles')"
+                        ]
                     );
                 }
             }]
@@ -94,7 +104,12 @@ $(document).on('click','.profile-duplicate-btn',function (e) {
         // Print error alert:
         true,
         // Reload container:
-        ['profiles/list']
+        [],
+        // Execute functions on success:
+        [
+            // Reload profile list
+            "reloadPanel('hosts/profiles')"
+        ]
     );
 });
 
@@ -143,7 +158,12 @@ $(document).on('submit','.profile-config-form',function () {
         // Print error alert:
         true,
         // Reload container:
-        ['profiles/list']
+        [],
+        // Execute functions on success:
+        [
+            // Reload profile list
+            "reloadPanel('hosts/profiles')"
+        ]
     );
 
     return false;

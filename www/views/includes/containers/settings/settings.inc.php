@@ -318,7 +318,7 @@
         </form>
     </div>
 
-    <h3>HOSTS & PROFILES</h3>
+    <h3>HOSTS</h3>
 
     <div class="div-generic-blue">
         <form class="settings-form" autocomplete="off">
@@ -330,17 +330,6 @@
             </label>
             <?php
             if (empty(MANAGE_HOSTS)) {
-                echo '<p class="note yellowtext"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /> This parameter must be specified.</p>';
-            } ?>
-
-            <h6>MANAGE PROFILES</h6>
-            <p class="note">Enable the management of profiles for configuring client hosts.</p>
-            <label class="onoff-switch-label">
-                <input class="settings-param onoff-switch-input" param-name="manageProfiles" type="checkbox" value="true" <?php echo (MANAGE_PROFILES == "true") ? 'checked' : ''; ?>>
-                <span class="onoff-switch-slider"></span>
-            </label>
-            <?php
-            if (empty(MANAGE_PROFILES)) {
                 echo '<p class="note yellowtext"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /> This parameter must be specified.</p>';
             } ?>
 
@@ -387,7 +376,7 @@
 
             if (CVE_IMPORT == 'true') : ?>
                 <h6>ACCESS CVEs PAGE (beta)</h6>
-                <p><a href="/cves" target="_blank" rel="noopener noreferrer">CVEs page (beta)<img src="/assets/icons/external-link.svg" class="icon margin-left-5" /></a></p>
+                <p><a href="/cves" target="_blank" rel="noopener noreferrer">CVEs page (beta)<img src="/assets/icons/external-link.svg" class="icon-small margin-left-5" /></a></p>
                 <?php
             endif ?>
 

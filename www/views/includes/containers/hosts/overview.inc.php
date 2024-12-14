@@ -1,16 +1,9 @@
 <section class="section-main reloadable-container" container="hosts/overview">
-
-    <h3>OVERVIEW</h3>
-
     <?php
-    if ($totalHosts == 0) : ?>
-        <p class="note">No host registered yet!<br>Install <a href="https://github.com/lbr38/linupdate" target="_blank" rel="noopener noreferrer" class="font-size-13"><b>linupdate</b> <img src="/assets/icons/external-link.svg" class="icon" /></a> on your hosts to register them to Repomanager. This page will display dashboards and informations about the hosts and their packages (installed, available, updated...). See <a href="https://github.com/lbr38/linupdate/wiki/Module:-reposerver#quick-setup-example" class="font-size-13"><b>quick setup example</b> <img src="/assets/icons/external-link.svg" class="icon" /></a>.
-        <?php
-    endif ?>
+    if ($totalHosts >= 1) : ?>
+        <h3>OVERVIEW</h3>
 
-    <div class="hosts-charts-container">
-        <?php
-        if ($totalHosts >= 1) : ?>
+        <div class="hosts-charts-container">
             <div class="hosts-chart-sub-container div-generic-blue">
                 <h6 class="margin-top-0">HOSTS (<?= $totalHosts ?>)</h6>
                 <div id="hosts-count-chart-loading" class="loading-veil">
@@ -164,196 +157,170 @@
                     endif ?>
                 </div>
             </div>
-            <?php
-        endif ?>
-    </div>
+        </div>
 
-    <?php
-    /**
-     *  Hosts chart
-     */
-    $labels = "'Up to date', 'Need update'";
-    $datas = "'" . HOSTS_TOTAL_UPTODATE . "', '" . HOSTS_TOTAL_NOT_UPTODATE . "'";
-    $backgrounds = "'rgb(75, 192, 192)','rgb(255, 99, 132)'";
-    $title = '';
-    $chartId = 'hosts-count-chart';
-
-    include(ROOT . '/views/includes/charts/hosts-pie-chart.inc.php');
-
-    /**
-     *  Profiles chart
-     */
-    if (!empty(HOSTS_PROFILES_LIST)) {
-        $profileNameList = '';
-        $profileCountList = '';
-        $profileBackgroundColor = '';
-
-        foreach (HOSTS_PROFILES_LIST as $profile) {
-            if (empty($profile['Profile'])) {
-                $profileNameList .= "'Unknown',";
-            } else {
-                $profileNameList .= "'" . $profile['Profile'] . "',";
-            }
-            $profileCountList .= "'" . $profile['Profile_count'] . "',";
-            $profileBackgroundColor .= "'" . $mycolor->randomColor() . "',";
-        }
-
-        $labels = rtrim($profileNameList, ',');
-        $datas = rtrim($profileCountList, ',');
-        $backgrounds = rtrim($profileBackgroundColor, ',');
+        <?php
+        /**
+         *  Hosts chart
+         */
+        $labels = "'Up to date', 'Need update'";
+        $datas = "'" . HOSTS_TOTAL_UPTODATE . "', '" . HOSTS_TOTAL_NOT_UPTODATE . "'";
+        $backgrounds = "'rgb(75, 192, 192)','rgb(255, 99, 132)'";
         $title = '';
-        $chartId = 'hosts-profile-chart';
-
-        include(ROOT . '/views/includes/charts/hosts-bar-chart.inc.php');
-    }
-
-    /**
-     *  OS chart
-     */
-    if (!empty(HOSTS_OS_LIST)) {
-        $osNameList = '';
-        $osCountList = '';
-        $osBackgroundColor = '';
-
-        foreach (HOSTS_OS_LIST as $os) {
-            if (empty($os['Os'])) {
-                $osNameList .= "'Unknown',";
-            } else {
-                $osNameList .= "'" . ucfirst($os['Os']) . " " . $os['Os_version'] . "',";
-            }
-            $osCountList .= "'" . $os['Os_count'] . "',";
-            $osBackgroundColor .= "'" . $mycolor->randomColor() . "',";
-        }
-
-        $labels = rtrim($osNameList, ',');
-        $datas = rtrim($osCountList, ',');
-        $backgrounds = rtrim($osBackgroundColor, ',');
-        $title = '';
-        $chartId = 'hosts-os-chart';
-
-        include(ROOT . '/views/includes/charts/hosts-bar-chart.inc.php');
-    }
-
-    /**
-     *  Arch chart
-     */
-    if (!empty(HOSTS_ARCHS_LIST)) {
-        $archNameList = '';
-        $archCountList = '';
-        $archBackgroundColor = '';
-
-        foreach (HOSTS_ARCHS_LIST as $arch) {
-            if (empty($arch['Arch'])) {
-                $archNameList .= "'Unknown',";
-            } else {
-                $archNameList .= "'" . $arch['Arch'] . "',";
-            }
-            $archCountList .= "'" . $arch['Arch_count'] . "',";
-            $archBackgroundColor .= "'" . $mycolor->randomColor() . "',";
-        }
-
-        $labels = rtrim($archNameList, ',');
-        $datas = rtrim($archCountList, ',');
-        $backgrounds = rtrim($archBackgroundColor, ',');
-        $title = '';
-        $chartId = 'hosts-arch-chart';
+        $chartId = 'hosts-count-chart';
 
         include(ROOT . '/views/includes/charts/hosts-pie-chart.inc.php');
-    }
 
-    /**
-     *  Envs chart
-     */
-    if (!empty(HOSTS_ENVS_LIST)) {
-        $envNameList = '';
-        $envCountList = '';
-        $envBackgroundColor = '';
+        /**
+         *  OS chart
+         */
+        if (!empty(HOSTS_OS_LIST)) {
+            $osNameList = '';
+            $osCountList = '';
+            $osBackgroundColor = '';
 
-        foreach (HOSTS_ENVS_LIST as $env) {
-            if (empty($env['Env'])) {
-                $envNameList .= "'Unknown',";
-            } else {
-                $envNameList .= "'" . $env['Env'] . "',";
+            foreach (HOSTS_OS_LIST as $os) {
+                if (empty($os['Os'])) {
+                    $osNameList .= "'Unknown',";
+                } else {
+                    $osNameList .= "'" . ucfirst($os['Os']) . " " . $os['Os_version'] . "',";
+                }
+                $osCountList .= "'" . $os['Os_count'] . "',";
+                $osBackgroundColor .= "'" . $mycolor->randomColor() . "',";
             }
-            $envCountList .= "'" . $env['Env_count'] . "',";
 
-            $envBackgroundColor .= '"' . \Controllers\Environment::getEnvColor($env['Env']) . '",';
+            $labels = rtrim($osNameList, ',');
+            $datas = rtrim($osCountList, ',');
+            $backgrounds = rtrim($osBackgroundColor, ',');
+            $title = '';
+            $chartId = 'hosts-os-chart';
+
+            include(ROOT . '/views/includes/charts/hosts-bar-chart.inc.php');
         }
 
-        $labels = rtrim($envNameList, ',');
-        $datas = rtrim($envCountList, ',');
-        $backgrounds = rtrim($envBackgroundColor, ',');
-        $title = '';
-        $chartId = 'hosts-env-chart';
+        /**
+         *  Arch chart
+         */
+        if (!empty(HOSTS_ARCHS_LIST)) {
+            $archNameList = '';
+            $archCountList = '';
+            $archBackgroundColor = '';
 
-        include(ROOT . '/views/includes/charts/hosts-pie-chart.inc.php');
-    }
-
-    /**
-     *  Agent status chart
-     */
-    if (!empty(HOSTS_AGENT_STATUS_LIST)) {
-        $agentStatusNameList = '';
-        $agentStatusCountList = '';
-        $agentBackgroundColor = '';
-
-        if (!empty(HOSTS_AGENT_STATUS_LIST['Linupdate_agent_status_online_count'])) {
-            $agentStatusNameList .= "'Online',";
-            $agentStatusCountList .= "'" . HOSTS_AGENT_STATUS_LIST['Linupdate_agent_status_online_count'] . "',";
-            $agentBackgroundColor .= "'#24d794',";
-        }
-
-        if (!empty(HOSTS_AGENT_STATUS_LIST['Linupdate_agent_status_seems_stopped_count'])) {
-            $agentStatusNameList .= "'Seems stopped',";
-            $agentStatusCountList .= "'" . HOSTS_AGENT_STATUS_LIST['Linupdate_agent_status_seems_stopped_count'] . "',";
-            $agentBackgroundColor .= "'#e0b05f',";
-        }
-
-        if (!empty(HOSTS_AGENT_STATUS_LIST['Linupdate_agent_status_stopped_count'])) {
-            $agentStatusNameList .= "'Stopped',";
-            $agentStatusCountList .= "'" . HOSTS_AGENT_STATUS_LIST['Linupdate_agent_status_stopped_count'] . "',";
-            $agentBackgroundColor .= "'rgb(255, 99, 132)',";
-        }
-
-        if (!empty(HOSTS_AGENT_STATUS_LIST['Linupdate_agent_status_disabled_count'])) {
-            $agentStatusNameList .= "'Disabled',";
-            $agentStatusCountList .= "'" . HOSTS_AGENT_STATUS_LIST['Linupdate_agent_status_disabled_count'] . "',";
-            $agentBackgroundColor .= "'rgb(255, 99, 132)',";
-        }
-
-        $labels = rtrim($agentStatusNameList, ',');
-        $datas = rtrim($agentStatusCountList, ',');
-        $backgrounds = rtrim($agentBackgroundColor, ',');
-        $title = '';
-        $chartId = 'hosts-agent-status-chart';
-
-        include(ROOT . '/views/includes/charts/hosts-pie-chart.inc.php');
-    }
-
-    /**
-     *  Agent version chart
-     */
-    if (!empty(HOSTS_AGENT_VERSION_LIST)) {
-        $agentNameList = '';
-        $agentCountList = '';
-        $agentBackgroundColor = '';
-
-        foreach (HOSTS_AGENT_VERSION_LIST as $agent) {
-            if (empty($agent['Linupdate_version'])) {
-                $agentNameList .= "'Unknown',";
-            } else {
-                $agentNameList .= "'" . $agent['Linupdate_version'] . "',";
+            foreach (HOSTS_ARCHS_LIST as $arch) {
+                if (empty($arch['Arch'])) {
+                    $archNameList .= "'Unknown',";
+                } else {
+                    $archNameList .= "'" . $arch['Arch'] . "',";
+                }
+                $archCountList .= "'" . $arch['Arch_count'] . "',";
+                $archBackgroundColor .= "'" . $mycolor->randomColor() . "',";
             }
-            $agentCountList .= "'" . $agent['Linupdate_version_count'] . "',";
-            $agentBackgroundColor .= "'" . $mycolor->randomColor() . "',";
+
+            $labels = rtrim($archNameList, ',');
+            $datas = rtrim($archCountList, ',');
+            $backgrounds = rtrim($archBackgroundColor, ',');
+            $title = '';
+            $chartId = 'hosts-arch-chart';
+
+            include(ROOT . '/views/includes/charts/hosts-pie-chart.inc.php');
         }
 
-        $labels = rtrim($agentNameList, ',');
-        $datas = rtrim($agentCountList, ',');
-        $backgrounds = rtrim($agentBackgroundColor, ',');
-        $title = '';
-        $chartId = 'hosts-agent-version-chart';
+        /**
+         *  Envs chart
+         */
+        if (!empty(HOSTS_ENVS_LIST)) {
+            $envNameList = '';
+            $envCountList = '';
+            $envBackgroundColor = '';
 
-        include(ROOT . '/views/includes/charts/hosts-pie-chart.inc.php');
-    } ?>
+            foreach (HOSTS_ENVS_LIST as $env) {
+                if (empty($env['Env'])) {
+                    $envName = 'Unknown';
+                } else {
+                    $envName = $env['Env'];
+                }
+
+                $envNameList .= "'" . $envName . "',";
+                $envCountList .= "'" . $env['Env_count'] . "',";
+
+                $envBackgroundColor .= '"' . \Controllers\Environment::getEnvColor($envNameList) . '",';
+            }
+
+            $labels = rtrim($envNameList, ',');
+            $datas = rtrim($envCountList, ',');
+            $backgrounds = rtrim($envBackgroundColor, ',');
+            $title = '';
+            $chartId = 'hosts-env-chart';
+
+            include(ROOT . '/views/includes/charts/hosts-pie-chart.inc.php');
+        }
+
+        /**
+         *  Agent status chart
+         */
+        if (!empty(HOSTS_AGENT_STATUS_LIST)) {
+            $agentStatusNameList = '';
+            $agentStatusCountList = '';
+            $agentBackgroundColor = '';
+
+            if (!empty(HOSTS_AGENT_STATUS_LIST['Linupdate_agent_status_online_count'])) {
+                $agentStatusNameList .= "'Online',";
+                $agentStatusCountList .= "'" . HOSTS_AGENT_STATUS_LIST['Linupdate_agent_status_online_count'] . "',";
+                $agentBackgroundColor .= "'#24d794',";
+            }
+
+            if (!empty(HOSTS_AGENT_STATUS_LIST['Linupdate_agent_status_seems_stopped_count'])) {
+                $agentStatusNameList .= "'Seems stopped',";
+                $agentStatusCountList .= "'" . HOSTS_AGENT_STATUS_LIST['Linupdate_agent_status_seems_stopped_count'] . "',";
+                $agentBackgroundColor .= "'#e0b05f',";
+            }
+
+            if (!empty(HOSTS_AGENT_STATUS_LIST['Linupdate_agent_status_stopped_count'])) {
+                $agentStatusNameList .= "'Stopped',";
+                $agentStatusCountList .= "'" . HOSTS_AGENT_STATUS_LIST['Linupdate_agent_status_stopped_count'] . "',";
+                $agentBackgroundColor .= "'rgb(255, 99, 132)',";
+            }
+
+            if (!empty(HOSTS_AGENT_STATUS_LIST['Linupdate_agent_status_disabled_count'])) {
+                $agentStatusNameList .= "'Disabled',";
+                $agentStatusCountList .= "'" . HOSTS_AGENT_STATUS_LIST['Linupdate_agent_status_disabled_count'] . "',";
+                $agentBackgroundColor .= "'rgb(255, 99, 132)',";
+            }
+
+            $labels = rtrim($agentStatusNameList, ',');
+            $datas = rtrim($agentStatusCountList, ',');
+            $backgrounds = rtrim($agentBackgroundColor, ',');
+            $title = '';
+            $chartId = 'hosts-agent-status-chart';
+
+            include(ROOT . '/views/includes/charts/hosts-pie-chart.inc.php');
+        }
+
+        /**
+         *  Agent version chart
+         */
+        if (!empty(HOSTS_AGENT_VERSION_LIST)) {
+            $agentNameList = '';
+            $agentCountList = '';
+            $agentBackgroundColor = '';
+
+            foreach (HOSTS_AGENT_VERSION_LIST as $agent) {
+                if (empty($agent['Linupdate_version'])) {
+                    $agentNameList .= "'Unknown',";
+                } else {
+                    $agentNameList .= "'" . $agent['Linupdate_version'] . "',";
+                }
+                $agentCountList .= "'" . $agent['Linupdate_version_count'] . "',";
+                $agentBackgroundColor .= "'" . $mycolor->randomColor() . "',";
+            }
+
+            $labels = rtrim($agentNameList, ',');
+            $datas = rtrim($agentCountList, ',');
+            $backgrounds = rtrim($agentBackgroundColor, ',');
+            $title = '';
+            $chartId = 'hosts-agent-version-chart';
+
+            include(ROOT . '/views/includes/charts/hosts-pie-chart.inc.php');
+        }
+    endif; ?>
 </section>

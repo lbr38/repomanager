@@ -51,7 +51,7 @@ https://github.com/select2/select2/issues/3278#issuecomment-258481272 : */
   .select2-container .select2-search--inline .select2-search__field {
     box-sizing: border-box;
     border: none;
-    font-size: 100%;
+    font-size: 14px;
     /* margin-top: 5px; */
     /* margin-top: 8px; */
     margin-top: 10px;

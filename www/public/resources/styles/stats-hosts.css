@@ -15,18 +15,25 @@
     margin: auto;
 }
 
-td:first-child {
-    border-top-left-radius: 2px;
-    border-bottom-left-radius: 2px;
-}
-
-td:last-child {
-    border-top-right-radius: 2px;
-    border-bottom-right-radius: 2px;
-}
-
 .hosts-table {
     width: 100%;
+}
+
+.hosts-compact-view {
+    grid-template-columns: 35% 60%;
+    align-items: center;
+}
+
+.hosts-compact-view-subgrid {
+    grid-template-columns: 40% 25% 10%;
+    justify-content: space-evenly;
+}
+
+.host-available-packages-label {
+    min-width: 20px;
+    text-align: center;
+    border-radius: 60px;
+    padding: 0 1px;
 }
 
 .host-additionnal-info {

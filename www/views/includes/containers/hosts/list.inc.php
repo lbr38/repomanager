@@ -1,33 +1,59 @@
 <section class="section-main reloadable-container" container="hosts/list">
+    <div class="flex justify-space-between margin-top-50 margin-bottom-40">
+        <h3 class="margin-0">HOSTS</h3>
+
+        <div>
+            <?php
+            if ($totalHosts > 0) :
+                if (!empty($_COOKIE['hosts/compact-view']) && $_COOKIE['hosts/compact-view'] == true) : ?>
+                    <div id="compact-view-btn" class="slide-btn" title="Switch to full view">
+                        <img src="/assets/icons/view-off.svg" />
+                        <span>Switch to full view</span>
+                    </div>
+                    <?php
+                else : ?>
+                    <div id="compact-view-btn" class="slide-btn" title="Switch to compact view">
+                        <img src="/assets/icons/view.svg" />
+                        <span>Switch to compact view</span>
+                    </div>
+                    <?php
+                endif;
+            endif;
+
+            if (IS_ADMIN) : ?>
+                <div class="slide-btn get-panel-btn" panel="hosts/profiles" title="Manage hosts profiles">
+                    <img src="/assets/icons/profile.svg" />
+                    <span>Manage profiles</span>
+                </div>
+                <?php
+            endif;
+
+            if ($totalHosts > 0) :
+                if (IS_ADMIN) : ?>
+                    <div class="slide-btn get-panel-btn" panel="hosts/groups/list" title="Manage hosts groups">
+                        <img src="/assets/icons/folder.svg" />
+                        <span>Manage groups</span>
+                    </div>
+
+                    <div class="slide-btn get-panel-btn" panel="hosts/settings" title="Edit display settings">
+                        <img src="/assets/icons/cog.svg" />
+                        <span>Settings</span>
+                    </div>
+                    <?php
+                endif;
+            endif ?>
+        </div>
+    </div>
+
     <?php
+    if ($totalHosts == 0) : ?>
+        <p class="note">No host registered yet!<br>Install <a href="https://github.com/lbr38/linupdate" target="_blank" rel="noopener noreferrer" class="font-size-13"><b>linupdate</b> <img src="/assets/icons/external-link.svg" class="icon-small" /></a> on your hosts to register them to Repomanager. This page will display dashboards and informations about the hosts and their packages (installed, available, updated...). See <a href="https://github.com/lbr38/linupdate/wiki/Module:-reposerver#quick-setup-example" class="font-size-13"><b>quick setup example</b> <img src="/assets/icons/external-link.svg" class="icon-small" /></a>.
+        <?php
+    endif;
+
     if ($totalHosts >= 1) : ?>
         <div id="hostsDiv">
             <div>
-                <div class="flex justify-space-between margin-top-50 margin-bottom-40">
-                    <h3 class="margin-0">HOSTS</h3>
-
-                    <div>
-                        <div id="compact-view-btn" class="slide-btn" title="Compact/Full view">
-                            <img src="/assets/icons/view.svg" />
-                            <span>Compact/Full view</span>
-                        </div>
-
-                        <?php
-                        if (IS_ADMIN) : ?>
-                            <div class="slide-btn get-panel-btn" panel="hosts/groups/list" title="Manage hosts groups">
-                                <img src="/assets/icons/folder.svg" />
-                                <span>Manage groups</span>
-                            </div>
-
-                            <div class="slide-btn get-panel-btn" panel="hosts/settings" title="Edit display settings">
-                                <img src="/assets/icons/cog.svg" />
-                                <span>Settings</span>
-                            </div>
-                            <?php
-                        endif ?>
-                    </div>
-                </div>
-
                 <?php
                 if (!empty($hostGroupsList)) :
                     /**
@@ -233,25 +259,84 @@
                                                     </div>
 
                                                     <div class="width-100">
-                                                        <div class="grid grid-4 row-gap-20 column-gap-20">
-                                                            <div class="flex flex-direction-column">
-                                                                <div class="">
-                                                                    <h6 class="margin-top-0">
-                                                                        <a href="/host/<?= $id ?>" class="wordbreakall" target="_blank" rel="noopener noreferrer">
-                                                                            <?= $hostname ?>
-                                                                        </a>
-                                                                        <span><?= \Controllers\Common::printOsIcon($os); ?></span>
-                                                                    </h6>
-                                                                </div>
-                                                                <p class="mediumopacity-cst copy"><?= $ip ?></p>
-                                                            </div>
+                                                        <?php
+                                                        if ($compactView) : ?>
+                                                            <div class="grid hosts-compact-view column-gap-40">
+                                                                <div>
+                                                                    <div>
+                                                                        <p title="Hostname">
+                                                                            <a href="/host/<?= $id ?>" class="wordbreakall copy" target="_blank" rel="noopener noreferrer">
+                                                                                <b><?= $hostname ?></b>
+                                                                            </a>
+                                                                        </p>
 
-                                                            <div>
-                                                                <h6 class="margin-top-0">TYPE</h6>
-                                                                <p class="mediumopacity-cst copy"><?= $type ?></p>
+                                                                        <p class="mediumopacity-cst copy" title="IP address"><?= $ip ?></p>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="grid hosts-compact-view-subgrid column-gap-15 align-item-center">
+                                                                    <div class="label-icon-tr max-width-fit" title="OS and type">
+                                                                        <?= \Controllers\Common::printOsIcon($os); ?>
+
+                                                                        <div class="flex flex-direction-column row-gap-2 width-100">
+                                                                            <p class="font-size-13" title="OS"><?= ucfirst($os) . ' ' . $osVersion ?></p>
+                                                                            <p class="font-size-10 font-family-archivo mediumopacity-cst" title="Type"><b><?= strtoupper($type) ?></b></p>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="flex flex-direction-column row-gap-5">
+                                                                        <a href="/host/<?= $id ?>" target="_blank" rel="noopener noreferrer">
+                                                                            <div class="label-icon-tr max-width-fit">
+                                                                                <img src="/assets/icons/package.svg" class="icon-np" />
+                                                                                <div class="flex align-item-center column-gap-10">
+                                                                                    <p class="font-size-13" title="<?= $packagesInstalledTotal . ' package(s) installed on this host' ?>"><?= $packagesInstalledTotal ?></p>
+                                                                                    <?php
+                                                                                    if ($packagesAvailableTotal > 0) {
+                                                                                        $class = '';
+                                                                                        if ($packagesAvailableTotal >= $packagesCountConsideredCritical) {
+                                                                                            $class = 'bkg-red';
+                                                                                        } elseif ($packagesAvailableTotal >= $packagesCountConsideredOutdated) {
+                                                                                            $class = 'bkg-yellow';
+                                                                                        }
+
+                                                                                        echo '<p class="font-size-13 host-available-packages-label ' . $class . '" title="' . $packagesAvailableTotal . ' package update(s) available on this host">' . $packagesAvailableTotal . '</p>';
+                                                                                    } ?>
+                                                                                </div>
+                                                                            </div>
+                                                                        </a>
+                                                                    </div>
+
+                                                                    <div class="flex align-item-center justify-end">
+                                                                        <?php
+                                                                        if ($rebootRequired == 'true') {
+                                                                            echo '<img src="/assets/icons/warning.svg" class="icon-np" title="Reboot required" />';
+                                                                        } ?>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                             <?php
-                                                            if (!$compactView) : ?>
+                                                        endif;
+
+                                                        if (!$compactView) : ?>
+                                                            <div class="margin-bottom-15">
+                                                                <p>
+                                                                    <a href="/host/<?= $id ?>" class="wordbreakall copy" target="_blank" rel="noopener noreferrer">
+                                                                        <b><?= $hostname ?></b>
+                                                                    </a>
+                                                                </p>
+                                                            </div>
+
+                                                            <div class="grid grid-4 row-gap-20 column-gap-20">
+                                                                <div>
+                                                                    <h6 class="margin-top-0">IP</h6>
+                                                                    <p class="mediumopacity-cst copy"><?= $ip ?></p>
+                                                                </div>
+                                                                
+                                                                <div>
+                                                                    <h6 class="margin-top-0">TYPE</h6>
+                                                                    <p class="mediumopacity-cst copy"><?= $type ?></p>
+                                                                </div>
+
                                                                 <div>
                                                                     <h6 class="margin-top-0">AGENT VERSION</h6>
                                                                     <p class="mediumopacity-cst copy"><?= $agentVersion ?></p>
@@ -272,7 +357,10 @@
 
                                                                 <div>
                                                                     <h6 class="margin-top-0">OS</h6>
-                                                                    <p class="mediumopacity-cst copy"><?= $os ?></p>
+                                                                    <div class="flex align-item-center column-gap-5">
+                                                                        <p class="mediumopacity-cst copy"><?= $os ?></p>
+                                                                        <span><?= \Controllers\Common::printOsIcon($os); ?></span>
+                                                                    </div>
                                                                 </div>
 
                                                                 <div>
@@ -301,33 +389,29 @@
                                                                         <?= \Controllers\Common::envtag($env) ?>
                                                                     </p>
                                                                 </div>
-                                                                <?php
-                                                            endif ?>
 
-                                                            <div>
-                                                                <h6 class="margin-top-0"><?= $layoutPackagesTitle ?> INSTALLED</h6>
-                                                                <p title="<?= $packagesInstalledTotal . ' package(s) installed on this host' ?>">
-                                                                    <span class="label-white"><?= $packagesInstalledTotal ?></span>
-                                                                </p>
+                                                                <div>
+                                                                    <h6 class="margin-top-0"><?= $layoutPackagesTitle ?> INSTALLED</h6>
+                                                                    <p title="<?= $packagesInstalledTotal . ' package(s) installed on this host' ?>">
+                                                                        <?= $packagesInstalledTotal ?>
+                                                                    </p>
+                                                                </div>
+
+                                                                <div>
+                                                                    <h6 class="margin-top-0"><?= $layoutPackagesTitle ?> AVAILABLE</h6>
+                                                                    <p title="<?= $packagesAvailableTotal . ' package update(s) available on this host' ?>">
+                                                                        <?php
+                                                                        if ($packagesAvailableTotal >= $packagesCountConsideredCritical) {
+                                                                            echo '<span class="label-white bkg-red">' . $packagesAvailableTotal . '</span>';
+                                                                        } elseif ($packagesAvailableTotal >= $packagesCountConsideredOutdated) {
+                                                                            echo '<span class="label-white bkg-yellow">' . $packagesAvailableTotal . '</span>';
+                                                                        } else {
+                                                                            echo '<span class="label-white">' . $packagesAvailableTotal . '</span>';
+                                                                        } ?>    
+                                                                    </p>
+                                                                </div>
                                                             </div>
-
-                                                            <div>
-                                                                <h6 class="margin-top-0"><?= $layoutPackagesTitle ?> AVAILABLE</h6>
-                                                                <p title="<?= $packagesAvailableTotal . ' update(s) available on this host' ?>">
-                                                                    <?php
-                                                                    if ($packagesAvailableTotal >= $packagesCountConsideredCritical) {
-                                                                        echo '<span class="label-white bkg-red">' . $packagesAvailableTotal . '</span>';
-                                                                    } elseif ($packagesAvailableTotal >= $packagesCountConsideredOutdated) {
-                                                                        echo '<span class="label-white bkg-yellow">' . $packagesAvailableTotal . '</span>';
-                                                                    } else {
-                                                                        echo '<span class="label-white">' . $packagesAvailableTotal . '</span>';
-                                                                    } ?>    
-                                                                </p>
-                                                            </div>
-                                                        </div>
-
-                                                        <?php
-                                                        if (!$compactView) : ?>
+                                                        
                                                             <div>
                                                                 <?php
                                                                 /**

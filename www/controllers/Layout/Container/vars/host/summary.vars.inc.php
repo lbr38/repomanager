@@ -20,6 +20,7 @@ $hostname         = $hostProperties['Hostname'];
 $ip               = $hostProperties['Ip'];
 $os               = $hostProperties['Os'];
 $osVersion        = $hostProperties['Os_version'];
+$type             = $hostProperties['Type'];
 $kernel           = $hostProperties['Kernel'];
 $arch             = $hostProperties['Arch'];
 $profile          = $hostProperties['Profile'];

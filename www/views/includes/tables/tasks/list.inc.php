@@ -2,7 +2,6 @@
     <?php
     if (!empty($reloadableTableContent)) :
         foreach ($reloadableTableContent as $item) :
-            $tableTitle  = '';
             $headerColor = '';
 
             /**
@@ -17,17 +16,9 @@
                 $headerColor = 'header-light-blue';
             }
 
-            $tableClass = 'table-container grid-40p-45p-10p column-gap-10 justify-space-between ' . $headerColor;
+            $tableClass = 'table-container grid-40p-45p-10p column-gap-10 justify-space-between pointer show-task-btn ' . $headerColor; ?>
 
-            /**
-             *  If task has a logfile, we add the pointer class to the table container
-             */
-            if (!empty($item['Logfile'])) {
-                $tableClass .= ' pointer task-logfile-btn';
-                $tableTitle = 'View task log';
-            } ?>
-
-            <div class="<?= $tableClass ?>" logfile="<?= $item['Logfile'] ?>" title="<?= $tableTitle ?>">
+            <div class="<?= $tableClass ?>" task-id="<?= $item['Id'] ?>" title="View task log">
                 <div class="flex align-item-center column-gap-15">
                     <div>
                         <?php
@@ -214,20 +205,20 @@
                     }
 
                     if ($item['Status'] == 'running') {
-                        echo '<span title="Stop task" class="stop-task-btn" pid="' . $item['Pid'] . '"><img src="/assets/icons/delete.svg" class="icon-lowopacity"></span>';
-                        echo '<img src="/assets/icons/loading.svg" class="icon" title="Task running" />';
+                        echo '<span title="Stop task" class="stop-task-btn" task-id="' . $item['Id'] . '"><img src="/assets/icons/delete.svg" class="icon-lowopacity"></span>';
+                        echo '<img src="/assets/icons/loading.svg" class="icon-np" title="Task running" />';
                     }
 
                     if ($item['Status'] == 'done') {
-                        echo '<img class="icon" src="/assets/icons/check.svg" title="Task completed" />';
+                        echo '<img class="icon-np" src="/assets/icons/check.svg" title="Task completed" />';
                     }
 
                     if ($item['Status'] == 'error') {
-                        echo '<img class="icon" src="/assets/icons/error.svg" title="Task has failed" />';
+                        echo '<img class="icon-np" src="/assets/icons/error.svg" title="Task has failed" />';
                     }
 
                     if ($item['Status'] == 'stopped') {
-                        echo '<img class="icon" src="/assets/icons/warning-red.svg" title="Task stopped by the user" />';
+                        echo '<img class="icon-np" src="/assets/icons/warning-red.svg" title="Task stopped by the user" />';
                     } ?>
                 </div>
             </div>

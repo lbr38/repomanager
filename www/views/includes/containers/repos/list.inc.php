@@ -28,8 +28,7 @@
         <input id="repo-search-input" class="margin-bottom-10" type="text" placeholder="Search" onkeyup="searchRepo()" title="Search by repository name, distribution, section or release version" />
 
         <div id="hideAllReposGroups" class="flex justify-end column-gap-5 margin-bottom-10 margin-right-15 lowopacity pointer" state="visible">
-            <span>Hide / show all</span>
-            <img src="/assets/icons/up.svg" class="icon" />
+            <img src="/assets/icons/view.svg" class="icon" title="Hide/Show all repositories groups" />
         </div>
 
         <div id="repos-list-container">

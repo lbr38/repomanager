@@ -68,10 +68,10 @@
                             echo '<img src="/assets/icons/github.svg" class="icon-np" title="Imported from predefined list" />';
                         }
                         if ($item['Method'] == 'import-custom') {
-                            echo '<img src="/assets/icons/user-alternative.svg" class="icon-np" title="Imported from user custom list" />';
+                            echo '<img src="/assets/icons/user.svg" class="icon-np" title="Imported from user custom list" />';
                         }
                         if ($item['Method'] == 'import-api') {
-                            echo '<img src="/assets/icons/user-alternative.svg" class="icon-np" title="Imported from user custom list (via API)" />';
+                            echo '<img src="/assets/icons/user.svg" class="icon-np" title="Imported from user custom list (via API)" />';
                         }  ?>
 
                         <img src="/assets/icons/delete.svg" class="source-repo-delete-btn icon-lowopacity" source-id="<?= $item['Id'] ?>" source-name="<?= $name ?>" title="Delete <?= $name ?> source repository" />
