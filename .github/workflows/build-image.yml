@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
+        with:
+          ref: 'main'
 
       - name: Retrieve Repomanager version
         run: |
