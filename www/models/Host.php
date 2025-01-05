@@ -7,7 +7,7 @@ use Datetime;
 
 class Host extends Model
 {
-    protected $host_db; // BDD dédiée à l'hôte
+    protected $dedicatedDb;
 
     public function __construct()
     {
@@ -31,7 +31,7 @@ class Host extends Model
      */
     public function closeHostDb()
     {
-        $this->host_db->close();
+        $this->dedicatedDb->close();
     }
 
     /**
@@ -100,7 +100,7 @@ class Host extends Model
     public function setPackageHistory(string $packageName, string $packageVersion, string $packageState, string $packageType, string $packageDate, string $packageTime, string $eventId)
     {
         try {
-            $stmt = $this->host_db->prepare("INSERT INTO packages_history ('Name', 'Version', 'State', 'Type', 'Date', 'Time', 'Id_event') VALUES (:name, :version, :state, :type, :date, :time, :id_event)");
+            $stmt = $this->dedicatedDb->prepare("INSERT INTO packages_history ('Name', 'Version', 'State', 'Type', 'Date', 'Time', 'Id_event') VALUES (:name, :version, :state, :type, :date, :time, :id_event)");
             $stmt->bindValue(':name', $packageName);
             $stmt->bindValue(':version', $packageVersion);
             $stmt->bindValue(':state', $packageState);
@@ -110,7 +110,7 @@ class Host extends Model
             $stmt->bindValue(':id_event', $eventId);
             $stmt->execute();
         } catch (\Exception $e) {
-            $this->host_db->logError($e);
+            $this->dedicatedDb->logError($e);
         }
     }
 
@@ -120,7 +120,7 @@ class Host extends Model
     public function setPackageState(string $name, string $version, string $state, string $date, string $time, string $id_event = null)
     {
         try {
-            $stmt = $this->host_db->prepare("UPDATE packages SET Version = :version, Date = :date, Time = :time, State = :state, Id_event = :id_event WHERE Name = :name");
+            $stmt = $this->dedicatedDb->prepare("UPDATE packages SET Version = :version, Date = :date, Time = :time, State = :state, Id_event = :id_event WHERE Name = :name");
             $stmt->bindValue(':name', $name);
             $stmt->bindValue(':version', $version);
             $stmt->bindValue(':state', $state);
@@ -129,7 +129,7 @@ class Host extends Model
             $stmt->bindValue(':id_event', $id_event);
             $stmt->execute();
         } catch (\Exception $e) {
-            $this->host_db->logError($e);
+            $this->dedicatedDb->logError($e);
         }
     }
 
@@ -140,10 +140,10 @@ class Host extends Model
     {
         try {
             if (!empty($id_event)) {
-                $stmt = $this->host_db->prepare("INSERT INTO packages ('Name', 'Version', 'State', 'Type', 'Date', 'Time', 'Id_event') VALUES (:name, :version, :state, :type, :date, :time, :id_event)");
+                $stmt = $this->dedicatedDb->prepare("INSERT INTO packages ('Name', 'Version', 'State', 'Type', 'Date', 'Time', 'Id_event') VALUES (:name, :version, :state, :type, :date, :time, :id_event)");
                 $stmt->bindValue(':id_event', $id_event);
             } else {
-                $stmt = $this->host_db->prepare("INSERT INTO packages ('Name', 'Version', 'State', 'Type', 'Date', 'Time') VALUES (:name, :version, 'inventored', 'package', :date, :time)");
+                $stmt = $this->dedicatedDb->prepare("INSERT INTO packages ('Name', 'Version', 'State', 'Type', 'Date', 'Time') VALUES (:name, :version, 'inventored', 'package', :date, :time)");
             }
             $stmt->bindValue(':name', $name);
             $stmt->bindValue(':version', $version);
@@ -153,7 +153,7 @@ class Host extends Model
             $stmt->bindValue(':time', $time);
             $stmt->execute();
         } catch (\Exception $e) {
-            $this->host_db->logError($e);
+            $this->dedicatedDb->logError($e);
         }
     }
 
@@ -350,12 +350,12 @@ class Host extends Model
     public function deletePackageAvailable(string $packageName, string $packageVersion)
     {
         try {
-            $stmt = $this->host_db->prepare("DELETE FROM packages_available WHERE Name = :name and Version = :version");
+            $stmt = $this->dedicatedDb->prepare("DELETE FROM packages_available WHERE Name = :name and Version = :version");
             $stmt->bindValue(':name', $packageName);
             $stmt->bindValue(':version', $packageVersion);
             $stmt->execute();
         } catch (\Exception $e) {
-            $this->host_db->logError($e);
+            $this->dedicatedDb->logError($e);
         }
     }
 
@@ -364,12 +364,12 @@ class Host extends Model
      */
     public function cleanPackageAvailableTable()
     {
-        $this->host_db->exec("DELETE FROM packages_available");
+        $this->dedicatedDb->exec("DELETE FROM packages_available");
 
         /**
          *  Nettoie l'espace inutilisé suite à la suppression du contenu de la table
          */
-        $this->host_db->exec("VACUUM");
+        $this->dedicatedDb->exec("VACUUM");
     }
 
     /**
@@ -472,11 +472,11 @@ class Host extends Model
     public function getPackageInfo(string $packageId)
     {
         try {
-            $stmt = $this->host_db->prepare("SELECT * FROM packages WHERE Id = :packageId");
+            $stmt = $this->dedicatedDb->prepare("SELECT * FROM packages WHERE Id = :packageId");
             $stmt->bindValue(':packageId', $packageId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            $this->host_db->logError($e);
+            $this->dedicatedDb->logError($e);
         }
 
         $data = array();
@@ -498,12 +498,12 @@ class Host extends Model
          */
         if (!empty($packageName) and !empty($packageVersion)) {
             try {
-                $stmt = $this->host_db->prepare("SELECT Id FROM packages WHERE Name = :name and Version = :version");
+                $stmt = $this->dedicatedDb->prepare("SELECT Id FROM packages WHERE Name = :name and Version = :version");
                 $stmt->bindValue(':name', $packageName);
                 $stmt->bindValue(':version', $packageVersion);
                 $result = $stmt->execute();
             } catch (\Exception $e) {
-                $this->host_db->logError($e);
+                $this->dedicatedDb->logError($e);
             }
 
             while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -517,11 +517,11 @@ class Host extends Model
          */
         } elseif (!empty($packageName)) {
             try {
-                $stmt = $this->host_db->prepare("SELECT Id FROM packages WHERE Name = :name");
+                $stmt = $this->dedicatedDb->prepare("SELECT Id FROM packages WHERE Name = :name");
                 $stmt->bindValue(':name', $packageName);
                 $result = $stmt->execute();
             } catch (\Exception $e) {
-                $this->host_db->logError($e);
+                $this->dedicatedDb->logError($e);
             }
 
             while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -544,20 +544,20 @@ class Host extends Model
              *  Cas où on a précisé un numéro de version
              */
             if (!empty($packageVersion)) {
-                $stmt = $this->host_db->prepare("SELECT State FROM packages WHERE Name = :name and Version = :version");
+                $stmt = $this->dedicatedDb->prepare("SELECT State FROM packages WHERE Name = :name and Version = :version");
                 $stmt->bindValue(':version', $packageVersion);
 
             /**
              *  Cas où on n'a pas précisé un numéro de version
              */
             } else {
-                $stmt = $this->host_db->prepare("SELECT State FROM packages WHERE Name = :name");
+                $stmt = $this->dedicatedDb->prepare("SELECT State FROM packages WHERE Name = :name");
             }
 
             $stmt->bindValue(':name', $packageName);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            $this->host_db->logError($e);
+            $this->dedicatedDb->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -804,14 +804,14 @@ class Host extends Model
     public function packageExists(string $packageName)
     {
         try {
-            $stmt = $this->host_db->prepare("SELECT * FROM packages WHERE Name = :name");
+            $stmt = $this->dedicatedDb->prepare("SELECT * FROM packages WHERE Name = :name");
             $stmt->bindValue(':name', \Controllers\Common::validateData($packageName));
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            $this->host_db->logError($e);
+            $this->dedicatedDb->logError($e);
         }
 
-        if ($this->host_db->isempty($result) === true) {
+        if ($this->dedicatedDb->isempty($result) === true) {
             return false;
         }
 
@@ -824,15 +824,15 @@ class Host extends Model
     public function packageVersionExists(string $packageName, string $packageVersion)
     {
         try {
-            $stmt = $this->host_db->prepare("SELECT * FROM packages WHERE Name = :name and Version = :version");
+            $stmt = $this->dedicatedDb->prepare("SELECT * FROM packages WHERE Name = :name and Version = :version");
             $stmt->bindValue(':name', $packageName);
             $stmt->bindValue(':version', $packageVersion);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            $this->host_db->logError($e);
+            $this->dedicatedDb->logError($e);
         }
 
-        if ($this->host_db->isempty($result) === true) {
+        if ($this->dedicatedDb->isempty($result) === true) {
             return false;
         }
 
@@ -847,17 +847,17 @@ class Host extends Model
         $packages = array();
 
         try {
-            $stmt = $this->host_db->prepare("SELECT Name, Version FROM packages WHERE Name LIKE :name");
+            $stmt = $this->dedicatedDb->prepare("SELECT Name, Version FROM packages WHERE Name LIKE :name");
             $stmt->bindValue(':name', "${packageName}%");
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            $this->host_db->logError($e);
+            $this->dedicatedDb->logError($e);
         }
 
         /**
          *  If no result, return empty array
          */
-        if ($this->host_db->isempty($result) === true) {
+        if ($this->dedicatedDb->isempty($result) === true) {
             return $packages;
         }
 
@@ -879,14 +879,14 @@ class Host extends Model
     public function packageAvailableExists(string $packageName)
     {
         try {
-            $stmt = $this->host_db->prepare("SELECT * FROM packages_available WHERE Name = :name");
+            $stmt = $this->dedicatedDb->prepare("SELECT * FROM packages_available WHERE Name = :name");
             $stmt->bindValue(':name', $packageName);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            $this->host_db->logError($e);
+            $this->dedicatedDb->logError($e);
         }
 
-        if ($this->host_db->isempty($result) === true) {
+        if ($this->dedicatedDb->isempty($result) === true) {
             return false;
         }
 
@@ -899,15 +899,15 @@ class Host extends Model
     public function packageVersionAvailableExists(string $packageName, string $packageVersion)
     {
         try {
-            $stmt = $this->host_db->prepare("SELECT * FROM packages_available WHERE Name = :name and Version = :version");
+            $stmt = $this->dedicatedDb->prepare("SELECT * FROM packages_available WHERE Name = :name and Version = :version");
             $stmt->bindValue(':name', $packageName);
             $stmt->bindValue(':version', $packageVersion);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            $this->host_db->logError($e);
+            $this->dedicatedDb->logError($e);
         }
 
-        if ($this->host_db->isempty($result) === true) {
+        if ($this->dedicatedDb->isempty($result) === true) {
             return false;
         }
 
@@ -920,12 +920,12 @@ class Host extends Model
     public function addPackageAvailable(string $name, string $version)
     {
         try {
-            $stmt = $this->host_db->prepare("INSERT INTO packages_available ('Name', 'Version') VALUES (:name, :version)");
+            $stmt = $this->dedicatedDb->prepare("INSERT INTO packages_available ('Name', 'Version') VALUES (:name, :version)");
             $stmt->bindValue(':name', $name);
             $stmt->bindValue(':version', $version);
             $stmt->execute();
         } catch (\Exception $e) {
-            $this->host_db->logError($e);
+            $this->dedicatedDb->logError($e);
         }
     }
 
@@ -935,12 +935,12 @@ class Host extends Model
     public function updatePackageAvailable(string $name, string $version)
     {
         try {
-            $stmt = $this->host_db->prepare("UPDATE packages_available SET Version = :version WHERE Name = :name");
+            $stmt = $this->dedicatedDb->prepare("UPDATE packages_available SET Version = :version WHERE Name = :name");
             $stmt->bindValue(':name', $name);
             $stmt->bindValue(':version', $version);
             $stmt->execute();
         } catch (\Exception $e) {
-            $this->host_db->logError($e);
+            $this->dedicatedDb->logError($e);
         }
     }
 
@@ -950,15 +950,15 @@ class Host extends Model
     public function eventExists(string $dateStart, string $timeStart)
     {
         try {
-            $stmt = $this->host_db->prepare("SELECT Id FROM events WHERE Date = :date_start and Time = :time_start");
+            $stmt = $this->dedicatedDb->prepare("SELECT Id FROM events WHERE Date = :date_start and Time = :time_start");
             $stmt->bindValue(':date_start', $dateStart);
             $stmt->bindValue(':time_start', $timeStart);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            $this->host_db->logError($e);
+            $this->dedicatedDb->logError($e);
         }
 
-        if ($this->host_db->isempty($result) === true) {
+        if ($this->dedicatedDb->isempty($result) === true) {
             return false;
         }
 
@@ -971,14 +971,14 @@ class Host extends Model
     public function addEvent(string $dateStart, string $dateEnd, string $timeStart, string $timeEnd)
     {
         try {
-            $stmt = $this->host_db->prepare("INSERT INTO events ('Date', 'Date_end', 'Time', 'Time_end', 'Status') VALUES (:date_start, :date_end, :time_start, :time_end, 'done')");
+            $stmt = $this->dedicatedDb->prepare("INSERT INTO events ('Date', 'Date_end', 'Time', 'Time_end', 'Status') VALUES (:date_start, :date_end, :time_start, :time_end, 'done')");
             $stmt->bindValue(':date_start', $dateStart);
             $stmt->bindValue(':date_end', $dateEnd);
             $stmt->bindValue(':time_start', $timeStart);
             $stmt->bindValue(':time_end', $timeEnd);
             $stmt->execute();
         } catch (\Exception $e) {
-            $this->host_db->logError($e);
+            $this->dedicatedDb->logError($e);
         }
     }
 
@@ -1023,9 +1023,9 @@ class Host extends Model
     public function getPackagesInventory()
     {
         /**
-         *  Si la BDD dédiée à l'hôte n'est pas instanciée dans $this->host_db alors on quitte
+         *  Si la BDD dédiée à l'hôte n'est pas instanciée dans $this->dedicatedDb alors on quitte
          */
-        if (empty($this->host_db)) {
+        if (empty($this->dedicatedDb)) {
             return false;
         }
 
@@ -1035,9 +1035,9 @@ class Host extends Model
         $datas = array();
 
         try {
-            $result = $this->host_db->query("SELECT * FROM packages ORDER BY Name ASC");
+            $result = $this->dedicatedDb->query("SELECT * FROM packages ORDER BY Name ASC");
         } catch (\Exception $e) {
-            $this->host_db->logError($e);
+            $this->dedicatedDb->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -1053,9 +1053,9 @@ class Host extends Model
     public function getPackagesInstalled()
     {
         /**
-         *  Si la BDD dédiée à l'hôte n'est pas instanciée dans $this->host_db alors on quitte
+         *  Si la BDD dédiée à l'hôte n'est pas instanciée dans $this->dedicatedDb alors on quitte
          */
-        if (empty($this->host_db)) {
+        if (empty($this->dedicatedDb)) {
             return false;
         }
 
@@ -1065,9 +1065,9 @@ class Host extends Model
         $datas = array();
 
         try {
-            $result = $this->host_db->query("SELECT * FROM packages WHERE State = 'inventored' or State = 'installed' or State = 'dep-installed' or State = 'upgraded' or State = 'downgraded'");
+            $result = $this->dedicatedDb->query("SELECT * FROM packages WHERE State = 'inventored' or State = 'installed' or State = 'dep-installed' or State = 'upgraded' or State = 'downgraded'");
         } catch (\Exception $e) {
-            $this->host_db->logError($e);
+            $this->dedicatedDb->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -1098,12 +1098,12 @@ class Host extends Model
             /**
              *  Prepare query
              */
-            $stmt = $this->host_db->prepare($query);
+            $stmt = $this->dedicatedDb->prepare($query);
             $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
 
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            $this->host_db->logError($e);
+            $this->dedicatedDb->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -1193,12 +1193,12 @@ class Host extends Model
             /**
              *  Prepare query
              */
-            $stmt = $this->host_db->prepare($query);
+            $stmt = $this->dedicatedDb->prepare($query);
             $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
 
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            $this->host_db->logError($e);
+            $this->dedicatedDb->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -1219,14 +1219,14 @@ class Host extends Model
     public function getEventPackagesList(string $eventId, string $packageState)
     {
         /**
-         *  Si la BDD dédiée à l'hôte n'est pas instanciée dans $this->host_db alors on quitte
+         *  Si la BDD dédiée à l'hôte n'est pas instanciée dans $this->dedicatedDb alors on quitte
          */
-        if (empty($this->host_db)) {
+        if (empty($this->dedicatedDb)) {
             return false;
         }
 
         try {
-            $stmt = $this->host_db->prepare("SELECT * FROM packages
+            $stmt = $this->dedicatedDb->prepare("SELECT * FROM packages
             WHERE Id_event = :eventId and State = :packageState
             UNION
             SELECT * FROM packages_history       
@@ -1235,7 +1235,7 @@ class Host extends Model
             $stmt->bindValue(':packageState', \Controllers\Common::validateData($packageState));
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            $this->host_db->logError($e);
+            $this->dedicatedDb->logError($e);
         }
 
         $datas = array();
@@ -1254,7 +1254,7 @@ class Host extends Model
     public function getEventDetails(string $eventId, string $packageState)
     {
         try {
-            $stmt = $this->host_db->prepare("SELECT Name, Version FROM packages
+            $stmt = $this->dedicatedDb->prepare("SELECT Name, Version FROM packages
             WHERE Id_event = :id_event and State = :state
             UNION
             SELECT Name, Version FROM packages_history
@@ -1263,7 +1263,7 @@ class Host extends Model
             $stmt->bindValue(':state', \Controllers\Common::validateData($packageState));
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            $this->host_db->logError($e);
+            $this->dedicatedDb->logError($e);
         }
 
         $packages = array();
@@ -1272,7 +1272,7 @@ class Host extends Model
             $packages[] = $row;
         }
 
-        $this->host_db->close();
+        $this->dedicatedDb->close();
 
         return $packages;
     }
@@ -1288,7 +1288,7 @@ class Host extends Model
          *  Récupération de l'historique du paquet (table packages_history) ainsi que son état actuel (table packages)
          */
         try {
-            $stmt = $this->host_db->prepare("SELECT * FROM packages_history
+            $stmt = $this->dedicatedDb->prepare("SELECT * FROM packages_history
             WHERE Name = :packagename
             UNION SELECT * FROM packages
             WHERE Name = :packagename
@@ -1296,7 +1296,7 @@ class Host extends Model
             $stmt->bindValue(':packagename', $packageName);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            $this->host_db->logError($e);
+            $this->dedicatedDb->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -1314,14 +1314,14 @@ class Host extends Model
     public function getLastPackagesStatusCount(string $status, string $dateStart, string $dateEnd)
     {
         /**
-         *  Si la BDD dédiée à l'hôte n'est pas instanciée dans $this->host_db alors on quitte
+         *  Si la BDD dédiée à l'hôte n'est pas instanciée dans $this->dedicatedDb alors on quitte
          */
-        if (empty($this->host_db)) {
+        if (empty($this->dedicatedDb)) {
             return false;
         }
 
         try {
-            $stmt = $this->host_db->prepare("SELECT Date, COUNT(*) as date_count FROM packages WHERE State = :status and Date BETWEEN :dateStart and :dateEnd GROUP BY Date
+            $stmt = $this->dedicatedDb->prepare("SELECT Date, COUNT(*) as date_count FROM packages WHERE State = :status and Date BETWEEN :dateStart and :dateEnd GROUP BY Date
                                             UNION
                                             SELECT Date, COUNT(*) as date_count FROM packages_history WHERE State = :status and Date BETWEEN :dateStart and :dateEnd GROUP BY Date");
             $stmt->bindValue(':status', $status);
@@ -1329,7 +1329,7 @@ class Host extends Model
             $stmt->bindValue(':dateEnd', $dateEnd);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            $this->host_db->logError($e);
+            $this->dedicatedDb->logError($e);
         }
 
         $array = array();
@@ -1505,26 +1505,26 @@ class Host extends Model
             /**
              *  Delete all tables in host database
              */
-            $this->host_db->exec("DROP TABLE events");
-            $this->host_db->exec("DROP TABLE packages");
-            $this->host_db->exec("DROP TABLE packages_available");
-            $this->host_db->exec("DROP TABLE packages_history");
+            $this->dedicatedDb->exec("DROP TABLE events");
+            $this->dedicatedDb->exec("DROP TABLE packages");
+            $this->dedicatedDb->exec("DROP TABLE packages_available");
+            $this->dedicatedDb->exec("DROP TABLE packages_history");
 
             /**
              *  Then we regenerate them empty
              */
-            $this->host_db->generateHostTables();
+            $this->dedicatedDb->generateHostTables();
         } catch (\Exception $e) {
-            $this->host_db->logError($e);
+            $this->dedicatedDb->logError($e);
         }
     }
 
     /**
-     *  Retourne l'Id de la dernière ligne insérée en base de données dédiée à un hôte ('host_db')
+     *  Return the last insert row ID in the dedicated database for a host
      */
     public function getHostLastInsertRowID()
     {
-        return $this->host_db->lastInsertRowID();
+        return $this->dedicatedDb->lastInsertRowID();
     }
 
     /**

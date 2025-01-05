@@ -7,7 +7,7 @@ use Exception;
 
 class Connection extends SQLite3
 {
-    public function __construct(string $database, string|null $hostId = null, bool $check = true)
+    public function __construct(string $database, int|null $databaseId = null, bool $check = true)
     {
         /**
          *  Open database from its name
@@ -80,20 +80,34 @@ class Connection extends SQLite3
                 }
 
             /**
-             *  Case where database is 'host', it is a host database 'properties.db', hostId must be set
+             *  Case where database is 'host', it is a host database 'properties.db', databaseId must be set
              */
-            } elseif ($database == 'host') {
-                $this->open(HOSTS_DIR . '/' . $hostId . '/properties.db');
+            } elseif ($database == 'host' and isset($databaseId)) {
+                $this->open(HOSTS_DIR . '/' . $databaseId . '/properties.db');
                 $this->busyTimeout(30000);
                 $this->enableExceptions(true);
                 $this->enableWAL();
                 $this->generateHostTables();
+
+            /**
+             *  Case where database is 'ws', it is the websockets database 'repomanager-ws.db'
+             */
             } elseif ($database == 'ws') {
                 $this->open(WS_DB);
                 $this->busyTimeout(30000);
                 $this->enableExceptions(true);
                 $this->enableWAL();
                 $this->generateWsTables();
+
+            /**
+             *  Case where database is 'task-log', it is a task log database 'task-<databaseId>-log.db'
+             */
+            } elseif ($database == 'task-log' and isset($databaseId)) {
+                $this->open(MAIN_LOGS_DIR . '/repomanager-task-' . $databaseId . '-log.db');
+                $this->busyTimeout(30000);
+                $this->enableExceptions(true);
+                $this->enableWAL();
+                $this->generateTaskLogTables();
 
             /**
              *  Case where database is not 'main', 'stats', 'hosts' or 'host'
@@ -543,7 +557,6 @@ class Connection extends SQLite3
         STATS_ENABLED CHAR(5),
         /* Hosts and profiles settings */
         MANAGE_HOSTS CHAR(5),
-        MANAGE_PROFILES CHAR(5),
         /* CVE settings */
         CVE_IMPORT CHAR(5),
         CVE_IMPORT_TIME TIME,
@@ -591,7 +604,6 @@ class Connection extends SQLite3
                 RETENTION,
                 STATS_ENABLED,
                 MANAGE_HOSTS,
-                MANAGE_PROFILES,
                 CVE_IMPORT,
                 CVE_IMPORT_TIME,
                 CVE_SCAN_HOSTS
@@ -617,7 +629,6 @@ class Connection extends SQLite3
                 '$gpgKeyId',
                 'false',
                 '3',
-                'false',
                 'false',
                 'false',
                 'false',
@@ -962,6 +973,40 @@ class Connection extends SQLite3
         $this->exec("CREATE INDEX IF NOT EXISTS ws_connections_authenticated ON ws_connections (Authenticated)");
         $this->exec("CREATE INDEX IF NOT EXISTS ws_connections_connection_id ON ws_connections (Connection_id)");
         $this->exec("CREATE INDEX IF NOT EXISTS ws_connections_id_host ON ws_connections (Id_host)");
+    }
+
+    /**
+     *  Generate tables in the task logs database
+     */
+    private function generateTaskLogTables()
+    {
+        // steps table
+        $this->exec("CREATE TABLE IF NOT EXISTS steps (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Identifier VARCHAR(255),
+        Title VARCHAR(255),
+        Status CHAR(9), /* running, completed, error */
+        Start REAL,
+        End REAL,
+        Duration REAL,
+        Message VARCHAR(255),
+        Task_id INTEGER)");
+
+        // substeps table
+        $this->exec("CREATE TABLE IF NOT EXISTS substeps (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Identifier VARCHAR(255),
+        Title VARCHAR(255),
+        Note VARCHAR(255),
+        Status CHAR(9), /* new, running, completed, error */
+        Start REAL,
+        End REAL,
+        Duration REAL,
+        Output TEXT,
+        Step_id INTEGER)");
+
+        $this->exec("CREATE INDEX IF NOT EXISTS steps_task_id ON steps (Task_id)");
+        $this->exec("CREATE INDEX IF NOT EXISTS steps_step_id ON substeps (Step_id)");
     }
 
     /**

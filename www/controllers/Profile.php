@@ -215,12 +215,12 @@ class Profile
      */
     public function new(string $name)
     {
-        $name = Common::validateData($name);
+        $name = \Controllers\Common::validateData($name);
 
         /**
          *  Check that profile name does not contain forbidden characters
          */
-        if (Common::isAlphanumDash($name) === false) {
+        if (\Controllers\Common::isAlphanumDash($name) === false) {
             throw new Exception("<b>$name</b> profile contains invalid characters");
         }
 
@@ -336,15 +336,18 @@ class Profile
      */
     public function configure(int $id, string $name, array $reposIds = null, array $packagesExcluded = null, array $packagesMajorExcluded = null, array $serviceNeedRestart = null, string $notes)
     {
+        $myhistory = new \Controllers\History();
+        $myHost = new \Controllers\Host();
+        $myHostRequest = new \Controllers\Host\Request();
         $error = 0;
 
-        $name = Common::validateData($name);
+        $name = \Controllers\Common::validateData($name);
 
         /**
          *  Check that profile name does not contain forbidden characters
          */
-        if (Common::isAlphanumDash($name) === false) {
-            throw new Exception("<b>$name</b> profile name contains invalid characters");
+        if (\Controllers\Common::isAlphanumDash($name) === false) {
+            throw new Exception($name . ' profile name contains invalid characters');
         }
 
         /**
@@ -398,9 +401,9 @@ class Profile
          */
         if (!empty($packagesMajorExcluded)) {
             foreach ($packagesMajorExcluded as $packageName) {
-                $packageName = Common::validateData($packageName);
+                $packageName = \Controllers\Common::validateData($packageName);
 
-                if (!Common::isAlphanumDash($packageName, array('.*'))) {
+                if (!\Controllers\Common::isAlphanumDash($packageName, array('.*'))) {
                     throw new Exception('Package ' . $packageName . ' contains invalid characters');
                 }
 
@@ -426,9 +429,9 @@ class Profile
          */
         if (!empty($packagesExcluded)) {
             foreach ($packagesExcluded as $packageName) {
-                $packageName = Common::validateData($packageName);
+                $packageName = \Controllers\Common::validateData($packageName);
 
-                if (!Common::isAlphanumDash($packageName, array('.*'))) {
+                if (!\Controllers\Common::isAlphanumDash($packageName, array('.*'))) {
                     throw new Exception('Package ' . $packageName . ' contains invalid characters');
                 }
 
@@ -454,12 +457,12 @@ class Profile
          */
         if (!empty($serviceNeedRestart)) {
             foreach ($serviceNeedRestart as $serviceName) {
-                $serviceName = Common::validateData($serviceName);
+                $serviceName = \Controllers\Common::validateData($serviceName);
 
                 /**
                  *  On vérifie que le nom du service ne contient pas de caractères interdits
                  */
-                if (!Common::isAlphanumDash($serviceName, array('@', ':', '.*'))) {
+                if (!\Controllers\Common::isAlphanumDash($serviceName, array('@', ':', '.*'))) {
                     throw new Exception('Service ' . $serviceName . ' contains invalid characters');
                 }
 
@@ -485,7 +488,7 @@ class Profile
          *  Check notes
          */
         if (!empty($notes)) {
-            $notes = Common::validateData($notes);
+            $notes = \Controllers\Common::validateData($notes);
         }
 
         /**
@@ -493,7 +496,18 @@ class Profile
          */
         $this->model->configure($id, $name, $packagesExcludedExploded, $packagesMajorExcludedExploded, $serviceNeedRestartExploded, $notes);
 
-        $myhistory = new \Controllers\History();
+        /**
+         *  Get all hosts using this profile
+         */
+        $hosts = $myHost->getHostWithProfile($name);
+
+        /**
+         *  For each host, add a new request to apply the new profile configuration
+         */
+        foreach ($hosts as $host) {
+            $myHostRequest->new($host['Id'], 'update-profile');
+        }
+
         $myhistory->set($_SESSION['username'], "Modification of <b>$name</b> profile configuration", 'success');
     }
 

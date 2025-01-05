@@ -39,67 +39,6 @@ class Task extends \Models\Model
     }
 
     /**
-     *  Get task PID by Id
-     */
-    public function getPidById(int $id) : int
-    {
-        try {
-            $stmt = $this->db->prepare("SELECT Pid FROM tasks WHERE Id = :id");
-            $stmt->bindValue(':id', $id);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $pid = $row['Pid'];
-        }
-
-        return $pid;
-    }
-
-    /**
-     *  Return the Id of a task from its PID
-     *  @param int $pid
-     *  @return int
-     */
-    public function getIdByPid(int $pid) : int
-    {
-        $id = 0;
-
-        try {
-            $stmt = $this->db->prepare("SELECT Id FROM tasks WHERE Pid = :pid");
-            $stmt->bindValue(':pid', $pid);
-            $result = $stmt->execute();
-        } catch (Exception $e) {
-            $this->db->logError($e);
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $id = $row['Id'];
-        }
-
-        return $id;
-    }
-
-    public function getLogfileById(int $id) : string
-    {
-        try {
-            $stmt = $this->db->prepare("SELECT Logfile FROM tasks WHERE Id = :id");
-            $stmt->bindValue(':id', $id);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $logfile = $row['Logfile'];
-        }
-
-        return $logfile;
-    }
-
-    /**
      *  Update date in database
      */
     public function updateDate(int $id, string $date) : void
@@ -122,36 +61,6 @@ class Task extends \Models\Model
         try {
             $stmt = $this->db->prepare("UPDATE tasks SET Time = :time WHERE Id = :id");
             $stmt->bindValue(':time', $time);
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Update PID in database
-     */
-    public function updatePid(int $id, int $pid) :void
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE tasks SET Pid = :pid WHERE Id = :id");
-            $stmt->bindValue(':pid', $pid);
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Update logfile in database
-     */
-    public function updateLogfile(int $id, string $logfile) :void
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE tasks SET Logfile = :logfile WHERE Id = :id");
-            $stmt->bindValue(':logfile', $logfile);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
@@ -378,6 +287,28 @@ class Task extends \Models\Model
         }
 
         return $data;
+    }
+
+    /**
+     *  Get last done task Id
+     */
+    public function getLastTaskId() : int
+    {
+        $id = '';
+
+        try {
+            $result = $this->db->query("SELECT Id FROM tasks
+            WHERE Status != 'scheduled'
+            ORDER BY Id DESC LIMIT 1");
+        } catch (\Exception $e) {
+            $this->db->logError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $id = $row['Id'];
+        }
+
+        return $id;
     }
 
     /**

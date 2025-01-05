@@ -1,8 +1,16 @@
 <section class="flex-div-50 div-generic-blue reloadable-container" container="host/packages">
-    <h5>PACKAGES</h5>
+    <h6 class="margin-top-0">PACKAGES INVENTORY</h6>
+    <p class="note">Packages installed and available updates.</p>
         
-    <div class="grid grid-2">
-        <div id="available-packages-btn" class="flex align-item-center column-gap-5 pointer">
+    <div class="grid grid-2 margin-bottom-15">
+        <div>
+            <h6>INSTALLED</h6>
+            <span id="installed-packages-btn" class="label-white pointer"><?= $packagesInstalledCount ?></span>
+        </div>
+
+        <div>
+            <h6>TO UPDATE</h6>
+
             <?php
             $labelColor = 'white';
 
@@ -12,13 +20,7 @@
                 $labelColor = 'yellow';
             } ?>
 
-            <span class="label-<?= $labelColor ?>"><?= $packagesAvailableTotal ?></span>
-            <span><b>To update</b></span>
-        </div>
-
-        <div id="installed-packages-btn" class="flex align-item-center column-gap-5 pointer">
-            <span class="label-white"><?= $packagesInstalledCount ?></span>
-            <span><b>Total installed</b></span>
+            <span id="available-packages-btn" class="label-<?= $labelColor ?> pointer"><?= $packagesAvailableTotal ?></span>
         </div>
     </div>
 
@@ -36,9 +38,9 @@
     </div>
 
     <div id="installed-packages-div" class="hide">
-        <p class="margin-top-15 margin-bottom-15"><?= count($packagesInventored) ?> packages inventored</p>
+        <p class="mediumopacity-cst margin-top-15 margin-bottom-15"><?= count($packagesInventored) ?> packages inventored</p>
 
-        <input type="text" id="installed-packages-search" onkeyup="filterPackage()" autocomplete="off" placeholder="Search package">
+        <input type="text" id="installed-packages-search" class="margin-bottom-5" onkeyup="filterPackage()" autocomplete="off" placeholder="Search package">
 
         <div id="installed-packages-container">
             <?php

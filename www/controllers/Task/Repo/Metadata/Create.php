@@ -14,13 +14,7 @@ trait Create
         $createMetadataError = 0;
         $createMetadataErrorMsg = '';
 
-        ob_start();
-
-        $this->taskLog->step('CREATING REPOSITORY');
-
-        echo '<div class="hide createRepoDiv"><pre class="codeblock">';
-
-        $this->taskLog->steplogWrite();
+        $this->taskLogStepController->new('create-repo-metadata', 'CREATING REPOSITORY');
 
         if ($this->repo->getPackageType() == 'rpm') {
             $repoPath = REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName();
@@ -34,32 +28,25 @@ trait Create
          */
         try {
             if ($this->repo->getPackageType() == 'rpm') {
-                $mymetadata = new \Controllers\Task\Repo\Metadata\Rpm();
-                $mymetadata->setPid($this->task->getPid());
+                $mymetadata = new \Controllers\Task\Repo\Metadata\Rpm($this->task->getId());
                 $mymetadata->setRoot($repoPath);
-                $mymetadata->setLogfile($this->taskLog->getSteplog());
                 $mymetadata->create();
             }
 
             if ($this->repo->getPackageType() == 'deb') {
-                $mymetadata = new \Controllers\Task\Repo\Metadata\Deb();
-                $mymetadata->setPid($this->task->getPid());
+                $mymetadata = new \Controllers\Task\Repo\Metadata\Deb($this->task->getId());
                 $mymetadata->setRoot($repoPath);
                 $mymetadata->setRepo($this->repo->getName());
                 $mymetadata->setDist($this->repo->getDist());
                 $mymetadata->setSection($this->repo->getSection());
                 $mymetadata->setArch($this->repo->getArch());
-                $mymetadata->setGpgResign($this->repo->getGpgSign());
-                $mymetadata->setLogfile($this->taskLog->getSteplog());
+                $mymetadata->setGpgSign($this->repo->getGpgSign());
                 $mymetadata->create();
             }
         } catch (Exception $e) {
             $createMetadataError++;
             $createMetadataErrorMsg = $e->getMessage();
         }
-
-        echo '</pre></div>';
-        $this->taskLog->steplogWrite();
 
         /**
          *  If there was error while creating metadata, then delete everything
@@ -92,8 +79,6 @@ trait Create
 
             throw new Exception($msg);
         }
-
-        $this->taskLog->steplogWrite();
 
         /**
          *  Create symbolic link (environment)
@@ -130,8 +115,6 @@ trait Create
             }
         }
 
-        $this->taskLog->stepOK();
-
-        return true;
+        $this->taskLogStepController->completed();
     }
 }

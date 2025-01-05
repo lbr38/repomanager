@@ -7,7 +7,7 @@ use Datetime;
 
 class Host
 {
-    protected $host_db; // BDD dédiée de l'hôte
+    protected $dedicatedDb;
     private $model;
     private $layoutContainerReloadController;
     private $id;
@@ -41,82 +41,82 @@ class Host
 
     public function setId(string $id)
     {
-        $this->id = Common::validateData($id);
+        $this->id = \Controllers\Common::validateData($id);
     }
 
     public function setIp(string $ip)
     {
-        $this->ip = Common::validateData($ip);
+        $this->ip = \Controllers\Common::validateData($ip);
     }
 
     public function setHostname(string $hostname)
     {
-        $this->hostname = Common::validateData($hostname);
+        $this->hostname = \Controllers\Common::validateData($hostname);
     }
 
     public function setOS(string $os)
     {
-        $this->os = Common::validateData($os);
+        $this->os = \Controllers\Common::validateData($os);
     }
 
     public function setOsVersion(string $os_version)
     {
-        $this->os_version = Common::validateData($os_version);
+        $this->os_version = \Controllers\Common::validateData($os_version);
     }
 
     public function setOsFamily(string $os_family)
     {
-        $this->os_family = Common::validateData($os_family);
+        $this->os_family = \Controllers\Common::validateData($os_family);
     }
 
     public function setType(string $type)
     {
-        $this->type = Common::validateData($type);
+        $this->type = \Controllers\Common::validateData($type);
     }
 
     public function setKernel(string $kernel)
     {
-        $this->kernel = Common::validateData($kernel);
+        $this->kernel = \Controllers\Common::validateData($kernel);
     }
 
     public function setArch(string $arch)
     {
-        $this->arch = Common::validateData($arch);
+        $this->arch = \Controllers\Common::validateData($arch);
     }
 
     public function setProfile(string $profile)
     {
-        $this->profile = Common::validateData($profile);
+        $this->profile = \Controllers\Common::validateData($profile);
     }
 
     public function setEnv(string $env)
     {
-        $this->env = Common::validateData($env);
+        $this->env = \Controllers\Common::validateData($env);
     }
 
     public function setPackageId(string $packageId)
     {
-        $this->packageId = Common::validateData($packageId);
+        $this->packageId = \Controllers\Common::validateData($packageId);
     }
 
     public function setPackageName(string $packageName)
     {
-        $this->packageName = Common::validateData($packageName);
+        $this->packageName = \Controllers\Common::validateData($packageName);
     }
 
     public function setPackageVersion(string $packageVersion)
     {
-        $this->packageVersion = Common::validateData($packageVersion);
+        $this->packageVersion = \Controllers\Common::validateData($packageVersion);
     }
 
     public function setAuthId(string $authId)
     {
-        $this->authId = Common::validateData($authId);
+        $this->authId = \Controllers\Common::validateData($authId);
     }
 
     public function setToken(string $token)
     {
-        $this->token = Common::validateData($token);
+        $this->token = \Controllers\Common::validateData($token);
     }
 
     public function getId()
@@ -177,15 +177,15 @@ class Host
      */
     public function getHostWithKernel(string $kernel)
     {
-        return $this->model->getHostWithKernel(Common::validateData($kernel));
+        return $this->model->getHostWithKernel($kernel);
     }
 
     /**
      *  Return hosts that have the specified profile
      */
-    public function getHostWithProfile(string $kernel)
+    public function getHostWithProfile(string $profile)
     {
-        return $this->model->getHostWithProfile(Common::validateData($kernel));
+        return $this->model->getHostWithProfile($profile);
     }
 
     /**
@@ -261,7 +261,7 @@ class Host
             throw new Exception('Host Id must be specified');
         }
 
-        $packageState = Common::validateData($packageState);
+        $packageState = \Controllers\Common::validateData($packageState);
 
         /**
          *  Ouverture de la BDD dédiée de l'hôte
@@ -553,7 +553,7 @@ class Host
         /**
          *  Les paquets sont transmis sous forme de chaine, séparés par une virgule. On explode cette chaine en array et on retire les entrées vides.
          */
-        $packagesList = array_filter(explode(",", Common::validateData($packagesInventory)));
+        $packagesList = array_filter(explode(",", \Controllers\Common::validateData($packagesInventory)));
 
         /**
          *  On traite si l'array n'est pas vide
@@ -659,7 +659,7 @@ class Host
             /**
              *  Les paquets sont transmis sous forme de chaine, séparés par une virgule. On explode cette chaine en array et on retire les entrées vides.
              */
-            $packagesList = array_filter(explode(",", Common::validateData($packagesAvailable)));
+            $packagesList = array_filter(explode(",", \Controllers\Common::validateData($packagesAvailable)));
         }
 
         /**
@@ -1358,7 +1358,7 @@ class Host
      */
     public function updateHostname(string $hostname)
     {
-        $this->model->updateHostname($this->id, Common::validateData($hostname));
+        $this->model->updateHostname($this->id, \Controllers\Common::validateData($hostname));
     }
 
     /**
@@ -1366,7 +1366,7 @@ class Host
      */
     public function updateOS(string $os)
     {
-        $this->model->updateOS($this->id, Common::validateData($os));
+        $this->model->updateOS($this->id, \Controllers\Common::validateData($os));
     }
 
     /**
@@ -1374,7 +1374,7 @@ class Host
      */
     public function updateOsVersion(string $osVersion)
     {
-        $this->model->updateOsVersion($this->id, Common::validateData($osVersion));
+        $this->model->updateOsVersion($this->id, \Controllers\Common::validateData($osVersion));
     }
 
     /**
@@ -1382,7 +1382,7 @@ class Host
      */
     public function updateOsFamily(string $osFamily)
     {
-        $this->model->updateOsFamily($this->id, Common::validateData($osFamily));
+        $this->model->updateOsFamily($this->id, \Controllers\Common::validateData($osFamily));
     }
 
     /**
@@ -1390,7 +1390,7 @@ class Host
      */
     public function updateType(string $virtType)
     {
-        $this->model->updateType($this->id, Common::validateData($virtType));
+        $this->model->updateType($this->id, \Controllers\Common::validateData($virtType));
     }
 
     /**
@@ -1398,7 +1398,7 @@ class Host
      */
     public function updateKernel(string $kernel)
     {
-        $this->model->updateKernel($this->id, Common::validateData($kernel));
+        $this->model->updateKernel($this->id, \Controllers\Common::validateData($kernel));
     }
 
     /**
@@ -1406,7 +1406,7 @@ class Host
      */
     public function updateArch(string $arch)
     {
-        $this->model->updateArch($this->id, Common::validateData($arch));
+        $this->model->updateArch($this->id, \Controllers\Common::validateData($arch));
     }
 
     /**
@@ -1414,7 +1414,7 @@ class Host
      */
     public function updateProfile(string $profile)
     {
-        $this->model->updateProfile($this->id, Common::validateData($profile));
+        $this->model->updateProfile($this->id, \Controllers\Common::validateData($profile));
     }
 
     /**
@@ -1422,7 +1422,7 @@ class Host
      */
     public function updateEnv(string $env)
     {
-        $this->model->updateEnv($this->id, Common::validateData($env));
+        $this->model->updateEnv($this->id, \Controllers\Common::validateData($env));
     }
 
     /**
@@ -1442,7 +1442,7 @@ class Host
      */
     public function updateLinupdateVersion(string $version)
     {
-        $this->model->updateLinupdateVersion($this->id, Common::validateData($version));
+        $this->model->updateLinupdateVersion($this->id, \Controllers\Common::validateData($version));
     }
 
     /**

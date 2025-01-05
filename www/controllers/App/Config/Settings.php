@@ -304,15 +304,6 @@ class Settings
             }
         }
 
-        if (!defined('MANAGE_PROFILES')) {
-            if (!empty($settings['MANAGE_PROFILES'])) {
-                define('MANAGE_PROFILES', $settings['MANAGE_PROFILES']);
-            } else {
-                define('MANAGE_PROFILES', '');
-                $__LOAD_SETTINGS_MESSAGES[] = "<code>MANAGE PROFILES</code> setting is not defined.";
-            }
-        }
-
         /**
          *  CVE settings
          */

@@ -156,9 +156,9 @@ class Repo
         $this->gpgCheck = $gpgCheck;
     }
 
-    public function setGpgSign(string $gpgResign)
+    public function setGpgSign(string $gpgSign)
     {
-        $this->gpgSign = $gpgResign;
+        $this->gpgSign = $gpgSign;
     }
 
     public function setArch(array $arch)

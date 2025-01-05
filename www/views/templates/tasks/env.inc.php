@@ -3,8 +3,8 @@
         <h3>POINT AN ENVIRONMENT</h3>
 
         <div class="text-right">
-            <p title="Task execution date"><?= DateTime::createFromFormat('Y-m-d', $this->task->getDate())->format('d-m-Y') . ' ' . $this->task->getTime() ?></p>
-            <p title="Task Id">Task #<?= $this->task->getId() ?></p>
+            <p title="Task execution date"><?= DateTime::createFromFormat('Y-m-d', $taskInfo['Date'])->format('d-m-Y') . ' ' . $taskInfo['Time'] ?></p>
+            <p title="Task Id">Task #<?= $taskId ?></p>
         </div>
     </div>
 </div>
@@ -16,11 +16,11 @@
             <p>
                 <span class="label-white">
                     <?php
-                    if ($this->repo->getPackageType() == 'rpm') {
-                        echo $this->repo->getName();
+                    if ($repoController->getPackageType() == 'rpm') {
+                        echo $repoController->getName();
                     }
-                    if ($this->repo->getPackageType() == 'deb') {
-                        echo $this->repo->getName() . ' ❯ ' . $this->repo->getDist() . ' ❯ ' . $this->repo->getSection();
+                    if ($repoController->getPackageType() == 'deb') {
+                        echo $repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection();
                     } ?>
                 </span>
             </p>
@@ -29,7 +29,7 @@
         <div>
             <h6 class="margin-top-0">SNAPSHOT</h6>
             <p>
-                <span class="label-black"><?= $this->repo->getDateFormatted() ?></span>
+                <span class="label-black"><?= $repoController->getDateFormatted() ?></span>
             </p>
         </div>
     </div>
@@ -38,17 +38,17 @@
         <div>
             <h6>ENVIRONMENT</h6>
             <p>
-                <?= \Controllers\Common::envtag($this->repo->getEnv()) ?>
+                <?= \Controllers\Common::envtag($rawParams['env']) ?>
             </p>
         </div>
     </div>
 
     <div class="grid grid-2">
         <?php
-        if (!empty($this->repo->getDescription())) : ?>
+        if (!empty($repoController->getDescription())) : ?>
             <div>
                 <h6>DESCRIPTION</h6>
-                <p><?= $this->repo->getDescription() ?></p>
+                <p><?= $repoController->getDescription() ?></p>
             </div>
             <?php
         endif ?>

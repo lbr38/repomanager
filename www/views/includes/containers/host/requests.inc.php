@@ -1,6 +1,6 @@
 <section class="flex-div-50 div-generic-blue reloadable-container" container="host/requests">
     <div class="flex justify-space-between">
-        <h5>REQUESTS</h5>
+        <h6 class="margin-top-0">REQUESTS</h6>
 
         <div id="host-request-btn" class="slide-btn" host-id="<?= $id ?>" title="Request">
             <img src="/assets/icons/rocket.svg">

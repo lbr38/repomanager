@@ -31,7 +31,7 @@ RUN echo "deb https://packages.repomanager.net/repo/repomanager-php/bookworm/mai
 RUN apt-get update -y
 
 # Install nginx and PHP 8.3
-RUN apt-get install nginx php8.3-fpm php8.3-cli php8.3-sqlite3 php8.3-xml php8.3-curl php8.3-yaml sqlite3 -y
+RUN apt-get install nginx php8.3-fpm php8.3-cli php8.3-sqlite3 php8.3-xml php8.3-curl php8.3-yaml php8.3-opcache sqlite3 -y
 
 # Clone project in the container
 RUN git clone https://github.com/lbr38/repomanager.git /tmp/repomanager
@@ -51,6 +51,7 @@ RUN rm -rf /etc/nginx/sites-enabled/default /var/www/html
 
 # Configure PHP
 RUN cp /tmp/repomanager/docker/config/php/www.conf /etc/php/8.3/fpm/pool.d/www.conf
+RUN cp /tmp/repomanager/docker/config/php/opcache.ini /etc/php/8.3/mods-available/opcache.ini
 RUN sed -i "s/^upload_max_filesize.*$/upload_max_filesize = $max_upload_size/g" /etc/php/8.3/fpm/php.ini
 RUN sed -i "s/^post_max_size.*$/post_max_size = $max_upload_size/g" /etc/php/8.3/fpm/php.ini
 

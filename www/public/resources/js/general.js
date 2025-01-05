@@ -72,28 +72,6 @@ $(document).keyup(function (e) {
 });
 
 /**
- *  Event: stop task
- */
-$(document).on('click','.stop-task-btn',function () {
-    var pid = $(this).attr('pid');
-
-    ajaxRequest(
-        // Controller:
-        'task',
-        // Action:
-        'stopTask',
-        // Data:
-        {
-            pid: pid
-        },
-        // Print success alert:
-        true,
-        // Print error alert:
-        true
-    );
-});
-
-/**
  *  Event: print a copy icon on element with .copy class
  */
 $(document).on('mouseenter','.copy',function () {
@@ -115,6 +93,19 @@ $(document).on('click','.icon-copy',function (e) {
     e.stopPropagation();
 
     var text = $(this).parent().text().trim();
+
+    navigator.clipboard.writeText(text).then(() => {
+        printAlert('Copied to clipboard', 'success');
+    },() => {
+        printAlert('Failed to copy', 'error');
+    });
+});
+
+/**
+ *  Event: copy on click on element with .copy-input-onclick class
+ */
+$(document).on('click','.copy-input-onclick',function (e) {
+    var text = $(this).val().trim();
 
     navigator.clipboard.writeText(text).then(() => {
         printAlert('Copied to clipboard', 'success');
@@ -236,54 +227,62 @@ function reloadPanel(name, params = [''])
  */
 function reloadContainer(container)
 {
-    /**
-     *  If the container to reload does not exist, return
-     */
-    if (!$('.reloadable-container[container="' + container + '"]').length) {
-        return;
-    }
+    return new Promise((resolve, reject) => {
+        try {
+            /**
+             *  If the container to reload does not exist, return
+             */
+            if (!$('.reloadable-container[container="' + container + '"]').length) {
+                return;
+            }
 
-    /**
-     *  Print a loading icon on the bottom of the page
-     */
-    printLoading();
+            /**
+             *  Print a loading icon on the bottom of the page
+             */
+            printLoading();
 
-    /**
-     *  Check if container has children with class .veil-on-reload
-     *  If so print a veil on them
-     */
-    printLoadingVeilByParentClass('reloadable-container[container="' + container + '"]');
+            /**
+             *  Check if container has children with class .veil-on-reload
+             *  If so print a veil on them
+             */
+            printLoadingVeilByParentClass('reloadable-container[container="' + container + '"]');
 
-    ajaxRequest(
-        // Controller:
-        'general',
-        // Action:
-        'getContainer',
-        // Data:
-        {
-            sourceUrl: window.location.href,
-            sourceUri: window.location.pathname,
-            container: container
-        },
-        // Print success alert:
-        false,
-        // Print error alert:
-        true,
-        // Reload container:
-        [],
-        // Execute functions on success:
-        [
-            // Replace container with itself, with new content
-            "$('.reloadable-container[container=\"" + container + "\"]').replaceWith(jsonValue.message)",
-            // Reload opened or closed elements that were opened/closed before reloading
-            "reloadOpenedClosedElements()"
-        ]
-    );
+            ajaxRequest(
+                // Controller:
+                'general',
+                // Action:
+                'getContainer',
+                // Data:
+                {
+                    sourceUrl: window.location.href,
+                    sourceUri: window.location.pathname,
+                    container: container
+                },
+                // Print success alert:
+                false,
+                // Print error alert:
+                true,
+                // Reload container:
+                [],
+                // Execute functions on success:
+                [
+                    // Replace container with itself, with new content
+                    "$('.reloadable-container[container=\"" + container + "\"]').replaceWith(jsonValue.message)",
+                    // Reload opened or closed elements that were opened/closed before reloading
+                    "reloadOpenedClosedElements()"
+                ]
+            ).then(() => {
+                // Hide loading icon
+                hideLoading();
 
-    /**
-     *  Hide loading icon
-     */
-    hideLoading();
+                // Resolve promise
+                resolve('Container reloaded');
+            });
+        } catch (error) {
+            // Reject promise
+            reject('Failed to reload container');
+        }
+    });
 }
 
 /**

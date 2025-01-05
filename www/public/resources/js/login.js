@@ -19,8 +19,8 @@ $(document).on('click','#user-generate-apikey-btn',function () {
                         true,
                         [],
                         [
-                            "$('.slide-panel-container[slide-panel=\"general/userspace\"]').find('#user-apikey').html(jsonValue.message);",
-                            "$('.slide-panel-container[slide-panel=\"general/userspace\"]').find('#user-apikey').addClass('copy');"
+                            "$('.slide-panel-container[slide-panel=\"general/userspace\"]').find('input#user-apikey').val(jsonValue.message);",
+                            "$('.slide-panel-container[slide-panel=\"general/userspace\"]').find('input#user-apikey').addClass('copy-input-onclick');"
                         ]
                     );
                 }

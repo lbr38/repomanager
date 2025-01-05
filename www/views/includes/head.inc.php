@@ -57,8 +57,6 @@
         $title .= ' - Manage hosts';
     } elseif (__ACTUAL_URI__[1] == "host") {
         $title .= ' - Manage host';
-    } elseif (__ACTUAL_URI__[1] == "profiles") {
-        $title .= ' - Manage profiles';
     } elseif (__ACTUAL_URI__[1] == "settings") {
         $title .= ' - Settings';
     } elseif (__ACTUAL_URI__[1] == "history") {

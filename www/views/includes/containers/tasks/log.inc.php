@@ -1,59 +1,46 @@
 <section class="section-left reloadable-container" container="tasks/log">
     <h3>LOG</h3>
 
-    <div id="log-container">
-        <div id="scrollButtons-container">
-            <div id="scrollButtons">
-                <?php
-                if (!empty($_COOKIE['display-log']) && $_COOKIE['display-log'] == 'true') : ?>
-                    <div id="display-log-btn" display="false" class="round-btn-green pointer" title="Show/hide details">
-                        <img src="/assets/icons/search.svg" />
-                    </div>
-                    <?php
-                else : ?>
-                    <div id="display-log-btn" display="true" class="round-btn-green pointer" title="Show/hide details">
-                        <img src="/assets/icons/search.svg" />
-                    </div>
-                    <?php
-                endif; ?>
-
-                <br>
-
-                <div>
-                    <a href="#top" class="round-btn-green" title="Go to the top">
-                        <img src="/assets/icons/up.svg" />
-                    </a>
-                </div>
-
-                <div>
-                    <a href="#bottom" class="round-btn-green" title="Go to the bottom">
-                        <img src="/assets/icons/down.svg" />
-                    </a>
-                </div>
-            </div>
+    <div class="flex justify-space-between">
+        <div id="log-refresh-container" task-id="<?= $taskId ?>" task-status="<?= $taskInfo['Status'] ?>" <?php echo ($legacyLog === true) ? 'legacy="true"' : '' ?>>
+            <?= $output ?>
         </div>
 
-        <div id="log-refresh-container">
-            <div id="log">
-
+        <div id="scroll-btns-container">
+            <div id="scroll-btns">
                 <?php
-                if (!empty($_COOKIE['display-log']) && $_COOKIE['display-log'] == 'true') : ?>
-                    <style>
-                        .getPackagesDiv { display: block }
-                        .signRepoDiv { display: block }
-                        .createRepoDiv { display: block }
-                    </style>
+                // TODO : Remove this button in one year, was used to display the old log content
+                if ($legacyLog) : ?>
+                    <div id="display-log-btn" display="true" class="round-btn-green pointer margin-bottom-15" title="Show details">
+                        <img src="/assets/icons/view-off.svg" />
+                    </div>
                     <?php
-                else : ?>
-                    <style>
-                        .getPackagesDiv { display: none }
-                        .signRepoDiv { display: none }
-                        .createRepoDiv { display: none }
-                    </style>
-                    <?php
-                endif; ?>
+                endif;
 
-                <?= $output; ?>
+                // Print the auto scroll button only if the task is running
+                if ($taskInfo['Status'] == 'running') : ?>
+                    <div class="pointer margin-bottom-15">
+                        <?php
+                        $autoscroll = 'true';
+
+                        if (!empty($_COOKIE['autoscroll'])) {
+                            $autoscroll = $_COOKIE['autoscroll'];
+                        }
+
+                        if ($autoscroll == 'true') : ?>
+                            <div id="autoscroll-btn" class="round-btn-yellow" title="Disable auto refresh and scroll">
+                                <img src="/assets/icons/pause.svg" />
+                            </div>
+                            <?php
+                        else : ?>
+                            <div id="autoscroll-btn" class="round-btn-green" title="Enable auto refresh and scroll">
+                                <img src="/assets/icons/play.svg" />
+                            </div>
+                            <?php
+                        endif ?>
+                    </div>
+                    <?php
+                endif ?>
             </div>
         </div>
     </div>

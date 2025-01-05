@@ -10,7 +10,6 @@ class Task
     private $id;
     private $pid;
     private $model;
-    private $logfile;
     private $action;
     private $status;
     private $error;
@@ -19,7 +18,7 @@ class Task
     private $time;
     private $repoName;
     private $gpgCheck;
-    private $gpgResign;
+    private $gpgSign;
     private $timeStart;
     private $timeEnd;
 
@@ -47,11 +46,6 @@ class Task
     public function getTime()
     {
         return $this->time;
-    }
-
-    public function getPid()
-    {
-        return $this->pid;
     }
 
     public function getAction()
@@ -94,11 +88,6 @@ class Task
         $this->time = $time;
     }
 
-    public function setPid(int $pid)
-    {
-        $this->pid = $pid;
-    }
-
     public function setAction(string $action)
     {
         $this->action = $action;
@@ -128,30 +117,6 @@ class Task
     }
 
     /**
-     *  Get task PID by Id
-     */
-    public function getPidById(int $id)
-    {
-        return $this->model->getPidById($id);
-    }
-
-    /**
-     *  Get task Id by PID
-     */
-    public function getIdByPid(string $pid)
-    {
-        return $this->model->getIdByPid($pid);
-    }
-
-    /**
-     *  Get task logfile by Id
-     */
-    public function getLogfileById(int $id) : string
-    {
-        return $this->model->getLogfileById($id);
-    }
-
-    /**
      *  Update date in database
      */
     public function updateDate(int $id, string $date) : void
@@ -165,24 +130,6 @@ class Task
     public function updateTime(int $id, string $time) : void
     {
         $this->model->updateTime($id, $time);
-    }
-
-    /**
-     * Update PID in database
-     * @param int $id
-     * @param int $pid
-     */
-    public function updatePid(int $id, int $pid) : void
-    {
-        $this->model->updatePid($id, $pid);
-    }
-
-    /**
-     *  Update logfile in database
-     */
-    public function updateLogfile(int $id, string $logfile) : void
-    {
-        $this->model->updateLogfile($id, $logfile);
     }
 
     /**
@@ -207,24 +154,6 @@ class Task
     public function updateDuration(int $id, string $duration) : void
     {
         $this->model->updateDuration($id, $duration);
-    }
-
-    /**
-     *  Generate a PID for the task
-     */
-    public function generatePid()
-    {
-        /**
-         *  Generate a random PID
-         */
-        $this->pid = mt_rand(10001, 99999);
-
-        /**
-         *  If the PID already exists, generate a new one
-         */
-        while (file_exists(PID_DIR . '/' . $this->pid . '.pid')) {
-            $this->pid = mt_rand(10001, 99999);
-        }
     }
 
     /**
@@ -254,6 +183,14 @@ class Task
     public function listDone(string $type = 'immediate', bool $withOffset = false, int $offset = 0)
     {
         return $this->model->listDone($type, $withOffset, $offset);
+    }
+
+    /**
+     *  Get last done task Id
+     */
+    public function getLastTaskId() : int
+    {
+        return $this->model->getLastTaskId();
     }
 
     /**
@@ -519,13 +456,6 @@ class Task
         $this->layoutContainerReloadController->reload('browse/actions');
 
         /**
-         *  Create the PID file
-         */
-        if (!file_put_contents(PID_DIR . '/' . $this->pid . '.pid', 'PID="' . $this->pid . '"' . PHP_EOL . 'LOG="' . $this->logfile . '"' . PHP_EOL)) {
-            throw new Exception('Could not create PID file ' . PID_DIR . '/' . $this->pid . '.pid');
-        }
-
-        /**
          *  Add current PHP execution PID to the PID file to make sure it can be killed with the stop button
          */
         $this->addsubpid(getmypid());
@@ -543,18 +473,11 @@ class Task
         $taskRawParams = json_decode($task['Raw_params'], true);
 
         /**
-         *  Generate a 'completed' file in the task steps temporary directory, so that logbuilder.php stops
-         */
-        if (!touch(TEMP_DIR . '/' . $this->id . '/completed')) {
-            throw new Exception('Could not create file ' . TEMP_DIR . '/' . $this->id . '/completed');
-        }
-
-        /**
          *  Delete pid file
          */
-        if (file_exists(PID_DIR . '/' . $this->pid . '.pid')) {
-            if (!unlink(PID_DIR . '/' . $this->pid . '.pid')) {
-                throw new Exception('Could not delete PID file ' . PID_DIR . '/' . $this->pid . '.pid');
+        if (file_exists(PID_DIR . '/' . $this->id . '.pid')) {
+            if (!unlink(PID_DIR . '/' . $this->id . '.pid')) {
+                throw new Exception('Could not delete PID file ' . PID_DIR . '/' . $this->id . '.pid');
             }
         }
 
@@ -634,6 +557,8 @@ class Task
          *  Execute task
          */
         $this->executeId($newTaskId);
+
+        $this->layoutContainerReloadController->reload('tasks/logs');
     }
 
     /**
@@ -647,33 +572,16 @@ class Task
     /**
      *  Stop a task based on the specified PID
      */
-    public function kill(string $pid)
+    public function kill(string $taskId)
     {
-        if (!file_exists(PID_DIR . '/' . $pid . '.pid')) {
+        if (!file_exists(PID_DIR . '/' . $taskId . '.pid')) {
             throw new Exception('Specified task PID does not exist');
-        }
-
-        /**
-         *  Getting task Id from its PID
-         */
-        $taskId = $this->getIdByPid($pid);
-
-        /**
-         *  If the task Id is empty, we throw an exception
-         */
-        if (empty($taskId)) {
-            throw new Exception('Could not find task Id from PID ' . $pid);
         }
 
         /**
          *  Getting PID file content
          */
-        $content = file_get_contents(PID_DIR . '/' . $pid . '.pid');
-
-        /**
-         *  Getting logfile name
-         */
-        $logfile = $this->getLogfileById($taskId);
+        $content = file_get_contents(PID_DIR . '/' . $taskId . '.pid');
 
         /**
          *  Getting sub PIDs
@@ -718,7 +626,7 @@ class Task
         /**
          *  Delete PID file
          */
-        if (!unlink(PID_DIR . '/' . $pid . '.pid')) {
+        if (!unlink(PID_DIR . '/' . $taskId . '.pid')) {
             throw new Exception('Error while deleting PID file');
         }
 
@@ -727,21 +635,14 @@ class Task
          */
         $this->updateStatus($taskId, 'stopped');
 
+        $taskLogStepController = new \Controllers\Task\Log\Step($taskId);
+        $taskLogSubStepController = new \Controllers\Task\Log\SubStep($taskId);
+
         /**
-         *  Append CSS to logfile to display the task as stopped
+         *  Set latest step and substep as stopped
          */
-        if (file_exists(MAIN_LOGS_DIR . '/' . $logfile)) {
-            file_put_contents(
-                MAIN_LOGS_DIR . '/' . $logfile,
-                '<style>
-                .op-step-div { background-color: #F32F63 !important; }
-                .op-step-loading { display: none !important; }
-                .op-step-title-ok { display: none !important; }
-                .op-step-title-stopped { display: inline-block !important; }
-                </style>',
-                FILE_APPEND
-            );
-        }
+        $taskLogStepController->stopped();
+        $taskLogSubStepController->stopped();
 
         /**
          *  Update layout containers states
@@ -763,7 +664,9 @@ class Task
         /**
          *  Add specified PID to the main PID file
          */
-        file_put_contents(PID_DIR . '/' . $this->pid . '.pid', 'SUBPID="' . $pid . '"' . PHP_EOL, FILE_APPEND);
+        if (!file_put_contents(PID_DIR . '/' . $this->id . '.pid', 'SUBPID="' . $pid . '"' . PHP_EOL, FILE_APPEND)) {
+            throw new Exception('Could not add sub PID to ' . PID_DIR . '/' . $this->id . '.pid file');
+        }
 
         /**
          *  Also add children PID to the main PID file
@@ -779,7 +682,9 @@ class Task
              */
             foreach ($childrenPid as $childPid) {
                 if (is_numeric($childPid)) {
-                    file_put_contents(PID_DIR . '/' . $this->pid . '.pid', 'SUBPID="' . $childPid . '"' . PHP_EOL, FILE_APPEND);
+                    if (!file_put_contents(PID_DIR . '/' . $this->id . '.pid', 'SUBPID="' . $childPid . '"' . PHP_EOL, FILE_APPEND)) {
+                        throw new Exception('Could not add sub PID to ' . PID_DIR . '/' . $this->id . '.pid file');
+                    }
                 }
 
                 /**
@@ -790,7 +695,9 @@ class Task
                 if ($grandChildrenPid !== false) {
                     foreach ($grandChildrenPid as $grandChildPid) {
                         if (is_numeric($grandChildPid)) {
-                            file_put_contents(PID_DIR . '/' . $this->pid . '.pid', 'SUBPID="' . $grandChildPid . '"' . PHP_EOL, FILE_APPEND);
+                            if (!file_put_contents(PID_DIR . '/' . $this->id . '.pid', 'SUBPID="' . $grandChildPid . '"' . PHP_EOL, FILE_APPEND)) {
+                                throw new Exception('Could not add sub PID to ' . PID_DIR . '/' . $this->id . '.pid file');
+                            }
                         }
                     }
                 }

@@ -23,33 +23,30 @@
         <div class="grid grid-3 column-gap-30">
             <div>
                 <h6 class="margin-top-0">IP</h6>
-                <p class="copy"><?= $ip ?></p>
+                <p class="mediumopacity-cst copy"><?= $ip ?></p>
 
                 <h6>OS</h6>
-                <p class="flex align-item-center column-gap-5">
+                <div class="flex align-item-center column-gap-5">
                     <?php
                     if (!empty($os)) {
                         echo \Controllers\Common::printOsIcon($os);
-                        echo $os;
-                    } else {
-                        echo 'Unknown';
                     } ?>
-                </p>
 
-                <h6>OS VERSION</h6>
-                <p class="copy">
-                    <?php
-                    if (!empty($osVersion)) {
-                        echo $osVersion;
-                    } else {
-                        echo 'Unknown';
-                    } ?>
-                </p>
-            </div>
+                    <p class="mediumopacity-cst">
+                        <?php
+                        if (!empty($os)) {
+                            echo $os;
+                            if (!empty($osVersion)) {
+                                echo ' ' . $osVersion;
+                            }
+                        } else {
+                            echo 'Unknown';
+                        } ?>
+                    </p>
+                </div>
 
-            <div>
-                <h6 class="margin-top-0">PROFILE</h6>
-                <p class="copy">
+                <h6>PROFILE</h6>
+                <p class="mediumopacity-cst copy">
                     <?php
                     if (!empty($profile)) {
                         echo $profile;
@@ -57,8 +54,10 @@
                         echo 'Unknown';
                     } ?>
                 </p>
+            </div>
 
-                <h6>ENVIRONMENT</h6>
+            <div>
+                <h6 class="margin-top-0">ENVIRONMENT</h6>
                 <p class="copy">
                     <?php
                     if (!empty($env)) {
@@ -67,31 +66,74 @@
                         echo 'Unknown';
                     } ?>
                 </p>
-            </div>
 
-            <div>
-                <h6 class="margin-top-0">AGENT STATUS</h6>
-                <p class="flex align-item-center column-gap-5">
+                <h6>TYPE</h6>
+                <p class="mediumopacity-cst copy">
                     <?php
-                    if ($agentStatus == 'running') {
-                        echo '<img src="/assets/icons/check.svg" class="icon" title="Agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Running';
-                    }
-                    if ($agentStatus == "disabled") {
-                        echo '<img src="/assets/icons/warning-red.svg" class="icon" title="Agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Disabled';
-                    }
-                    if ($agentStatus == "stopped") {
-                        echo '<img src="/assets/icons/warning-red.svg" class="icon" title="Agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Stopped';
-                    }
-                    if ($agentStatus == "seems-stopped") {
-                        echo '<img src="/assets/icons/warning-red.svg" class="icon" title="Agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Seems stopped';
-                    }
-                    if ($agentStatus == "unknown") {
-                        echo '<img src="/assets/icons/warning-red.svg" class="icon" title="Agent state on this host: ' . $agentStatus . '." /> Unknown';
+                    if (!empty($type)) {
+                        echo $type;
+                    } else {
+                        echo 'Unknown';
                     } ?>
                 </p>
 
+                <h6>ARCHITECTURE</h6>
+                <p class="mediumopacity-cst copy">
+                    <?php
+                    if (!empty($arch)) {
+                        echo $arch;
+                    } else {
+                        echo 'Unknown';
+                    } ?>
+                </p>
+            </div>
+
+            <div>
+                <h6 class="margin-top-0">KERNEL</h6>
+                <p class="mediumopacity-cst copy">
+                    <?php
+                    if (!empty($kernel)) {
+                        echo $kernel;
+                    } else {
+                        echo 'Unknown';
+                    } ?>
+                </p>
+
+                <h6>AGENT STATUS</h6>
+                <div class="flex align-item-center column-gap-5">
+                    <?php
+                    if ($agentStatus == 'running') {
+                        $status = 'running';
+                        $statusTitle = 'Running';
+                        $icon = 'check.svg';
+                    }
+                    if ($agentStatus == "disabled") {
+                        $status = 'disabled';
+                        $statusTitle = 'Disabled';
+                        $icon = 'warning-red.svg';
+                    }
+                    if ($agentStatus == "stopped") {
+                        $status = 'stopped';
+                        $statusTitle = 'Stopped';
+                        $icon = 'warning-red.svg';
+                    }
+                    if ($agentStatus == "seems-stopped") {
+                        $status = 'seems-stopped';
+                        $statusTitle = 'Seems stopped';
+                        $icon = 'warning-red.svg';
+                    }
+                    if ($agentStatus == "unknown") {
+                        $status = 'unknown';
+                        $statusTitle = 'Unknown';
+                        $icon = 'warning-red.svg';
+                    }
+
+                    echo '<img src="/assets/icons/' . $icon . '" class="icon" title="Agent state on this host: ' . $status . ' (' . $agentLastSendStatusMsg . ')." />';
+                    echo '<p class="mediumopacity-cst">' . $statusTitle . '</p>'; ?>
+                </div>
+
                 <h6>AGENT VERSION</h6>
-                <p class="copy">
+                <p class="mediumopacity-cst copy">
                     <?php
                     if (!empty($agentVersion)) {
                         echo $agentVersion;

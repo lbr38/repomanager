@@ -2,7 +2,7 @@
     <div>
         <h5>HELP</h5>
         <a target="_blank" rel="noopener noreferrer" href="https://github.com/lbr38/repomanager/wiki">
-            <span class="lowopacity">Documentation <img src="/assets/icons/external-link.svg" class="icon" /></span>
+            <span class="lowopacity">Documentation <img src="/assets/icons/external-link.svg" class="icon-small" /></span>
         </a>
         
         <br><br>
@@ -55,14 +55,14 @@ if (!empty(ENVS)) {
 if (__ACTUAL_URI__[1] == '') {
     $jsFiles = ['repo', 'task', 'group', 'source', 'events/repo/source/distribution', 'events/repo/source/releasever', 'events/repo/source/source'];
 }
-if (__ACTUAL_URI__[1] == 'hosts' or __ACTUAL_URI__[1] == 'host') {
+if (__ACTUAL_URI__[1] == 'hosts') {
+    $jsFiles = ['host', 'events/host/layout', 'events/host/actions', 'events/profile/actions'];
+}
+if (__ACTUAL_URI__[1] == 'host') {
     $jsFiles = ['host', 'events/host/layout', 'events/host/actions'];
 }
 if (__ACTUAL_URI__[1] == 'browse') {
     $jsFiles = ['functions/browse', 'events/browse/repository'];
-}
-if (__ACTUAL_URI__[1] == 'profiles') {
-    $jsFiles = ['profile'];
 }
 if (__ACTUAL_URI__[1] == 'stats') {
     $jsFiles = ['stats'];
@@ -71,7 +71,7 @@ if (__ACTUAL_URI__[1] == 'settings') {
     $jsFiles = ['functions/environment', 'events/environment/actions', 'settings'];
 }
 if (__ACTUAL_URI__[1] == 'run') {
-    $jsFiles = ['run'];
+    $jsFiles = ['functions/task', 'events/task/actions'];
 }
 if (__ACTUAL_URI__[1] == 'history') {
     $jsFiles = ['events/history/actions'];

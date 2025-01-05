@@ -6,9 +6,9 @@ use Exception;
 
 class GpgSign
 {
-    public static function check(string $gpgResign) : void
+    public static function check(string $gpgSign) : void
     {
-        if ($gpgResign !== 'true' and $gpgResign !== 'false') {
+        if ($gpgSign !== 'true' and $gpgSign !== 'false') {
             throw new Exception('GPG signature is invalid');
         }
     }

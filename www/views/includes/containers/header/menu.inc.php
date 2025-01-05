@@ -26,69 +26,6 @@
 
             <?php
             /**
-             *  MANAGE HOSTS tab
-             */
-            if (__ACTUAL_URI__[1] == 'hosts' or __ACTUAL_URI__[1] == 'host') {
-                $headerMenuClass = 'menu-sub-container-underline';
-            } else {
-                $headerMenuClass = 'menu-sub-container';
-            }
-
-            if (MANAGE_HOSTS == "true") : ?>
-                <div class="<?= $headerMenuClass ?>">
-                    <a href="/hosts">
-                        <div class="flex align-item-center column-gap-10">
-                            <img src="/assets/icons/server.svg" class="icon" />
-                            <span class="menu-section-title">MANAGE HOSTS</span>
-                        </div>
-                    </a>
-                </div>
-                <?php
-            endif;
-
-            /**
-             *  MANAGE PROFILES tab
-             */
-            if (__ACTUAL_URI__[1] == 'profiles') {
-                $headerMenuClass = 'menu-sub-container-underline';
-            } else {
-                $headerMenuClass = 'menu-sub-container';
-            }
-
-            if (IS_ADMIN and MANAGE_PROFILES == "true") : ?>
-                <div class="<?= $headerMenuClass ?>">
-                    <a href="/profiles">
-                        <div class="flex align-item-center column-gap-10">
-                            <img src="/assets/icons/stack.svg" class="icon" />
-                            <span class="menu-section-title">MANAGE PROFILES</span>
-                        </div>
-                    </a>
-                </div>
-                <?php
-            endif;
-
-            /**
-             *  SETTINGS tab
-             */
-            if (__ACTUAL_URI__[1] == 'settings') {
-                $headerMenuClass = 'menu-sub-container-underline';
-            } else {
-                $headerMenuClass = 'menu-sub-container';
-            }
-
-            if (IS_ADMIN) : ?>
-                <div class="<?= $headerMenuClass ?>">
-                    <a href="/settings">
-                        <div class="flex align-item-center column-gap-10">
-                            <img src="/assets/icons/settings.svg" class="icon" />
-                            <span class="menu-section-title">SETTINGS</span>
-                        </div>
-                    </a>
-                </div>
-                <?php
-            endif;
-
-            /**
              *  TASKS tab
              */
             if (__ACTUAL_URI__[1] == 'run') {
@@ -99,7 +36,7 @@
 
             <div id="header-refresh-container" class="<?= $headerMenuClass ?>">
                 <div>
-                    <a href="/run?task-log=latest">
+                    <a href="/run">
                         <div class="flex align-item-center column-gap-10">
                             <img src="/assets/icons/rocket.svg" class="icon" />
                             <span class="menu-section-title">TASKS</span>
@@ -127,7 +64,7 @@
                                 $taskParams = json_decode($task['Raw_params'], true); ?>
 
                                 <div class="header-op-subdiv btn-large-red">
-                                    <a href="/run?task-log=<?= $task['Logfile'] ?>">
+                                    <a href="/run/<?= $task['Id'] ?>">
                                         <span>
                                             <?php
                                             if ($taskParams['action'] == 'create') {
@@ -161,7 +98,7 @@
                                         <span class="label-white"><?= $myTask->getRepo($task['Id']); ?></span>
                                     </a>
 
-                                    <span title="Stop task" class="stop-task-btn" pid="<?= $task['Pid'] ?>">
+                                    <span title="Stop task" class="stop-task-btn" task-id="<?= $task['Id'] ?>">
                                         <img src="/assets/icons/delete.svg" class="icon">
                                     </span>
                                 </div>
@@ -174,18 +111,50 @@
                     </div>
                 </div>
             </div>
+
+            <?php
+            /**
+             *  HOSTS tab
+             */
+            if (__ACTUAL_URI__[1] == 'hosts' or __ACTUAL_URI__[1] == 'host') {
+                $headerMenuClass = 'menu-sub-container-underline';
+            } else {
+                $headerMenuClass = 'menu-sub-container';
+            }
+
+            if (MANAGE_HOSTS == "true") : ?>
+                <div class="<?= $headerMenuClass ?>">
+                    <a href="/hosts">
+                        <div class="flex align-item-center column-gap-10">
+                            <img src="/assets/icons/server.svg" class="icon" />
+                            <span class="menu-section-title">HOSTS</span>
+                        </div>
+                    </a>
+                </div>
+                <?php
+            endif ?>
         </div>
 
-        <div>
-            <div>
-                <div class="flex column-gap-8 align-item-center" title="CPU load">
-                    <img src="/assets/icons/cpu.svg" class="icon-lowopacity icon-np" />
-                    <span class="lowopacity-cst font-size-12"><?= $currentLoad ?></span>
-                    <span class="round-item bkg-<?= $currentLoadColor ?>"></span>
+        <div class="flex align-item-center column-gap-30 margin-right-15">
+            <?php
+            if (IS_ADMIN) : ?>
+                <div>
+                    <a href="/settings"><img src="/assets/icons/cog.svg" class="icon-lowopacity" title="Repomanager settings" /></a>
                 </div>
+
+                <div>
+                    <a href="/history"><img src="/assets/icons/time.svg" class="icon-lowopacity" title="Repomanager history" /></a>
+                </div>
+                <?php
+            endif ?>
+
+            <div class="flex column-gap-8 align-item-center" title="CPU load">
+                <img src="/assets/icons/cpu.svg" class="lowopacity-cst icon-np" />
+                <span class="lowopacity-cst font-size-12"><?= $currentLoad ?></span>
+                <span class="round-item bkg-<?= $currentLoadColor ?>"></span>
             </div>
 
-            <div class="menu-sub-container relative">
+            <div class="relative">
                 <img src="/assets/icons/alarm.svg" class="icon-lowopacity get-panel-btn" panel="general/notification" title="Show notifications" />
                 <?php
                 if (NOTIFICATION != 0) : ?>
@@ -194,28 +163,18 @@
                 endif ?>
             </div>
 
-            <?php
-            /**
-             *  History tab
-             */
-            if (IS_ADMIN) {
-                echo '<a href="/history"><img src="/assets/icons/time.svg" class="icon-lowopacity" title="History" /></a>';
-            } ?>
+            <div class="flex align-item-center column-gap-10 get-panel-btn lowopacity pointer" panel="general/userspace" title="Userspace">
+                <img src="/assets/icons/user.svg" class="icon" />
+                <span>
+                    <?php
+                    echo $_SESSION['username'];
 
-            <div class="<?= $headerMenuClass ?>">
-                <div class="flex align-item-center column-gap-10 get-panel-btn lowopacity pointer" panel="general/userspace" title="Userspace">
-                    <img src="/assets/icons/user.svg" class="icon" />
-                    <span class="menu-section-title">
-                        <?php
-                        echo $_SESSION['username'];
-
-                        if (!empty($_SESSION['first_name']) and !empty($_SESSION['last_name'])) {
-                            echo ' (' . $_SESSION['first_name'] . ' ' . $_SESSION['last_name'] . ')';
-                        } elseif (!empty($_SESSION['first_name'])) {
-                            echo ' (' . $_SESSION['first_name'] . ')';
-                        } ?>
-                    </span>
-                </div>
+                    if (!empty($_SESSION['first_name']) and !empty($_SESSION['last_name'])) {
+                        echo ' (' . $_SESSION['first_name'] . ' ' . $_SESSION['last_name'] . ')';
+                    } elseif (!empty($_SESSION['first_name'])) {
+                        echo ' (' . $_SESSION['first_name'] . ')';
+                    } ?>
+                </span>
             </div>
         </div>
     </nav>

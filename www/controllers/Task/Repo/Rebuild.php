@@ -12,14 +12,16 @@ class Rebuild
 
     private $repo;
     private $task;
-    private $taskLog;
+    private $taskLogStepController;
+    private $taskLogSubStepController;
     private $packagesToSign = null;
 
     public function __construct(string $taskId)
     {
         $this->repo = new \Controllers\Repo\Repo();
         $this->task = new \Controllers\Task\Task();
-        $this->taskLog = new \Controllers\Task\Log($taskId);
+        $this->taskLogStepController = new \Controllers\Task\Log\Step($taskId);
+        $this->taskLogSubStepController = new \Controllers\Task\Log\SubStep($taskId);
 
         /**
          *  Retrieve task params
@@ -56,33 +58,13 @@ class Rebuild
         $this->task->setAction('rebuild');
 
         /**
-         *  Generate PID for the task
-         */
-        $this->task->generatePid();
-
-        /**
-         *  Generate log file
-         */
-        $this->taskLog->generateLog();
-
-        /**
-         *  Set PID
-         */
-        $this->task->updatePid($taskId, $this->task->getPid());
-
-        /**
-         *  Set log file location
-         */
-        $this->task->updateLogfile($taskId, $this->taskLog->getName());
-
-        /**
          *  Start task
          */
         $this->task->setDate(date('Y-m-d'));
         $this->task->setTime(date('H:i:s'));
         $this->task->updateDate($taskId, $this->task->getDate());
         $this->task->updateTime($taskId, $this->task->getTime());
-        $this->task->start($taskId, 'running');
+        $this->task->start();
     }
 
     /**
@@ -91,21 +73,11 @@ class Rebuild
     public function execute()
     {
         /**
-         *  Launch external script that will build the main log file from the small log files of each step
-         */
-        $this->taskLog->runLogBuilder($this->task->getId(), $this->taskLog->getLocation());
-
-        /**
          *  Set snapshot metadata rebuild state in database
          */
         $this->repo->snapSetRebuild($this->repo->getSnapId(), 'running');
 
         try {
-            /**
-             *  Print task details
-             */
-            $this->printDetails('rebuild');
-
             /**
              *  Sign repository / packages
              */
@@ -133,34 +105,30 @@ class Rebuild
              */
             $this->task->setStatus('done');
             $this->task->updateStatus($this->task->getId(), 'done');
-        } catch (\Exception $e) {
-            /**
-             *  Print a red error message in the log file
-             */
-            $this->taskLog->stepError($e->getMessage());
+        } catch (Exception $e) {
+            // Set sub step error message and mark step as error
+            $this->taskLogSubStepController->error($e->getMessage());
+            $this->taskLogStepController->error();
 
-            /**
-             *  Set task status to error
-             */
+            // Set step error message
+            $this->taskLogStepController->error($e->getMessage());
+
+            // Set task status to error
             $this->task->setStatus('error');
             $this->task->updateStatus($this->task->getId(), 'error');
-            $this->task->setError($e->getMessage());
-
-            /**
-             *  Set snapshot metadata rebuild state in database
-             */
-            $this->repo->snapSetRebuild($this->repo->getSnapId(), 'failed');
+            $this->task->setError('Failed');
         }
 
         /**
          *  Get total duration
          */
-        $duration = $this->task->getDuration();
+        $duration = \Controllers\Common::convertMicrotime($this->task->getDuration());
 
         /**
          *  End task
          */
-        $this->taskLog->stepDuration($duration);
+        $this->taskLogStepController->new('duration', 'DURATION');
+        $this->taskLogStepController->none('Total duration: ' . $duration);
         $this->task->end();
     }
 }

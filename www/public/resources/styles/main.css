@@ -1,16 +1,10 @@
 @font-face{font-family: 'ethnocentric'; src: url('/assets/fonts/ethnocentric rg.ttf') format('truetype');}
+@font-face{font-family: 'archivo'; src: url('/assets/fonts/Archivo-Variable.ttf') format('truetype');}
 
 body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    /**
-     *  'fade-in' mode on every page
-     *  See @keyframes fadeInAnimation below
-     **/
-    /* animation: fadeInAnimation ease 0.00001s;
-    animation-iteration-count: 1;
-    animation-fill-mode: forwards; */
     margin: 0px;
     padding: 0px;
     background-color: #112334;
@@ -19,14 +13,9 @@ body {
     font-size: 13px;
 }
 
-/* @keyframes fadeInAnimation {
-    0% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 1;
-    }
-} */
+.font-family-archivo {
+    font-family: 'archivo';
+}
 
 header {
     width: 100%;
@@ -50,10 +39,7 @@ header {
     align-items: center;
     height: 100%;
 }
-#menu > div:last-child {
-    /* align userspace and logout buttons to the right */
-    justify-content: flex-end;
-}
+
 #title {
     margin-left: 20px;
     margin-top: 0px;
@@ -67,7 +53,7 @@ header {
     font-size: 18px;
 }
 [class^="menu-sub-container"] {
-    height: 100%;
+    height: 99%;
     display: flex;
     align-items: center;
     margin-left: 25px;
@@ -77,7 +63,7 @@ header {
     opacity: 0.50;
 }
 .menu-sub-container-underline {
-    border-bottom: 2px solid #5473e8;
+    border-bottom: 1px solid #15bf7f;
     opacity: 1;
 }
 .menu-sub-container:hover a {
@@ -128,7 +114,7 @@ header {
 #notification-count {
     position: absolute;
     right: -11px;
-    top: 14px;
+    top: -12px;
     width: 15px;
     height: 15px;
     line-height: 15px !important;
@@ -190,38 +176,6 @@ article {
     cursor: pointer;
 }
 
-.slide-btn {
-    display: inline-flex;
-    align-items: center;
-    overflow:hidden;
-    text-decoration: none;
-    width: auto;
-    max-width: 28px; /** I'm animating max-width because width needs to be auto, and auto can't be animated **/
-    height: 28px;
-    -webkit-transition: max-width 0.7s;
-    transition: max-width 0.7s;
-    margin: 0 3px 0 3px;
-    color: white;
-    background-color: #15bf7f;
-    border-radius: 60px;
-    cursor: pointer;
-}
-.slide-btn:hover {
-    max-width: 300px;
-    background-color: #12a16a;
-}
-.slide-btn img {
-    width: 18px;
-    padding-left: 5px;
-    display: flex;
-    align-items: center;
-}
-.slide-btn span {
-    white-space: nowrap;
-    padding-right: 12px;
-    padding-left: 8px;
-}
-
 #repos-list-container {
     width: 100%;
     font-size: 14px;
@@ -241,7 +195,7 @@ article {
 
 .repos-list-group-flex-div {
     display: grid;
-    grid-template-columns: 300px 55px auto auto auto 60px 1fr;
+    grid-template-columns: 300px 55px auto auto auto 65px 1fr;
     row-gap: 25px;
     margin-bottom: 12px;
     background-color: #1d3349;
@@ -320,9 +274,9 @@ article {
 
 .item-arrow-up span {
     position: absolute;
-    top: -61px;
+    top: -64px;
     left: 15px;
-    height: 72.5px;
+    height: 77.5px;
     width: 30px;
     border-left: 1px solid #8A99AA;
     border-bottom: 1px solid #8A99AA;
@@ -378,13 +332,12 @@ article {
     align-items: center;
     align-content: flex-start;
     justify-content: space-evenly;
-    column-gap: 2px;
     padding: 6px 0 0 0 !important;
     position: inherit !important;
 }
 
 .item-info img, .item-env-info img {
-    height: 17px;
+    height: 19px;
     margin-left: 4px !important;
     margin-right: 4px !important;
 }
@@ -438,7 +391,7 @@ article {
 }
 .divReposConf-close {
     position: fixed;
-    right: 8px;
+    right: 15px;
 }
 #divReposConfCommands-container {
     position: relative;
@@ -459,21 +412,7 @@ article {
     margin-bottom: 30px;
     background-color: #1d3349;
     border: 1px solid #24405c;
-}
-
-/* Menu gestion des profils */
-/* input qui ont le même fond que la couleur de fond de leur conteneur permettant que le cadre de l'input soit 'invisible' */
-input[type=text].invisibleInput, input[type=text].invisibleInput-blue {
-    border: none;
-}
-
-input[type=text].invisibleInput {
-    background-color: #2b2b2b;
-}
-
-input[type=text].invisibleInput-blue {
-    background-color: #1d3349;
-    width: 100%;
+    line-height: 1.5;
 }
 
 input::placeholder {
@@ -513,10 +452,12 @@ input::placeholder {
     display: block;
     width: 19px;
     height: 19px;
-    line-height: 18px !important;
+    line-height: 19px !important;
+    padding: unset;
     text-align: center;
     border-radius: 50%;
-    font-size: 9px;
+    font-size: 7px;
+    font-family: 'archivo';
     box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
 }
 .label-pkg-rpm {
@@ -708,8 +649,9 @@ footer #github img { width: 25px; }
 @media (min-width:1500px) {
     .menu-section-title {
         display: block;
-        font-size: 15px;
-        font-weight: bold;
+        font-family: 'Archivo';
+        font-weight: 600;
+        font-size: 16px;
     }
 
     article {

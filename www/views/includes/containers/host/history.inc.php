@@ -1,7 +1,7 @@
 <section class="flex-div-50 div-generic-blue reloadable-container" container="host/history">
-    <h5>HISTORY</h5>
+    <h6 class="margin-top-0">HISTORY</h6>
 
-    <p class="lowopacity-cst">Packages events history (installation, update, uninstallation...)</p>
+    <p class="note">Packages events history (installation, update, uninstallation...).</p>
     <br>
 
     <?php

@@ -6,6 +6,7 @@ use Exception;
 
 class Mirror
 {
+    protected $taskId;
     protected $url;
     protected $dist;
     protected $section;
@@ -32,6 +33,21 @@ class Mirror
     protected $previousSnapshotDirPath;
     protected $packagesToInclude = [];
     protected $packagesToExclude = [];
+
+    protected $taskLogStepController;
+    protected $taskLogSubStepController;
+
+    public function __construct(int $taskId)
+    {
+        $this->taskId = $taskId;
+        $this->taskLogStepController = new \Controllers\Task\Log\Step($taskId);
+        $this->taskLogSubStepController = new \Controllers\Task\Log\SubStep($taskId);
+    }
+
+    public function setTaskId(string $taskId)
+    {
+        $this->taskId = $taskId;
+    }
 
     public function setUrl(string $url)
     {
@@ -219,84 +235,6 @@ class Mirror
         }
 
         return true;
-    }
-
-    /**
-     *  Set log file to output to
-     */
-    public function setOutputFile(string $file)
-    {
-        $this->outputFile = $file;
-
-        /**
-         *  If file does not exist, try to create it to be sure it is writeable
-         */
-        if (!file_exists($file)) {
-            if (!touch($file)) {
-                throw new Exception('Cannot create output log file: ' . $file);
-            }
-        }
-    }
-
-    /**
-     *  Write specified message to log file
-     */
-    public function logOutput(string $message)
-    {
-        file_put_contents($this->outputFile, '<p>' . $message . '</p>', FILE_APPEND);
-    }
-
-    /**
-     *  Write a title to log file
-     */
-    public function logTitle(string $message, string $endMessage = null)
-    {
-        $this->logOutput('<div class="flex justify-space-between align-flex-end"><h6>' . $message . '</h6><p title="Running time" class="lowopacity-cst">' . date('H:i:s') . '</p></div>');
-    }
-
-    /**
-     *  Write a note to log file
-     */
-    public function logNote(string $message)
-    {
-        $this->logOutput('<span class="note">' . $message . '</span>');
-    }
-
-    /**
-     *  Write a green 'OK' to log file
-     */
-    public function logOK(string $message = null)
-    {
-        if (!empty($message)) {
-            $this->logOutput('<img src="/assets/icons/check.svg" class="icon margin-right-5 vertical-align-text-top" />' . $message . '<br>');
-        } else {
-            $this->logOutput('<img src="/assets/icons/check.svg" class="icon vertical-align-text-top" /><br>');
-        }
-    }
-
-    /**
-     *  Write a red error message to log file and throw an Exception
-     */
-    public function logError(string $errorMessage, string $exceptionMessage = null)
-    {
-        /**
-         *  If no specific exception message has been specified, then it will be the same as the error message displayed
-         */
-        if (empty($exceptionMessage)) {
-            $exceptionMessage = $errorMessage;
-        }
-
-        $this->logOutput('<img src="/assets/icons/error.svg" class="icon margin-right-5 vertical-align-text-top" /><span class="redtext">' . $errorMessage . '</span><br>');
-
-        throw new Exception($exceptionMessage);
-    }
-
-    /**
-     *  Write a yellow warning message to log file but do not throw an Exception
-     */
-    public function logWarning(string $message)
-    {
-        $this->logOutput('<img src="/assets/icons/warning.svg" class="icon margin-right-5 vertical-align-text-top" /><span class="yellowtext">' . $message . '</span><br>');
     }
 
     /**

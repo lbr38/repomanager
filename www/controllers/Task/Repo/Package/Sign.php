@@ -12,7 +12,6 @@ trait Sign
      */
     private function signPackage()
     {
-        $warning = 0;
         $signError = 0;
 
         /**
@@ -29,18 +28,13 @@ trait Sign
             return;
         }
 
-        ob_start();
-
         /**
          *  Signing packages with GPG
          */
-        $this->taskLog->step('SIGNING PACKAGES (GPG)');
-
-        echo '<div class="hide signRepoDiv">';
+        $this->taskLogStepController->new('sign-packages', 'SIGNING PACKAGES');
+        $this->taskLogSubStepController->new('sign-packages', 'SIGNING PACKAGES WITH GPG');
 
         try {
-            $this->taskLog->steplogWrite();
-
             /**
              *  In case of a new repository or a repository rebuild, all packages must be signed
              *  Force all packages to be signed
@@ -81,7 +75,7 @@ trait Sign
              *  If no packages are found or no packages were marked for signing, print a message and nothing will be signed
              */
             if (empty($rpmFiles)) {
-                $this->taskLog->steplogWrite('<p class="note">No packages marked for signing.</p>' . PHP_EOL);
+                $this->taskLogSubStepController->output('No packages marked for signing.');
             }
 
             /**
@@ -100,10 +94,10 @@ trait Sign
                  *  Print if all packages are to be signed or if specific packages are to be signed
                  */
                 if (!is_array($this->packagesToSign) and $this->packagesToSign == 'all') {
-                    $this->taskLog->steplogWrite('<div class="flex justify-space-between align-flex-end"><h6>SIGNING ALL PACKAGES</h6><p title="Running time" class="lowopacity-cst">' . date('H:i:s') . '</p></div>');
+                    $this->taskLogSubStepController->output('Signing all packages');
                 }
                 if (is_array($this->packagesToSign)) {
-                    $this->taskLog->steplogWrite('<div class="flex justify-space-between align-flex-end"><h6>SIGNING ' . $totalPackages . ' PACKAGE(S)</h6><p title="Running time">' . date('H:i:s') . '</p></div>');
+                    $this->taskLogSubStepController->output('Signing ' . $totalPackages . ' package(s)');
                 }
 
                 /**
@@ -124,8 +118,7 @@ trait Sign
                     /**
                      *  Print package counter
                      */
-                    $this->taskLog->steplogWrite('<div class="flex justify-space-between align-flex-end"><h6>SIGNING PACKAGE (' . $packageCounter . '/' . $totalPackages . ')</h6><p title="Running time" class="lowopacity-cst">' . date('H:i:s') . '</p></div>');
-                    $this->taskLog->steplogWrite('<p><span class="note">' . basename($rpmFile) . '</span></p>');
+                    $this->taskLogSubStepController->new('signing-package-' . $packageCounter, 'SIGNING PACKAGE (' . $packageCounter . '/' . $totalPackages . ')', basename($rpmFile));
 
                     /**
                      *  Sign package
@@ -146,46 +139,36 @@ trait Sign
                      *  If the signature of the current package failed, we increment $signError to indicate an error and we exit the loop to not process the next package
                      */
                     if ($myprocess->getExitCode() != 0) {
-                        echo '<p><img src="/assets/icons/error.svg" class="icon margin-right-5 vertical-align-text-top" /><span class="redtext">Error while signing package</span><br></p>';
-                        echo '<pre class="codeblock margin-top-10">' . $output . '</pre>';
-                        $signError++;
-                        break;
+                        throw new Exception('Error while signing package:<br><pre class="codeblock margin-top-10">' . $output . '</pre>');
                     }
 
                     $myprocess->close();
 
-                    echo '<p><img src="/assets/icons/check.svg" class="icon margin-right-5 vertical-align-text-top" />Done<br></p>';
+                    /**
+                     *  Specific case, we will display a warning if "warning:" has been detected in the logs
+                     */
+                    if (preg_match("/warning:/i", $output)) {
+                        // If the warning is about an identical signature, we skip the package and mark the substep as completed
+                        if (preg_match("/already contains identical signature, skipping/", $output)) {
+                            $this->taskLogSubStepController->completed('Identical signature already present, skipping');
 
-                    $this->taskLog->steplogWrite();
+                        // Otherwise, we display the warning and mark the substep as completed
+                        } else {
+                            $this->taskLogSubStepController->warning('Warning detected during package signing');
+                            $this->taskLogSubStepController->output($output, 'pre');
+                        }
+                    } else {
+                        $this->taskLogSubStepController->completed();
+                    }
 
                     $packageCounter++;
                 }
             }
         } catch (Exception $e) {
-            echo '</div>';
-
             /**
              *  Throw exception with error message
              */
             throw new Exception($e->getMessage());
-        }
-
-        echo '</div>';
-
-        $this->taskLog->steplogWrite();
-
-        /**
-         *  Specific case, we will display a warning if the following message has been detected in the logs
-         */
-        if (preg_match("/gpg: WARNING:/", file_get_contents($this->taskLog->getStepLog()))) {
-            ++$warning;
-        }
-        if (preg_match("/warning:/", file_get_contents($this->taskLog->getStepLog()))) {
-            ++$warning;
-        }
-
-        if ($warning != 0) {
-            $this->taskLog->stepWarning();
         }
 
         /**
@@ -205,6 +188,9 @@ trait Sign
             throw new Exception('Packages signature has failed');
         }
 
-        $this->taskLog->stepOK();
+        // Set the main substep as completed
+        $this->taskLogSubStepController->completed('', 'sign-packages');
+
+        $this->taskLogStepController->completed();
     }
 }

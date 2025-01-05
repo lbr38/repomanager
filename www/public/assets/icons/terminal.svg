@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
-
 <svg
-   width="800px"
-   height="800px"
-   viewBox="0 0 24 24"
-   fill="none"
+   width="512"
+   height="512"
+   viewBox="0 0 512 512"
    version="1.1"
    id="svg4"
    sodipodi:docname="terminal.svg"
@@ -25,22 +22,17 @@
      inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
      showgrid="false"
-     inkscape:zoom="0.32129164"
-     inkscape:cx="194.52731"
-     inkscape:cy="424.84765"
+     inkscape:zoom="1.4199219"
+     inkscape:cx="256.35213"
+     inkscape:cy="256"
      inkscape:window-width="1920"
-     inkscape:window-height="979"
-     inkscape:window-x="705"
-     inkscape:window-y="1109"
+     inkscape:window-height="977"
+     inkscape:window-x="598"
+     inkscape:window-y="1111"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg4" />
   <path
-     d="M 6.8317514,15.100945 9.9327003,12 6.8317514,8.8990511 m 6.2018926,6.2018939 h 4.134602 M 23.359811,12 C 23.359811,18.2738 18.2738,23.359811 12,23.359811 5.7261474,23.359811 0.64019018,18.2738 0.64019018,12 0.64019018,5.7261474 5.7261474,0.64019018 12,0.64019018 18.2738,0.64019018 23.359811,5.7261474 23.359811,12 Z"
-     stroke="#000000"
-     stroke-width="2"
-     stroke-linecap="round"
-     stroke-linejoin="round"
+     d="M 442.80745,18.245072 H 69.19256 A 68.004278,68.004278 0 0 0 1.2625813,86.17505 v 339.6499 A 68.004278,68.004278 0 0 0 69.19256,493.75493 h 373.61489 a 68.004278,68.004278 0 0 0 67.92997,-67.92998 V 86.17505 A 68.004278,68.004278 0 0 0 442.80745,18.245072 Z M 86.175055,256 A 16.982495,16.982495 0 0 1 75.560996,225.76055 L 143.90492,171.08753 75.560996,116.41451 A 16.990786,16.990786 0 1 1 96.789114,89.879358 l 84.912476,67.929982 a 16.982495,16.982495 0 0 1 0,26.53514 L 96.789114,252.27446 A 16.982495,16.982495 0 0 1 86.175055,256 Z M 256,256 h -67.92997 a 16.982495,16.982495 0 0 1 0,-33.96499 H 256 A 16.982495,16.982495 0 0 1 256,256 Z"
      id="path2"
-     sodipodi:nodetypes="cccccsssss"
-     style="stroke-width:1.24043;stroke-miterlimit:4;stroke-dasharray:none;stroke:#ffffff;stroke-opacity:1" />
+     style="fill:#ffffff;fill-opacity:1;stroke-width:1.06141" />
 </svg>

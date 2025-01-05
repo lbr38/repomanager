@@ -10,20 +10,15 @@ class RemoveEnv
 
     private $repo;
     private $task;
-    private $taskLog;
+    private $taskLogStepController;
+    private $taskLogSubStepController;
 
     public function __construct(string $taskId)
     {
-        /**
-         *  Only admin can remove repo snapshot environment
-         */
-        // if (!IS_ADMIN) {
-        //     throw new Exception('You are not allowed to perform this action');
-        // }
-
         $this->repo = new \Controllers\Repo\Repo();
         $this->task = new \Controllers\Task\Task();
-        $this->taskLog = new \Controllers\Task\Log($taskId);
+        $this->taskLogStepController = new \Controllers\Task\Log\Step($taskId);
+        $this->taskLogSubStepController = new \Controllers\Task\Log\SubStep($taskId);
 
         /**
          *  Retrieve task params
@@ -53,33 +48,13 @@ class RemoveEnv
         $this->task->setAction('removeEnv');
 
         /**
-         *  Generate PID for the task
-         */
-        $this->task->generatePid();
-
-        /**
-         *  Generate log file
-         */
-        $this->taskLog->generateLog();
-
-        /**
-         *  Set PID
-         */
-        $this->task->updatePid($taskId, $this->task->getPid());
-
-        /**
-         *  Set log file location
-         */
-        $this->task->updateLogfile($taskId, $this->taskLog->getName());
-
-        /**
          *  Start task
          */
         $this->task->setDate(date('Y-m-d'));
         $this->task->setTime(date('H:i:s'));
         $this->task->updateDate($taskId, $this->task->getDate());
         $this->task->updateTime($taskId, $this->task->getTime());
-        $this->task->start($taskId, 'running');
+        $this->task->start();
     }
 
     /**
@@ -87,20 +62,8 @@ class RemoveEnv
      */
     public function execute()
     {
-        /**
-         *  Launch external script that will build the main log file from the small log files of each step
-         */
-        $this->taskLog->runLogBuilder($this->task->getId(), $this->taskLog->getLocation());
-
         try {
-            ob_start();
-
-            /**
-             *  Generate task summary table
-             */
-            include(ROOT . '/views/templates/tasks/remove-env.inc.php');
-
-            $this->taskLog->step('REMOVING');
+            $this->taskLogStepController->new('removing', 'REMOVING');
 
             /**
              *  Delete environment symlink
@@ -121,51 +84,52 @@ class RemoveEnv
              */
             $this->repo->removeEnv($this->repo->getEnvId());
 
-            $this->taskLog->stepOK();
+            $this->taskLogStepController->completed();
+
+            $this->taskLogStepController->new('cleaning', 'CLEANING');
 
             /**
              *  Automatic cleaning of unused snapshots
              */
             $snapshotsRemoved = $this->repo->cleanSnapshots();
 
-            if (!empty($snapshotsRemoved)) {
-                $this->taskLog->step('CLEANING');
-                $this->taskLog->stepOK($snapshotsRemoved);
-            }
-
             /**
              *  Clean unused repos in groups
              */
             $this->repo->cleanGroups();
+
+            if (!empty($snapshotsRemoved)) {
+                $this->taskLogStepController->completed($snapshotsRemoved);
+            } else {
+                $this->taskLogStepController->completed();
+            }
 
             /**
              *  Set task status to done
              */
             $this->task->setStatus('done');
             $this->task->updateStatus($this->task->getId(), 'done');
-        } catch (\Exception $e) {
-            /**
-             *  Print a red error message in the log file
-             */
-            $this->taskLog->stepError($e->getMessage());
+        } catch (Exception $e) {
+            // Set sub step error message and mark step as error
+            $this->taskLogSubStepController->error($e->getMessage());
+            $this->taskLogStepController->error();
 
-            /**
-             *  Set task status to error
-             */
+            // Set task status to error
             $this->task->setStatus('error');
             $this->task->updateStatus($this->task->getId(), 'error');
-            $this->task->setError($e->getMessage());
+            $this->task->setError('Failed');
         }
 
         /**
          *  Get total duration
          */
-        $duration = $this->task->getDuration();
+        $duration = \Controllers\Common::convertMicrotime($this->task->getDuration());
 
         /**
          *  End task
          */
-        $this->taskLog->stepDuration($duration);
+        $this->taskLogStepController->new('duration', 'DURATION');
+        $this->taskLogStepController->none('Total duration: ' . $duration);
         $this->task->end();
     }
 }

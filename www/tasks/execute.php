@@ -71,16 +71,16 @@ try {
  *  Catch exceptions
  */
 } catch (Exception $e) {
-    $mylog->log('error', 'An exception error occured while running task #' . $taskId, $e->getMessage());
-    echo 'Error: ' . $e->getMessage() . PHP_EOL;
+    $mylog->log('error', 'An exception error occured while running task #' . $taskId, $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
+    echo 'Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine() . PHP_EOL;
     exit(1);
 
 /**
  *  Catch fatal errors
  */
 } catch (Error $e) {
-    $mylog->log('error', 'Fatal error occured while running task #' . $taskId, $e->getMessage());
-    echo 'Fatal error: ' . $e->getMessage() . PHP_EOL;
+    $mylog->log('error', 'A fatal error occured while running task #' . $taskId, $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
+    echo 'Fatal error: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine() . PHP_EOL;
     exit(1);
 }
 

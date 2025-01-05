@@ -11,8 +11,8 @@
             <form id="import-source-repos">
                 <h6>IMPORT SOURCE REPOSITORIES LIST</h6>
                 <p class="note">Import from predefined or custom source repositories lists.</p>
-                <p class="note">- Predefined lists are public and can be found <a href="https://github.com/lbr38/repomanager/tree/stable/www/templates/source-repositories" target="_blank">here <img src="/assets/icons/external-link.svg" class="icon" /></a></p>
-                <p class="note">- You can create your own custom lists. See documentation <a href="" target="_blank">here <img src="/assets/icons/external-link.svg" class="icon" /></a></p>
+                <p class="note">- Predefined lists are public and can be found <a href="https://github.com/lbr38/repomanager/tree/main/www/templates/source-repositories" target="_blank">here <img src="/assets/icons/external-link.svg" class="icon-small" /></a></p>
+                <p class="note">- You can create your own custom lists. See documentation <a href="" target="_blank">here <img src="/assets/icons/external-link.svg" class="icon-small" /></a></p>
 
                 <?php
                 $validFiles = [];

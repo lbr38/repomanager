@@ -71,25 +71,4 @@ trait Param
             }
         }
     }
-
-    /**
-     *  Generate a summary table for the task
-     *  Valid for:
-     *   - a new repo/section
-     *   - an update of repo/section
-     *   - a rebuild of repo/section metadata
-     */
-    public function printDetails(string $template)
-    {
-        $this->taskLog->step();
-
-        ob_start();
-
-        /**
-         *  Affichage du tableau récapitulatif de l'opération
-         */
-        include(ROOT . '/views/templates/tasks/' . $template . '.inc.php');
-
-        $this->taskLog->steplogWrite(ob_get_clean());
-    }
 }

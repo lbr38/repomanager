@@ -3,8 +3,8 @@
         <h3>REBUILD REPOSITORY METADATA</h3>
 
         <div class="text-right">
-            <p title="Task execution date"><?= DateTime::createFromFormat('Y-m-d', $this->task->getDate())->format('d-m-Y') . ' ' . $this->task->getTime() ?></p>
-            <p title="Task Id">Task #<?= $this->task->getId() ?></p>
+            <p title="Task execution date"><?= DateTime::createFromFormat('Y-m-d', $taskInfo['Date'])->format('d-m-Y') . ' ' . $taskInfo['Time'] ?></p>
+            <p title="Task Id">Task #<?= $taskId ?></p>
         </div>
     </div>
 </div>
@@ -16,10 +16,10 @@
             <p>
                 <span class="label-white">
                     <?php
-                    if (!empty($this->repo->getDist()) and !empty($this->repo->getSection())) {
-                        echo $this->repo->getName() . ' ❯ ' . $this->repo->getDist() . ' ❯ ' . $this->repo->getSection();
+                    if (!empty($repoController->getDist()) and !empty($repoController->getSection())) {
+                        echo $repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection();
                     } else {
-                        echo $this->repo->getName();
+                        echo $repoController->getName();
                     } ?>
                 </span>
             </p>
@@ -28,17 +28,17 @@
         <div>
             <h6 class="margin-top-0">SNAPSHOT</h6>
             <p>
-                <span class="label-black"><?= $this->repo->getDateFormatted() ?></span>
+                <span class="label-black"><?= $repoController->getDateFormatted() ?></span>
             </p>
         </div>
     </div>
 
     <?php
-    if ($this->repo->getPackageType() == 'rpm' and !empty($this->repo->getReleasever())) : ?>
+    if ($repoController->getPackageType() == 'rpm' and !empty($repoController->getReleasever())) : ?>
         <div class="grid grid-2 row-gap-10">
             <div>
                 <h6>RELEASE VERSION</h6>
-                <p><?= $this->repo->getReleasever() ?></p>
+                <p><?= $repoController->getReleasever() ?></p>
             </div>
         </div>
         <?php
@@ -46,12 +46,12 @@
 
     <div class="grid grid-2 row-gap-10">
         <?php
-        if (!empty($this->repo->getArch())) : ?>
+        if (!empty($repoController->getArch())) : ?>
             <div>
                 <h6>ARCHITECTURE</h6>
                 <div class="flex column-gap-5 row-gap-5">
                     <?php
-                    foreach ($this->repo->getArch() as $arch) {
+                    foreach ($repoController->getArch() as $arch) {
                         echo '<span class="label-black">' . $arch . '</span>';
                     } ?>
                 </div>
@@ -62,18 +62,18 @@
 
     <div class="grid grid-2 row-gap-10">
         <?php
-        if (!empty($this->repo->getGpgSign())) : ?>
+        if (!empty($rawParams['gpg-sign'])) : ?>
             <div>
                 <h6>SIGN WITH GPG</h6>
                 <?php
-                if ($this->repo->getGpgSign() == 'true') : ?>
+                if ($rawParams['gpg-sign'] == 'true') : ?>
                     <div class="flex column-gap-5">
                         <img src="/assets/icons/check.svg" class="icon" />
                         <span>Enabled</span>
                     </div>
                     <?php
                 endif;
-                if ($this->repo->getGpgSign() == 'false') : ?>
+                if ($rawParams['gpg-sign'] == 'false') : ?>
                     <div class="flex column-gap-5">
                         <img src="/assets/icons/warning-red.svg" class="icon" />
                         <span>Disabled</span>

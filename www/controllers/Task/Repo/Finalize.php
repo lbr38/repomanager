@@ -11,9 +11,7 @@ trait Finalize
     */
     protected function finalize()
     {
-        ob_start();
-
-        $this->taskLog->step('FINALIZING');
+        $this->taskLogStepController->new('finalizing', 'FINALIZING');
 
         /**
          *  Le type d'opération doit être renseigné pour cette fonction (soit 'create' soit 'update')
@@ -213,16 +211,16 @@ trait Finalize
             \Controllers\Filesystem\File::recursiveChown(REPOS_DIR . '/' . $this->repo->getName(), WWW_USER, 'repomanager');
         }
 
-        $this->taskLog->stepOK();
+        $this->taskLogStepController->completed();
 
         /**
          *  Ajout du repo à un groupe si un groupe a été renseigné.
          *  Uniquement si il s'agit d'un nouveau repo/section ($this->task->getAction() = new)
          */
         if ($this->task->getAction() == 'create' and !empty($this->repo->getGroup())) {
-            $this->taskLog->step('ADDING TO GROUP');
+            $this->taskLogStepController->new('adding-to-group', 'ADDING REPOSITORY TO GROUP');
             $this->repo->addRepoIdToGroup($this->repo->getRepoId(), $this->repo->getGroup());
-            $this->taskLog->stepOK();
+            $this->taskLogStepController->completed();
         }
 
         /**
@@ -231,8 +229,8 @@ trait Finalize
         $snapshotsRemoved = $this->repo->cleanSnapshots();
 
         if (!empty($snapshotsRemoved)) {
-            $this->taskLog->step('CLEANING');
-            $this->taskLog->stepOK($snapshotsRemoved);
+            $this->taskLogStepController->new('cleaning', 'CLEANING');
+            $this->taskLogStepController->completed($snapshotsRemoved);
         }
 
         /**
