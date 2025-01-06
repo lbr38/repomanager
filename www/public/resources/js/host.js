@@ -89,7 +89,8 @@ function searchHost()
      */
     if (!$("#search-host-input").val()) {
         // Show all containers and host lines before quit
-        $('.hosts-group-container, .host-line, .js-select-all-button').show();
+        $('.hosts-group-container, .js-select-all-button').show();
+        $('.host-line').addClass('flex').show();
 
         return;
     }
@@ -110,7 +111,8 @@ function searchHost()
     /**
      *  Hide all host lines, only those corresponding to the search will be re-displayed
      */
-    $('.host-line, .js-select-all-button').hide();
+    $('.js-select-all-button').hide();
+    $('.host-line, .js-select-all-button').removeClass('flex').hide();
 
     /**
      *  Check if the user has entered a filter in his search, different filters are possible:
@@ -242,13 +244,14 @@ function searchHost()
      *  Then we process each div retrieved and display only those corresponding to the search
      */
     $.each(line, function () {
-        div = $(this).find("div")[2];
+        div = $(this).find("div")[0];
+
         if (div) {
             txtValue = div.textContent || div.innerText;
             if (txtValue.toUpperCase().indexOf(search) > -1) {
-                $(this).show();
+                $(this).addClass('flex').show();
             } else {
-                $(this).hide();
+                $(this).removeClass('flex').hide();
             }
         }
     });

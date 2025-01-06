@@ -264,8 +264,8 @@
                                                             <div class="grid hosts-compact-view column-gap-40">
                                                                 <div>
                                                                     <div>
-                                                                        <p title="Hostname">
-                                                                            <a href="/host/<?= $id ?>" class="wordbreakall copy" target="_blank" rel="noopener noreferrer">
+                                                                        <p title="Hostname" class="copy">
+                                                                            <a href="/host/<?= $id ?>" class="wordbreakall" target="_blank" rel="noopener noreferrer">
                                                                                 <b><?= $hostname ?></b>
                                                                             </a>
                                                                         </p>
@@ -319,8 +319,8 @@
 
                                                         if (!$compactView) : ?>
                                                             <div class="margin-bottom-15">
-                                                                <p>
-                                                                    <a href="/host/<?= $id ?>" class="wordbreakall copy" target="_blank" rel="noopener noreferrer">
+                                                                <p class="copy">
+                                                                    <a href="/host/<?= $id ?>" class="wordbreakall" target="_blank" rel="noopener noreferrer">
                                                                         <b><?= $hostname ?></b>
                                                                     </a>
                                                                 </p>

@@ -583,8 +583,15 @@ class Repo
     /**
      *  Set environment description
      */
-    public function envSetDescription(string $envId, string $description)
+    public function envSetDescription(string $envId, string $description) : void
     {
+        // Description cannot contain single quotes or backslashes
+        if (str_contains($description, "'") || str_contains($description, "\\")) {
+            throw new Exception('Description contains invalid characters');
+        }
+
+        $description = \Controllers\Common::validateData($description);
+
         $this->model->envSetDescription($envId, $description);
     }
 

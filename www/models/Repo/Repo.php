@@ -526,26 +526,18 @@ class Repo extends \Models\Model
     }
 
     /**
-     *  Modification de la description
-    */
-    public function envSetDescription(string $envId, string $description)
+     *  Set environment description
+     */
+    public function envSetDescription(string $envId, string $description) : void
     {
-        /**
-         *  Vérification des caractères de la description
-         */
-        if (\Controllers\Common::isAlphanumDash($description, array(' ', '(', ')', '@', ',', '.', '\'', 'é', 'è', 'ê', 'à', 'ç', 'ù', 'ô', 'ï', '"')) === false) {
-            throw new Exception('Description contains invalid characters');
-        }
-
         try {
             $stmt = $this->db->prepare("UPDATE repos_env SET Description = :description WHERE Id = :envId");
-            $stmt->bindValue(':description', \Controllers\Common::validateData($description));
+            $stmt->bindValue(':description', $description);
             $stmt->bindValue(':envId', $envId);
             $stmt->execute();
         } catch (\Exception $e) {
             $this->db->logError($e);
         }
-        unset($stmt);
     }
 
     /**

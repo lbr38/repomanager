@@ -4,6 +4,7 @@
  */
 $mygroup = new \Controllers\Group('repo');
 $groupsList = $mygroup->listAll(true);
+$myrepoListing = new \Controllers\Repo\Listing();
 
 /**
  *  Print groups and repos
@@ -13,7 +14,7 @@ if (!empty($groupsList)) {
         /**
          *  Getting repos list of the group
          */
-        $myrepoListing = new \Controllers\Repo\Listing();
+
         $reposList = $myrepoListing->listByGroup($group['Name']);
 
         /**
@@ -373,7 +374,7 @@ if (!empty($groupsList)) {
                              */
                             echo '<div class="item-desc">';
                             if (!empty($env)) {
-                                echo '<input type="text" class="repoDescriptionInput" env-id="' . $envId . '" placeholder="🖉 add a description" value="' . $description . '" />';
+                                echo '<input type="text" class="repoDescriptionInput" env-id="' . $envId . '" placeholder="🖉 add a description" value=\'' . htmlspecialchars_decode($description) . '\' />';
                             }
                             echo '</div>';
 

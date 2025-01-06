@@ -18,19 +18,16 @@ class Environment
      */
     public static function getEnvColor(string $name)
     {
-        // Default color
-        $color = '#ffffff';
-
         // Retrieve color from ENVS array
         if (defined('ENVS')) {
             foreach (ENVS as $env) {
                 if ($env['Name'] == $name and !empty($env['Color'])) {
-                    $color = $env['Color'];
+                    return $env['Color'];
                 }
             }
         }
 
-        return $color;
+        return '#ffffff';
     }
 
     /**

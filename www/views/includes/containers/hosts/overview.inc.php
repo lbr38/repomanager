@@ -242,8 +242,7 @@
 
                 $envNameList .= "'" . $envName . "',";
                 $envCountList .= "'" . $env['Env_count'] . "',";
-
-                $envBackgroundColor .= '"' . \Controllers\Environment::getEnvColor($envNameList) . '",';
+                $envBackgroundColor .= '"' . \Controllers\Environment::getEnvColor($envName) . '",';
             }
 
             $labels = rtrim($envNameList, ',');

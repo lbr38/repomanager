@@ -109,7 +109,7 @@ class Env
                  *  If the description is empty then the description will remain empty
                  */
                 if (!empty($actualDescription)) {
-                    $this->repo->setDescription($actualDescription);
+                    $this->repo->setDescription(htmlspecialchars_decode($actualDescription));
                 } else {
                     $this->repo->setDescription('');
                 }

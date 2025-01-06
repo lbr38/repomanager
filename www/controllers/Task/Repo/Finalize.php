@@ -171,7 +171,7 @@ trait Finalize
                  *  Si la description récupérée est vide alors la description restera vide
                  */
                 if (!empty($actualDescription)) {
-                    $this->repo->setDescription($actualDescription);
+                    $this->repo->setDescription(htmlspecialchars_decode($actualDescription));
                 } else {
                     $this->repo->setDescription('');
                 }

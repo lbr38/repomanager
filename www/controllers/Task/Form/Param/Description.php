@@ -12,7 +12,8 @@ class Description
             return;
         }
 
-        if (!\Controllers\Common::isAlphanumDash($description, array('.', '(', ')', '@', 'é', 'è', 'à', 'ç', 'ù', 'ê', 'ô', '+', '\'', ' '))) {
+        // Description cannot contain single quotes or backslashes
+        if (str_contains($description, "'") || str_contains($description, "\\")) {
             throw new Exception('Description contains invalid characters');
         }
     }
