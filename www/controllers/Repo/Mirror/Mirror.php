@@ -199,15 +199,15 @@ class Mirror
              */
             if ($currentRetry != $retries) {
                 $currentRetry++;
-                $this->logWarning('Curl error (' . curl_errno($this->curlHandle) . '): ' . curl_error($this->curlHandle));
-                $this->logNote('Retrying (' . $currentRetry . '/' . $retries . ') ...');
+                $this->taskLogSubStepController->output('Curl error (' . curl_errno($this->curlHandle) . '): ' . curl_error($this->curlHandle), 'warning');
+                $this->taskLogSubStepController->output('Retrying (' . $currentRetry . '/' . $retries . ') ...', 'note');
                 continue;
             }
 
             /**
              *  If curl has failed (meaning a curl param might be invalid or timeout has been reached)
              */
-            $this->logError('Curl error (' . curl_errno($this->curlHandle) . '): ' . curl_error($this->curlHandle), 'Download error');
+            throw new Exception('Curl error (' . curl_errno($this->curlHandle) . '): ' . curl_error($this->curlHandle));
 
             curl_close($this->curlHandle);
             fclose($localFile);
@@ -223,9 +223,9 @@ class Mirror
              *  If return code is 404
              */
             if ($status["http_code"] == '404') {
-                $this->logOutput('File not found (404)' . PHP_EOL);
+                $this->taskLogSubStepController->output('File not found (404)', 'error');
             } else {
-                $this->logOutput('File could not be downloaded (http return code is: ' . $status["http_code"] . ')' . PHP_EOL);
+                $this->taskLogSubStepController->output('File could not be downloaded (http return code is: ' . $status["http_code"] . ')', 'error');
             }
 
             curl_close($this->curlHandle);
