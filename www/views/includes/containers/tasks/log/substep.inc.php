@@ -37,20 +37,16 @@
                     $type = $outputDetails['type'];
                     $message = $outputDetails['message'];
 
-                    if ($type == 'info') {
-                        echo '<p>' . $message . '</p>';
-                    }
-
-                    if ($type == 'warning') {
-                        echo '<p>' . $message . '</p>';
-                    }
-
-                    if ($type == 'error') {
+                    if ($type == 'note') {
+                        echo '<p class="note">' . $message . '</p>';
+                    } else if ($type == 'warning') {
+                        echo '<p class="yellowtext">' . $message . '</p>';
+                    } else if ($type == 'error') {
                         echo '<p class="redtext">' . $message . '</p>';
-                    }
-
-                    if ($type == 'pre') {
+                    } else if ($type == 'pre') {
                         echo '<pre class="codeblock">' . $message . '</pre>';
+                    } else {
+                        echo '<p>' . $message . '</p>';
                     }
                 }
             }

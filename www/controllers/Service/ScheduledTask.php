@@ -29,7 +29,6 @@ class ScheduledTask extends Service
          *  Quit if there was an error while loading general settings
          */
         if (defined('__LOAD_GENERAL_ERROR') and __LOAD_GENERAL_ERROR > 0) {
-            // $this->logController->log('error', 'Service', 'Cannot execute scheduled task(s): some general settings are not defined.');
             return;
         }
 
@@ -173,7 +172,6 @@ class ScheduledTask extends Service
          *  Quit if there was an error while loading general settings
          */
         if (defined('__LOAD_GENERAL_ERROR') and __LOAD_GENERAL_ERROR > 0) {
-            // $this->logController->log('error', 'Service', 'Cannot execute scheduled task(s): some general settings are not defined.');
             return;
         }
 
