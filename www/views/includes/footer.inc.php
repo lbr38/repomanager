@@ -53,7 +53,7 @@ if (!empty(ENVS)) {
  *  Additional JS files
  */
 if (__ACTUAL_URI__[1] == '') {
-    $jsFiles = ['repo', 'task', 'group', 'source', 'events/repo/source/distribution', 'events/repo/source/releasever', 'events/repo/source/source'];
+    $jsFiles = ['repo', 'task', 'group', 'source', 'events/repo/source/distribution', 'events/repo/source/releasever', 'events/repo/source/source', 'events/repo/edit'];
 }
 if (__ACTUAL_URI__[1] == 'hosts') {
     $jsFiles = ['host', 'events/host/layout', 'events/host/actions', 'events/profile/actions'];

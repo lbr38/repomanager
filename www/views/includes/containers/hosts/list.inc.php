@@ -217,27 +217,22 @@
                                             /**
                                              *  Open the dedicated database of the host from its ID to be able to retrieve additional information
                                              */
-                                            $hostDb->openHostDb($id);
+                                            $hostPackageController = new \Controllers\Host\Package\Package($id);
 
                                             /**
                                              *  Retrieve the total number of available packages
                                              */
-                                            $packagesAvailableTotal = count($hostDb->getPackagesAvailable());
+                                            $packagesAvailableTotal = count($hostPackageController->getAvailable());
 
                                             /**
                                              *  Retrieve the total number of installed packages
                                              */
-                                            $packagesInstalledTotal = count($hostDb->getPackagesInstalled());
+                                            $packagesInstalledTotal = count($hostPackageController->getInstalled());
 
                                             /**
                                              *  Retrieve the last pending request (if there is one)
                                              */
                                             $lastPendingRequest = $myhost->getLastPendingRequest($id);
-
-                                            /**
-                                             *  Close the dedicated database of the host
-                                             */
-                                            $hostDb->closeHostDb();
 
                                             /**
                                              *  Print the host informations

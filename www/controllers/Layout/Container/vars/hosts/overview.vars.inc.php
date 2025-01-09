@@ -42,16 +42,17 @@ foreach ($hostsList as $host) {
      *  Open the dedicated database of the host from its ID to be able to retrieve additional information
      */
     $myhost->openHostDb($host['Id']);
+    $hostPackageController = new \Controllers\Host\Package\Package($host['Id']);
 
     /**
      *  Retrieve the total number of available packages
      */
-    $packagesAvailableTotal = count($myhost->getPackagesAvailable());
+    $packagesAvailableTotal = count($hostPackageController->getAvailable());
 
     /**
      *  Retrieve the total number of installed packages
      */
-    $packagesInstalledTotal = count($myhost->getPackagesInstalled());
+    $packagesInstalledTotal = count($hostPackageController->getInstalled());
 
     /**
      *  If the total number of available packages retrieved previously is > $packagesCountConsideredOutdated (threshold defined by the user) then we increment $totalNotUptodate (counts the number of hosts that are not up to date in the chartjs)

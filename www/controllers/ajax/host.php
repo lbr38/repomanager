@@ -130,10 +130,10 @@ if ($action == "cancelRequest" and !empty($_POST['id'])) {
  *  Get package history timeline
  */
 if ($action == "getPackageTimeline" and !empty($_POST['hostid']) and !empty($_POST['packagename'])) {
-    $myhost = new \Controllers\Host();
+    $hostPackageController = new \Controllers\Host\Package\Package($_POST['hostid']);
 
     try {
-        $content = $myhost->getPackageTimeline($_POST['hostid'], $_POST['packagename']);
+        $content = $hostPackageController->getTimeline($_POST['packagename']);
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
@@ -145,10 +145,10 @@ if ($action == "getPackageTimeline" and !empty($_POST['hostid']) and !empty($_PO
  *  Get event details (installed packages, updated packages...)
  */
 if ($action == "getEventDetails" and !empty($_POST['hostId']) and !empty($_POST['eventId']) and !empty($_POST['packageState'])) {
-    $myhost = new \Controllers\Host();
+    $hostPackageEventController = new \Controllers\Host\Package\Event($_POST['hostId']);
 
     try {
-        $content = $myhost->getEventDetails($_POST['hostId'], $_POST['eventId'], $_POST['packageState']);
+        $content = $hostPackageEventController->getDetails($_POST['eventId'], $_POST['packageState']);
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }

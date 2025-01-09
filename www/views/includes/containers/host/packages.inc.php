@@ -2,25 +2,29 @@
     <h6 class="margin-top-0">PACKAGES INVENTORY</h6>
     <p class="note">Packages installed and available updates.</p>
         
-    <div class="grid grid-2 margin-bottom-15">
+    <div class="flex align-item-center column-gap-40 margin-top-15 margin-bottom-15">
         <div>
-            <h6>INSTALLED</h6>
-            <span id="installed-packages-btn" class="label-white pointer"><?= $packagesInstalledCount ?></span>
+            <div id="installed-packages-btn" class="pointer">
+                <?php
+                $title = 'INSTALLED';
+                $count = $packagesInstalledCount;
+                $icon = 'check.svg';
+                include(ROOT . '/views/includes/labels/label-icon-tr.inc.php'); ?>
+            </div>
         </div>
 
-        <div>
-            <h6>TO UPDATE</h6>
-
-            <?php
-            $labelColor = 'white';
-
-            if ($packagesAvailableTotal >= $pkgs_count_considered_critical) {
-                $labelColor = 'red';
-            } elseif ($packagesAvailableTotal >= $pkgs_count_considered_outdated) {
-                $labelColor = 'yellow';
-            } ?>
-
-            <span id="available-packages-btn" class="label-<?= $labelColor ?> pointer"><?= $packagesAvailableTotal ?></span>
+        <div>           
+            <div id="available-packages-btn" class="pointer">
+                <?php
+                $title = 'TO UPDATE';
+                $count = $packagesAvailableTotal;
+                if ($packagesAvailableTotal >= $pkgs_count_considered_critical) {
+                    $icon = 'update-red.svg';
+                } elseif ($packagesAvailableTotal >= $pkgs_count_considered_outdated) {
+                    $icon = 'update-yellow.svg';
+                }
+                include(ROOT . '/views/includes/labels/label-icon-tr.inc.php'); ?>
+            </div>
         </div>
     </div>
 

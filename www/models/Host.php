@@ -1018,102 +1018,6 @@ class Host extends Model
     }
 
     /**
-     *  Récupère la liste des paquets présents sur l'hôte
-     */
-    public function getPackagesInventory()
-    {
-        /**
-         *  Si la BDD dédiée à l'hôte n'est pas instanciée dans $this->dedicatedDb alors on quitte
-         */
-        if (empty($this->dedicatedDb)) {
-            return false;
-        }
-
-        /**
-         *  Récupération du total des paquets installés sur l'hôte
-         */
-        $datas = array();
-
-        try {
-            $result = $this->dedicatedDb->query("SELECT * FROM packages ORDER BY Name ASC");
-        } catch (\Exception $e) {
-            $this->dedicatedDb->logError($e);
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $datas[] = $row;
-        }
-
-        return $datas;
-    }
-
-    /**
-     *  Retourne les paquets installés sur l'hôte
-     */
-    public function getPackagesInstalled()
-    {
-        /**
-         *  Si la BDD dédiée à l'hôte n'est pas instanciée dans $this->dedicatedDb alors on quitte
-         */
-        if (empty($this->dedicatedDb)) {
-            return false;
-        }
-
-        /**
-         *  Récupération du total des paquets installés sur l'hôte
-         */
-        $datas = array();
-
-        try {
-            $result = $this->dedicatedDb->query("SELECT * FROM packages WHERE State = 'inventored' or State = 'installed' or State = 'dep-installed' or State = 'upgraded' or State = 'downgraded'");
-        } catch (\Exception $e) {
-            $this->dedicatedDb->logError($e);
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $datas[] = $row;
-        }
-
-        return $datas;
-    }
-
-    /**
-     *  Retrieve the list of packages available for update on the host
-     *  It is possible to add an offset to the request
-     */
-    public function getPackagesAvailable(bool $withOffset, int $offset)
-    {
-        $data = array();
-
-        try {
-            $query = "SELECT * FROM packages_available";
-
-            /**
-             *  Add offset if needed
-             */
-            if ($withOffset === true) {
-                $query .= " LIMIT 10 OFFSET :offset";
-            }
-
-            /**
-             *  Prepare query
-             */
-            $stmt = $this->dedicatedDb->prepare($query);
-            $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
-
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->dedicatedDb->logError($e);
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $data[] = $row;
-        }
-
-        return $data;
-    }
-
-    /**
      *  Retrieve the list of requests sent to the host
      *  It is possible to add an offset to the request
      */
@@ -1173,46 +1077,6 @@ class Host extends Model
     }
 
     /**
-     *  Retrieve information about all actions performed on host packages (install, update, remove...)
-     *  It is possible to add an offset to the request
-     */
-    public function getEventsHistory(bool $withOffset, int $offset)
-    {
-        $data = array();
-
-        try {
-            $query = "SELECT * FROM events ORDER BY Date DESC, Time DESC";
-
-            /**
-             *  Add offset if needed
-             */
-            if ($withOffset === true) {
-                $query .= " LIMIT 10 OFFSET :offset";
-            }
-
-            /**
-             *  Prepare query
-             */
-            $stmt = $this->dedicatedDb->prepare($query);
-            $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
-
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->dedicatedDb->logError($e);
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            /**
-             *  Add a column Event_type to the result to define that it is an 'event'. Will be useful when displaying data.
-             */
-            $row['Event_type'] = 'event';
-            $data[] = $row;
-        }
-
-        return $data;
-    }
-
-    /**
      *  Récupère la liste des paquets issus d'un évènemnt et dont l'état des paquets est défini par $packageState (installed, upgraded, removed)
      *  Les informations sont récupérées à la fois dans la table packages et dans packages_history
      */
@@ -1245,104 +1109,6 @@ class Host extends Model
         }
 
         return $datas;
-    }
-
-    /**
-     *  Récupère le détails d'un évènement sur un type de paquets en particulier (installés, mis à jour, etc...)
-     *  Cette fonction est notamment déclenchée au passage de la souris sur une ligne de l'historique des évènements
-     */
-    public function getEventDetails(string $eventId, string $packageState)
-    {
-        try {
-            $stmt = $this->dedicatedDb->prepare("SELECT Name, Version FROM packages
-            WHERE Id_event = :id_event and State = :state
-            UNION
-            SELECT Name, Version FROM packages_history
-            WHERE Id_event = :id_event and State = :state");
-            $stmt->bindValue(':id_event', \Controllers\Common::validateData($eventId));
-            $stmt->bindValue(':state', \Controllers\Common::validateData($packageState));
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->dedicatedDb->logError($e);
-        }
-
-        $packages = array();
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $packages[] = $row;
-        }
-
-        $this->dedicatedDb->close();
-
-        return $packages;
-    }
-
-    /**
-     *  Récupère l'historique complet d'un paquet (son installation, ses mises à jour, etc...)
-     */
-    public function getPackageTimeline(string $packageName)
-    {
-        $events = array();
-
-        /**
-         *  Récupération de l'historique du paquet (table packages_history) ainsi que son état actuel (table packages)
-         */
-        try {
-            $stmt = $this->dedicatedDb->prepare("SELECT * FROM packages_history
-            WHERE Name = :packagename
-            UNION SELECT * FROM packages
-            WHERE Name = :packagename
-            ORDER BY Date DESC, Time DESC");
-            $stmt->bindValue(':packagename', $packageName);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->dedicatedDb->logError($e);
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $events[] = $row;
-        }
-
-        return $events;
-    }
-
-    /**
-     *  Compte le nombre de paquets installés, mis à jour, désinstallés... au cours des X derniers jours.
-     *  Retourne un array contenant les dates => nombre de paquet
-     *  Fonction utilisées notamment pour la création du graphique ChrtJS de type 'line' sur la page d'un hôte
-     */
-    public function getLastPackagesStatusCount(string $status, string $dateStart, string $dateEnd)
-    {
-        /**
-         *  Si la BDD dédiée à l'hôte n'est pas instanciée dans $this->dedicatedDb alors on quitte
-         */
-        if (empty($this->dedicatedDb)) {
-            return false;
-        }
-
-        try {
-            $stmt = $this->dedicatedDb->prepare("SELECT Date, COUNT(*) as date_count FROM packages WHERE State = :status and Date BETWEEN :dateStart and :dateEnd GROUP BY Date
-                                            UNION
-                                            SELECT Date, COUNT(*) as date_count FROM packages_history WHERE State = :status and Date BETWEEN :dateStart and :dateEnd GROUP BY Date");
-            $stmt->bindValue(':status', $status);
-            $stmt->bindValue(':dateStart', $dateStart);
-            $stmt->bindValue(':dateEnd', $dateEnd);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->dedicatedDb->logError($e);
-        }
-
-        $array = array();
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            if (!array_key_exists($row['Date'], $array)) {
-                $array[$row['Date']] = $row['date_count'];
-            } else {
-                $array[$row['Date']] += $row['date_count'];
-            }
-        }
-
-        return $array;
     }
 
     /**
@@ -1410,9 +1176,9 @@ class Host extends Model
     }
 
     /**
-     *  Ajout d'un nouvel hôte en base de données
+     *  Add a new host in database
      */
-    public function addHost(string $ip, string $hostname, string $authId, string $token, string $onlineStatus, string $date, string $time)
+    public function add(string $ip, string $hostname, string $authId, string $token, string $onlineStatus, string $date, string $time)
     {
         try {
             $stmt = $this->db->prepare("INSERT INTO hosts (Ip, Hostname, AuthId, Token, Online_status, Online_status_date, Online_status_time, Status) VALUES (:ip, :hostname, :id, :token, :online_status, :date, :time, 'active')");
@@ -1425,6 +1191,20 @@ class Host extends Model
             $stmt->bindValue(':time', $time);
             $stmt->execute();
         } catch (\Exception $e) {
+            $this->db->logError($e);
+        }
+    }
+
+    /**
+     *  Delete a host from database
+     */
+    public function delete(int $id) : void
+    {
+        try {
+            $stmt = $this->db->prepare("DELETE FROM hosts WHERE Id = :id");
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
@@ -1443,21 +1223,6 @@ class Host extends Model
             $stmt->bindValue(':online_status', $onlineStatus);
             $stmt->bindValue(':date', $date);
             $stmt->bindValue(':time', $time);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Désactive un hôte en base de données
-     *  Pour identifier l'hôte on peut soit spécifier son Id, soit ses informations d'identification
-     */
-    public function setHostInactive(string $hostId)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Status = 'deleted', AuthId = null, Token = null WHERE id = :hostId");
-            $stmt->bindValue(':hostId', $hostId);
             $stmt->execute();
         } catch (\Exception $e) {
             $this->db->logError($e);

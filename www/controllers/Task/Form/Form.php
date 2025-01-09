@@ -11,12 +11,12 @@ class Form
     /**
      *  Return the task form to the user according to his selection
      */
-    public function get(string $action, array $repos)
+    public function get(string $action, array $repos) : string
     {
         $mylogin = new \Controllers\Login();
         $usersEmail = $mylogin->getEmails();
 
-        $content = '<form class="task-form" autocomplete="off">';
+        $content = '<form id="task-form" autocomplete="off">';
 
         foreach ($repos as $repo) {
             $myrepo = new \Controllers\Repo\Repo();

@@ -927,7 +927,7 @@ $(document).on('mouseenter', '.event-packages-btn', function (e) {
     /**
      *  Create a new <div> event-packages-details
      */
-    $('footer').append('<div class="event-packages-details">Loading <img src="/assets/icons/loading.svg" class="icon"/></div>');
+    $('footer').append('<div class="event-packages-details"><div class="flex align-item-center column-gap-5"><p>Loading</p><img src="/assets/icons/loading.svg" class="icon"/></div></div>');
 
     /**
      *  Get screen width

@@ -1,6 +1,4 @@
 <?php
-$myhost = new \Controllers\Host();
-
 if (empty(__ACTUAL_URI__[2])) {
     die('Error: no host ID specified.');
 }
@@ -10,6 +8,8 @@ if (!is_numeric(__ACTUAL_URI__[2])) {
 }
 
 $id = __ACTUAL_URI__[2];
+$myhost = new \Controllers\Host();
+$hostPackageController = new \Controllers\Host\Package\Package($id);
 
 /**
  *  Getting all informations about this host
@@ -50,11 +50,6 @@ if ($status == 'deleted') {
 }
 
 /**
- *  Open host database
- */
-$myhost->openHostDb($id);
-
-/**
  *  First create a list of dates on a 15days period
  */
 $dates = array();
@@ -76,17 +71,17 @@ foreach ($period as $key => $value) {
 /**
  *  Getting last 15days installed packages
  */
-$lastInstalledPackagesArray = $myhost->getLastPackagesStatusCount('installed', '15');
+$lastInstalledPackagesArray = $hostPackageController->countByStatusOverDays('installed', '15');
 
 /**
  *  Getting last 15days updated packages
  */
-$lastUpgradedPackagesArray = $myhost->getLastPackagesStatusCount('upgraded', '15');
+$lastUpgradedPackagesArray = $hostPackageController->countByStatusOverDays('upgraded', '15');
 
 /**
  *  Getting last 15days deleted packages
  */
-$lastRemovedPackagesArray = $myhost->getLastPackagesStatusCount('removed', '15');
+$lastRemovedPackagesArray = $hostPackageController->countByStatusOverDays('removed', '15');
 
 /**
  *  Merging all arrays with dates array
@@ -104,9 +99,4 @@ $lineChartUpgradedPackagesCount  = "'" . implode("','", $lastUpgradedPackagesArr
 $lineChartRemovedPackagesCount   = "'" . implode("','", $lastRemovedPackagesArray) . "'";
 $lineChartDates = "'" . implode("','", array_keys($dates)) . "'";
 
-/**
- *  Close host database
- */
-$myhost->closeHostDb();
-
-unset($myhost);
+unset($myhost, $hostPackageController, $hostProperties, $dates, $dateStart, $dateEnd, $period, $lastInstalledPackagesArray, $lastUpgradedPackagesArray, $lastRemovedPackagesArray);

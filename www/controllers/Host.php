@@ -189,31 +189,6 @@ class Host
     }
 
     /**
-     *  Récupère la liste des paquets présents sur l'hôte
-     */
-    public function getPackagesInventory()
-    {
-        return $this->model->getPackagesInventory();
-    }
-
-    /**
-     *  Retourne les paquets installés sur l'hôte
-     */
-    public function getPackagesInstalled()
-    {
-        return $this->model->getPackagesInstalled();
-    }
-
-    /**
-     *  Retrieve the list of packages available for update on the host
-     *  It is possible to add an offset to the request
-     */
-    public function getPackagesAvailable(bool $withOffset = false, int $offset = 0)
-    {
-        return $this->model->getPackagesAvailable($withOffset, $offset);
-    }
-
-    /**
      *  Retrieve the list of requests sent to the host
      *  It is possible to add an offset to the request
      */
@@ -231,204 +206,12 @@ class Host
     }
 
     /**
-     *  Retrieve information about all actions performed on host packages (install, update, remove...)
-     *  It is possible to add an offset to the request
-     */
-    public function getEventsHistory(bool $withOffset = false, int $offset = 0)
-    {
-        return $this->model->getEventsHistory($withOffset, $offset);
-    }
-
-    /**
      *  Récupère la liste des paquets issus d'un évènemnt et dont l'état des paquets est défini par $packageState (installed, upgraded, removed)
      *  Les informations sont récupérées à la fois dans la table packages et dans packages_history
      */
     public function getEventPackagesList(string $eventId, string $packageState)
     {
         return $this->model->getEventPackagesList($eventId, $packageState);
-    }
-
-    /**
-     *  Récupère le détails d'un évènement sur un type de paquets en particulier (installés, mis à jour, etc...)
-     *  Cette fonction est notamment déclenchée au passage de la souris sur une ligne de l'historique des évènements
-     */
-    public function getEventDetails(string $id, string $eventId, string $packageState)
-    {
-        /**
-         *  Si il manque l'id de l'hôte, on quitte car on en a besoin pour ouvrir sa BDD dédiée
-         */
-        if (empty($id)) {
-            throw new Exception('Host Id must be specified');
-        }
-
-        $packageState = \Controllers\Common::validateData($packageState);
-
-        /**
-         *  Ouverture de la BDD dédiée de l'hôte
-         */
-        $this->model->openHostDb($id);
-
-        $packages = $this->model->getEventDetails($eventId, $packageState);
-
-        if ($packageState == 'installed') {
-            $content = '<p><b>Installed:</b></p>';
-        }
-        if ($packageState == 'dep-installed') {
-            $content = '<p><b>Installed dependencies:</b></p>';
-        }
-        if ($packageState == 'upgraded') {
-            $content = '<p><b>Updated:</b></p>';
-        }
-        if ($packageState == 'removed') {
-            $content = '<p><b>Uninstalled:</b></p>';
-        }
-        if ($packageState == 'downgraded') {
-            $content = '<p><b>Downgraded:</b></p>';
-        }
-
-        $content .= '<div class="grid grid-2 column-gap-10 row-gap-6 justify-space-between">';
-
-        foreach ($packages as $package) {
-            $content .= '<div class="flex align-item-center column-gap-5 min-width-200">';
-            $content .= \Controllers\Common::printProductIcon($package['Name']);
-            $content .= '<span class="copy">' . $package['Name'] . '</span>';
-            $content .= '</div>';
-            $content .= '<span class="copy">' . $package['Version'] . '</span>';
-        }
-
-        $content .= '</div>';
-
-        return $content;
-    }
-
-    /**
-     *  Retrieve the complete history of a package (its installation, its updates, etc...)
-     */
-    public function getPackageTimeline(string $id, string $packageName)
-    {
-        /**
-         *  If the host id is missing, we quit because we need it to open its dedicated DB
-         */
-        if (empty($id)) {
-            throw new Exception('Host Id must be specified');
-        }
-
-        /**
-         *  Open the dedicated DB of the host
-         */
-        $this->model->openHostDb($id);
-
-        $events = $this->model->getPackageTimeline($packageName);
-
-        /**
-         *  Build the timeline to display and send it back to the ajax controller because it is jquery that will take care of displaying it afterwards
-         */
-        $content = '<div class="timeline">';
-
-        /**
-         *  The first block will be displayed on the left in the timeline
-         */
-        $contentPosition = 'left';
-
-        foreach ($events as $event) {
-            /**
-             *  Add the date, time and state of the package
-             */
-            if ($event['State'] == "inventored") {
-                $contentIcon = 'package';
-                $contentText = 'Inventored';
-            }
-            if ($event['State'] == "installed") {
-                $contentIcon = 'down';
-                $contentText = 'Installed';
-            }
-            if ($event['State'] == "dep-installed") {
-                $contentIcon = 'down';
-                $contentText = 'Installed (as depencency)';
-            }
-            if ($event['State'] == "upgraded") {
-                $contentIcon = 'update';
-                $contentText = 'Updated';
-            }
-            if ($event['State'] == "removed") {
-                $contentIcon = 'delete';
-                $contentText = 'Uninstalled';
-            }
-            if ($event['State'] == "downgraded") {
-                $contentIcon = 'arrow-back';
-                $contentText = 'Downgraded';
-            }
-            if ($event['State'] == "reinstalled") {
-                $contentIcon = 'down';
-                $contentText = 'Reinstalled';
-            }
-            if ($event['State'] == "purged") {
-                $contentIcon = 'delete';
-                $contentText = 'Uninstalled (purged)';
-            }
-
-            /**
-             *  Position of the container block in the timeline according to the last displayed
-             */
-            $content .= '<div class="timeline-container timeline-container-' . $contentPosition . '">';
-
-            /**
-             *  Display the date, time and state of the package
-             */
-            $content .= '<div class="table-container">';
-            $content .= '<img src="/assets/icons/' . $contentIcon . '.svg" class="icon" />';
-            $content .= '<div class="flex flex-direction-column">';
-            $content .= '<p>' . DateTime::createFromFormat('Y-m-d', $event['Date'])->format('d-m-Y') . '</p>';
-            $content .= '<p class="lowopacity-cst">' . $event['Time'] . '</p>';
-            $content .= '</div>';
-            $content .= '<div class="flex flex-direction-column">';
-            $content .= '<p>' . $contentText . '</p>';
-            $content .= '<p class="lowopacity-cst copy">Version: ' . $event['Version'] . '</p>';
-            $content .= '</div>';
-            $content .= '</div>';
-
-            /**
-             *  If this event is the result of an update, install or uninstall event, then we indicate the Id of the event
-             */
-            // if (!empty($event['Id_event'])) {
-            //     $content .= '<a href="#' . $event['Id_event'] . '" >';
-            // }
-
-            /**
-             *  If the previous block was on the left, we display the next one on the right and vice versa
-             */
-            if ($contentPosition == "left") {
-                $contentPosition = 'right';
-            } elseif ($contentPosition == "right") {
-                $contentPosition = 'left';
-            }
-
-            $content .= '</div>';
-        }
-
-        /**
-         *  Close the timeline
-         */
-        $content .= '</div>';
-
-        return $content;
-    }
-
-    /**
-     *  Compte le nombre de paquets installés, mis à jour, désinstallés... au cours des X derniers jours.
-     *  Retourne un array contenant les dates => nombre de paquet
-     *  Fonction utilisées notamment pour la création du graphique ChrtJS de type 'line' sur la page d'un hôte
-     */
-    public function getLastPackagesStatusCount(string $status, string $days)
-    {
-        if ($status != 'installed' and $status != 'upgraded' and $status != 'removed') {
-            throw new Exception("Invalid status");
-        }
-
-        $dateEnd   = date('Y-m-d');
-        $dateStart = date_create($dateEnd)->modify("-${days} days")->format('Y-m-d');
-
-        return $this->model->getLastPackagesStatusCount($status, $dateStart, $dateEnd);
     }
 
     /**
@@ -998,9 +781,9 @@ class Host
         /**
          *  Lorsque appelé par l'api, HOSTS_DIR n'est pas setté, donc on le fait
          */
-        if (!defined('HOSTS_DIR')) {
-            define('HOSTS_DIR', ROOT . '/hosts');
-        }
+        // if (!defined('HOSTS_DIR')) {
+        //     define('HOSTS_DIR', DATA_DIR . '/hosts');
+        // }
 
         /**
          *  Si on n'a pas renseigné l'IP ou le hostname alors on quitte
@@ -1083,9 +866,9 @@ class Host
          */
         } else {
             /**
-             *  Ajout de l'hôte en base de données
+             *  Add the host in database
              */
-            $this->model->addHost($this->ip, $this->hostname, $this->authId, $this->token, $this->onlineStatus, date('Y-m-d'), date('H:i:s'));
+            $this->model->add($this->ip, $this->hostname, $this->authId, $this->token, $this->onlineStatus, date('Y-m-d'), date('H:i:s'));
 
             /**
              *  Récupération de l'Id de l'hôte ajouté en BDD
@@ -1118,14 +901,30 @@ class Host
     }
 
     /**
-     *  Suppression d'un hôte depuis l'api
+     *  Delete a host from the database
      */
-    public function unregister()
+    public function delete(int $id)
     {
+        $hostRequestController = new \Controllers\Host\Request();
+
         /**
-         *  Changement du status de l'hôte en base de données ('deleted')
+         *  Delete host from database
          */
-        $this->model->setHostInactive($this->id);
+        $this->model->delete($id);
+
+        /**
+         *  Add a new ws request to disconnect the host
+         */
+        $hostRequestController->new($id, 'disconnect');
+
+        /**
+         *  Delete host's dedicated database
+         */
+        if (is_dir(HOSTS_DIR . '/' . $id)) {
+            \Controllers\Filesystem\Directory::deleteRecursive(HOSTS_DIR . '/' . $id);
+        }
+
+        unset($hostRequestController);
     }
 
     /**
@@ -1212,19 +1011,9 @@ class Host
              */
             if ($action == 'delete') {
                 /**
-                 *  First, reset host data in database
-                 */
-                $this->model->resetHost($hostId);
-
-                /**
                  *  Set host status to 'deleted' in database
                  */
-                $this->model->setHostInactive($hostId);
-
-                /**
-                 *  Add a new ws request to disconnect the host
-                 */
-                $hostRequestController->new($hostId, 'disconnect');
+                $this->delete($hostId);
             }
 
             /**

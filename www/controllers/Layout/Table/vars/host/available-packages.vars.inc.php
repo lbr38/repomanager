@@ -1,13 +1,7 @@
 <?php
-$myhost = new \Controllers\Host();
-$reloadableTableOffset = 0;
-
 $id = __ACTUAL_URI__[2];
-
-/**
- *  Open host database
- */
-$myhost->openHostDb($id);
+$hostPackageController = new \Controllers\Host\Package\Package($id);
+$reloadableTableOffset = 0;
 
 /**
  *  Retrieve offset from cookie if exists
@@ -19,12 +13,12 @@ if (!empty($_COOKIE['tables/host/available-packages/offset']) and is_numeric($_C
 /**
  *  Get list of available packages updates, with offset
  */
-$reloadableTableContent = $myhost->getPackagesAvailable(true, $reloadableTableOffset);
+$reloadableTableContent = $hostPackageController->getAvailable(true, $reloadableTableOffset);
 
 /**
  *  Get list of ALL available packages updates, without offset, for the total count
  */
-$reloadableTableTotalItems = count($myhost->getPackagesAvailable());
+$reloadableTableTotalItems = count($hostPackageController->getAvailable());
 
 /**
  *  Count total pages for the pagination
@@ -36,9 +30,4 @@ $reloadableTableTotalPages = ceil($reloadableTableTotalItems / 10);
  */
 $reloadableTableCurrentPage = ceil($reloadableTableOffset / 10) + 1;
 
-/**
- *  Close host database
- */
-$myhost->closeHostDb();
-
-unset($myhost);
+unset($hostPackageController);
