@@ -888,4 +888,12 @@ class Repo
     {
         $this->model->updateSection($repoId, $section);
     }
+
+    /**
+     *  Update source repository in database
+     */
+    public function updateSource(int $repoId, string $source)
+    {
+        $this->model->updateSource($repoId, $source);
+    }
 }

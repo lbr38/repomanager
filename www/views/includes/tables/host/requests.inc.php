@@ -335,8 +335,10 @@
                 /**
                  *  If there was packages updated
                  */
-                if (!empty($successPackages)) : ?>
-                    <p class="label-green"><?= count($successPackages) ?> updated</p>
+                if (!empty($successPackages)) :
+                    $icon = 'update-yellow.svg';
+                    $title = count($successPackages) . ' packages updated';
+                    include(ROOT . '/views/includes/labels/label-icon-tr.inc.php'); ?>
 
                     <div class="grid grid-3 row-gap-5 justify-space-between margin-top-10">
                         <?php
@@ -365,8 +367,10 @@
                 /**
                  *  If there was packages failed
                  */
-                if (!empty($failedPackages)) : ?>
-                    <p class="label-red"><?= count($failedPackages) ?> failed</p>
+                if (!empty($failedPackages)) :
+                    $icon = 'warning-red.svg';
+                    $title = count($failedPackages) . ' packages failed';
+                    include(ROOT . '/views/includes/labels/label-icon-tr.inc.php'); ?>
 
                     <div class="grid grid-3 row-gap-5 justify-space-between margin-top-10">
                         <?php

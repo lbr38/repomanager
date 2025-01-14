@@ -99,7 +99,7 @@ class Host extends \Controllers\Api\Controller
                  *  https://repomanager.mydomain.net/api/v2/host/registering
                  */
                 if ($this->component == 'registering' and $this->method == 'DELETE') {
-                    $myhost->unregister();
+                    $myhost->delete($myhost->getId());
                     return array('message' => array('Host has been deleted.'));
                 }
 

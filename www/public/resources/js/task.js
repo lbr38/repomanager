@@ -191,11 +191,6 @@ $(document).on('click',"input[name=checkbox-repo]",function () {
     var count_checked = $('.reposList').find('input[name=checkbox-repo]:checked').length;
 
     /**
-     *  Define if 'Update' action is available in the action buttons
-     */
-    var updateAction = true;
-
-    /**
      *  If all checkboxes are unchecked then we hide all action buttons
      */
     if (count_checked == 0) {
@@ -206,32 +201,19 @@ $(document).on('click',"input[name=checkbox-repo]",function () {
     }
 
     /**
-     *  If a 'local' repo is checked then we hide the 'update' button
-     */
-    if ($('.reposList').find('input[name=checkbox-repo][repo-type=local]:checked').length > 0) {
-        // TODO: avoid displaying the Update button when a local repo is selected
-        // updateAction = false;
-        // closeConfirmBox();
-    }
-
-    /**
      *  Define confirm box buttons
      */
     var buttons = [];
 
-    // If 'update' action is available then we add the 'update' button. This happens when no 'local' repo is checked
-    if (updateAction) {
-        buttons.push({
+    // Add all other buttons
+    buttons.push(
+        {
             'text': 'Update',
             'color': 'blue-alt',
             'callback': function () {
                 executeAction('update')
             }
-        });
-    }
-
-    // Add all other buttons
-    buttons.push(
+        },
         {
             'text': 'Duplicate',
             'color': 'blue-alt',
@@ -251,6 +233,13 @@ $(document).on('click',"input[name=checkbox-repo]",function () {
             'color': 'blue-alt',
             'callback': function () {
                 executeAction('rebuild');
+            }
+        },
+        {
+            'text': 'Edit',
+            'color': 'blue-alt',
+            'callback': function () {
+                executeAction('edit')
             }
         },
         {
@@ -311,12 +300,21 @@ function executeAction(action)
     var repos = JSON.stringify(repos);
 
     /**
-     *  Get the panel and form for the selected action
+     *  If the action is 'edit', then get the edit panel
      */
-    getPanel('repos/task', {
-        action: action,
-        repos: repos
-    });
+    if (action == 'edit') {
+        getPanel('repos/edit', {
+            repos: repos
+        });
+    /**
+     *  Otherwise, get the task panel for the selected action
+     */
+    } else {
+        getPanel('repos/task', {
+            action: action,
+            repos: repos
+        });
+    }
 }
 
 /**
@@ -420,7 +418,7 @@ $(document).on('click',".task-schedule-btn", function () {
 /**
  *  Event: submit task form
  */
-$(document).on('submit','.task-form',function () {
+$(document).on('submit','#task-form',function () {
     event.preventDefault();
 
      /**
@@ -481,7 +479,7 @@ $(document).on('submit','.task-form',function () {
     var taskParams = [];
 
     /**
-     *  Retrive the parameters entered in the form
+     *  Retrieve the parameters entered in the form
      */
     $(this).find('.task-form-params').each(function () {
         /**
@@ -594,18 +592,16 @@ $(document).on('submit','.task-form',function () {
         true,
         // Print error alert:
         true,
-        // Reload container:
-        [],
-        // Execute functions on success:
-        [
-            'closePanel()',
-            // Uncheck all checkboxes and remove all styles JQuery could have applied
-            "$('.reposList').find('input[name=checkbox-repo]').prop('checked', false);",
-            "$('.reposList').find('input[name=checkbox-repo]').removeAttr('style');",
-            // Reload right panel
-            "reloadContainer('repos/properties')"
-        ]
-    );
+    ).then(function () {
+        closePanel();
+
+        // Uncheck all checkboxes and remove all styles JQuery could have applied
+        $('.reposList').find('input[name=checkbox-repo]').prop('checked', false);
+        $('.reposList').find('input[name=checkbox-repo]').removeAttr('style');
+
+        // Reload right panel
+        reloadContainer('repos/properties');
+    });
 
     return false;
 });

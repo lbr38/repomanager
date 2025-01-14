@@ -1151,4 +1151,21 @@ class Repo extends \Models\Model
 
         unset($stmt);
     }
+
+    /**
+     *  Update source repository in database
+     */
+    public function updateSource(int $repoId, string $source)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE repos SET Source = :source WHERE Id = :repoId");
+            $stmt->bindValue(':source', $source);
+            $stmt->bindValue(':repoId', $repoId);
+            $stmt->execute();
+        } catch (Exception $e) {
+            $this->db->logError($e);
+        }
+
+        unset($stmt);
+    }
 }

@@ -17,7 +17,7 @@ class Request extends \Models\Model
     /**
      *  Add a new request in database
      */
-    public function new(int $hostId, string $request)
+    public function new(int $hostId, string $request) : void
     {
         try {
             $stmt = $this->db->prepare("INSERT INTO requests ('Date', 'Time', 'Request', 'Status', 'Retry', 'Id_host') VALUES (:date, :time, :request, 'new', '0', :hostId)");
@@ -26,7 +26,7 @@ class Request extends \Models\Model
             $stmt->bindValue(':request', $request);
             $stmt->bindValue(':hostId', $hostId);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
@@ -34,7 +34,7 @@ class Request extends \Models\Model
     /**
      *  Return all requests from database
      */
-    public function get(string|null $status)
+    public function get(string|null $status) : array
     {
         $requests = array();
 
@@ -49,7 +49,7 @@ class Request extends \Models\Model
                 $stmt = $this->db->prepare("SELECT * FROM requests ORDER BY Date DESC, Time DESC");
             }
             $result = $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
 
@@ -63,7 +63,7 @@ class Request extends \Models\Model
     /**
      *  Update request in database
      */
-    public function update(int $id, string $status, string $info, string $responseJson)
+    public function update(int $id, string $status, string $info, string $responseJson) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE requests SET Status = :status, Info = :info, Response_json = :responseJson WHERE Id = :id");
@@ -72,7 +72,7 @@ class Request extends \Models\Model
             $stmt->bindValue(':responseJson', $responseJson);
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
@@ -80,14 +80,14 @@ class Request extends \Models\Model
     /**
      *  Update request status in database
      */
-    public function updateStatus(int $id, string $status)
+    public function updateStatus(int $id, string $status) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE requests SET Status = :status WHERE Id = :id");
             $stmt->bindValue(':status', $status);
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
@@ -95,14 +95,14 @@ class Request extends \Models\Model
     /**
      *  Update request info message in database
      */
-    public function updateInfo(int $id, string $info)
+    public function updateInfo(int $id, string $info) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE requests SET Info = :info WHERE Id = :id");
             $stmt->bindValue(':info', $info);
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
@@ -110,14 +110,14 @@ class Request extends \Models\Model
     /**
      *  Update request retry in database
      */
-    public function updateRetry(int $id, int $retry)
+    public function updateRetry(int $id, int $retry) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE requests SET Retry = :retry WHERE Id = :id");
             $stmt->bindValue(':retry', $retry);
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
@@ -125,14 +125,14 @@ class Request extends \Models\Model
     /**
      *  Update request next retry time in database
      */
-    public function updateNextRetry(int $id, string $nextRetry)
+    public function updateNextRetry(int $id, string $nextRetry) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE requests SET Next_retry = :nextRetry WHERE Id = :id");
             $stmt->bindValue(':nextRetry', $nextRetry);
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
@@ -140,13 +140,13 @@ class Request extends \Models\Model
     /**
      *  Cancel request in database
      */
-    public function cancel(int $id)
+    public function cancel(int $id) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE requests SET Status = 'canceled', Info = Info || ' (canceled)' WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
@@ -154,13 +154,13 @@ class Request extends \Models\Model
     /**
      *  Delete request from database
      */
-    public function delete(int $id)
+    public function delete(int $id) : void
     {
         try {
             $stmt = $this->db->prepare("DELETE FROM requests WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
@@ -199,7 +199,7 @@ class Request extends \Models\Model
             $stmt->bindValue(':path', '$.update.' . $status . '.packages."' . $package . '".log');
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
 

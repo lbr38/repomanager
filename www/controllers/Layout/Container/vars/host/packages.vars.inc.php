@@ -1,12 +1,7 @@
 <?php
-$myhost = new \Controllers\Host();
-
 $id = __ACTUAL_URI__[2];
-
-/**
- *  Open host database
- */
-$myhost->openHostDb($id);
+$hostPackageController = new \Controllers\Host\Package\Package($id);
+$myhost = new \Controllers\Host();
 
 /**
  *  Getting hosts general threshold settings
@@ -26,17 +21,12 @@ $pkgs_count_considered_critical = $hosts_settings['pkgs_count_considered_critica
 /**
  *  Getting installed packages and its total
  */
-$packagesInventored = $myhost->getPackagesInventory();
-$packagesInstalledCount = count($myhost->getPackagesInstalled());
+$packagesInventored = $hostPackageController->getInventory();
+$packagesInstalledCount = count($hostPackageController->getInstalled());
 
 /**
  *  Getting available packages and its total
  */
-$packagesAvailableTotal = count($myhost->getPackagesAvailable());
+$packagesAvailableTotal = count($hostPackageController->getAvailable());
 
-/**
- *  Close host database
- */
-$myhost->closeHostDb();
-
-unset($myhost);
+unset($myhost, $hostPackageController);

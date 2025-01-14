@@ -3,6 +3,7 @@ $myhost = new \Controllers\Host();
 $reloadableTableOffset = 0;
 
 $id = __ACTUAL_URI__[2];
+$hostPackageEventController = new \Controllers\Host\Package\Event($id);
 
 /**
  *  Open host database
@@ -19,7 +20,7 @@ if (!empty($_COOKIE['tables/host/history/offset']) and is_numeric($_COOKIE['tabl
 /**
  *  Get list of packages events history, with offset
  */
-$events = $myhost->getEventsHistory(true, $reloadableTableOffset);
+$events = $hostPackageEventController->getHistory(true, $reloadableTableOffset);
 
 /**
  *  For each event, get the installed, updated, downgraded and removed packages
@@ -31,6 +32,11 @@ foreach ($events as $event) {
      *  Getting installed packages from this event
      */
     $event['PackagesInstalled'] = $myhost->getEventPackagesList($event['Id'], 'installed');
+
+    /**
+     *  Getting reinstalled packages from this event
+     */
+    $event['PackagesReinstalled'] = $myhost->getEventPackagesList($event['Id'], 'reinstalled');
 
     /**
      *  Getting isntalled dependencies packages from this event
@@ -68,7 +74,7 @@ $reloadableTableContent = $eventsWithPackages;
 /**
  *  Get list of ALL events, without offset, for the total count
  */
-$reloadableTableTotalItems = count($myhost->getEventsHistory());
+$reloadableTableTotalItems = count($hostPackageEventController->getHistory());
 
 /**
  *  Count total pages for the pagination

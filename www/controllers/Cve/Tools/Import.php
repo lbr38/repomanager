@@ -447,12 +447,12 @@ class Import
                 /**
                  *  Open host database
                  */
-                $myhost->openHostDb($host['Id']);
+                $hostPackageController = new \Controllers\Host\Package\Package($host['Id']);
 
                 /**
                  *  Get list of all installed packages on this host
                  */
-                $installedPackages = $myhost->getPackagesInstalled($host['Id']);
+                $installedPackages = $hostPackageController->getInstalled();
                 $installedPackagesArray = array();
 
                 foreach ($installedPackages as $package) {
@@ -470,11 +470,6 @@ class Import
                     'Os_family' => $hostOsFamily,
                     'Installed_packages' => $installedPackagesArray
                 );
-
-                /**
-                 *  Close host database
-                 */
-                $myhost->closeHostDb();
             }
 
             /**
