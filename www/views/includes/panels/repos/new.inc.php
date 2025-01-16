@@ -1,6 +1,6 @@
 <?php ob_start(); ?>
        
-<form class="task-form" autocomplete="off">
+<form id="task-form" autocomplete="off">
     <div class="task-form-params" repo-id="none" action="create">
         <h6 class="required">PACKAGE TYPE</h6>
         <?php
