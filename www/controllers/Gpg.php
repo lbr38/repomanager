@@ -454,6 +454,7 @@ class Gpg
         curl_setopt($ch, CURLOPT_TIMEOUT, 5);           // set timeout
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // follow redirect
         curl_setopt($ch, CURLOPT_ENCODING, '');         // use compression if any
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE); // output content to return
 
         /**
          *  If a proxy has been specified
