@@ -536,6 +536,23 @@ class Common
     }
 
     /**
+     *  Uncompress specified zstd file 'file.zst' to 'file'
+     */
+    public static function zstdUncompress(string $filename)
+    {
+        $myprocess = new \Controllers\Process('/usr/bin/unzstd ' . $filename);
+        $myprocess->execute();
+        $content = $myprocess->getOutput();
+        $myprocess->close();
+
+        if ($myprocess->getExitCode() != 0) {
+            throw new Exception('Error while uncompressing zstd file ' . $filename . ': ' . $content);
+        }
+
+        unset($myprocess, $content);
+    }
+
+    /**
      *  Return true if distant URL is reachable
      *  The target URL can be a file or a directory
      */

@@ -240,12 +240,15 @@ class Deb extends \Controllers\Repo\Source\Source
          */
         foreach ($fingerprints as $fingerprint) {
             // Ignore fingerprint if already exists
-            foreach ($currentParams['distributions'][$distributionId]['gpgkeys'] as $gpgKeyDefinition) {
-                if (isset($gpgKeyDefinition['fingerprint']) and $gpgKeyDefinition['fingerprint'] == $fingerprint) {
-                    continue 2;
+            if (!empty($currentParams['distributions'][$distributionId]['gpgkeys'])) {
+                foreach ($currentParams['distributions'][$distributionId]['gpgkeys'] as $gpgKeyDefinition) {
+                    if (isset($gpgKeyDefinition['fingerprint']) and $gpgKeyDefinition['fingerprint'] == $fingerprint) {
+                        continue 2;
+                    }
                 }
             }
 
+            // Otherwise add the fingerprint
             $currentParams['distributions'][$distributionId]['gpgkeys'][] = array(
                 'fingerprint' => $fingerprint
             );
