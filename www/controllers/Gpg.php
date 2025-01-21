@@ -306,6 +306,13 @@ class Gpg
             throw new Exception('Invalid URL');
         }
 
+        /**
+         *  If the user specified a URL in the fingerprint field, quit
+         */
+        if (!empty($gpgKeyFingerprint) and preg_match('#^http(s)?://#', $gpgKeyFingerprint)) {
+            throw new Exception('Invalid fingerprint');
+        }
+
         try {
             /**
              *  Import GPG key from URL
@@ -339,12 +346,79 @@ class Gpg
     }
 
     /**
+     *  Import a file-based GPG key
+     */
+    private function importRawContent(string $fileContent) : array
+    {
+        /**
+         *  Quit if user tries to import a GPG from url
+         */
+        if (preg_match('#http(s)?://#', $fileContent)) {
+            throw new Exception('GPG key must be specified in ASCII text format');
+        }
+
+        /**
+         *  Quit if the user tries to import a file on the system
+         */
+        if (file_exists($fileContent)) {
+            throw new Exception('GPG key must be specified in ASCII text format');
+        }
+
+        /**
+         *  Create a temporary file with the ASCII text
+         */
+        $gpgTempFile = TEMP_DIR . '/.repomanager-newgpgkey.tmp';
+        if (!file_put_contents($gpgTempFile, $fileContent)) {
+            throw new Exception('could not initialize GPG import');
+        }
+
+        try {
+            /**
+             *  First, extract the fingerprints from the GPG key (there could be one or multiple)
+             */
+            $myprocess = new Process("/usr/bin/gpg --homedir " . GPGHOME . " --no-default-keyring --keyring " . GPGHOME . "/trustedkeys.gpg --show-keys --with-fingerprint --with-colons " . $gpgTempFile . " | grep '^fpr' | cut -d: -f10");
+            $myprocess->execute();
+            $content = $myprocess->getOutput();
+            $myprocess->close();
+
+            if ($myprocess->getExitCode() != 0) {
+                throw new Exception('could not retrieve fingerprint(s) from GPG key: <br><br><pre class="codeblock">"' . $content . '</pre>');
+            }
+
+            /**
+             *  Output will print all fingerprints on multiple lines (one per fingerprint)
+             */
+            $fingerprints = explode(PHP_EOL, $content);
+
+            /**
+             *  Import file into the repomanager trusted keyring
+             */
+            $myprocess = new \Controllers\Process('/usr/bin/gpg --no-default-keyring --keyring ' . GPGHOME . '/trustedkeys.gpg --import ' . $gpgTempFile);
+            $myprocess->execute();
+            $content = $myprocess->getOutput();
+            $myprocess->close();
+
+            if ($myprocess->getExitCode() != 0) {
+                throw new Exception('<pre class="codeblock margin-top-5">' . $content . '</pre>');
+            }
+
+            return $fingerprints;
+        } finally {
+            /**
+             *  Delete temp file
+             */
+            if (!unlink($gpgTempFile)) {
+                throw new Exception('cannot delete temporary file: ' . $tempFile);
+            }
+        }
+    }
+
+    /**
      *  Import a plain text GPG key
      */
-    public function importPlainText(string $gpgKey)
+    public function importPlainText(string $gpgKey) : array
     {
         $gpgKey = \Controllers\Common::validateData($gpgKey);
-        $gpgTempFile = TEMP_DIR . '/.repomanager-newgpgkey.tmp';
 
         /**
          *  Check if the ASCII text contains invalid characters
@@ -353,62 +427,7 @@ class Gpg
             throw new Exception('ASCII GPG key contains invalid characters');
         }
 
-        /**
-         *  Quit if user tries to import a GPG from url
-         */
-        if (preg_match('#http(s)?://#', $gpgKey)) {
-            throw new Exception('GPG key must be specified in ASCII text format');
-        }
-
-        /**
-         *  Quit if the user tries to import a file on the system
-         */
-        if (file_exists($gpgKey)) {
-            throw new Exception('GPG key must be specified in ASCII text format');
-        }
-
-        /**
-         *  Create a temporary file with the ASCII text
-         */
-        if (!file_put_contents($gpgTempFile, $gpgKey)) {
-            throw new Exception('could not initialize GPG import');
-        }
-
-        /**
-         *  First, extract the fingerprints from the GPG key (there could be one or multiple)
-         */
-        $myprocess = new Process("/usr/bin/gpg --homedir " . GPGHOME . " --no-default-keyring --keyring " . GPGHOME . "/trustedkeys.gpg --show-keys --with-fingerprint --with-colons " . $gpgTempFile . " | grep '^fpr' | cut -d: -f10");
-        $myprocess->execute();
-        $content = $myprocess->getOutput();
-        $myprocess->close();
-
-        if ($myprocess->getExitCode() != 0) {
-            throw new Exception('could not retrieve fingerprint(s) from GPG key: <br><br><pre class="codeblock">"' . $content . '</pre>');
-        }
-
-        /**
-         *  Output will print all fingerprints on multiple lines (one per fingerprint)
-         */
-        $fingerprints = explode(PHP_EOL, $content);
-
-        /**
-         *  Import file into the repomanager trusted keyring
-         */
-        $myprocess = new \Controllers\Process('/usr/bin/gpg --no-default-keyring --keyring ' . GPGHOME . '/trustedkeys.gpg --import ' . $gpgTempFile);
-        $myprocess->execute();
-        $content = $myprocess->getOutput();
-        $myprocess->close();
-
-        /**
-         *  Delete temp file
-         */
-        unlink($gpgTempFile);
-
-        if ($myprocess->getExitCode() != 0) {
-            throw new Exception('<pre class="codeblock margin-top-5">' . $content . '</pre>');
-        }
-
-        return $fingerprints;
+        return $this->importRawContent($gpgKey);
     }
 
     /**
@@ -417,9 +436,6 @@ class Gpg
      */
     public function importFromUrl(string $url) : array
     {
-        $fingerprints = [];
-        $tempFile = TEMP_DIR . '/import-gpgkey.asc';
-
         /**
          *  Quit if the URL is not valid
          */
@@ -436,16 +452,15 @@ class Gpg
          *  Init curl
          */
         $ch = curl_init();
-        $targetFile = fopen($tempFile, 'w');
 
         /**
          *  Download GPG key from URL
          */
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_FILE, $targetFile);    // set output file
         curl_setopt($ch, CURLOPT_TIMEOUT, 5);           // set timeout
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // follow redirect
         curl_setopt($ch, CURLOPT_ENCODING, '');         // use compression if any
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // output content to return
 
         /**
          *  If a proxy has been specified
@@ -454,66 +469,46 @@ class Gpg
             curl_setopt($ch, CURLOPT_PROXY, PROXY);
         }
 
-        if (curl_exec($ch) === false) {
-            /**
-             *  If curl has failed (meaning a curl param might be invalid)
-             */
-            throw new Exception('curl error: ' . curl_error($ch));
+        $result = curl_exec($ch);
 
-            curl_close($ch);
-            fclose($targetFile);
-        }
-
-        /**
-         *  Check that the http return code is 200 (the file has been downloaded)
-         */
-        $status = curl_getinfo($ch);
-
-        if ($status["http_code"] != 200) {
-            /**
-             *  If return code is 404
-             */
-            if ($status["http_code"] == '404') {
-                throw new Exception('404 file not found');
-            } else {
-                throw new Exception('file could not be downloaded (http return code is: ' . $status["http_code"] . ')');
+        try {
+            if ($result === false) {
+                /**
+                 *  If curl has failed (meaning a curl param might be invalid)
+                 */
+                throw new Exception('curl error: ' . curl_error($ch));
             }
 
+            if (empty($result)) {
+                /**
+                 *  If key is empty, meaning bad key
+                 */
+                throw new Exception('empty gpg key response (downloaded file is empty)');
+            }
+
+            /**
+             *  Check that the http return code is 200 (the file has been downloaded)
+             */
+            $status = curl_getinfo($ch);
+
+            if ($status["http_code"] != 200) {
+                /**
+                 *  If return code is 404
+                 */
+                if ($status["http_code"] == '404') {
+                    throw new Exception('404 file not found');
+                } else {
+                    throw new Exception('file could not be downloaded (http return code is: ' . $status["http_code"] . ')');
+                }
+            }
+        } finally {
             curl_close($ch);
-            fclose($targetFile);
-
-            return false;
-        }
-
-        fclose($targetFile);
-        curl_close($ch);
-
-        /**
-         *  Get GPG key content
-         */
-        $gpgKey = file_get_contents($tempFile);
-
-        if ($gpgKey === false) {
-            throw new Exception('error while reading temporary file: ' . $tempFile);
-        }
-
-        if (empty($gpgKey)) {
-            throw new Exception('empty while reading temporary file: ' . $tempFile . ' (file is empty)');
         }
 
         /**
          *  Import GPG key
          */
-        $fingerprints = $this->importPlainText($gpgKey);
-
-        /**
-         *  Delete temp file
-         */
-        if (!unlink($tempFile)) {
-            throw new Exception('cannot delete temporary file: ' . $tempFile);
-        }
-
-        return $fingerprints;
+        return $this->importRawContent($result);
     }
 
     /**

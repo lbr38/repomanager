@@ -99,7 +99,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                     $splittedLine = explode(' ', trim($line));
 
                     /**
-                     *  We only need the location with its SHA256 (64 caracters long)
+                     *  We only need the location with its SHA256 (64 characters long)
                      *  e.g: bd29d2ec28c10fec66a139d8e9a88ca01ff0f2533ca3fab8dc33c13b533059c1  1279885 main/binary-amd64/Packages
                      */
                     if (strlen($splittedLine[0]) == '64') {
@@ -181,7 +181,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                         $splittedLine = explode(' ', trim($line));
 
                         /**
-                         *  We only need the location with its md5sum (32 caracters long)
+                         *  We only need the location with its md5sum (32 characters long)
                          *  e.g: 35e89f49cdfaa179e552aee1d67c5cdb  2478327 main/i18n/Translation-fr.bz2
                          */
                         if (strlen($splittedLine[0]) == '32') {

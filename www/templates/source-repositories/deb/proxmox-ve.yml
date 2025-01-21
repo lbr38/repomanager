@@ -1,0 +1,111 @@
+---
+description: Proxmox Virtual Environment
+type: deb
+repositories:
+  - name: pve-public
+    type: deb
+    description: Proxmox Virtual Environment Public Repositories
+    url: http://download.proxmox.com/debian/pve
+    distributions:
+      - name: bookworm
+        description: PVE 8 for Debian Bookworm
+        components:
+          - name: pve-no-subscription
+          - name: pvetest
+        gpgkeys:
+          - fingerprint: F4E136C67CDCE41AE6DE6FC81140AF8F639E0C39
+          - link: https://enterprise.proxmox.com/debian/proxmox-release-bookworm.gpg
+      - name: bullseye
+        description: PVE 7 for Debian Bullseye
+        components:
+          - name: pve-no-subscription
+          - name: pvetest
+        gpgkeys:
+          - fingerprint: 28139A2F830BD68478A1A01FDD4BA3917E23BF59
+          - link: https://enterprise.proxmox.com/debian/proxmox-release-bullseye.gpg
+      - name: buster
+        description: PVE 6 for Debian Buster
+        components:
+          - name: pve-no-subscription
+          - name: pvetest
+        gpgkeys:
+          - fingerprint: 353479F83781D7F8ED5F5AC57BF2812E8A6E88E0
+          - link: https://enterprise.proxmox.com/debian/proxmox-ve-release-6.x.gpg
+      - name: stretch
+        description: PVE 5 for Debian Stretch
+        components:
+          - name: pve-no-subscription
+          - name: pvetest
+        gpgkeys:
+          - fingerprint: 359E95965E2C3D643159CD300D9A1950E2EF0603
+          - link: https://enterprise.proxmox.com/debian/proxmox-ve-release-5.x.gpg
+      - name: stretch
+        description: PVE 4 for Debian Jessie
+        components:
+          - name: pve-no-subscription
+          - name: pvetest
+        gpgkeys:
+          - fingerprint: BE257BAA5D406D01157D323EC23AC7F49887F95A
+          - link: https://enterprise.proxmox.com/debian/proxmox-ve-release-4.x.gpg
+      - name: stretch
+        description: PVE 3 for Debian Wheezy
+        components:
+          - name: pve-no-subscription
+          - name: pvetest
+        gpgkeys:
+          - fingerprint: BE257BAA5D406D01157D323EC23AC7F49887F95A
+          - link: https://enterprise.proxmox.com/debian/key.asc
+      - name: squeeze
+        description: PVE 2 for Debian Squeeze
+        components:
+          - name: pve
+        gpgkeys:
+          - fingerprint: BE257BAA5D406D01157D323EC23AC7F49887F95A
+          - link: https://enterprise.proxmox.com/debian/key.asc
+  - name: pve-enterprise
+    type: deb
+    description: Proxmox Virtual Environment Enterprise Repositories
+    url: https://enterprise.proxmox.com/debian/pve
+    distributions:
+      - name: bookworm
+        description: PVE 8 for Debian Bookworm
+        components:
+          - name: pve-enterprise
+        gpgkeys:
+          - fingerprint: F4E136C67CDCE41AE6DE6FC81140AF8F639E0C39
+          - link: https://enterprise.proxmox.com/debian/proxmox-release-bookworm.gpg
+      - name: bullseye
+        description: PVE 7 for Debian Bullseye
+        components:
+          - name: pve-enterprise
+        gpgkeys:
+          - fingerprint: 28139A2F830BD68478A1A01FDD4BA3917E23BF59
+          - link: https://enterprise.proxmox.com/debian/proxmox-release-bullseye.gpg
+      - name: buster
+        description: PVE 6 for Debian Buster
+        components:
+          - name: pve-enterprise
+        gpgkeys:
+          - fingerprint: 353479F83781D7F8ED5F5AC57BF2812E8A6E88E0
+          - link: https://enterprise.proxmox.com/debian/proxmox-ve-release-6.x.gpg
+      - name: stretch
+        description: PVE 5 for Debian Stretch
+        components:
+          - name: pve-enterprise
+        gpgkeys:
+          - fingerprint: 359E95965E2C3D643159CD300D9A1950E2EF0603
+          - link: https://enterprise.proxmox.com/debian/proxmox-ve-release-5.x.gpg
+      - name: stretch
+        description: PVE 4 for Debian Jessie
+        components:
+          - name: pve-enterprise
+        gpgkeys:
+          - fingerprint: BE257BAA5D406D01157D323EC23AC7F49887F95A
+          - link: https://enterprise.proxmox.com/debian/proxmox-ve-release-4.x.gpg
+      - name: stretch
+        description: PVE 3 for Debian Wheezy
+        components:
+          - name: pve-enterprise
+        gpgkeys:
+          - fingerprint: BE257BAA5D406D01157D323EC23AC7F49887F95A
+          - link: https://enterprise.proxmox.com/debian/key.asc

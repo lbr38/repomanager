@@ -21,6 +21,7 @@ try {
     $lists = [
         // deb
         'github/deb/debian',
+        'github/deb/debian', // TODO temporary fix: import the same source twice to avoid a bug with gpg initialization, to fix
         'github/deb/debian-archive',
         'github/deb/ubuntu',
         'github/deb/ubuntu-archive',

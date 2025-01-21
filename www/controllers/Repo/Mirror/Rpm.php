@@ -452,13 +452,18 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             } elseif ($mime == 'application/gzip') {
                 \Controllers\Common::gunzip($primaryFile);
             /**
+             *  Case mime type is application/zstd (.gz file)
+             */
+            } elseif ($mime == 'application/zstd') {
+                \Controllers\Common::zstdUncompress($primaryFile);
+            /**
              *  Case it's another mime type, throw an error
              */
             } else {
                 throw new Exception('MIME type not supported: ' . $mime . '. Please contact the developer to add support for this MIME type.');
             }
         } catch (Exception $e) {
-            throw new Exception($e, 'Error while uncompressing <code>'. end(explode('/', $primaryFile)) . '</code>');
+            throw new Exception('Error while uncompressing <code>'. end(explode('/', $primaryFile)) . '</code>: <pre class="codeblock">' . $e->getMessage() . '</pre>');
         }
 
         /**

@@ -28,9 +28,11 @@ class Rpm extends \Controllers\Repo\Source\Source
         /**
          *  Check that a release version with the same name does not already exist
          */
-        foreach ($currentParams['releasever'] as $releasever) {
-            if ($releasever['name'] == $name) {
-                throw new Exception('Release version ' . $name . ' already exists');
+        if (!empty($currentParams['releasever'])) {
+            foreach ($currentParams['releasever'] as $releasever) {
+                if ($releasever['name'] == $name) {
+                    throw new Exception('Release version ' . $name . ' already exists');
+                }
             }
         }
 
@@ -156,12 +158,15 @@ class Rpm extends \Controllers\Repo\Source\Source
          */
         foreach ($fingerprints as $fingerprint) {
             // Ignore fingerprint if already exists
-            foreach ($currentParams['releasever'][$releaseverId]['gpgkeys'] as $gpgKeyDefinition) {
-                if (isset($gpgKeyDefinition['fingerprint']) and $gpgKeyDefinition['fingerprint'] == $fingerprint) {
-                    continue 2;
+            if (!empty($currentParams['releasever'][$releaseverId]['gpgkeys'])) {
+                foreach ($currentParams['releasever'][$releaseverId]['gpgkeys'] as $gpgKeyDefinition) {
+                    if (isset($gpgKeyDefinition['fingerprint']) and $gpgKeyDefinition['fingerprint'] == $fingerprint) {
+                        continue 2;
+                    }
                 }
             }
 
+            // Otherwise add the fingerprint
             $currentParams['releasever'][$releaseverId]['gpgkeys'][] = array(
                 'fingerprint' => $fingerprint
             );

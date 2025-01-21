@@ -213,6 +213,7 @@ pre.codeblock {
 .min-height-100 {min-height: 100px}.min-height-200 {min-height: 200px}.min-height-300 {min-height: 300px}.min-height-400 {min-height: 400px}.min-height-500 {min-height: 500px}.min-height-600 {min-height: 600px}.min-height-700 {min-height: 700px}.min-height-800 {min-height: 800px}.min-height-900 {min-height: 900px}.min-height-1000 {min-height: 1000px}
 .min-width-100 {min-width: 100px}.min-width-200 {min-width: 200px}.min-width-300 {min-width: 300px}.min-width-400 {min-width: 400px}.min-width-500 {min-width: 500px}.min-width-600 {min-width: 600px}.min-width-700 {min-width: 700px}.min-width-800 {min-width: 800px}.min-width-900 {min-width: 900px}.min-width-1000 {min-width: 1000px}
 .width-100{width:100%}
+.height-100{height:100%}
 .max-width-fit{max-width:fit-content}
 .resize-disabled{resize:none;}
 
@@ -344,6 +345,10 @@ td {
 /**
  *  Forms, button, input, textarea
  */
+input {
+    accent-color: #15bf7f;
+}
+
 input[type=text], input[type=date], input[type=time], input[type=number], input[type=email], input[type=password], input[type=color], input[type=file], select {
     width: 100%;
     height: 35px;
