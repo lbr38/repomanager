@@ -399,7 +399,7 @@ $(document).on('click',".task-schedule-btn", function () {
     /**
      *  Find parent task-form
      */
-    var form = $(this).parents('.task-form');
+    var form = $(this).parents('#task-form');
 
     /**
      *  Change button text and color if schedule is checked
