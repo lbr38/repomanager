@@ -27,6 +27,10 @@ if [ ! -z "$MAX_UPLOAD_SIZE" ];then
     sed -i "s/^post_max_size.*$/post_max_size = ${MAX_UPLOAD_SIZE}/g" /etc/php/8.3/fpm/php.ini
 fi
 
+if [ ! -z "$PHP_MEMORY_LIMIT" ];then
+    sed -i "s/^memory_limit.*$/memory_limit = ${PHP_MEMORY_LIMIT}/g" /etc/php/8.3/fpm/php.ini
+fi
+
 # Start services
 if [ -f "/etc/init.d/syslog-ng" ];then
     /usr/sbin/service syslog-ng start

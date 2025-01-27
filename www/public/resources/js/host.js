@@ -264,14 +264,14 @@ function searchHost()
 }
 
 /**
- *  Rechercher les hôtes possédant un paquet
+ *  Research hosts with a package
  */
 var getHostsWithPackage_locked = false;
 
 function getHostsWithPackage()
 {
     /**
-     *  Si une recherche est déjà en cours, on sort
+     *  If a search is already in progress, exit
      */
     if (getHostsWithPackage_locked === true) {
         return;
@@ -282,8 +282,7 @@ function getHostsWithPackage()
     printLoading();
 
     /**
-     *  A chaque saisie on (ré)-affiche tous les éléments masquées
-     *  et on supprime les éventuelles infos dans le 'host-additionnal-info'
+     *  On every input, (re)-display all hidden elements and remove any info in 'host-additionnal-info'
      */
     $('.hosts-group-container').show();
     $('.host-line').show();
@@ -291,25 +290,25 @@ function getHostsWithPackage()
     $('div.host-additionnal-info').hide();
 
     /**
-     *  On utilise un setTimeout pour laisser le temps à l'utilisateur de terminer sa saisie avant de rechercher
+     *  Use a setTimeout to give the user time to finish typing before searching
      */
     setTimeout(function () {
         /**
-             *  Si l'input est vide, on quitte
-             */
+         *  If the input is empty, quit
+         */
         if (!$("#getHostsWithPackageInput").val()) {
             getHostsWithPackage_locked = false;
             return;
         }
 
         /**
-         *  Récupération du terme recherché dans l'input
+         *  Retrieve the search term from the input
          */
         var package = $("#getHostsWithPackageInput").val();
         var hosts = [];
 
         /**
-         *  Pour chaque id, on fait appel à la fonction getHostsWithPackage pour vérifier si le paquet existe sur l'hôte
+         *  For each Id, call the getHostsWithPackageAjax function to check if the package exists on the host
          */
         $('.hosts-table').find(".host-line").each(function () {
             var hostid = $(this).attr('hostid');
@@ -974,54 +973,52 @@ $(document).on('mouseleave', '.event-packages-details', function () {
  */
 function getHostsWithPackageAjax(hosts, package)
 {
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "host",
-            action: "getHostsWithPackage",
+    ajaxRequest(
+        // Controller:
+        'host',
+        // Action:
+        'getHostsWithPackage',
+        // Data:
+        {
             hostsIdArray: hosts,
             package: package
         },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            const hostsArray = jQuery.parseJSON(jsonValue.message);
+        // Print success alert:
+        false,
+        // Print error alert:
+        true
+    ).then(() => {
+        const hostsArray = jQuery.parseJSON(jsonValue.message);
 
-            for (const [hostId, subArray] of Object.entries(hostsArray)) {
-                packagesFound = '';
+        for (const [hostId, subArray] of Object.entries(hostsArray)) {
+            packagesFound = '';
+
+            /**
+             *  If package found
+             */
+            if (Object.keys(subArray).length > 0) {
+                for (const [packageName, packageVersion] of Object.entries(subArray)) {
+                    /**
+                     *  Build package list
+                     */
+                    packagesFound += '<div class="flex align-item-center column-gap-5"><img src="/assets/icons/package.svg" class="icon-np">   <span>' + packageName + ' (' + packageVersion + ')</span></div>';
+                }
 
                 /**
-                 *  If package found
+                 *  Show the host and print the package(s) found
                  */
-                if (Object.keys(subArray).length > 0) {
-                    for (const [packageName, packageVersion] of Object.entries(subArray)) {
-                        /**
-                         *  Build package list
-                         */
-                        packagesFound += '<div class="flex align-item-center column-gap-5"><img src="/assets/icons/package.svg" class="icon-np">   <span>' + packageName + ' (' + packageVersion + ')</span></div>';
-                    }
-
-                    /**
-                     *  Show the host and print the package(s) found
-                     */
-                    $('.host-line[hostid=' + hostId + ']').find('div.host-additionnal-info').html('<h6>RESULTS</h6>' + packagesFound);
-                    $('.host-line[hostid=' + hostId + ']').find('div.host-additionnal-info').css('display', 'flex');
-                    $('.host-line[hostid=' + hostId + ']').show();
-                } else {
-                    /**
-                     *  Else hide the host
-                     */
-                    $('.host-line[hostid=' + hostId + ']').hide();
-                }
+                $('.host-line[hostid=' + hostId + ']').find('div.host-additionnal-info').html('<h6>RESULTS</h6>' + packagesFound);
+                $('.host-line[hostid=' + hostId + ']').find('div.host-additionnal-info').css('display', 'flex');
+                $('.host-line[hostid=' + hostId + ']').show();
+            } else {
+                /**
+                 *  Else hide the host
+                 */
+                $('.host-line[hostid=' + hostId + ']').removeClass('flex').hide();
             }
+        }
 
-            hideGroupDiv();
-        },
-        error: function (jqXHR, textStatus, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
+        hideGroupDiv();
     });
 }
 
