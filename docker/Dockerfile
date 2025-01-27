@@ -14,6 +14,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG env
 ARG fqdn
 ARG max_upload_size
+ARG php_memory_limit="256M"
 
 # PACKAGES INSTALL
 
@@ -54,6 +55,7 @@ RUN cp /tmp/repomanager/docker/config/php/www.conf /etc/php/8.3/fpm/pool.d/www.c
 RUN cp /tmp/repomanager/docker/config/php/opcache.ini /etc/php/8.3/mods-available/opcache.ini
 RUN sed -i "s/^upload_max_filesize.*$/upload_max_filesize = $max_upload_size/g" /etc/php/8.3/fpm/php.ini
 RUN sed -i "s/^post_max_size.*$/post_max_size = $max_upload_size/g" /etc/php/8.3/fpm/php.ini
+RUN sed -i "s/^memory_limit.*$/memory_limit = $php_memory_limit/g" /etc/php/8.3/fpm/php.ini
 
 # Configure SQLite
 RUN echo ".headers on" > /root/.sqliterc

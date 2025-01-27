@@ -29,8 +29,9 @@ if (IS_ADMIN) : ?>
                     <input type="hidden" name="snapId" value="<?= $snapId ?>" />
 
                     <h6 class="margin-top-0">SELECT PACKAGES TO UPLOAD</h6>
-                    <p class="note">Valid MIME types: <code class="font-size-11">application/x-rpm</code> and <code class="font-size-11">application/vnd.debian.binary-package</code>
-                    </p>
+                    <p class="note">Max upload size: <?= ini_get('upload_max_filesize') ?></p>
+                    <p class="note">Valid MIME types: <code class="font-size-11">application/x-rpm</code> and <code class="font-size-11">application/vnd.debian.binary-package</code></p>
+
                     <br>
                     <input type="file" name="packages[]" accept="application/vnd.debian.binary-package" multiple />
                     
