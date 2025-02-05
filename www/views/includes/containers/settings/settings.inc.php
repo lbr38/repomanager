@@ -402,6 +402,92 @@
         </form>
     </div>
 
+    <?php
+    if (IS_SUPERADMIN) : ?>
+    <h3>SSO (OpenID Connect)</h3>
+
+    <div class="div-generic-blue">
+        <form class="settings-form" autocomplete="off">
+            <h6 class="margin-top-0">Enable SSO</h6>
+            <p class="note">Enable sso login via OpenID Connect</p>
+            <label class="onoff-switch-label">
+                <input class="settings-param onoff-switch-input" param-name="oidcEnable" type="checkbox" value="true" <?php echo (OIDC_ENABLED == "true") ? 'checked' : ''; ?>>
+                <span class="onoff-switch-slider"></span>
+            </label>
+
+            <?php
+            if (OIDC_ENABLED == 'true') : ?>
+                <h6 class="margin-top-0">Login only via SSO</h6>
+                <p class="note">Allow login only via OpenID Connect, will disable local login</p>
+                <label class="onoff-switch-label">
+                    <input class="settings-param onoff-switch-input" param-name="ssoOidcOnly" type="checkbox" value="true" <?php echo (SSO_OIDC_ONLY == "true") ? 'checked' : ''; ?>>
+                    <span class="onoff-switch-slider"></span>
+                </label>
+
+                <h6 class="margin-top-0">Provider URL</h6>
+                <p class="note">Provider URL, used for Autodiscovery</p>
+                <input class="settings-param" param-name="oidcProviderUrl" type="text" value="<?= OIDC_PROVIDER_URL ?>">
+
+                <h6 class="margin-top-0">Authorization Endpoint</h6>
+                <p class="note">Override Authorization Endpoint (Leave empty for Autodiscovery)</p>
+                <input class="settings-param" param-name="oidcAuthorizationEndpoint" type="text" value="<?= OIDC_AUTHORIZATION_ENDPOINT ?>">
+
+                <h6 class="margin-top-0">Token Endpoint</h6>
+                <p class="note">Override Token Endpoint (Leave empty for Autodiscovery)</p>
+                <input class="settings-param" param-name="oidcTokenEndpoint" type="text" value="<?= OIDC_TOKEN_ENDPOINT ?>">
+
+                <h6 class="margin-top-0">Userinfo Endpoint</h6>
+                <p class="note">Override Userinfo Endpoint (Leave empty for Autodiscovery)</p>
+                <input class="settings-param" param-name="oidcUserinfoEndpoint" type="text" value="<?= OIDC_USERINFO_ENDPOINT ?>">
+
+                <h6 class="margin-top-0">Scopes</h6>
+                <p class="note">Additional OIDC Scopes (openid already present)</p>
+                <input class="settings-param" param-name="oidcScopes" type="text" value="<?= OIDC_SCOPES ?>">
+
+                <h6 class="margin-top-0">Client ID</h6>
+                <p class="note">Client ID</p>
+                <input class="settings-param" param-name="oidcClientId" type="text" value="<?= OIDC_CLIENT_ID ?>">
+
+                <h6 class="margin-top-0">Client Secret</h6>
+                <p class="note">Client Secret</p>
+                <input class="settings-param" param-name="oidcClientSecret" type="password" value="<?= OIDC_CLIENT_SECRET ?>">
+
+                <h6 class="margin-top-0">Username claim</h6>
+                <p class="note">OIDC Claim for username</p>
+                <input class="settings-param" param-name="oidcUsername" type="text" value="<?= OIDC_USERNAME ?>">
+
+                <h6 class="margin-top-0">First Name</h6>
+                <p class="note">OIDC Claim for First Name</p>
+                <input class="settings-param" param-name="oidcFirstName" type="text" value="<?= OIDC_FIRST_NAME ?>">
+
+                <h6 class="margin-top-0">Last Name</h6>
+                <p class="note">OIDC Claim for Last Name</p>
+                <input class="settings-param" param-name="oidcLastName" type="text" value="<?= OIDC_LAST_NAME ?>">
+
+                <h6 class="margin-top-0">Email</h6>
+                <p class="note">OIDC Claim for Email</p>
+                <input class="settings-param" param-name="oidcEmail" type="text" value="<?= OIDC_EMAIL ?>">
+
+                <h6 class="margin-top-0">Groups</h6>
+                <p class="note">OIDC Claim for Groups / Roles</p>
+                <input class="settings-param" param-name="oidcGroups" type="text" value="<?= OIDC_GROUPS ?>">
+
+                <h6 class="margin-top-0">Group Administrator</h6>
+                <p class="note">Groups value for Administrator</p>
+                <input class="settings-param" param-name="oidcGroupAdministrator" type="text" value="<?= OIDC_GROUP_ADMINISTRATOR ?>">
+
+                <h6 class="margin-top-0">Group Super Administrator</h6>
+                <p class="note">Groups value for Super Administrator</p>
+                <input class="settings-param" param-name="oidcGroupSuperAdministrator" type="text" value="<?= OIDC_GROUP_SUPER_ADMINISTRATOR ?>">
+                <?php
+            endif;
+    endif;
+    ?>
+
+            <button class="hide" type="submit"></button>
+        </form>
+    </div>
+
     <form class="settings-form" autocomplete="off">
         <button type="submit" class="btn-medium-green">Save</button>
     </form>

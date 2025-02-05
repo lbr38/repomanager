@@ -188,7 +188,7 @@ class Login
         /**
          *  Insert new user in database
          */
-        $this->model->addUser($username, $hashedPassword, $role);
+        $this->model->addUserLocal($username, $hashedPassword, $role);
 
         $myhistory = new \Controllers\History();
         $myhistory->set($_SESSION['username'], "Created user: <b>$username</b>", 'success');
@@ -197,6 +197,59 @@ class Login
          *  Return temporary generated password
          */
         return $password;
+    }
+
+    public function addUserSSO(string $username, ?string $firstName, ?string $lastName, ?string $email, string $role): void
+    {
+        $username = Common::validateData($username);
+        $firstName = Common::validateData($firstName);
+        $lastName = Common::validateData($lastName);
+        $email = Common::validateData($email);
+
+        if ($firstName == null) {
+            $firstName = $username;
+        }
+
+        /**
+         *  Check that email is a valid email address
+         */
+        if (Common::validateMail($email) === false) {
+            $email = null;
+        }
+
+        /**
+         *  Check that username does not contain invalid characters
+         */
+        if (Common::isAlphanumDash($username, ['@', '.']) === false) {
+            throw new Exception('Username cannot contain special characters except hyphen, underscore, at symbol and dot');
+        }
+
+        /**
+         *  Check that username does not already exist
+         */
+        if ($this->userExistsLocal($username) === true) {
+            throw new Exception('Username <b>' . $username . '</b> already exists (local)');
+        }
+
+        /**
+         *  Converting role as Id
+         */
+        if ($role == "super-administrator") {
+            $role = 1;
+        }
+        if ($role == "administrator") {
+            $role = 2;
+        }
+        if ($role == "usage") {
+            $role = 3;
+        }
+
+        if ($this->model->userExists($username) === true) {
+            $this->model->edit($username, $firstName, $lastName, $email);
+            $this->model->updateRole($username, $role);
+        } else {
+            $this->model->addUserSSO($username, $firstName, $lastName, $email, $role);
+        }
     }
 
     /**
@@ -209,7 +262,7 @@ class Login
         /**
          *  Check that user exists in database
          */
-        if ($this->userExists($username) !== true) {
+        if ($this->userExistsLocal($username) !== true) {
             throw new Exception('Invalid login and/or password');
         }
 
@@ -262,8 +315,8 @@ class Login
         /**
          *  Check that user exists
          */
-        if (!$this->userExists($username)) {
-            throw new Exception("User <b>$username</b> does not exist");
+        if (!$this->userExistsLocal($username)) {
+            throw new Exception("User <b>$username</b> does not exist (local)");
         }
 
         /**
@@ -292,8 +345,8 @@ class Login
         /**
          *  Check that user exists
          */
-        if ($this->userExists($username) !== true) {
-            throw new Exception("User <b>$username</b> does not exist");
+        if ($this->userExistsLocal($username) !== true) {
+            throw new Exception("User <b>$username</b> does not exist (local)");
         }
 
         /**
@@ -530,6 +583,14 @@ class Login
 
         $myhistory = new \Controllers\History();
         $myhistory->set($_SESSION['username'], "Delete user <b>$username</b>", 'success');
+    }
+
+    /**
+     *  Check if user exists in database and is local
+     */
+    public function userExistsLocal(string $username): bool
+    {
+        return $this->model->userExists($username, 'local');
     }
 
     /**
