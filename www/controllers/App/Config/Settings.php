@@ -101,6 +101,22 @@ class Settings
             }
         }
 
+        if (!defined('TASK_QUEUING')) {
+            if (!empty($settings['TASK_QUEUING'])) {
+                define('TASK_QUEUING', $settings['TASK_QUEUING']);
+            } else {
+                define('TASK_QUEUING', 'false');
+            }
+        }
+
+        if (!defined('TASK_QUEUING_MAX_SIMULTANEOUS')) {
+            if (!empty($settings['TASK_QUEUING_MAX_SIMULTANEOUS'])) {
+                define('TASK_QUEUING_MAX_SIMULTANEOUS', $settings['TASK_QUEUING_MAX_SIMULTANEOUS']);
+            } else {
+                define('TASK_QUEUING_MAX_SIMULTANEOUS', 2);
+            }
+        }
+
         if (!defined('TASK_EXECUTION_MEMORY_LIMIT')) {
             if (!empty($settings['TASK_EXECUTION_MEMORY_LIMIT'])) {
                 define('TASK_EXECUTION_MEMORY_LIMIT', $settings['TASK_EXECUTION_MEMORY_LIMIT']);

@@ -49,8 +49,26 @@
             <p class="note">Specify the proxy URL to use to access the internet. e.g. https://myproxy.com:8080</p>
             <input class="settings-param" param-name="proxy" type="text" value="<?= PROXY ?>" placeholder="https://">
 
+            <br><br>
+            <h5>TASK EXECUTION</h5>
+
+            <h6>TASK QUEUING</h6>
+            <p class="note">Enable or disable the task queuing.</p>
+            <label class="onoff-switch-label">
+                <input class="settings-param onoff-switch-input" param-name="task-queuing" type="checkbox" value="true" <?php echo (TASK_QUEUING == "true") ? 'checked' : ''; ?>>
+                <span class="onoff-switch-slider"></span>
+            </label>
+
+            <?php
+            if (TASK_QUEUING == 'true') : ?>
+                <h6>MAXIMUM NUMBER OF SIMULTANEOUS TASKS</h6>
+                <p class="note">Maximum number of tasks that can run simultaneously. The other tasks will be queued.</p>
+                <input class="settings-param" param-name="task-queuing-max-simultaneous" type="number" min="1" value="<?= TASK_QUEUING_MAX_SIMULTANEOUS ?>" placeholder="default is 2">
+                <?php
+            endif ?>
+
             <h6 class="required">TASK EXECUTION MEMORY LIMIT (in MB)</h6>
-            <p class="note">Set PHP memory limit for tasks execution. It is recommended to set this value to a higher value when mirroring large repositories.</p>
+            <p class="note">Set PHP memory limit for task execution. It is recommended to set this value to a higher value when mirroring large repositories.</p>
             <input class="settings-param" param-name="task-execution-memory-limit" type="number" min="2" value="<?= TASK_EXECUTION_MEMORY_LIMIT ?>" placeholder="default is 512">
 
             <button class="hide" type="submit"></button>

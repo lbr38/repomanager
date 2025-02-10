@@ -146,10 +146,15 @@ class ScheduledTask extends Service
                 echo $this->getDate() . ' Launching scheduled task #' . $taskId . '...' . PHP_EOL;
 
                 try {
+                    // Add the scheduled task to the queue and execute it
+                    $this->taskController->updateStatus($taskId, 'queued');
                     $this->taskController->executeId($taskId);
                 } catch (Exception $e) {
                     $this->logController->log('error', 'Service', 'Error while launching scheduled task: ' . $e->getMessage());
                 }
+
+                // Let some time between each task, to make sure the queue system works properly
+                sleep(1);
             }
         }
     }
