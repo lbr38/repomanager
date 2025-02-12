@@ -48,5 +48,3 @@ No roadmap, just a todolist with some bug reports and ideas you can find <a href
 - For bug reports, issues or features requests, please open a new issue in the Github ``Issues`` section
 - A Discord channel is available <a href="https://discord.gg/34yeNsMmkQ">here</a> for any questions or quick help/debugging (English or French spoken)
 - You can also contact me at <a href="mailto:repomanager@protonmail.com">repomanager@protonmail.com</a> (English or French spoken)
-
-test
