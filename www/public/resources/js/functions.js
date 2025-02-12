@@ -570,6 +570,9 @@ function getGetParams()
     return array;
 }
 
+/**
+ * Return true if the value is empty
+ */
 function empty(value)
 {
     // Check if the value is null or undefined

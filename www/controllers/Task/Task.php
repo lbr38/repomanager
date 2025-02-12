@@ -157,6 +157,16 @@ class Task
     }
 
     /**
+     *  List all queued tasks
+     *  It is possible to filter the type of task ('immediate' or 'scheduled')
+     *  It is possible to add an offset to the request
+     */
+    public function listQueued(string $type = '', bool $withOffset = false, int $offset = 0)
+    {
+        return $this->model->listQueued($type, $withOffset, $offset);
+    }
+
+    /**
      *  List all running tasks
      *  It is possible to filter the type of task ('immediate' or 'scheduled')
      *  It is possible to add an offset to the request
@@ -281,17 +291,18 @@ class Task
     {
         /**
          *  Default values
-         *  By default the task is new and immediate
+         *  By default the task is immediate and is queued
          */
-        $status = 'new';
-        $type   = 'immediate';
+        $type = 'immediate';
+        $status = 'queued';
 
         /**
-         *  If task is scheduled
+         *  If task is scheduled then overwrite the type and status
+         *  Task is not queued immediately, it will be queued at the scheduled time (when the service will launch the task)
          */
         if ($params['schedule']['scheduled'] == 'true') {
+            $type = 'scheduled';
             $status = 'scheduled';
-            $type   = 'scheduled';
         }
 
         /**
@@ -325,10 +336,16 @@ class Task
             }
         }
 
+        try {
+            $paramsJson = json_encode($params, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            throw new Exception('Could not encode task parameters: ' . $e->getMessage());
+        }
+
         /**
          *  Add the task in database
          */
-        $taskId = $this->model->new($type, json_encode($params), $status);
+        $taskId = $this->model->new($type, $paramsJson, $status);
 
         return $taskId;
     }
@@ -548,6 +565,10 @@ class Task
      */
     public function relaunch(int $id)
     {
+        if (!IS_ADMIN) {
+            throw new Exception('You are not allowed to relaunch a task');
+        }
+
         /**
          *  First, duplicate task in database
          */
@@ -574,6 +595,10 @@ class Task
      */
     public function kill(string $taskId)
     {
+        if (!IS_ADMIN) {
+            throw new Exception('You are not allowed to relaunch a task');
+        }
+
         if (!file_exists(PID_DIR . '/' . $taskId . '.pid')) {
             throw new Exception('Specified task PID does not exist');
         }
@@ -738,7 +763,7 @@ class Task
     }
 
     /**
-     *  Enable a task
+     *  Enable a recurrent task
      */
     public function enable(int $id)
     {
@@ -746,7 +771,7 @@ class Task
     }
 
     /**
-     *  Disable a task
+     *  Disable a recurrent task
      */
     public function disable(int $id)
     {

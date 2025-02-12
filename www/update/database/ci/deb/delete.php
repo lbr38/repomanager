@@ -18,6 +18,6 @@ $rawParams['schedule'] = [
     'schedule-recipient' => ['']
 ];
 
-$stmt = $this->db->prepare("INSERT INTO tasks (Type, Raw_params, Status) VALUES ('immediate', :rawParams, 'new');");
+$stmt = $this->db->prepare("INSERT INTO tasks (Type, Raw_params, Status) VALUES ('immediate', :rawParams, 'queued');");
 $stmt->bindParam(':rawParams', json_encode($rawParams));
 $stmt->execute();

@@ -272,9 +272,9 @@ $(document).on('click','.enable-scheduled-task-btn',function (e) {
 });
 
 /**
- *  Event: cancel scheduled task
+ *  Event: cancel unlaunched task
  */
-$(document).on('click','.cancel-scheduled-task-btn',function (e) {
+$(document).on('click','.cancel-task-btn',function (e) {
     // Prevent parent to be triggered
     e.stopPropagation();
 
@@ -282,7 +282,7 @@ $(document).on('click','.cancel-scheduled-task-btn',function (e) {
 
     confirmBox(
         {
-            'title': 'Cancel and delete scheduled task',
+            'title': 'Cancel task',
             'message': 'Are you sure you want to cancel and delete this task?',
             'buttons': [
             {

@@ -1,6 +1,10 @@
 <div class="reloadable-table" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
     <?php
     if (!empty($reloadableTableContent)) :
+        if (!empty($taskTableTitle)) {
+            echo '<h6 class="margin-top-0 margin-bottom-5">' . $taskTableTitle . '</h6>';
+        }
+
         foreach ($reloadableTableContent as $item) :
             $headerColor = '';
 
@@ -12,8 +16,8 @@
             /**
              *  If the current task item was made in a scheduled task, we display the scheduled task header
              */
-            if ($item['Type'] == 'scheduled' and $item['Status'] == 'scheduled') {
-                $headerColor = 'header-light-blue';
+            if ($item['Status'] == 'scheduled' or $item['Status'] == 'queued') {
+                $headerColor = 'header-blue-min';
             }
 
             $tableClass = 'table-container grid-40p-45p-10p column-gap-10 justify-space-between pointer show-task-btn ' . $headerColor; ?>
@@ -75,19 +79,14 @@
                     </div>
 
                     <div class="flex flex-direction-column row-gap-4">
-                        <span>
-                            <b>
-                                <?php
-                                /**
-                                 *  If task is immediate, display the date and time
-                                 */
-                                if (!empty($item['Date']) and !empty($item['Time'])) :
-                                    echo DateTime::createFromFormat('Y-m-d', $item['Date'])->format('d-m-Y') . ' ' . $item['Time'];
-                                endif ?>
-                            </b>
-                        </span>
-
                         <?php
+                        /**
+                         *  If task is immediate, display the date and time
+                         */
+                        if (!empty($item['Date']) and !empty($item['Time'])) :
+                            echo '<span><b>' . DateTime::createFromFormat('Y-m-d', $item['Date'])->format('d-m-Y') . ' ' . $item['Time'] . '</b></span>';
+                        endif;
+
                         /**
                          *  If task is scheduled
                          */
@@ -155,6 +154,13 @@
                 <div class="flex align-item-center justify-end column-gap-10 row-gap-10 flex-wrap">
                     <?php
                     /**
+                     *  Delete task button, only for scheduled and queued tasks
+                     */
+                    if ($item['Status'] == 'scheduled' or $item['Status'] == 'queued') {
+                        echo '<img class="icon-lowopacity cancel-task-btn" src="/assets/icons/delete.svg" task-id="' . $item['Id'] . '" title="Cancel and delete scheduled task" />';
+                    }
+
+                    /**
                      *  If task is a scheduled task
                      */
                     if ($item['Type'] == 'scheduled') {
@@ -179,19 +185,8 @@
                         }
 
                         /**
-                         *  Delete task button
-                         */
-                        if ($item['Status'] == 'scheduled') {
-                            echo '<img class="icon-lowopacity cancel-scheduled-task-btn" src="/assets/icons/delete.svg" task-id="' . $item['Id'] . '" title="Cancel and delete scheduled task" />';
-                        }
-
-                        /**
                          *  Task status icon
                          */
-                        if ($item['Status'] == 'scheduled') {
-                            echo '<img class="icon-np" src="/assets/icons/pending.svg" title="Task is scheduled" />';
-                        }
-
                         if ($item['Status'] == 'disabled') {
                             echo '<img class="icon-np" src="/assets/icons/warning.svg" title="Task execution is disabled" />';
                         }
@@ -202,6 +197,10 @@
                      */
                     if ($item['Status'] == 'error' or $item['Status'] == 'stopped' and !empty($item['Id']) and IS_ADMIN) {
                         echo '<img class="icon-lowopacity relaunch-task-btn" src="/assets/icons/update.svg" task-id="' . $item['Id'] . '" title="Relaunch this task with the same parameters." />';
+                    }
+
+                    if ($item['Status'] == 'scheduled' or $item['Status'] == 'queued') {
+                        echo '<img class="icon-np" src="/assets/icons/pending.svg" title="Task is pending" />';
                     }
 
                     if ($item['Status'] == 'running') {
@@ -261,19 +260,19 @@
                                 <p>
                                     <?php
                                     if ($taskRawParams['schedule']['schedule-frequency'] == 'hourly') {
-                                        echo 'Hourly';
+                                        echo 'Every hour';
                                     }
 
                                     if ($taskRawParams['schedule']['schedule-frequency'] == 'daily') {
-                                        echo 'Daily: every day at ' . $taskRawParams['schedule']['schedule-time'] . ':00';
+                                        echo 'Every day at ' . $taskRawParams['schedule']['schedule-time'] . ':00';
                                     }
 
                                     if ($taskRawParams['schedule']['schedule-frequency'] == 'weekly') {
-                                        echo 'Weekly: every week on ' . implode(', ', $taskRawParams['schedule']['schedule-day']) . ' at ' . $taskRawParams['schedule']['schedule-time'] . ':00';
+                                        echo 'Every week on ' . implode(', ', $taskRawParams['schedule']['schedule-day']) . ' at ' . $taskRawParams['schedule']['schedule-time'] . ':00';
                                     }
 
                                     if ($taskRawParams['schedule']['schedule-frequency'] == 'monthly') {
-                                        echo 'Monthly: every ' . $taskRawParams['schedule']['schedule-monthly-day-position'] . ' ' . $taskRawParams['schedule']['schedule-monthly-day'] . ' of each month at ' . $taskRawParams['schedule']['schedule-time'] . ':00';
+                                        echo 'Every ' . $taskRawParams['schedule']['schedule-monthly-day-position'] . ' ' . $taskRawParams['schedule']['schedule-monthly-day'] . ' of each month at ' . $taskRawParams['schedule']['schedule-time'] . ':00';
                                     } ?>
                                 </p>
                                 <?php
@@ -401,6 +400,8 @@
         <div class="flex justify-end">
             <?php \Controllers\Layout\Table\Render::paginationBtn($reloadableTableCurrentPage, $reloadableTableTotalPages); ?>
         </div>
+
+        <br><br>
 
         <?php
     endif ?>

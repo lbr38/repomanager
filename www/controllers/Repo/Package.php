@@ -288,35 +288,37 @@ class Package
              *  Check that the file path starts with REPOS_DIR
              *  Prevents a malicious person from providing a path that has nothing to do with the repo directory (e.g. /etc/...)
              */
-            if (preg_match("#^" . REPOS_DIR . "#", $path)) {
-                /**
-                 *  Check that the file ends with .deb or .rpm otherwise we move on to the next one
-                 */
-                if (!preg_match("#.deb$#", $path) and !preg_match("#.rpm$#", $path)) {
-                    continue;
-                }
-
-                /**
-                 *  If the file does not exist, we ignore it and move on to the next one
-                 */
-                if (!file_exists($path)) {
-                    continue;
-                }
-
-                /**
-                 *  Delete package
-                 */
-                if (!unlink($path)) {
-                    throw new Exception('Unable to delete package ' . $path);
-                }
-
-                $deletedPackages[] = str_replace($repoPath . '/', '', $path);
-
-                /**
-                 *  Set repo rebuild status to 'needed'
-                 */
-                $myrepo->snapSetRebuild($snapId, 'needed');
+            if (!preg_match("#^" . REPOS_DIR . "#", realpath($path))) {
+                throw new Exception('Invalid package path ' . $path);
             }
+
+            /**
+             *  Check that the file ends with .deb or .rpm otherwise we move on to the next one
+             */
+            if (!preg_match("#.deb$#", $path) and !preg_match("#.rpm$#", $path)) {
+                continue;
+            }
+
+            /**
+             *  If the file does not exist, we ignore it and move on to the next one
+             */
+            if (!file_exists($path)) {
+                continue;
+            }
+
+            /**
+             *  Delete package
+             */
+            if (!unlink($path)) {
+                throw new Exception('Unable to delete package ' . $path);
+            }
+
+            $deletedPackages[] = str_replace($repoPath . '/', '', $path);
+
+            /**
+             *  Set repo rebuild status to 'needed'
+             */
+            $myrepo->snapSetRebuild($snapId, 'needed');
         }
 
         return $deletedPackages;

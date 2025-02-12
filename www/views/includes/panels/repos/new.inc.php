@@ -237,12 +237,12 @@ $(document).ready(function(){
     /**
      *  Convert select to select2
      */
-    selectToSelect2('.task-param[param-name="releasever"]', 'Select release version', true);
-    selectToSelect2('.task-param[param-name="dist"]', 'Select distribution', true);
-    selectToSelect2('.task-param[param-name="section"]', 'Select component', true);
-    selectToSelect2('.task-param[param-name="arch"]', 'Select architecture', true);
-    selectToSelect2('.task-param[param-name="package-include"]', 'Specify package(s)', true);
-    selectToSelect2('.task-param[param-name="package-exclude"]', 'Specify package(s)', true);
+    selectToSelect2('select.task-param[param-name="releasever"]', 'Select release version', true);
+    selectToSelect2('select.task-param[param-name="dist"]', 'Select distribution', true);
+    selectToSelect2('select.task-param[param-name="section"]', 'Select component', true);
+    selectToSelect2('select.task-param[param-name="arch"]', 'Select architecture', true);
+    selectToSelect2('select.task-param[param-name="package-include"]', 'Specify package(s)', true);
+    selectToSelect2('select.task-param[param-name="package-exclude"]', 'Specify package(s)', true);
     selectToSelect2('select.task-param[param-name="schedule-day"]', 'Select day(s)', true);
     selectToSelect2('select.task-param[param-name="schedule-reminder"]', 'Select reminder(s)', true);
     selectToSelect2('select.task-param[param-name="schedule-recipient"]', 'Select or add recipient(s)', true);

@@ -8,6 +8,10 @@ $output = '';
  *  Get the log file of the task
  */
 try {
+    /**
+     *  If a task Id is provided in the URL, use it
+     *  Otherwise, get the latest task Id
+     */
     if (!empty(__ACTUAL_URI__[2]) and (is_numeric(__ACTUAL_URI__[2]))) {
         $taskId = __ACTUAL_URI__[2];
     } else {
@@ -29,7 +33,12 @@ try {
         $taskLogController = new \Controllers\Task\Log\Log($taskId);
 
         // Get raw params from the task
-        $rawParams = json_decode($taskInfo['Raw_params'], true);
+        try {
+            $rawParams = json_decode($taskInfo['Raw_params'], true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            throw new Exception('Error while reading log: could not get task params from task #' . $taskId . ': ' . $e->getMessage());
+        }
+
         $repoId = null;
         $snapId = null;
         $envId = null;

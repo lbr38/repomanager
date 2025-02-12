@@ -23,7 +23,7 @@ class File extends Service
 
         try {
             /**
-             *  Clean temp files and directories older than 7 days
+             *  Clean temp files and directories older than 3 days
              */
             if (is_dir(DATA_DIR . '/.temp')) {
                 $files = \Controllers\Common::findRecursive(DATA_DIR . '/.temp');
@@ -31,7 +31,7 @@ class File extends Service
 
                 if (!empty($files)) {
                     foreach ($files as $file) {
-                        if (filemtime($file) < strtotime('-7 days')) {
+                        if (filemtime($file) < strtotime('-3 days')) {
                             if (!unlink($file)) {
                                 throw new Exception('Could not clean temporary file <b>' . $file . '</b>');
                             }

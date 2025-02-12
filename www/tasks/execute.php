@@ -37,28 +37,86 @@ try {
     /**
      *  Retrieve task details
      */
-    $taskParams = $myTask->getById($taskId);
+    $task = $myTask->getById($taskId);
 
-    if (empty($taskParams)) {
+    if (empty($task)) {
         throw new Exception('Cannot get task details from task #' . $taskId . ': empty results.');
     }
 
-    $taskParams = json_decode($taskParams['Raw_params'], true);
+    try {
+        $taskRawParams = json_decode($task['Raw_params'], true, 512, JSON_THROW_ON_ERROR);
+    } catch (JsonException $e) {
+        throw new Exception('Cannot decode task params from task #' . $taskId . ': ' . $e->getMessage());
+    }
 
-    if (empty($taskParams['action'])) {
+    if (empty($taskRawParams['action'])) {
         throw new Exception('Action not specified');
     }
 
     /**
      *  Generate controller name
      */
-    $controllerPath = '\Controllers\Task\Repo\\' . ucfirst($taskParams['action']);
+    $controllerPath = '\Controllers\Task\Repo\\' . ucfirst($taskRawParams['action']);
 
     /**
      *  Check if class exists, otherwise the action might be invalid
      */
     if (!class_exists($controllerPath)) {
-        throw new Exception('Invalid action: ' . $taskParams['action']);
+        throw new Exception('Invalid action: ' . $taskRawParams['action']);
+    }
+
+    /**
+     *  If task queuing is enabled and the maximum number of simultaneous tasks is set, check if the task can be started
+     */
+    if (!empty(TASK_QUEUING) and TASK_QUEUING == 'true' and !empty(TASK_QUEUING_MAX_SIMULTANEOUS)) {
+        while (true) {
+            /**
+             *  Get running tasks
+             */
+            $runningTasks = $myTask->listRunning();
+
+            /**
+             *  If number of running tasks is greater than or equal to the maximum number of simultaneous tasks, we wait
+             */
+            if (count($runningTasks) >= TASK_QUEUING_MAX_SIMULTANEOUS) {
+                sleep(5);
+                continue;
+            }
+
+            /**
+             *  If this task type is 'scheduled', the task can be started now.
+             *  It has more priority than any 'immediate' tasks because it has a specific time to be run.
+             */
+            if ($task['Type'] == 'scheduled') {
+                break;
+            }
+
+            /**
+             *  If the task type is 'immediate', get all currently queued tasks
+             */
+            $newestTask = $myTask->listQueued();
+
+            /**
+             *  If there are tasks of type 'scheduled' in the queue list, we wait, they have more priority
+             */
+            foreach ($newestTask as $task) {
+                if ($task['Type'] == 'scheduled') {
+                    sleep(5);
+                    continue 2;
+                }
+            }
+
+            /**
+             *  If there is no task of type 'scheduled' in the queue list, this task may be started
+             *  If the first task in the list has the same Id as $taskId, then this task can be started
+             */
+            if ($newestTask[0]['Id'] == $taskId) {
+                break;
+            }
+
+            // Just for safety
+            sleep(5);
+        }
     }
 
     /**

@@ -3,14 +3,19 @@
 
         <?php
         /**
-         *  Print scheduled tasks table
-         */
-        \Controllers\Layout\Table\Render::render('tasks/list-scheduled');
-
-        /**
          *  Print running tasks table
          */
         \Controllers\Layout\Table\Render::render('tasks/list-running');
+
+        /**
+         *  Print queued tasks table
+         */
+        \Controllers\Layout\Table\Render::render('tasks/list-queued');
+
+        /**
+         *  Print scheduled tasks table
+         */
+        \Controllers\Layout\Table\Render::render('tasks/list-scheduled');
 
         /**
          *  Print done tasks table

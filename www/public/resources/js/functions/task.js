@@ -78,7 +78,7 @@ function autorefresh()
             // Remove autorefresh lock
             localStorage.removeItem('autorefreshLock');
         });
-    }, 2000);
+    }, 2500);
 }
 
 /**

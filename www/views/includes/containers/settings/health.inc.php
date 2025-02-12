@@ -145,7 +145,7 @@
             <?php
             if (!empty($users)) : ?>
                 <div id="currentUsers">
-                    <h6>CURRENT USERS</h6>
+                    <h6 class="margin-bottom-5">CURRENT USERS</h6>
 
                     <?php
                     foreach ($users as $user) : ?>

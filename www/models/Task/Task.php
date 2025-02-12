@@ -138,6 +138,59 @@ class Task extends \Models\Model
     }
 
     /**
+     *  List all newest tasks
+     *  It is possible to add an offset to the request
+     */
+    public function listQueued(string $type, bool $withOffset, int $offset)
+    {
+        $data = array();
+
+        try {
+            /**
+             *  Case where we want all types
+             */
+            if (empty($type)) {
+                $query = "SELECT * FROM tasks
+                WHERE Status = 'queued'
+                ORDER BY Date DESC, Time DESC";
+            }
+
+            /**
+             *  Case where we want to filter by type
+             */
+            if (!empty($type)) {
+                $query = "SELECT * FROM tasks
+                WHERE Type = :type
+                AND Status = 'queued'
+                ORDER BY Date DESC, Time DESC";
+            }
+
+            /**
+             *  Add offset if needed
+             */
+            if ($withOffset === true) {
+                $query .= " LIMIT 10 OFFSET :offset";
+            }
+
+            /**
+             *  Prepare query
+             */
+            $stmt = $this->db->prepare($query);
+            $stmt->bindValue(':type', $type);
+            $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            $this->db->logError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return $data;
+    }
+
+    /**
      *  List all running tasks
      *  It is possible to filter the type of task ('immediate' or 'scheduled')
      *  It is possible to add an offset to the request
@@ -244,8 +297,7 @@ class Task extends \Models\Model
              */
             if (empty($type)) {
                 $query = "SELECT * FROM tasks
-                WHERE Status = 'new'
-                OR Status = 'error'
+                WHERE Status = 'error'
                 OR Status = 'done'
                 OR Status = 'stopped'
                 ORDER BY Date DESC, Time DESC";
@@ -257,8 +309,7 @@ class Task extends \Models\Model
             if (!empty($type)) {
                 $query = "SELECT * FROM tasks
                 WHERE Type = :type
-                AND (Status = 'new'
-                OR Status = 'error'
+                AND (Status = 'error'
                 OR Status = 'done'
                 OR Status = 'stopped')
                 ORDER BY Date DESC, Time DESC";
@@ -298,7 +349,9 @@ class Task extends \Models\Model
 
         try {
             $result = $this->db->query("SELECT Id FROM tasks
-            WHERE Status != 'scheduled'
+            WHERE Status != 'queued'
+            AND Status != 'scheduled'
+            AND Status !='disabled'
             ORDER BY Id DESC LIMIT 1");
         } catch (\Exception $e) {
             $this->db->logError($e);
@@ -346,7 +399,7 @@ class Task extends \Models\Model
         $data = array();
 
         try {
-            $result = $this->db->query("SELECT * FROM tasks WHERE Type = 'scheduled' AND Status = 'scheduled'");
+            $result = $this->db->query("SELECT * FROM tasks WHERE Type = 'scheduled' AND Status = 'queued'");
         } catch (\Exception $e) {
             $this->db->logError($e);
         }
@@ -385,7 +438,7 @@ class Task extends \Models\Model
     public function duplicate(int $id) : int
     {
         try {
-            $stmt = $this->db->prepare("INSERT INTO tasks (Type, Raw_params) SELECT Type, Raw_params FROM tasks WHERE Id = :id");
+            $stmt = $this->db->prepare("INSERT INTO tasks (Type, Raw_params, Status) SELECT Type, Raw_params, 'queued' FROM tasks WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
@@ -415,7 +468,7 @@ class Task extends \Models\Model
     }
 
     /**
-     *  Enable a task
+     *  Enable a recurrent task
      */
     public function enable(int $id)
     {
@@ -429,7 +482,7 @@ class Task extends \Models\Model
     }
 
     /**
-     *  Disable a task
+     *  Disable a recurrent task
      */
     public function disable(int $id)
     {
