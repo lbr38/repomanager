@@ -109,6 +109,44 @@
             <select class="task-param" param-name="section" package-type="deb" multiple></select>
         </div>
 
+        <div field-type="mirror local rpm deb">
+            <div field-type="mirror local rpm deb">
+                <h6 class="required">ARCHITECTURE</h6>
+                <div field-type="mirror rpm deb">
+                    <p class="note">Select the package architecture to sync.</p>
+                </div>
+                <div field-type="local rpm deb">
+                    <p class="note">Select the package architecture which will be available in the local repository.</p>
+                </div>
+
+                <div field-type="mirror local rpm">
+                    <select class="task-param" param-name="arch" package-type="rpm" multiple>
+                        <?php
+                        foreach (RPM_ARCHS as $arch) {
+                            if (in_array($arch, RPM_DEFAULT_ARCH)) {
+                                echo '<option value="' . $arch . '" selected>' . $arch . '</option>';
+                            } else {
+                                echo '<option value="' . $arch . '">' . $arch . '</option>';
+                            }
+                        } ?>
+                    </select>
+                </div>
+
+                <div field-type="mirror local deb">
+                    <select class="task-param" param-name="arch" package-type="deb" multiple>
+                        <?php
+                        foreach (DEB_ARCHS as $arch) {
+                            if (in_array($arch, DEB_DEFAULT_ARCH)) {
+                                echo '<option value="' . $arch . '" selected>' . $arch . '</option>';
+                            } else {
+                                echo '<option value="' . $arch . '">' . $arch . '</option>';
+                            }
+                        } ?>
+                    </select>
+                </div>
+            </div>
+        </div>
+
         <h6>POINT AN ENVIRONMENT</h6>
         <p class="note">Point an environment to the newly created repository.</p>
         <select id="new-repo-target-env-select" class="task-param" param-name="env" package-type="all">
@@ -166,39 +204,7 @@
             </label>
         </div>
 
-        <div field-type="mirror local rpm deb">
-            <h6>ADDITIONAL PARAMETERS</h6>
-
-            <div field-type="mirror local rpm deb">
-                <h6 class="required">ARCHITECTURE</h6>
-
-                <div field-type="mirror local rpm">
-                    <select class="task-param" param-name="arch" package-type="rpm" multiple>
-                        <?php
-                        foreach (RPM_ARCHS as $arch) {
-                            if (in_array($arch, RPM_DEFAULT_ARCH)) {
-                                echo '<option value="' . $arch . '" selected>' . $arch . '</option>';
-                            } else {
-                                echo '<option value="' . $arch . '">' . $arch . '</option>';
-                            }
-                        } ?>
-                    </select>
-                </div>
-
-                <div field-type="mirror local deb">
-                    <select class="task-param" param-name="arch" package-type="deb" multiple>
-                        <?php
-                        foreach (DEB_ARCHS as $arch) {
-                            if (in_array($arch, DEB_DEFAULT_ARCH)) {
-                                echo '<option value="' . $arch . '" selected>' . $arch . '</option>';
-                            } else {
-                                echo '<option value="' . $arch . '">' . $arch . '</option>';
-                            }
-                        } ?>
-                    </select>
-                </div>
-            </div>
-        </div>
+        <h6>ADDITIONAL PARAMETERS</h6>
 
         <div field-type="mirror rpm deb">
             <h6>ONLY INCLUDE PACKAGE(S)</h6>

@@ -1,12 +1,5 @@
 <?php
 /**
- *  Retrieve all group names
- */
-$mygroup = new \Controllers\Group('repo');
-$groupsList = $mygroup->listAll(true);
-$myrepoListing = new \Controllers\Repo\Listing();
-
-/**
  *  Print groups and repos
  */
 if (!empty($groupsList)) {
@@ -254,8 +247,7 @@ if (!empty($groupsList)) {
                                      *  Print checkbox only if the snapshot is different from the previous one and there is no operation running on the snapshot
                                      */
                                     if ($snapId != $previousSnapId) :
-                                        $myrepo = new \Controllers\Repo\Repo();
-                                        if ($myrepo->snapOpIsRunning($snapId) === true) : ?>
+                                        if ($repoSnapshotController->taskRunning($snapId)) : ?>
                                             <img src="/assets/icons/loading.svg" class="icon-medium icon-np" title="A task is running on this repository snaphot." />
                                             <?php
                                         else : ?>
@@ -348,23 +340,11 @@ if (!empty($groupsList)) {
 
                             <div class="item-env-info" env-id="<?= $envId ?>">
                                 <?php
-                                if (!empty($env)) {
-                                    /**
-                                     *  Remove env icon
-                                     */
-                                    if (IS_ADMIN) {
-                                        echo '<img src="/assets/icons/delete.svg" class="delete-env-btn icon-lowopacity" title="Remove ' . $env . ' environment" repo-id="' . $repoId . '" snap-id="' . $snapId . '" env-id="' . $envId . '" env="' . $env . '" />';
-                                    }
-
-                                    /**
-                                     *  Repo installation icon
-                                     */
-                                    if ($packageType == 'rpm') {
-                                        echo '<img class="client-configuration-btn icon-lowopacity" package-type="rpm" repo="' . $name . '" env="' . $env . '" repo-dir-url="' . WWW_REPOS_DIR_URL . '" repo-conf-files-prefix="' . REPO_CONF_FILES_PREFIX . '" www-hostname="' . WWW_HOSTNAME . '" src="/assets/icons/terminal.svg" title="Show repo installation commands" />';
-                                    }
-                                    if ($packageType == 'deb') {
-                                        echo '<img class="client-configuration-btn icon-lowopacity" package-type="deb" repo="' . $name . '" dist="' . $dist . '" section="' . $section . '" env="' . $env . '" arch="' . $arch . '" repo-dir-url="' . WWW_REPOS_DIR_URL . '" repo-conf-files-prefix="' . REPO_CONF_FILES_PREFIX . '" www-hostname="' . WWW_HOSTNAME . '" src="/assets/icons/terminal.svg" title="Show repo installation commands" />';
-                                    }
+                                /**
+                                 *  Remove env icon
+                                 */
+                                if (!empty($env) and IS_ADMIN) {
+                                    echo '<img src="/assets/icons/delete.svg" class="delete-env-btn icon-lowopacity" title="Remove ' . $env . ' environment" repo-id="' . $repoId . '" snap-id="' . $snapId . '" env-id="' . $envId . '" env="' . $env . '" />';
                                 } ?>
                             </div>
 

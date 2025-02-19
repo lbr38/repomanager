@@ -2,11 +2,11 @@
 $myrepo = new \Controllers\Repo\Repo();
 
 if (empty(__ACTUAL_URI__[2])) {
-    die('Error: no repo snapshot ID specified.');
+    throw new Exception('Error: no repo snapshot ID specified.');
 }
 
 if (!is_numeric(__ACTUAL_URI__[2])) {
-    die('Error: invalid repo snapshot ID.');
+    throw new Exception('Error: invalid repo snapshot ID.');
 }
 
 $snapId = __ACTUAL_URI__[2];
@@ -17,7 +17,7 @@ $snapId = __ACTUAL_URI__[2];
 $myrepo->getAllById('', $snapId, '');
 
 /**
- *  Si on n'a eu aucune erreur lors de la récupération des paramètres, alors on peut construire le chemin complet du repo
+ *  Build repo path
  */
 if ($myrepo->getPackageType() == 'rpm') {
     $repoPath = REPOS_DIR . '/' . $myrepo->getDateFormatted() . '_' . $myrepo->getName();
@@ -31,7 +31,7 @@ if ($myrepo->getPackageType() == 'deb') {
  *  If the path does not exist on the server then we quit
  */
 if (!is_dir($repoPath)) {
-    die('Error: repo directory ' . $repoPath . ' does not exist.');
+    throw new Exception('Error: repo directory ' . $repoPath . ' does not exist.');
 }
 
 /**
@@ -39,11 +39,11 @@ if (!is_dir($repoPath)) {
  */
 if ($myrepo->getPackageType() == 'rpm') {
     $repoSize = \Controllers\Filesystem\Directory::getSize(REPOS_DIR . '/' . $myrepo->getDateFormatted() . '_' . $myrepo->getName());
-    $packagesCount = count(\Controllers\Common::findRecursive(REPOS_DIR . '/' . $myrepo->getDateFormatted() . '_' . $myrepo->getName(), 'rpm'));
+    $packagesCount = count(\Controllers\Filesystem\File::findRecursive(REPOS_DIR . '/' . $myrepo->getDateFormatted() . '_' . $myrepo->getName(), 'rpm'));
 }
 if ($myrepo->getPackageType() == 'deb') {
     $repoSize = \Controllers\Filesystem\Directory::getSize(REPOS_DIR . '/' . $myrepo->getName() . '/' . $myrepo->getDist() . '/' . $myrepo->getDateFormatted() . '_' . $myrepo->getSection());
-    $packagesCount = count(\Controllers\Common::findRecursive(REPOS_DIR . '/' . $myrepo->getName() . '/' . $myrepo->getDist() . '/' . $myrepo->getDateFormatted() . '_' . $myrepo->getSection(), 'deb'));
+    $packagesCount = count(\Controllers\Filesystem\File::findRecursive(REPOS_DIR . '/' . $myrepo->getName() . '/' . $myrepo->getDist() . '/' . $myrepo->getDateFormatted() . '_' . $myrepo->getSection(), 'deb'));
 }
 
 /**

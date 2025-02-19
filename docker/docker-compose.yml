@@ -4,6 +4,7 @@ services:
   repomanager:
     container_name: repomanager
     image: repomanager
+    network_mode: host
     build:
       context: .
       dockerfile: Dockerfile
@@ -12,8 +13,6 @@ services:
         fqdn: repomanager.example.com
         max_upload_size: 32M
     restart: always
-    ports:
-      - "8080:8080"
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/lib/docker/volumes/repomanager-data:/var/lib/repomanager

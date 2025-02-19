@@ -26,7 +26,7 @@ class File extends Service
              *  Clean temp files and directories older than 3 days
              */
             if (is_dir(DATA_DIR . '/.temp')) {
-                $files = \Controllers\Common::findRecursive(DATA_DIR . '/.temp');
+                $files = \Controllers\Filesystem\File::findRecursive(DATA_DIR . '/.temp');
                 $dirs = \Controllers\Common::findDirRecursive(DATA_DIR . '/.temp');
 
                 if (!empty($files)) {
@@ -57,7 +57,7 @@ class File extends Service
              *  Clean pid files older than 7 days
              */
             if (is_dir(DATA_DIR . '/tasks/pid')) {
-                $files = \Controllers\Common::findRecursive(DATA_DIR . '/tasks/pid', 'pid');
+                $files = \Controllers\Filesystem\File::findRecursive(DATA_DIR . '/tasks/pid', 'pid');
 
                 if (!empty($files)) {
                     foreach ($files as $file) {
@@ -77,6 +77,7 @@ class File extends Service
              */
             if (is_dir(REPOS_DIR)) {
                 $dirs = \Controllers\Common::findDirRecursive(REPOS_DIR, 'download-mirror-.*');
+                $tempTaskDirs = \Controllers\Common::findDirRecursive(REPOS_DIR, 'temporary-task-.*');
 
                 if (!empty($dirs)) {
                     foreach ($dirs as $dir) {
@@ -88,14 +89,24 @@ class File extends Service
                     }
                 }
 
-                unset($dirs);
+                if (!empty($tempTaskDirs)) {
+                    foreach ($tempTaskDirs as $dir) {
+                        if (filemtime($dir) < strtotime('-3 days')) {
+                            if (!\Controllers\Filesystem\Directory::deleteRecursive($dir)) {
+                                throw new Exception('Could not clean temporary directory <b>' . $dir . '</b>');
+                            }
+                        }
+                    }
+                }
+
+                unset($dirs, $tempTaskDirs);
             }
 
             /**
              *  Clean websocket logs older than 15 days
              */
             if (is_dir(WS_LOGS_DIR)) {
-                $files = \Controllers\Common::findRecursive(WS_LOGS_DIR, 'log');
+                $files = \Controllers\Filesystem\File::findRecursive(WS_LOGS_DIR, 'log');
 
                 if (!empty($files)) {
                     foreach ($files as $file) {

@@ -575,6 +575,15 @@ class Task
         $newTaskId = $this->duplicate($id);
 
         /**
+         *  If a temporary directory was used for the previous task, then rename it to be used for the new task
+         */
+        if (file_exists(REPOS_DIR . '/temporary-task-' . $id) and is_dir(REPOS_DIR . '/temporary-task-' . $id)) {
+            if (!rename(REPOS_DIR . '/temporary-task-' . $id, REPOS_DIR . '/temporary-task-' . $newTaskId)) {
+                throw new Exception('Could not rename temporary directory ' . REPOS_DIR . '/temporary-task-' . $id . ' to ' . REPOS_DIR . '/temporary-task-' . $newTaskId);
+            }
+        }
+
+        /**
          *  Execute task
          */
         $this->executeId($newTaskId);

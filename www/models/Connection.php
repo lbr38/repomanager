@@ -450,6 +450,11 @@ class Connection extends SQLite3
         Status CHAR(9))"); /* new, scheduled, running, done, stopped */
 
         /**
+         *  Create indexes
+         */
+        $this->exec("CREATE INDEX IF NOT EXISTS tasks_rawparams_status ON tasks (Raw_params, Status)");
+
+        /**
          *  profile_settings table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS profile_settings (

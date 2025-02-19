@@ -646,32 +646,6 @@ class Repo extends \Models\Model
     }
 
     /**
-     *  Retourne true si une opération est en cours sur l'Id de snapshot spécifié
-     */
-    public function snapOpIsRunning(string $snapId)
-    {
-        try {
-            /**
-             *  Use json_extract to extract snap-id from Raw_params
-             */
-            $stmt = $this->db->prepare("SELECT json_extract(Raw_params, '$.snap-id') AS snapId
-            FROM tasks
-            WHERE snapId = :snapId
-            AND Status = 'running'");
-            $stmt->bindValue(':snapId', $snapId);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-
-        if ($this->db->isempty($result) === true) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      *  Modification de l'état du snapshot
      */
     public function snapSetStatus(string $snapId, string $status)

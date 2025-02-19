@@ -2,17 +2,14 @@
 
 **Repomanager** is a web mirroring tool for ``rpm`` or ``deb`` packages repositories.
 
-Designed for an enterprise usage and to help deployment of packages updates on large Linux servers farms, it can create mirrors of public repositories (eg. Debian or CentOS official repos or third-party editors) and manage several snapshots versions and environments.
-
 <h2>Main features</h2>
 
-- Create ``deb`` or ``rpm`` mirror repositories
+- Create ``deb`` and ``rpm`` mirror repositories
 - Sign packages/repositories with GPG
 - Upload packages into repositories
-- Create environments (eg. ``preprod``, ``prod``...) and make mirrors available only for specific envs.
+- Create environments (eg. ``preprod``, ``prod``...) and make mirrors only available for specific envs.
 - Manage hosts packages updates
 - Schedule tasks
-- ...
 
 ![alt text](https://github.com/user-attachments/assets/ba69056e-97cd-4e69-a3bb-7f1cc1d79cac)
 ![alt text](https://github.com/user-attachments/assets/873e502a-7745-453f-b6b7-c9f06d2f91a7)

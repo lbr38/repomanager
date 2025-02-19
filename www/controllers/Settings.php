@@ -16,19 +16,20 @@ class Settings
     /**
      *  Get settings
      */
-    public function get()
+    public function get() : array
     {
-        /**
-         *  Get all settings
-         */
         return $this->model->get();
     }
 
     /**
      *  Apply settings
      */
-    public function apply(array $sendSettings)
+    public function apply(array $sendSettings) : void
     {
+        if (!IS_ADMIN) {
+            throw new Exception('You are not allowed to perform this action');
+        }
+
         $settingsToApply = array();
 
         /**
@@ -303,5 +304,21 @@ class Settings
          *  Write settings to database
          */
         $this->model->apply($settingsToApply);
+    }
+
+    /**
+     *  Enable or disable debug mode
+     */
+    public function enableDebugMode(string $enable) : void
+    {
+        if (!IS_ADMIN) {
+            throw new Exception('You are not allowed to perform this action');
+        }
+
+        if ($enable != 'true' and $enable != 'false') {
+            throw new Exception('Invalid value for debug mode');
+        }
+
+        $this->model->enableDebugMode($enable);
     }
 }

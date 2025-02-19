@@ -128,7 +128,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             try {
                 \Controllers\Common::gunzip($this->workingDir . '/' . $modulesFileTargetName);
             } catch (Exception $e) {
-                throw new Exception('Could not uncompress <code>' . $modulesFileTargetName . '</code>: ' . $e->getMessage());
+                throw new Exception('Error while uncompressing <code>' . $modulesFileTargetName . '</code><br><pre class="codeblock">' . $e->getMessage() . '</pre>');
             }
 
             /**
@@ -143,7 +143,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             try {
                 \Controllers\Common::bunzip2($this->workingDir . '/' . $modulesFileTargetName, $this->workingDir . '/modules.yaml');
             } catch (Exception $e) {
-                throw new Exception('Could not uncompress <code>' . $modulesFileTargetName . '</code>: ' . $e->getMessage());
+                throw new Exception('Error while uncompressing <code>' . $modulesFileTargetName . '</code><br><pre class="codeblock">' . $e->getMessage() . '</pre>');
             }
 
             /**
@@ -158,7 +158,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             try {
                 \Controllers\Common::xzUncompress($this->workingDir . '/' . $modulesFileTargetName, $this->workingDir . '/modules.yaml');
             } catch (Exception $e) {
-                throw new Exception('Could not uncompress <code>' . $modulesFileTargetName . '</code>: ' . $e->getMessage());
+                throw new Exception('Error while uncompressing <code>' . $modulesFileTargetName . '</code><br><pre class="codeblock">' . $e->getMessage() . '</pre>');
             }
 
             /**
@@ -220,7 +220,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             try {
                 \Controllers\Common::gunzip($this->workingDir . '/' . $updateInfoFileTargetName);
             } catch (Exception $e) {
-                throw new Exception('Could not uncompress <code>' . $updateInfoFileTargetName . '</code>: ' . $e->getMessage());
+                throw new Exception('Could not uncompress <code>' . $updateInfoFileTargetName . '</code><br><pre class="codeblock">' . $e->getMessage() . '</pre>');
             }
 
             /**
@@ -235,7 +235,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             try {
                 \Controllers\Common::bunzip2($this->workingDir . '/' . $updateInfoFileTargetName, $this->workingDir . '/updateinfo.xml');
             } catch (Exception $e) {
-                throw new Exception('Could not uncompress <code>' . $updateInfoFileTargetName . '</code>: ' . $e->getMessage());
+                throw new Exception('Could not uncompress <code>' . $updateInfoFileTargetName . '</code><br><pre class="codeblock">' . $e->getMessage() . '</pre>');
             }
 
             /**
@@ -250,7 +250,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             try {
                 \Controllers\Common::xzUncompress($this->workingDir . '/' . $updateInfoFileTargetName, $this->workingDir . '/updateinfo.xml');
             } catch (Exception $e) {
-                throw new Exception('Could not uncompress <code>' . $updateInfoFileTargetName . '</code>: ' . $e->getMessage());
+                throw new Exception('Error while uncompressing <code>' . $updateInfoFileTargetName . '</code><br><pre class="codeblock">' . $e->getMessage() . '</pre>');
             }
 
             /**
@@ -463,7 +463,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                 throw new Exception('MIME type not supported: ' . $mime . '. Please contact the developer to add support for this MIME type.');
             }
         } catch (Exception $e) {
-            throw new Exception('Error while uncompressing <code>'. end(explode('/', $primaryFile)) . '</code>: <pre class="codeblock">' . $e->getMessage() . '</pre>');
+            throw new Exception('Error while uncompressing <code>'. end(explode('/', $primaryFile)) . '</code><br><pre class="codeblock">' . $e->getMessage() . '</pre>');
         }
 
         /**

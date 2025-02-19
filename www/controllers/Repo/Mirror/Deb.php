@@ -241,14 +241,14 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                 try {
                     \Controllers\Common::gunzip($this->workingDir . '/' . $packageIndicesName);
                 } catch (Exception $e) {
-                    throw new Exception('Error while uncompressing <code>' . $packageIndicesName . '</code>');
+                    throw new Exception('Error while uncompressing <code>' . $packageIndicesName . '</code><br><pre class="codeblock copy">' . $e->getMessage() . '</pre>');
                 }
             }
             if (preg_match('/.xz$/i', $packageIndicesName)) {
                 try {
                     \Controllers\Common::xzUncompress($this->workingDir . '/' . $packageIndicesName);
                 } catch (Exception $e) {
-                    throw new Exception('Error while uncompressing <code>' . $packageIndicesName . '</code>');
+                    throw new Exception('Error while uncompressing <code>' . $packageIndicesName . '</code><br><pre class="codeblock copy">' . $e->getMessage() . '</pre>');
                 }
             }
 
@@ -286,6 +286,15 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                 }
 
                 fclose($handle);
+            }
+
+            /**
+             *  Delete Packages file once it has been parsed
+             */
+            if (file_exists($this->workingDir . '/Packages')) {
+                if (!unlink($this->workingDir . '/Packages')) {
+                    throw new Exception('Cannot delete <code>' . $this->workingDir . '/Packages' . '</code> file');
+                }
             }
         }
 
@@ -343,14 +352,14 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                 try {
                     \Controllers\Common::gunzip($this->workingDir . '/' . $sourcesIndicesName);
                 } catch (Exception $e) {
-                    throw new Exception('Error while uncompressing <code>' . $sourcesIndicesName . '</code>');
+                    throw new Exception('Error while uncompressing <code>' . $sourcesIndicesName . '</code><br><pre class="codeblock copy">' . $e->getMessage() . '</pre>');
                 }
             }
             if (preg_match('/.xz$/i', $sourcesIndicesName)) {
                 try {
                     \Controllers\Common::xzUncompress($this->workingDir . '/' . $sourcesIndicesName);
                 } catch (Exception $e) {
-                    throw new Exception('Error while uncompressing <code>' . $sourcesIndicesName . '</code>');
+                    throw new Exception('Error while uncompressing <code>' . $sourcesIndicesName . '</code><br><pre class="codeblock copy">' . $e->getMessage() . '</pre>');
                 }
             }
 

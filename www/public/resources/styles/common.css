@@ -107,6 +107,7 @@ pre {
 }
 
 pre.codeblock {
+    position: relative;
     background-color: rgb(26 29 31) !important;
     color: white;
     border-radius: 8px;
@@ -340,6 +341,12 @@ td {
 }
 .icon-copy {
     height: 13px;
+}
+.icon-copy-top-right {
+    position: absolute;
+    height: 18px;
+    top: 8px;
+    right: 8px;
 }
 
 /**

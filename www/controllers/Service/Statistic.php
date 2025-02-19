@@ -66,7 +66,7 @@ class Statistic extends Service
                             /**
                              *  Calculate number of packages in the repo
                              */
-                            $packagesCount = count(\Controllers\Common::findRecursive(REPOS_DIR . '/' . $repo['Name'] . '_' . $repo['Env'] . '/', 'rpm'));
+                            $packagesCount = count(\Controllers\Filesystem\File::findRecursive(REPOS_DIR . '/' . $repo['Name'] . '_' . $repo['Env'] . '/', 'rpm'));
                         }
                     }
 
@@ -80,7 +80,7 @@ class Statistic extends Service
                             /**
                              *  Calculate number of packages in the repo
                              */
-                            $packagesCount = count(\Controllers\Common::findRecursive(REPOS_DIR . '/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '_' . $repo['Env'] . '/', 'deb'));
+                            $packagesCount = count(\Controllers\Filesystem\File::findRecursive(REPOS_DIR . '/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '_' . $repo['Env'] . '/', 'deb'));
                         }
                     }
 

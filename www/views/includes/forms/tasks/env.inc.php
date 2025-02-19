@@ -8,7 +8,7 @@ if ($myrepo->getPackageType() == 'rpm') {
 if ($myrepo->getPackageType() == 'deb') {
     echo '<span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>';
 } ?>
-⟶<span class="label-black"><?= $myrepo->getDateFormatted() ?></span><span id="point-env-show-target-env-<?= $myrepo->getSnapId() ?>"></span>
+⸺<span class="label-black"><?= $myrepo->getDateFormatted() ?></span><span id="point-env-show-target-env-<?= $myrepo->getSnapId() ?>"></span>
 
 <h6 class="required">ENVIRONMENT</h6>
 <select id="point-env-target-env-select-<?= $myrepo->getSnapId() ?>" class="task-param" param-name="env" required>

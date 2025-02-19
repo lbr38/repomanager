@@ -48,7 +48,7 @@ RUN mkdir -p /etc/nginx/sites-enabled
 RUN cp /tmp/repomanager/docker/config/nginx/nginx.conf /etc/nginx/nginx.conf
 RUN cp /tmp/repomanager/docker/config/nginx/repomanager.conf /etc/nginx/sites-enabled/repomanager.conf
 RUN sed -i "s/__MAX_UPLOAD_SIZE__/$max_upload_size/g" /etc/nginx/sites-enabled/repomanager.conf
-RUN rm -rf /etc/nginx/sites-enabled/default /var/www/html
+RUN rm -rf /etc/nginx/sites-enabled/default /etc/nginx/conf.d/default.conf /var/www/html
 
 # Configure PHP
 RUN cp /tmp/repomanager/docker/config/php/www.conf /etc/php/8.3/fpm/pool.d/www.conf
@@ -64,6 +64,8 @@ RUN echo ".mode column" >> /root/.sqliterc
 # Configure Postfix
 RUN \cp /tmp/repomanager/docker/config/postfix/main.cf /etc/postfix/main.cf
 RUN sed -i "s/__FQDN__/$fqdn/g" /etc/postfix/main.cf
+# Copy master.cf with custom listening port 2525 (to avoid conflict with other mail services on the host) (when networking=host)
+RUN \cp /tmp/repomanager/docker/config/postfix/master.cf /etc/postfix/master.cf
 RUN echo $fqdn > /etc/mailname
 
 # Copy repomanager files

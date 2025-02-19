@@ -232,7 +232,9 @@
                                             /**
                                              *  Retrieve the last pending request (if there is one)
                                              */
-                                            $lastPendingRequest = $myhost->getLastPendingRequest($id);
+                                            $lastPendingRequest = $hostRequestController->getLastPendingRequest($id);
+
+                                            unset($hostPackageController);
 
                                             /**
                                              *  Print the host informations

@@ -480,14 +480,6 @@ class Repo
     }
 
     /**
-     *  Retourne true si une opération est en cours sur l'Id de snapshot spécifié
-     */
-    public function snapOpIsRunning(string $snapId)
-    {
-        return $this->model->snapOpIsRunning($snapId);
-    }
-
-    /**
      *  Retourne le nombre total de repos
      */
     public function count()
@@ -668,10 +660,10 @@ class Repo
                          */
                         if ($result === true) {
                             if ($packageType == 'rpm') {
-                                $removedSnaps[] = '<span class="label-white">' . $repoName . '</span>⟶<span class="label-black">' . $snapDateFormatted . '</span> snapshot has been deleted';
+                                $removedSnaps[] = '<span class="label-white">' . $repoName . '</span>⸺<span class="label-black">' . $snapDateFormatted . '</span> snapshot has been deleted';
                             }
                             if ($packageType == 'deb') {
-                                $removedSnaps[] = '<span class="label-white">' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</span>⟶<span class="label-black">' . $snapDateFormatted . '</span> snapshot has been deleted';
+                                $removedSnaps[] = '<span class="label-white">' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</span>⸺<span class="label-black">' . $snapDateFormatted . '</span> snapshot has been deleted';
                             }
 
                             /**
@@ -684,10 +676,10 @@ class Repo
                          */
                         } else {
                             if ($packageType == 'rpm') {
-                                $removedSnapsError[] = 'Error while automatically deleting snapshot <span class="label-white">' . $repoName . '</span>⟶<span class="label-black">' . $snapDateFormatted . '</span>';
+                                $removedSnapsError[] = 'Error while automatically deleting snapshot <span class="label-white">' . $repoName . '</span>⸺<span class="label-black">' . $snapDateFormatted . '</span>';
                             }
                             if ($packageType == 'deb') {
-                                $removedSnapsError[] = 'Error while automatically deleting snapshot <span class="label-white">' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</span>⟶<span class="label-black">' . $snapDateFormatted . '</span>';
+                                $removedSnapsError[] = 'Error while automatically deleting snapshot <span class="label-white">' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</span>⸺<span class="label-black">' . $snapDateFormatted . '</span>';
                             }
                             /**
                              *  On passe au snapshot suivant (et donc on ne change pas le status du snapshot en base de données puisqu'il n'a pas pu être supprimé)

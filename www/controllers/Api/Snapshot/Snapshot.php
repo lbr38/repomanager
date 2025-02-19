@@ -13,6 +13,7 @@ class Snapshot extends \Controllers\Api\Controller
     public function execute()
     {
         $myrepo = new \Controllers\Repo\Repo();
+        $repoSnapshotController = new \Controllers\Repo\Snapshot();
         $mypackage = new \Controllers\Repo\Package();
 
         /**
@@ -83,7 +84,7 @@ class Snapshot extends \Controllers\Api\Controller
                     /**
                      *  If a task is already running on the snapshot, throw an error
                      */
-                    if ($myrepo->snapOpIsRunning($this->snapId) === true) {
+                    if ($repoSnapshotController->taskRunning($this->snapId) === true) {
                         throw new Exception('A task is already running on this repository snapshot. Retry later.');
                     }
 
