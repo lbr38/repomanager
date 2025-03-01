@@ -53,31 +53,76 @@ if (!empty(ENVS)) {
  *  Additional JS files
  */
 if (__ACTUAL_URI__[1] == '') {
-    $jsFiles = ['repo', 'task', 'group', 'source', 'events/repo/source/distribution', 'events/repo/source/releasever', 'events/repo/source/source', 'events/repo/edit'];
+    $jsFiles = [
+        'repo',
+        'task',
+        'group',
+        'source',
+        'events/repo/source/distribution',
+        'events/repo/source/releasever',
+        'events/repo/source/source',
+        'events/repo/edit',
+        'events/repo/install',
+        'events/task/stop'
+    ];
 }
 if (__ACTUAL_URI__[1] == 'hosts') {
-    $jsFiles = ['host', 'events/host/layout', 'events/host/actions', 'events/profile/actions'];
+    $jsFiles =[
+        'host',
+        'events/host/layout',
+        'events/host/actions',
+        'events/profile/actions',
+        'events/task/stop'
+    ];
 }
 if (__ACTUAL_URI__[1] == 'host') {
-    $jsFiles = ['host', 'events/host/layout', 'events/host/actions'];
+    $jsFiles = [
+        'host',
+        'events/host/layout',
+        'events/host/actions',
+        'events/task/stop'
+    ];
 }
 if (__ACTUAL_URI__[1] == 'browse') {
-    $jsFiles = ['functions/browse', 'events/browse/repository'];
+    $jsFiles = [
+        'functions/browse',
+        'events/browse/repository',
+        'events/task/stop'
+    ];
 }
 if (__ACTUAL_URI__[1] == 'stats') {
-    $jsFiles = ['stats'];
+    $jsFiles = [
+        'stats',
+        'events/task/stop'
+    ];
 }
 if (__ACTUAL_URI__[1] == 'settings') {
-    $jsFiles = ['functions/environment', 'events/environment/actions', 'settings'];
+    $jsFiles = [
+        'functions/environment',
+        'events/settings/environment',
+        'events/settings/debug-mode',
+        'events/task/stop',
+        'settings'
+    ];
 }
 if (__ACTUAL_URI__[1] == 'run') {
-    $jsFiles = ['functions/task', 'events/task/actions'];
+    $jsFiles = [
+        'functions/task',
+        'events/task/actions',
+        'events/task/stop'
+    ];
 }
 if (__ACTUAL_URI__[1] == 'history') {
-    $jsFiles = ['events/history/actions'];
+    $jsFiles = [
+        'events/history/actions',
+        'events/task/stop'
+    ];
 }
 if (__ACTUAL_URI__[1] == 'cves') {
-    $jsFiles = ['cve'];
+    $jsFiles = [
+        'cve',
+        'events/task/stop'
+    ];
 }
 if (!empty($jsFiles)) {
     foreach ($jsFiles as $jsFile) {

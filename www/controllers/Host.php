@@ -189,23 +189,6 @@ class Host
     }
 
     /**
-     *  Retrieve the list of requests sent to the host
-     *  It is possible to add an offset to the request
-     */
-    public function getRequests(int $id, bool $withOffset = false, int $offset = 0)
-    {
-        return $this->model->getRequests($id, $withOffset, $offset);
-    }
-
-    /**
-     *  Return the last pending request sent to the host
-     */
-    public function getLastPendingRequest(int $id)
-    {
-        return $this->model->getLastPendingRequest($id);
-    }
-
-    /**
      *  Récupère la liste des paquets issus d'un évènemnt et dont l'état des paquets est défini par $packageState (installed, upgraded, removed)
      *  Les informations sont récupérées à la fois dans la table packages et dans packages_history
      */
@@ -888,13 +871,6 @@ class Host
              */
             $this->openHostDb($this->id);
             $this->closeHostDb();
-
-            /**
-             *  Création d'un répertoire 'reports' pour cet hôte
-             */
-            if (!mkdir(HOSTS_DIR . '/' . $this->id . '/reports', 0770, true)) {
-                throw new Exception('The server could not finalize registering.');
-            }
         }
 
         return true;

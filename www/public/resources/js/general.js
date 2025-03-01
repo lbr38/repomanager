@@ -75,7 +75,12 @@ $(document).keyup(function (e) {
  *  Event: print a copy icon on element with .copy class
  */
 $(document).on('mouseenter','.copy',function () {
-    $(this).append('<img src="/assets/icons/duplicate.svg" class="icon-lowopacity icon-copy margin-left-5" title="Copy to clipboard">');
+    // If the element is a <pre> tag, the copy icon is in the top right corner
+    if ($(this).is('pre')) {
+        $(this).append('<img src="/assets/icons/duplicate.svg" class="icon-lowopacity icon-copy-top-right margin-left-5" title="Copy to clipboard">');
+    } else {
+        $(this).append('<img src="/assets/icons/duplicate.svg" class="icon-lowopacity icon-copy margin-left-5" title="Copy to clipboard">');
+    }
 });
 
 /**
@@ -83,12 +88,13 @@ $(document).on('mouseenter','.copy',function () {
  */
 $(document).on('mouseleave','.copy',function () {
     $(this).find('.icon-copy').remove();
+    $(this).find('.icon-copy-top-right').remove();
 });
 
 /**
  *  Event: copy parent text on click on element with .icon-copy class
  */
-$(document).on('click','.icon-copy',function (e) {
+$(document).on('click','.icon-copy, .icon-copy-top-right',function (e) {
     // Prevent parent to be triggered
     e.stopPropagation();
 

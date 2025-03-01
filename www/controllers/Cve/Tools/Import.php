@@ -166,7 +166,11 @@ class Import
                 /**
                  *  Gunzip feed file
                  */
-                \Controllers\Common::gunzip($savePath);
+                try {
+                    \Controllers\Common::gunzip($savePath);
+                } catch (Exception $e) {
+                    throw new Exception('Error while uncompressing feed file: ' . $e->getMessage());
+                }
 
                 $jsonFile = str_replace('.gz', '', $savePath);
 

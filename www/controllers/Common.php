@@ -273,67 +273,6 @@ class Common
     }
 
     /**
-     *  Return an array with the list of founded files in specified directory path
-     */
-    public static function findRecursive(string $directoryPath, string $fileExtension = null, bool $returnFullPath = true)
-    {
-        $foundedFiles = array();
-
-        $iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($directoryPath . '/', \FilesystemIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::SELF_FIRST,
-            \RecursiveIteratorIterator::CATCH_GET_CHILD // Ignore "Permission denied"
-        );
-
-        /**
-         *  Find files with specified extension
-         */
-        if (!empty($iterator)) {
-            foreach ($iterator as $file) {
-                /**
-                 *  Skip '.' and '..' files
-                 */
-                if ($file->getFilename() == '.' || $file->getFilename() == '..') {
-                    continue;
-                }
-
-                /**
-                 *  Skip if the current file is a directory
-                 */
-                if ($file->isDir()) {
-                    continue;
-                }
-
-                /**
-                 *  If an extension has been specified, then check that the file has correct extension
-                 */
-                if (!empty($fileExtension)) {
-                    /**
-                     *  If extension is incorrect, then ignore the current file and process the next one
-                     */
-                    if ($file->getExtension() != $fileExtension) {
-                        continue;
-                    }
-                }
-
-                /**
-                 *  By default, return file's fullpath
-                 */
-                if ($returnFullPath === true) {
-                    $foundedFiles[] = $file->getPathname();
-                /**
-                 *  Else only return filename
-                 */
-                } else {
-                    $foundedFiles[] = $file->getFilename();
-                }
-            }
-        }
-
-        return $foundedFiles;
-    }
-
-    /**
      *  Return an array with the list of founded directories in specified directory path
      *  Directory name can be filtered with a regex
      */
@@ -416,28 +355,6 @@ class Common
     }
 
     /**
-     *  Find files and copy them to the specified target directory
-     */
-    public static function findAndCopyRecursive(string $directoryPath, string $targetDirectoryPath, string $fileExtension = null)
-    {
-        $foundedFiles = Common::findRecursive($directoryPath, $fileExtension, true);
-
-        /**
-         *  Copy files if founded
-         */
-        if (!empty($foundedFiles)) {
-            foreach ($foundedFiles as $foundedFile) {
-                $filename = preg_split('#/#', $foundedFile);
-                $filename = end($filename);
-
-                if (!copy($foundedFile, $targetDirectoryPath . '/' . $filename)) {
-                    throw new Exception('Error: could not copy package ' . $foundedFile . ' to ' . $targetDirectoryPath . '/' . $filename);
-                }
-            }
-        }
-    }
-
-    /**
      *  Uncompress bzip2 file
      */
     public static function bunzip2(string $filename, string $outputFilename = null)
@@ -456,7 +373,7 @@ class Common
         $myprocess->close();
 
         if ($myprocess->getExitCode() != 0) {
-            throw new Exception('Error while uncompressing bzip2 file ' . $filename . ': ' . $content);
+            throw new Exception($content);
         }
 
         unset($myprocess, $content);
@@ -529,7 +446,7 @@ class Common
         $myprocess->close();
 
         if ($myprocess->getExitCode() != 0) {
-            throw new Exception('Error while uncompressing xz file ' . $filename . ': ' . $content);
+            throw new Exception($content);
         }
 
         unset($myprocess, $content);
@@ -546,7 +463,7 @@ class Common
         $myprocess->close();
 
         if ($myprocess->getExitCode() != 0) {
-            throw new Exception('Error while uncompressing zstd file ' . $filename . ': ' . $content);
+            throw new Exception($content);
         }
 
         unset($myprocess, $content);

@@ -8,7 +8,34 @@ if ($myrepo->getPackageType() == 'deb') {
 
 <h6>UPDATE</h6>
 <p class="note">Task will create a new snapshot of the repository.</p>
-<span class="label-white"><?= $mirror ?></span>⟶<span class="label-red"><?= DATE_DMY ?></span><span id="update-repo-show-target-env-<?= $myrepo->getSnapId() ?>"></span>
+<span class="label-white"><?= $mirror ?></span>⸺<span class="label-red"><?= DATE_DMY ?></span><span id="update-repo-show-target-env-<?= $myrepo->getSnapId() ?>"></span>
+
+<h6 class="required">ARCHITECTURE</h6>
+<p class="note">Select the package architecture to sync.</p>
+
+<select class="task-param" param-name="arch" multiple>
+    <option value="">Select architecture...</option>
+    <?php
+    if ($myrepo->getPackageType() == 'rpm') :
+        foreach (RPM_ARCHS as $arch) {
+            if (in_array($arch, $myrepo->getArch())) {
+                echo '<option value="' . $arch . '" selected>' . $arch . '</option>';
+            } else {
+                echo '<option value="' . $arch . '">' . $arch . '</option>';
+            }
+        }
+    endif;
+
+    if ($myrepo->getPackageType() == 'deb') :
+        foreach (DEB_ARCHS as $arch) {
+            if (in_array($arch, $myrepo->getArch())) {
+                echo '<option value="' . $arch . '" selected>' . $arch . '</option>';
+            } else {
+                echo '<option value="' . $arch . '">' . $arch . '</option>';
+            }
+        }
+    endif; ?>
+</select>
 
 <h6>POINT AN ENVIRONMENT</h6>
 <p class="note">Point an environment to the new snapshot.</p>
@@ -50,31 +77,6 @@ if ($myrepo->getPackageType() == 'deb') {
 </label>
 
 <h6>ADDITIONAL PARAMETERS</h6>
-
-<h6 class="required">ARCHITECTURE</h6>
-<select class="task-param" param-name="arch" multiple>
-    <option value="">Select architecture...</option>
-    <?php
-    if ($myrepo->getPackageType() == 'rpm') :
-        foreach (RPM_ARCHS as $arch) {
-            if (in_array($arch, $myrepo->getArch())) {
-                echo '<option value="' . $arch . '" selected>' . $arch . '</option>';
-            } else {
-                echo '<option value="' . $arch . '">' . $arch . '</option>';
-            }
-        }
-    endif;
-
-    if ($myrepo->getPackageType() == 'deb') :
-        foreach (DEB_ARCHS as $arch) {
-            if (in_array($arch, $myrepo->getArch())) {
-                echo '<option value="' . $arch . '" selected>' . $arch . '</option>';
-            } else {
-                echo '<option value="' . $arch . '">' . $arch . '</option>';
-            }
-        }
-    endif; ?>
-</select>
 
 <h6>ONLY INCLUDE PACKAGE(S)</h6>
 <p class="note">Specify packages names to include. All other packages will be ignored from sync.</p>

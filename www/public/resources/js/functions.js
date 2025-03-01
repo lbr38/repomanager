@@ -603,3 +603,29 @@ function empty(value)
     // If none of the above conditions are met, the value is not empty
     return false;
 }
+
+/**
+ * Print environment tag with color, in task form
+ * Environment colors must be set in localStorage
+ * @param {*} env
+ * @param {*} selector
+ */
+function printEnv(env, selector)
+{
+    // Default colors
+    var background = '#ffffff';
+    var color = '#000000';
+
+    // Check if the environment color is set in localStorage
+    if (localStorage.getItem('env/' + env) !== null) {
+        definition = JSON.parse(localStorage.getItem('env/' + env));
+        color = definition.color;
+        background = definition.background;
+    }
+
+    // Generate html
+    var html = '⸺<span class="env" style="background-color: ' + background + '; color: ' + color + ';">' + env + '</span>';
+
+    // Print environment
+    $(selector).html(html);
+}

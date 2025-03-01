@@ -183,37 +183,53 @@
         </div>
 
         <div>
-            <h3>LOGS</h3>
+            <h3>DEBUG MODE</h3>
             <div class="div-generic-blue">
-                <h6 class="margin-top-0">WEBSOCKET SERVER LOGS</h6>
-                <?php
-                // Get all log file names
-                $logFiles = glob(WS_LOGS_DIR . '/*.log');
+                <h6 class="margin-top-0">ENABLE DEBUG MODE</h6>
+                <p class="note">Debug mode will display additional information on the interface.</p>
 
-                if (empty($logFiles)) {
-                    echo '<p class="note">No logs for now.</p>';
-                }
-
-                if (!empty($logFiles)) :
-                    // Sort logs in reverse order
-                    rsort($logFiles); ?>
-
-                    <p class="note">Select a log file to view.</p>
-                    <div class="flex align-item-center column-gap-10">
-                        <select id="websocket-log-select">
-                            <?php
-                            foreach ($logFiles as $logFile) {
-                                echo '<option value="' . basename($logFile) . '">' . basename($logFile) . '</option>';
-                            } ?>
-                        </select>
-                        <div>
-                            <button type="button" id="websocket-log-btn" class="btn-xsmall-green">View</button>
-                        </div>
-                    </div>
-                    <?php
-                endif ?>
+                <label class="onoff-switch-label">
+                    <input id="debug-mode-btn" class="onoff-switch-input" type="checkbox" value="true" <?php echo (DEBUG_MODE == "true") ? 'checked' : ''; ?>>
+                    <span class="onoff-switch-slider"></span>
+                </label>
             </div>
         </div>
+
         <?php
+        if (DEBUG_MODE == 'true') : ?>
+            <div>
+                <h3>LOGS</h3>
+                <div class="div-generic-blue">
+                    <h6 class="margin-top-0">WEBSOCKET SERVER LOGS</h6>
+                    <?php
+                    // Get all log file names
+                    $logFiles = glob(WS_LOGS_DIR . '/*.log');
+
+                    if (empty($logFiles)) {
+                        echo '<p class="note">No logs for now.</p>';
+                    }
+
+                    if (!empty($logFiles)) :
+                        // Sort logs in reverse order
+                        rsort($logFiles); ?>
+
+                        <p class="note">Select a log file to view.</p>
+                        <div class="flex align-item-center column-gap-10">
+                            <select id="websocket-log-select">
+                                <?php
+                                foreach ($logFiles as $logFile) {
+                                    echo '<option value="' . basename($logFile) . '">' . basename($logFile) . '</option>';
+                                } ?>
+                            </select>
+                            <div>
+                                <button type="button" id="websocket-log-btn" class="btn-xsmall-green">View</button>
+                            </div>
+                        </div>
+                        <?php
+                    endif ?>
+                </div>
+            </div>
+            <?php
+        endif;
     endif ?>
 </section>

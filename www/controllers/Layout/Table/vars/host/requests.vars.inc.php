@@ -1,5 +1,5 @@
 <?php
-$myhost = new \Controllers\Host();
+$hostRequestController = new \Controllers\Host\Request();
 $reloadableTableOffset = 0;
 
 $id = __ACTUAL_URI__[2];
@@ -14,12 +14,12 @@ if (!empty($_COOKIE['tables/host/requests/offset']) and is_numeric($_COOKIE['tab
 /**
  *  Get list of requests sent to the host, with offset
  */
-$reloadableTableContent = $myhost->getRequests($id, true, $reloadableTableOffset);
+$reloadableTableContent = $hostRequestController->getByHostId($id, true, $reloadableTableOffset);
 
 /**
  *  Get list of ALL requests sent to the host, without offset, for the total count
  */
-$reloadableTableTotalItems = count($myhost->getRequests($id));
+$reloadableTableTotalItems = count($hostRequestController->getByHostId($id));
 
 /**
  *  Count total pages for the pagination

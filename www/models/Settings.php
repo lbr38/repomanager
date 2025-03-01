@@ -14,7 +14,7 @@ class Settings extends Model
     /**
      *  Get settings
      */
-    public function get()
+    public function get() : array
     {
         $settings = array();
 
@@ -34,7 +34,7 @@ class Settings extends Model
     /**
      *  Apply settings
      */
-    public function apply(array $settingsToApply)
+    public function apply(array $settingsToApply) : void
     {
         /**
          *  Build request
@@ -44,13 +44,30 @@ class Settings extends Model
         foreach ($settingsToApply as $key => $value) {
             $request .= $key . " = :" . $key . ", ";
         }
+
         $request = rtrim($request, ", ");
 
         try {
             $stmt = $this->db->prepare($request);
+
             foreach ($settingsToApply as $key => $value) {
                 $stmt->bindValue(':' . $key, $value);
             }
+
+            $stmt->execute();
+        } catch (\Exception $e) {
+            $this->db->logError($e);
+        }
+    }
+
+    /**
+     *  Enable or disable debug mode
+     */
+    public function enableDebugMode(string $enable) : void
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE settings SET DEBUG_MODE = :enable");
+            $stmt->bindValue(':enable', $enable);
             $stmt->execute();
         } catch (\Exception $e) {
             $this->db->logError($e);

@@ -5,6 +5,7 @@ services:
   repomanager:
     container_name: repomanager-dev
     image: repomanager
+    network_mode: host
     build:
       context: .
       dockerfile: Dockerfile
@@ -13,8 +14,6 @@ services:
         fqdn: repomanager-dev.localhost
         max_upload_size: 64M
     restart: always
-    ports:
-      - "8080:8080"
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/lib/docker/volumes/repomanager-dev-logs:/var/log/nginx

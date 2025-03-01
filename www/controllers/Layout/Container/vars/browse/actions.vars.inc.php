@@ -2,11 +2,11 @@
 $myrepo = new \Controllers\Repo\Repo();
 
 if (empty(__ACTUAL_URI__[2])) {
-    die('Error: no repo snapshot ID specified.');
+    throw new Exception('Error: no repo snapshot ID specified.');
 }
 
 if (!is_numeric(__ACTUAL_URI__[2])) {
-    die('Error: invalid repo snapshot ID.');
+    throw new Exception('Error: invalid repo snapshot ID.');
 }
 
 $snapId = __ACTUAL_URI__[2];
@@ -15,6 +15,25 @@ $snapId = __ACTUAL_URI__[2];
  *  Retrieve repo infos from DB
  */
 $myrepo->getAllById('', $snapId, '');
+
+/**
+ *  Build repo path
+ */
+if ($myrepo->getPackageType() == 'rpm') {
+    $repoPath = REPOS_DIR . '/' . $myrepo->getDateFormatted() . '_' . $myrepo->getName();
+}
+
+if ($myrepo->getPackageType() == 'deb') {
+    $repoPath = REPOS_DIR . '/' . $myrepo->getName() . '/' . $myrepo->getDist() . '/' . $myrepo->getDateFormatted() . '_' . $myrepo->getSection();
+}
+
+/**
+ *  If the path does not exist on the server then we quit
+ *  browse/list container should have already throwed an error
+ */
+if (!is_dir($repoPath)) {
+    throw new Exception();
+}
 
 /**
  *  Retrieve repo rebuild status

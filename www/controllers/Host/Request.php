@@ -43,6 +43,23 @@ class Request
     }
 
     /**
+     *  Return the list of requests sent to the host
+     *  It is possible to add an offset to the request
+     */
+    public function getByHostId(int $id, bool $withOffset = false, int $offset = 0)
+    {
+        return $this->model->getByHostId($id, $withOffset, $offset);
+    }
+
+    /**
+     *  Return the last pending request sent to the host
+     */
+    public function getLastPendingRequest(int $id)
+    {
+        return $this->model->getLastPendingRequest($id);
+    }
+
+    /**
      *  Update request in database
      */
     public function update(int $id, string $status, string $info, string $responseJson)
@@ -129,5 +146,13 @@ class Request
     public function getRequestPackageLog(int $id, string $package, string $status) : string|null
     {
         return $this->model->getRequestPackageLog($id, $package, $status);
+    }
+
+    /**
+     *  Return true if a package update request is running on the specified host
+     */
+    public function isPackageUpdateRequestRunning(int $hostId) : bool
+    {
+        return $this->model->isPackageUpdateRequestRunning($hostId);
     }
 }

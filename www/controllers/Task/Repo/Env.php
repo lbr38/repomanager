@@ -86,11 +86,11 @@ class Env
              */
             if ($this->repo->existsSnapIdEnv($this->repo->getSnapId(), $this->repo->getEnv()) === true) {
                 if ($this->repo->getPackageType() == 'rpm') {
-                    throw new Exception('A ' . \Controllers\Common::envtag($this->repo->getEnv()) . ' environment already exists on <span class="label-white">' . $this->repo->getName() . '</span>⟶<span class="label-black">' . $this->repo->getDateFormatted() . '</span>');
+                    throw new Exception('A ' . \Controllers\Common::envtag($this->repo->getEnv()) . ' environment already exists on <span class="label-white">' . $this->repo->getName() . '</span>⸺<span class="label-black">' . $this->repo->getDateFormatted() . '</span>');
                 }
 
                 if ($this->repo->getPackageType() == 'deb') {
-                    throw new Exception('A ' . \Controllers\Common::envtag($this->repo->getEnv()) . ' environment already exists on <span class="label-white">' . $this->repo->getName() . ' ❯ ' . $this->repo->getDist() . ' ❯ ' . $this->repo->getSection() . '</span>⟶<span class="label-black">' . $this->repo->getDateFormatted() . '</span>');
+                    throw new Exception('A ' . \Controllers\Common::envtag($this->repo->getEnv()) . ' environment already exists on <span class="label-white">' . $this->repo->getName() . ' ❯ ' . $this->repo->getDist() . ' ❯ ' . $this->repo->getSection() . '</span>⸺<span class="label-black">' . $this->repo->getDateFormatted() . '</span>');
                 }
             }
 

@@ -12,4 +12,12 @@ class Snapshot
     {
         $this->model = new \Models\Repo\Snapshot();
     }
+
+    /**
+     *  Return true if a task is queued or running for the specified snapshot
+     */
+    public function taskRunning(int $snapId) : bool
+    {
+        return $this->model->taskRunning($snapId);
+    }
 }

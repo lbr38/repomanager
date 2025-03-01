@@ -61,6 +61,65 @@ class Request extends \Models\Model
     }
 
     /**
+     *  Return the list of requests sent to the host
+     *  It is possible to add an offset to the request
+     */
+    public function getByHostId(int $id, bool $withOffset, int $offset)
+    {
+        $data = array();
+
+        try {
+            $query = "SELECT * FROM requests WHERE Id_host = :id ORDER BY Date DESC, Time DESC";
+
+            /**
+             *  Add offset if needed
+             */
+            if ($withOffset === true) {
+                $query .= " LIMIT 10 OFFSET :offset";
+            }
+
+            /**
+             *  Prepare query
+             */
+            $stmt = $this->db->prepare($query);
+            $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
+            $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
+
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            $this->db->logError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return $data;
+    }
+
+    /**
+     *  Return the last pending request sent to the host
+     */
+    public function getLastPendingRequest(int $id)
+    {
+        $data = array();
+
+        try {
+            $stmt = $this->db->prepare("SELECT * from requests WHERE Id_host = :id ORDER BY DATE DESC, TIME DESC LIMIT 1");
+            $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            $this->db->logError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data = $row;
+        }
+
+        return $data;
+    }
+
+    /**
      *  Update request in database
      */
     public function update(int $id, string $status, string $info, string $responseJson) : void
@@ -208,5 +267,28 @@ class Request extends \Models\Model
         }
 
         return $data;
+    }
+
+    /**
+     *  Return true if a package update request is running on the specified host
+     */
+    public function isPackageUpdateRequestRunning(int $hostId) : bool
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM requests
+            WHERE Id_host = :hostId
+            AND (Status = 'running' OR Status = 'new' OR Status = 'sent')
+            AND (json_extract(COALESCE(Request, '{}'), '$.request') == 'request-packages-update' OR json_extract(COALESCE(Request, '{}'), '$.request') == 'request-all-packages-update')");
+            $stmt->bindValue(':hostId', $hostId);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            $this->db->logError($e);
+        }
+
+        if ($this->db->isempty($result)) {
+            return false;
+        }
+
+        return true;
     }
 }

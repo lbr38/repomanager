@@ -7,7 +7,7 @@ if ($myrepo->getPackageType() == 'rpm') {
 if ($myrepo->getPackageType() == 'deb') {
     echo ' <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>';
 } ?>
-⟶<span class="label-black"><?=$myrepo->getDateFormatted()?></span>
+⸺<span class="label-black"><?=$myrepo->getDateFormatted()?></span>
   
 <h6 class="required">NEW REPOSITORY NAME</h6>
 <p class="note">The name of the new repository.</p>

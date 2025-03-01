@@ -1,6 +1,7 @@
 <?php
 $id = __ACTUAL_URI__[2];
 $hostPackageController = new \Controllers\Host\Package\Package($id);
+$hostRequestController = new \Controllers\Host\Request();
 $reloadableTableOffset = 0;
 
 /**
@@ -30,4 +31,9 @@ $reloadableTableTotalPages = ceil($reloadableTableTotalItems / 10);
  */
 $reloadableTableCurrentPage = ceil($reloadableTableOffset / 10) + 1;
 
-unset($hostPackageController);
+/**
+ *  Check if there is a package update running
+ */
+$packageUpdateRunning = $hostRequestController->isPackageUpdateRequestRunning($id);
+
+unset($hostPackageController, $hostRequestController);

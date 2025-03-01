@@ -88,15 +88,18 @@ trait Sync
             }
 
             /**
-             *  2. Define final repo/section directory path
+             *  Define temporary working directory
+             */
+            $workingDir = REPOS_DIR . '/download-mirror-task-' . $this->task->getId();
+
+            /**
+             *  Define final repo/section directory path
              */
             if ($this->repo->getPackageType() == 'rpm') {
                 $repoPath = REPOS_DIR . '/' . DATE_DMY . '_' . $this->repo->getName();
-                $workingDir = REPOS_DIR . '/download-mirror-' . $this->repo->getName() . '-task-' . $this->task->getId();
             }
             if ($this->repo->getPackageType() == 'deb') {
                 $repoPath = REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . DATE_DMY . '_' . $this->repo->getSection();
-                $workingDir = REPOS_DIR . '/download-mirror-' . $this->repo->getName() . '-task-' . $this->repo->getDist() . '-' . $this->repo->getSection()  . '-' . $this->task->getId();
             }
 
             /**

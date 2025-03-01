@@ -1,7 +1,7 @@
 <?php
 $mygroup = new \Controllers\Group('host');
 $myhost = new \Controllers\Host();
-$hostDb = new \Controllers\Host();
+$hostRequestController = new \Controllers\Host\Request();
 $compactView = true;
 
 /**

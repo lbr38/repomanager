@@ -1018,65 +1018,6 @@ class Host extends Model
     }
 
     /**
-     *  Retrieve the list of requests sent to the host
-     *  It is possible to add an offset to the request
-     */
-    public function getRequests(int $id, bool $withOffset, int $offset)
-    {
-        $data = array();
-
-        try {
-            $query = "SELECT * FROM requests WHERE Id_host = :id ORDER BY Date DESC, Time DESC";
-
-            /**
-             *  Add offset if needed
-             */
-            if ($withOffset === true) {
-                $query .= " LIMIT 10 OFFSET :offset";
-            }
-
-            /**
-             *  Prepare query
-             */
-            $stmt = $this->db->prepare($query);
-            $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
-            $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
-
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $data[] = $row;
-        }
-
-        return $data;
-    }
-
-    /**
-     *  Return the last pending request sent to the host
-     */
-    public function getLastPendingRequest(int $id)
-    {
-        $data = array();
-
-        try {
-            $stmt = $this->db->prepare("SELECT * from requests WHERE Id_host = :id ORDER BY DATE DESC, TIME DESC LIMIT 1");
-            $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $data = $row;
-        }
-
-        return $data;
-    }
-
-    /**
      *  Récupère la liste des paquets issus d'un évènemnt et dont l'état des paquets est défini par $packageState (installed, upgraded, removed)
      *  Les informations sont récupérées à la fois dans la table packages et dans packages_history
      */
