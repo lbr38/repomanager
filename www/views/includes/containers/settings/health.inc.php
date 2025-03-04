@@ -156,6 +156,8 @@
                                     <?php
                                     if ($user['Type'] == 'local') {
                                         echo 'Local account';
+                                    } elseif ($user['Type'] == 'sso') {
+                                        echo 'SSO account';
                                     } ?>
                                 </p>
                             </div>
@@ -165,9 +167,11 @@
                             <div class="flex column-gap-10 justify-end">
                                 <?php
                                 if ($user['Username'] != 'admin') : ?>
+                                    <?php if ($user['Type'] == 'local') : ?>
                                     <p class="reset-password-btn" user-id="<?= $user['Id'] ?>" username="<?= $user['Username'] ?>" title="Reset password of user <?= $user['Username'] ?>">
                                         <img src="/assets/icons/update.svg" class="icon-lowopacity" />
                                     </p>
+                                    <?php endif; ?>
                                     <p class="delete-user-btn" user-id="<?= $user['Id'] ?>" username="<?= $user['Username'] ?>" title="Delete user <?= $user['Username'] ?>">
                                         <img src="/assets/icons/delete.svg" class="icon-lowopacity" />
                                     </p>

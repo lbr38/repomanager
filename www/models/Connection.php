@@ -2,6 +2,7 @@
 
 namespace Models;
 
+use Controllers\Common;
 use SQLite3;
 use Exception;
 
@@ -567,7 +568,25 @@ class Connection extends SQLite3
         /* CVE settings */
         CVE_IMPORT CHAR(5),
         CVE_IMPORT_TIME TIME,
-        CVE_SCAN_HOSTS CHAR(5))");
+        CVE_SCAN_HOSTS CHAR(5),
+        /* OIDC settings */
+        OIDC_ENABLED CHAR(5),
+        SSO_OIDC_ONLY CHAR(5),
+        OIDC_PROVIDER_URL VARCHAR(255),
+        OIDC_AUTHORIZATION_ENDPOINT VARCHAR(255),
+        OIDC_TOKEN_ENDPOINT VARCHAR(255),
+        OIDC_USERINFO_ENDPOINT VARCHAR(255),
+        OIDC_SCOPES VARCHAR(255),
+        OIDC_CLIENT_ID VARCHAR(255),
+        OIDC_CLIENT_SECRET VARCHAR(255),
+        OIDC_USERNAME VARCHAR(255),
+        OIDC_FIRST_NAME VARCHAR(255),
+        OIDC_LAST_NAME VARCHAR(255),
+        OIDC_EMAIL VARCHAR(255),
+        OIDC_GROUPS VARCHAR(255),
+        OIDC_GROUP_ADMINISTRATOR VARCHAR(255),
+        OIDC_GROUP_SUPER_ADMINISTRATOR VARCHAR(255)
+    )");
 
         /**
          *  If settings table is empty then populate it
@@ -587,6 +606,61 @@ class Connection extends SQLite3
              *  GPG key Id
              */
             $gpgKeyId = 'repomanager@' . $fqdn;
+
+            /**
+             * Get app.yaml
+             */
+            $app_yaml = yaml_parse_file(APP_YAML);
+
+            /**
+             * OIDC settings
+             */
+            $OIDC_ENABLED = 'false';
+            if ($app_yaml['oidc']['enabled'] == 'true') {
+                $OIDC_ENABLED = 'true';
+            }
+            $SSO_OIDC_ONLY = 'false';
+            if ($app_yaml['oidc']['oidc_only'] == 'true') {
+                $SSO_OIDC_ONLY = 'true';
+            }
+            $OIDC_PROVIDER_URL = Common::validateData($app_yaml['oidc']['provider_url']);
+            $OIDC_AUTHORIZATION_ENDPOINT = Common::validateData($app_yaml['oidc']['authorization_endpoint']);
+            $OIDC_TOKEN_ENDPOINT = Common::validateData($app_yaml['oidc']['token_endpoint']);
+            $OIDC_USERINFO_ENDPOINT = Common::validateData($app_yaml['oidc']['userinfo_endpoint']);
+            $OIDC_SCOPES = 'groups,email,profile';
+            if (isset($app_yaml['oidc']['scopes'])) {
+                $OIDC_SCOPES = Common::validateData($app_yaml['oidc']['scopes']);
+            }
+            $OIDC_CLIENT_ID = Common::validateData($app_yaml['oidc']['client_id']);
+            $OIDC_CLIENT_SECRET = Common::validateData($app_yaml['oidc']['client_secret']);
+            $OIDC_USERNAME = 'preferred_username';
+            if (isset($app_yaml['oidc']['username'])) {
+                $OIDC_USERNAME = Common::validateData($app_yaml['oidc']['username']);
+            }
+            $OIDC_FIRST_NAME = 'given_name';
+            if (isset($app_yaml['oidc']['first_name'])) {
+                $OIDC_FIRST_NAME = Common::validateData($app_yaml['oidc']['first_name']);
+            }
+            $OIDC_LAST_NAME = 'family_name';
+            if (isset($app_yaml['oidc']['last_name'])) {
+                $OIDC_LAST_NAME = Common::validateData($app_yaml['oidc']['last_name']);
+            }
+            $OIDC_EMAIL = 'email';
+            if (isset($app_yaml['oidc']['email'])) {
+                $OIDC_EMAIL = Common::validateData($app_yaml['oidc']['email']);
+            }
+            $OIDC_GROUPS = 'groups';
+            if (isset($app_yaml['oidc']['groups'])) {
+                $OIDC_GROUPS = Common::validateData($app_yaml['oidc']['groups']);
+            }
+            $OIDC_GROUP_ADMINISTRATOR = 'administrator';
+            if (isset($app_yaml['oidc']['group_administrator'])) {
+                $OIDC_GROUP_ADMINISTRATOR = Common::validateData($app_yaml['oidc']['group_administrator']);
+            }
+            $OIDC_GROUP_SUPER_ADMINISTRATOR= 'super-administrator';
+            if (isset($app_yaml['oidc']['group_super_administrator'])) {
+                $OIDC_GROUP_SUPER_ADMINISTRATOR = Common::validateData($app_yaml['oidc']['group_super_administrator']);
+            }
 
             $this->exec("INSERT INTO settings (
                 EMAIL_RECIPIENT,
@@ -615,7 +689,23 @@ class Connection extends SQLite3
                 MANAGE_HOSTS,
                 CVE_IMPORT,
                 CVE_IMPORT_TIME,
-                CVE_SCAN_HOSTS
+                CVE_SCAN_HOSTS,
+                OIDC_ENABLED,
+                SSO_OIDC_ONLY,
+                OIDC_PROVIDER_URL,
+                OIDC_AUTHORIZATION_ENDPOINT,
+                OIDC_TOKEN_ENDPOINT,
+                OIDC_USERINFO_ENDPOINT,
+                OIDC_SCOPES,
+                OIDC_CLIENT_ID,
+                OIDC_CLIENT_SECRET,
+                OIDC_USERNAME,
+                OIDC_FIRST_NAME,
+                OIDC_LAST_NAME,
+                OIDC_EMAIL,
+                OIDC_GROUPS,
+                OIDC_GROUP_ADMINISTRATOR,
+                OIDC_GROUP_SUPER_ADMINISTRATOR
             )
             VALUES (
                 '',
@@ -644,7 +734,23 @@ class Connection extends SQLite3
                 'false',
                 'false',
                 '00:00',
-                'false'
+                'false',
+                '$OIDC_ENABLED',
+                '$SSO_OIDC_ONLY',
+                '$OIDC_PROVIDER_URL',
+                '$OIDC_AUTHORIZATION_ENDPOINT',
+                '$OIDC_TOKEN_ENDPOINT',
+                '$OIDC_USERINFO_ENDPOINT',
+                '$OIDC_SCOPES',
+                '$OIDC_CLIENT_ID',
+                '$OIDC_CLIENT_SECRET',
+                '$OIDC_USERNAME',
+                '$OIDC_FIRST_NAME',
+                '$OIDC_LAST_NAME',
+                '$OIDC_EMAIL',
+                '$OIDC_GROUPS',
+                '$OIDC_GROUP_ADMINISTRATOR',
+                '$OIDC_GROUP_SUPER_ADMINISTRATOR'
             )");
         }
 

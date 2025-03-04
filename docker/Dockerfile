@@ -72,6 +72,7 @@ RUN echo $fqdn > /etc/mailname
 RUN mkdir -p $WWW_DIR $DATA_DIR $REPOS_DIR
 RUN cp -r /tmp/repomanager/www/* $WWW_DIR/
 RUN echo "$fqdn" > $WWW_DIR/.fqdn
+RUN cp /tmp/repomanager/docker/config/app.yaml $DATA_DIR/app.yaml
 
 # Create repomanager group and set basic permissions
 RUN groupadd repomanager

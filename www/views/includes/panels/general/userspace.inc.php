@@ -25,19 +25,22 @@
     <form id="user-edit-info" autocomplete="off">
         <input type="hidden" name="username" value="<?= $_SESSION['username'] ?>" />
         <h6>FIRST NAME</h6>
-        <input type="text" class="input-large" name="first-name" value="<?php echo !empty($_SESSION['first_name']) ? $_SESSION['first_name'] : ''; ?>">
+        <input type="text" class="input-large" name="first-name" value="<?php echo !empty($_SESSION['first_name']) ? $_SESSION['first_name'] : ''; ?>" <?php echo $_SESSION['type'] != 'local' ? 'readonly' : ''; ?>>
 
         <h6>LAST NAME</h6>
-        <input type="text" class="input-large" name="last-name" value="<?php echo !empty($_SESSION['last_name']) ? $_SESSION['last_name'] : ''; ?>">
+        <input type="text" class="input-large" name="last-name" value="<?php echo !empty($_SESSION['last_name']) ? $_SESSION['last_name'] : ''; ?>" <?php echo $_SESSION['type'] != 'local' ? 'readonly' : ''; ?>>
 
         <h6>EMAIL</h6>
-        <input type="email" class="input-large" name="email" value="<?php echo !empty($_SESSION['email']) ? $_SESSION['email'] : ''; ?>">
+        <input type="email" class="input-large" name="email" value="<?php echo !empty($_SESSION['email']) ? $_SESSION['email'] : ''; ?>" <?php echo $_SESSION['type'] != 'local' ? 'readonly' : ''; ?>>
 
         <br><br>
-        <button class="btn-small-green">Save</button>
+        <?php if ($_SESSION['type'] == 'local') : ?>
+            <button class="btn-small-green">Save</button>
+        <?php endif; ?>
     </form>
 </div>
 
+<?php if ($_SESSION['type'] == 'local') : ?>
 <h5>CHANGE PASSWORD</h5>
             
 <div>
@@ -56,6 +59,7 @@
         <button class="btn-small-green">Save</button>
     </form>
 </div>
+<?php endif; ?>
 
 <?php
 $content = ob_get_clean();

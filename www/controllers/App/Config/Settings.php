@@ -23,6 +23,11 @@ class Settings
         $settings = $mysettings->get();
 
         /**
+         * Get app.yaml
+         */
+        $app_yaml = yaml_parse_file(APP_YAML);
+
+        /**
          *  If some settings are empty then we increment $EMPTY_CONFIGURATION_VARIABLES which will display a warning banner.
          *  Some settings are exceptions and can be empty
          */
@@ -30,7 +35,7 @@ class Settings
             /**
              *  Following parameters can be empty (or equal to 0), we don't increment the error counter in their case
              */
-            $ignoreEmptyParam = array('EMAIL_RECIPIENT', 'PROXY', 'RPM_DEFAULT_ARCH', 'DEB_DEFAULT_ARCH', 'DEB_DEFAULT_TRANSLATION', 'REPO_CONF_FILES_PREFIX', 'RETENTION');
+            $ignoreEmptyParam = array('EMAIL_RECIPIENT', 'PROXY', 'RPM_DEFAULT_ARCH', 'DEB_DEFAULT_ARCH', 'DEB_DEFAULT_TRANSLATION', 'REPO_CONF_FILES_PREFIX', 'RETENTION', 'OIDC_PROVIDER_URL', 'OIDC_AUTHORIZATION_ENDPOINT', 'OIDC_TOKEN_ENDPOINT', 'OIDC_USERINFO_ENDPOINT', 'OIDC_SCOPES', 'OIDC_CLIENT_ID', 'OIDC_CLIENT_SECRET');
 
             if (in_array($key, $ignoreEmptyParam)) {
                 continue;
@@ -344,6 +349,171 @@ class Settings
                 define('CVE_SCAN_HOSTS', $settings['CVE_SCAN_HOSTS']);
             } else {
                 define('CVE_SCAN_HOSTS', 'false');
+            }
+        }
+
+        /**
+         * OIDC settings
+         */
+        if (!defined('OIDC_ENABLED')) {
+            if (isset($app_yaml['oidc']['enabled'])) {
+                define('OIDC_ENABLED', $app_yaml['oidc']['enabled']);
+            } elseif (isset($settings['OIDC_ENABLED'])) {
+                define('OIDC_ENABLED', $settings['OIDC_ENABLED']);
+            } else {
+                define('OIDC_ENABLED', 'false');
+            }
+        }
+
+        if (!defined('SSO_OIDC_ONLY')) {
+            if (isset($app_yaml['oidc']['oidc_only'])) {
+                define('SSO_OIDC_ONLY', $app_yaml['oidc']['oidc_only']);
+            } elseif (isset($settings['SSO_OIDC_ONLY'])) {
+                define('SSO_OIDC_ONLY', $settings['SSO_OIDC_ONLY']);
+            } else {
+                define('SSO_OIDC_ONLY', 'false');
+            }
+        }
+
+        if (OIDC_ENABLED == 'true') {
+            if (!defined('OIDC_PROVIDER_URL')) {
+                if (isset($app_yaml['oidc']['provider_url'])) {
+                    define('OIDC_PROVIDER_URL', $app_yaml['oidc']['provider_url']);
+                } elseif (isset($settings['OIDC_PROVIDER_URL'])) {
+                    define('OIDC_PROVIDER_URL', $settings['OIDC_PROVIDER_URL']);
+                } else {
+                    define('OIDC_PROVIDER_URL', '');
+                }
+            }
+
+            if (!defined('OIDC_AUTHORIZATION_ENDPOINT')) {
+                if (isset($app_yaml['oidc']['authorization_endpoint'])) {
+                    define('OIDC_AUTHORIZATION_ENDPOINT', $app_yaml['oidc']['authorization_endpoint']);
+                } elseif (isset($settings['OIDC_AUTHORIZATION_ENDPOINT'])) {
+                    define('OIDC_AUTHORIZATION_ENDPOINT', $settings['OIDC_AUTHORIZATION_ENDPOINT']);
+                } else {
+                    define('OIDC_AUTHORIZATION_ENDPOINT', '');
+                }
+            }
+
+            if (!defined('OIDC_TOKEN_ENDPOINT')) {
+                if (isset($app_yaml['oidc']['token_endpoint'])) {
+                    define('OIDC_TOKEN_ENDPOINT', $app_yaml['oidc']['token_endpoint']);
+                } elseif (isset($settings['OIDC_TOKEN_ENDPOINT'])) {
+                    define('OIDC_TOKEN_ENDPOINT', $settings['OIDC_TOKEN_ENDPOINT']);
+                } else {
+                    define('OIDC_TOKEN_ENDPOINT', '');
+                }
+            }
+
+            if (!defined('OIDC_USERINFO_ENDPOINT')) {
+                if (isset($app_yaml['oidc']['userinfo_endpoint'])) {
+                    define('OIDC_USERINFO_ENDPOINT', $app_yaml['oidc']['userinfo_endpoint']);
+                } elseif (isset($settings['OIDC_USERINFO_ENDPOINT'])) {
+                    define('OIDC_USERINFO_ENDPOINT', $settings['OIDC_USERINFO_ENDPOINT']);
+                } else {
+                    define('OIDC_USERINFO_ENDPOINT', '');
+                }
+            }
+
+            if (!defined('OIDC_SCOPES')) {
+                if (isset($app_yaml['oidc']['scopes'])) {
+                    define('OIDC_SCOPES', $app_yaml['oidc']['scopes']);
+                } elseif (isset($settings['OIDC_SCOPES'])) {
+                    define('OIDC_SCOPES', $settings['OIDC_SCOPES']);
+                } else {
+                    define('OIDC_SCOPES', 'groups,email,profile');
+                }
+            }
+
+            if (!defined('OIDC_CLIENT_ID')) {
+                if (isset($app_yaml['oidc']['client_id'])) {
+                    define('OIDC_CLIENT_ID', $app_yaml['oidc']['client_id']);
+                } elseif (isset($settings['OIDC_CLIENT_ID'])) {
+                    define('OIDC_CLIENT_ID', $settings['OIDC_CLIENT_ID']);
+                } else {
+                    define('OIDC_CLIENT_ID', '');
+                }
+            }
+
+            if (!defined('OIDC_CLIENT_SECRET')) {
+                if (isset($app_yaml['oidc']['client_secret'])) {
+                    define('OIDC_CLIENT_SECRET', $app_yaml['oidc']['client_secret']);
+                } elseif (isset($settings['OIDC_CLIENT_SECRET'])) {
+                    define('OIDC_CLIENT_SECRET', $settings['OIDC_CLIENT_SECRET']);
+                } else {
+                    define('OIDC_CLIENT_SECRET', '');
+                }
+            }
+
+            if (!defined('OIDC_USERNAME')) {
+                if (isset($app_yaml['oidc']['username'])) {
+                    define('OIDC_USERNAME', $app_yaml['oidc']['username']);
+                } elseif (isset($settings['OIDC_USERNAME'])) {
+                    define('OIDC_USERNAME', $settings['OIDC_USERNAME']);
+                } else {
+                    define('OIDC_USERNAME', 'preferred_username');
+                }
+            }
+
+            if (!defined('OIDC_FIRST_NAME')) {
+                if (isset($app_yaml['oidc']['first_name'])) {
+                    define('OIDC_FIRST_NAME', $app_yaml['oidc']['first_name']);
+                } elseif (isset($settings['OIDC_FIRST_NAME'])) {
+                    define('OIDC_FIRST_NAME', $settings['OIDC_FIRST_NAME']);
+                } else {
+                    define('OIDC_FIRST_NAME', 'given_name');
+                }
+            }
+
+            if (!defined('OIDC_LAST_NAME')) {
+                if (isset($app_yaml['oidc']['last_name'])) {
+                    define('OIDC_LAST_NAME', $app_yaml['oidc']['last_name']);
+                } elseif (isset($settings['OIDC_LAST_NAME'])) {
+                    define('OIDC_LAST_NAME', $settings['OIDC_LAST_NAME']);
+                } else {
+                    define('OIDC_LAST_NAME', 'family_name');
+                }
+            }
+
+            if (!defined('OIDC_EMAIL')) {
+                if (isset($app_yaml['oidc']['email'])) {
+                    define('OIDC_EMAIL', $app_yaml['oidc']['email']);
+                } elseif (isset($settings['OIDC_EMAIL'])) {
+                    define('OIDC_EMAIL', $settings['OIDC_EMAIL']);
+                } else {
+                    define('OIDC_EMAIL', 'email');
+                }
+            }
+
+            if (!defined('OIDC_GROUPS')) {
+                if (isset($app_yaml['oidc']['groups'])) {
+                    define('OIDC_GROUPS', $app_yaml['oidc']['groups']);
+                } elseif (isset($settings['OIDC_GROUPS'])) {
+                    define('OIDC_GROUPS', $settings['OIDC_GROUPS']);
+                } else {
+                    define('OIDC_GROUPS', 'groups');
+                }
+            }
+
+            if (!defined('OIDC_GROUP_ADMINISTRATOR')) {
+                if (isset($app_yaml['oidc']['group_administrator'])) {
+                    define('OIDC_GROUP_ADMINISTRATOR', $app_yaml['oidc']['group_administrator']);
+                } elseif (isset($settings['OIDC_GROUP_ADMINISTRATOR'])) {
+                    define('OIDC_GROUP_ADMINISTRATOR', $settings['OIDC_GROUP_ADMINISTRATOR']);
+                } else {
+                    define('OIDC_GROUP_ADMINISTRATOR', 'administrator');
+                }
+            }
+
+            if (!defined('OIDC_GROUP_SUPER_ADMINISTRATOR')) {
+                if (isset($app_yaml['oidc']['group_super_administrator'])) {
+                    define('OIDC_GROUP_SUPER_ADMINISTRATOR', $app_yaml['oidc']['group_super_administrator']);
+                } elseif (isset($settings['OIDC_GROUP_SUPER_ADMINISTRATOR'])) {
+                    define('OIDC_GROUP_SUPER_ADMINISTRATOR', $settings['OIDC_GROUP_SUPER_ADMINISTRATOR']);
+                } else {
+                    define('OIDC_GROUP_SUPER_ADMINISTRATOR', 'super-administrator');
+                }
             }
         }
 
