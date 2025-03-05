@@ -1,6 +1,6 @@
 <?php
 /**
- *  4.X.0 update
+ *  4.19.0 update
  */
 
 /**
@@ -114,3 +114,8 @@ if (!$this->db->columnExist('settings', 'OIDC_GROUP_ADMINISTRATOR')) {
 if (!$this->db->columnExist('settings', 'OIDC_GROUP_SUPER_ADMINISTRATOR')) {
     $this->db->exec("ALTER TABLE settings ADD COLUMN OIDC_GROUP_SUPER_ADMINISTRATOR VARCHAR(255) DEFAULT 'super-administrator'");
 }
+
+/**
+ *  Clean deleted users from database
+ */
+$this->db->exec("DELETE FROM users WHERE State = 'deleted'");

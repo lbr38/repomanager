@@ -45,7 +45,6 @@
             
 <div>
     <form id="user-change-password" autocomplete="off">
-        <input type="hidden" name="username" value="<?= $_SESSION['username'] ?>" />
         <h6 class="required">CURRENT PASSWORD</h6>
         <input type="password" class="input-large" name="actual-password" required />
 

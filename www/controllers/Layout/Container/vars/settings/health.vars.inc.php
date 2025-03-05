@@ -1,3 +1,3 @@
 <?php
-$mylogin = new \Controllers\Login();
-$users = $mylogin->getUsers();
+$userController = new \Controllers\User\User();
+$users = $userController->getUsers();
