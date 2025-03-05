@@ -76,7 +76,10 @@ class Create
          *  If the selected repo type is 'mirror' then we check additional parameters
          */
         if ($formParams['repo-type'] == 'mirror') {
-            $source = $formParams['source'];
+            /**
+             *  Check source
+             */
+            Param\Source::check($formParams['source'], $formParams['package-type']);
 
             /**
              *  If no alias has been given, we use the source name as alias
@@ -84,13 +87,8 @@ class Create
             if (!empty($formParams['alias'])) {
                 $targetName = $formParams['alias'];
             } else {
-                $targetName = $source;
+                $targetName = $formParams['source'];
             }
-
-            /**
-             *  Check source
-             */
-            Param\Source::check($source, $formParams['package-type']);
 
             /**
              *  Check gpg check
@@ -154,13 +152,13 @@ class Create
          *  Add history
          */
         if ($formParams['package-type'] == 'rpm') {
-            $myhistory->set($_SESSION['username'], 'Running task: New repository <span class="label-white">' . $targetName . '</span> (' . $formParams['repo-type'] . ')', 'success');
+            $myhistory->set('Running task: New repository <span class="label-white">' . $targetName . '</span> (' . $formParams['repo-type'] . ')', 'success');
         }
 
         if ($formParams['package-type'] == 'deb') {
             foreach ($formParams['dist'] as $distribution) {
                 foreach ($formParams['section'] as $section) {
-                    $myhistory->set($_SESSION['username'], 'Running task: New repository <span class="label-white">' . $targetName . ' ❯ ' . $distribution . ' ❯ ' . $section . '</span> (' . $formParams['repo-type'] . ')', 'success');
+                    $myhistory->set('Running task: New repository <span class="label-white">' . $targetName . ' ❯ ' . $distribution . ' ❯ ' . $section . '</span> (' . $formParams['repo-type'] . ')', 'success');
                 }
             }
         }

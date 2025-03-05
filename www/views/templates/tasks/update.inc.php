@@ -44,12 +44,12 @@
 
     <div class="grid grid-2 row-gap-10">
         <?php
-        if (!empty($repoController->getArch())) : ?>
+        if (!empty($rawParams['arch'])) : ?>
             <div>
                 <h6>ARCHITECTURE</h6>
                 <div class="flex column-gap-5 row-gap-5">
                     <?php
-                    foreach ($repoController->getArch() as $arch) {
+                    foreach ($rawParams['arch'] as $arch) {
                         echo '<span class="label-black">' . $arch . '</span>';
                     } ?>
                 </div>
@@ -60,12 +60,12 @@
 
     <div class="grid grid-2 row-gap-10">
         <?php
-        if (!empty($repoController->getPackagesToInclude())) : ?>
+        if (!empty($rawParams['package-include'])) : ?>
             <div>
                 <h6>PACKAGES TO INCLUDE</h6>
                 <div class="flex column-gap-5 row-gap-5">
                     <?php
-                    foreach ($repoController->getPackagesToInclude() as $package) {
+                    foreach ($rawParams['package-include'] as $package) {
                         echo '<span class="label-black">' . $package . '</span>';
                     } ?>
                 </div>
@@ -73,12 +73,12 @@
             <?php
         endif;
 
-        if (!empty($repoController->getPackagesToExclude())) : ?>
+        if (!empty($rawParams['package-exclude'])) : ?>
             <div>
                 <h6>PACKAGES TO EXCLUDE</h6>
                 <div class="flex column-gap-5 row-gap-5">
                     <?php
-                    foreach ($repoController->getPackagesToExclude() as $package) {
+                    foreach ($rawParams['package-exclude'] as $package) {
                         echo '<span class="label-black">' . $package . '</span>';
                     } ?>
                 </div>

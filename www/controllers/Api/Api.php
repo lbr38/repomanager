@@ -11,7 +11,7 @@ class Api
     private $route;
     private $authHeader;
     private $data;
-    private $loginController;
+    private $userController;
     private $hostController;
     private $apiKeyAuthentication = false;
     private $hostAuthentication = false;
@@ -20,7 +20,7 @@ class Api
 
     public function __construct()
     {
-        $this->loginController = new \Controllers\Login();
+        $this->userController = new \Controllers\User\User();
         $this->hostController = new \Controllers\Host();
 
         /**
@@ -187,7 +187,7 @@ class Api
             /**
              *  Check if API key exists
              */
-            if (!$this->loginController->apiKeyValid($apiKey)) {
+            if (!$this->userController->apiKeyValid($apiKey)) {
                 return false;
             }
 
@@ -199,7 +199,7 @@ class Api
             /**
              *  Check if API key is an Admin API key
              */
-            if ($this->loginController->apiKeyIsAdmin($apiKey)) {
+            if ($this->userController->apiKeyIsAdmin($apiKey)) {
                 $isApiAdmin = true;
             }
         }

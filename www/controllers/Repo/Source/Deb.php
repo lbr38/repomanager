@@ -74,6 +74,22 @@ class Deb extends \Controllers\Repo\Source\Source
         }
 
         /**
+         *  Check that the distribution name is not empty
+         */
+        if (empty($params['name'])) {
+            throw new Exception('Distribution name is required');
+        }
+
+        /**
+         *  Check that the distribution name does not already exist
+         */
+        foreach ($currentDefinition['distributions'] as $currentDistributionId => $distribution) {
+            if ($distribution['name'] == $params['name'] and $currentDistributionId != $distributionId) {
+                throw new Exception('Distribution ' . $params['name'] . ' already exists');
+            }
+        }
+
+        /**
          *  Set new distribution params
          */
         $currentDefinition['distributions'][$distributionId]['name'] = $params['name'];
@@ -433,7 +449,7 @@ class Deb extends \Controllers\Repo\Source\Source
          *  Check that distributions are valid
          */
         foreach ($distributions as $distribution) {
-            if (!\Controllers\Common::isAlphanumDash($distribution, array('/'))) {
+            if (!\Controllers\Common::isAlphanumDash($distribution, array('-', '_', '.', '/'))) {
                 throw new Exception('Distribution ' . $distribution . ' contains invalid characters');
             }
         }

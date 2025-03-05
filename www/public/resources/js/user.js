@@ -12,7 +12,7 @@ $(document).on('click','#user-generate-apikey-btn',function () {
                 'color': 'red',
                 'callback': function () {
                     ajaxRequest(
-                        'login',
+                        'user',
                         'generateApikey',
                         {},
                         false,
@@ -37,19 +37,17 @@ $(document).on('click','#user-generate-apikey-btn',function () {
 $(document).on('submit','#user-edit-info',function () {
     event.preventDefault();
 
-    var username = $('#user-edit-info').find('input[type=hidden][name=username]').val();
     var firstName = $('#user-edit-info').find('input[type=text][name=first-name]').val();
     var lastName = $('#user-edit-info').find('input[type=text][name=last-name]').val();
     var email = $('#user-edit-info').find('input[type=email][name=email]').val();
 
     ajaxRequest(
         // Controller:
-        'login',
+        'user',
         // Action:
         'edit',
         // Data:
         {
-            username: username,
             firstName: firstName,
             lastName: lastName,
             email: email
@@ -71,19 +69,17 @@ $(document).on('submit','#user-edit-info',function () {
 $(document).on('submit','#user-change-password',function () {
     event.preventDefault();
 
-    var username = $('#user-change-password').find('input[type=hidden][name=username]').val();
     var actualPassword = $('#user-change-password').find('input[type=password][name=actual-password]').val();
     var newPassword = $('#user-change-password').find('input[type=password][name=new-password]').val();
     var newPasswordConfirm = $('#user-change-password').find('input[type=password][name=new-password-confirm]').val();
 
     ajaxRequest(
         // Controller:
-        'login',
+        'user',
         // Action:
         'changePassword',
         // Data:
         {
-            username: username,
             actualPassword: actualPassword,
             newPassword: newPassword,
             newPasswordConfirm: newPasswordConfirm

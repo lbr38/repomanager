@@ -7,16 +7,14 @@ websocket_client();
  *  Event: get panel
  */
 $(document).on('click','.get-panel-btn',function () {
-    var name = $(this).attr('panel');
-    getPanel(name);
+    mypanel.get($(this).attr('panel'));
 });
 
 /**
  *  Slide panel closing
  */
 $(document).on('click','.slide-panel-close-btn',function () {
-    var name = $(this).attr('slide-panel');
-    closePanel(name);
+    mypanel.close($(this).attr('slide-panel'));
 });
 
 /**
@@ -64,7 +62,7 @@ $(document).on('click','.modal-window-close-btn',function () {
  */
 $(document).keyup(function (e) {
     if (e.key === "Escape") {
-        closePanel();
+        mypanel.close();
         closeAlert();
         closeConfirmBox();
         $(".modal-window-container").remove();
@@ -176,55 +174,6 @@ function reloadOpenedClosedElements()
             $(element).hide();
         }
     });
-}
-
-/**
- * Reload panel content
- * @param {*} panel
- * @param {*} params
- */
-function reloadPanel(name, params = [''])
-{
-    /**
-     *  Print a loading icon on the bottom of the page
-     */
-    printLoading();
-
-    /**
-     *  Check if panel has children with class .veil-on-reload
-     *  If so print a veil on them
-     */
-    printLoadingVeilByParentClass('slide-panel-reloadable-div[slide-panel="' + name + '"]');
-
-    ajaxRequest(
-        // Controller:
-        'general',
-        // Action:
-        'get-panel',
-        // Data:
-        {
-            name: name,
-            params: params
-        },
-        // Print success alert:
-        false,
-        // Print error alert:
-        true,
-        // Reload containers:
-        [],
-        // Execute function on success:
-        [
-            // Reload panel content
-            "$('.slide-panel-reloadable-div[slide-panel=\"" + name + "\"]').replaceWith($(jsonValue.message).find('.slide-panel-reloadable-div[slide-panel=\"" + name + "\"]'));",
-            // Reload opened or closed elements that where opened/closed before reloading
-            "reloadOpenedClosedElements();"
-        ]
-    );
-
-    /**
-     *  Hide loading icon
-     */
-    hideLoading();
 }
 
 /**

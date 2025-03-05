@@ -29,24 +29,52 @@
 
     if (!empty($reloadableTableContent)) :
         foreach ($reloadableTableContent as $item) : ?>
-            <div class="table-container grid-fr-auto-1-3 bck-blue-alt margin-top-5">
-                <p>
-                    <?php
-                    if ($item['State'] == 'error') {
-                        echo '<img src="/assets/icons/error.svg" class="icon" />';
-                    }
-                    if ($item['State'] == 'success') {
-                        echo '<img src="/assets/icons/check.svg" class="icon" />';
-                    } ?>
-                </p>
+            <div class="table-container grid-2 bck-blue-alt margin-top-5">
+                <div class="flex align-item-center column-gap-70">
+                    <div class="flex align-item-center column-gap-15">
+                        <?php
+                        if ($item['State'] == 'error') {
+                            echo '<img src="/assets/icons/error.svg" class="icon-np" title="Success" />';
+                        }
+                        if ($item['State'] == 'success') {
+                            echo '<img src="/assets/icons/check.svg" class="icon-np" tiel="Error" />';
+                        } ?>
 
-                <div>
-                    <p><b><?= $item['Date'] ?> <?= $item['Time'] ?></b></p>
-                    <p class="lowopacity-cst">Username: <?= $item['Username'] ?></p>
+                        <div>
+                            <p><b><?= $item['Date'] ?> <?= $item['Time'] ?></b></p>
+                            <?php
+                            if (!empty($item['Username'])) {
+                                $account = 'Account: ' . $item['Username'];
+                            } else if (!empty($item['Id_user'])) {
+                                $account = 'Account: #' . $item['Id_user'];
+                            } else {
+                                $account = 'Unknown account';
+                            } ?>
+                            <p class="mediumopacity-cst"><?= $account ?></p>
+                        </div>
+                    </div>
+
+                    <p><?= htmlspecialchars_decode($item['Action']) ?></p>
                 </div>
 
                 <div>
-                    <p><?= htmlspecialchars_decode($item['Action']) ?></p>
+                    <?php
+                    $ip = 'Unknown';
+                    $ipForwarded = '';
+                    $userAgent = 'Unknown';
+
+                    if (!empty($item['Ip'])) {
+                        $ip = $item['Ip'];
+                    }
+                    if (!empty($item['Ip_forwarded']) and $item['Ip_forwarded'] != $item['Ip']) {
+                        $ip .= ' (X-Forwarded-For: ' . $item['Ip_forwarded'] . ')';
+                    }
+                    if (!empty($item['User_agent'])) {
+                        $userAgent = $item['User_agent'];
+                    } ?>
+
+                    <p>IP and user agent</p>
+                    <p class="mediumopacity-cst"><?= $ip ?> - <?= $userAgent ?></p>
                 </div>
             </div>
             <?php

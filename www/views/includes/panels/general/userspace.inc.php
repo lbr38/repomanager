@@ -40,28 +40,28 @@
     </form>
 </div>
 
-<?php if ($_SESSION['type'] == 'local') : ?>
-<h5>CHANGE PASSWORD</h5>
-            
-<div>
-    <form id="user-change-password" autocomplete="off">
-        <input type="hidden" name="username" value="<?= $_SESSION['username'] ?>" />
-        <h6 class="required">CURRENT PASSWORD</h6>
-        <input type="password" class="input-large" name="actual-password" required />
-
-        <h6 class="required">NEW PASSWORD</h6>
-        <input type="password" class="input-large" name="new-password" required />
-
-        <h6 class="required">NEW PASSWORD (confirm)</h6>
-        <input type="password" class="input-large" name="new-password-confirm" required />
-
-        <br><br>
-        <button class="btn-small-green">Save</button>
-    </form>
-</div>
-<?php endif; ?>
-
 <?php
+if ($_SESSION['type'] == 'local') : ?>
+    <h5>CHANGE PASSWORD</h5>
+                
+    <div>
+        <form id="user-change-password" autocomplete="off">
+            <h6 class="required">CURRENT PASSWORD</h6>
+            <input type="password" class="input-large" name="actual-password" required />
+
+            <h6 class="required">NEW PASSWORD</h6>
+            <input type="password" class="input-large" name="new-password" required />
+
+            <h6 class="required">NEW PASSWORD (confirm)</h6>
+            <input type="password" class="input-large" name="new-password-confirm" required />
+
+            <br><br>
+            <button class="btn-small-green">Save</button>
+        </form>
+    </div>
+    <?php
+endif;
+
 $content = ob_get_clean();
 $slidePanelName = 'general/userspace';
 $slidePanelTitle = 'USERSPACE';

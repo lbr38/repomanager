@@ -12,7 +12,7 @@
                 <input type="text" class="distribution-param" param-name="name" value="<?= $distribution ?>" placeholder="Name" />
 
                 <h6>DESCRIPTION</h6>
-                <input type="text" class="distribution-param" param-name="description" value="<?= $description ?>" placeholder="Name" />
+                <input type="text" class="distribution-param" param-name="description" value="<?= $description ?>" placeholder="Description" />
 
                 <br><br>
                 <button type="submit" class="btn-medium-green">Save</button>

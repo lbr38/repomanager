@@ -2,10 +2,14 @@
     <div class="flex justify-space-between">
         <h6 class="margin-top-0">REQUESTS</h6>
 
-        <div id="host-request-btn" class="slide-btn" host-id="<?= $id ?>" title="Request">
-            <img src="/assets/icons/rocket.svg">
-            <span>New request</span>
-        </div>
+        <?php
+        if (IS_ADMIN) : ?>
+            <div id="host-request-btn" class="slide-btn" host-id="<?= $id ?>" title="Request">
+                <img src="/assets/icons/rocket.svg">
+                <span>New request</span>
+            </div>
+            <?php
+        endif ?>
     </div>
 
     <?php

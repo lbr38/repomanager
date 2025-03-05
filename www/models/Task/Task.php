@@ -341,11 +341,12 @@ class Task extends \Models\Model
     }
 
     /**
-     *  Get last done task Id
+     *  Return last done task Id
+     *  Can return null if no task is found (e.g. brand new installation with no task)
      */
-    public function getLastTaskId() : int
+    public function getLastTaskId() : int|null
     {
-        $id = '';
+        $id = null;
 
         try {
             $result = $this->db->query("SELECT Id FROM tasks

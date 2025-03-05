@@ -2,7 +2,6 @@
 
 <div class="slide-panel-container" slide-panel="repos/sources/import">
     <div class="slide-panel">
-
         <img src="/assets/icons/close.svg" class="slide-panel-close-btn float-right lowopacity" slide-panel="repos/sources/import" title="Close" />
 
         <div class="slide-panel-reloadable-div" slide-panel="repos/sources/import">
@@ -128,9 +127,11 @@
                 <button type="submit" class="btn-small-green" title="Import source repositories">Import</button>
             </form>
         </div>
+
+        <script>
+            selectToSelect2('select[name="source-repos-list"]', 'Select list...');
+        </script>
     </div>
 </div>
 
-<script>
-    selectToSelect2('select[name="source-repos-list"]', 'Select list...');
-</script>
+

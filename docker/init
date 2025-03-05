@@ -3,22 +3,26 @@
 WWW_DIR="/var/www/repomanager"
 DATA_DIR="/var/lib/repomanager"
 
-/bin/bash $WWW_DIR/bin/repomanager -p
+# Docker environment variables
+#  - FQDN=server.example.com
+#  - MAX_UPLOAD_SIZE=xxM
+#  - PHP_MEMORY_LIMIT=xxM
+#  - NGINX_LISTEN_PORT=xxxx
 
-# Docker run options
-# when
-# -e FQDN=server.example.com
-# -e MAX_UPLOAD_SIZE=xxM
-# are set, the following settings are changed:
-if [ ! -z "$FQDN" ];then
-    # Postfix/mail configuration
-    postconf -e "myhostname = $FQDN"
-    echo $FQDN > /etc/mailname
-
-    # Repomanager configuration
-    echo $FQDN > "$WWW_DIR/.fqdn"
+# Quit if FQDN is not set
+if [ -z "$FQDN" ];then
+    echo "FQDN environment variable must be set"
+    exit 1
 fi
 
+# Set FQDN
+# Postfix/mail configuration
+postconf -e "myhostname = $FQDN"
+echo $FQDN > /etc/mailname
+# Repomanager configuration
+echo $FQDN > "$WWW_DIR/.fqdn"
+
+# Set max upload size
 if [ ! -z "$MAX_UPLOAD_SIZE" ];then
     # Nginx configuration
     sed -i "s/client_max_body_size.*$/client_max_body_size ${MAX_UPLOAD_SIZE};/g" /etc/nginx/sites-enabled/repomanager.conf
@@ -27,14 +31,25 @@ if [ ! -z "$MAX_UPLOAD_SIZE" ];then
     sed -i "s/^post_max_size.*$/post_max_size = ${MAX_UPLOAD_SIZE}/g" /etc/php/8.3/fpm/php.ini
 fi
 
+# Set PHP memory limit
 if [ ! -z "$PHP_MEMORY_LIMIT" ];then
     sed -i "s/^memory_limit.*$/memory_limit = ${PHP_MEMORY_LIMIT}/g" /etc/php/8.3/fpm/php.ini
 fi
 
-# Start services
-if [ -f "/etc/init.d/syslog-ng" ];then
-    /usr/sbin/service syslog-ng start
+# Set Nginx listen port
+if [ ! -z "$NGINX_LISTEN_PORT" ];then
+    sed -i "s/listen 8080;/listen ${NGINX_LISTEN_PORT};/g" /etc/nginx/sites-enabled/repomanager.conf
 fi
+
+# If app.yaml does not exist, create it
+if [ ! -f "$DATA_DIR/app.yaml" ];then
+    cp "$WWW_DIR/templates/app.yaml" "$DATA_DIR/app.yaml"
+fi
+
+# Apply permissions
+/bin/bash $WWW_DIR/bin/repomanager -p
+
+# Start services
 /usr/sbin/service php8.3-fpm start
 /usr/sbin/service nginx start
 /usr/sbin/service postfix start

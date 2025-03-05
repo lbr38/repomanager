@@ -1,6 +1,6 @@
 <?php
 /**
- *  4.X.0 update
+ *  4.19.0 update
  */
 
 /**
@@ -114,3 +114,36 @@ if (!$this->db->columnExist('settings', 'OIDC_GROUP_ADMINISTRATOR')) {
 if (!$this->db->columnExist('settings', 'OIDC_GROUP_SUPER_ADMINISTRATOR')) {
     $this->db->exec("ALTER TABLE settings ADD COLUMN OIDC_GROUP_SUPER_ADMINISTRATOR VARCHAR(255) DEFAULT 'super-administrator'");
 }
+
+/**
+ *  Add 'Username' column to history table
+ */
+if (!$this->db->columnExist('history', 'Username')) {
+    $this->db->exec("ALTER TABLE history ADD COLUMN Username VARCHAR(255)");
+}
+
+/**
+ *  Add 'Ip' column to history table
+ */
+if (!$this->db->columnExist('history', 'Ip')) {
+    $this->db->exec("ALTER TABLE history ADD COLUMN Ip VARCHAR(255)");
+}
+
+/**
+ *  Add 'Ip_forwarded' column to history table
+ */
+if (!$this->db->columnExist('history', 'Ip_forwarded')) {
+    $this->db->exec("ALTER TABLE history ADD COLUMN Ip_forwarded VARCHAR(255)");
+}
+
+/**
+ *  Add 'User_agent' column to history table
+ */
+if (!$this->db->columnExist('history', 'User_agent')) {
+    $this->db->exec("ALTER TABLE history ADD COLUMN User_agent VARCHAR(255)");
+}
+
+/**
+ *  Clean deleted users from database
+ */
+$this->db->exec("DELETE FROM users WHERE State = 'deleted'");

@@ -25,10 +25,10 @@ class RemoveEnv
          *  Add history
          */
         if ($myrepo->getPackageType() == 'rpm') {
-            $myhistory->set($_SESSION['username'], 'Running task: remove ' . $myrepo->getEnv() . ' environment from <span class="label-white">' . $myrepo->getName() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span>', 'success');
+            $myhistory->set('Running task: remove ' . $myrepo->getEnv() . ' environment from <span class="label-white">' . $myrepo->getName() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span>', 'success');
         }
         if ($myrepo->getPackageType() == 'deb') {
-            $myhistory->set($_SESSION['username'], 'Running task: remove ' . $myrepo->getEnv() . ' environment from <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span>', 'success');
+            $myhistory->set('Running task: remove ' . $myrepo->getEnv() . ' environment from <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span>', 'success');
         }
     }
 }

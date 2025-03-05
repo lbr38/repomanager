@@ -31,14 +31,24 @@ $(document).ready(function() {
                 radius: 0
             }
         },
-        // indexAxis: 'y',
         scales: {
-            // y: {
-            //     beginAtZero: true,
-                
-            // },
             x: {
                 ticks: {
+                    color: '#8A99AA',
+                    font: {
+                        size: 14,
+                        family: 'Roboto'
+                    },
+                    stepSize: 1
+                }
+            },
+            y: {
+                ticks: {
+                    color: '#8A99AA',
+                    font: {
+                        size: 12,
+                        family: 'Roboto'
+                    },
                     stepSize: 1
                 }
             }

@@ -481,13 +481,11 @@ $(document).on('submit','#newGroupForm',function () {
         // Print error alert:
         true,
         // Reload container:
-        ['hosts/list'],
-        // Execute functions on success:
-        [
-            // Reload group panel
-            "reloadPanel('hosts/groups/list')"
-        ]
-    );
+        ['hosts/list']
+    ).then(function () {
+        // Reload group panel
+        mypanel.reload('hosts/groups/list');
+    });
 
     return false;
 });
@@ -526,13 +524,11 @@ $(document).on('click','.delete-group-btn',function (e) {
                         // Print error alert:
                         true,
                         // Reload container:
-                        ['hosts/list'],
-                        // Execute functions on success:
-                        [
-                            // Reload group panel
-                            "reloadPanel('hosts/groups/list')"
-                        ]
-                    );
+                        ['hosts/list']
+                    ).then(function () {
+                        // Reload group panel
+                        mypanel.reload('hosts/groups/list');
+                    });
                 }
             }]
         }
@@ -578,13 +574,10 @@ $(document).on('submit','.group-form',function () {
         // Print error alert:
         true,
         // Reload container:
-        ['hosts/list'],
-        // Execute functions on success:
-        [
-            // Reload group panel
-            "reloadPanel('hosts/groups/list')"
-        ]
-    );
+        ['hosts/list']
+    ).then(function () {
+        mypanel.reload('hosts/groups/list');
+    });
 
     return false;
 });

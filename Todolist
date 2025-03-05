@@ -19,7 +19,6 @@
 
     [ LOGIN ]
 
-    - (Feature) Support SSO
     - (Feature) Support LDAP
 
 

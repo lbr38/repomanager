@@ -18,6 +18,10 @@ class Execute
      */
     public function updateSelectedAvailablePackages(int $hostId, array $packages)
     {
+        if (!IS_ADMIN) {
+            throw new Exception('You are not allowed to execute this action');
+        }
+
         /**
          *  Check that $packages is not empty
          */
@@ -70,6 +74,10 @@ class Execute
      */
     public function updatePackages(array $params)
     {
+        if (!IS_ADMIN) {
+            throw new Exception('You are not allowed to execute this action');
+        }
+
         /**
          *  Check that $params is not empty
          */

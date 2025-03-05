@@ -5,7 +5,7 @@ $(document).on('click','.source-repo-distribution-edit-param-btn',function () {
     var id = $(this).attr('source-id');
     var distributionId = $(this).attr('distribution-id');
 
-    getPanel('repos/sources/edit-distribution', {
+    mypanel.get('repos/sources/edit-distribution', {
         id: id,
         distributionId: distributionId
     });
@@ -31,14 +31,10 @@ $(document).on('click','button.source-repo-add-distribution-btn',function () {
         // Print success alert:
         true,
         // Print error alert:
-        true,
-        // Reload containers:
-        [],
-        // Execute functions on success:
-        [
-            "reloadPanel('repos/sources/list')"
-        ]
-    );
+        true
+    ).then(function () {
+        mypanel.reload('repos/sources/list');
+    });
 });
 
 /**
@@ -75,15 +71,11 @@ $(document).on('submit','form.source-repo-edit-distribution',function () {
         // Print success alert:
         true,
         // Print error alert:
-        true,
-        // Reload containers:
-        [],
-        // Execute functions on success:
-        [
-            "reloadPanel('repos/sources/list')",
-            "reloadPanel('repos/sources/edit-distribution', {id: " + id + ", distributionId: " + distributionId + "})"
-        ]
-    );
+        true
+    ).then(function () {
+        mypanel.reload('repos/sources/list');
+        mypanel.reload('repos/sources/edit-distribution', {id: id, distributionId: distributionId});
+    });
 
     return false;
 });
@@ -119,14 +111,10 @@ $(document).on('click','.source-repo-remove-distribution-btn',function (e) {
                         // Print success alert:
                         true,
                         // Print error alert:
-                        true,
-                        // Reload containers:
-                        [],
-                        // Execute functions on success:
-                        [
-                            "reloadPanel('repos/sources/list')"
-                        ]
-                    );
+                        true
+                    ).then(function () {
+                        mypanel.reload('repos/sources/list');
+                    });
                 }
             }]
         }
@@ -158,15 +146,11 @@ $(document).on('click','.source-repo-edit-distribution-add-section-btn',function
         // Print success alert:
         true,
         // Print error alert:
-        true,
-        // Reload containers:
-        [],
-        // Execute functions on success:
-        [
-            "reloadPanel('repos/sources/list')",
-            "reloadPanel('repos/sources/edit-distribution', {id: " + id + ", distributionId: " + distributionId + "})"
-        ]
-    );
+        true
+    ).then(function () {
+        mypanel.reload('repos/sources/list');
+        mypanel.reload('repos/sources/edit-distribution', {id: id, distributionId: distributionId});
+    });
 });
 
 
@@ -203,15 +187,11 @@ $(document).on('click','.source-repo-edit-distribution-remove-section-btn',funct
                         // Print success alert:
                         true,
                         // Print error alert:
-                        true,
-                        // Reload containers:
-                        [],
-                        // Execute functions on success:
-                        [
-                            "reloadPanel('repos/sources/list')",
-                            "reloadPanel('repos/sources/edit-distribution', {id: " + id + ", distributionId: " + distributionId + "})"
-                        ]
-                    );
+                        true
+                    ).then(function () {
+                        mypanel.reload('repos/sources/list');
+                        mypanel.reload('repos/sources/edit-distribution', {id: id, distributionId: distributionId});
+                    });
                 }
             }]
         }
@@ -246,15 +226,11 @@ $(document).on('submit','.source-repo-edit-distribution-add-gpgkey-form',functio
         // Print success alert:
         true,
         // Print error alert:
-        true,
-        // Reload containers:
-        [],
-        // Execute functions on success:
-        [
-            "reloadPanel('repos/sources/list')",
-            "reloadPanel('repos/sources/edit-distribution', {id: " + id + ", distributionId: " + distributionId + "})"
-        ]
-    );
+        true
+    ).then(function () {
+        mypanel.reload('repos/sources/list');
+        mypanel.reload('repos/sources/edit-distribution', {id: id, distributionId: distributionId});
+    });
 
     return false;
 });
@@ -292,15 +268,11 @@ $(document).on('click','.source-repo-edit-distribution-remove-gpgkey-btn',functi
                         // Print success alert:
                         true,
                         // Print error alert:
-                        true,
-                        // Reload containers:
-                        [],
-                        // Execute functions on success:
-                        [
-                            "reloadPanel('repos/sources/list')",
-                            "reloadPanel('repos/sources/edit-distribution', {id: " + id + ", distributionId: " + distributionId + "})"
-                        ]
-                    );
+                        true
+                    ).then(function () {
+                        mypanel.reload('repos/sources/list');
+                        mypanel.reload('repos/sources/edit-distribution', {id: id, distributionId: distributionId});
+                    });
                 }
             }]
         }

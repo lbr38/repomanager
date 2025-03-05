@@ -28,8 +28,16 @@
 
 <script src="/resources/js/functions.js?<?= VERSION ?>"></script>
 <script src="/resources/js/general.js?<?= VERSION ?>"></script>
-<script src="/resources/js/login.js?<?= VERSION ?>"></script>
+<script src="/resources/js/user.js?<?= VERSION ?>"></script>
 <script src="/resources/js/notification.js?<?= VERSION ?>"></script>
+
+<!-- Import some classes -->
+<script src="/resources/js/classes/Panel.js?<?= VERSION ?>"></script>
+
+<script>
+    // I will gradually regroup some functions in classes
+    const mypanel = new Panel();
+</script>
 
 <script>
 <?php
@@ -100,6 +108,7 @@ if (__ACTUAL_URI__[1] == 'settings') {
     $jsFiles = [
         'functions/environment',
         'events/settings/environment',
+        'events/settings/user',
         'events/settings/debug-mode',
         'events/task/stop',
         'settings'

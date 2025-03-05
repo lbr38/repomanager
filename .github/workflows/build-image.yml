@@ -15,8 +15,12 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
+        # Production
         with:
           ref: 'main'
+        # Debug only
+        # with:
+        #   ref: 'devel'
 
       - name: Retrieve Repomanager version
         run: |
@@ -40,6 +44,12 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           file: ./docker/Dockerfile
+          # Debug only
+          # push: true
+          # tags: lbr38/repomanager:${{ env.VERSION }}-devel
+          # platforms: linux/amd64,linux/arm64,linux/arm/v7
+
+          # Production
           push: true
           tags: lbr38/repomanager:latest, lbr38/repomanager:${{ env.VERSION }}
           platforms: linux/amd64,linux/arm64,linux/arm/v7

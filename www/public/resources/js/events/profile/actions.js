@@ -22,15 +22,10 @@ $(document).on('submit','#create-new-profile-form',function () {
         // Print success alert:
         true,
         // Print error alert:
-        true,
-        // Reload container:
-        [],
-        // Execute functions on success:
-        [
-            // Reload profile list
-            "reloadPanel('hosts/profiles')"
-        ]
-    );
+        true
+    ).then(function () {
+        mypanel.reload('hosts/profiles');
+    });
 
     return false;
 });
@@ -66,15 +61,10 @@ $(document).on('click','.profile-delete-btn',function (e) {
                         // Print success alert:
                         true,
                         // Print error alert:
-                        true,
-                        // Reload container:
-                        [],
-                        // Execute functions on success:
-                        [
-                            // Reload profile list
-                            "reloadPanel('hosts/profiles')"
-                        ]
-                    );
+                        true
+                    ).then(function () {
+                        mypanel.reload('hosts/profiles');
+                    });
                 }
             }]
         }
@@ -102,15 +92,10 @@ $(document).on('click','.profile-duplicate-btn',function (e) {
         // Print success alert:
         true,
         // Print error alert:
-        true,
-        // Reload container:
-        [],
-        // Execute functions on success:
-        [
-            // Reload profile list
-            "reloadPanel('hosts/profiles')"
-        ]
-    );
+        true
+    ).then(function () {
+        mypanel.reload('hosts/profiles');
+    });
 });
 
 /**
@@ -156,15 +141,10 @@ $(document).on('submit','.profile-config-form',function () {
         // Print success alert:
         true,
         // Print error alert:
-        true,
-        // Reload container:
-        [],
-        // Execute functions on success:
-        [
-            // Reload profile list
-            "reloadPanel('hosts/profiles')"
-        ]
-    );
+        true
+    ).then(function () {
+        mypanel.reload('hosts/profiles');
+    });
 
     return false;
 });

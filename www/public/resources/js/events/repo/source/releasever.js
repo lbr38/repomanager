@@ -5,7 +5,7 @@ $(document).on('click','.source-repo-releasever-edit-param-btn',function () {
     var id = $(this).attr('source-id');
     var releaseverId = $(this).attr('releasever-id');
 
-    getPanel('repos/sources/edit-releasever', {
+    mypanel.get('repos/sources/edit-releasever', {
         id: id,
         releaseverId: releaseverId
     });
@@ -31,14 +31,10 @@ $(document).on('click','button.source-repo-add-releasever-btn',function () {
         // Print success alert:
         true,
         // Print error alert:
-        true,
-        // Reload containers:
-        [],
-        // Execute functions on success:
-        [
-            "reloadPanel('repos/sources/list')"
-        ]
-    );
+        true
+    ).then(function () {
+        mypanel.reload('repos/sources/list');
+    });
 });
 
 /**
@@ -75,15 +71,11 @@ $(document).on('submit','form.source-repo-edit-releasever',function () {
         // Print success alert:
         true,
         // Print error alert:
-        true,
-        // Reload containers:
-        [],
-        // Execute functions on success:
-        [
-            "reloadPanel('repos/sources/list')",
-            "reloadPanel('repos/sources/edit-releasever', {id: " + id + ", releaseverId: " + releaseverId + "})"
-        ]
-    );
+        true
+    ).then(function () {
+        mypanel.reload('repos/sources/list');
+        mypanel.reload('repos/sources/edit-releasever', {id: id, releaseverId: releaseverId});
+    });
 
     return false;
 });
@@ -119,14 +111,10 @@ $(document).on('click','.source-repo-remove-releasever-btn',function (e) {
                         // Print success alert:
                         true,
                         // Print error alert:
-                        true,
-                        // Reload containers:
-                        [],
-                        // Execute functions on success:
-                        [
-                            "reloadPanel('repos/sources/list')"
-                        ]
-                    );
+                        true
+                    ).then(function () {
+                        mypanel.reload('repos/sources/list');
+                    });
                 }
             }]
         }
@@ -161,15 +149,11 @@ $(document).on('submit','.source-repo-edit-releasever-add-gpgkey-form',function 
         // Print success alert:
         true,
         // Print error alert:
-        true,
-        // Reload containers:
-        [],
-        // Execute functions on success:
-        [
-            "reloadPanel('repos/sources/list')",
-            "reloadPanel('repos/sources/edit-releasever', {id: " + id + ", releaseverId: " + releaseverId + "})"
-        ]
-    );
+        true
+    ).then(function () {
+        mypanel.reload('repos/sources/list');
+        mypanel.reload('repos/sources/edit-releasever', {id: id, releaseverId: releaseverId});
+    });
 
     return false;
 });
@@ -207,15 +191,11 @@ $(document).on('click','.source-repo-edit-releasever-remove-gpgkey-btn',function
                         // Print success alert:
                         true,
                         // Print error alert:
-                        true,
-                        // Reload containers:
-                        [],
-                        // Execute functions on success:
-                        [
-                            "reloadPanel('repos/sources/list')",
-                            "reloadPanel('repos/sources/edit-releasever', {id: " + id + ", releaseverId: " + releaseverId + "})"
-                        ]
-                    );
+                        true
+                    ).then(function () {
+                        mypanel.reload('repos/sources/list');
+                        mypanel.reload('repos/sources/edit-releasever', {id: id, releaseverId: releaseverId});
+                    });
                 }
             }]
         }

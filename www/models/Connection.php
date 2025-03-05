@@ -382,17 +382,17 @@ class Connection extends SQLite3
         $result = $this->query("SELECT Id FROM user_role");
         if ($this->isempty($result) === true) {
             /**
-             *  super-administrator role: all rights
+             *  super-administrator role: all permissions
              */
             $this->exec("INSERT INTO user_role ('Name') VALUES ('super-administrator')");
 
             /**
-             *  administrator role: all rights except user management (only super-administrator can manage users)
+             *  administrator role: all permissions except user management (only super-administrator can manage users)
              */
             $this->exec("INSERT INTO user_role ('Name') VALUES ('administrator')");
 
             /**
-             *  usage role: read-only rights
+             *  usage role: read-only permissions
              */
             $this->exec("INSERT INTO user_role ('Name') VALUES ('usage')");
         }
@@ -421,8 +421,12 @@ class Connection extends SQLite3
         Date DATE NOT NULL,
         Time TIME NOT NULL,
         Id_user INTEGER NOT NULL,
+        Username VARCHAR(255),
+        Ip VARCHAR(255),
+        Ip_forwarded VARCHAR(255),
+        User_agent VARCHAR(255),
         Action VARCHAR(255) NOT NULL,
-        State CHAR(7))"); /* success ou error */
+        State CHAR(7))"); /* success or error */
 
         /**
          *  groups table
@@ -585,8 +589,7 @@ class Connection extends SQLite3
         OIDC_EMAIL VARCHAR(255),
         OIDC_GROUPS VARCHAR(255),
         OIDC_GROUP_ADMINISTRATOR VARCHAR(255),
-        OIDC_GROUP_SUPER_ADMINISTRATOR VARCHAR(255)
-    )");
+        OIDC_GROUP_SUPER_ADMINISTRATOR VARCHAR(255))");
 
         /**
          *  If settings table is empty then populate it
@@ -594,12 +597,15 @@ class Connection extends SQLite3
         $result = $this->query("SELECT * FROM settings");
         if ($this->isempty($result) === true) {
             /**
-             *  FQDN file is created by the dockerfile
+             *  Set default values
+             */
+            $fqdn = 'localhost';
+
+            /**
+             *  FQDN file is created on container startup (entrypoint)
              */
             if (file_exists(ROOT . '/.fqdn')) {
                 $fqdn = trim(file_get_contents(ROOT . '/.fqdn'));
-            } else {
-                $fqdn = 'localhost';
             }
 
             /**
@@ -608,59 +614,25 @@ class Connection extends SQLite3
             $gpgKeyId = 'repomanager@' . $fqdn;
 
             /**
-             * Get app.yaml
+             *  For each OIDC setting, use the value from custom settings file (app.yaml) if defined, otherwise use default value
+             *  (if a value was not defined, it means that there was no app.yaml file or the value was not defined in it)
              */
-            $app_yaml = yaml_parse_file(APP_YAML);
-
-            /**
-             * OIDC settings
-             */
-            $OIDC_ENABLED = 'false';
-            if ($app_yaml['oidc']['enabled'] == 'true') {
-                $OIDC_ENABLED = 'true';
-            }
-            $SSO_OIDC_ONLY = 'false';
-            if ($app_yaml['oidc']['oidc_only'] == 'true') {
-                $SSO_OIDC_ONLY = 'true';
-            }
-            $OIDC_PROVIDER_URL = Common::validateData($app_yaml['oidc']['provider_url']);
-            $OIDC_AUTHORIZATION_ENDPOINT = Common::validateData($app_yaml['oidc']['authorization_endpoint']);
-            $OIDC_TOKEN_ENDPOINT = Common::validateData($app_yaml['oidc']['token_endpoint']);
-            $OIDC_USERINFO_ENDPOINT = Common::validateData($app_yaml['oidc']['userinfo_endpoint']);
-            $OIDC_SCOPES = 'groups,email,profile';
-            if (isset($app_yaml['oidc']['scopes'])) {
-                $OIDC_SCOPES = Common::validateData($app_yaml['oidc']['scopes']);
-            }
-            $OIDC_CLIENT_ID = Common::validateData($app_yaml['oidc']['client_id']);
-            $OIDC_CLIENT_SECRET = Common::validateData($app_yaml['oidc']['client_secret']);
-            $OIDC_USERNAME = 'preferred_username';
-            if (isset($app_yaml['oidc']['username'])) {
-                $OIDC_USERNAME = Common::validateData($app_yaml['oidc']['username']);
-            }
-            $OIDC_FIRST_NAME = 'given_name';
-            if (isset($app_yaml['oidc']['first_name'])) {
-                $OIDC_FIRST_NAME = Common::validateData($app_yaml['oidc']['first_name']);
-            }
-            $OIDC_LAST_NAME = 'family_name';
-            if (isset($app_yaml['oidc']['last_name'])) {
-                $OIDC_LAST_NAME = Common::validateData($app_yaml['oidc']['last_name']);
-            }
-            $OIDC_EMAIL = 'email';
-            if (isset($app_yaml['oidc']['email'])) {
-                $OIDC_EMAIL = Common::validateData($app_yaml['oidc']['email']);
-            }
-            $OIDC_GROUPS = 'groups';
-            if (isset($app_yaml['oidc']['groups'])) {
-                $OIDC_GROUPS = Common::validateData($app_yaml['oidc']['groups']);
-            }
-            $OIDC_GROUP_ADMINISTRATOR = 'administrator';
-            if (isset($app_yaml['oidc']['group_administrator'])) {
-                $OIDC_GROUP_ADMINISTRATOR = Common::validateData($app_yaml['oidc']['group_administrator']);
-            }
-            $OIDC_GROUP_SUPER_ADMINISTRATOR= 'super-administrator';
-            if (isset($app_yaml['oidc']['group_super_administrator'])) {
-                $OIDC_GROUP_SUPER_ADMINISTRATOR = Common::validateData($app_yaml['oidc']['group_super_administrator']);
-            }
+            $oidcEnabled = defined('OIDC_ENABLED') ? OIDC_ENABLED : 'false';
+            $ssoOidcOnly = defined('SSO_OIDC_ONLY') ? SSO_OIDC_ONLY : 'false';
+            $oidcProviderUrl = defined('OIDC_PROVIDER_URL') ? OIDC_PROVIDER_URL : '';
+            $oidcAuthorizationEndpoint = defined('OIDC_AUTHORIZATION_ENDPOINT') ? OIDC_AUTHORIZATION_ENDPOINT : '';
+            $oidcTokenEndpoint = defined('OIDC_TOKEN_ENDPOINT') ? OIDC_TOKEN_ENDPOINT : '';
+            $oidcUserinfoEndpoint = defined('OIDC_USERINFO_ENDPOINT') ? OIDC_USERINFO_ENDPOINT : '';
+            $oidcScopes = defined('OIDC_SCOPES') ? OIDC_SCOPES : 'groups,email,profile';
+            $oidcClientId = defined('OIDC_CLIENT_ID') ? OIDC_CLIENT_ID : '';
+            $oidcClientSecret = defined('OIDC_CLIENT_SECRET') ? OIDC_CLIENT_SECRET : '';
+            $oidcUsername = defined('OIDC_USERNAME') ? OIDC_USERNAME : 'preferred_username';
+            $oidcFirstName = defined('OIDC_FIRST_NAME') ? OIDC_FIRST_NAME : 'given_name';
+            $oidcLastName = defined('OIDC_LAST_NAME') ? OIDC_LAST_NAME : 'family_name';
+            $oidcEmail = defined('OIDC_EMAIL') ? OIDC_EMAIL : 'email';
+            $oidcGroups = defined('OIDC_GROUPS') ? OIDC_GROUPS : 'groups';
+            $oidcGroupAdministrator = defined('OIDC_GROUP_ADMINISTRATOR') ? OIDC_GROUP_ADMINISTRATOR : 'administrator';
+            $oidcGroupSuperAdministrator = defined('OIDC_GROUP_SUPER_ADMINISTRATOR') ? OIDC_GROUP_SUPER_ADMINISTRATOR : 'super-administrator';
 
             $this->exec("INSERT INTO settings (
                 EMAIL_RECIPIENT,
@@ -735,22 +707,22 @@ class Connection extends SQLite3
                 'false',
                 '00:00',
                 'false',
-                '$OIDC_ENABLED',
-                '$SSO_OIDC_ONLY',
-                '$OIDC_PROVIDER_URL',
-                '$OIDC_AUTHORIZATION_ENDPOINT',
-                '$OIDC_TOKEN_ENDPOINT',
-                '$OIDC_USERINFO_ENDPOINT',
-                '$OIDC_SCOPES',
-                '$OIDC_CLIENT_ID',
-                '$OIDC_CLIENT_SECRET',
-                '$OIDC_USERNAME',
-                '$OIDC_FIRST_NAME',
-                '$OIDC_LAST_NAME',
-                '$OIDC_EMAIL',
-                '$OIDC_GROUPS',
-                '$OIDC_GROUP_ADMINISTRATOR',
-                '$OIDC_GROUP_SUPER_ADMINISTRATOR'
+                '$oidcEnabled',
+                '$ssoOidcOnly',
+                '$oidcProviderUrl',
+                '$oidcAuthorizationEndpoint',
+                '$oidcTokenEndpoint',
+                '$oidcUserinfoEndpoint',
+                '$oidcScopes',
+                '$oidcClientId',
+                '$oidcClientSecret',
+                '$oidcUsername',
+                '$oidcFirstName',
+                '$oidcLastName',
+                '$oidcEmail',
+                '$oidcGroups',
+                '$oidcGroupAdministrator',
+                '$oidcGroupSuperAdministrator'
             )");
         }
 
