@@ -9,93 +9,49 @@ require_once(ROOT . '/controllers/Autoloader.php');
 new \Controllers\Autoloader('minimal');
 include_once(ROOT . '/views/includes/head.inc.php');
 
-$loginErrors = array();
-$error = 0;
+$userLoginController = new \Controllers\User\Login();
+$historyController = new \Controllers\History();
 
-/**
- *  If username and password have been sent
- */
-if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST['authType'])) {
+try {
     /**
-     *  Checking auth type (default is local for the moment)
+     *  If SSO only (local account disabled), login using SSO
      */
-    if ($_POST['authType'] != 'local' and $_POST['authType'] != 'ldap') {
-        $error++;
-        $loginErrors[] = 'Specified connection type is invalid';
+    if (SSO_OIDC_ONLY == 'true' && OIDC_ENABLED == 'true') {
+        ssoLogin();
+        exit();
     }
 
     /**
-     *  Continue if there is no error
+     *  Login request (user clicked on one of the login buttons)
      */
-    if ($error == 0) {
-        $username = \Controllers\Common::validateData($_POST['username']);
-        $mylogin = new \Controllers\Login();
-        $myhistory = new \Controllers\History();
-
+    if (!empty($_POST['authType']) || isset($_GET['code'])) {
         /**
-         *  Case auth type is 'ldap'
+         *  Checking if auth type is valid (local or sso)
          */
-        if ($_POST['authType'] == 'ldap') {
-            /**
-             *  To do
-             */
-
-            $loginErrors[] = 'Invalid login and/or password';
+        if (!in_array($_POST['authType'], ['local', 'sso'])) {
+            throw new Exception('Specified connection type is invalid');
         }
 
         /**
-         *  Case auth type is 'local'
+         *  Local account login, if username and password have been sent
          */
-        if ($_POST['authType'] == 'local') {
-            /**
-             *  Checking in database that username/password couple is matching
-             */
-            try {
-                $mylogin->checkUsernamePwd($username, $_POST['password']);
-
-                /**
-                 *  Getting all user informations in datbase
-                 */
-                $mylogin->getAll($username);
-
-                /**
-                 *  Starting session
-                 */
-                session_start();
-
-                /**
-                 *  Saving user informations in session variable
-                 */
-                $_SESSION['username']   = $username;
-                $_SESSION['role']       = $mylogin->getRole();
-                $_SESSION['first_name'] = $mylogin->getFirstName();
-                $_SESSION['last_name']  = $mylogin->getLastName();
-                $_SESSION['email']      = $mylogin->getEmail();
-                $_SESSION['type']       = 'local';
-
-                $myhistory->set($username, 'Authentication', 'success');
-
-                /**
-                 *  If an 'origin' cookie exists then redirect to the specified URI
-                 */
-                if (!empty($_COOKIE['origin'])) {
-                    if ($_COOKIE['origin'] != '/logout') {
-                        header('Location: ' . $_COOKIE['origin']);
-                        exit();
-                    }
-                }
-
-                /**
-                 *  Else redirect to default page '/'
-                 */
-                header('Location: /');
-                exit();
-            } catch (Exception $e) {
-                $loginErrors[] = $e->getMessage();
-            }
+        if ($_POST['authType'] == 'local' and !empty($_POST['username']) and !empty($_POST['password'])) {
+            $userLoginController->login($_POST['username'], $_POST['password']);
         }
+
+        /**
+         *  SSO Login
+         */
+        if (($_POST['authType'] == 'sso' || isset($_GET['code'])) && OIDC_ENABLED == 'true') {
+            $userLoginController->ssoLogin();
+        }
+
+        exit();
     }
+} catch (Exception $e) {
+    $loginError = $e->getMessage();
 } ?>
+
 <head>
     <meta charset="utf-8">
     <!-- CSS -->
@@ -113,28 +69,31 @@ if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST[
 
             <form action="/login" method="post" autocomplete="off">
                 <input type="hidden" name="authType" value="local" />
-                <!-- <div class="switch-field">
-                    <input type="radio" id="authType_local" name="authType" value="local" checked />
-                    <label for="authType_local">Local</label>
-                    <input type="radio" id="authType_ldap" name="authType" value="ldap" />
-                    <label for="authType_ldap">LDAP</label>
-                </div>   
-                <br> -->
                 <input type="text" name="username" placeholder="Username" required />
                 <br>
                 <input type="password" name="password" placeholder="Password" required />
                 <br>
                 <button class="btn-large-green" type="submit">Login</button>
             </form>
+            <br>
 
             <?php
             /**
+             * Show SSO login button
+             */
+            if (OIDC_ENABLED == 'true') : ?>
+                <form action="/login" method="post">
+                    <input type="hidden" name="authType" value="sso" />
+                    <button class="btn-large-green" type="submit">SSO</button>
+                </form>
+                <?php
+            endif;
+
+            /**
              *  Display authentication errors if any
              */
-            if (!empty($loginErrors)) {
-                foreach ($loginErrors as $loginError) {
-                    echo '<p>' . $loginError . '</p>';
-                }
+            if (!empty($loginError)) {
+                echo '<p>' . $loginError . '</p>';
             } ?>
         </div>
     </div>

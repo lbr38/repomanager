@@ -1,0 +1,67 @@
+# File overrides UI settings
+
+# OpenID Connect SSO settings
+oidc:
+  # Enable sso login via OpenID Connect
+  # Default Value: false
+  #enabled: false
+
+  # Allow login only via OpenID Connect, will disable local login
+  # Default Value: false
+  #oidc_only: false
+
+  # Provider URL, used for Autodiscovery
+  # Default Value: not set
+  #provider_url:
+
+  # Override Authorization Endpoint (Leave empty for Autodiscovery)
+  # Default Value: not set
+  #authorization_endpoint:
+
+  # Override Token Endpoint (Leave empty for Autodiscovery)
+  # Default Value: not set
+  #token_endpoint:
+
+  # Override Userinfo Endpoint (Leave empty for Autodiscovery)
+  # Default Value: not set
+  #userinfo_endpoint:
+
+  # Additional OIDC Scopes (openid already present)
+  # Default Value: groups,email,profile
+  #scopes: groups,email,profile
+
+  # Client ID
+  # Default Value: not set
+  #client_id:
+
+  # Client Secret
+  # Default Value: not set
+  #client_secret:
+
+  # OIDC Claim for username
+  # Default Value: preferred_username
+  #username: preferred_username
+
+  # OIDC Claim for First Name
+  # Default Value: given_name
+  #first_name: given_name
+
+  # OIDC Claim for Last Name
+  # Default Value: family_name
+  #last_name: family_name
+
+  # OIDC Claim for Email
+  # Default Value: email
+  #email: email
+
+  # OIDC Claim for Groups / Roles
+  # Default Value: groups
+  #groups: groups
+
+  # Groups value for Administrator
+  # Default Value: administrator
+  #group_administrator: administrator
+
+  # Groups value for Super Administrator
+  # Default Value: super-administrator
+  #group_super_administrator: super-administrator

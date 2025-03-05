@@ -301,6 +301,95 @@ class Settings
         }
 
         /**
+         * OIDC
+         */
+        if (!empty($sendSettings['oidcEnable'])) {
+            if ($sendSettings['oidcEnable'] == 'true') {
+                $settingsToApply['OIDC_ENABLED'] = 'true';
+            } else {
+                $settingsToApply['OIDC_ENABLED'] = 'false';
+            }
+        }
+
+        if (!empty($sendSettings['ssoOidcOnly'])) {
+            if ($sendSettings['ssoOidcOnly'] == 'true') {
+                $settingsToApply['SSO_OIDC_ONLY'] = 'true';
+            } else {
+                $settingsToApply['SSO_OIDC_ONLY'] = 'false';
+            }
+        }
+
+        if (isset($sendSettings['oidcProviderUrl'])) {
+            $ssoOidcOnly = Common::validateData($sendSettings['oidcProviderUrl']);
+            $settingsToApply['OIDC_PROVIDER_URL'] = $ssoOidcOnly;
+        }
+
+        if (isset($sendSettings['oidcAuthorizationEndpoint'])) {
+            $oidcAuthorizationEndpoint = Common::validateData($sendSettings['oidcAuthorizationEndpoint']);
+            $settingsToApply['OIDC_AUTHORIZATION_ENDPOINT'] = $oidcAuthorizationEndpoint;
+        }
+
+        if (isset($sendSettings['oidcTokenEndpoint'])) {
+            $oidcTokenEndpoint = Common::validateData($sendSettings['oidcTokenEndpoint']);
+            $settingsToApply['OIDC_TOKEN_ENDPOINT'] = $oidcTokenEndpoint;
+        }
+
+        if (isset($sendSettings['oidcUserinfoEndpoint'])) {
+            $oidcUserinfoEndpoint = Common::validateData($sendSettings['oidcUserinfoEndpoint']);
+            $settingsToApply['OIDC_USERINFO_ENDPOINT'] = $oidcUserinfoEndpoint;
+        }
+
+        if (isset($sendSettings['oidcScopes'])) {
+            $oidcScopes = Common::validateData($sendSettings['oidcScopes']);
+            $settingsToApply['OIDC_SCOPES'] = $oidcScopes;
+        }
+
+        if (isset($sendSettings['oidcClientId'])) {
+            $oidcClientId = Common::validateData($sendSettings['oidcClientId']);
+            $settingsToApply['OIDC_CLIENT_ID'] = $oidcClientId;
+        }
+
+        if (isset($sendSettings['oidcClientSecret'])) {
+            $oidcClientSecret = Common::validateData($sendSettings['oidcClientSecret']);
+            $settingsToApply['OIDC_CLIENT_SECRET'] = $oidcClientSecret;
+        }
+
+        if (!empty($sendSettings['oidcUsername'])) {
+            $oidcUsername = Common::validateData($sendSettings['oidcUsername']);
+            $settingsToApply['OIDC_USERNAME'] = $oidcUsername;
+        }
+
+        if (!empty($sendSettings['oidcFirstName'])) {
+            $oidcFirstName = Common::validateData($sendSettings['oidcFirstName']);
+            $settingsToApply['OIDC_FIRST_NAME'] = $oidcFirstName;
+        }
+
+        if (!empty($sendSettings['oidcLastName'])) {
+            $oidcLastName = Common::validateData($sendSettings['oidcLastName']);
+            $settingsToApply['OIDC_LAST_NAME'] = $oidcLastName;
+        }
+
+        if (!empty($sendSettings['oidcEmail'])) {
+            $oidcEmail = Common::validateData($sendSettings['oidcEmail']);
+            $settingsToApply['OIDC_EMAIL'] = $oidcEmail;
+        }
+
+        if (!empty($sendSettings['oidcGroups'])) {
+            $oidcGroups = Common::validateData($sendSettings['oidcGroups']);
+            $settingsToApply['OIDC_GROUPS'] = $oidcGroups;
+        }
+
+        if (!empty($sendSettings['oidcGroupAdministrator'])) {
+            $oidcGroupAdministrator = Common::validateData($sendSettings['oidcGroupAdministrator']);
+            $settingsToApply['OIDC_GROUP_ADMINISTRATOR'] = $oidcGroupAdministrator;
+        }
+
+        if (!empty($sendSettings['oidcGroupSuperAdministrator'])) {
+            $oidcGroupSuperAdministrator = Common::validateData($sendSettings['oidcGroupSuperAdministrator']);
+            $settingsToApply['OIDC_GROUP_SUPER_ADMINISTRATOR'] = $oidcGroupSuperAdministrator;
+        }
+
+        /**
          *  Write settings to database
          */
         $this->model->apply($settingsToApply);

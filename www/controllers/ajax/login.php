@@ -3,40 +3,28 @@
 /**
  *  Generate new API key
  */
-if (
-    $_POST['action'] == "generateApikey"
-    and !empty($_SESSION['username'])
-) {
-    $mylogin = new \Controllers\Login();
-
+if ($_POST['action'] == 'generateApikey' and !empty($_SESSION['username'])) {
     try {
-        $apiKey = $mylogin->generateApiKey();
-        $mylogin->updateApiKey($_SESSION['username'], $apiKey);
-
-        /**
-         *  Send back API key to javascript to print it to the user
-         */
+        $userController = new \Controllers\User\User();
+        $apiKey = $userController->generateApiKey();
+        $userController->updateApiKey($_SESSION['username'], $_SESSION['type'], $apiKey);
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
+    /**
+     *  Send back API key to javascript to print it to the user
+     */
     response(HTTP_OK, $apiKey);
 }
 
 /**
- *  Edit personnal informations
+ *  Edit user personnal informations
  */
-if (
-    $_POST['action'] == "edit"
-    and !empty($_POST['username'])
-    and isset($_POST['firstName'])
-    and isset($_POST['lastName'])
-    and isset($_POST['email'])
-) {
-    $mylogin = new \Controllers\Login();
-
+if ($_POST['action'] == 'edit' and isset($_POST['firstName']) and isset($_POST['lastName']) and isset($_POST['email'])) {
     try {
-        $mylogin->edit($_POST['username'], $_POST['firstName'], $_POST['lastName'], $_POST['email']);
+        $userEditController = new \Controllers\User\Edit();
+        $userEditController->edit($_SESSION['username'], $_SESSION['type'], $_POST['firstName'], $_POST['lastName'], $_POST['email']);
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
@@ -47,17 +35,10 @@ if (
 /**
  *  Change password
  */
-if (
-    $_POST['action'] == "changePassword"
-    and !empty($_POST['username'])
-    and !empty($_POST['actualPassword'])
-    and !empty($_POST['newPassword'])
-    and !empty($_POST['newPasswordConfirm'])
-) {
-    $mylogin = new \Controllers\Login();
-
+if ($_POST['action'] == 'changePassword' and !empty($_POST['actualPassword']) and !empty($_POST['newPassword']) and !empty($_POST['newPasswordConfirm'])) {
     try {
-        $mylogin->changePassword($_POST['username'], $_POST['actualPassword'], $_POST['newPassword'], $_POST['newPasswordConfirm']);
+        $userEditController = new \Controllers\User\Edit();
+        $userEditController->changePassword($_SESSION['id'], $_POST['actualPassword'], $_POST['newPassword'], $_POST['newPasswordConfirm']);
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }

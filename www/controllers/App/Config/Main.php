@@ -172,6 +172,10 @@ class Main
             define('CUSTOM_SOURCES_REPOS_LISTS_DIR', DATA_DIR . '/templates/source-repositories');
         }
 
+        if (!defined('APP_YAML')) {
+            define('APP_YAML', DATA_DIR . '/app.yaml');
+        }
+
         /**
          *  Load system constants
          */

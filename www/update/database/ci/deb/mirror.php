@@ -2,6 +2,7 @@
 /**
  *  Mirror deb repo
  */
+$rawParams['repo-id'] = 'debian|bookworm|contrib';
 $rawParams['action'] = 'create';
 $rawParams['package-type'] = 'deb';
 $rawParams['repo-type'] = 'mirror';
@@ -25,8 +26,13 @@ $rawParams['schedule'] = [
     'schedule-reminder' => [],
     'schedule-recipient' => ['']
 ];
-$rawParams['repo-id'] = 'debian|bookworm|contrib';
+
+try {
+    $rawParams = json_encode($rawParams, JSON_THROW_ON_ERROR);
+} catch (Exception $e) {
+    throw new Exception('Error while encoding raw params to JSON: ' . $e->getMessage());
+}
 
 $stmt = $this->db->prepare("INSERT INTO tasks (Type, Raw_params, Status) VALUES ('immediate', :rawParams, 'queued');");
-$stmt->bindParam(':rawParams', json_encode($rawParams));
+$stmt->bindParam(':rawParams', $rawParams);
 $stmt->execute();

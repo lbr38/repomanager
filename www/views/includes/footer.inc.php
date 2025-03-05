@@ -100,6 +100,7 @@ if (__ACTUAL_URI__[1] == 'settings') {
     $jsFiles = [
         'functions/environment',
         'events/settings/environment',
+        'events/settings/user',
         'events/settings/debug-mode',
         'events/task/stop',
         'settings'
