@@ -284,18 +284,18 @@ function executeAction(action)
      *  If the action is 'edit', then get the edit panel
      */
     if (action == 'edit') {
-        getPanel('repos/edit', {
+        mypanel.get('repos/edit', {
             repos: repos
         });
     } else if (action == 'install') {
-        getPanel('repos/install', {
+        mypanel.get('repos/install', {
             repos: repos
         });
     /**
      *  Otherwise, get the task panel for the selected action
      */
     } else {
-        getPanel('repos/task', {
+        mypanel.get('repos/task', {
             action: action,
             repos: repos
         });
@@ -578,7 +578,7 @@ $(document).on('submit','#task-form',function () {
         // Print error alert:
         true,
     ).then(function () {
-        closePanel();
+        mypanel.close();
 
         // Uncheck all checkboxes and remove all styles JQuery could have applied
         $('.reposList').find('input[name=checkbox-repo]').prop('checked', false);

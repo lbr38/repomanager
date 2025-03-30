@@ -75,6 +75,22 @@ class Rpm extends \Controllers\Repo\Source\Source
         }
 
         /**
+         *  Check that release version name is not empty
+         */
+        if (empty($params['name'])) {
+            throw new Exception('Release version is required');
+        }
+
+        /**
+         *  Check that a release version with the same name does not already exist
+         */
+        foreach ($currentDefinition['releasever'] as $currentReleaseverId => $releasever) {
+            if ($currentReleaseverId != $releaseverId and $releasever['name'] == $params['name']) {
+                throw new Exception('Release version ' . $params['name'] . ' already exists');
+            }
+        }
+
+        /**
          *  Set new release version params
          */
         $currentDefinition['releasever'][$releaseverId]['name'] = $params['name'];

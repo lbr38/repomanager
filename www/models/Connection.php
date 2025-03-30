@@ -2,6 +2,7 @@
 
 namespace Models;
 
+use Controllers\Common;
 use SQLite3;
 use Exception;
 
@@ -381,17 +382,17 @@ class Connection extends SQLite3
         $result = $this->query("SELECT Id FROM user_role");
         if ($this->isempty($result) === true) {
             /**
-             *  super-administrator role: all rights
+             *  super-administrator role: all permissions
              */
             $this->exec("INSERT INTO user_role ('Name') VALUES ('super-administrator')");
 
             /**
-             *  administrator role: all rights except user management (only super-administrator can manage users)
+             *  administrator role: all permissions except user management (only super-administrator can manage users)
              */
             $this->exec("INSERT INTO user_role ('Name') VALUES ('administrator')");
 
             /**
-             *  usage role: read-only rights
+             *  usage role: read-only permissions
              */
             $this->exec("INSERT INTO user_role ('Name') VALUES ('usage')");
         }
@@ -420,8 +421,12 @@ class Connection extends SQLite3
         Date DATE NOT NULL,
         Time TIME NOT NULL,
         Id_user INTEGER NOT NULL,
+        Username VARCHAR(255),
+        Ip VARCHAR(255),
+        Ip_forwarded VARCHAR(255),
+        User_agent VARCHAR(255),
         Action VARCHAR(255) NOT NULL,
-        State CHAR(7))"); /* success ou error */
+        State CHAR(7))"); /* success or error */
 
         /**
          *  groups table
@@ -567,7 +572,24 @@ class Connection extends SQLite3
         /* CVE settings */
         CVE_IMPORT CHAR(5),
         CVE_IMPORT_TIME TIME,
-        CVE_SCAN_HOSTS CHAR(5))");
+        CVE_SCAN_HOSTS CHAR(5),
+        /* OIDC settings */
+        OIDC_ENABLED CHAR(5),
+        SSO_OIDC_ONLY CHAR(5),
+        OIDC_PROVIDER_URL VARCHAR(255),
+        OIDC_AUTHORIZATION_ENDPOINT VARCHAR(255),
+        OIDC_TOKEN_ENDPOINT VARCHAR(255),
+        OIDC_USERINFO_ENDPOINT VARCHAR(255),
+        OIDC_SCOPES VARCHAR(255),
+        OIDC_CLIENT_ID VARCHAR(255),
+        OIDC_CLIENT_SECRET VARCHAR(255),
+        OIDC_USERNAME VARCHAR(255),
+        OIDC_FIRST_NAME VARCHAR(255),
+        OIDC_LAST_NAME VARCHAR(255),
+        OIDC_EMAIL VARCHAR(255),
+        OIDC_GROUPS VARCHAR(255),
+        OIDC_GROUP_ADMINISTRATOR VARCHAR(255),
+        OIDC_GROUP_SUPER_ADMINISTRATOR VARCHAR(255))");
 
         /**
          *  If settings table is empty then populate it
@@ -575,18 +597,42 @@ class Connection extends SQLite3
         $result = $this->query("SELECT * FROM settings");
         if ($this->isempty($result) === true) {
             /**
-             *  FQDN file is created by the dockerfile
+             *  Set default values
+             */
+            $fqdn = 'localhost';
+
+            /**
+             *  FQDN file is created on container startup (entrypoint)
              */
             if (file_exists(ROOT . '/.fqdn')) {
                 $fqdn = trim(file_get_contents(ROOT . '/.fqdn'));
-            } else {
-                $fqdn = 'localhost';
             }
 
             /**
              *  GPG key Id
              */
             $gpgKeyId = 'repomanager@' . $fqdn;
+
+            /**
+             *  For each OIDC setting, use the value from custom settings file (app.yaml) if defined, otherwise use default value
+             *  (if a value was not defined, it means that there was no app.yaml file or the value was not defined in it)
+             */
+            $oidcEnabled = defined('OIDC_ENABLED') ? OIDC_ENABLED : 'false';
+            $ssoOidcOnly = defined('SSO_OIDC_ONLY') ? SSO_OIDC_ONLY : 'false';
+            $oidcProviderUrl = defined('OIDC_PROVIDER_URL') ? OIDC_PROVIDER_URL : '';
+            $oidcAuthorizationEndpoint = defined('OIDC_AUTHORIZATION_ENDPOINT') ? OIDC_AUTHORIZATION_ENDPOINT : '';
+            $oidcTokenEndpoint = defined('OIDC_TOKEN_ENDPOINT') ? OIDC_TOKEN_ENDPOINT : '';
+            $oidcUserinfoEndpoint = defined('OIDC_USERINFO_ENDPOINT') ? OIDC_USERINFO_ENDPOINT : '';
+            $oidcScopes = defined('OIDC_SCOPES') ? OIDC_SCOPES : 'groups,email,profile';
+            $oidcClientId = defined('OIDC_CLIENT_ID') ? OIDC_CLIENT_ID : '';
+            $oidcClientSecret = defined('OIDC_CLIENT_SECRET') ? OIDC_CLIENT_SECRET : '';
+            $oidcUsername = defined('OIDC_USERNAME') ? OIDC_USERNAME : 'preferred_username';
+            $oidcFirstName = defined('OIDC_FIRST_NAME') ? OIDC_FIRST_NAME : 'given_name';
+            $oidcLastName = defined('OIDC_LAST_NAME') ? OIDC_LAST_NAME : 'family_name';
+            $oidcEmail = defined('OIDC_EMAIL') ? OIDC_EMAIL : 'email';
+            $oidcGroups = defined('OIDC_GROUPS') ? OIDC_GROUPS : 'groups';
+            $oidcGroupAdministrator = defined('OIDC_GROUP_ADMINISTRATOR') ? OIDC_GROUP_ADMINISTRATOR : 'administrator';
+            $oidcGroupSuperAdministrator = defined('OIDC_GROUP_SUPER_ADMINISTRATOR') ? OIDC_GROUP_SUPER_ADMINISTRATOR : 'super-administrator';
 
             $this->exec("INSERT INTO settings (
                 EMAIL_RECIPIENT,
@@ -615,7 +661,23 @@ class Connection extends SQLite3
                 MANAGE_HOSTS,
                 CVE_IMPORT,
                 CVE_IMPORT_TIME,
-                CVE_SCAN_HOSTS
+                CVE_SCAN_HOSTS,
+                OIDC_ENABLED,
+                SSO_OIDC_ONLY,
+                OIDC_PROVIDER_URL,
+                OIDC_AUTHORIZATION_ENDPOINT,
+                OIDC_TOKEN_ENDPOINT,
+                OIDC_USERINFO_ENDPOINT,
+                OIDC_SCOPES,
+                OIDC_CLIENT_ID,
+                OIDC_CLIENT_SECRET,
+                OIDC_USERNAME,
+                OIDC_FIRST_NAME,
+                OIDC_LAST_NAME,
+                OIDC_EMAIL,
+                OIDC_GROUPS,
+                OIDC_GROUP_ADMINISTRATOR,
+                OIDC_GROUP_SUPER_ADMINISTRATOR
             )
             VALUES (
                 '',
@@ -644,7 +706,23 @@ class Connection extends SQLite3
                 'false',
                 'false',
                 '00:00',
-                'false'
+                'false',
+                '$oidcEnabled',
+                '$ssoOidcOnly',
+                '$oidcProviderUrl',
+                '$oidcAuthorizationEndpoint',
+                '$oidcTokenEndpoint',
+                '$oidcUserinfoEndpoint',
+                '$oidcScopes',
+                '$oidcClientId',
+                '$oidcClientSecret',
+                '$oidcUsername',
+                '$oidcFirstName',
+                '$oidcLastName',
+                '$oidcEmail',
+                '$oidcGroups',
+                '$oidcGroupAdministrator',
+                '$oidcGroupSuperAdministrator'
             )");
         }
 

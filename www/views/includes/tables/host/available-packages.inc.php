@@ -14,11 +14,13 @@
 
             <div class="margin-right-20">
                 <?php
-                // If there is no package update already running, display the select all checkbox
-                if ($packageUpdateRunning === false) {
-                    echo '<input type="checkbox" class="available-package-select-all lowopacity" title="Select all packages" />';
-                } else {
-                    echo '<img src="/assets/icons/loading.svg" class="icon-np" title="A package update is already running" />';
+                if (IS_ADMIN) {
+                    // If there is no package update already running, display the select all checkbox
+                    if ($packageUpdateRunning === false) {
+                        echo '<input type="checkbox" class="available-package-select-all lowopacity" title="Select all packages" />';
+                    } else {
+                        echo '<img src="/assets/icons/loading.svg" class="icon-np" title="A package update is already running" />';
+                    }
                 } ?>
             </div>
         </div>
@@ -52,10 +54,12 @@
                     } ?>
 
                     <?php
-                    // If there is no package update already running, display the checkbox
-                    if ($packageUpdateRunning == false) { ?>
-                        <input type="checkbox" class="available-package-checkbox lowopacity" host-id="<?= $id ?>" package="<?= $item['Name'] ?>" version="<?= $item['Version'] ?>" <?= $checked ?> title="Select package" />
-                        <?php
+                    if (IS_ADMIN) {
+                        // If there is no package update already running, display the checkbox
+                        if ($packageUpdateRunning == false) { ?>
+                            <input type="checkbox" class="available-package-checkbox lowopacity" host-id="<?= $id ?>" package="<?= $item['Name'] ?>" version="<?= $item['Version'] ?>" <?= $checked ?> title="Select package" />
+                            <?php
+                        }
                     } ?>
                 </div>
             </div>

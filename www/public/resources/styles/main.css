@@ -1,18 +1,6 @@
 @font-face{font-family: 'ethnocentric'; src: url('/assets/fonts/ethnocentric rg.ttf') format('truetype');}
 @font-face{font-family: 'archivo'; src: url('/assets/fonts/Archivo-Variable.ttf') format('truetype');}
 
-body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    margin: 0px;
-    padding: 0px;
-    background-color: #112334;
-    color: white;
-    overflow-y: auto;
-    font-size: 13px;
-}
-
 .font-family-archivo {
     font-family: 'archivo';
 }
@@ -373,46 +361,6 @@ article {
 
 .item-desc [type=text]:hover::placeholder {
     visibility: visible;
-}
-
-.divReposConf {
-    width: 100%;
-    padding-top: 15px;
-    padding-left: 30px;
-    position: fixed; /* on positionne le div au centre de la page */
-    bottom: 0;
-    left: 0;
-    z-index: 90;
-    color: white;
-    vertical-align: middle;
-    background-color: #182b3e;
-    border-top: 1px solid rgb(60, 70, 75);
-    box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
-}
-.divReposConf-close {
-    position: fixed;
-    right: 15px;
-}
-#divReposConfCommands-container {
-    position: relative;
-    width: max-content;
-}
-#divReposConfCommands-container img {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-}
-#divReposConfCommands {
-    min-width: 500px;
-    width: max-content;
-    border-radius: 8px;
-    padding-left: 15px !important;
-    padding-right: 30px !important;
-    padding: 15px;
-    margin-bottom: 30px;
-    background-color: #1d3349;
-    border: 1px solid #24405c;
-    line-height: 1.5;
 }
 
 input::placeholder {

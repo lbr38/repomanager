@@ -2,8 +2,13 @@
 
 namespace Controllers\App\Config;
 
+use \Controllers\Common;
+
 class Settings
 {
+    /**
+     *  Get settings from database
+     */
     public static function get()
     {
         $__LOAD_SETTINGS_ERROR = 0;
@@ -30,7 +35,7 @@ class Settings
             /**
              *  Following parameters can be empty (or equal to 0), we don't increment the error counter in their case
              */
-            $ignoreEmptyParam = array('EMAIL_RECIPIENT', 'PROXY', 'RPM_DEFAULT_ARCH', 'DEB_DEFAULT_ARCH', 'DEB_DEFAULT_TRANSLATION', 'REPO_CONF_FILES_PREFIX', 'RETENTION');
+            $ignoreEmptyParam = array('EMAIL_RECIPIENT', 'PROXY', 'RPM_DEFAULT_ARCH', 'DEB_DEFAULT_ARCH', 'DEB_DEFAULT_TRANSLATION', 'REPO_CONF_FILES_PREFIX', 'RETENTION', 'OIDC_PROVIDER_URL', 'OIDC_AUTHORIZATION_ENDPOINT', 'OIDC_TOKEN_ENDPOINT', 'OIDC_USERINFO_ENDPOINT', 'OIDC_SCOPES', 'OIDC_CLIENT_ID', 'OIDC_CLIENT_SECRET');
 
             if (in_array($key, $ignoreEmptyParam)) {
                 continue;
@@ -312,11 +317,10 @@ class Settings
          *  Hosts and profiles settings
          */
         if (!defined('MANAGE_HOSTS')) {
-            if (!empty($settings['MANAGE_HOSTS'])) {
+            if (!empty($settings['MANAGE_HOSTS']) and $settings['MANAGE_HOSTS'] == 'true') {
                 define('MANAGE_HOSTS', $settings['MANAGE_HOSTS']);
             } else {
-                define('MANAGE_HOSTS', '');
-                $__LOAD_SETTINGS_MESSAGES[] = "<code>MANAGE HOSTS</code> setting is not defined.";
+                define('MANAGE_HOSTS', 'false');
             }
         }
 
@@ -347,6 +351,140 @@ class Settings
             }
         }
 
+        /**
+         *  OIDC settings
+         *  Use the values from the database if they were not already defined from the app.yaml file
+         */
+        if (!defined('OIDC_ENABLED')) {
+            if (!empty($settings['OIDC_ENABLED'])) {
+                define('OIDC_ENABLED', $settings['OIDC_ENABLED']);
+            } else {
+                define('OIDC_ENABLED', 'false');
+            }
+        }
+
+        if (!defined('SSO_OIDC_ONLY')) {
+            if (!empty($settings['SSO_OIDC_ONLY'])) {
+                define('SSO_OIDC_ONLY', $settings['SSO_OIDC_ONLY']);
+            } else {
+                define('SSO_OIDC_ONLY', 'false');
+            }
+        }
+
+        if (OIDC_ENABLED == 'true') {
+            if (!defined('OIDC_PROVIDER_URL')) {
+                if (!empty($settings['OIDC_PROVIDER_URL'])) {
+                    define('OIDC_PROVIDER_URL', $settings['OIDC_PROVIDER_URL']);
+                } else {
+                    define('OIDC_PROVIDER_URL', '');
+                }
+            }
+
+            if (!defined('OIDC_AUTHORIZATION_ENDPOINT')) {
+                if (!empty($settings['OIDC_AUTHORIZATION_ENDPOINT'])) {
+                    define('OIDC_AUTHORIZATION_ENDPOINT', $settings['OIDC_AUTHORIZATION_ENDPOINT']);
+                } else {
+                    define('OIDC_AUTHORIZATION_ENDPOINT', '');
+                }
+            }
+
+            if (!defined('OIDC_TOKEN_ENDPOINT')) {
+                if (!empty($settings['OIDC_TOKEN_ENDPOINT'])) {
+                    define('OIDC_TOKEN_ENDPOINT', $settings['OIDC_TOKEN_ENDPOINT']);
+                } else {
+                    define('OIDC_TOKEN_ENDPOINT', '');
+                }
+            }
+
+            if (!defined('OIDC_USERINFO_ENDPOINT')) {
+                if (!empty($settings['OIDC_USERINFO_ENDPOINT'])) {
+                    define('OIDC_USERINFO_ENDPOINT', $settings['OIDC_USERINFO_ENDPOINT']);
+                } else {
+                    define('OIDC_USERINFO_ENDPOINT', '');
+                }
+            }
+
+            if (!defined('OIDC_SCOPES')) {
+                if (!empty($settings['OIDC_SCOPES'])) {
+                    define('OIDC_SCOPES', $settings['OIDC_SCOPES']);
+                } else {
+                    define('OIDC_SCOPES', 'groups,email,profile');
+                }
+            }
+
+            if (!defined('OIDC_CLIENT_ID')) {
+                if (!empty($settings['OIDC_CLIENT_ID'])) {
+                    define('OIDC_CLIENT_ID', $settings['OIDC_CLIENT_ID']);
+                } else {
+                    define('OIDC_CLIENT_ID', '');
+                }
+            }
+
+            if (!defined('OIDC_CLIENT_SECRET')) {
+                if (!empty($settings['OIDC_CLIENT_SECRET'])) {
+                    define('OIDC_CLIENT_SECRET', $settings['OIDC_CLIENT_SECRET']);
+                } else {
+                    define('OIDC_CLIENT_SECRET', '');
+                }
+            }
+
+            if (!defined('OIDC_USERNAME')) {
+                if (!empty($settings['OIDC_USERNAME'])) {
+                    define('OIDC_USERNAME', $settings['OIDC_USERNAME']);
+                } else {
+                    define('OIDC_USERNAME', 'preferred_username');
+                }
+            }
+
+            if (!defined('OIDC_FIRST_NAME')) {
+                if (!empty($settings['OIDC_FIRST_NAME'])) {
+                    define('OIDC_FIRST_NAME', $settings['OIDC_FIRST_NAME']);
+                } else {
+                    define('OIDC_FIRST_NAME', 'given_name');
+                }
+            }
+
+            if (!defined('OIDC_LAST_NAME')) {
+                if (!empty($settings['OIDC_LAST_NAME'])) {
+                    define('OIDC_LAST_NAME', $settings['OIDC_LAST_NAME']);
+                } else {
+                    define('OIDC_LAST_NAME', 'family_name');
+                }
+            }
+
+            if (!defined('OIDC_EMAIL')) {
+                if (!empty($settings['OIDC_EMAIL'])) {
+                    define('OIDC_EMAIL', $settings['OIDC_EMAIL']);
+                } else {
+                    define('OIDC_EMAIL', 'email');
+                }
+            }
+
+            if (!defined('OIDC_GROUPS')) {
+                if (!empty($settings['OIDC_GROUPS'])) {
+                    define('OIDC_GROUPS', $settings['OIDC_GROUPS']);
+                } else {
+                    define('OIDC_GROUPS', 'groups');
+                }
+            }
+
+            if (!defined('OIDC_GROUP_ADMINISTRATOR')) {
+                if (!empty($settings['OIDC_GROUP_ADMINISTRATOR'])) {
+                    define('OIDC_GROUP_ADMINISTRATOR', $settings['OIDC_GROUP_ADMINISTRATOR']);
+                } else {
+                    define('OIDC_GROUP_ADMINISTRATOR', 'administrator');
+                }
+            }
+
+            if (!defined('OIDC_GROUP_SUPER_ADMINISTRATOR')) {
+                if (!empty($settings['OIDC_GROUP_SUPER_ADMINISTRATOR'])) {
+                    define('OIDC_GROUP_SUPER_ADMINISTRATOR', $settings['OIDC_GROUP_SUPER_ADMINISTRATOR']);
+                } else {
+                    define('OIDC_GROUP_SUPER_ADMINISTRATOR', 'super-administrator');
+                }
+            }
+        }
+
         if (!defined('__LOAD_SETTINGS_ERROR')) {
             define('__LOAD_SETTINGS_ERROR', $__LOAD_SETTINGS_ERROR);
         }
@@ -354,6 +492,107 @@ class Settings
             define('__LOAD_SETTINGS_MESSAGES', $__LOAD_SETTINGS_MESSAGES);
         }
 
-        unset($myconn);
+        unset($myconn, $mysettings);
+    }
+
+    /**
+     *  Get user custom settings from app.yaml file
+     */
+    public static function getYaml()
+    {
+        $__LOAD_SETTINGS_YAML_ERROR = 0;
+        $__LOAD_SETTINGS_YAML_MESSAGES = [];
+
+        /**
+         *  Parse app.yaml if exists
+         */
+        if (file_exists(APP_YAML)) {
+            if (!is_readable(APP_YAML)) {
+                ++$__LOAD_SETTINGS_YAML_ERROR;
+                $__LOAD_SETTINGS_YAML_MESSAGES[] = APP_YAML . ' file is not readable';
+            } else {
+                $appYaml = yaml_parse_file(APP_YAML);
+
+                // If there is an error while parsing the YAML file
+                if ($appYaml === false or empty($appYaml)) {
+                    ++$__LOAD_SETTINGS_YAML_ERROR;
+                    $__LOAD_SETTINGS_YAML_MESSAGES[] = 'Error while parsing ' . APP_YAML . ' file';
+                }
+            }
+        }
+
+        /**
+         *  OIDC settings
+         */
+        if (!defined('OIDC_ENABLED') and isset($appYaml['oidc']['enabled'])) {
+            define('OIDC_ENABLED', $appYaml['oidc']['enabled']);
+        }
+
+        if (!defined('SSO_OIDC_ONLY') and isset($appYaml['oidc']['oidc_only'])) {
+            define('SSO_OIDC_ONLY', $appYaml['oidc']['oidc_only']);
+        }
+
+        if (!defined('OIDC_PROVIDER_URL') and isset($appYaml['oidc']['provider_url'])) {
+            define('OIDC_PROVIDER_URL', Common::validateData($appYaml['oidc']['provider_url']));
+        }
+
+        if (!defined('OIDC_AUTHORIZATION_ENDPOINT') and isset($appYaml['oidc']['authorization_endpoint'])) {
+            define('OIDC_AUTHORIZATION_ENDPOINT', Common::validateData($appYaml['oidc']['authorization_endpoint']));
+        }
+
+        if (!defined('OIDC_TOKEN_ENDPOINT') and isset($appYaml['oidc']['token_endpoint'])) {
+            define('OIDC_TOKEN_ENDPOINT', Common::validateData($appYaml['oidc']['token_endpoint']));
+        }
+
+        if (!defined('OIDC_USERINFO_ENDPOINT') and isset($appYaml['oidc']['userinfo_endpoint'])) {
+            define('OIDC_USERINFO_ENDPOINT', Common::validateData($appYaml['oidc']['userinfo_endpoint']));
+        }
+
+        if (!defined('OIDC_SCOPES') and isset($appYaml['oidc']['scopes'])) {
+            define('OIDC_SCOPES', Common::validateData($appYaml['oidc']['scopes']));
+        }
+
+        if (!defined('OIDC_CLIENT_ID') and isset($appYaml['oidc']['client_id'])) {
+            define('OIDC_CLIENT_ID', Common::validateData($appYaml['oidc']['client_id']));
+        }
+
+        if (!defined('OIDC_CLIENT_SECRET') and isset($appYaml['oidc']['client_secret'])) {
+            define('OIDC_CLIENT_SECRET', Common::validateData($appYaml['oidc']['client_secret']));
+        }
+
+        if (!defined('OIDC_USERNAME') and isset($appYaml['oidc']['username'])) {
+            define('OIDC_USERNAME', Common::validateData($appYaml['oidc']['username']));
+        }
+
+        if (!defined('OIDC_FIRST_NAME') and isset($appYaml['oidc']['first_name'])) {
+            define('OIDC_FIRST_NAME', Common::validateData($appYaml['oidc']['first_name']));
+        }
+
+        if (!defined('OIDC_LAST_NAME') and isset($appYaml['oidc']['last_name'])) {
+            define('OIDC_LAST_NAME', Common::validateData($appYaml['oidc']['last_name']));
+        }
+
+        if (!defined('OIDC_EMAIL') and isset($appYaml['oidc']['email'])) {
+            define('OIDC_EMAIL', Common::validateData($appYaml['oidc']['email']));
+        }
+
+        if (!defined('OIDC_GROUPS') and isset($appYaml['oidc']['groups'])) {
+            define('OIDC_GROUPS', Common::validateData($appYaml['oidc']['groups']));
+        }
+
+        if (!defined('OIDC_GROUP_ADMINISTRATOR') and isset($appYaml['oidc']['group_administrator'])) {
+            define('OIDC_GROUP_ADMINISTRATOR', Common::validateData($appYaml['oidc']['group_administrator']));
+        }
+
+        if (!defined('OIDC_GROUP_SUPER_ADMINISTRATOR') and isset($appYaml['oidc']['group_super_administrator'])) {
+            define('OIDC_GROUP_SUPER_ADMINISTRATOR', Common::validateData($appYaml['oidc']['group_super_administrator']));
+        }
+
+        if (!defined('__LOAD_SETTINGS_YAML_ERROR')) {
+            define('__LOAD_SETTINGS_YAML_ERROR', $__LOAD_SETTINGS_YAML_ERROR);
+        }
+        if (!defined('__LOAD_SETTINGS_YAML_MESSAGES')) {
+            define('__LOAD_SETTINGS_YAML_MESSAGES', $__LOAD_SETTINGS_YAML_MESSAGES);
+        }
     }
 }

@@ -71,10 +71,10 @@ class Duplicate
          *  Add history
          */
         if ($myrepo->getPackageType() == 'rpm') {
-            $myhistory->set($_SESSION['username'], 'Running task: duplicate repository <span class="label-white">' . $myrepo->getName() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span> ➡ <span class="label-white">' . $formParams['name'] . '</span>', 'success');
+            $myhistory->set('Running task: duplicate repository <span class="label-white">' . $myrepo->getName() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span> ➡ <span class="label-white">' . $formParams['name'] . '</span>', 'success');
         }
         if ($myrepo->getPackageType() == 'deb') {
-            $myhistory->set($_SESSION['username'], 'Running task: duplicate repository <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span> ➡ <span class="label-white">' . $formParams['name'] . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>', 'success');
+            $myhistory->set('Running task: duplicate repository <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span> ➡ <span class="label-white">' . $formParams['name'] . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>', 'success');
         }
     }
 }

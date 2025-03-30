@@ -196,9 +196,10 @@ class Task
     }
 
     /**
-     *  Get last done task Id
+     *  Return last done task Id
+     *  Can return null if no task is found (e.g. brand new installation with no task)
      */
-    public function getLastTaskId() : int
+    public function getLastTaskId() : int|null
     {
         return $this->model->getLastTaskId();
     }
@@ -605,63 +606,61 @@ class Task
     public function kill(string $taskId)
     {
         if (!IS_ADMIN) {
-            throw new Exception('You are not allowed to relaunch a task');
+            throw new Exception('You are not allowed to stop a task');
         }
 
-        if (!file_exists(PID_DIR . '/' . $taskId . '.pid')) {
-            throw new Exception('Specified task PID does not exist');
-        }
+        if (file_exists(PID_DIR . '/' . $taskId . '.pid')) {
+            /**
+             *  Getting PID file content
+             */
+            $content = file_get_contents(PID_DIR . '/' . $taskId . '.pid');
 
-        /**
-         *  Getting PID file content
-         */
-        $content = file_get_contents(PID_DIR . '/' . $taskId . '.pid');
+            /**
+             *  Getting sub PIDs
+             */
+            preg_match_all('/(?<=SUBPID=).*/', $content, $subpids);
 
-        /**
-         *  Getting sub PIDs
-         */
-        preg_match_all('/(?<=SUBPID=).*/', $content, $subpids);
+            /**
+             *  Killing sub PIDs
+             */
+            if (!empty($subpids[0])) {
+                $killError = '';
 
-        /**
-         *  Killing sub PIDs
-         */
-        if (!empty($subpids[0])) {
-            $killError = '';
+                foreach ($subpids[0] as $subpid) {
+                    $subpid = trim(str_replace('"', '', $subpid));
 
-            foreach ($subpids[0] as $subpid) {
-                $subpid = trim(str_replace('"', '', $subpid));
+                    /**
+                     *  Check if the PID is still running
+                     */
+                    $myprocess = new \Controllers\Process('/usr/bin/ps --pid ' . $subpid);
+                    $myprocess->execute();
+                    $content = $myprocess->getOutput();
+                    $myprocess->close();
 
-                /**
-                 *  Check if the PID is still running
-                 */
-                $myprocess = new \Controllers\Process('/usr/bin/ps --pid ' . $subpid);
-                $myprocess->execute();
-                $content = $myprocess->getOutput();
-                $myprocess->close();
+                    if ($myprocess->getExitCode() != 0) {
+                        continue;
+                    }
 
-                if ($myprocess->getExitCode() != 0) {
-                    continue;
-                }
+                    /**
+                     *  Kill the process
+                     */
+                    $myprocess = new \Controllers\Process('/usr/bin/kill -9 ' . $subpid);
+                    $myprocess->execute();
+                    $content = $myprocess->getOutput();
+                    $myprocess->close();
 
-                /**
-                 *  Kill the process
-                 */
-                $myprocess = new \Controllers\Process('/usr/bin/kill -9 ' . $subpid);
-                $myprocess->execute();
-                $content = $myprocess->getOutput();
-                $myprocess->close();
-
-                if ($myprocess->getExitCode() != 0) {
-                    $killError .= 'Could not kill PID ' . $subpid . ': ' . $content. '<br>';
+                    if ($myprocess->getExitCode() != 0) {
+                        $killError .= 'Could not kill PID ' . $subpid . ': ' . $content. '<br>';
+                    }
                 }
             }
-        }
 
-        /**
-         *  Delete PID file
-         */
-        if (!unlink(PID_DIR . '/' . $taskId . '.pid')) {
-            throw new Exception('Error while deleting PID file');
+            /**
+             *  Delete PID file
+             */
+            if (!unlink(PID_DIR . '/' . $taskId . '.pid')) {
+                throw new Exception('Error while deleting PID file');
+            }
         }
 
         /**

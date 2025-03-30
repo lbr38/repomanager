@@ -24,7 +24,8 @@ $(document).ready(function() {
                         size: 14,
                         family: 'Roboto',
                     }
-                }
+                },
+                color: '#8A99AA',
                 display: true,
                 position: 'left'
             },

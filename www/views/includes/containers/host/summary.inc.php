@@ -190,16 +190,37 @@
                         display: false // do not print dates on X axis
                     },
                     y: {
-                        beginAtZero: true
-                    }      
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#8A99AA',
+                            font: {
+                                size: 11,
+                                family: 'Roboto'
+                            },
+                            stepSize: 1
+                        }
+                    }
                 },
                 plugins: {
                     legend: {
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 13,
+                                family: 'Roboto',
+                            },
+                            color: '#8A99AA'
+                        },
                         display: true,
                         position: 'left',
                         title: {
                             display: true,
                             text: 'Packages evolution',
+                            font: {
+                                size: 14,
+                                family: 'Roboto',
+                            },
+                            color: '#8A99AA',
                         }
                     },
                 },

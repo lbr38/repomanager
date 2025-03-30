@@ -35,6 +35,10 @@ class Environment
      */
     public function add(string $name, string $color) : void
     {
+        if (!IS_ADMIN) {
+            throw new Exception('You are not allowed to perform this action');
+        }
+
         $name = \Controllers\Common::validateData($name);
         $color = \Controllers\Common::validateData($color);
 
@@ -67,6 +71,10 @@ class Environment
      */
     public function delete(int $id) : void
     {
+        if (!IS_ADMIN) {
+            throw new Exception('You are not allowed to perform this action');
+        }
+
         /**
          *  Check if environment exists
          */
@@ -85,6 +93,10 @@ class Environment
      */
     public function edit(array $envs) : void
     {
+        if (!IS_ADMIN) {
+            throw new Exception('You are not allowed to perform this action');
+        }
+
         /**
          *  Delete all envs from database before inserting the new ones
          */

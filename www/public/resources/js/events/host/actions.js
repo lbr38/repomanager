@@ -4,7 +4,7 @@
 $(document).on('click','.host-install-packages-btn',function () {
     var id = $(this).attr('host-id');
 
-    getPanel('hosts/requests/install-packages', {hostId: id});
+    mypanel.get('hosts/requests/install-packages', {hostId: id});
 });
 
 /**
@@ -21,7 +21,7 @@ $(document).on('click','.hosts-install-packages-btn',function () {
         }
     });
 
-    getPanel('hosts/requests/install-packages', {hostsId: hosts});
+    mypanel.get('hosts/requests/install-packages', {hostsId: hosts});
 });
 
 /**
@@ -99,7 +99,7 @@ $(document).on('submit', '#host-install-packages-form', function () {
 $(document).on('click','.host-update-packages-btn',function () {
     var id = $(this).attr('host-id');
 
-    getPanel('hosts/requests/update-packages', {hostId: id});
+    mypanel.get('hosts/requests/update-packages', {hostId: id});
 });
 
 /**
@@ -149,7 +149,7 @@ $(document).on('click','input[type="checkbox"][name="checkbox-host[]"]',function
                     'text': 'Update packages',
                     'color': 'blue-alt',
                     'callback': function () {
-                        getPanel('hosts/requests/update-packages', {
+                        mypanel.get('hosts/requests/update-packages', {
                             hostsId: hosts
                         });
                     }
@@ -433,7 +433,7 @@ $(document).on('click','#host-request-btn',function () {
                 'text': 'Update packages',
                 'color': 'blue-alt',
                 'callback': function () {
-                    getPanel('hosts/requests/update-packages', {
+                    mypanel.get('hosts/requests/update-packages', {
                         hostsId: [id]
                     });
                 }

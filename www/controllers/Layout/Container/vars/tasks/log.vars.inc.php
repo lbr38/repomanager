@@ -19,6 +19,11 @@ try {
         $taskId = $taskController->getLastTaskId();
     }
 
+    // If no task Id has been found, throw an exception. It can happen on brand new installations with no task yet.
+    if (empty($taskId)) {
+        throw new Exception('No task found.');
+    }
+
     // Get task info
     $taskInfo = $taskController->getById($taskId);
 

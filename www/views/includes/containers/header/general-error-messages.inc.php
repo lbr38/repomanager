@@ -12,7 +12,7 @@
                 
                     <div class="flex column-gap-5">
                         <img src="/assets/icons/warning.svg" class="icon" />
-                        <p class="note">Please, go to the <a href="/settings"><b>settings tab</b></a> to finalize the configuration before running any task.</p>
+                        <p class="note">Please, go to the <a href="/settings" class="font-size-14"><b>settings </b></a> to finalize the configuration before running any task.</p>
                     </div>
                     <?php
                 endif;

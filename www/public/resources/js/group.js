@@ -27,15 +27,13 @@ $(document).on('submit','#newGroupForm',function () {
         // Print error alert:
         true,
         // Reload container:
-        ['repos/list'],
-        // Execute functions on success:
-        [
-            // Reload group panel
-            "reloadPanel('repos/groups/list')",
-            // Reload create repo div
-            "reloadPanel('repos/new')",
-        ]
-    );
+        ['repos/list']
+    ).then(function () {
+        // Reload group panel
+        mypanel.reload('repos/groups/list');
+        // Reload create repo div
+        mypanel.reload('repos/new');
+    });
 
     return false;
 });
@@ -74,15 +72,13 @@ $(document).on('click','.delete-group-btn',function (e) {
                         // Print error alert:
                         true,
                         // Reload container:
-                        ['repos/list'],
-                        // Execute functions on success:
-                        [
-                            // Reload group panel
-                            "reloadPanel('repos/groups/list')",
-                            // Reload create repo div
-                            "reloadPanel('repos/new')"
-                        ]
-                    );
+                        ['repos/list']
+                    ).then(function () {
+                        // Reload group panel
+                        mypanel.reload('repos/groups/list');
+                        // Reload create repo div
+                        mypanel.reload('repos/new');
+                    });
                 }
             }]
         }
@@ -119,13 +115,13 @@ $(document).on('submit','.group-form',function () {
         // Print error alert:
         true,
         // Reload container:
-        ['repos/list'],
-        // Execute functions on success:
-        [
-            // Reload group panel
-            "reloadPanel('repos/groups/list')"
-        ]
-    );
+        ['repos/list']
+    ).then(function () {
+        // Reload group panel
+        mypanel.reload('repos/groups/list');
+        // Reload create repo div
+        mypanel.reload('repos/new');
+    });
 
     return false;
 });

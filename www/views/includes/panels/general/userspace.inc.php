@@ -25,39 +25,43 @@
     <form id="user-edit-info" autocomplete="off">
         <input type="hidden" name="username" value="<?= $_SESSION['username'] ?>" />
         <h6>FIRST NAME</h6>
-        <input type="text" class="input-large" name="first-name" value="<?php echo !empty($_SESSION['first_name']) ? $_SESSION['first_name'] : ''; ?>">
+        <input type="text" class="input-large" name="first-name" value="<?php echo !empty($_SESSION['first_name']) ? $_SESSION['first_name'] : ''; ?>" <?php echo $_SESSION['type'] != 'local' ? 'readonly' : ''; ?>>
 
         <h6>LAST NAME</h6>
-        <input type="text" class="input-large" name="last-name" value="<?php echo !empty($_SESSION['last_name']) ? $_SESSION['last_name'] : ''; ?>">
+        <input type="text" class="input-large" name="last-name" value="<?php echo !empty($_SESSION['last_name']) ? $_SESSION['last_name'] : ''; ?>" <?php echo $_SESSION['type'] != 'local' ? 'readonly' : ''; ?>>
 
         <h6>EMAIL</h6>
-        <input type="email" class="input-large" name="email" value="<?php echo !empty($_SESSION['email']) ? $_SESSION['email'] : ''; ?>">
+        <input type="email" class="input-large" name="email" value="<?php echo !empty($_SESSION['email']) ? $_SESSION['email'] : ''; ?>" <?php echo $_SESSION['type'] != 'local' ? 'readonly' : ''; ?>>
 
         <br><br>
-        <button class="btn-small-green">Save</button>
-    </form>
-</div>
-
-<h5>CHANGE PASSWORD</h5>
-            
-<div>
-    <form id="user-change-password" autocomplete="off">
-        <input type="hidden" name="username" value="<?= $_SESSION['username'] ?>" />
-        <h6 class="required">CURRENT PASSWORD</h6>
-        <input type="password" class="input-large" name="actual-password" required />
-
-        <h6 class="required">NEW PASSWORD</h6>
-        <input type="password" class="input-large" name="new-password" required />
-
-        <h6 class="required">NEW PASSWORD (confirm)</h6>
-        <input type="password" class="input-large" name="new-password-confirm" required />
-
-        <br><br>
-        <button class="btn-small-green">Save</button>
+        <?php if ($_SESSION['type'] == 'local') : ?>
+            <button class="btn-small-green">Save</button>
+        <?php endif; ?>
     </form>
 </div>
 
 <?php
+if ($_SESSION['type'] == 'local') : ?>
+    <h5>CHANGE PASSWORD</h5>
+                
+    <div>
+        <form id="user-change-password" autocomplete="off">
+            <h6 class="required">CURRENT PASSWORD</h6>
+            <input type="password" class="input-large" name="actual-password" required />
+
+            <h6 class="required">NEW PASSWORD</h6>
+            <input type="password" class="input-large" name="new-password" required />
+
+            <h6 class="required">NEW PASSWORD (confirm)</h6>
+            <input type="password" class="input-large" name="new-password-confirm" required />
+
+            <br><br>
+            <button class="btn-small-green">Save</button>
+        </form>
+    </div>
+    <?php
+endif;
+
 $content = ob_get_clean();
 $slidePanelName = 'general/userspace';
 $slidePanelTitle = 'USERSPACE';

@@ -215,6 +215,10 @@ class Profile
      */
     public function new(string $name)
     {
+        if (!IS_ADMIN) {
+            throw new Exception('You are not allowed to perform this action');
+        }
+
         $name = \Controllers\Common::validateData($name);
 
         /**
@@ -234,7 +238,7 @@ class Profile
         $this->model->add($name);
 
         $myhistory = new \Controllers\History();
-        $myhistory->set($_SESSION['username'], "Create a new profile: $name", 'success');
+        $myhistory->set("Create a new profile: $name", 'success');
     }
 
     /**
@@ -242,6 +246,10 @@ class Profile
      */
     public function duplicate(string $id)
     {
+        if (!IS_ADMIN) {
+            throw new Exception('You are not allowed to perform this action');
+        }
+
         /**
          *  Check that profile exists
          */
@@ -302,7 +310,7 @@ class Profile
         }
 
         $myhistory = new \Controllers\History();
-        $myhistory->set($_SESSION['username'], "Duplicate profile <b>$name</b> to <b>$newName</b>", 'success');
+        $myhistory->set("Duplicate profile <b>$name</b> to <b>$newName</b>", 'success');
     }
 
     /**
@@ -310,6 +318,10 @@ class Profile
      */
     public function delete(int $id)
     {
+        if (!IS_ADMIN) {
+            throw new Exception('You are not allowed to perform this action');
+        }
+
         /**
          *  Check that profile Id exists in database
          */
@@ -328,7 +340,7 @@ class Profile
         $name = $this->model->getNameById($id);
 
         $myhistory = new \Controllers\History();
-        $myhistory->set($_SESSION['username'], "Delete <b>$name</b> profile", 'success');
+        $myhistory->set("Delete <b>$name</b> profile", 'success');
     }
 
     /**
@@ -336,6 +348,10 @@ class Profile
      */
     public function configure(int $id, string $name, array $reposIds = null, array $packagesExcluded = null, array $packagesMajorExcluded = null, array $serviceNeedRestart = null, string $notes)
     {
+        if (!IS_ADMIN) {
+            throw new Exception('You are not allowed to perform this action');
+        }
+
         $myhistory = new \Controllers\History();
         $myHost = new \Controllers\Host();
         $myHostRequest = new \Controllers\Host\Request();
@@ -508,7 +524,7 @@ class Profile
             $myHostRequest->new($host['Id'], 'update-profile');
         }
 
-        $myhistory->set($_SESSION['username'], "Modification of <b>$name</b> profile configuration", 'success');
+        $myhistory->set("Modification of <b>$name</b> profile configuration", 'success');
     }
 
     /**

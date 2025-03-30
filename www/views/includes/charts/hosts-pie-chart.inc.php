@@ -22,14 +22,15 @@ $(document).ready(function() {
                     font: {
                         size: 14,
                         family: 'Roboto',
-                    }
+                    },
+                    color: '#8A99AA'
                 },
                 display: true,
                 position: 'left'
             },
             title: {
                 display: true,
-                text: '<?= $title ?>'
+                text: '<?= $title ?>',
             }
         },
     }

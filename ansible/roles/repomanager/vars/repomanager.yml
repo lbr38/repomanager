@@ -1,4 +1,7 @@
 ---
+# The version of Repomanager to install, see all releases at: https://github.com/lbr38/repomanager/releases
+repomanager_version: "latest"
+
 # The FQDN of Repomanager
 repomanager_fqdn: repomanager.example.com
 

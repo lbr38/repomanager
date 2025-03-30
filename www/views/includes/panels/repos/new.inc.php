@@ -40,44 +40,50 @@
         <div field-type="mirror rpm deb">
             <h6 class="required">SOURCE REPOSITORY</h6>
             <p class="note">The repository to mirror from. Want more? <span class="note pointer lowopacity get-panel-btn" panel="repos/sources/list">Add or import a source repository</span>.</p>
-            <?php
-            if (RPM_REPO == 'true') :
-                if (empty($newRepoRpmSourcesList)) {
-                    echo '<div class="flex align-item-center column-gap-5 margin-top-10" field-type="mirror rpm"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /><p class="note">No rpm source repositories available. Please add a source repository first.</p></div>';
-                }
 
-                if (!empty($newRepoRpmSourcesList)) : ?>
-                    <select class="task-param" param-name="source" field-type="mirror rpm" package-type="rpm">
-                        <option value="">Select a source repository</option>
+            <div field-type="mirror rpm">
+                <?php
+                if (RPM_REPO == 'true') :
+                    if (empty($newRepoRpmSourcesList)) {
+                        echo '<div class="flex align-item-center column-gap-5 margin-top-10" field-type="mirror rpm"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /><p class="note">No rpm source repositories available. Please add a source repository first.</p></div>';
+                    }
+
+                    if (!empty($newRepoRpmSourcesList)) : ?>
+                        <select class="task-param" param-name="source" field-type="mirror rpm" package-type="rpm">
+                            <option value="">Select a source repository</option>
+                            <?php
+                            foreach ($newRepoRpmSourcesList as $source) {
+                                $definition = json_decode($source['Definition'], true);
+                                $name = $definition['name'];
+                                echo '<option value="' . $name . '">' . $name . '</option>';
+                            } ?>
+                        </select>
                         <?php
-                        foreach ($newRepoRpmSourcesList as $source) {
-                            $definition = json_decode($source['Definition'], true);
-                            $name = $definition['name'];
-                            echo '<option value="' . $name . '">' . $name . '</option>';
-                        } ?>
-                    </select>
-                    <?php
-                endif;
-            endif;
+                    endif;
+                endif ?>
+            </div>
 
-            if (DEB_REPO == 'true') :
-                if (empty($newRepoDebSourcesList)) {
-                    echo '<div class="flex align-item-center column-gap-5 margin-top-10" field-type="mirror deb"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /><p class="note">No deb source repositories available. Please add a source repository first.</p></div>';
-                }
+            <div field-type="mirror deb">
+                <?php
+                if (DEB_REPO == 'true') :
+                    if (empty($newRepoDebSourcesList)) {
+                        echo '<div class="flex align-item-center column-gap-5 margin-top-10" field-type="mirror deb"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /><p class="note">No deb source repositories available. Please add a source repository first.</p></div>';
+                    }
 
-                if (!empty($newRepoDebSourcesList)) : ?>
-                    <select class="task-param" param-name="source" field-type="mirror deb" package-type="deb">
-                        <option value="">Select a source repository</option>
+                    if (!empty($newRepoDebSourcesList)) : ?>
+                        <select class="task-param" param-name="source" field-type="mirror deb" package-type="deb">
+                            <option value="">Select a source repository</option>
+                            <?php
+                            foreach ($newRepoDebSourcesList as $source) {
+                                $definition = json_decode($source['Definition'], true);
+                                $name = $definition['name'];
+                                echo '<option value="' . $name . '">' . $name . '</option>';
+                            } ?>
+                        </select>
                         <?php
-                        foreach ($newRepoDebSourcesList as $source) {
-                            $definition = json_decode($source['Definition'], true);
-                            $name = $definition['name'];
-                            echo '<option value="' . $name . '">' . $name . '</option>';
-                        } ?>
-                    </select>
-                    <?php
-                endif;
-            endif ?>
+                    endif;
+                endif ?>
+            </div>
         </div>
 
         <div>

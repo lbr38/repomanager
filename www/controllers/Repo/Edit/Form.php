@@ -163,10 +163,10 @@ class Form
              *  Add history
              */
             if ($repoController->getPackageType() == 'rpm') {
-                $historyController->set($_SESSION['username'], 'Editing <span class="label-white">' . $repoController->getName() . '</span> repository properties (' . $repoController->getType() . ')', 'success');
+                $historyController->set('Editing <span class="label-white">' . $repoController->getName() . '</span> repository properties (' . $repoController->getType() . ')', 'success');
             }
             if ($repoController->getPackageType() == 'deb') {
-                $historyController->set($_SESSION['username'], 'Editing <span class="label-white">' . $repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection() . '</span> repository properties (' . $repoController->getType() . ')', 'success');
+                $historyController->set('Editing <span class="label-white">' . $repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection() . '</span> repository properties (' . $repoController->getType() . ')', 'success');
             }
 
             /**

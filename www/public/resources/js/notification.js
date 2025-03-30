@@ -27,11 +27,8 @@ function acquitNotification(id)
         // Print error alert:
         true,
         // Reload container:
-        ['header/menu'],
-        // Execute functions on success:
-        [
-            // Reload notification panel
-            "reloadPanel('general/notification')"
-        ]
-    );
+        ['header/menu']
+    ).then(function () {
+        mypanel.reload('general/notification')
+    });
 }

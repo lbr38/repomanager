@@ -106,6 +106,10 @@ class Group
      */
     public function new(string $name)
     {
+        if (!IS_ADMIN) {
+            throw new Exception('You are not allowed to perform this action');
+        }
+
         $name = \Controllers\Common::validateData($name);
 
         /**
@@ -128,7 +132,7 @@ class Group
         $this->model->add($name);
 
         $myhistory = new \Controllers\History();
-        $myhistory->set($_SESSION['username'], 'Create a new group <span class="label-white">' . $name . '</span> (type: ' . $this->type . ')', 'success');
+        $myhistory->set('Create a new group <span class="label-white">' . $name . '</span> (type: ' . $this->type . ')', 'success');
     }
 
     /**
@@ -136,6 +140,10 @@ class Group
      */
     public function edit(int $id, string $name, array $data)
     {
+        if (!IS_ADMIN) {
+            throw new Exception('You are not allowed to perform this action');
+        }
+
         /**
          *  Check if group exists
          */
@@ -176,7 +184,7 @@ class Group
         }
 
         $myhistory = new \Controllers\History();
-        $myhistory->set($_SESSION['username'], 'Group <span class="label-white">' . $name . '</span> (type: ' . $this->type . ') edited', 'success');
+        $myhistory->set('Group <span class="label-white">' . $name . '</span> (type: ' . $this->type . ') edited', 'success');
     }
 
     /**
@@ -185,6 +193,10 @@ class Group
      */
     public function delete(int $id)
     {
+        if (!IS_ADMIN) {
+            throw new Exception('You are not allowed to perform this action');
+        }
+
         /**
          *  Check if group exists
          */
@@ -203,7 +215,7 @@ class Group
         $this->model->delete($id);
 
         $myhistory = new \Controllers\History();
-        $myhistory->set($_SESSION['username'], 'Delete group <span class="label-white">' . $name . '</span> (type: '. $this->type . ')', 'success');
+        $myhistory->set('Delete group <span class="label-white">' . $name . '</span> (type: '. $this->type . ')', 'success');
     }
 
     /**

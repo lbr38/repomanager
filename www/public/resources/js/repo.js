@@ -18,12 +18,7 @@ function searchRepo()
      *  Retrieve search input value
      *  Convert to uppercase to ignore case when searching
      */
-    search = $("#repo-search-input").val().toUpperCase();
-
-    /**
-     *  Remove all spaces from search
-     */
-    search = search.replaceAll(' ', '');
+    search = $("#repo-search-input").val().toUpperCase().trim();
 
     /**
      *  First, hide all repos groups
@@ -37,41 +32,86 @@ function searchRepo()
         /**
          *  Retrieve all repos lines
          */
-        $('.repos-list-group-flex-div').each(function () {
-            repoName = $(this).find('.item-repo').attr('name');
-            repoDist = $(this).find('.item-repo').attr('dist');
-            repoSection = $(this).find('.item-repo').attr('section');
-            repoReleasever = $(this).find('.item-repo').attr('releasever');
+        // $('.repos-list-group-flex-div').each(function () {
+        $('.item-repo').each(function () {
+            var name = $(this).attr('name');
+            var dist = $(this).attr('dist');
+            var section = $(this).attr('section');
+            var releasever = $(this).attr('releasever');
 
             /**
              *  If repo name contains the search then display 'repos-list-group-flex-div' and its parent 'repos-list-group'
              */
-            if (repoName.toUpperCase().indexOf(search) > -1) {
-                $(this).show();
+            if (name.toUpperCase().indexOf(search) > -1) {
+                // $(this).show();
+                $(this).parents('.repos-list-group-flex-div').show();
                 $(this).parents('.repos-list-group').show();
             }
 
             /**
              *  If repo dist contains the search then display 'repos-list-group-flex-div' and its parent 'repos-list-group'
              */
-            if (repoDist.toUpperCase().indexOf(search) > -1) {
-                $(this).show();
+            if (dist.toUpperCase().indexOf(search) > -1) {
+                // $(this).show();
+                $(this).parents('.repos-list-group-flex-div').show();
                 $(this).parents('.repos-list-group').show();
             }
 
             /**
              *  If repo section contains the search then display 'repos-list-group-flex-div' and its parent 'repos-list-group'
              */
-            if (repoSection.toUpperCase().indexOf(search) > -1) {
-                $(this).show();
+            if (section.toUpperCase().indexOf(search) > -1) {
+                // $(this).show();
+                $(this).parents('.repos-list-group-flex-div').show();
                 $(this).parents('.repos-list-group').show();
             }
 
             /**
              *  If repo releasever contains the search then display 'repos-list-group-flex-div' and its parent 'repos-list-group'
              */
-            if (repoReleasever.toUpperCase().indexOf(search) > -1) {
-                $(this).show();
+            if (releasever.toUpperCase().indexOf(search) > -1) {
+                // $(this).show();
+                $(this).parents('.repos-list-group-flex-div').show();
+                $(this).parents('.repos-list-group').show();
+            }
+        });
+
+        /**
+         *  Retrieve all repos environments
+         */
+        $('.item-env').each(function () {
+            var name = $(this).text().trim();
+
+            // Ignore if name is empty
+            if (name == "") {
+                return;
+            }
+
+            /**
+             *  If env name contains the search then display 'repos-list-group-flex-div' and its parent 'repos-list-group'
+             */
+            if (name.toUpperCase().indexOf(search) > -1) {
+                $(this).parents('.repos-list-group-flex-div').show();
+                $(this).parents('.repos-list-group').show();
+            }
+        });
+
+        /**
+         *  Retrieve all repos descriptions
+         */
+        $('input.repoDescriptionInput').each(function () {
+            var description = $(this).val().trim();
+
+            // Ignore if description is empty
+            if (description == "") {
+                return;
+            }
+
+            /**
+             *  If description contains the search then display 'repos-list-group-flex-div' and its parent 'repos-list-group'
+             */
+            if (description.toUpperCase().indexOf(search) > -1) {
+                $(this).parents('.repos-list-group-flex-div').show();
                 $(this).parents('.repos-list-group').show();
             }
         });
@@ -222,74 +262,6 @@ $(document).on('keypress','.repoDescriptionInput',function () {
     }
     event.stopPropagation();
 });
-
-/**
- *  Event: generate repo configuration for client
- */
-$(document).on('click','.client-configuration-btn',function () {
-    /**
-     *  Delete all other divs if any
-     */
-    $(".divReposConf").remove();
-
-    /**
-     *  Retrieve repo infos
-     */
-    var packageType = $(this).attr('package-type');
-    var repoName = $(this).attr('repo');
-    var repoEnv = $(this).attr('env');
-
-    /**
-     *  If packageType is 'deb' then retrieve dist and section
-     */
-    if (packageType == "deb") {
-        var repoDist = $(this).attr('dist');
-        var repoSection = $(this).attr('section');
-        var arch = $(this).attr('arch');
-
-        /**
-         *  If dist name contains a slash, replace it by a dash to avoid creating a file with a slash in its name
-         */
-        var repoDistFormatted = repoDist.replace('/', '-');
-    }
-
-    var repo_dir_url = $(this).attr('repo-dir-url');
-    var repo_conf_files_prefix = $(this).attr('repo-conf-files-prefix');
-    var www_hostname = $(this).attr('www-hostname');
-
-    if (packageType == "rpm") {
-        var commands = 'echo -e "[' + repo_conf_files_prefix + '' + repoName + '_' + repoEnv + ']\nname=' + repoName + ' repo on ' + www_hostname + '\nbaseurl=' + repo_dir_url + '/' + repoName + '_' + repoEnv + '\nenabled=1\ngpgkey=' + repo_dir_url + '/gpgkeys/' + www_hostname + '.pub\ngpgcheck=1" > /etc/yum.repos.d/' + repo_conf_files_prefix + '' + repoName + '.repo';
-    }
-    if (packageType == "deb") {
-        var commands = 'curl -sS ' + repo_dir_url + '/gpgkeys/' + www_hostname + '.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/' + www_hostname + '.gpg\n';
-        commands    += 'echo "deb ' + repo_dir_url + '/' + repoName + '/' + repoDist + '/' + repoSection + '_' + repoEnv + ' ' + repoDist + ' ' + repoSection + '" > /etc/apt/sources.list.d/' + repo_conf_files_prefix + '' + repoName + '_' + repoDistFormatted + '_' + repoSection + '.list';
-
-        /**
-         *  If 'src' arch is present in $arch then add src repo
-         */
-        if (arch.includes('src')) {
-            commands += '\necho "deb-src ' + repo_dir_url + '/' + repoName + '/' + repoDist + '/' + repoSection + '_' + repoEnv + ' ' + repoDist + ' ' + repoSection + '" >> /etc/apt/sources.list.d/' + repo_conf_files_prefix + '' + repoName + '_' + repoDistFormatted + '_' + repoSection + '.list';
-        }
-    }
-
-    /**
-     *  Generation of the div
-     */
-    $('body').append('<div class="divReposConf hide"><span><img title="Close" class="divReposConf-close close-btn lowopacity" src="/assets/icons/close.svg" /></span><h3>INSTALLATION</h3><p class="note">Use the commands below to install the repository on a host.</p><div id="divReposConfCommands-container"><pre id="divReposConfCommands">' + commands + '</pre><img src="/assets/icons/duplicate.svg" class="icon-lowopacity" title="Copy to clipboard" onclick="copyToClipboard(divReposConfCommands)" /></div></div>');
-
-    /**
-     *  Print
-     */
-    $('.divReposConf').show();
-});
-
-/**
- *  Event : fermeture de la configuration client
- */
-$(document).on('click','.divReposConf-close',function () {
-    $(".divReposConf").remove();
-});
-
 
 /**
  *  Ajax : Modifier la description d'un repo

@@ -13,8 +13,8 @@ class Form
      */
     public function get(string $action, array $repos) : string
     {
-        $mylogin = new \Controllers\Login();
-        $usersEmail = $mylogin->getEmails();
+        $userController = new \Controllers\User\User();
+        $usersEmail = $userController->getEmails();
 
         $content = '<form id="task-form" autocomplete="off">';
 

@@ -41,10 +41,10 @@ class Env
          *  Add history
          */
         if ($myrepo->getPackageType() == 'rpm') {
-            $myhistory->set($_SESSION['username'], 'Running task: point environment to repository <span class="label-white">' . $myrepo->getName() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⸺' . \Controllers\Common::envtag($formParams['env']), 'success');
+            $myhistory->set('Running task: point environment to repository <span class="label-white">' . $myrepo->getName() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⸺' . \Controllers\Common::envtag($formParams['env']), 'success');
         }
         if ($myrepo->getPackageType() == 'deb') {
-            $myhistory->set($_SESSION['username'], 'Running task: point environment to repository <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⸺' . \Controllers\Common::envtag($formParams['env']), 'success');
+            $myhistory->set('Running task: point environment to repository <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⸺' . \Controllers\Common::envtag($formParams['env']), 'success');
         }
     }
 }

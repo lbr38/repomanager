@@ -79,7 +79,7 @@
 
     <div class="div-generic-blue">
         <form class="settings-form" autocomplete="off">
-            <h5>Global settings</h5>
+            <h5>GLOBAL SETTINGS</h5>
 
             <h6>REPOSITORIES URL</h6>
             <p class="note">Root URL for accessing repositories. This URL is not browseable for security reasons. To explore the content of a repository snapshot, use the snapshot browsing system.</p>
@@ -94,11 +94,11 @@
             } ?>
 
             <h6>REPOSITORY CONFIGURATION FILE NAME PREFIX</h6>
-            <p class="note">Prefix added to repository configuration files when installing on client hosts (e.g., '<myprefix>-debian.list' or '<myprefix>-nginx.repo'). Leave empty if you want no prefix.</p>
+            <p class="note">Prefix added to repository configuration files when installing on client hosts (e.g., 'myprefix-debian.list' or 'myprefix-nginx.repo'). Leave empty if you want no prefix.</p>
             <input class="settings-param" param-name="repoConfFilesPrefix" type="text" value="<?= REPO_CONF_FILES_PREFIX ?>">
 
             <br><br>
-            <h5>Global mirroring settings</h5>
+            <h5>GLOBAL MIRRORING SETTINGS</h5>
 
             <h6 class="required">PACKAGE DOWNLOAD TIMEOUT (in seconds)</h6>
             <p class="note">Maximum time allowed to download a package during a mirroring process.</p>
@@ -152,8 +152,8 @@
                     } ?>
                 </select>
 
-                <br>
-                <h5 title="RPM mirroring settings">RPM Mirroring settings</h5>
+                <br><br>
+                <h5 title="RPM mirroring settings">RPM MIRRORING SETTINGS</h5>
 
                 <h6 class="required">WHEN PACKAGE SIGNATURE IS MISSING</h6>
                 <p class="note">Package retrieved from a remote repository may not be signed at all (for example, the publisher released the package forgetting to sign it). This parameter allows you to choose what to do in this case.</p>
@@ -209,8 +209,8 @@
                     } ?>
                 </select>
 
-                <br>
-                <h5 title="DEB mirroring settings">DEB Mirroring settings</h5>
+                <br><br>
+                <h5 title="DEB mirroring settings">DEB MIRRORING SETTINGS</h5>
 
                 <h6 class="required">WHEN RELEASE FILE SIGNATURE IS INVALID</h6>
                 <p class="note">InRelease / Release file retrieved from a remote repository may have invalid signature (because the GPG key used to sign the file was not imported, or because the publisher signed the file with a different GPG key, or because the file's signature is corrupted or somehow broken). This parameter allows you to choose what to do in this case.</p>
@@ -223,7 +223,7 @@
 
             if (RPM_SIGN_PACKAGES == 'true' or DEB_SIGN_REPO == 'true') : ?>
                 <br><br>
-                <h5>GPG signing key</h5>
+                <h5>GPG SIGNING KEY</h5>
 
                 <h6 class="required">GPG KEY ID</h6>
                 <p class="note">GPG key for signing packages and repositories, identified by its email address. This key is randomly generated upon Repomanager's first startup (4096 bits RSA key).</p>
@@ -236,7 +236,7 @@
 
         <br><br>
 
-        <h5>Environments</h5>
+        <h5>ENVIRONMENTS</h5>
 
         <h6>CURRENT ENVIRONMENTS</h6>
         <p class="note">You can edit environments names and colors. The default environment is the first one in the list, it will be pre-selected in tasks forms.</p>
@@ -297,11 +297,11 @@
             </div>
         </div>
 
-        <br>
+        <br><br>
+
+        <h5>STATISTICS</h5>
 
         <form class="settings-form" autocomplete="off">
-            <h5>Statistics</h5>
-
             <h6>ENABLE REPOSITORIES STATISTICS</h6>
             <p class="note">Enable logging and statistics on repositories access, repositories size and repositories packages count.</p>
             <label class="onoff-switch-label">
@@ -401,6 +401,92 @@
             <button class="hide" type="submit"></button>
         </form>
     </div>
+
+    <?php
+    if (IS_ADMIN) : ?>
+        <h3>SSO (OpenID Connect)</h3>
+
+        <div class="div-generic-blue">
+            <form class="settings-form" autocomplete="off">
+                <h6 class="margin-top-0">ENABLE SSO</h6>
+                <p class="note">Enable SSO login via OpenID Connect.</p>
+                <label class="onoff-switch-label">
+                    <input class="settings-param onoff-switch-input" param-name="oidcEnable" type="checkbox" value="true" <?php echo (OIDC_ENABLED == "true") ? 'checked' : ''; ?>>
+                    <span class="onoff-switch-slider"></span>
+                </label>
+
+                <?php
+                if (OIDC_ENABLED == 'true') : ?>
+                    <h6>SSO ONLY</h6>
+                    <p class="note">Only allow login via OpenID Connect. This will disable local login.</p>
+                    <label class="onoff-switch-label">
+                        <input class="settings-param onoff-switch-input" param-name="ssoOidcOnly" type="checkbox" value="true" <?php echo (SSO_OIDC_ONLY == "true") ? 'checked' : ''; ?>>
+                        <span class="onoff-switch-slider"></span>
+                    </label>
+
+                    <h6>PROVIDER URL</h6>
+                    <p class="note">Provider URL, used for Autodiscovery.</p>
+                    <input class="settings-param" param-name="oidcProviderUrl" type="text" value="<?= OIDC_PROVIDER_URL ?>">
+
+                    <h6>AUTHORIZATION ENDPOINT</h6>
+                    <p class="note">Override Authorization Endpoint (leave empty for Autodiscovery).</p>
+                    <input class="settings-param" param-name="oidcAuthorizationEndpoint" type="text" value="<?= OIDC_AUTHORIZATION_ENDPOINT ?>">
+
+                    <h6>TOKEN ENDPOINT</h6>
+                    <p class="note">Override Token Endpoint (leave empty for Autodiscovery).</p>
+                    <input class="settings-param" param-name="oidcTokenEndpoint" type="text" value="<?= OIDC_TOKEN_ENDPOINT ?>">
+
+                    <h6>USERINFO ENDPOINT</h6>
+                    <p class="note">Override Userinfo Endpoint (leave empty for Autodiscovery).</p>
+                    <input class="settings-param" param-name="oidcUserinfoEndpoint" type="text" value="<?= OIDC_USERINFO_ENDPOINT ?>">
+
+                    <h6>SCOPES</h6>
+                    <p class="note">Additional OIDC Scopes (openid already present).</p>
+                    <input class="settings-param" param-name="oidcScopes" type="text" value="<?= OIDC_SCOPES ?>">
+
+                    <h6>CLIENT ID</h6>
+                    <p class="note">Client ID.</p>
+                    <input class="settings-param" param-name="oidcClientId" type="text" value="<?= OIDC_CLIENT_ID ?>">
+
+                    <h6>CLIENT SECRET</h6>
+                    <p class="note">Client Secret.</p>
+                    <input class="settings-param" param-name="oidcClientSecret" type="password" value="<?= OIDC_CLIENT_SECRET ?>">
+
+                    <h6>USERNAME CLAIM</h6>
+                    <p class="note">OIDC Claim for username.</p>
+                    <input class="settings-param" param-name="oidcUsername" type="text" value="<?= OIDC_USERNAME ?>">
+
+                    <h6>FIRST NAME</h6>
+                    <p class="note">OIDC Claim for First Name.</p>
+                    <input class="settings-param" param-name="oidcFirstName" type="text" value="<?= OIDC_FIRST_NAME ?>">
+
+                    <h6>LAST NAME</h6>
+                    <p class="note">OIDC Claim for Last Name.</p>
+                    <input class="settings-param" param-name="oidcLastName" type="text" value="<?= OIDC_LAST_NAME ?>">
+
+                    <h6>EMAIL</h6>
+                    <p class="note">OIDC Claim for Email.</p>
+                    <input class="settings-param" param-name="oidcEmail" type="text" value="<?= OIDC_EMAIL ?>">
+
+                    <h6>GROUPS</h6>
+                    <p class="note">OIDC Claim for Groups / Roles.</p>
+                    <input class="settings-param" param-name="oidcGroups" type="text" value="<?= OIDC_GROUPS ?>">
+
+                    <h6>GROUP ADMINISTRATOR</h6>
+                    <p class="note">Groups value for Administrator.</p>
+                    <input class="settings-param" param-name="oidcGroupAdministrator" type="text" value="<?= OIDC_GROUP_ADMINISTRATOR ?>">
+
+                    <!-- <h6>GROUP SUPER ADMINISTRATOR</h6>
+                    <p class="note">Groups value for Super Administrator.</p>
+                    <input class="settings-param" param-name="oidcGroupSuperAdministrator" type="text" value="<?= OIDC_GROUP_SUPER_ADMINISTRATOR ?>"> -->
+                    <?php
+                endif; ?>
+
+                <button class="hide" type="submit"></button>
+            </form>
+        </div>
+        <?php
+    endif; ?>
 
     <form class="settings-form" autocomplete="off">
         <button type="submit" class="btn-medium-green">Save</button>

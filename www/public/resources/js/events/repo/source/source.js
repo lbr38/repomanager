@@ -37,15 +37,11 @@ $(document).on('submit','#add-source-repo-form',function () {
         // Print success alert:
         true,
         // Print error alert:
-        true,
-        // Reload containers:
-        [],
-        // Execute functions on success:
-        [
-            "reloadPanel('repos/sources/list')",
-            "reloadPanel('repos/new')"
-        ]
-    );
+        true
+    ).then(function () {
+        mypanel.reload('repos/sources/list');
+        mypanel.reload('repos/new');
+    });
 
     return false;
 });
@@ -72,15 +68,11 @@ $(document).on('submit','#import-source-repos',function () {
         // Print success alert:
         true,
         // Print error alert:
-        true,
-        // Reload containers:
-        [],
-        // Execute functions on success:
-        [
-            "reloadPanel('repos/sources/list')",
-            "reloadPanel('repos/new')"
-        ]
-    );
+        true
+    ).then(function () {
+        mypanel.reload('repos/sources/list');
+        mypanel.reload('repos/new');
+    });
 
     return false;
 });
@@ -117,15 +109,11 @@ $(document).on('click','.source-repo-form-submit-btn',function () {
         // Print success alert:
         true,
         // Print error alert:
-        true,
-        // Reload containers:
-        [],
-        // Execute functions on success:
-        [
-            "reloadPanel('repos/sources/list')",
-            "reloadPanel('repos/new')"
-        ]
-    );
+        true
+    ).then(function () {
+        mypanel.reload('repos/sources/list');
+        mypanel.reload('repos/new');
+    });
 
     return false;
 });
@@ -170,15 +158,11 @@ $(document).on('click','.source-repo-delete-btn',function (e) {
                         // Print success alert:
                         true,
                         // Print error alert:
-                        true,
-                        // Reload containers:
-                        [],
-                        // Execute functions on success:
-                        [
-                            "reloadPanel('repos/sources/list')",
-                            "reloadPanel('repos/new')"
-                        ]
-                    );
+                        true
+                    ).then(function () {
+                        mypanel.reload('repos/sources/list');
+                        mypanel.reload('repos/new');
+                    });
                 }
             }]
         }
@@ -213,14 +197,10 @@ $(document).on('click','.gpgKeyDeleteBtn',function () {
                         // Print success alert:
                         true,
                         // Print error alert:
-                        true,
-                        // Reload containers:
-                        [],
-                        // Execute functions on success:
-                        [
-                            "reloadPanel('repos/sources/list')"
-                        ]
-                    );
+                        true
+                    ).then(function () {
+                        mypanel.reload('repos/sources/list');
+                    });
                 }
             }]
         }

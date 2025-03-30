@@ -8,17 +8,17 @@
 - name: Include repomanager variables
   ansible.builtin.include_vars: repomanager.yml
 
-# Pull the latest docker image and start the container
+# Pull the docker image and start the container
 # This also works in a case of a new version, the image will be pulled and the container will be restarted
-- name: Pull latest docker image
+- name: Pull docker image
   community.docker.docker_container:
     name: repomanager
-    image: lbr38/repomanager:latest
+    image: "lbr38/repomanager:{{ repomanager_version }}"
+    network_mode: host
     env:
       FQDN: "{{ repomanager_fqdn }}"
       MAX_UPLOAD_SIZE: "{{ repomanager_vhost_max_upload_size | default('32') }}M"
-    ports:
-      - "{{ repomanager_listen_port | default('8080') }}:8080"
+      NGINX_LISTEN_PORT: "{{ repomanager_listen_port | default('8080') }}"
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/lib/docker/volumes/repomanager-data:/var/lib/repomanager

@@ -11,11 +11,11 @@
 - Manage hosts packages updates
 - Schedule tasks
 
-![alt text](https://github.com/user-attachments/assets/ba69056e-97cd-4e69-a3bb-7f1cc1d79cac)
-![alt text](https://github.com/user-attachments/assets/873e502a-7745-453f-b6b7-c9f06d2f91a7)
-![alt text](https://github.com/user-attachments/assets/ed169e95-3b3e-4eda-904a-ef49e039d19a)
-![alt text](https://github.com/user-attachments/assets/3e409d30-a17f-494d-b817-d5f840ce14bb)
-![alt text](https://github.com/user-attachments/assets/71cbcbb9-cce0-49d5-9499-521879fb065d)
+![alt text](https://github.com/user-attachments/assets/5a7c2bc5-72c7-45ad-8b67-0be9aaccd8f6)
+![alt text](https://github.com/user-attachments/assets/e9be42e1-9466-4d0f-845a-5b9cfc4e58f2)
+![alt text](https://github.com/user-attachments/assets/e285657e-5b3e-49db-a3ea-ed3a3ae2ffb7)
+![alt text](https://github.com/user-attachments/assets/b99d6a21-06ab-4079-8fe0-7be3842651d7)
+![alt text](https://github.com/user-attachments/assets/27b7b7fa-a5b3-4fc5-9954-9b28abcb09a8)
 
 <h2>Requirements</h2>
 

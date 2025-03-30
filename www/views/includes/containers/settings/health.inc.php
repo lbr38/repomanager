@@ -4,7 +4,7 @@
 
     <div class="div-generic-blue">
         <h6 class="margin-top-0">MAIN DATABASE</h6>
-        <p class="note">Main database. Repomanager cannot run if this database is on error.</p>
+        <p class="note">Storing repositories, users, settings...</p>
         <?php
         $statusError = 0;
         $statusMsg = '';
@@ -35,7 +35,7 @@
 
         if (STATS_ENABLED == "true") : ?>
             <h6>STATS DATABASE</h6>
-            <p class="note">Repositories statistics database.</p>
+            <p class="note">Storing repositories access statistics.</p>
             <?php
             $statusError = 0;
             $statusMsg = '';
@@ -71,7 +71,7 @@
 
         if (MANAGE_HOSTS == "true") : ?>
             <h6>HOSTS DATABASE</h6>
-            <p class="note">Hosts database.</p>
+            <p class="note">Storing hosts and their information.</p>
             <?php
             $statusError = 0;
             $statusMsg = '';
@@ -119,7 +119,7 @@
     /**
      *  Those sections is only accessible to super-administrator user
      */
-    if (IS_SUPERADMIN) : ?>
+    if (IS_ADMIN) : ?>
         <h3>USERS</h3>
 
         <div id="users-settings-container" class="div-generic-blue">
@@ -148,26 +148,46 @@
                     <h6 class="margin-bottom-5">CURRENT USERS</h6>
 
                     <?php
-                    foreach ($users as $user) : ?>
-                        <div class="table-container grid-3 bck-blue-alt">
-                            <div>
-                                <p><?= $user['Username'] ?></p>
-                                <p class="lowopacity-cst">
-                                    <?php
-                                    if ($user['Type'] == 'local') {
-                                        echo 'Local account';
-                                    } ?>
-                                </p>
-                            </div>
+                    foreach ($users as $user) :
+                        if ($user['Role_name'] == 'super-administrator') {
+                            $role = 'Super-administrator';
+                            $roleIcon = 'star';
+                        }
+                        if ($user['Role_name'] == 'administrator') {
+                            $role = 'Administrator';
+                            $roleIcon = 'star';
+                        }
+                        if ($user['Role_name'] == 'usage') {
+                            $role = 'Read-only';
+                            $roleIcon = 'view';
+                        } ?>
 
-                            <p><?= $user['Role_name'] ?></p>
+                        <div class="table-container grid-2 bck-blue-alt">
+                            <div>
+                                <div class="flex align-item-center column-gap-8">
+                                    <p><?= $user['Username'] ?></p>
+                                    <code class="font-size-9" title="Account type"><?= $user['Type'] ?></code>
+                                </div>
+                                <div class="flex align-item-center lowopacity-cst column-gap-2">
+                                    <p>
+                                        <?= $role ?>
+                                    </p>
+                                    <img src="/assets/icons/<?= $roleIcon ?>.svg" class="icon-np icon-medium" title="<?= $role ?>" />
+                                </div>
+                            </div>
 
                             <div class="flex column-gap-10 justify-end">
                                 <?php
-                                if ($user['Username'] != 'admin') : ?>
-                                    <p class="reset-password-btn" user-id="<?= $user['Id'] ?>" username="<?= $user['Username'] ?>" title="Reset password of user <?= $user['Username'] ?>">
-                                        <img src="/assets/icons/update.svg" class="icon-lowopacity" />
-                                    </p>
+                                // Do not print the buttons for the admin account or if $user['Username'] == current user
+                                if ($user['Username'] != 'admin' and $user['Username'] != $_SESSION['username']) :
+                                    // Only local accounts can have their password reseted
+                                    if ($user['Type'] == 'local') : ?>
+                                        <p class="reset-password-btn" user-id="<?= $user['Id'] ?>" username="<?= $user['Username'] ?>" title="Reset password of user <?= $user['Username'] ?>">
+                                            <img src="/assets/icons/update.svg" class="icon-lowopacity" />
+                                        </p>
+                                        <?php
+                                    endif; ?>
+
                                     <p class="delete-user-btn" user-id="<?= $user['Id'] ?>" username="<?= $user['Username'] ?>" title="Delete user <?= $user['Username'] ?>">
                                         <img src="/assets/icons/delete.svg" class="icon-lowopacity" />
                                     </p>

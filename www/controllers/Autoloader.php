@@ -28,6 +28,7 @@ class Autoloader
         if ($level == 'minimal') {
             \Controllers\App\Config\Properties::get();
             \Controllers\App\Config\Main::get();
+            \Controllers\App\Config\Settings::getYaml();
             \Controllers\App\Config\Settings::get();
             \Controllers\App\Config\Env::get();
             \Controllers\App\Structure\Directory::create();
@@ -50,6 +51,7 @@ class Autoloader
 
             \Controllers\App\Config\Properties::get();
             \Controllers\App\Config\Main::get();
+            \Controllers\App\Config\Settings::getYaml();
             \Controllers\App\Config\Settings::get();
             \Controllers\App\Config\Env::get();
             \Controllers\App\Structure\Directory::create();

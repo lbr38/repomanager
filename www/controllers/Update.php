@@ -57,14 +57,14 @@ class Update
                 /**
                  *  Execute file if it has not been done yet
                  */
-                if (!file_exists(DB_UPDATE_DONE_DIR . '/' . $targetVersion . '.done')) {
+                if (!file_exists(DB_UPDATE_DONE_DIR . '/' . basename($targetVersion) . '.done')) {
                     try {
                         $this->model->updateDB($updateFile);
 
                         /**
                          *  Create a file to indicate that the update has been done
                          */
-                        touch(DB_UPDATE_DONE_DIR . '/' . $targetVersion . '.done');
+                        touch(DB_UPDATE_DONE_DIR . '/' . basename($targetVersion) . '.done');
                     } catch (Exception $e) {
                         throw new Exception('error while executing update file ' . $updateFile . ': ' . $e->getMessage());
                     }

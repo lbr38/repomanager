@@ -12,9 +12,6 @@ ARG DATA_DIR="/var/lib/repomanager"
 ARG REPOS_DIR="/home/repo"
 ARG DEBIAN_FRONTEND=noninteractive
 ARG env
-ARG fqdn
-ARG max_upload_size
-ARG php_memory_limit="256M"
 
 # PACKAGES INSTALL
 
@@ -47,15 +44,11 @@ RUN if [ "$env" = "devel" ]; then \
 RUN mkdir -p /etc/nginx/sites-enabled
 RUN cp /tmp/repomanager/docker/config/nginx/nginx.conf /etc/nginx/nginx.conf
 RUN cp /tmp/repomanager/docker/config/nginx/repomanager.conf /etc/nginx/sites-enabled/repomanager.conf
-RUN sed -i "s/__MAX_UPLOAD_SIZE__/$max_upload_size/g" /etc/nginx/sites-enabled/repomanager.conf
 RUN rm -rf /etc/nginx/sites-enabled/default /etc/nginx/conf.d/default.conf /var/www/html
 
 # Configure PHP
 RUN cp /tmp/repomanager/docker/config/php/www.conf /etc/php/8.3/fpm/pool.d/www.conf
 RUN cp /tmp/repomanager/docker/config/php/opcache.ini /etc/php/8.3/mods-available/opcache.ini
-RUN sed -i "s/^upload_max_filesize.*$/upload_max_filesize = $max_upload_size/g" /etc/php/8.3/fpm/php.ini
-RUN sed -i "s/^post_max_size.*$/post_max_size = $max_upload_size/g" /etc/php/8.3/fpm/php.ini
-RUN sed -i "s/^memory_limit.*$/memory_limit = $php_memory_limit/g" /etc/php/8.3/fpm/php.ini
 
 # Configure SQLite
 RUN echo ".headers on" > /root/.sqliterc
@@ -63,15 +56,12 @@ RUN echo ".mode column" >> /root/.sqliterc
 
 # Configure Postfix
 RUN \cp /tmp/repomanager/docker/config/postfix/main.cf /etc/postfix/main.cf
-RUN sed -i "s/__FQDN__/$fqdn/g" /etc/postfix/main.cf
 # Copy master.cf with custom listening port 2525 (to avoid conflict with other mail services on the host) (when networking=host)
 RUN \cp /tmp/repomanager/docker/config/postfix/master.cf /etc/postfix/master.cf
-RUN echo $fqdn > /etc/mailname
 
 # Copy repomanager files
 RUN mkdir -p $WWW_DIR $DATA_DIR $REPOS_DIR
 RUN cp -r /tmp/repomanager/www/* $WWW_DIR/
-RUN echo "$fqdn" > $WWW_DIR/.fqdn
 
 # Create repomanager group and set basic permissions
 RUN groupadd repomanager

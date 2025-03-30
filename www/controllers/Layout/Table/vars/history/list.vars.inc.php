@@ -1,5 +1,5 @@
 <?php
-$myusers = new \Controllers\Login();
+$userController = new \Controllers\User\User();
 $myhistory = new \Controllers\History();
 $reloadableTableOffset = 0;
 $userId = null;
@@ -7,7 +7,7 @@ $userId = null;
 /**
  *  Getting all usernames
  */
-$users = $myusers->getUsers();
+$users = $userController->getUsers();
 
 /**
  *  Retrieve user Id from cookie if exists
@@ -51,4 +51,4 @@ $reloadableTableTotalPages = ceil($reloadableTableTotalItems / 10);
  */
 $reloadableTableCurrentPage = ceil($reloadableTableOffset / 10) + 1;
 
-unset($myusers, $myhistory);
+unset($userController, $myhistory);

@@ -195,7 +195,7 @@
                     /**
                      *  Print relaunch button if task has failed
                      */
-                    if ($item['Status'] == 'error' or $item['Status'] == 'stopped' and !empty($item['Id']) and IS_ADMIN) {
+                    if (($item['Status'] == 'error' or $item['Status'] == 'stopped') and !empty($item['Id']) and IS_ADMIN) {
                         echo '<img class="icon-lowopacity relaunch-task-btn" src="/assets/icons/update.svg" task-id="' . $item['Id'] . '" title="Relaunch this task with the same parameters." />';
                     }
 

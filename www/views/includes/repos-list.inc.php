@@ -248,7 +248,7 @@ if (!empty($groupsList)) {
                                      */
                                     if ($snapId != $previousSnapId) :
                                         if ($repoSnapshotController->taskRunning($snapId)) : ?>
-                                            <img src="/assets/icons/loading.svg" class="icon-medium icon-np" title="A task is running on this repository snaphot." />
+                                            <img src="/assets/icons/loading.svg" class="icon-np" title="A task is running on this repository snaphot." />
                                             <?php
                                         else : ?>
                                             <input type="checkbox" class="icon-lowopacity" name="checkbox-repo" repo-id="<?= $repoId ?>" snap-id="<?= $snapId ?>" <?php echo !empty($envId) ? 'env-id="' . $envId . '"' : ''; ?> env-name="<?= $env ?>" repo-type="<?= $type ?>" group-id="<?= $group['Id'] ?>" title="Select and execute an action.">
