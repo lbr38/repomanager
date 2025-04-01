@@ -762,13 +762,6 @@ class Host
     public function register()
     {
         /**
-         *  Lorsque appelé par l'api, HOSTS_DIR n'est pas setté, donc on le fait
-         */
-        // if (!defined('HOSTS_DIR')) {
-        //     define('HOSTS_DIR', DATA_DIR . '/hosts');
-        // }
-
-        /**
          *  Si on n'a pas renseigné l'IP ou le hostname alors on quitte
          */
         if (empty($this->ip) or empty($this->hostname)) {

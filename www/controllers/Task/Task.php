@@ -22,7 +22,6 @@ class Task
     private $timeStart;
     private $timeEnd;
 
-    private $taskNotifyController;
     private $profileController;
     private $layoutContainerReloadController;
 
@@ -450,6 +449,14 @@ class Task
     }
 
     /**
+     *  Return true if task exists in database
+     */
+    public function exists(int $id) : bool
+    {
+        return $this->model->exists($id);
+    }
+
+    /**
      *  Start task
      */
     public function start()
@@ -781,7 +788,7 @@ class Task
     /**
      *  Disable a recurrent task
      */
-    public function disable(int $id)
+    public function disable(int $id) : void
     {
         $this->model->disable($id);
     }
@@ -789,7 +796,7 @@ class Task
     /**
      *  Delete a task
      */
-    public function delete(int $id)
+    public function delete(int $id) : void
     {
         $this->model->delete($id);
     }
@@ -989,5 +996,62 @@ class Task
         unset($task, $taskRawParams, $dateNow, $timeNow, $taskDate, $taskTime, $nextScheduledTaskTime, $nextScheduledTaskDate, $daysLeft, $timeLeft);
 
         return $schedule;
+    }
+
+    /**
+     *  Return tasks older than a specific date
+     */
+    private function getOlderThan(string $date) : array
+    {
+        return $this->model->getOlderThan($date);
+    }
+
+    /**
+     *  Clean older tasks from database
+     */
+    public function clean() : void
+    {
+        try {
+            $logController = new \Controllers\Log\Log();
+
+            /**
+             *  Get the list of tasks older than X days
+             */
+            $tasks = $this->getOlderThan(date('Y-m-d', strtotime('-' . TASK_CLEAN_OLDER_THAN . ' days')));
+
+            /**
+             *  Delete tasks and their logs
+             */
+            foreach ($tasks as $task) {
+                // Old task logs were stored in a txt file
+                if (!empty($task['Logfile']) and file_exists(MAIN_LOGS_DIR . '/' . $task['Logfile'])) {
+                    if (!unlink(MAIN_LOGS_DIR . '/' . $task['Logfile'])) {
+                        throw new Exception('Could not delete task log file ' . MAIN_LOGS_DIR . '/' . $task['Logfile']);
+                    }
+                }
+
+                // New task logs are stored in a database file
+                $files = [
+                    MAIN_LOGS_DIR . '/repomanager-task-' . $task['Id'] . '-log.db',
+                    MAIN_LOGS_DIR . '/repomanager-task-' . $task['Id'] . '-log.db-shm',
+                    MAIN_LOGS_DIR . '/repomanager-task-' . $task['Id'] . '-log.db-wal'
+                ];
+
+                foreach ($files as $file) {
+                    if (file_exists($file)) {
+                        if (!unlink($file)) {
+                            throw new Exception('Could not delete task log file ' . $file);
+                        }
+                    }
+                }
+
+                // Delete task from database
+                $this->delete($task['Id']);
+            }
+        } catch (Exception $e) {
+            $logController->log('error', 'Service', 'Error while cleaning old tasks: ' . $e->getMessage());
+        }
+
+        unset($logController, $tasks, $files);
     }
 }

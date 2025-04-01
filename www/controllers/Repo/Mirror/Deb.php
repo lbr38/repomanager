@@ -79,7 +79,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  If the arch is not 'src' then the indices file is named 'Packages'
              */
             if ($arch != 'src') {
-                $this->taskLogSubStepController->new('searching-packages-indices', 'SEARCHING FOR PACKAGES INDICES FILE FOR ARCH ' . strtoupper($arch));
+                $this->taskLogSubStepController->new('searching-packages-indices-' . $arch, 'SEARCHING FOR PACKAGES INDICES FILE FOR ARCH ' . strtoupper($arch));
 
                 /**
                  *  Packages pattern to search in the Release file
@@ -300,12 +300,15 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
 
         /**
          *  Quit if no packages have been found
+         *  Ignore it if DEB_ALLOW_EMPTY_REPO is set to true, which means that no package will be downloaded for this arch (https://github.com/lbr38/repomanager/issues/255)
          */
-        if (empty($this->debPackagesLocation)) {
-            throw new Exception('No packages found in <code>Packages</code> indices file');
+        if (DEB_ALLOW_EMPTY_REPO == 'false') {
+            if (empty($this->debPackagesLocation)) {
+                throw new Exception('No packages found in <code>Packages</code> indices file');
+            }
         }
 
-        $this->taskLogSubStepController->completed();
+        $this->taskLogSubStepController->completed(count($this->debPackagesLocation) . ' package(s) found');
     }
 
     /**
@@ -320,7 +323,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             return;
         }
 
-        $this->taskLogSubStepController->new('retrieving-sources-packages-list', 'RETRIEVING SOURCES PACKAGES LIST');
+        $this->taskLogSubStepController->new('retrieving-source-packages-list', 'RETRIEVING SOURCE PACKAGES LIST');
 
         /**
          *  Process research for each Sources file
@@ -454,13 +457,18 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
 
                 fclose($handle);
             }
+
+            $this->taskLogSubStepController->completed(count($this->sourcesPackagesLocation) . ' source package(s) found');
         }
 
         /**
          *  Quit if no sources packages have been found
+         *  Ignore it if DEB_ALLOW_EMPTY_REPO is set to true, which means that no package will be downloaded for this arch (https://github.com/lbr38/repomanager/issues/255)
          */
-        if (empty($this->sourcesPackagesLocation)) {
-            throw new Exception('No packages found in <code>Sources</code> indices file');
+        if (DEB_ALLOW_EMPTY_REPO == 'false') {
+            if (empty($this->sourcesPackagesLocation)) {
+                throw new Exception('No packages found in <code>Sources</code> indices file');
+            }
         }
 
         $this->taskLogSubStepController->completed();
@@ -637,164 +645,166 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             }
         }
 
-        /**
-         *  Print URL from which packages are downloaded
-         */
-        $this->taskLogSubStepController->new('downloading-packages', 'DOWNLOADING PACKAGES', 'From ' . $url);
-
-        /**
-         *  Count total packages to print progression during syncing
-         */
-        $totalPackages = count($this->debPackagesLocation);
-        $packageCounter = 0;
-
-        /**
-         *  Download each package and check its md5
-         */
-        foreach ($this->debPackagesLocation as $debPackage) {
-            $debPackageLocation = $debPackage['location'];
-            $debPackageChecksum = $debPackage['checksum'];
-            $debPackageName = preg_split('#/#', $debPackageLocation);
-            $debPackageName = end($debPackageName);
-            $packageCounter++;
+        if (!empty($this->debPackagesLocation)) {
+            /**
+             *  Print URL from which packages are downloaded
+             */
+            $this->taskLogSubStepController->new('downloading-packages', 'DOWNLOADING PACKAGES', 'From ' . $url);
 
             /**
-             *  Output package to download to log file
+             *  Count total packages to print progression during syncing
              */
-            $this->taskLogSubStepController->new('downloading-package-' . $packageCounter, 'DOWNLOADING PACKAGE (' . $packageCounter . '/' . $totalPackages . ')', $url . '/' . $debPackageLocation);
+            $totalPackages = count($this->debPackagesLocation);
+            $packageCounter = 0;
 
             /**
-             *  Before downloading package, check if there is enough disk space left (2GB minimum)
+             *  Download each package and check its md5
              */
-            if (disk_free_space(REPOS_DIR) < 2000000000) {
-                throw new Exception('Low disk space: repository storage has reached 2GB (minimum) of free space left. Task automatically stopped.');
-            }
+            foreach ($this->debPackagesLocation as $debPackage) {
+                $debPackageLocation = $debPackage['location'];
+                $debPackageChecksum = $debPackage['checksum'];
+                $debPackageName = preg_split('#/#', $debPackageLocation);
+                $debPackageName = end($debPackageName);
+                $packageCounter++;
 
-            /**
-             *  If a list of package(s) to include has been provided, check if the package is in the list
-             *  If not, skip the package
-             */
-            if (!empty($this->packagesToInclude)) {
-                $isIn = false;
+                /**
+                 *  Output package to download to log file
+                 */
+                $this->taskLogSubStepController->new('downloading-package-' . $packageCounter, 'DOWNLOADING PACKAGE (' . $packageCounter . '/' . $totalPackages . ')', $url . '/' . $debPackageLocation);
 
-                foreach ($this->packagesToInclude as $packageToInclude) {
-                    if (preg_match('/' . $packageToInclude . '/', $debPackageName)) {
-                        $isIn = true;
-                    }
+                /**
+                 *  Before downloading package, check if there is enough disk space left (2GB minimum)
+                 */
+                if (disk_free_space(REPOS_DIR) < 2000000000) {
+                    throw new Exception('Low disk space: repository storage has reached 2GB (minimum) of free space left. Task automatically stopped.');
                 }
 
                 /**
-                 *  If package is not in the list of packages to include, skip it
+                 *  If a list of package(s) to include has been provided, check if the package is in the list
+                 *  If not, skip the package
                  */
-                if (!$isIn) {
-                    $this->taskLogSubStepController->warning('Not in the list of packages to include (ignoring)');
-                    continue;
-                }
-            }
+                if (!empty($this->packagesToInclude)) {
+                    $isIn = false;
 
-            /**
-             *  If a list of package(s) to exclude has been provided, check if the package is in the list
-             *  If so, skip the package
-             */
-            if (!empty($this->packagesToExclude)) {
-                $isIn = false;
-
-                foreach ($this->packagesToExclude as $packageToExclude) {
-                    if (preg_match('/' . $packageToExclude . '/', $debPackageName)) {
-                        $isIn = true;
+                    foreach ($this->packagesToInclude as $packageToInclude) {
+                        if (preg_match('/' . $packageToInclude . '/', $debPackageName)) {
+                            $isIn = true;
+                        }
                     }
-                }
 
-                /**
-                 *  If package is in the list of packages to exclude, skip it
-                 */
-                if ($isIn) {
-                    $this->taskLogSubStepController->warning('In the list of packages to exclude (ignoring)');
-                    continue;
-                }
-            }
-
-            /**
-             *  Check that package naming respects the Debian package naming convention
-             *  It must ends with _<arch>.deb, if not then rename it
-             *  e.g. elasticsearch deb repository has a package named 'filebeat-8.0.0-amd64.deb'. In this case arch is incorrect and should use underscore instead of dash.
-             */
-
-            /**
-             *  First check if package has arch in its name, else ignore it
-             */
-            if (!preg_match('/(amd64|arm64|armel|armhf|i386|mips|mips64el|mipsel|ppc64el|s390x|all).deb$/', $debPackageName)) {
-                $this->taskLogSubStepController->warning('Package does not have a valid arch in its name (ignoring)');
-            }
-
-            /**
-             *  Rename package if arch is not correctly specified in its name
-             *  e.g. filebeat-8.0.0-amd64.deb -> filebeat-8.0.0_amd64.deb
-             *  e.g. filebeat-8.0.0.amd64.deb -> filebeat-8.0.0_amd64.deb
-             */
-            $debPackageName = preg_replace('/[-.]amd64.deb$/', '_amd64.deb', $debPackageName);
-            $debPackageName = preg_replace('/[-.]arm64.deb$/', '_arm64.deb', $debPackageName);
-            $debPackageName = preg_replace('/[-.]armel.deb$/', '_armel.deb', $debPackageName);
-            $debPackageName = preg_replace('/[-.]armhf.deb$/', '_armhf.deb', $debPackageName);
-            $debPackageName = preg_replace('/[-.]i386.deb$/', '_i386.deb', $debPackageName);
-            $debPackageName = preg_replace('/[-.]mips.deb$/', '_mips.deb', $debPackageName);
-            $debPackageName = preg_replace('/[-.]mips64el.deb$/', '_mips64el.deb', $debPackageName);
-            $debPackageName = preg_replace('/[-.]mipsel.deb$/', '_mipsel.deb', $debPackageName);
-            $debPackageName = preg_replace('/[-.]ppc64el.deb$/', '_ppc64el.deb', $debPackageName);
-            $debPackageName = preg_replace('/[-.]s390x.deb$/', '_s390x.deb', $debPackageName);
-            $debPackageName = preg_replace('/[-.]all.deb$/', '_all.deb', $debPackageName);
-
-            /**
-             *  Check if file does not already exists before downloading it (e.g. copied from a previously snapshot)
-             */
-            if (file_exists($absoluteDir . '/' . $debPackageName)) {
-                if ($this->checksum($absoluteDir . '/' . $debPackageName, $debPackageChecksum)) {
-                    $this->taskLogSubStepController->completed('Already exists (ignoring)');
-                    continue;
-                }
-            }
-
-            /**
-             *  Check if package already exists in the previous snapshot
-             *  If so, just create a hard link to the package
-             */
-            if (isset($this->previousSnapshotDirPath)) {
-                if (file_exists($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName)) {
                     /**
-                     *  Create hard link to the package
+                     *  If package is not in the list of packages to include, skip it
                      */
-                    if (!link($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName, $absoluteDir . '/' . $debPackageName)) {
-                        throw new Exception('Cannot create hard link to package: ' . $this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName);
+                    if (!$isIn) {
+                        $this->taskLogSubStepController->warning('Not in the list of packages to include (ignoring)');
+                        continue;
+                    }
+                }
+
+                /**
+                 *  If a list of package(s) to exclude has been provided, check if the package is in the list
+                 *  If so, skip the package
+                 */
+                if (!empty($this->packagesToExclude)) {
+                    $isIn = false;
+
+                    foreach ($this->packagesToExclude as $packageToExclude) {
+                        if (preg_match('/' . $packageToExclude . '/', $debPackageName)) {
+                            $isIn = true;
+                        }
                     }
 
-                    $this->taskLogSubStepController->completed('Linked to previous snapshot');
-
-                    continue;
+                    /**
+                     *  If package is in the list of packages to exclude, skip it
+                     */
+                    if ($isIn) {
+                        $this->taskLogSubStepController->warning('In the list of packages to exclude (ignoring)');
+                        continue;
+                    }
                 }
+
+                /**
+                 *  Check that package naming respects the Debian package naming convention
+                 *  It must ends with _<arch>.deb, if not then rename it
+                 *  e.g. elasticsearch deb repository has a package named 'filebeat-8.0.0-amd64.deb'. In this case arch is incorrect and should use underscore instead of dash.
+                 */
+
+                /**
+                 *  First check if package has arch in its name, else ignore it
+                 */
+                if (!preg_match('/(amd64|arm64|armel|armhf|i386|mips|mips64el|mipsel|ppc64el|s390x|all).deb$/', $debPackageName)) {
+                    $this->taskLogSubStepController->warning('Package does not have a valid arch in its name (ignoring)');
+                }
+
+                /**
+                 *  Rename package if arch is not correctly specified in its name
+                 *  e.g. filebeat-8.0.0-amd64.deb -> filebeat-8.0.0_amd64.deb
+                 *  e.g. filebeat-8.0.0.amd64.deb -> filebeat-8.0.0_amd64.deb
+                 */
+                $debPackageName = preg_replace('/[-.]amd64.deb$/', '_amd64.deb', $debPackageName);
+                $debPackageName = preg_replace('/[-.]arm64.deb$/', '_arm64.deb', $debPackageName);
+                $debPackageName = preg_replace('/[-.]armel.deb$/', '_armel.deb', $debPackageName);
+                $debPackageName = preg_replace('/[-.]armhf.deb$/', '_armhf.deb', $debPackageName);
+                $debPackageName = preg_replace('/[-.]i386.deb$/', '_i386.deb', $debPackageName);
+                $debPackageName = preg_replace('/[-.]mips.deb$/', '_mips.deb', $debPackageName);
+                $debPackageName = preg_replace('/[-.]mips64el.deb$/', '_mips64el.deb', $debPackageName);
+                $debPackageName = preg_replace('/[-.]mipsel.deb$/', '_mipsel.deb', $debPackageName);
+                $debPackageName = preg_replace('/[-.]ppc64el.deb$/', '_ppc64el.deb', $debPackageName);
+                $debPackageName = preg_replace('/[-.]s390x.deb$/', '_s390x.deb', $debPackageName);
+                $debPackageName = preg_replace('/[-.]all.deb$/', '_all.deb', $debPackageName);
+
+                /**
+                 *  Check if file does not already exists before downloading it (e.g. copied from a previously snapshot)
+                 */
+                if (file_exists($absoluteDir . '/' . $debPackageName)) {
+                    if ($this->checksum($absoluteDir . '/' . $debPackageName, $debPackageChecksum)) {
+                        $this->taskLogSubStepController->completed('Already exists (ignoring)');
+                        continue;
+                    }
+                }
+
+                /**
+                 *  Check if package already exists in the previous snapshot
+                 *  If so, just create a hard link to the package
+                 */
+                if (isset($this->previousSnapshotDirPath)) {
+                    if (file_exists($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName)) {
+                        /**
+                         *  Create hard link to the package
+                         */
+                        if (!link($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName, $absoluteDir . '/' . $debPackageName)) {
+                            throw new Exception('Cannot create hard link to package: ' . $this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName);
+                        }
+
+                        $this->taskLogSubStepController->completed('Linked to previous snapshot');
+
+                        continue;
+                    }
+                }
+
+                /**
+                 *  Download
+                 */
+                if (!$this->download($url . '/' . $debPackageLocation, $absoluteDir . '/' . $debPackageName, 3)) {
+                    throw new Exception('Error while downloading package');
+                }
+
+                /**
+                 *  Check that downloaded deb package's sha256 matches the sha256 specified by the Packages file
+                 */
+                if (!$this->checksum($absoluteDir . '/' . $debPackageName, $debPackageChecksum)) {
+                    throw new Exception('Checksum of the downloaded package does not match the checksum indicated by the source repository metadata');
+                }
+
+                /**
+                 *  Print OK if package has been downloaded and verified successfully
+                 */
+                $this->taskLogSubStepController->completed();
             }
 
-            /**
-             *  Download
-             */
-            if (!$this->download($url . '/' . $debPackageLocation, $absoluteDir . '/' . $debPackageName, 3)) {
-                throw new Exception('Error while downloading package');
-            }
-
-            /**
-             *  Check that downloaded deb package's sha256 matches the sha256 specified by the Packages file
-             */
-            if (!$this->checksum($absoluteDir . '/' . $debPackageName, $debPackageChecksum)) {
-                throw new Exception('Checksum of the downloaded package does not match the checksum indicated by the source repository metadata');
-            }
-
-            /**
-             *  Print OK if package has been downloaded and verified successfully
-             */
-            $this->taskLogSubStepController->completed();
+            // Set the main substep as completed
+            $this->taskLogSubStepController->completed('', 'downloading-packages');
         }
-
-        // Set the main substep as completed
-        $this->taskLogSubStepController->completed('', 'downloading-packages');
 
         unset($this->debPackagesLocation, $totalPackages, $packageCounter);
     }
@@ -825,66 +835,68 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             }
         }
 
-        /**
-         *  Print URL from which sources packages are downloaded
-         */
-        $this->taskLogSubStepController->new('downloading-sources-packages', 'DOWNLOADING SOURCES PACKAGES', 'From ' . $url);
-
-        /**
-         *  Count total packages to print progression during syncing
-         */
-        $totalPackages = count($this->sourcesPackagesLocation);
-        $packageCounter = 0;
-
-        /**
-         *  Download each source package and check its md5
-         */
-        foreach ($this->sourcesPackagesLocation as $sourcePackage) {
-            $sourcePackageLocation = $sourcePackage['location'];
-            $sourcePackageMd5 = $sourcePackage['md5sum'];
-            $sourcePackageName = preg_split('#/#', $sourcePackageLocation);
-            $sourcePackageName = end($sourcePackageName);
-            $packageCounter++;
+        if (!empty($this->sourcesPackagesLocation)) {
+            /**
+             *  Print URL from which sources packages are downloaded
+             */
+            $this->taskLogSubStepController->new('downloading-sources-packages', 'DOWNLOADING SOURCES PACKAGES', 'From ' . $url);
 
             /**
-             *  Output source package to download to log file
+             *  Count total packages to print progression during syncing
              */
-            $this->taskLogSubStepController->new('downloading-source-package-' . $packageCounter, 'DOWNLOADING SOURCE PACKAGE (' . $packageCounter . '/' . $totalPackages . ')', $sourcePackageLocation);
+            $totalPackages = count($this->sourcesPackagesLocation);
+            $packageCounter = 0;
 
             /**
-             *  Before downloading package, check if there is enough disk space left (2GB minimum)
+             *  Download each source package and check its md5
              */
-            if (disk_free_space(REPOS_DIR) < 2000000000) {
-                throw new Exception('Low disk space: repository storage has reached 2GB (minimum) of free space left. Task automatically stopped.');
+            foreach ($this->sourcesPackagesLocation as $sourcePackage) {
+                $sourcePackageLocation = $sourcePackage['location'];
+                $sourcePackageMd5 = $sourcePackage['md5sum'];
+                $sourcePackageName = preg_split('#/#', $sourcePackageLocation);
+                $sourcePackageName = end($sourcePackageName);
+                $packageCounter++;
+
+                /**
+                 *  Output source package to download to log file
+                 */
+                $this->taskLogSubStepController->new('downloading-source-package-' . $packageCounter, 'DOWNLOADING SOURCE PACKAGE (' . $packageCounter . '/' . $totalPackages . ')', $sourcePackageLocation);
+
+                /**
+                 *  Before downloading package, check if there is enough disk space left (2GB minimum)
+                 */
+                if (disk_free_space(REPOS_DIR) < 2000000000) {
+                    throw new Exception('Low disk space: repository storage has reached 2GB (minimum) of free space left. Task automatically stopped.');
+                }
+
+                /**
+                 *  Check if file does not already exists in the working dir before downloading it (e.g. when a package has multiple possible archs, it can have
+                 *  been downloaded or linked already from another arch)
+                 */
+                if (file_exists($absoluteDir . '/' . $sourcePackageName)) {
+                    $this->taskLogSubStepController->completed('Already exists (ignoring)');
+                    continue;
+                }
+
+                /**
+                 *  Download
+                 */
+                if (!$this->download($url . '/' . $sourcePackageLocation, $absoluteDir . '/' . $sourcePackageName)) {
+                    throw new Exception('Error while doawnloading sources package');
+                }
+
+                /**
+                 *  Check that downloaded source package's md5 matches the md5sum specified by the Sources indices file
+                 */
+                if (md5_file($absoluteDir . '/' . $sourcePackageName) != $sourcePackageMd5) {
+                    throw new Exception('Checksum of the file does not match ' . $sourcePackageMd5);
+                }
+
+                /**
+                 *  Print OK if source package has been downloaded and verified successfully
+                 */
+                $this->taskLogSubStepController->completed();
             }
-
-            /**
-             *  Check if file does not already exists in the working dir before downloading it (e.g. when a package has multiple possible archs, it can have
-             *  been downloaded or linked already from another arch)
-             */
-            if (file_exists($absoluteDir . '/' . $sourcePackageName)) {
-                $this->taskLogSubStepController->completed('Already exists (ignoring)');
-                continue;
-            }
-
-            /**
-             *  Download
-             */
-            if (!$this->download($url . '/' . $sourcePackageLocation, $absoluteDir . '/' . $sourcePackageName)) {
-                throw new Exception('Error while doawnloading sources package');
-            }
-
-            /**
-             *  Check that downloaded source package's md5 matches the md5sum specified by the Sources indices file
-             */
-            if (md5_file($absoluteDir . '/' . $sourcePackageName) != $sourcePackageMd5) {
-                throw new Exception('Checksum of the file does not match ' . $sourcePackageMd5);
-            }
-
-            /**
-             *  Print OK if source package has been downloaded and verified successfully
-             */
-            $this->taskLogSubStepController->completed();
         }
 
         unset($this->sourcesPackagesLocation, $totalPackages, $packageCounter);

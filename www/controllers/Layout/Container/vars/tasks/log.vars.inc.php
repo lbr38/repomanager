@@ -24,6 +24,11 @@ try {
         throw new Exception('No task found.');
     }
 
+    // Check if task exists
+    if (!$taskController->exists($taskId)) {
+        throw new Exception('Task #' . $taskId . ' not found.');
+    }
+
     // Get task info
     $taskInfo = $taskController->getById($taskId);
 

@@ -106,6 +106,7 @@ class Profile extends Model
             $stmt = $this->db->prepare("SELECT
             Package_exclude,
             Package_exclude_major,
+            Service_reload,
             Service_restart,
             Notes
             FROM profile WHERE Id = :profileId");
@@ -210,14 +211,15 @@ class Profile extends Model
     /**
      *  Configure profile
      */
-    public function configure(int $id, string $name, string $packageExclude = null, string $packageExcludeMajor = null, string $serviceRestart = null, string $notes = null)
+    public function configure(int $id, string $name, string $packageExclude = null, string $packageExcludeMajor = null, string $serviceReload = null, string $serviceRestart = null, string $notes = null)
     {
         try {
-            $stmt = $this->db->prepare("UPDATE profile SET Name = :name, Package_exclude = :packageExclude, Package_exclude_major = :packageExcludeMajor, Service_restart = :serviceRestart, Notes = :notes WHERE Id = :id");
+            $stmt = $this->db->prepare("UPDATE profile SET Name = :name, Package_exclude = :packageExclude, Package_exclude_major = :packageExcludeMajor, Service_reload = :serviceReload, Service_restart = :serviceRestart, Notes = :notes WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $stmt->bindValue(':name', $name);
             $stmt->bindValue(':packageExclude', $packageExclude);
             $stmt->bindValue(':packageExcludeMajor', $packageExcludeMajor);
+            $stmt->bindValue(':serviceReload', $serviceReload);
             $stmt->bindValue(':serviceRestart', $serviceRestart);
             $stmt->bindValue(':notes', $notes);
             $stmt->execute();

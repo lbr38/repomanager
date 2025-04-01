@@ -168,7 +168,7 @@
                                     <p><?= $user['Username'] ?></p>
                                     <code class="font-size-9" title="Account type"><?= $user['Type'] ?></code>
                                 </div>
-                                <div class="flex align-item-center lowopacity-cst column-gap-2">
+                                <div class="flex align-item-center lowopacity-cst column-gap-5">
                                     <p>
                                         <?= $role ?>
                                     </p>

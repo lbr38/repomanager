@@ -100,13 +100,12 @@ trait Finalize
 
         if ($this->task->getAction() == 'update') {
             /**
-             *  Dans le cas où la nouvelle date du snapshot est la même que l'ancienne
-             *  (cas où on remet à jour le même snapshot le même jour) alors on met seulement à jour quelques
-             *  informations de base du repo en base de données et rien d'autre.
+             *  Case where the new snapshot date is the same as the old one,
+             *  We only update the repository information in the database and nothing else.
              */
             if ($this->sourceRepo->getDate() == $this->repo->getDate()) {
                 /**
-                 *  Mise à jour de l'état de la signature GPG
+                 *  Update GPG signature state
                  */
                 $this->repo->snapSetSigned($this->repo->getSnapId(), $this->repo->getGpgSign());
 
@@ -126,38 +125,38 @@ trait Finalize
                 $this->repo->snapSetPackagesExcluded($this->repo->getSnapId(), $this->repo->getPackagesToExclude());
 
                 /**
-                 *  Mise à jour de la date
+                 *  Update date
                  */
                 $this->repo->snapSetDate($this->repo->getSnapId(), date('Y-m-d'));
 
                 /**
-                 *  Mise à jour de l'heure
+                 *  Update time
                  */
                 $this->repo->snapSetTime($this->repo->getSnapId(), date('H:i'));
 
             /**
-             *  Sinon on ajoute un nouveau snapshot en base de données à la date du jour
+             *  Otherwise we add a new snapshot in the database with today's date
              */
             } else {
                 /**
-                 *  Cas où un nouveau snapshot a été créé, on l'ajoute en base de données
+                 *  Add snapshot in database
                  */
-                $this->repo->addSnap($this->repo->getDate(), $this->repo->getTime(), $this->repo->getGpgSign(), $this->repo->getArch(), array(), $this->repo->getPackagesToInclude(), $this->repo->getPackagesToExclude(), 'mirror', 'active', $this->repo->getRepoId());
+                $this->repo->addSnap($this->repo->getDate(), $this->repo->getTime(), $this->repo->getGpgSign(), $this->repo->getArch(), array(), $this->repo->getPackagesToInclude(), $this->repo->getPackagesToExclude(), $this->repo->getType(), 'active', $this->repo->getRepoId());
 
                 /**
-                 *  On récupère l'Id du snapshot précédemment créé
-                 *  Et on peut du coup définir que snapId = cet Id
+                 *  Retrieve the last insert row Id
+                 *  And we can set snapId = this Id
                  */
                 $this->repo->setSnapId($this->repo->getLastInsertRowID());
             }
         }
 
         /**
-         *  Si l'utilisateur a renseigné un environnement à faire pointer sur le snapshot créé
+         *  If the user has specified an environment to point to the created snapshot
          */
         if (!empty($this->repo->getEnv())) {
             /**
-             *  Si l'utilisateur n'a précisé aucune description alors on récupère celle actuellement en place sur l'environnement de même nom (si l'environnement existe et si il possède une description)
+             *  If the user has not specified any description, then we retrieve the one currently in place on the environment of the same name (if the environment exists and if it has a description)
              */
             if (empty($this->repo->getDescription())) {
                 if ($this->repo->getPackageType() == 'rpm') {
@@ -168,7 +167,7 @@ trait Finalize
                 }
 
                 /**
-                 *  Si la description récupérée est vide alors la description restera vide
+                 *  If the retrieved description is empty then the description will remain empty
                  */
                 if (!empty($actualDescription)) {
                     $this->repo->setDescription(htmlspecialchars_decode($actualDescription));
@@ -178,12 +177,12 @@ trait Finalize
             }
 
             /**
-             *  On récupère l'Id de l'environnement actuellement an place (si il y en a un)
+             *  Retrieve the Id of the environment currently in place (if there is one)
              */
             $actualEnvIds = $this->repo->getEnvIdFromRepoName($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection(), $this->repo->getEnv());
 
             /**
-             *  On supprime l'éventuel environnement de même nom pointant déjà vers un snapshot de ce repo (si il y en a un)
+             *  Delete the possible environment of the same name pointing to a snapshot of this repo (if there is one)
              */
             if (!empty($actualEnvIds)) {
                 foreach ($actualEnvIds as $actualEnvId) {
@@ -192,13 +191,13 @@ trait Finalize
             }
 
             /**
-             *  Puis on déclare le nouvel environnement et on le fait pointer vers le snapshot précédemment créé
+             *  Then we declare the new environment and make it point to the previously created snapshot
              */
             $this->repo->addEnv($this->repo->getEnv(), $this->repo->getDescription(), $this->repo->getSnapId());
         }
 
         /**
-         *  3. Application des droits sur le snapshot créé
+         *  Apply permissions on the created snapshot
          */
         if ($this->repo->getPackageType() == 'rpm') {
             \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName(), 'file', 660);
@@ -214,8 +213,8 @@ trait Finalize
         $this->taskLogStepController->completed();
 
         /**
-         *  Ajout du repo à un groupe si un groupe a été renseigné.
-         *  Uniquement si il s'agit d'un nouveau repo/section ($this->task->getAction() = new)
+         *  Add repository to a group if a group has been specified.
+         *  Only if it is a new repo/section (create)
          */
         if ($this->task->getAction() == 'create' and !empty($this->repo->getGroup())) {
             $this->taskLogStepController->new('adding-to-group', 'ADDING REPOSITORY TO GROUP');
@@ -224,7 +223,7 @@ trait Finalize
         }
 
         /**
-         *  Nettoyage automatique des snapshots inutilisés
+         *  Clean snapshots older than 30 days
          */
         $snapshotsRemoved = $this->repo->cleanSnapshots();
 
@@ -234,7 +233,7 @@ trait Finalize
         }
 
         /**
-         *  Nettoyage des repos inutilisés dans les groupes
+         *  Clean unused repos in groups
          */
         $this->repo->cleanGroups();
     }

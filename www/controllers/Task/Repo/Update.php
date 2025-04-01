@@ -79,8 +79,16 @@ class Update
         /**
          *  Override with parameters defined by the user
          */
-        $requiredParams = array('gpg-check', 'gpg-sign', 'arch');
-        $optionalParams = array('env', 'package-include', 'package-exclude');
+        // Case it's a mirror repo
+        if ($this->repo->getType() == 'mirror') {
+            $requiredParams = array('gpg-check', 'gpg-sign', 'arch');
+            $optionalParams = array('env', 'package-include', 'package-exclude');
+        }
+        // Case it's a local repo
+        if ($this->repo->getType() == 'local') {
+            $requiredParams = array('gpg-sign', 'arch');
+            $optionalParams = array('env');
+        }
 
         $this->taskParamsCheck('Update repo', $taskParams, $requiredParams);
         $this->taskParamsSet($taskParams, $requiredParams, $optionalParams);
@@ -118,9 +126,18 @@ class Update
 
         try {
             /**
-             *  Sync packages
+             *  Sync packages (if mirror repo)
              */
-            $this->syncPackage();
+            if ($this->repo->getType() == 'mirror') {
+                $this->syncPackage();
+            }
+
+            /**
+             *  Update repository (if local repo)
+             */
+            if ($this->repo->getType() == 'local') {
+                $this->updateLocal();
+            }
 
             /**
              *  Sign repo / packages
@@ -164,5 +181,163 @@ class Update
         $this->taskLogStepController->new('duration', 'DURATION');
         $this->taskLogStepController->none('Total duration: ' . $duration);
         $this->task->end();
+    }
+
+    /**
+     *  Update local repository
+     */
+    private function updateLocal()
+    {
+        $this->taskLogStepController->new('updating', 'UPDATING');
+
+        try {
+            $this->taskLogSubStepController->new('initializing', 'INITIALIZING');
+
+            /**
+             *  Check if a snapshot exists in the database
+             */
+            if ($this->repo->existsSnapId($this->repo->getSnapId()) === false) {
+                throw new Exception('Specified repo snapshot does not exist');
+            }
+
+            /**
+             *  We cannot update a snapshot in the same day
+             */
+            if ($this->repo->getPackageType() == 'rpm') {
+                if ($this->repo->existsRepoSnapDate($this->repo->getDate(), $this->repo->getName()) === true) {
+                    throw new Exception('A snapshot already exists on the <span class="label-black">' . $this->repo->getDateFormatted() . '</span>');
+                }
+            }
+            if ($this->repo->getPackageType() == 'deb') {
+                if ($this->repo->existsRepoSnapDate($this->repo->getDate(), $this->repo->getName(), $this->repo->getDist(), $this->repo->getSection()) === true) {
+                    throw new Exception('A snapshot already exists on the <span class="label-black">' . $this->repo->getDateFormatted() . '</span>');
+                }
+            }
+
+            /**
+             *  Arch must be specified
+             */
+            if (empty($this->repo->getArch())) {
+                throw new Exception('Packages arch must be specified');
+            }
+
+            /**
+             *  Define final repo/section directory path
+             */
+            if ($this->repo->getPackageType() == 'rpm') {
+                $repoPath = REPOS_DIR . '/' . DATE_DMY . '_' . $this->repo->getName();
+            }
+            if ($this->repo->getPackageType() == 'deb') {
+                $repoPath = REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . DATE_DMY . '_' . $this->repo->getSection();
+            }
+
+            /**
+             *  Retrieve previous snapshot directory path
+             */
+            if ($this->sourceRepo->getPackageType() == 'rpm') {
+                $previousSnapshotDir = REPOS_DIR . '/' . $this->sourceRepo->getDateFormatted() . '_' . $this->sourceRepo->getName();
+            }
+            if ($this->sourceRepo->getPackageType() == 'deb') {
+                $previousSnapshotDir = REPOS_DIR . '/' . $this->sourceRepo->getName() . '/' . $this->sourceRepo->getDist() . '/' . $this->sourceRepo->getDateFormatted() . '_' . $this->sourceRepo->getSection();
+            }
+
+            /**
+             *  Check that previous snapshot directory has been retrieved
+             */
+            if (empty($previousSnapshotDir)) {
+                throw new Exception('Could not retrieve previous snapshot directory');
+            }
+
+            /**
+             *  Check that previous snapshot directory exists
+             */
+            if (!is_dir($previousSnapshotDir)) {
+                throw new Exception('Previous snapshot directory does not exist: ' . $previousSnapshotDir);
+            }
+
+            /**
+             *  If target directory already exists, delete it
+             */
+            if (is_dir($repoPath)) {
+                if (!\Controllers\Filesystem\Directory::deleteRecursive($repoPath)) {
+                    throw new Exception('Cannot delete existing directory: ' . $repoPath);
+                }
+            }
+
+            $this->taskLogSubStepController->completed();
+            $this->taskLogSubStepController->new('search-packages', 'SEARCHING PACKAGES IN PREVIOUS SNAPSHOT');
+
+            /**
+             *  Search for packages in the previous snapshot directory
+             */
+            try {
+                if ($this->repo->getPackageType() == 'deb') {
+                    $packages = \Controllers\Filesystem\File::findRecursive($previousSnapshotDir . '/pool/' . $this->sourceRepo->getSection(), ['deb', 'dsc', 'gz', 'xz']);
+                }
+
+                if ($this->repo->getPackageType() == 'rpm') {
+                    $packages = \Controllers\Filesystem\File::findRecursive($previousSnapshotDir . '/packages', ['rpm']);
+                }
+            } catch (Exception $e) {
+                throw new Exception('Error while retrieving previous snapshot packages: ' . $e->getMessage());
+            }
+
+            /**
+             *  Count number of packages found
+             */
+            $totalPackages = count($packages);
+            $packageCounter = 0;
+
+            $this->taskLogSubStepController->completed($totalPackages . ' package(s) found');
+
+            /**
+             *  Create target pool/packages directory
+             */
+            if ($this->repo->getPackageType() == 'deb') {
+                // Create pool directory
+                if (!mkdir($repoPath . '/pool/' . $this->repo->getSection(), 0770, true)) {
+                    throw new Exception('Cannot create directory: ' . $repoPath . '/pool/' . $this->repo->getSection());
+                }
+            }
+            if ($this->repo->getPackageType() == 'rpm') {
+                // Create packages directory. As it is a local repository, we don't need to create arch subdirectories as all packages are in the same directory
+                if (!mkdir($repoPath . '/packages', 0770, true)) {
+                    throw new Exception('Cannot create directory: ' . $repoPath . '/packages');
+                }
+            }
+
+            /**
+             *  Create hardlinks to the previous snapshot packages
+             */
+            foreach ($packages as $packagePath) {
+                // Get package name
+                $name = basename($packagePath);
+
+                // Increment counter
+                $packageCounter++;
+
+                $this->taskLogSubStepController->new('hardlink-package-' . $packageCounter, 'LINKING PACKAGE TO PREVIOUS SNAPSHOT (' . $packageCounter . '/' . $totalPackages . ')', $packagePath);
+
+                if ($this->repo->getPackageType() == 'deb') {
+                    if (!link($packagePath, $repoPath . '/pool/' . $this->repo->getSection() . '/' . $name)) {
+                        throw new Exception('Cannot create hard link to package: ' . $packagePath);
+                    }
+                }
+                if ($this->repo->getPackageType() == 'rpm') {
+                    if (!link($packagePath, $repoPath . '/packages/' . $name)) {
+                        throw new Exception('Cannot create hard link to package: ' . $packagePath);
+                    }
+                }
+
+                $this->taskLogSubStepController->completed();
+            }
+
+            $this->taskLogStepController->completed();
+        } catch (Exception $e) {
+            /**
+             *  Throw exception with mirror error message
+             */
+            throw new Exception($e->getMessage());
+        }
     }
 }

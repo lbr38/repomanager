@@ -52,6 +52,7 @@ if ($_POST['action'] == 'configure' and !empty($_POST['id']) and !empty($_POST['
     $reposList = array();
     $exclude = array();
     $excludeMajor = array();
+    $serviceReload = array();
     $serviceRestart = array();
     $notes = '';
 
@@ -77,6 +78,13 @@ if ($_POST['action'] == 'configure' and !empty($_POST['id']) and !empty($_POST['
     }
 
     /**
+     *  If no service to reload have been specified then it means that the user wants to set it clear, so set $serviceReload as en empty array
+     */
+    if (!empty($_POST['serviceReload'])) {
+        $serviceReload = $_POST['serviceReload'];
+    }
+
+    /**
      *  If no service to restart have been specified then it means that the user wants to set it clear, so set $exclude as en empty array
      */
     if (!empty($_POST['serviceRestart'])) {
@@ -93,7 +101,7 @@ if ($_POST['action'] == 'configure' and !empty($_POST['id']) and !empty($_POST['
     $myprofile = new \Controllers\Profile();
 
     try {
-        $myprofile->configure($_POST['id'], $_POST['name'], $reposList, $exclude, $excludeMajor, $serviceRestart, $notes);
+        $myprofile->configure($_POST['id'], $_POST['name'], $reposList, $exclude, $excludeMajor, $serviceReload, $serviceRestart, $notes);
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }

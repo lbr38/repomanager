@@ -130,6 +130,14 @@ class Settings
             }
         }
 
+        if (!defined('TASK_CLEAN_OLDER_THAN')) {
+            if (!empty($settings['TASK_CLEAN_OLDER_THAN'])) {
+                define('TASK_CLEAN_OLDER_THAN', $settings['TASK_CLEAN_OLDER_THAN']);
+            } else {
+                define('TASK_CLEAN_OLDER_THAN', 730);
+            }
+        }
+
         if (!defined('WWW_REPOS_DIR_URL')) {
             define('WWW_REPOS_DIR_URL', __SERVER_PROTOCOL__ . '://' . WWW_HOSTNAME . '/repo');
         }
@@ -254,6 +262,14 @@ class Settings
                 define('DEB_DEFAULT_TRANSLATION', explode(',', $settings['DEB_DEFAULT_TRANSLATION']));
             } else {
                 define('DEB_DEFAULT_TRANSLATION', array());
+            }
+        }
+
+        if (!defined('DEB_ALLOW_EMPTY_REPO')) {
+            if (!empty($settings['DEB_ALLOW_EMPTY_REPO'])) {
+                define('DEB_ALLOW_EMPTY_REPO', $settings['DEB_ALLOW_EMPTY_REPO']);
+            } else {
+                define('DEB_ALLOW_EMPTY_REPO', 'false');
             }
         }
 
