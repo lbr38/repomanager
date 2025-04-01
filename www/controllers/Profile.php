@@ -115,6 +115,7 @@ class Profile
          */
         $configuration['Package_exclude'] = $fullConfiguration['Package_exclude'];
         $configuration['Package_exclude_major'] = $fullConfiguration['Package_exclude_major'];
+        $configuration['Service_reload'] = $fullConfiguration['Service_reload'];
         $configuration['Service_restart'] = $fullConfiguration['Service_restart'];
 
         return $configuration;
@@ -295,7 +296,7 @@ class Profile
         /**
          *  Copy source profile configuration to new profile
          */
-        $this->model->configure($newProfileId, $newName, $profileConf['Package_exclude'], $profileConf['Package_exclude_major'], $profileConf['Service_restart'], $profileConf['Notes']);
+        $this->model->configure($newProfileId, $newName, $profileConf['Package_exclude'], $profileConf['Package_exclude_major'], $profileConf['Service_reload'], $profileConf['Service_restart'], $profileConf['Notes']);
 
         /**
          *  Retrieve source profile repos members
@@ -346,7 +347,7 @@ class Profile
     /**
      *  Configure profile
      */
-    public function configure(int $id, string $name, array $reposIds = null, array $packagesExcluded = null, array $packagesMajorExcluded = null, array $serviceNeedRestart = null, string $notes)
+    public function configure(int $id, string $name, array $reposIds, array $packagesExcluded, array $packagesMajorExcluded, array $serviceNeedReload, array $serviceNeedRestart, string $notes)
     {
         if (!IS_ADMIN) {
             throw new Exception('You are not allowed to perform this action');
@@ -356,7 +357,6 @@ class Profile
         $myHost = new \Controllers\Host();
         $myHostRequest = new \Controllers\Host\Request();
         $error = 0;
-
         $name = \Controllers\Common::validateData($name);
 
         /**
@@ -498,6 +498,7 @@ class Profile
          */
         $packagesExcludedExploded = implode(',', $packagesExcluded);
         $packagesMajorExcludedExploded = implode(',', $packagesMajorExcluded);
+        $serviceNeedReloadExploded = implode(',', $serviceNeedReload);
         $serviceNeedRestartExploded = implode(',', $serviceNeedRestart);
 
         /**
@@ -510,7 +511,7 @@ class Profile
         /**
          *  Insert new configuration into database
          */
-        $this->model->configure($id, $name, $packagesExcludedExploded, $packagesMajorExcludedExploded, $serviceNeedRestartExploded, $notes);
+        $this->model->configure($id, $name, $packagesExcludedExploded, $packagesMajorExcludedExploded, $serviceNeedReloadExploded, $serviceNeedRestartExploded, $notes);
 
         /**
          *  Get all hosts using this profile

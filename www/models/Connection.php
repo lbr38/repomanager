@@ -481,6 +481,7 @@ class Connection extends SQLite3
         Name VARCHAR(255) NOT NULL,
         Package_exclude VARCHAR(255),
         Package_exclude_major VARCHAR(255),
+        Service_reload VARCHAR(255),
         Service_restart VARCHAR(255),
         Notes VARCHAR(255))");
 

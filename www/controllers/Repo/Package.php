@@ -75,6 +75,15 @@ class Package
             }
 
             /**
+             *  If the package is a .deb package, check that it contains the architecture in its name
+             */
+            if ($myrepo->getPackageType() == 'deb') {
+                if (!preg_match('/(amd64|arm64|armel|armhf|i386|mips|mips64el|mipsel|ppc64el|s390x|all).deb$/', $packageName)) {
+                    throw new Exception('Package(s) name must contain the architecture in its name (e.g. package_amd64.deb).');
+                }
+            }
+
+            /**
              *  If package is in error or not actually an uploaded file, then we ignore it and move on to the next one
              */
             if ($packageError != 0 || !is_uploaded_file($packageTmpName)) {

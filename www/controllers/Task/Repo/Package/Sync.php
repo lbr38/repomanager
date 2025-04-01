@@ -11,26 +11,19 @@ trait Sync
      */
     private function syncPackage()
     {
+        $mysource = new \Controllers\Repo\Source\Source();
+
+        /**
+         *  Ignore if the repository is a local repository
+         */
+        if ($this->repo->getType() == 'local') {
+            return;
+        }
+
         $this->taskLogStepController->new('sync-packages', 'SYNCING PACKAGES');
 
         try {
-            /**
-             *  Task action must be specified ('create' or 'update')
-             */
-            if (empty($this->task->getAction())) {
-                throw new Exception('Empty task action');
-            }
-            if ($this->task->getAction() != 'create' and $this->task->getAction() != 'update') {
-                throw new Exception('Task action is invalid');
-            }
-
-            /**
-             *  Verify repo type (mirror or local)
-             *  If it must be a local repo then quit because we can't update a local repo
-             */
-            if ($this->repo->getType() == 'local') {
-                throw new Exception('Local repository snapshot cannot be updated');
-            }
+            $this->taskLogSubStepController->new('initializing', 'INITIALIZING');
 
             /**
              *  If it is a new repo, check that a repo with the same name and active snapshots does not already exist.
@@ -90,7 +83,8 @@ trait Sync
             /**
              *  Define temporary working directory
              */
-            $workingDir = REPOS_DIR . '/download-mirror-task-' . $this->task->getId();
+            // $workingDir = REPOS_DIR . '/download-mirror-task-' . $this->task->getId();
+            $workingDir = REPOS_DIR . '/temporary-task-' . $this->task->getId();
 
             /**
              *  Define final repo/section directory path
@@ -126,19 +120,33 @@ trait Sync
                 if (!is_dir($previousSnapshotDir)) {
                     throw new Exception('Previous snapshot directory does not exist: ' . $previousSnapshotDir);
                 }
-            }
-        } catch (Exception $e) {
-            /**
-             *  Throw exception with mirror error message
-             */
-            throw new Exception($e->getMessage());
-        }
 
-        /**
-         *  3. Retrieving packages
-         */
-        try {
-            $mysource = new \Controllers\Repo\Source\Source();
+                /**
+                 *  If the repository to update is a local repository, create the new directory for the new snapshot from the previous snapshot and quit here
+                 */
+                if ($this->repo->getType() == 'local') {
+                    /**
+                     *  If target directory already exists, delete it
+                     */
+                    if (is_dir($repoPath)) {
+                        if (!\Controllers\Filesystem\Directory::deleteRecursive($repoPath)) {
+                            throw new Exception('Cannot delete existing directory: ' . $repoPath);
+                        }
+                    }
+
+                    /**
+                     *  Copy previous snapshot directory to the new snapshot directory
+                     */
+                    if (!\Controllers\Filesystem\Directory::copy($previousSnapshotDir, $repoPath)) {
+                        throw new Exception('Cannot copy previous snapshot directory to new snapshot directory');
+                    }
+
+                    /**
+                     *  Quit here
+                     */
+                    return;
+                }
+            }
 
             /**
              *  Get source repo informations
@@ -166,8 +174,6 @@ trait Sync
             if (empty($sourceUrl)) {
                 throw new Exception('Could not retrieve source repository URL. Check source repository configuration.');
             }
-
-            unset($mysource, $source);
 
             /**
              *  Define mirroring params
@@ -266,6 +272,20 @@ trait Sync
                 $mymirror->setSslCustomCaCertificate($sslCaCertificate);
             }
 
+            $this->taskLogSubStepController->completed();
+
+            unset($mysource, $source);
+        } catch (Exception $e) {
+            /**
+             *  Throw exception with mirror error message
+             */
+            throw new Exception($e->getMessage());
+        }
+
+        /**
+         *  3. Retrieving packages
+         */
+        try {
             /**
              *  Start mirroring
              */
