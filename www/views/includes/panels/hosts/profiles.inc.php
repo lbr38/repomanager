@@ -26,6 +26,7 @@ if (!empty($profiles)) :
         $packageExclude         = explode(',', $profile['Package_exclude']);
         $packageExcludeMajor    = explode(',', $profile['Package_exclude_major']);
         $serviceRestart         = explode(',', $profile['Service_restart']);
+        $serviceReload          = explode(',', $profile['Service_reload']);
         $profileReposMembersIds = $myprofile->reposMembersIdList($profile['Id']);
 
         /**
@@ -100,8 +101,7 @@ if (!empty($profiles)) :
                     <h6>PACKAGE EXCLUSION</h6>
                     
                     <h6>EXCLUDE MAJOR VERSION</h6>
-                    <p class="note">Specify which packages the host should exclude from updates if the update is a major version change.</p>
-                    <p class="note">You can use <code>.*</code> as a wildcard. <code>mysql.*</code></p>
+                    <p class="note">Specify which packages the host should exclude from updates if the update is a major version change. You can use <code>.*</code> as a wildcard. <code>mysql.*</code></p>
                     <select name="profile-exclude-major" multiple>
                         <?php
                         /**
@@ -126,8 +126,7 @@ if (!empty($profiles)) :
                     </select>
                     
                     <h6>ALWAYS EXCLUDE</h6>
-                    <p class="note">Specify which packages the host should exclude from updates (no matter the version).</p>
-                    <p class="note">You can use <code>.*</code> as a wildcard. <code>mysql.*</code></p>
+                    <p class="note">Specify which packages the host should exclude from updates (no matter the version). You can use <code>.*</code> as a wildcard. <code>mysql.*</code></p>
                     <select name="profile-exclude" multiple>
                         <?php
                         foreach ($listPackages as $package) {
@@ -144,6 +143,32 @@ if (!empty($profiles)) :
                                 echo '<option value="' . $package . '.*" selected>' . $package . '.*</option>';
                             } else {
                                 echo '<option value="' . $package . '.*">' . $package . '.*</option>';
+                            }
+                        } ?>
+                    </select>
+
+                    <h6>RELOAD SERVICES</h6>
+                    <p class="note">Specify what services the host should reload after updates.</p>
+                    <p class="note">You can conditionally reload a service from a package update by using the following syntax: <code>service_name:package_name</code></p>
+                    <p class="note">e.g: reload httpd if any php package is updated: <code>httpd:php.*</code></p>
+
+                    <?php
+                    /**
+                     *  List of selectable services in the list of services to reload
+                     *  Made from the list of pre-defined services in the database and merged with the list of services to reload configured for this profile (sometimes it can have some services with conditionnal package which are not saved in database, so we need to merge them to be able to display them in the dropdown list)
+                     *  array_unique: Remove duplicates entries
+                     *  array_filter: Remove empty values (in case $serviceReload is empty)
+                     */
+                    $servicesList = $myprofile->getServices();
+                    $services = array_filter(array_unique(array_merge($servicesList, $serviceReload))); ?>
+
+                    <select name="profile-service-reload" multiple>
+                        <?php
+                        foreach ($services as $service) {
+                            if (in_array($service, $serviceReload)) {
+                                echo '<option value="' . $service . '" selected>' . $service . '</option>';
+                            } else {
+                                echo '<option value="' . $service . '">' . $service . '</option>';
                             }
                         } ?>
                     </select>
@@ -192,6 +217,7 @@ if (!empty($profiles)) :
             selectToSelect2('select[name=profile-exclude-major]', 'Select package 🖉', true);
             selectToSelect2('select[name=profile-exclude]', 'Select package 🖉', true);
             selectToSelect2('select[name=profile-service-restart]', 'Select service 🖉', true);
+            selectToSelect2('select[name=profile-service-reload]', 'Select service 🖉', true);
         });
     </script>
     <?php

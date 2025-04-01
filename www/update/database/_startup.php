@@ -1,7 +1,7 @@
 <?php
 /**
- *  4.12.1 update
- *  TODO: move this to a separate "startup" file later
+ *  Database requests to execute before all other updates
+ *  Unless the _always-*.php files, this file is executed only once like all other x.x.x.php files
  */
 $mysource = new \Controllers\Repo\Source\Source();
 

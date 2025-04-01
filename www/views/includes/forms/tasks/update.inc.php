@@ -53,12 +53,16 @@ if ($myrepo->getPackageType() == 'deb') {
 
 <h6>GPG PARAMETERS</h6>
 
-<h6>CHECK GPG SIGNATURES</h6>
-<p class="note">Check GPG signature of repository / packages.</p>
-<label class="onoff-switch-label">
-    <input type="checkbox" param-name="gpg-check" class="onoff-switch-input task-param" value="true" checked />
-    <span class="onoff-switch-slider"></span>
-</label>
+<?php
+if ($myrepo->getType() == 'mirror') : ?>
+    <h6>CHECK GPG SIGNATURES</h6>
+    <p class="note">Check GPG signature of repository / packages.</p>
+    <label class="onoff-switch-label">
+        <input type="checkbox" param-name="gpg-check" class="onoff-switch-input task-param" value="true" checked />
+        <span class="onoff-switch-slider"></span>
+    </label>
+    <?php
+endif ?>
 
 <h6>SIGN WITH GPG</h6>
 <p class="note">Sign repository / packages with GPG.</p>
@@ -76,33 +80,36 @@ if ($myrepo->getPackageType() == 'deb') {
     <span class="onoff-switch-slider"></span>
 </label>
 
-<h6>ADDITIONAL PARAMETERS</h6>
-
-<h6>ONLY INCLUDE PACKAGE(S)</h6>
-<p class="note">Specify packages names to include. All other packages will be ignored from sync.</p>
-<p class="note">You can use <code>.*</code> as a wildcard. e.g <code>nginx_1.24.*</code></p>
-<select class="task-param" param-name="package-include" multiple>
-    <?php
-    if (!empty($myrepo->getPackagesToInclude())) {
-        foreach ($myrepo->getPackagesToInclude() as $package) {
-            echo '<option value="' . $package . '" selected>' . $package . '</option>';
-        }
-    } ?>
-</select>
-
-<h6>EXCLUDE PACKAGE(S)</h6>
-<p class="note">Specify packages names to exclude from sync.</p>
-<p class="note">You can use <code>.*</code> as a wildcard. e.g <code>nginx_1.24.*</code></p>
-<select class="task-param" param-name="package-exclude" multiple>
-    <?php
-    if (!empty($myrepo->getPackagesToExclude())) {
-        foreach ($myrepo->getPackagesToExclude() as $package) {
-            echo '<option value="' . $package . '" selected>' . $package . '</option>';
-        }
-    } ?>
-</select>
-
 <?php
+if ($myrepo->getType() == 'mirror') : ?>
+    <h6>ADDITIONAL PARAMETERS</h6>
+
+    <h6>ONLY INCLUDE PACKAGE(S)</h6>
+    <p class="note">Specify packages names to include. All other packages will be ignored from sync.</p>
+    <p class="note">You can use <code>.*</code> as a wildcard. e.g <code>nginx_1.24.*</code></p>
+    <select class="task-param" param-name="package-include" multiple>
+        <?php
+        if (!empty($myrepo->getPackagesToInclude())) {
+            foreach ($myrepo->getPackagesToInclude() as $package) {
+                echo '<option value="' . $package . '" selected>' . $package . '</option>';
+            }
+        } ?>
+    </select>
+
+    <h6>EXCLUDE PACKAGE(S)</h6>
+    <p class="note">Specify packages names to exclude from sync.</p>
+    <p class="note">You can use <code>.*</code> as a wildcard. e.g <code>nginx_1.24.*</code></p>
+    <select class="task-param" param-name="package-exclude" multiple>
+        <?php
+        if (!empty($myrepo->getPackagesToExclude())) {
+            foreach ($myrepo->getPackagesToExclude() as $package) {
+                echo '<option value="' . $package . '" selected>' . $package . '</option>';
+            }
+        } ?>
+    </select>
+    <?php
+endif;
+
 /**
  *  Define schedule form action and allowed type(s)
  */

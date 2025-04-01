@@ -293,6 +293,8 @@ function printLoadingVeilByParentClass(name)
  */
 function printModalWindow(content, title, inPre = true)
 {
+    printLoading();
+
     /**
      *  If a modal window is already opened, remove it
      */
@@ -304,18 +306,18 @@ function printModalWindow(content, title, inPre = true)
         + '<h4>' + title + '</h4>'
         + '<span class="modal-window-close-btn"><img title="Close" class="close-btn lowopacity" src="/assets/icons/close.svg" /></span>'
         + '</div>'
-        + '<div>';
     if (inPre) {
-        html += '<pre>' + content + '</pre>';
+        html += '<pre class="codeblock copy">' + content + '</pre>';
     } else {
         html += content;
     }
 
     html += '</div>'
-        + '</div>'
-        + '</div>';
+          + '</div>';
 
-    $('footer').append(html);
+    $('body').append(html);
+
+    hideLoading();
 }
 
 /**
@@ -354,22 +356,6 @@ function slide(name)
 function reloadContentById(id)
 {
     $('#' + id).load(location.href + ' #' + id + ' > *');
-}
-
-/**
- *  Copie du contenu d'un élement dans le presse-papier
- *  @param {*} containerid
- */
-function copyToClipboard(containerid)
-{
-    var range = document.createRange();
-    range.selectNode(containerid);
-    window.getSelection().removeAllRanges();
-    window.getSelection().addRange(range);
-    document.execCommand("copy");
-    window.getSelection().removeAllRanges();
-
-    printAlert('Copied to clipboard', 'success');
 }
 
 /**

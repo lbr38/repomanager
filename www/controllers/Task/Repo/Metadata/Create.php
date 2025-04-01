@@ -58,12 +58,12 @@ trait Create
             if ($this->task->getAction() != 'rebuild') {
                 if ($this->repo->getPackageType() == 'rpm') {
                     if (!\Controllers\Filesystem\Directory::deleteRecursive($repoPath)) {
-                        throw new Exception('Repo creation has failed and directory cannot be cleaned: ' . $repoPath);
+                        throw new Exception('Repository creation has failed and directory cannot be cleaned: ' . $repoPath);
                     }
                 }
                 if ($this->repo->getPackageType() == 'deb') {
                     if (!\Controllers\Filesystem\Directory::deleteRecursive($repoPath)) {
-                        throw new Exception('Repo creation has failed and directory cannot be cleaned: ' . $repoPath);
+                        throw new Exception('Repository creation has failed and directory cannot be cleaned: ' . $repoPath);
                     }
                 }
             }

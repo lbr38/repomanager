@@ -123,7 +123,7 @@ class File
     /**
      *  Return an array with the list of founded files in specified directory path
      */
-    public static function findRecursive(string $path, string $fileExtension = null, bool $absolute = true)
+    public static function findRecursive(string $path, array $fileExtension = [], bool $absolute = true)
     {
         $foundedFiles = array();
 
@@ -146,13 +146,11 @@ class File
                 }
 
                 /**
-                 *  If an extension has been specified, then check that the file has correct extension
+                 *  If one or more extension(s) have been specified, then check that the file has correct extension
+                 *  Otherwise, ignore it
                  */
                 if (!empty($fileExtension)) {
-                    /**
-                     *  If extension is incorrect, then ignore the current file and process the next one
-                     */
-                    if ($file->getExtension() != $fileExtension) {
+                    if (!in_array($file->getExtension(), $fileExtension)) {
                         continue;
                     }
                 }

@@ -63,13 +63,20 @@
             if (TASK_QUEUING == 'true') : ?>
                 <h6>MAXIMUM NUMBER OF SIMULTANEOUS TASKS</h6>
                 <p class="note">Maximum number of tasks that can run simultaneously. The other tasks will be queued.</p>
-                <input class="settings-param" param-name="task-queuing-max-simultaneous" type="number" min="1" value="<?= TASK_QUEUING_MAX_SIMULTANEOUS ?>" placeholder="default is 2">
+                <input class="settings-param" param-name="task-queuing-max-simultaneous" type="number" min="1" value="<?= TASK_QUEUING_MAX_SIMULTANEOUS ?>" placeholder="Default is 2">
                 <?php
             endif ?>
 
             <h6 class="required">TASK EXECUTION MEMORY LIMIT (in MB)</h6>
             <p class="note">Set PHP memory limit for task execution. It is recommended to set this value to a higher value when mirroring large repositories.</p>
-            <input class="settings-param" param-name="task-execution-memory-limit" type="number" min="2" value="<?= TASK_EXECUTION_MEMORY_LIMIT ?>" placeholder="default is 512">
+            <input class="settings-param" param-name="task-execution-memory-limit" type="number" min="2" value="<?= TASK_EXECUTION_MEMORY_LIMIT ?>" placeholder="Default is 512">
+
+            <br><br>
+            <h5>TASK CLEANUP</h5>
+
+            <h6 class="required">CLEAN TASKS OLDER THAN (in days)</h6>
+            <p class="note">Tasks and their logs older than this value will be definitely deleted. This is useful to free up some space.</p>
+            <input class="settings-param" param-name="task-clean-older-than" type="number" min="1" value="<?= TASK_CLEAN_OLDER_THAN ?>" placeholder="Default is 730 (2 years)">
 
             <button class="hide" type="submit"></button>
         </form>
@@ -102,7 +109,7 @@
 
             <h6 class="required">PACKAGE DOWNLOAD TIMEOUT (in seconds)</h6>
             <p class="note">Maximum time allowed to download a package during a mirroring process.</p>
-            <input class="settings-param" param-name="mirrorPackageDownloadTimeout" min="1" type="number" value="<?= MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT ?>" placeholder="default is 300">
+            <input class="settings-param" param-name="mirrorPackageDownloadTimeout" min="1" type="number" value="<?= MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT ?>" placeholder="Default is 300">
 
             <br><br>
             <h5>RPM</h5>
@@ -211,6 +218,13 @@
 
                 <br><br>
                 <h5 title="DEB mirroring settings">DEB MIRRORING SETTINGS</h5>
+
+                <h6 class="required">ALLOW SYNC OF EMPTY REPOSITORIES</h6>
+                <p class="note">Allow the mirroring of empty repositories (repositories with empty <code>Packages</code> indices file).</p>
+                <label class="onoff-switch-label">
+                    <input class="settings-param onoff-switch-input" param-name="deb-allow-empty-repo" type="checkbox" value="true" <?php echo (DEB_ALLOW_EMPTY_REPO == 'true') ? 'checked' : ''; ?>>
+                    <span class="onoff-switch-slider"></span>
+                </label>
 
                 <h6 class="required">WHEN RELEASE FILE SIGNATURE IS INVALID</h6>
                 <p class="note">InRelease / Release file retrieved from a remote repository may have invalid signature (because the GPG key used to sign the file was not imported, or because the publisher signed the file with a different GPG key, or because the file's signature is corrupted or somehow broken). This parameter allows you to choose what to do in this case.</p>

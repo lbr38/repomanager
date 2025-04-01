@@ -397,7 +397,7 @@
             endif;
         endforeach; ?>
 
-        <div class="flex justify-end">
+        <div class="flex justify-end margin-top-10">
             <?php \Controllers\Layout\Table\Render::paginationBtn($reloadableTableCurrentPage, $reloadableTableTotalPages); ?>
         </div>
 

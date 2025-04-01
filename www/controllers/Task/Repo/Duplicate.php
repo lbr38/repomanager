@@ -88,7 +88,7 @@ class Duplicate
     {
         try {
             $this->taskLogStepController->new('duplicating', 'DUPLICATING');
-            $this->taskLogSubStepController->new('copying-content', 'COPYING CONTENT');
+            $this->taskLogSubStepController->new('initializing', 'INITIALIZING');
 
             /**
              *  Check if source repo snapshot exists
@@ -171,16 +171,32 @@ class Duplicate
                 }
             }
 
+            $this->taskLogSubStepController->completed();
+
             /**
              *  Copy all files from the source repository to the temporary directory
              *  Only if the file is not already in the target directory (might happen if the task has been stopped and restarted)
              *  If copy-completed file exists, then it means that the file was already fully copied by a previous task and should not be copied again
              */
+            $fileCounter = 0;
             foreach ($files as $file) {
+                $fileCounter++;
+
+                /**
+                 *  Count total number of files to copy
+                 */
+                $totalFiles = count($files);
+
+                /**
+                 *  Show progress
+                 */
+                $this->taskLogSubStepController->new('copying-file-' . $fileCounter, 'COPYING FILE (' . $fileCounter . '/' . $totalFiles . ')', 'From ' . $sourceDir . '/' . $file . '<br>To ' . $tempDir . '/' . $file);
+
                 /**
                  *  Ignore file if it was already copied (completed file exists)
                  */
-                if (file_exists($tempDir . '/' . $file) and file_exists($targetDir . '/' . $file . '.completed')) {
+                if (file_exists($tempDir . '/' . $file) and file_exists($tempDir . '/' . $file . '.completed')) {
+                    $this->taskLogSubStepController->completed('Already exists (ignoring)');
                     continue;
                 }
 
@@ -207,6 +223,8 @@ class Duplicate
                 if (!touch($tempDir . '/' . $file . '.completed')) {
                     throw new Exception('Cannot create copy-completed file ' . $tempDir . '/' . $file . '.completed');
                 }
+
+                $this->taskLogSubStepController->completed();
             }
 
             unset($dirs, $files);
@@ -223,7 +241,7 @@ class Duplicate
                  *  Cleaning completed files now that the temporary directory has been renamed
                  *  Search for all file with '.completed' extension and remove them
                  */
-                $files = \Controllers\Filesystem\File::findRecursive($targetDir, 'completed', true);
+                $files = \Controllers\Filesystem\File::findRecursive($targetDir, ['completed'], true);
 
                 foreach ($files as $file) {
                     if (!unlink($file)) {
@@ -231,7 +249,9 @@ class Duplicate
                     }
                 }
 
-                $this->taskLogSubStepController->completed();
+                /**
+                 *  Set step 'DUPLICATING' as completed
+                 */
                 $this->taskLogStepController->completed();
 
                 /**

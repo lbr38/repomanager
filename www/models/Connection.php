@@ -481,6 +481,7 @@ class Connection extends SQLite3
         Name VARCHAR(255) NOT NULL,
         Package_exclude VARCHAR(255),
         Package_exclude_major VARCHAR(255),
+        Service_reload VARCHAR(255),
         Service_restart VARCHAR(255),
         Notes VARCHAR(255))");
 
@@ -543,6 +544,7 @@ class Connection extends SQLite3
         TASK_EXECUTION_MEMORY_LIMIT INTEGER,
         TASK_QUEUING CHAR(5),
         TASK_QUEUING_MAX_SIMULTANEOUS INTEGER,
+        TASK_CLEAN_OLDER_THAN INTEGER,
         /* Repo settings */
         RETENTION INTEGER,
         REPO_CONF_FILES_PREFIX VARCHAR(255),
@@ -560,6 +562,7 @@ class Connection extends SQLite3
         DEB_SIGN_REPO CHAR(5),
         DEB_DEFAULT_ARCH VARCHAR(255),
         DEB_DEFAULT_TRANSLATION VARCHAR(255),
+        DEB_ALLOW_EMPTY_REPO CHAR(5),
         DEB_INVALID_SIGNATURE VARCHAR(255), /* ignore, error */
         /* GPG signing key */
         GPG_SIGNING_KEYID VARCHAR(255),
@@ -642,6 +645,7 @@ class Connection extends SQLite3
                 TASK_EXECUTION_MEMORY_LIMIT,
                 TASK_QUEUING,
                 TASK_QUEUING_MAX_SIMULTANEOUS,
+                TASK_CLEAN_OLDER_THAN,
                 MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT,
                 RPM_REPO,
                 RPM_SIGN_PACKAGES,
@@ -653,6 +657,7 @@ class Connection extends SQLite3
                 DEB_SIGN_REPO,
                 DEB_DEFAULT_ARCH,
                 DEB_DEFAULT_TRANSLATION,
+                DEB_ALLOW_EMPTY_REPO,
                 DEB_INVALID_SIGNATURE,
                 GPG_SIGNING_KEYID,
                 SCHEDULED_TASKS_REMINDERS,
@@ -686,7 +691,8 @@ class Connection extends SQLite3
                 'Europe/Paris',
                 '1024',
                 'false',
-                '2',
+                '3',
+                '730',
                 '300',
                 'true',
                 'true',
@@ -698,6 +704,7 @@ class Connection extends SQLite3
                 'true',
                 'amd64',
                 '',
+                'false',
                 'error',
                 '$gpgKeyId',
                 'false',
