@@ -413,6 +413,48 @@ class Task extends \Models\Model
     }
 
     /**
+     *  Return tasks older than a specific date
+     */
+    public function getOlderThan(string $date) : array
+    {
+        $data = array();
+
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM tasks WHERE Date < :date");
+            $stmt->bindValue(':date', $date);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            $this->db->logError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return $data;
+    }
+
+    /**
+     *  Return true if task exists in database
+     */
+    public function exists(int $id) : bool
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT Id FROM tasks WHERE Id = :id");
+            $stmt->bindValue(':id', $id);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            $this->db->logError($e);
+        }
+
+        if ($this->db->isempty($result)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      *  Add a new task to the database
      */
     public function new(string $type, string $rawParams, string $status) : int
@@ -455,7 +497,7 @@ class Task extends \Models\Model
     /**
      *  Close a task
      */
-    public function close(int $id, string $status, string $duration)
+    public function close(int $id, string $status, string $duration) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE tasks SET Status = :status, Duration = :duration WHERE Id = :id");
@@ -471,7 +513,7 @@ class Task extends \Models\Model
     /**
      *  Enable a recurrent task
      */
-    public function enable(int $id)
+    public function enable(int $id) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE tasks SET Status = 'scheduled' WHERE Id = :id");
@@ -485,7 +527,7 @@ class Task extends \Models\Model
     /**
      *  Disable a recurrent task
      */
-    public function disable(int $id)
+    public function disable(int $id) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE tasks SET Status = 'disabled' WHERE Id = :id");
@@ -499,7 +541,7 @@ class Task extends \Models\Model
     /**
      *  Delete a task
      */
-    public function delete(int $id)
+    public function delete(int $id) : void
     {
         try {
             $stmt = $this->db->prepare("DELETE FROM tasks WHERE Id = :id");

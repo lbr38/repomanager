@@ -121,6 +121,7 @@ $(document).on('submit','.profile-config-form',function () {
     var exclude = $(this).find('select[name=profile-exclude]').val();
     var excludeMajor = $(this).find('select[name=profile-exclude-major]').val();
     var serviceRestart = $(this).find('select[name=profile-service-restart]').val();
+    var serviceReload = $(this).find('select[name=profile-service-reload]').val();
     var notes = $(this).find('textarea[name=profile-notes]').val();
 
     ajaxRequest(
@@ -136,6 +137,7 @@ $(document).on('submit','.profile-config-form',function () {
             exclude: exclude,
             excludeMajor: excludeMajor,
             serviceRestart: serviceRestart,
+            serviceReload: serviceReload,
             notes: notes
         },
         // Print success alert:

@@ -982,16 +982,23 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          *  If 'src' exists in the arch array
          */
         if (in_array('src', $this->arch)) {
+            $url = $this->url;
+
+            /**
+             *  Replace $releasever variable in the URL if exists
+             */
+            $url = str_replace('$releasever', $this->releasever, $url);
+
             /**
              *  If there is a $basearch variable in the URL, replace it with 'SRPMS'
              */
-            if (preg_match('/\$basearch/i', $this->url)) {
-                $this->archUrls[] = str_replace('$basearch', 'SRPMS', $this->url);
+            if (preg_match('/\$basearch/i', $url)) {
+                $this->archUrls[] = str_replace('$basearch', 'SRPMS', $url);
             /**
              *  Else if there is no $basearch variable in the URL, just append 'SRPMS' to the URL as this could be a possible URL to explore
              */
             } else {
-                $this->archUrls[] = $this->url . '/SRPMS';
+                $this->archUrls[] = $url . '/SRPMS';
             }
         }
 

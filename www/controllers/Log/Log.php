@@ -55,17 +55,16 @@ class Log
         /**
          *  If the log could not be saved in database, log the error in error_log
          */
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             error_log('Here is a database error while trying to save log: ' . $e . PHP_EOL);
-
 
             /**
              *  If the log cannot be saved then log directly in error_log
              */
             if (!empty($details)) {
-                error_log('Here is a the original error that could not be saved in database: ' . $message . ': ' . $details . PHP_EOL);
+                error_log('Here is the original error that could not be saved in database: ' . $message . ': ' . $details . PHP_EOL);
             } else {
-                error_log('Here is a the original error that could not be saved in database: ' . $message . PHP_EOL);
+                error_log('Here is the original error that could not be saved in database: ' . $message . PHP_EOL);
             }
         }
     }
