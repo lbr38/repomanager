@@ -77,7 +77,8 @@ class Browse
          *  Etc ...
          */
         $extension = pathinfo($file, PATHINFO_EXTENSION);
-        if ($extension == 'deb' || $extension == 'rpm') {
+
+        if (in_array($extension, ['deb', 'rpm', 'xz', 'gz', 'dsc'])) {
             $title = 'Package file';
             $icon = 'package';
             $checkbox = true;

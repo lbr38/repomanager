@@ -91,6 +91,10 @@ class Settings
             $settingsToApply['TASK_EXECUTION_MEMORY_LIMIT'] = \Controllers\Common::validateData($sendSettings['task-execution-memory-limit']);
         }
 
+        if (!empty($sendSettings['task-clean-older-than']) and is_numeric($sendSettings['task-clean-older-than']) and $sendSettings['task-clean-older-than'] >= 1) {
+            $settingsToApply['TASK_CLEAN_OLDER_THAN'] = \Controllers\Common::validateData($sendSettings['task-clean-older-than']);
+        }
+
         /**
          *  Repositories / Mirroring settings
          */
@@ -217,6 +221,14 @@ class Settings
             }
 
             $settingsToApply['DEB_DEFAULT_TRANSLATION'] = $debDefaultTranslation;
+        }
+
+        if (!empty($sendSettings['deb-allow-empty-repo'])) {
+            if ($sendSettings['deb-allow-empty-repo'] == 'true') {
+                $settingsToApply['DEB_ALLOW_EMPTY_REPO'] = 'true';
+            } else {
+                $settingsToApply['DEB_ALLOW_EMPTY_REPO'] = 'false';
+            }
         }
 
         if (!empty($sendSettings['deb-invalid-signature'])) {

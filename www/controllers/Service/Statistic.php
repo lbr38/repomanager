@@ -25,8 +25,6 @@ class Statistic extends Service
      */
     public function statsClean()
     {
-        echo $this->getDate() . ' Cleaning old statistics...' . PHP_EOL;
-
         try {
             $this->statController->clean();
         } catch (Exception $e) {
@@ -39,8 +37,6 @@ class Statistic extends Service
      */
     public function statsGenerate()
     {
-        echo $this->getDate() . ' Generating statistics...' . PHP_EOL;
-
         /**
          *  Get all repos
          */
@@ -66,7 +62,7 @@ class Statistic extends Service
                             /**
                              *  Calculate number of packages in the repo
                              */
-                            $packagesCount = count(\Controllers\Filesystem\File::findRecursive(REPOS_DIR . '/' . $repo['Name'] . '_' . $repo['Env'] . '/', 'rpm'));
+                            $packagesCount = count(\Controllers\Filesystem\File::findRecursive(REPOS_DIR . '/' . $repo['Name'] . '_' . $repo['Env'] . '/', ['rpm']));
                         }
                     }
 
@@ -80,7 +76,7 @@ class Statistic extends Service
                             /**
                              *  Calculate number of packages in the repo
                              */
-                            $packagesCount = count(\Controllers\Filesystem\File::findRecursive(REPOS_DIR . '/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '_' . $repo['Env'] . '/', 'deb'));
+                            $packagesCount = count(\Controllers\Filesystem\File::findRecursive(REPOS_DIR . '/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '_' . $repo['Env'] . '/', ['deb']));
                         }
                     }
 

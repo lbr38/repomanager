@@ -212,6 +212,7 @@ class Service
     {
         $this->serviceStatisticController = new \Controllers\Service\Statistic();
         $this->serviceFileController = new \Controllers\Service\File();
+        $this->taskController = new \Controllers\Task\Task();
         $this->logController = new \Controllers\Log\Log();
         $this->curlHandle = curl_init();
         $this->lastScheduledTaskRunning = '';
@@ -288,8 +289,23 @@ class Service
                      *  Clean old statistics and generate repo size statistics at midnight
                      */
                     if ($this->currentTime == '00:00') {
+                        /**
+                         *  Clean old statistics
+                         */
+                        echo $this->getDate() . ' Cleaning old statistics...' . PHP_EOL;
                         $this->serviceStatisticController->statsClean();
+
+                        /**
+                         *  Generate repo size statistics
+                         */
+                        echo $this->getDate() . ' Generating statistics...' . PHP_EOL;
                         $this->serviceStatisticController->statsGenerate();
+
+                        /**
+                         *  Clean old tasks
+                         */
+                        echo $this->getDate() . ' Cleaning old tasks...' . PHP_EOL;
+                        $this->taskController->clean();
                     }
 
                     /**

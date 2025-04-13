@@ -57,7 +57,7 @@ class File extends Service
              *  Clean pid files older than 7 days
              */
             if (is_dir(DATA_DIR . '/tasks/pid')) {
-                $files = \Controllers\Filesystem\File::findRecursive(DATA_DIR . '/tasks/pid', 'pid');
+                $files = \Controllers\Filesystem\File::findRecursive(DATA_DIR . '/tasks/pid', ['pid']);
 
                 if (!empty($files)) {
                     foreach ($files as $file) {
@@ -106,7 +106,7 @@ class File extends Service
              *  Clean websocket logs older than 15 days
              */
             if (is_dir(WS_LOGS_DIR)) {
-                $files = \Controllers\Filesystem\File::findRecursive(WS_LOGS_DIR, 'log');
+                $files = \Controllers\Filesystem\File::findRecursive(WS_LOGS_DIR, ['log']);
 
                 if (!empty($files)) {
                     foreach ($files as $file) {

@@ -39,20 +39,22 @@ if (IS_ADMIN) : ?>
                     <button type="submit" class="btn-large-green">Upload package</button>
                 </form>
 
-                <?php
-                /**
-                 *  Print success messages from uploading packages if there are
-                 */
-                if (!empty($uploadSuccessMessage)) {
-                    echo '<p class="greentext">' . $uploadSuccessMessage . '</p>';
-                }
+                <div class="margin-top-10">
+                    <?php
+                    /**
+                     *  Print success messages from uploading packages if there are
+                     */
+                    if (!empty($uploadSuccessMessage)) {
+                        echo '<p class="greentext">' . $uploadSuccessMessage . '</p>';
+                    }
 
-                /**
-                 *  Print error messages from uploading packages if there are
-                 */
-                if (!empty($uploadErrorMessage)) {
-                    echo '<p class="redtext">' . $uploadErrorMessage . '</p>';
-                } ?>
+                    /**
+                     *  Print error messages from uploading packages if there are
+                     */
+                    if (!empty($uploadErrorMessage)) {
+                        echo '<p class="redtext">' . $uploadErrorMessage . '</p>';
+                    } ?>
+                </div>
             </div>
             
             <h3>REBUILD REPO</h3>
