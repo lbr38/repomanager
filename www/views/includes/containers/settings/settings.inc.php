@@ -493,6 +493,14 @@
                     <!-- <h6>GROUP SUPER ADMINISTRATOR</h6>
                     <p class="note">Groups value for Super Administrator.</p>
                     <input class="settings-param" param-name="oidcGroupSuperAdministrator" type="text" value="<?= OIDC_GROUP_SUPER_ADMINISTRATOR ?>"> -->
+
+                    <h6>HTTP PROXY</h6>
+                    <p class="note">Http proxy.</p>
+                    <input class="settings-param" param-name="oidcHttpProxy" type="text" value="<?= OIDC_HTTP_PROXY ?>">
+
+                    <h6>CERT FILE</h6>
+                    <p class="note">Path to cert file.</p>
+                    <input class="settings-param" param-name="oidcCertPath" type="text" value="<?= OIDC_CERT_PATH ?>">
                     <?php
                 endif; ?>
 

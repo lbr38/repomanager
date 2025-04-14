@@ -592,7 +592,9 @@ class Connection extends SQLite3
         OIDC_EMAIL VARCHAR(255),
         OIDC_GROUPS VARCHAR(255),
         OIDC_GROUP_ADMINISTRATOR VARCHAR(255),
-        OIDC_GROUP_SUPER_ADMINISTRATOR VARCHAR(255))");
+        OIDC_GROUP_SUPER_ADMINISTRATOR VARCHAR(255),
+        OIDC_HTTP_PROXY VARCHAR(255),
+        OIDC_CERT_PATH VARCHAR(255))");
 
         /**
          *  If settings table is empty then populate it
@@ -636,6 +638,8 @@ class Connection extends SQLite3
             $oidcGroups = defined('OIDC_GROUPS') ? OIDC_GROUPS : 'groups';
             $oidcGroupAdministrator = defined('OIDC_GROUP_ADMINISTRATOR') ? OIDC_GROUP_ADMINISTRATOR : 'administrator';
             $oidcGroupSuperAdministrator = defined('OIDC_GROUP_SUPER_ADMINISTRATOR') ? OIDC_GROUP_SUPER_ADMINISTRATOR : 'super-administrator';
+            $oidcHttpProxy = defined('OIDC_HTTP_PROXY') ? OIDC_HTTP_PROXY : '';
+            $oidcCertPath = defined('OIDC_CERT_PATH') ? OIDC_CERT_PATH : '';
 
             $this->exec("INSERT INTO settings (
                 EMAIL_RECIPIENT,
@@ -682,7 +686,9 @@ class Connection extends SQLite3
                 OIDC_EMAIL,
                 OIDC_GROUPS,
                 OIDC_GROUP_ADMINISTRATOR,
-                OIDC_GROUP_SUPER_ADMINISTRATOR
+                OIDC_GROUP_SUPER_ADMINISTRATOR,
+                OIDC_HTTP_PROXY,
+                OIDC_CERT_PATH
             )
             VALUES (
                 '',
@@ -729,7 +735,9 @@ class Connection extends SQLite3
                 '$oidcEmail',
                 '$oidcGroups',
                 '$oidcGroupAdministrator',
-                '$oidcGroupSuperAdministrator'
+                '$oidcGroupSuperAdministrator',
+                '$oidcHttpProxy',
+                '$oidcCertPath'
             )");
         }
 
