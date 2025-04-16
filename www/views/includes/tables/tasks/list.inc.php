@@ -309,7 +309,7 @@
                                         echo '<img src="/assets/icons/check.svg" class="icon" />';
                                         echo '<span>Enabled</span>';
                                     } else {
-                                        echo '<img src="/assets/icons/warning-red.svg" class="icon" />';
+                                        echo '<img src="/assets/icons/error.svg" class="icon" />';
                                         echo '<span>Disabled</span>';
                                     } ?>
                                 </div>
@@ -326,7 +326,7 @@
                                         echo '<img src="/assets/icons/check.svg" class="icon" />';
                                         echo '<span>Enabled</span>';
                                     } else {
-                                        echo '<img src="/assets/icons/warning-red.svg" class="icon" />';
+                                        echo '<img src="/assets/icons/error.svg" class="icon" />';
                                         echo '<span>Disabled</span>';
                                     } ?>
                                 </div>
@@ -344,7 +344,7 @@
                                     echo '<img src="/assets/icons/check.svg" class="icon" />';
                                     echo '<span>Enabled</span>';
                                 } else {
-                                    echo '<img src="/assets/icons/warning-red.svg" class="icon" />';
+                                    echo '<img src="/assets/icons/error.svg" class="icon" />';
                                     echo '<span>Disabled</span>';
                                 } ?>
                             </div>
@@ -358,7 +358,7 @@
                                     echo '<img src="/assets/icons/check.svg" class="icon" />';
                                     echo '<span>Enabled</span>';
                                 } else {
-                                    echo '<img src="/assets/icons/warning-red.svg" class="icon" />';
+                                    echo '<img src="/assets/icons/error.svg" class="icon" />';
                                     echo '<span>Disabled</span>';
                                 } ?>
                             </div>

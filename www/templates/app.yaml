@@ -70,6 +70,7 @@ oidc:
   # Default Value: not set
   #http_proxy:
 
-  # Path to cert file
+  # Path to certificate file
+  # The certificate file must be stored under Repomanager's data directory to be valid
   # Default Value: not set
   #cert_path:

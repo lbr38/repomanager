@@ -302,18 +302,20 @@ function printModalWindow(content, title, inPre = true)
 
     html = '<div class="modal-window-container">'
         + '<div class="modal-window">'
-        + '<div class="flex justify-space-between">'
+        + '<div class="modal-window-title">'
         + '<h4>' + title + '</h4>'
         + '<span class="modal-window-close-btn"><img title="Close" class="close-btn lowopacity" src="/assets/icons/close.svg" /></span>'
         + '</div>'
+        + '<div class="modal-window-content">';
     if (inPre) {
         html += '<pre class="codeblock copy">' + content + '</pre>';
     } else {
         html += content;
     }
-
     html += '</div>'
+          + '</div>'
           + '</div>';
+
 
     $('body').append(html);
 
