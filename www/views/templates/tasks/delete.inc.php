@@ -10,7 +10,7 @@
 </div>
 
 <div class="div-generic-blue">
-    <div class="grid grid-2">
+    <div class="grid grid-2 row-gap-10 column-gap-20">
         <div>
             <h6 class="margin-top-0">REPOSITORY</h6>
             <p>
