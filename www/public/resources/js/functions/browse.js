@@ -3,7 +3,7 @@
  */
 function printTree()
 {
-    $('#loading').remove();
+    $('#loading-tree').remove();
     $('#explorer').show();
 
     // hide all the sub-menus

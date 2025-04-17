@@ -35,7 +35,7 @@ class Settings
             /**
              *  Following parameters can be empty (or equal to 0), we don't increment the error counter in their case
              */
-            $ignoreEmptyParam = array('EMAIL_RECIPIENT', 'PROXY', 'RPM_DEFAULT_ARCH', 'DEB_DEFAULT_ARCH', 'DEB_DEFAULT_TRANSLATION', 'REPO_CONF_FILES_PREFIX', 'RETENTION', 'OIDC_PROVIDER_URL', 'OIDC_AUTHORIZATION_ENDPOINT', 'OIDC_TOKEN_ENDPOINT', 'OIDC_USERINFO_ENDPOINT', 'OIDC_SCOPES', 'OIDC_CLIENT_ID', 'OIDC_CLIENT_SECRET');
+            $ignoreEmptyParam = array('EMAIL_RECIPIENT', 'PROXY', 'RPM_DEFAULT_ARCH', 'DEB_DEFAULT_ARCH', 'DEB_DEFAULT_TRANSLATION', 'REPO_CONF_FILES_PREFIX', 'RETENTION', 'OIDC_PROVIDER_URL', 'OIDC_AUTHORIZATION_ENDPOINT', 'OIDC_TOKEN_ENDPOINT', 'OIDC_USERINFO_ENDPOINT', 'OIDC_SCOPES', 'OIDC_CLIENT_ID', 'OIDC_CLIENT_SECRET', 'OIDC_HTTP_PROXY', 'OIDC_CERT_PATH');
 
             if (in_array($key, $ignoreEmptyParam)) {
                 continue;
@@ -499,6 +499,22 @@ class Settings
                     define('OIDC_GROUP_SUPER_ADMINISTRATOR', 'super-administrator');
                 }
             }
+
+            if (!defined('OIDC_HTTP_PROXY')) {
+                if (!empty($settings['OIDC_HTTP_PROXY'])) {
+                    define('OIDC_HTTP_PROXY', $settings['OIDC_HTTP_PROXY']);
+                } else {
+                    define('OIDC_HTTP_PROXY', '');
+                }
+            }
+
+            if (!defined('OIDC_CERT_PATH')) {
+                if (!empty($settings['OIDC_CERT_PATH'])) {
+                    define('OIDC_CERT_PATH', $settings['OIDC_CERT_PATH']);
+                } else {
+                    define('OIDC_CERT_PATH', '');
+                }
+            }
         }
 
         if (!defined('__LOAD_SETTINGS_ERROR')) {
@@ -602,6 +618,14 @@ class Settings
 
         if (!defined('OIDC_GROUP_SUPER_ADMINISTRATOR') and isset($appYaml['oidc']['group_super_administrator'])) {
             define('OIDC_GROUP_SUPER_ADMINISTRATOR', Common::validateData($appYaml['oidc']['group_super_administrator']));
+        }
+
+        if (!defined('OIDC_HTTP_PROXY') and isset($appYaml['oidc']['http_proxy'])) {
+            define('OIDC_HTTP_PROXY', Common::validateData($appYaml['oidc']['http_proxy']));
+        }
+
+        if (!defined('OIDC_CERT_PATH') and isset($appYaml['oidc']['cert_path'])) {
+            define('OIDC_CERT_PATH', Common::validateData($appYaml['oidc']['cert_path']));
         }
 
         if (!defined('__LOAD_SETTINGS_YAML_ERROR')) {

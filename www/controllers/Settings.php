@@ -401,6 +401,16 @@ class Settings
             $settingsToApply['OIDC_GROUP_SUPER_ADMINISTRATOR'] = $oidcGroupSuperAdministrator;
         }
 
+        if (!empty($sendSettings['oidcHttpProxy'])) {
+            $oidcHttpProxy = Common::validateData($sendSettings['oidcHttpProxy']);
+            $settingsToApply['OIDC_HTTP_PROXY'] = $oidcHttpProxy;
+        }
+
+        if (!empty($sendSettings['oidcCertPath'])) {
+            $oidcCertPath = Common::validateData($sendSettings['oidcCertPath']);
+            $settingsToApply['OIDC_CERT_PATH'] = $oidcCertPath;
+        }
+
         /**
          *  Write settings to database
          */

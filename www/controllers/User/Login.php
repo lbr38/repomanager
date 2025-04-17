@@ -150,6 +150,20 @@ class Login extends User
             }
 
             /**
+             *  Use OIDC_HTTP_PROXY as httpProxy if defined
+             */
+            if (!empty(OIDC_HTTP_PROXY)) {
+                $oidc->setHttpProxy(OIDC_HTTP_PROXY);
+            }
+
+            /**
+             *  Use OIDC_CERT_PATH as certPath if defined
+             */
+            if (!empty(OIDC_CERT_PATH)) {
+                $oidc->setCertPath(OIDC_CERT_PATH);
+            }
+
+            /**
              *  Try to authenticate user
              */
             $oidc->authenticate();

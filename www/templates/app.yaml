@@ -65,3 +65,11 @@ oidc:
   # Groups value for Super Administrator
   # Default Value: super-administrator
   #group_super_administrator: super-administrator
+
+  # HTTP Proxy
+  # Default Value: not set
+  #http_proxy:
+
+  # Path to cert file
+  # Default Value: not set
+  #cert_path:
