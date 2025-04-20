@@ -65,3 +65,12 @@ oidc:
   # Groups value for Super Administrator
   # Default Value: super-administrator
   #group_super_administrator: super-administrator
+
+  # HTTP Proxy
+  # Default Value: not set
+  #http_proxy:
+
+  # Path to certificate file
+  # The certificate file must be stored under Repomanager's data directory to be valid
+  # Default Value: not set
+  #cert_path:

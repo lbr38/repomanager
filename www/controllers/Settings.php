@@ -401,6 +401,35 @@ class Settings
             $settingsToApply['OIDC_GROUP_SUPER_ADMINISTRATOR'] = $oidcGroupSuperAdministrator;
         }
 
+        if (!empty($sendSettings['oidcHttpProxy'])) {
+            $oidcHttpProxy = Common::validateData($sendSettings['oidcHttpProxy']);
+
+            if (!preg_match('#^https?://#', $oidcHttpProxy)) {
+                throw new Exception('OIDC HTTP proxy URL must start with http(s)://');
+            }
+
+            $settingsToApply['OIDC_HTTP_PROXY'] = $oidcHttpProxy;
+        } else {
+            $settingsToApply['OIDC_HTTP_PROXY'] = '';
+        }
+
+        if (!empty($sendSettings['oidcCertPath'])) {
+            $oidcCertPath = realpath(Common::validateData($sendSettings['oidcCertPath']));
+
+            if (!file_exists($oidcCertPath)) {
+                throw new Exception('OIDC certificate file does not exist');
+            }
+
+            // Certificate path must be inside the data directory to be valid
+            if (!preg_match('#^' . DATA_DIR . '/#', $oidcCertPath)) {
+                throw new Exception('OIDC certificate path is not valid');
+            }
+
+            $settingsToApply['OIDC_CERT_PATH'] = $oidcCertPath;
+        } else {
+            $settingsToApply['OIDC_CERT_PATH'] = '';
+        }
+
         /**
          *  Write settings to database
          */

@@ -36,7 +36,8 @@
         if ($myrepo->getRebuild() == 'needed') {
             echo '<p class="yellowtext">Repository snapshot content has been modified. You have to rebuild metadata.<br><br></p>';
         } ?>
-        <span id="loading">Generating tree structure<img src="/assets/icons/loading.svg" class="icon" /></span>
+
+        <div id="loading-tree" class="flex align-item-center column-gap-5"><p>Generating tree structure</p><img src="/assets/icons/loading.svg" class="icon" /></div>
 
         <div id="explorer" class="hide">
             <form id="packages-list" snap-id="<?= $snapId ?>">

@@ -17,15 +17,20 @@ header {
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    font-size: 14px;
+    /* font-size: 14px; */
     -webkit-box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.75);
     -moz-box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.75);
     box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.75);
 }
-#menu > div {
+#menu-inline {
+    display: none;
+    visibility: hidden;
+}
+#menu-burger {
     display: flex;
     align-items: center;
-    height: 100%;
+    justify-content: flex-end;
+    padding: 0 20px 0 0;
 }
 
 #title {
@@ -33,7 +38,6 @@ header {
     margin-top: 0px;
     margin-bottom: 0px;
     padding: 0px 25px 0px 0px;
-    display: inline-block;
     color: white;
 }
 #title span {
@@ -57,7 +61,7 @@ header {
 .menu-sub-container:hover a {
     opacity: 1;
 }
-.menu-section-title {
+.menu-tab-title {
     display: none;
 }
 #header-refresh {
@@ -135,12 +139,7 @@ article {
 }
 
 .section-left {
-    order: 2;
     align-self: flex-start;
-}
-
-.section-right {
-    order: 1;
 }
 
 #title-button-div {
@@ -595,7 +594,21 @@ footer #github img { width: 25px; }
 
 /* Desktop configuration */
 @media (min-width:1500px) {
-    .menu-section-title {
+    #menu {
+        justify-content: flex-start;
+    }
+    #menu-inline {
+        height: 100%;
+        display: flex;
+        visibility: visible;
+        justify-content: space-between;
+        flex-grow: 1;
+    }
+    #menu-burger {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    .menu-tab-title {
         display: block;
         font-family: 'Archivo';
         font-weight: 600;
@@ -613,12 +626,10 @@ footer #github img { width: 25px; }
 
     .section-left {
         flex: 0 0 68%;
-        order: 1;
     }
 
     .section-right {
         flex: 0 0 29.5%;
-        order: 2;
     }
 
     .profiles-container {

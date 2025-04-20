@@ -1,5 +1,5 @@
 #log-refresh-container {
-    flex: 0 0 94%;
+    flex: 0 0 100%;
 }
 
 #log-refresh-container h3 {
@@ -40,7 +40,7 @@
 
 /* Boutons Top et Down pour atteindre le haut ou le bas de page */
 #scroll-btns-container {
-    order: 2;
+    display: none;
 }
 /* Les boutons scroll sont fixes à l'intérieur du container */
 #scroll-btns {
@@ -164,4 +164,16 @@
     position: sticky;
     top: 50%;
     transform: translateY(-50%);
+}
+
+/* Desktop configuration */
+@media (min-width:1500px) {
+    #log-refresh-container {
+        flex: 0 0 94%;
+    }
+
+    #scroll-btns-container {
+        display: block;
+        order: 2;
+    }
 }
