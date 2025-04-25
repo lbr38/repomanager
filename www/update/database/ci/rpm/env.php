@@ -5,7 +5,7 @@
 $rawParams['action'] = 'env';
 $rawParams['snap-id'] = '1';
 $rawParams['env-id'] = '';
-$rawParams['env'] = 'pprd';
+$rawParams['env'] = ['pprd'];
 $rawParams['description'] = 'CI - point env';
 $rawParams['schedule'] = [
     'scheduled' => 'false',

@@ -1,27 +1,39 @@
 <h6>POINT AN ENVIRONMENT</h6>
-<p class="note">The repository snapshot to point the environment to.</p>
+<p class="note">The repository snapshot to point the environment(s) to.</p>
 
-<?php
-if ($myrepo->getPackageType() == 'rpm') {
-    echo '<span class="label-white">' . $myrepo->getName() . '</span>';
-}
-if ($myrepo->getPackageType() == 'deb') {
-    echo '<span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>';
-} ?>
-⸺<span class="label-black"><?= $myrepo->getDateFormatted() ?></span><span id="point-env-show-target-env-<?= $myrepo->getSnapId() ?>"></span>
+<div class="flex align-item-center">
+    <p class="label-white">
+        <?php
+        if ($myrepo->getPackageType() == 'rpm') {
+            echo $myrepo->getName();
+        }
+        if ($myrepo->getPackageType() == 'deb') {
+            echo $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection();
+        } ?>
+    </p>
+
+    <p>⸺<span class="label-black"><?= $myrepo->getDateFormatted() ?></span></p>
+</div>
 
 <h6 class="required">ENVIRONMENT</h6>
-<select id="point-env-target-env-select-<?= $myrepo->getSnapId() ?>" class="task-param" param-name="env" required>
+<p class="note">Select one or multiple environments to point to the repository snapshot.</p>
+<select id="point-env-target-env-select-<?= $myrepo->getSnapId() ?>" class="task-param" param-name="env" multiple required>
     <?php
+    $selected = false;
+
     foreach (ENVS as $env) {
-        /**
-         *  Don't display the environment if it already exists
-         */
+        // Don't display the environment if it already exists
         if ($myrepo->existsSnapIdEnv($myrepo->getSnapId(), $env['Name'])) {
             continue;
         }
 
-        echo '<option value="' . $env['Name'] . '">' . $env['Name'] . '</option>';
+        // Pre-select one environment by default, the first of the list, then avoid the next ones to be selected
+        if (!$selected) {
+            $selected = true;
+            echo '<option value="' . $env['Name'] . '" selected>' . $env['Name'] . '</option>';
+        } else {
+            echo '<option value="' . $env['Name'] . '">' . $env['Name'] . '</option>';
+        }
     } ?>
 </select>
 
@@ -37,30 +49,6 @@ $scheduleForm['type'] = array('unique'); ?>
 
 <script>
 $(document).ready(function() {
-    /**
-     *  Update repo->date<-env schema if an env is selected
-     */
-    var selectId = '#point-env-target-env-select-<?= $myrepo->getSnapId() ?>';
-    var envSelector = '#point-env-show-target-env-<?= $myrepo->getSnapId() ?>';
-    var selectedEnv = $(selectId).val();
-
-    // If no environment is selected, don't display anything
-    if (selectedEnv == "") {
-        $(envSelector).html('');
-    
-    // Else display the environment that points to the snapshot
-    } else {
-        printEnv(selectedEnv, envSelector);
-    }
-
-    // Update the environment when another environment is selected
-    $(document).on('change', selectId, function() {
-        var selectedEnv = $(this).val();
-        if (selectedEnv == "") {
-            $(envSelector).html('');
-        } else {
-            printEnv(selectedEnv, envSelector);
-        }
-    }).trigger('change');
+    selectToSelect2('#point-env-target-env-select-<?= $myrepo->getSnapId() ?>');
 });
 </script>

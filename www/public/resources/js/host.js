@@ -365,95 +365,120 @@ function hideGroupDiv()
 $(document).on('mouseenter',".hosts-charts-list-label[chart-type=kernel]",function (e) {
     var kernel = $(this).attr('kernel');
 
-    /**
-     *  Create a new <div> hosts-charts-list-label-hosts-list
-     */
-    $('footer').append('<div class="hosts-charts-list-label-hosts-list"><span>Loading<img src="/assets/icons/loading.svg" class="icon"/></span></div>');
+    // Print tooltip loading
+    mytooltip.loading(e);
 
-    /**
-     *  Get screen width
-     *  Then reduce the width of screen by 50px to have some margin
-     */
-    var screenWidth = window.screen.width;
-    screenWidth = screenWidth - 50;
+    ajaxRequest(
+        // Controller:
+        'host',
+        // Action:
+        'getHostWithKernel',
+        // Data:
+        {
+            kernel: kernel
+        },
+        // Print success alert:
+        false,
+        // Print error alert:
+        true
+    ).then(function () {
+        content = '<p class="margin-bottom-10">Hosts with kernel <code>' + kernel + '</code></p>';
+        hosts = jQuery.parseJSON(jsonValue.message);
 
-    /**
-     *  If hosts-charts-list-label-hosts-list is outside the screen on the right
-     *  Then print it on the left of the mouse cursor
-     */
-    if (e.pageX + $('.hosts-charts-list-label-hosts-list').width() >= screenWidth) {
-        $('.hosts-charts-list-label-hosts-list').css({
-            top: e.pageY - $('.hosts-charts-list-label-hosts-list').height() / 2,
-            left: e.pageX - $('.hosts-charts-list-label-hosts-list').width() - 10
+        /**
+         *  Loop through each host
+         */
+        hosts.forEach(obj => {
+            Object.entries(obj).forEach(([key, value]) => {
+                if (key == 'Id') {
+                    id = value;
+                }
+                if (key == 'Hostname') {
+                    hostname = value;
+                }
+                if (key == 'Ip') {
+                    ip = value;
+                }
+                if (key == 'Os') {
+                    os = value;
+                }
+                if (key == 'Os_family') {
+                    os_family = value;
+                }
+            });
+
+            content += '<div class="flex align-item-center column-gap-10 div-generic-blue margin-bottom-0">';
+            content += '<div>' + printOsIcon(os, os_family) + '</div>';
+            content += '<div class="flex flex-direction-column row-gap-4">';
+            content += '<span class="copy"><a href="/host/' + id + '" target="_blank" rel="noopener noreferrer">' + hostname + '</a></span>';
+            content += '<span class="copy font-size-12 lowopacity-cst">' + ip + '</span>';
+            content += '</div></div>';
         });
-    /**
-     *  Else print it on the right of the mouse cursor
-     */
-    } else {
-        $('.hosts-charts-list-label-hosts-list').css({
-            top: e.pageY - $('.hosts-charts-list-label-hosts-list').height() / 2,
-            left: e.pageX
-        });
-    }
 
-    $('.hosts-charts-list-label-hosts-list').css('display', 'flex');
-
-    getHostWithKernel(kernel);
+        // Print tooltip
+        mytooltip.print(content, e);
+    });
 });
 
 /**
  *  Event: Search hosts on 'profile' mouse hover
  */
 $(document).on('mouseenter',".hosts-charts-list-label[chart-type=profile]",function (e) {
-    var profile = $(this).attr('profile');
+    const profile = $(this).attr('profile');
 
-    /**
-     *  Create a new <div> hosts-charts-list-label-hosts-list
-     */
-    $('footer').append('<div class="hosts-charts-list-label-hosts-list"><span>Loading<img src="/assets/icons/loading.svg" class="icon"/></span></div>');
+    // Print tooltip loading
+    mytooltip.loading(e);
 
-    /**
-     *  Get screen width
-     *  Then reduce the width of screen by 50px to have some margin
-     */
-    var screenWidth = window.screen.width;
-    screenWidth = screenWidth - 50;
+    ajaxRequest(
+        // Controller:
+        'host',
+        // Action:
+        'getHostWithProfile',
+        // Data:
+        {
+            profile: profile
+        },
+        // Print success alert:
+        false,
+        // Print error alert:
+        true
+    ).then(function () {
+        hosts = jQuery.parseJSON(jsonValue.message);
+        content = '<p class="margin-bottom-10">Hosts with profile <code>' + profile + '</code></p>';
 
-    /**
-     *  If hosts-charts-list-label-hosts-list is outside the screen on the right
-     *  Then print it on the left of the mouse cursor
-     */
-    if (e.pageX + $('.hosts-charts-list-label-hosts-list').width() >= screenWidth) {
-        $('.hosts-charts-list-label-hosts-list').css({
-            top: e.pageY - $('.hosts-charts-list-label-hosts-list').height() / 2,
-            left: e.pageX - $('.hosts-charts-list-label-hosts-list').width() - 10
+        /**
+         *  Loop through each host
+         */
+        hosts.forEach(obj => {
+            Object.entries(obj).forEach(([key, value]) => {
+                if (key == 'Id') {
+                    id = value;
+                }
+                if (key == 'Hostname') {
+                    hostname = value;
+                }
+                if (key == 'Ip') {
+                    ip = value;
+                }
+                if (key == 'Os') {
+                    os = value;
+                }
+                if (key == 'Os_family') {
+                    os_family = value;
+                }
+            });
+
+            content += '<div class="flex align-item-center column-gap-10 div-generic-blue margin-bottom-0">';
+            content += '<div>' + printOsIcon(os, os_family) + '</div>';
+            content += '<div class="flex flex-direction-column row-gap-4">';
+            content += '<span class="copy"><a href="/host/' + id + '" target="_blank" rel="noopener noreferrer">' + hostname + '</a></span>';
+            content += '<span class="copy font-size-12 lowopacity-cst">' + ip + '</span>';
+            content += '</div></div>';
         });
-    /**
-     *  Else print it on the right of the mouse cursor
-     */
-    } else {
-        $('.hosts-charts-list-label-hosts-list').css({
-            top: e.pageY - $('.hosts-charts-list-label-hosts-list').height() / 2,
-            left: e.pageX
-        });
-    }
 
-    $('.hosts-charts-list-label-hosts-list').css('display', 'flex');
-
-    getHostWithProfile(profile);
-});
-
-/**
- *  Event: Remove all hosts list <div> from the DOM when mouse has leave
- */
-$(document).on('mouseleave',".hosts-charts-list-label",function () {
-    if ($('.hosts-charts-list-label-hosts-list:hover').length == 0) {
-        $('.hosts-charts-list-label-hosts-list').remove();
-    }
-});
-
-$(document).on('mouseleave',".hosts-charts-list-label-hosts-list",function () {
-    $('.hosts-charts-list-label-hosts-list').remove();
+        // Print tooltip
+        mytooltip.print(content, e);
+    });
 });
 
 /**
@@ -732,6 +757,16 @@ $(document).on('click','.available-package-select-all',function () {
          *  Loop through all checkboxes and check them
          */
         checkboxes.each(function () {
+            /**
+             *  If package is excluded then don't select it
+             */
+            if ($(this).attr('excluded') == 'true') {
+                return;
+            }
+
+            /**
+             *  Check the checkbox if it is not already checked
+             */
             if (!$(this).is(':checked')) {
                 $(this).click();
             }
@@ -779,14 +814,11 @@ $(document).on('click','.request-show-log-btn',function (e) {
         // Print success alert:
         false,
         // Print error alert:
-        true,
-        // Reload container:
-        [],
-        // Execute functions on success:
-        [
-            "printModalWindow(jsonValue.message, 'LOG')"
-        ]
-    );
+        true
+    ).then(function () {
+        // Print the modal window with the log
+        printModalWindow(jsonValue.message, 'LOG', true, false);
+    });
 });
 
 /**
@@ -814,14 +846,10 @@ $(document).on('click','.request-show-package-log-btn',function (e) {
         // Print success alert:
         false,
         // Print error alert:
-        true,
-        // Reload container:
-        [],
-        // Execute functions on success:
-        [
-            "printModalWindow(jsonValue.message, 'LOG')"
-        ]
-    );
+        true
+    ).then(function () {
+        printModalWindow(jsonValue.message, 'LOG', true, false);
+    });
 });
 
 /**
@@ -886,25 +914,16 @@ $(document).on('click','.get-package-timeline',function () {
         // Print success alert:
         false,
         // Print error alert:
-        true,
-        // Reload container:
-        [],
-        // Execute functions on success:
-        [
-            "printModalWindow(jsonValue.message, '" + title + "', false)"
-        ]
-    );
+        true
+    ).then(function () {
+        printModalWindow(jsonValue.message, title, false, false)
+    });
 });
 
 /**
  *  Event: Print the event details when mouse is over: list of installed or updated packages, etc...
  */
 $(document).on('mouseenter', '.event-packages-btn', function (e) {
-    /**
-     *  If a span event-packages-details has already been generated in the DOM then we destroy it
-     */
-    $('.event-packages-details').remove();
-
     /**
      *  Retrieve host id
      */
@@ -916,47 +935,27 @@ $(document).on('mouseenter', '.event-packages-btn', function (e) {
     var eventId = $(this).attr('event-id');
     var packageState = $(this).attr('package-state');
 
-    /**
-     *  Create a new <div> event-packages-details
-     */
-    $('footer').append('<div class="event-packages-details"><div class="flex align-item-center column-gap-5"><p>Loading</p><img src="/assets/icons/loading.svg" class="icon"/></div></div>');
+    mytooltip.loading(e);
 
-    /**
-     *  Get screen width
-     *  Then reduce the width of screen by 200px to have some margin
-     */
-    var screenWidth = window.screen.width;
-    screenWidth = screenWidth - 500;
-
-    /**
-     *  If event-packages-details is outside the screen on the right
-     *  Then print it on the left of the mouse cursor
-     */
-    if (e.pageX + $('.event-packages-details').width() >= screenWidth) {
-        $('.event-packages-details').css({
-            top: e.pageY - $('.event-packages-details').height() / 2,
-            left: e.pageX - $('.event-packages-details').width() - 10
-        });
-    /**
-     * Else print it on the right of the mouse cursor
-     */
-    } else {
-        $('.event-packages-details').css({
-            top: e.pageY - $('.event-packages-details').height() / 2,
-            left: e.pageX
-        });
-    }
-
-    $('.event-packages-details').show();
-
-    getEventDetails(hostId, eventId, packageState);
-});
-
-/**
- *  Event: Remove event-packages-details <div> from the DOM when mouse has leave
- */
-$(document).on('mouseleave', '.event-packages-details', function () {
-    $('.event-packages-details').remove();
+    ajaxRequest(
+        // Controller:
+        'host',
+        // Action:
+        'getEventDetails',
+        // Data:
+        {
+            hostId: hostId,
+            eventId: eventId,
+            packageState: packageState
+        },
+        // Print success alert:
+        false,
+        // Print error alert:
+        true
+    ).then(() => {
+        // Print the tooltip with the content
+        mytooltip.print(jsonValue.message, e);
+    });
 });
 
 /**
@@ -1012,155 +1011,5 @@ function getHostsWithPackageAjax(hosts, package)
         }
 
         hideGroupDiv();
-    });
-}
-
-/**
- * Ajax : récupérer les détails d'un évènement (la liste des paquets installés, mis à jour...)
- * @param {string} hostId
- * @param {string} eventId
- * @param {string} packageState
- */
-function getEventDetails(hostId, eventId, packageState)
-{
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "host",
-            action: "getEventDetails",
-            hostId: hostId,
-            eventId: eventId,
-            packageState: packageState
-        },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            $('.event-packages-details').html('<div>' + jsonValue.message + '</div>');
-        },
-        error: function (jqXHR, textStatus, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
-}
-
-/**
- *  Ajax: get all hosts that have the specified kernel
- *  @param {string} kernel
- */
-function getHostWithKernel(kernel)
-{
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "host",
-            action: "getHostWithKernel",
-            kernel: kernel
-        },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            hostsArray = jQuery.parseJSON(jsonValue.message);
-
-            hosts = '<p class="margin-bottom-10">Hosts with kernel <code>' + kernel + '</code></p>';
-
-            /**
-             *  Loop through each host
-             */
-            hostsArray.forEach(obj => {
-                Object.entries(obj).forEach(([key, value]) => {
-                    if (key == 'Id') {
-                        id = value;
-                    }
-                    if (key == 'Hostname') {
-                        hostname = value;
-                    }
-                    if (key == 'Ip') {
-                        ip = value;
-                    }
-                    if (key == 'Os') {
-                        os = value;
-                    }
-                    if (key == 'Os_family') {
-                        os_family = value;
-                    }
-                });
-
-                hosts += '<div class="flex align-item-center column-gap-10 div-generic-blue margin-bottom-0">';
-                hosts += '<div>' + printOsIcon(os, os_family) + '</div>';
-                hosts += '<div class="flex flex-direction-column row-gap-4">';
-                hosts += '<span class="copy"><a href="/host/' + id + '" target="_blank" rel="noopener noreferrer">' + hostname + '</a></span>';
-                hosts += '<span class="copy font-size-12 lowopacity-cst">' + ip + '</span>';
-                hosts += '</div></div>';
-            });
-
-            $('.hosts-charts-list-label-hosts-list').html(hosts);
-        },
-        error: function (jqXHR, textStatus, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
-}
-
-/**
- *  Ajax: get all hosts that have the specified profile
- *  @param {string} profile
- */
-function getHostWithProfile(profile)
-{
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "host",
-            action: "getHostWithProfile",
-            profile: profile
-        },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            hostsArray = jQuery.parseJSON(jsonValue.message);
-
-            hosts = '<p class="margin-bottom-10">Hosts with profile <code>' + profile + '</code></p>';
-
-            /**
-             *  Loop through each host
-             */
-            hostsArray.forEach(obj => {
-                Object.entries(obj).forEach(([key, value]) => {
-                    if (key == 'Id') {
-                        id = value;
-                    }
-                    if (key == 'Hostname') {
-                        hostname = value;
-                    }
-                    if (key == 'Ip') {
-                        ip = value;
-                    }
-                    if (key == 'Os') {
-                        os = value;
-                    }
-                    if (key == 'Os_family') {
-                        os_family = value;
-                    }
-                });
-
-                hosts += '<div class="flex align-item-center column-gap-10 div-generic-blue margin-bottom-0">';
-                hosts += '<div>' + printOsIcon(os, os_family) + '</div>';
-                hosts += '<div class="flex flex-direction-column row-gap-4">';
-                hosts += '<span class="copy"><a href="/host/' + id + '" target="_blank" rel="noopener noreferrer">' + hostname + '</a></span>';
-                hosts += '<span class="copy font-size-12 lowopacity-cst">' + ip + '</span>';
-                hosts += '</div></div>';
-            });
-
-            $('.hosts-charts-list-label-hosts-list').html(hosts);
-        },
-        error: function (jqXHR, textStatus, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
     });
 }

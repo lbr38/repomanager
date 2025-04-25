@@ -10,6 +10,7 @@ class Delete
 
     private $repo;
     private $task;
+    private $repoSnapshotController;
     private $taskLogStepController;
     private $taskLogSubStepController;
 
@@ -17,6 +18,7 @@ class Delete
     {
         $this->repo = new \Controllers\Repo\Repo();
         $this->task = new \Controllers\Task\Task();
+        $this->repoSnapshotController = new \Controllers\Repo\Snapshot();
         $this->taskLogStepController = new \Controllers\Task\Log\Step($taskId);
         $this->taskLogSubStepController = new \Controllers\Task\Log\SubStep($taskId);
 
@@ -62,6 +64,8 @@ class Delete
      */
     public function execute()
     {
+        $deleteResult = true;
+
         try {
             $this->taskLogStepController->new('deleting', 'DELETING');
 
@@ -73,7 +77,7 @@ class Delete
             }
 
             /**
-             *  Delete snapshot
+             *  Delete snapshot directory
              */
             if ($this->repo->getPackageType() == "rpm") {
                 if (is_dir(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName())) {
@@ -86,16 +90,14 @@ class Delete
                 }
             }
 
-            if (isset($deleteResult) && $deleteResult !== true) {
-                throw new Exception('Cannot delete snapshot of the <span class="label-black">' . $this->repo->getDateFormatted() . '</span>');
+            if (!$deleteResult) {
+                throw new Exception('Cannot delete <span class="label-black">' . $this->repo->getDateFormatted() . ' snapshot</span>');
             }
-
-            $this->taskLogStepController->completed();
 
             /**
              *  Set snapshot status to 'deleted' in database
              */
-            $this->repo->snapSetStatus($this->repo->getSnapId(), 'deleted');
+            $this->repoSnapshotController->updateStatus($this->repo->getSnapId(), 'deleted');
 
             /**
              *  Retrieve env Ids pointing to this snapshot
@@ -138,6 +140,21 @@ class Delete
              *  Clean unused repos in groups
              */
             $this->repo->cleanGroups();
+
+            /**
+             *  Delete the parent directories if they are empty (deb only)
+             */
+            if ($this->repo->getPackageType() == 'deb') {
+                if (\Controllers\Filesystem\Directory::isEmpty(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist())) {
+                    \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist());
+                }
+
+                if (\Controllers\Filesystem\Directory::isEmpty(REPOS_DIR . '/' . $this->repo->getName())) {
+                    \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/' . $this->repo->getName());
+                }
+            }
+
+            $this->taskLogStepController->completed();
 
             /**
              *  Set task status to 'done'

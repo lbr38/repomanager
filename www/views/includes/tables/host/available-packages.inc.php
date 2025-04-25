@@ -27,7 +27,9 @@
 
         <?php
         foreach ($reloadableTableContent as $item) :
-            $checked = ''; ?>
+            $checked = '';
+            $excluded = false;
+            $title = 'Select package'; ?>
 
             <div class="table-container-3 bck-blue-alt">
                 <div>
@@ -40,27 +42,45 @@
                 </div>
 
                 <div class="text-right margin-right-5">
-                    <?php
-                    /**
-                     *  If package was selected, we check the checkbox
-                     */
-                    if (!empty($selectedPackages['packages'])) {
-                        foreach ($selectedPackages['packages'] as $package) {
-                            if ($package['name'] === $item['Name'] and $package['available_version'] === $item['Version']) {
-                                $checked = 'checked';
-                                break;
+                    <div class="flex align-iten-center justify-end column-gap-10 row-gap-5 flex-wrap">
+                        <?php
+                        /**
+                         *  If package was selected, we check the checkbox
+                         */
+                        if (!empty($selectedPackages['packages'])) {
+                            foreach ($selectedPackages['packages'] as $package) {
+                                if ($package['name'] === $item['Name'] and $package['available_version'] === $item['Version']) {
+                                    $checked = 'checked';
+                                    break;
+                                }
                             }
-                        }
-                    } ?>
+                        } ?>
 
-                    <?php
-                    if (IS_ADMIN) {
-                        // If there is no package update already running, display the checkbox
-                        if ($packageUpdateRunning == false) { ?>
-                            <input type="checkbox" class="available-package-checkbox lowopacity" host-id="<?= $id ?>" package="<?= $item['Name'] ?>" version="<?= $item['Version'] ?>" <?= $checked ?> title="Select package" />
-                            <?php
-                        }
-                    } ?>
+                        <?php
+                        if (IS_ADMIN) {
+                            // If the package is in the "exclude on major update" list, print a warning icon
+                            foreach ($packageExcludedMajor as $package) {
+                                if (preg_match('#' . $package . '#', $item['Name'])) {
+                                    $excluded = true;
+                                    $title = 'Warning: this package is marked as excluded on major update in the profile configuration';
+                                }
+                            }
+
+                            // If the package is in the "always exclude" list, print a warning icon
+                            foreach ($packageExcluded as $package) {
+                                if (preg_match('#' . $package . '#', $item['Name'])) {
+                                    $excluded = true;
+                                    $title = 'Warning: this package is marked as excluded in the profile configuration';
+                                }
+                            }
+
+                            // If there is no package update already running, display the checkbox
+                            if ($packageUpdateRunning == false) { ?>
+                                <input type="checkbox" class="available-package-checkbox lowopacity <?= $excluded ? 'checkbox-warning' : '' ?>" host-id="<?= $id ?>" package="<?= $item['Name'] ?>" version="<?= $item['Version'] ?>" <?= $checked ?> <?= $excluded ? 'excluded="true"' : 'excluded="false"' ?> title="<?= $title ?>" />
+                                <?php
+                            }
+                        } ?>
+                    </div>
                 </div>
             </div>
             <?php

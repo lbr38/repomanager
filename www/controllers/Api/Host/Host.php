@@ -80,10 +80,18 @@ class Host extends \Controllers\Api\Controller
             /**
              *  Retrieve host database Id if its authId has been specified, it will be useful for next tasks
              */
-            if (!empty($this->hostId)) {
+            if (!empty($this->hostAuthId)) {
                 try {
-                    $myhost->setAuthId($this->hostId);
-                    $myhost->setId($myhost->getIdByAuth($this->hostId));
+                    $myhost->setAuthId($this->hostAuthId);
+
+                    // Get host database Id from its authId
+                    $this->hostId = $myhost->getIdByAuth($this->hostAuthId);
+
+                    // Set host database Id
+                    $myhost->setId($this->hostId);
+
+                    // Package controller will be useful for packages operations
+                    $hostPackageController = new \Controllers\Host\Package\Package($this->hostId);
                 } catch (Exception $e) {
                     throw new Exception('Coult not retrieve host Id in database');
                 }
@@ -272,10 +280,10 @@ class Host extends \Controllers\Api\Controller
                          */
                         if (!empty($this->data->installed_packages)) {
                             try {
-                                $myhost->setPackagesInventory($this->data->installed_packages);
+                                $hostPackageController->setPackagesInventory($this->data->installed_packages);
                                 return array('message' => array('Installed packages updated successfully.'));
                             } catch (Exception $e) {
-                                throw new Exception('Installed packages update has failed.');
+                                throw new Exception('Installed packages update has failed: ' . $e->getMessage());
                             }
                         }
                     }
@@ -290,10 +298,10 @@ class Host extends \Controllers\Api\Controller
                          */
                         if (!empty($this->data->available_packages)) {
                             try {
-                                $myhost->setPackagesAvailable($this->data->available_packages);
+                                $hostPackageController->setPackagesAvailable($this->data->available_packages);
                                 return array('message' => array('Available packages updated successfully.'));
                             } catch (Exception $e) {
-                                throw new Exception('Available packages update has failed.');
+                                throw new Exception('Available packages update has failed: ' . $e->getMessage());
                             }
                         }
                     }
@@ -308,10 +316,10 @@ class Host extends \Controllers\Api\Controller
                          */
                         if (!empty($this->data->events)) {
                             try {
-                                $myhost->setEventsFullHistory($this->data->events);
+                                $hostPackageController->setEventsFullHistory($this->data->events);
                                 return array('message' => array('Package events history updated successfully.'));
                             } catch (Exception $e) {
-                                throw new Exception('Package events history update has failed.');
+                                throw new Exception('Package events history update has failed: ' . $e->getMessage());
                             }
                         }
                     }

@@ -111,7 +111,7 @@
     display: flex;
     flex-direction: column;
     margin-top: 5px;
-    border-radius: 8px;
+    border-radius: 10px;
     border: 1px solid #24405c;
     background-color: #182b3e;
     -webkit-box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
@@ -125,16 +125,16 @@
     align-items: center;
     column-gap: 10px;
     padding: 20px;
-    border-radius: 8px;
+    border-radius: 10px;
 }
 
 .task-step-content {
-    grid-template-columns: 96% 4%;
+    grid-template-columns: 84% 16%;
     justify-content: space-between;
     min-height: 250px;
     max-height: 700px;
     overflow-y: auto;
-    border-radius: 8px;
+    border-radius: 20px;
     margin-top: 4px;
     border-left: 1px solid #24405c;
     border-right: 1px solid #24405c;
@@ -175,5 +175,9 @@
     #scroll-btns-container {
         display: block;
         order: 2;
+    }
+
+    .task-step-content {
+        grid-template-columns: 96% 4%;
     }
 }

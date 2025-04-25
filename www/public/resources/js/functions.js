@@ -257,7 +257,7 @@ function printLoading()
 {
     $('#loading').remove();
 
-    $('footer').append('<div id="loading"><p class="lowopacity">Loading</p><img src="/assets/icons/loading.svg"></div>');
+    $('footer').append('<div id="loading"><img src="/assets/icons/loading.svg"></div>');
 }
 
 function hideLoading()
@@ -291,8 +291,15 @@ function printLoadingVeilByParentClass(name)
  * @param {*} title
  * @param {*} inPre
  */
-function printModalWindow(content, title, inPre = true)
+function printModalWindow(content, title, inPre = true, fullscreen = true)
 {
+    var modalClass = 'modal-window';
+
+    console.log(fullscreen);
+    if (fullscreen) {
+        modalClass = 'modal-window-fullscreen';
+    }
+
     printLoading();
 
     /**
@@ -301,7 +308,7 @@ function printModalWindow(content, title, inPre = true)
     $('.modal-window-container').remove();
 
     html = '<div class="modal-window-container">'
-        + '<div class="modal-window">'
+        + '<div class="' + modalClass + '">'
         + '<div class="modal-window-title">'
         + '<h4>' + title + '</h4>'
         + '<span class="modal-window-close-btn"><img title="Close" class="close-btn lowopacity" src="/assets/icons/close.svg" /></span>'
@@ -315,7 +322,6 @@ function printModalWindow(content, title, inPre = true)
     html += '</div>'
           + '</div>'
           + '</div>';
-
 
     $('body').append(html);
 

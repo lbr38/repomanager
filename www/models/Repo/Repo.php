@@ -212,9 +212,9 @@ class Repo extends \Models\Model
     /**
      *  Return latest snapshot Id from repo Id
      */
-    public function getLatestSnapId(int $repoId)
+    public function getLatestSnapId(int $repoId) : int|null
     {
-        $snapId = '';
+        $snapId = null;
 
         try {
             $stmt = $this->db->prepare("SELECT Id FROM repos_snap WHERE Id_repo = :repoId AND Status = 'active' ORDER BY Date DESC LIMIT 1");
@@ -491,41 +491,6 @@ class Repo extends \Models\Model
     }
 
     /**
-     *  Liste les snapshots de repos inutilisés en fonction de l'Id de repo et du paramètre de retention spécifié
-     */
-    public function getUnunsedSnapshot(string $repoId, string $retention)
-    {
-        try {
-            $stmt = $this->db->prepare("SELECT
-            repos_snap.Id AS snapId,
-            repos_snap.Date
-            FROM repos
-            LEFT JOIN repos_snap
-                ON repos_snap.Id_repo = repos.Id
-            LEFT JOIN repos_env
-                ON repos_env.Id_snap = repos_snap.Id
-            WHERE repos_snap.Id_repo = :repoId
-            AND repos_env.Id_snap IS NULL
-            AND repos_snap.Status = 'active'
-            ORDER BY Date DESC LIMIT -1 OFFSET :retention");
-            $stmt->bindValue(':repoId', $repoId);
-            $stmt->bindValue(':retention', $retention);
-
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-
-        $data = array();
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $data[] = $row;
-        }
-
-        return $data;
-    }
-
-    /**
      *  Set environment description
      */
     public function envSetDescription(string $envId, string $description) : void
@@ -638,21 +603,6 @@ class Repo extends \Models\Model
         try {
             $stmt = $this->db->prepare("UPDATE repos_snap SET Pkg_excluded = :pkgExcluded WHERE Id = :snapId");
             $stmt->bindValue(':pkgExcluded', $packages);
-            $stmt->bindValue(':snapId', $snapId);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Modification de l'état du snapshot
-     */
-    public function snapSetStatus(string $snapId, string $status)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE repos_snap SET Status = :status WHERE Id = :snapId");
-            $stmt->bindValue(':status', $status);
             $stmt->bindValue(':snapId', $snapId);
             $stmt->execute();
         } catch (\Exception $e) {
@@ -980,22 +930,6 @@ class Repo extends \Models\Model
             $stmt->bindValue(':type', $type);
             $stmt->bindValue(':status', $status);
             $stmt->bindValue(':repoId', $repoId);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Associate a new env to a snapshot
-     */
-    public function addEnv(string $env, string $description = null, string $snapId)
-    {
-        try {
-            $stmt = $this->db->prepare("INSERT INTO repos_env ('Env', 'Description', 'Id_snap') VALUES (:env, :description, :snapId)");
-            $stmt->bindValue(':env', $env);
-            $stmt->bindValue(':description', $description);
-            $stmt->bindValue(':snapId', $snapId);
             $stmt->execute();
         } catch (\Exception $e) {
             $this->db->logError($e);

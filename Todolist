@@ -15,14 +15,3 @@
     [ CVE ]
 
     - Check for affected hosts when sending packages with linupdate
-
-
-    [ LOGIN ]
-
-    - (Feature) Support LDAP
-
-
-    [ MAIL ]
-
-    - (Feature) Add an alternative way of sending mails via SMTP server: https://github.com/lbr38/repomanager/issues/139
-      https://stackoverflow.com/questions/73868867/how-to-implement-oauth-2-0-in-phpmailer-for-exchange-online

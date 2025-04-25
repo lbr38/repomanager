@@ -49,7 +49,8 @@
             <p class="note">Specify the proxy URL to use to access the internet. e.g. https://myproxy.com:8080</p>
             <input class="settings-param" param-name="proxy" type="text" value="<?= PROXY ?>" placeholder="https://">
 
-            <br><br>
+            <hr class="margin-top-20 margin-bottom-20">
+
             <h5>TASK EXECUTION</h5>
 
             <h6>TASK QUEUING</h6>
@@ -104,14 +105,16 @@
             <p class="note">Prefix added to repository configuration files when installing on client hosts (e.g., 'myprefix-debian.list' or 'myprefix-nginx.repo'). Leave empty if you want no prefix.</p>
             <input class="settings-param" param-name="repoConfFilesPrefix" type="text" value="<?= REPO_CONF_FILES_PREFIX ?>">
 
-            <br><br>
+            <hr class="margin-top-20 margin-bottom-20">
+
             <h5>GLOBAL MIRRORING SETTINGS</h5>
 
             <h6 class="required">PACKAGE DOWNLOAD TIMEOUT (in seconds)</h6>
             <p class="note">Maximum time allowed to download a package during a mirroring process.</p>
             <input class="settings-param" param-name="mirrorPackageDownloadTimeout" min="1" type="number" value="<?= MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT ?>" placeholder="Default is 300">
 
-            <br><br>
+            <hr class="margin-top-20 margin-bottom-20">
+
             <h5>RPM</h5>
 
             <h6>ENABLE RPM REPOSITORIES</h6>
@@ -159,7 +162,8 @@
                     } ?>
                 </select>
 
-                <br><br>
+                <hr class="margin-top-20 margin-bottom-20">
+
                 <h5 title="RPM mirroring settings">RPM MIRRORING SETTINGS</h5>
 
                 <h6 class="required">WHEN PACKAGE SIGNATURE IS MISSING</h6>
@@ -180,7 +184,8 @@
                 <?php
             endif ?>
 
-            <br><br>
+            <hr class="margin-top-20 margin-bottom-20">
+
             <h5>DEB</h5>
 
             <h6>ENABLE DEB REPOSITORIES</h6>
@@ -216,7 +221,8 @@
                     } ?>
                 </select>
 
-                <br><br>
+                <hr class="margin-top-20 margin-bottom-20">
+
                 <h5 title="DEB mirroring settings">DEB MIRRORING SETTINGS</h5>
 
                 <h6 class="required">ALLOW SYNC OF EMPTY REPOSITORIES</h6>
@@ -236,7 +242,8 @@
             endif;
 
             if (RPM_SIGN_PACKAGES == 'true' or DEB_SIGN_REPO == 'true') : ?>
-                <br><br>
+                <hr class="margin-top-20 margin-bottom-20">
+
                 <h5>GPG SIGNING KEY</h5>
 
                 <h6 class="required">GPG KEY ID</h6>
@@ -248,7 +255,7 @@
             <button class="hide" type="submit"></button>
         </form>
 
-        <br><br>
+        <hr class="margin-top-20 margin-bottom-20">
 
         <h5>ENVIRONMENTS</h5>
 
@@ -311,7 +318,7 @@
             </div>
         </div>
 
-        <br><br>
+        <hr class="margin-top-20 margin-bottom-20">
 
         <h5>STATISTICS</h5>
 

@@ -43,6 +43,9 @@ class ScheduledTask extends Service
          */
         $scheduledTasks = $this->taskController->listScheduled();
 
+        // TODO debug
+        // file_put_contents(ROOT . '/debug', PHP_EOL . PHP_EOL . PHP_EOL . '(1) ' . date('Y-m-d H:i:s') . ' - Scheduled tasks: ' . print_r($scheduledTasks, true) . PHP_EOL, FILE_APPEND);
+
         /**
          *  Quit if there is no task to execute
          */
@@ -61,7 +64,13 @@ class ScheduledTask extends Service
                 continue;
             }
 
+            // TODO debug
+            // file_put_contents(ROOT . '/debug', '(2) ' . date('Y-m-d H:i:s') . ' - Task #' . $task['Id'] . PHP_EOL, FILE_APPEND);
+
             $taskRawParams = json_decode($task['Raw_params'], true);
+
+            // TODO debug
+            // file_put_contents(ROOT . '/debug', '(3) ' . date('Y-m-d H:i:s') . ' - Task #' . $task['Id'] . ' raw params: ' . print_r($taskRawParams, true) . PHP_EOL, FILE_APPEND);
 
             /**
              *  Case where the task is a unique task
@@ -137,6 +146,9 @@ class ScheduledTask extends Service
                 }
             }
         }
+
+        // TODO debug
+        // file_put_contents(ROOT . '/debug', '(4) ' . date('Y-m-d H:i:s') . ' - Tasks to execute: ' . print_r($taskToExec, true) . PHP_EOL, FILE_APPEND);
 
         /**
          *  Execute scheduled tasks

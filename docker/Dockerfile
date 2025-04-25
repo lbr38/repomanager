@@ -47,6 +47,7 @@ RUN cp /tmp/repomanager/docker/config/nginx/repomanager.conf /etc/nginx/sites-en
 RUN rm -rf /etc/nginx/sites-enabled/default /etc/nginx/conf.d/default.conf /var/www/html
 
 # Configure PHP
+RUN cp /tmp/repomanager/docker/config/php/php.ini /etc/php/8.3/fpm/php.ini
 RUN cp /tmp/repomanager/docker/config/php/www.conf /etc/php/8.3/fpm/pool.d/www.conf
 RUN cp /tmp/repomanager/docker/config/php/opcache.ini /etc/php/8.3/mods-available/opcache.ini
 

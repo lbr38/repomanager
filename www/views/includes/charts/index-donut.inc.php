@@ -1,37 +1,39 @@
 <?php
 
-if ($diskUsedSpace > 0 && $diskUsedSpace <= 30) {
-    $donutColor = "'#15bf7f',";
+if ($diskUsedSpacePercent > 0 && $diskUsedSpacePercent <= 30) {
+    $borderColor = "'#15bf7f','#15bf7f'";
+    $donutColor = "'#15bf7f', 'rgba(21, 191, 127, 0.40)',";
 }
-if ($diskUsedSpace > 30 && $diskUsedSpace <= 50) {
-    $donutColor = "'#ffb536',";
+if ($diskUsedSpacePercent > 30 && $diskUsedSpacePercent <= 50) {
+    $borderColor = "'#ffb536','#ffb536'";
+    $donutColor = "'#ffb536', 'rgba(255, 181, 54, 0.40)',";
 }
-if ($diskUsedSpace > 50 && $diskUsedSpace <= 70) {
-    $donutColor = "'rgba(255, 124, 73, 0.8)',";
+if ($diskUsedSpacePercent > 50 && $diskUsedSpacePercent <= 70) {
+    $borderColor = "'#ff7c49','#ff7c49'";
+    $donutColor = "'#ff7c49', 'rgba(255, 124, 73, 0.40)',";
 }
-if ($diskUsedSpace > 70 && $diskUsedSpace <= 100) {
-    $donutColor = "'#F32F63',";
-}
-$donutColor .= "'rgb(247, 247, 247, 0)'"; // transparent (opacity 0) color for the free space ?>
+if ($diskUsedSpacePercent > 70 && $diskUsedSpacePercent <= 100) {
+    $borderColor = "'#F32F63','#F32F63'";
+    $donutColor = "'#F32F63', 'rgba(243, 47, 99, 0.40)',";
+} ?>
 
 <canvas id="diskSpaceChart-<?= $donutChartName ?>" class="donut-chart"></canvas>
 
 <script>
 $(document).ready(function() {
+    var diskUsedSpaceHuman = "<?= $diskUsedSpaceHuman ?>";
+    var diskFreeSpaceHuman = "<?= $diskFreeSpaceHuman ?>";
+
     // Data
     var doughnutChartData = {
         datasets: [{
             labels: ['Used space', 'Free space'],
-            borderWidth: 3,
-            data: [<?= "$diskUsedSpace, $diskFreeSpace" ?>],
+            data: [<?= "$diskUsedSpacePercent, $diskFreeSpacePercent" ?>],
             backgroundColor: [<?= $donutColor ?>],
-            borderColor: [
-                'gray',
-                'gray'
-            ],
+            borderColor: [<?= $borderColor ?>],
             borderWidth: 0.4
         }],
-        labels: ['Used space %', 'Free space %']
+        labels: ['Used space', 'Free space']
     };
 
     // Options
@@ -41,8 +43,21 @@ $(document).ready(function() {
             legend: {
                 display: false
             },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        let label = context.label || '';
+                        let value = context.parsed;
+                        let human = context.dataIndex === 0 ? diskUsedSpaceHuman : diskFreeSpaceHuman;
+                        return [
+                            label + ': ',
+                            value + '% (' + human + ')'
+                        ];
+                    }
+                }
+            }
         },
-        cutout: 55,
+        cutout: '90%',
         elements: {
             point: {
                 radius: 0

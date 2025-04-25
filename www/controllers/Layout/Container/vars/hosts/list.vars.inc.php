@@ -13,7 +13,7 @@ $totalNotUptodate = 0;
 /**
  *  Getting total hosts
  */
-$totalHosts = count($myhost->listAll('active'));
+$totalHosts = count($myhost->listAll());
 
 /**
  *  Get hosts groups list

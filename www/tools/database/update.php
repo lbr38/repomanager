@@ -26,16 +26,16 @@ if (!empty($getOptions['release'])) {
 }
 
 try {
-    echo PHP_EOL . 'Enabling maintenance page.' . PHP_EOL;
+    echo '[' . date('D M j H:i:s') . '] Enabling maintenance page' . PHP_EOL;
     $myupdate->setMaintenance('on');
 
-    echo 'Updating database.' . PHP_EOL;
+    echo '[' . date('D M j H:i:s') . '] Updating database' . PHP_EOL;
 
     /**
      *  Only execute specified version update file
      */
     if (!empty($targetVersion)) {
-        echo 'Executing ' . $targetVersion . ' release SQL queries if there are...' . PHP_EOL;
+        echo '[' . date('D M j H:i:s') . '] Executing ' . $targetVersion . ' release SQL queries if there are...' . PHP_EOL;
         $myupdate->updateDB($targetVersion);
 
     /**
@@ -45,11 +45,11 @@ try {
         $myupdate->updateDB();
     }
 } catch (Exception $e) {
-    echo 'There was an error while executing update: ' . $e->getMessage() . PHP_EOL;
+    echo '[' . date('D M j H:i:s') . '] There was an error while executing update: ' . $e->getMessage() . PHP_EOL;
     $error++;
 }
 
-echo 'Disabling maintenance page.' . PHP_EOL;
+echo '[' . date('D M j H:i:s') . '] Disabling maintenance page' . PHP_EOL;
 
 $myupdate->setMaintenance('off');
 

@@ -15,6 +15,8 @@ class Update
     private $sourceRepo;
     private $repo;
     private $task;
+    private $repoSnapshotController;
+    private $repoEnvController;
     private $taskLogStepController;
     private $taskLogSubStepController;
     private $packagesToSign = null;
@@ -24,6 +26,8 @@ class Update
         $this->sourceRepo = new \Controllers\Repo\Repo();
         $this->repo = new \Controllers\Repo\Repo();
         $this->task = new \Controllers\Task\Task();
+        $this->repoSnapshotController = new \Controllers\Repo\Snapshot();
+        $this->repoEnvController = new \Controllers\Repo\Environment();
         $this->taskLogStepController = new \Controllers\Task\Log\Step($taskId);
         $this->taskLogSubStepController = new \Controllers\Task\Log\SubStep($taskId);
 
@@ -32,6 +36,9 @@ class Update
          */
         $task = $this->task->getById($taskId);
         $taskParams = json_decode($task['Raw_params'], true);
+
+        // TODO debug
+        // file_put_contents(ROOT . '/debug2', '(1) Task params:' . PHP_EOL . print_r($taskParams, true) . PHP_EOL . PHP_EOL);
 
         /**
          *  If task is a scheduled task and it is recurring, then update the snap-id parameter to be the last snap-id
@@ -44,11 +51,14 @@ class Update
                  */
                 $latestSnapId = $this->repo->getLatestSnapId($taskParams['repo-id']);
 
+                // TODO debug
+                // file_put_contents(ROOT . '/debug2', '(2) Latest snap id: ' . $latestSnapId . PHP_EOL . PHP_EOL, FILE_APPEND);
+
                 /**
-                 *  Throw error id no snapshot is found
+                 *  Throw error if no snapshot is found
                  */
                 if (empty($latestSnapId)) {
-                    throw new Exception('Could not find latest snapshot Id for this repository');
+                    throw new Exception('Could not find the latest snapshot Id for this repository');
                 }
 
                 /**
@@ -62,6 +72,9 @@ class Update
                 $this->task->updateRawParams($taskId, json_encode($taskParams));
             }
         }
+
+        // TODO debug
+        // file_put_contents(ROOT . '/debug2', '(3) Task params:' . PHP_EOL . print_r($taskParams, true) . PHP_EOL . PHP_EOL, FILE_APPEND);
 
         /**
          *  Check source repo snap Id parameter
@@ -89,6 +102,9 @@ class Update
             $requiredParams = array('gpg-sign', 'arch');
             $optionalParams = array('env');
         }
+
+        // TODO debug
+        // file_put_contents(ROOT . '/debug2', '(4) Task params:' . PHP_EOL . print_r($taskParams, true) . PHP_EOL . PHP_EOL, FILE_APPEND);
 
         $this->taskParamsCheck('Update repo', $taskParams, $requiredParams);
         $this->taskParamsSet($taskParams, $requiredParams, $optionalParams);

@@ -146,8 +146,15 @@
                     /**
                      *  If action is 'env' or 'removeEnv', print environment
                      */
-                    if ($taskRawParams['action'] == 'env' || $taskRawParams['action'] == 'removeEnv') {
-                        echo \Controllers\Common::envtag($taskRawParams['env']);
+                    if (in_array($taskRawParams['action'], ['env', 'removeEnv'])) {
+                        if (is_string($taskRawParams['env'])) {
+                            echo \Controllers\Common::envtag($taskRawParams['env']);
+                        }
+                        if (is_array($taskRawParams['env'])) {
+                            foreach ($taskRawParams['env'] as $env) {
+                                echo \Controllers\Common::envtag($env);
+                            }
+                        }
                     } ?>
                 </div>
 
@@ -272,7 +279,7 @@
                                     }
 
                                     if ($taskRawParams['schedule']['schedule-frequency'] == 'monthly') {
-                                        echo 'Every ' . $taskRawParams['schedule']['schedule-monthly-day-position'] . ' ' . $taskRawParams['schedule']['schedule-monthly-day'] . ' of each month at ' . $taskRawParams['schedule']['schedule-time'] . ':00';
+                                        echo 'Every ' . $taskRawParams['schedule']['schedule-monthly-day-position'] . ' ' . $taskRawParams['schedule']['schedule-monthly-day'] . ' of the month at ' . $taskRawParams['schedule']['schedule-time'] . ':00';
                                     } ?>
                                 </p>
                                 <?php

@@ -62,8 +62,8 @@ class Profile
         /**
          *  Check that profile exists
          */
-        if ($this->model->exists($profile) === false) {
-            throw new Exception("$profile profile does not exist");
+        if ($this->exists($profile) === false) {
+            throw new Exception($profile . ' profile does not exist');
         }
 
         /**
@@ -129,8 +129,8 @@ class Profile
         /**
          *  First check that profile exists
          */
-        if ($this->model->exists($profile) === false) {
-            throw new Exception("$profile profile does not exist");
+        if ($this->exists($profile) === false) {
+            throw new Exception($profile . ' profile does not exist');
         }
 
         /**
@@ -151,17 +151,31 @@ class Profile
         foreach ($repos as $repo) {
             if ($repo['Package_type'] == 'rpm') {
                 $repoArray = array(
+                    // Legacy content
                     'filename' => REPO_CONF_FILES_PREFIX . $repo['Name'] . '.repo',
                     'description' => $repo['Name'] . ' repo on ' . __SERVER_URL__,
-                    'content' => '[' . REPO_CONF_FILES_PREFIX . $repo['Name'] . '___ENV__]' . PHP_EOL . 'name=' . $repo['Name'] . ' repo on ' . WWW_HOSTNAME . PHP_EOL . 'baseurl=' . __SERVER_URL__ . '/repo/' . $repo['Name'] . '___ENV__' . PHP_EOL . 'enabled=1' . PHP_EOL . 'gpgkey=' . __SERVER_URL__ . '/repo/gpgkeys/' . WWW_HOSTNAME . '.pub' . PHP_EOL . 'gpgcheck=1'
+                    'content' => '[' . REPO_CONF_FILES_PREFIX . $repo['Name'] . '___ENV__]' . PHP_EOL . 'name=' . $repo['Name'] . ' repo on ' . WWW_HOSTNAME . PHP_EOL . 'baseurl=' . __SERVER_URL__ . '/repo/' . $repo['Name'] . '___ENV__' . PHP_EOL . 'enabled=1' . PHP_EOL . 'gpgkey=' . __SERVER_URL__ . '/repo/gpgkeys/' . WWW_HOSTNAME . '.pub' . PHP_EOL . 'gpgcheck=1',
+                    // New content
+                    'repo_name' => $repo['Name'],
+                    'repo_url' => __SERVER_URL__ . '/repo/' . $repo['Name'] . '___ENV__',
+                    'gpgkey_url' => __SERVER_URL__ . '/repo/gpgkeys/' . WWW_HOSTNAME . '.pub',
+                    'filename_prefix' => REPO_CONF_FILES_PREFIX
                 );
             }
 
             if ($repo['Package_type'] == 'deb') {
                 $repoArray = array(
+                    // Legacy content
                     'filename' => REPO_CONF_FILES_PREFIX . $repo['Name'] . '.list',
                     'description' => $repo['Name'] . ' repo on ' . __SERVER_URL__,
-                    'content' => 'deb ' . __SERVER_URL__ . '/repo/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '___ENV__ ' . $repo['Dist'] . ' ' . $repo['Section']
+                    'content' => 'deb ' . __SERVER_URL__ . '/repo/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '___ENV__ ' . $repo['Dist'] . ' ' . $repo['Section'],
+                    // New content
+                    'repo_name' => $repo['Name'],
+                    'repo_distribution' => $repo['Dist'],
+                    'repo_component' => $repo['Section'],
+                    'repo_url' => __SERVER_URL__ . '/repo/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '___ENV__',
+                    'gpgkey_url' => __SERVER_URL__ . '/repo/gpgkeys/' . WWW_HOSTNAME . '.pub',
+                    'filename_prefix' => REPO_CONF_FILES_PREFIX
                 );
             }
 

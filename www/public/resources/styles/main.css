@@ -182,12 +182,12 @@ article {
 
 .repos-list-group-flex-div {
     display: grid;
-    grid-template-columns: 300px 55px auto auto auto 65px 1fr;
+    grid-template-columns: 300px 55px auto auto auto 40px 1fr;
     row-gap: 25px;
     margin-bottom: 12px;
-    background-color: #1d3349;
+    background-color: #22384F;
     border: 1px solid #24405c;
-    border-radius: 8px;
+    border-radius: 20px;
     padding: 15px 4px 15px 4px;
     box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
 }
@@ -350,7 +350,7 @@ article {
 }
 
 .item-desc [type=text] {
-    background-color: #1d3349;
+    background-color: #22384F;
     height: 20px !important;
 }
 
@@ -470,6 +470,8 @@ footer #github img { width: 25px; }
 }
 
 .donut-chart {
+    position: absolute;
+    z-index: 20;
     display: block;
     width: 100% !important;
     height: 100% !important;
@@ -517,11 +519,8 @@ footer #github img { width: 25px; }
 .detailsDiv {
     padding: 10px;
     background-color: #182b3e;
-    border-left: 1px solid #24405c;
-    border-right: 1px solid #24405c;
-    border-bottom: 1px solid #24405c;
-    border-top: none;
-    border-radius: 8px;
+    border: 1px solid #24405c;
+    border-radius: 20px;
 }
 
 /* Gif de chargement caché par défaut */
@@ -546,17 +545,7 @@ footer #github img { width: 25px; }
     border-radius: 5px;
 }
 
-/* divs avec rubans de couleurs */
-/* Container */
-.header-container {
-    width: 100%;
-    margin-top: 6px;
-    margin-bottom: 6px;
-}
-
-.header-green, .header-green-min { background-color: #14be7e; }
-.header-red, .header-red-min { background-color: #F32F63; }
-.header-blue, .header-blue-min { background-color: #1d3349; }
+.header-blue, .header-blue-min { background-color: #22384F; }
 .header-light-red, .header-light-red-min { background-color: #ff3369 !important; }
 .header-light-blue, .header-light-blue-min { background-color: #2b4d6e !important; }
 
@@ -577,7 +566,7 @@ footer #github img { width: 25px; }
     left: 50%;
     transform: translateX(-50%) translateY(-50%);
     padding: 30px;
-    border-radius: 8px;
+    border-radius: 20px;
     background-color: #112334;
     -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
     box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);

@@ -1,14 +1,19 @@
-<?php
-if ($myrepo->getPackageType() == 'rpm') {
-    $mirror = $myrepo->getName();
-}
-if ($myrepo->getPackageType() == 'deb') {
-    $mirror = $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection();
-} ?>
-
 <h6>UPDATE</h6>
 <p class="note">Task will create a new snapshot of the repository.</p>
-<span class="label-white"><?= $mirror ?></span>⸺<span class="label-red"><?= DATE_DMY ?></span><span id="update-repo-show-target-env-<?= $myrepo->getSnapId() ?>"></span>
+
+<div class="flex align-item-center">
+    <p class="label-white">
+        <?php
+        if ($myrepo->getPackageType() == 'rpm') {
+            echo $myrepo->getName();
+        }
+        if ($myrepo->getPackageType() == 'deb') {
+            echo $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection();
+        } ?>
+    </p>
+
+    <p>⸺<span class="label-red"><?= DATE_DMY ?></span></p>
+</div>
 
 <h6 class="required">ARCHITECTURE</h6>
 <p class="note">Select the package architecture to sync.</p>
@@ -38,8 +43,8 @@ if ($myrepo->getPackageType() == 'deb') {
 </select>
 
 <h6>POINT AN ENVIRONMENT</h6>
-<p class="note">Point an environment to the new snapshot.</p>
-<select id="update-repo-target-env-select-<?= $myrepo->getSnapId() ?>" class="task-param" param-name="env">
+<p class="note">Select one or multiple environments to point to the new snapshot.</p>
+<select id="update-repo-target-env-select-<?= $myrepo->getSnapId() ?>" class="task-param" param-name="env" multiple>
     <option value=""></option>
     <?php
     foreach (ENVS as $env) {
@@ -121,34 +126,9 @@ $(document).ready(function(){
     /**
      *  Convert select to select2
      */
+    selectToSelect2('#update-repo-target-env-select-<?= $myrepo->getSnapId() ?>');
     selectToSelect2('select.task-param[param-name="arch"]');
     selectToSelect2('select.task-param[param-name="package-include"]', 'Specify package(s)', true);
     selectToSelect2('select.task-param[param-name="package-exclude"]', 'Specify package(s)', true);
-
-    /**
-     *  Update repo->date<-env schema if an env is selected
-     */
-    var selectId = '#update-repo-target-env-select-<?= $myrepo->getSnapId() ?>';
-    var envSelector = '#update-repo-show-target-env-<?= $myrepo->getSnapId() ?>';
-    var selectedEnv = $(selectId).val();
-
-    // If no environment is selected, don't display anything
-    if (selectedEnv == "") {
-        $(envSelector).html('');
-
-    // Else we display the environment that points to the new snapshot that will be created
-    } else {
-        printEnv(selectedEnv, envSelector);
-    }
-
-    // Update the environment when another environment is selected
-    $(document).on('change', selectId, function() {
-        var selectedEnv = $(this).val();
-        if (selectedEnv == "") {
-            $(envSelector).html('');
-        } else {
-            printEnv(selectedEnv, envSelector);
-        }
-    }).trigger('change');
 });
 </script>
