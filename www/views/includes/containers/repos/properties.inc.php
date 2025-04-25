@@ -25,7 +25,7 @@
             <div>
                 <div class="donut-chart-container">
                     <p class="donut-legend-title lowopacity-cst">Repo storage</p>
-                    <span class="donut-legend-content"><?= $diskUsedSpace . '%' ?></span>
+                    <span class="donut-legend-content"><?= $diskUsedSpacePercent . '%' ?></span>
                     <?php
                         $donutChartName = 'donut-chart';
                         include(ROOT . '/views/includes/charts/index-donut.inc.php');

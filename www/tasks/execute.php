@@ -129,7 +129,7 @@ try {
  *  Catch exceptions
  */
 } catch (Exception $e) {
-    $mylog->log('error', 'An exception error occured while running task #' . $taskId, $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
+    $mylog->log('error', 'An exception error occurred while running task #' . $taskId, $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
     echo 'Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine() . PHP_EOL;
     exit(1);
 
@@ -137,7 +137,7 @@ try {
  *  Catch fatal errors
  */
 } catch (Error $e) {
-    $mylog->log('error', 'A fatal error occured while running task #' . $taskId, $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
+    $mylog->log('error', 'A fatal error occurred while running task #' . $taskId, $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
     echo 'Fatal error: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine() . PHP_EOL;
     exit(1);
 }
