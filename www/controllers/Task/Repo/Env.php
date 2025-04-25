@@ -10,6 +10,7 @@ class Env
 
     private $repo;
     private $task;
+    private $repoSnapshotController;
     private $taskLogStepController;
     private $taskLogSubStepController;
 
@@ -17,6 +18,7 @@ class Env
     {
         $this->repo = new \Controllers\Repo\Repo();
         $this->task = new \Controllers\Task\Task();
+        $this->repoSnapshotController = new \Controllers\Repo\Snapshot();
         $this->taskLogStepController = new \Controllers\Task\Log\Step($taskId);
         $this->taskLogSubStepController = new \Controllers\Task\Log\SubStep($taskId);
 
@@ -304,20 +306,22 @@ class Env
              */
             $this->taskLogStepController->completed();
 
-            /**
-             *  Cleaning of unused snapshots
-             */
-            $snapshotsRemoved = $this->repo->cleanSnapshots();
-
-            if (!empty($snapshotsRemoved)) {
-                $this->taskLogStepController->new('clean', 'CLEANING');
-                $this->taskLogStepController->completed($snapshotsRemoved);
-            }
+            $this->taskLogStepController->new('clean', 'CLEANING');
 
             /**
-             *  Cleaning of unused repos in groups
+             *  Clean unused repos in groups
              */
             $this->repo->cleanGroups();
+
+            /**
+             *  Clean unused snapshots
+             */
+            try {
+                $snapshotsRemoved = $this->repoSnapshotController->clean();
+                $this->taskLogStepController->completed($snapshotsRemoved);
+            } catch (Exception $e) {
+                $this->taskLogStepController->error($e->getMessage());
+            }
 
             /**
              *  Set task status to done

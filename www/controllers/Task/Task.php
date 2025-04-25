@@ -353,7 +353,7 @@ class Task
     /**
      *  Execute one or more tasks
      */
-    public function execute(array $tasksParams)
+    public function execute(array $tasksParams) : void
     {
         /**
          *  $tasksParams can contain one or more tasks
@@ -441,7 +441,7 @@ class Task
     /**
      *  Execute a task in background from its task Id
      */
-    public function executeId(int $id)
+    public function executeId(int $id) : void
     {
         $myprocess = new \Controllers\Process('/usr/bin/php ' . ROOT . '/tasks/execute.php --id="' . $id . '" >/dev/null 2>/dev/null &');
         $myprocess->execute();
@@ -459,7 +459,7 @@ class Task
     /**
      *  Start task
      */
-    public function start()
+    public function start() : void
     {
         /**
          *  Generate time start
@@ -489,7 +489,7 @@ class Task
     /**
      *  End task
      */
-    public function end()
+    public function end() : void
     {
         /**
          *  Get task details
@@ -571,7 +571,7 @@ class Task
     /**
      *  Relaunch a task
      */
-    public function relaunch(int $id)
+    public function relaunch(int $id) : void
     {
         if (!IS_ADMIN) {
             throw new Exception('You are not allowed to relaunch a task');
@@ -610,7 +610,7 @@ class Task
     /**
      *  Stop a task based on the specified PID
      */
-    public function kill(string $taskId)
+    public function kill(string $taskId) : void
     {
         if (!IS_ADMIN) {
             throw new Exception('You are not allowed to stop a task');
@@ -699,7 +699,7 @@ class Task
     /**
      *  Add subpid to main PID file
      */
-    public function addsubpid(int $pid)
+    public function addsubpid(int $pid) : void
     {
         /**
          *  Add specified PID to the main PID file
@@ -748,7 +748,7 @@ class Task
     /**
      *  Return an array with all children PID of the specified PID or false if no children PID
      */
-    public function getChildrenPid(int $pid)
+    public function getChildrenPid(int $pid) : array|bool
     {
         /**
          *  Specified PID could have children PID, we need to get them all
@@ -780,7 +780,7 @@ class Task
     /**
      *  Enable a recurrent task
      */
-    public function enable(int $id)
+    public function enable(int $id) : void
     {
         $this->model->enable($id);
     }

@@ -26,13 +26,6 @@ class Host
     private $token;
     private $onlineStatus;
 
-    /**
-     *  Propriétés relatives aux paquets de l'hôte
-     */
-    private $packageId;
-    private $packageName;
-    private $packageVersion;
-
     public function __construct()
     {
         $this->model = new \Models\Host();
@@ -94,21 +87,6 @@ class Host
         $this->env = \Controllers\Common::validateData($env);
     }
 
-    public function setPackageId(string $packageId)
-    {
-        $this->packageId = \Controllers\Common::validateData($packageId);
-    }
-
-    public function setPackageName(string $packageName)
-    {
-        $this->packageName = \Controllers\Common::validateData($packageName);
-    }
-
-    public function setPackageVersion(string $packageVersion)
-    {
-        $this->packageVersion = \Controllers\Common::validateData($packageVersion);
-    }
-
     public function setAuthId(string $authId)
     {
         $this->authId = \Controllers\Common::validateData($authId);
@@ -135,17 +113,17 @@ class Host
     }
 
     /**
-     *  Récupération des paramètres généraux (table settings)
+     *  Return hosts settings
      */
-    public function getSettings()
+    public function getSettings() : array
     {
         return $this->model->getSettings();
     }
 
     /**
-     *  Récupère l'ID en BDD d'un hôte à partir de ses identifiants
+     *  Return the host Id from its authId
      */
-    public function getIdByAuth(string $authId)
+    public function getIdByAuth(string $authId) : int
     {
         $id = $this->model->getIdByAuth($authId);
 
@@ -157,17 +135,17 @@ class Host
     }
 
     /**
-     *  Récupère toutes les informations de l'hôte à partir de son ID
+     *  Return all host information from its Id
      */
-    public function getAll(string $id)
+    public function getAll(string $id) : array
     {
-        return $this->model->getAllById($id);
+        return $this->model->getAll($id);
     }
 
     /**
      *  Return the hostname of the host by its Id
      */
-    public function getHostnameById(int $id)
+    public function getHostnameById(int $id) : string
     {
         return $this->model->getHostnameById($id);
     }
@@ -175,7 +153,7 @@ class Host
     /**
      *  Return hosts that have the specified kernel
      */
-    public function getHostWithKernel(string $kernel)
+    public function getHostWithKernel(string $kernel) : array
     {
         return $this->model->getHostWithKernel($kernel);
     }
@@ -183,24 +161,15 @@ class Host
     /**
      *  Return hosts that have the specified profile
      */
-    public function getHostWithProfile(string $profile)
+    public function getHostWithProfile(string $profile) : array
     {
         return $this->model->getHostWithProfile($profile);
     }
 
     /**
-     *  Récupère la liste des paquets issus d'un évènemnt et dont l'état des paquets est défini par $packageState (installed, upgraded, removed)
-     *  Les informations sont récupérées à la fois dans la table packages et dans packages_history
-     */
-    public function getEventPackagesList(string $eventId, string $packageState)
-    {
-        return $this->model->getEventPackagesList($eventId, $packageState);
-    }
-
-    /**
      *  Edit the display settings on the hosts page
      */
-    public function setSettings(string $packagesConsideredOutdated, string $packagesConsideredCritical)
+    public function setSettings(string $packagesConsideredOutdated, string $packagesConsideredCritical) : void
     {
         if (!is_numeric($packagesConsideredOutdated) or !is_numeric($packagesConsideredCritical)) {
             throw new Exception('Parameters must be numeric');
@@ -217,426 +186,26 @@ class Host
     }
 
     /**
-     *  Ajout d'un état de paquet en BDD
-     */
-    public function setPackageState(string $name, string $version, string $state, string $date, string $time, string $id_event = null)
-    {
-        /**
-         *  Insertion en BDD
-         *  Si le paquet existe déjà en BDD, on le mets à jour
-         */
-        if ($this->model->packageExists($name) === true) {
-            /**
-             *  D'abord on fait une copie de l'état actuel du paquet dans packages_history afin de conserver un suivi.
-             *
-             *  Récupération de l'Id du paquet au préalable
-             */
-            $packageId = $this->model->getPackageId($name);
-
-            /**
-             *  Sauvegarde de l'état actuel
-             */
-            $this->setPackageHistory($packageId);
-
-            /**
-             *  Puis on met à jour l'état du paquet et sa version en base par les infos qui ont été transmises
-             */
-            $this->model->setPackageState($name, $version, $state, $date, $time, $id_event);
-        } else {
-            /**
-             *  Si le paquet n'existe pas on l'ajoute en BDD directement dans l'état spécifié (installed, upgraded, removed...)
-             */
-            $this->model->addPackage($name, $version, $state, 'package', $date, $time, $id_event);
-        }
-
-        /**
-         *  Enfin si le paquet et sa version était présent dans packages_available on le retire
-         */
-        $this->model->deletePackageAvailable($name, $version);
-    }
-
-    /**
-     *  Copie l'état actuel d'un paquet de la table packages vers la table packages_history afin de conserver une trace de cet état
-     */
-    private function setPackageHistory(string $packageId)
-    {
-        /**
-         *  Récupération de toutes les infos concernant le paquet dans son état actuel
-         */
-        $data = $this->model->getPackageInfo($packageId);
-
-        if (!empty($data['Name'])) {
-            $packageName = $data['Name'];
-        }
-        if (!empty($data['Version'])) {
-            $packageVersion = $data['Version'];
-        }
-        if (!empty($data['State'])) {
-            $packageState = $data['State'];
-        }
-        if (!empty($data['Type'])) {
-            $packageType = $data['Type'];
-        }
-        if (!empty($data['Date'])) {
-            $packageDate = $data['Date'];
-        }
-        if (!empty($data['Time'])) {
-            $packageTime = $data['Time'];
-        }
-        if (!empty($data['Id_event'])) {
-            $package_id_event = $data['Id_event'];
-        } else {
-            $package_id_event = '';
-        }
-
-        /**
-         *  Puis on copie cet état dans la table packages_history
-         */
-        $this->model->setPackageHistory($packageName, $packageVersion, $packageState, $packageType, $packageDate, $packageTime, $package_id_event);
-
-        return true;
-    }
-
-    /**
-     *  Mise à jour de l'inventaire des paquets installés sur l'hôte en BDD
-     */
-    public function setPackagesInventory(string $packagesInventory)
-    {
-        /**
-         *  Si la liste des paquets est vide, on ne peut pas continuer
-         */
-        if (empty($packagesInventory)) {
-            throw new Exception('Packages list is empty');
-        }
-
-        /**
-         *  Si l'Id de l'hôte en BDD est vide, on ne peut pas continuer (utile pour ouvrir sa BDD)
-         */
-        if (empty($this->id)) {
-            throw new Exception('Host Id is empty');
-        }
-
-        /**
-         *  Les paquets sont transmis sous forme de chaine, séparés par une virgule. On explode cette chaine en array et on retire les entrées vides.
-         */
-        $packagesList = array_filter(explode(",", \Controllers\Common::validateData($packagesInventory)));
-
-        /**
-         *  On traite si l'array n'est pas vide
-         */
-        if (!empty($packagesList)) {
-            /**
-             *  Ouverture de la BDD dédiée de l'hôte
-             */
-            $this->openHostDb($this->id);
-
-            foreach ($packagesList as $packageDetails) {
-                /**
-                 *  Chaque ligne contient le nom du paquet, sa version et sa description séparés par un | (ex : nginx|xxx-xxxx|nginx description)
-                 */
-                $packageDetails = explode('|', $packageDetails);
-
-                /**
-                 *  Récupération du nom du paquet, si celui-ci est vide alors on passe au suivant
-                 */
-                if (empty($packageDetails[0])) {
-                    continue;
-                }
-                $this->setPackageName($packageDetails[0]);
-
-                /**
-                 *  Version du paquet
-                 */
-                if (!empty($packageDetails[1])) {
-                    $this->setPackageVersion($packageDetails[1]);
-                } else {
-                    $this->setPackageVersion('unknown');
-                }
-
-                /**
-                 *  Insertion en BDD
-                 *  On vérifie d'abord si le paquet (son nom) existe en BDD
-                 */
-                if ($this->model->packageExists($this->packageName) === false) {
-                    /**
-                     *  Si il n'existe pas on l'ajoute en BDD (sinon on ne fait rien)
-                     */
-                    $this->model->addPackage($this->packageName, $this->packageVersion, 'inventored', 'package', date('Y-m-d'), date('H:i:s'));
-                } else {
-                    /**
-                     *  Si le paquet existe, on va effectuer des actions différentes selon son état en BDD
-                     */
-
-                    /**
-                     *  D'abord on récupère l'état actuel du paquet en base de données
-                     */
-                    $packageState = $this->model->getPackageState($this->packageName);
-
-                    /**
-                     *  Si le paquet est en état 'installed' ou 'inventored', on ne fait rien
-                     *
-                     *  En revanche, si le paquet est en état 'removed' ou 'upgraded', on met à jour les informations en base de données
-                     */
-                    if ($packageState == 'removed') {
-                        /**
-                         *  Ajout du paquet en base de données en état 'inventored'
-                         */
-                        $this->setPackageState($this->packageName, $this->packageVersion, 'inventored', date('Y-m-d'), date('H:i:s'));
-                    }
-                }
-            }
-
-            /**
-             *  Fermeture de la BDD
-             */
-            $this->closeHostDb();
-        }
-
-        return true;
-    }
-
-    /**
-     *  Mise à jour de l'état des paquets disponibles (à mettre à jour) sur l'hôte en BDD
-     */
-    public function setPackagesAvailable(string $packagesAvailable)
-    {
-        /**
-         *  Si la liste des paquets est vide, on ne peut pas continuer
-         */
-        if (empty($packagesAvailable)) {
-            throw new Exception('Packages list is empty');
-        }
-
-        /**
-         *  Si l'Id de l'hôte en BDD est vide, on ne peut pas continuer (utile pour ouvrir sa BDD)
-         */
-        if (empty($this->id)) {
-            throw new Exception('Host Id is empty');
-        }
-
-        /**
-         *  2 possibilités :
-         *  - soit on a transmis "none", ce qui signifie qu'il n'y a aucun paquet disponible sur l'hôte
-         *  - soit on a transmis une liste de paquets séparés par une virgule
-         */
-        if ($packagesAvailable == "none") {
-            $packagesList = "none";
-        } else {
-            /**
-             *  Les paquets sont transmis sous forme de chaine, séparés par une virgule. On explode cette chaine en array et on retire les entrées vides.
-             */
-            $packagesList = array_filter(explode(",", \Controllers\Common::validateData($packagesAvailable)));
-        }
-
-        /**
-         *  On traite si l'array n'est pas vide
-         */
-        if (!empty($packagesList)) {
-
-            /**
-             *  Ouverture de la BDD dédiée de l'hôte
-             */
-            $this->openHostDb($this->id);
-
-            /**
-             *  On efface la liste des paquets actuellement dans packages_available
-             */
-            $this->model->cleanPackageAvailableTable();
-
-            /**
-             *  Si l'hôte a transmis "none" (aucun paquet disponible pour mise à jour) alors on s'arrête là
-             */
-            if ($packagesList == "none") {
-                return;
-            }
-
-            foreach ($packagesList as $packageDetails) {
-                /**
-                 *  Chaque ligne contient le nom du paquet, sa version et sa description séparés par un | (ex : nginx|xxx-xxxx|nginx description)
-                 */
-                $packageDetails = explode('|', $packageDetails);
-
-                /**
-                 *  Récupération du nom du paquet, si celui-ci est vide alors on passe au suivant
-                 */
-                if (empty($packageDetails[0])) {
-                    continue;
-                }
-                $this->setPackageName($packageDetails[0]);
-
-                /**
-                 *  Version du paquet
-                 */
-                if (!empty($packageDetails[1])) {
-                    $this->setPackageVersion($packageDetails[1]);
-                } else {
-                    $this->setPackageVersion('unknown');
-                }
-
-                /**
-                 *  Si le paquet existe déjà dans packages_available alors on le met à jour (la version a peut être changée)
-                 */
-                if ($this->model->packageAvailableExists($this->packageName) === true) {
-                    /**
-                     *  Si il existe en BDD, on vérifie aussi la version présente en BDD.
-                     *  Si la version en BDD est différente alors on met à jour le paquet en BDD, sinon on ne fait rien.
-                     */
-                    if ($this->model->packageVersionAvailableExists($this->packageName, $this->packageVersion) === true) {
-                        $this->model->updatePackageAvailable($this->packageName, $this->packageVersion);
-                    }
-                } else {
-                    /**
-                     *  Si le paquet n'existe pas on l'ajoute en BDD
-                     */
-                    $this->model->addPackageAvailable($this->packageName, $this->packageVersion);
-                }
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     *  Ajout de l'historique des évènements relatifs aux paquets (installation, mise à jour, etc...) d'un hôte en base de données
-     */
-    public function setEventsFullHistory(array $history)
-    {
-        /**
-         *  Si il manque l'id de l'hôte, on quitte car on en a besoin pour ouvrir sa BDD dédiée
-         */
-        if (empty($this->id)) {
-            throw new Exception('Host Id is empty');
-        }
-
-        /**
-         *  Ouverture de la BDD dédiée de l'hôte
-         */
-        $this->openHostDb($this->id);
-
-        /**
-         *  Chaque évènement est constitué d'une date et heure de début et de fin
-         *  Puis d'une liste de paquets installés, mis à jour ou désinstallé..
-         *  Exemple :
-         *  "date_start":"2021-12-07",
-         *  "date_end":"2021-12-07",
-         *  "time_start":"17:32:45",
-         *  "time_end":"17:34:49",
-         *  "upgraded":[
-         *    {
-         *      "name":"bluez",
-         *      "version":"5.48-0ubuntu3.5"
-         *    }
-         *  ]
-         */
-
-        foreach ($history as $event) {
-            $event->date_start;
-            $event->date_end;
-            $event->time_start;
-            $event->time_end;
-
-            /**
-             *  On vérifie qu'un évènement de la même date et de la même heure n'existe pas déjà, sinon on l'ignore et on passe au suivant
-             */
-            if ($this->model->eventExists($event->date_start, $event->time_start) === true) {
-                continue;
-            }
-
-            /**
-             *  Insertion de l'évènement en base de données
-             */
-            $this->model->addEvent($event->date_start, $event->date_end, $event->time_start, $event->time_end);
-
-            /**
-             *  Récupération de l'Id inséré en BDD
-             */
-            $id_event = $this->model->getHostLastInsertRowID();
-
-            /**
-             *  Si l'évènement comporte des paquets installés
-             */
-            if (!empty($event->installed)) {
-                foreach ($event->installed as $package_installed) {
-                    $this->setPackageState($package_installed->name, $package_installed->version, 'installed', $event->date_start, $event->time_start, $id_event);
-                }
-            }
-            /**
-             *  Si l'évènement comporte des dépendances installées
-             */
-            if (!empty($event->dep_installed)) {
-                foreach ($event->dep_installed as $dep_installed) {
-                    $this->setPackageState($dep_installed->name, $dep_installed->version, 'dep-installed', $event->date_start, $event->time_start, $id_event);
-                }
-            }
-            /**
-             *  Si l'évènement comporte des paquets mis à jour
-             */
-            if (!empty($event->upgraded)) {
-                foreach ($event->upgraded as $package_upgraded) {
-                    $this->setPackageState($package_upgraded->name, $package_upgraded->version, 'upgraded', $event->date_start, $event->time_start, $id_event);
-                }
-            }
-            /**
-             *  Si l'évènement comporte des paquets désinstallés
-             */
-            if (!empty($event->removed)) {
-                foreach ($event->removed as $package_removed) {
-                    $this->setPackageState($package_removed->name, $package_removed->version, 'removed', $event->date_start, $event->time_start, $id_event);
-                }
-            }
-            /**
-             *  Si l'évènement comporte des paquets rétrogradés
-             */
-            if (!empty($event->downgraded)) {
-                foreach ($event->downgraded as $package_downgraded) {
-                    $this->setPackageState($package_downgraded->name, $package_downgraded->version, 'downgraded', $event->date_start, $event->time_start, $id_event);
-                }
-            }
-            /**
-             *  Si l'évènement comporte des paquets réinstallés
-             */
-            if (!empty($event->reinstalled)) {
-                foreach ($event->reinstalled as $package_reinstalled) {
-                    $this->setPackageState($package_reinstalled->name, $package_reinstalled->version, 'reinstalled', $event->date_start, $event->time_start, $id_event);
-                }
-            }
-            /**
-             *  Si l'évènement comporte des paquets purgés
-             */
-            if (!empty($event->purged)) {
-                foreach ($event->purged as $package_purged) {
-                    $this->setPackageState($package_purged->name, $package_purged->version, 'purged', $event->date_start, $event->time_start, $id_event);
-                }
-            }
-        }
-
-        return true;
-    }
-
-    /**
      *  Return true if the host Id exists in the database
      */
-    public function existsId(int $id)
+    public function existsId(int $id) : bool
     {
         return $this->model->existsId($id);
     }
 
     /**
-     *  Vérifie si l'Ip existe en BDD parmis les hôtes actifs
+     *  Return true if the IP exists in the database
      */
-    private function ipExists(string $ip)
+    private function ipExists(string $ip) : bool
     {
         return $this->model->ipExists($ip);
     }
 
     /**
-     *  Vérifie que le couple ID/token est valide
+     *  Return true if the Id/token pair is valid
      */
-    public function checkIdToken(string $authId, string $token)
+    public function checkIdToken(string $authId, string $token) : bool
     {
-        /**
-         *  Si l'ID ou le token est manquant alors on quittes
-         */
         if (empty($authId) or empty($token)) {
             return false;
         }
@@ -645,156 +214,110 @@ class Host
     }
 
     /**
-     *  Retourne la liste de tous les hôtes d'un groupe
+     *  Return all hosts from a group
      */
-    public function listByGroup(string $groupName)
+    public function listByGroup(string $groupName) : array
     {
         return $this->model->listByGroup($groupName);
     }
 
     /**
-     *  Liste tous les hôtes
+     *  Return all hosts
      */
-    public function listAll(string $status = 'active')
+    public function listAll() : array
     {
-        return $this->model->listAll($status);
+        return $this->model->listAll();
     }
 
     /**
-     *  Fonction qui liste tous les noms d'OS référencés en les comptant
-     *  Retourne le nom des Os et leur nombre
+     *  Return all OS names and their count
      */
-    public function listCountOS()
+    public function listCountOS() : array
     {
         return $this->model->listCountOS();
     }
 
     /**
-     *  Fonction qui liste tous les kernel d'hôtes référencés en les comptant
-     *  Retourne la version des kernels et leur nombre
+     *  Return all kernel names and their count
      */
-    public function listCountKernel()
+    public function listCountKernel() : array
     {
         return $this->model->listCountKernel();
     }
 
     /**
-     *  Fonction qui liste tous les arch d'hôtes référencés en les comptant
-     *  Retourne la version des arch et leur nombre
+     *  Return all arch names and their count
      */
-    public function listCountArch()
+    public function listCountArch() : array
     {
         return $this->model->listCountArch();
     }
 
     /**
-     *  Fonction qui liste tous les env d'hôtes référencés en les comptant
-     *  Retourne le nom des env et leur nombre
+     *  Return all env names and their count
      */
-    public function listCountEnv()
+    public function listCountEnv() : array
     {
         return $this->model->listCountEnv();
     }
 
     /**
-     *  Fonction qui liste tous les profils d'hôtes référencés en les comptant
-     *  Retourne le nom des profils et leur nombre
+     *  Return all profile names and their count
      */
-    public function listCountProfile()
+    public function listCountProfile() : array
     {
         return $this->model->listCountProfile();
     }
 
     /**
-     *  List all hosts agent status and count them
+     *  Return all agent status and their count
      */
-    public function listCountAgentStatus()
+    public function listCountAgentStatus() : array
     {
         return $this->model->listCountAgentStatus();
     }
 
     /**
-     *  List all hosts agent release version and count them
-     *  Returns agent version and total
+     *  Return all agent version and their count
      */
-    public function listCountAgentVersion()
+    public function listCountAgentVersion() : array
     {
         return $this->model->listCountAgentVersion();
     }
 
     /**
-     *  List all hosts that require a reboot
+     *  Return all hosts that require a reboot
      */
-    public function listRebootRequired()
+    public function listRebootRequired() : array
     {
         return $this->model->listRebootRequired();
     }
 
     /**
-     *  Retourne le nombre d'hôtes utilisant le profil spécifié
+     *  Return the number of hosts using the specified profile
      */
-    public function countByProfile(string $profile)
+    public function countByProfile(string $profile) : int
     {
         return $this->model->countByProfile($profile);
     }
 
     /**
-     *  Ouverture de la BDD dédiée de l'hôte si ce n'est pas déjà fait
-     *  Fournir l'id de l'hôte et le mode d'ouverture de la base (ro = lecture seule / rw = lecture-écriture)
+     *  Register a new host in the database
      */
-    public function openHostDb(string $hostId)
-    {
-        $this->model->getConnection('host', $hostId);
-    }
-
-    /**
-     *  Fermeture de la BDD dédiée de l'hôte
-     */
-    public function closeHostDb()
-    {
-        $this->model->closeHostDb();
-    }
-
-    /**
-     *  Ajoute un nouvel hôte en BDD
-     *  Depuis l'interface web ou depuis l'API
-     */
-    public function register()
+    public function register() : void
     {
         /**
-         *  Si on n'a pas renseigné l'IP ou le hostname alors on quitte
+         *  Quit if no IP or hostname is provided
          */
         if (empty($this->ip) or empty($this->hostname)) {
             throw new Exception('You must provide IP address and hostname.');
         }
 
         /**
-         *  On vérifie que le hostname n'existe pas déjà en base de données
-         *  Si le hostname existe, on vérifie l'état de l'hôte :
-         *   - si celui-ci est 'deleted' alors on peut le réactiver
-         *   - si celui-ci est 'active' alors on ne peut pas enregistrer de nouveau cet hôte
+         *  Check if the hostname already exists in the database
          */
         if ($this->model->hostnameExists($this->hostname) === true) {
-            /**
-             *  On récupère l'état de l'hôte en base de données
-             */
-            $status = $this->model->getHostStatus($this->hostname);
-
-            if (empty($status)) {
-                throw new Exception('Server has encountered error while retrieving host status in database');
-            }
-
-            /**
-             *  Si l'hôte en base de données est 'active' alors on ne peut pas l'enregistrer de nouveau
-             */
-            if ($status == 'active') {
-                throw new Exception('Host is already registered.');
-            }
-
-            /**
-             *  Sinon si l'hôte n'est pas 'actif', on set cette variable à 'yes' afin qu'il soit réactivé
-             */
-            $host_exists_and_is_unactive = 'yes';
+            throw new Exception('Host ' . $this->hostname . ' is already registered.');
         }
 
         /**
@@ -823,56 +346,27 @@ class Host
         $this->onlineStatus = 'unknown';
 
         /**
-         *  Ajout en BDD
-         *  Si il s'agit d'un nouvel enregistrement, on ajoute l'hôte en base de données
-         *  Si l'hôte existe déjà en base de données mais est inactif alors on le réactive et on met à jour ses données
+         *  Add the host in database
          */
-        /**
-         *  Cas où l'hôte existe déjà et qu'il faut le réactiver
-         *  On met à jour ses données (réactivation et nouvel id et token)
-         */
-        if (!empty($host_exists_and_is_unactive) and $host_exists_and_is_unactive == 'yes') {
-            /**
-             *  Mise à jour de l'hôte en base de données
-             */
-            $this->model->updateHost($this->ip, $this->hostname, $this->authId, $this->token, $this->onlineStatus, date('Y-m-d'), date('H:i:s'));
+        $this->model->add($this->ip, $this->hostname, $this->authId, $this->token, $this->onlineStatus, date('Y-m-d'), date('H:i:s'));
 
         /**
-         *  Cas où on ajoute l'hôte en base de données
+         *  Retrieve the Id of the host added in the database
          */
-        } else {
-            /**
-             *  Add the host in database
-             */
-            $this->model->add($this->ip, $this->hostname, $this->authId, $this->token, $this->onlineStatus, date('Y-m-d'), date('H:i:s'));
+        $this->id = $this->model->getLastInsertRowID();
 
-            /**
-             *  Récupération de l'Id de l'hôte ajouté en BDD
-             */
-            $this->id = $this->model->getLastInsertRowID();
-
-            /**
-             *  Création d'un répertoire dédié pour cet hôte, à partir de son ID
-             *  Sert à stocker des rapport de mise à jour et une BDD pour l'hôte
-             */
-            if (!mkdir(HOSTS_DIR . '/' . $this->id, 0770, true)) {
-                throw new Exception('The server could not finalize registering.');
-            }
-
-            /**
-             *  On effectue une première ouverture de la BDD dédiée à cet hôte afin de générer les tables
-             */
-            $this->openHostDb($this->id);
-            $this->closeHostDb();
+        /**
+         *  Create a dedicated directory for this host, based on its ID
+         */
+        if (!mkdir(HOSTS_DIR . '/' . $this->id, 0770, true)) {
+            throw new Exception('The server could not finalize registering.');
         }
-
-        return true;
     }
 
     /**
      *  Delete a host from the database
      */
-    public function delete(int $id)
+    public function delete(int $id) : void
     {
         $hostRequestController = new \Controllers\Host\Request();
 
@@ -899,10 +393,8 @@ class Host
     /**
      *  Ask one or more host(s) to execute an action
      */
-    public function hostExec(array $hostsId, string $action)
+    public function hostExec(array $hostsId, string $action) : string
     {
-        $hostRequestController = new \Controllers\Host\Request();
-
         /**
          *  Only admins should be able to perform actions
          */
@@ -910,6 +402,7 @@ class Host
             throw new Exception('You are not allowed to perform this action');
         }
 
+        $hostRequestController = new \Controllers\Host\Request();
         $validActions = ['reset', 'delete', 'request-general-infos', 'request-packages-infos'];
 
         /**
@@ -918,17 +411,6 @@ class Host
         if (!in_array($action, $validActions)) {
             throw new Exception('Action to execute is invalid');
         }
-
-        $hostUpdateError               = array();
-        $hostUpdateOK                  = array();
-        $hostResetError                = array();
-        $hostResetOK                   = array();
-        $hostDeleteError               = array();
-        $hostDeleteOK                  = array();
-        $hostGeneralUpdateError        = array();
-        $hostGeneralUpdateOK           = array();
-        $hostPackagesStatusUpdateError = array();
-        $hostPackagesStatusUpdateOK    = array();
 
         /**
          *  First check that hosts Id are valid
@@ -955,16 +437,6 @@ class Host
                 continue;
             }
 
-            $this->setIp($ip);
-            if (!empty($hostname)) {
-                $this->setHostname($hostname);
-            }
-
-            /**
-             *  Open host database
-             */
-            $this->openHostDb($hostId);
-
             /**
              *  Case where the requested action is a reset
              */
@@ -973,15 +445,21 @@ class Host
                  *  Reset host data in database
                  */
                 $this->model->resetHost($hostId);
+
+                /**
+                 *  Delete host's dedicated database
+                 */
+                if (file_exists(HOSTS_DIR . '/' . $hostId . '/properties.db')) {
+                    if (!unlink(HOSTS_DIR . '/' . $hostId . '/properties.db')) {
+                        throw new Exception('Could not reset ' . $hostname . ' database');
+                    }
+                }
             }
 
             /**
              *  Case where the requested action is a delete
              */
             if ($action == 'delete') {
-                /**
-                 *  Set host status to 'deleted' in database
-                 */
                 $this->delete($hostId);
             }
 
@@ -1008,16 +486,11 @@ class Host
             /**
              *  If the host has a hostname, we push it in the array, otherwise we push only its ip
              */
-            if (!empty($this->hostname)) {
-                $hosts[] = array('ip' => $this->ip, 'hostname' => $this->hostname);
+            if (!empty($hostname)) {
+                $hosts[] = array('ip' => $ip, 'hostname' => $hostname);
             } else {
-                $hosts[] = array('ip' => $this->ip);
+                $hosts[] = array('ip' => $ip);
             }
-
-            /**
-             *  Close host database
-             */
-            $this->closeHostDb();
         }
 
         /**
@@ -1076,37 +549,36 @@ class Host
     }
 
     /**
-     *  Search hosts with specified package
+     *  Return hosts that have the specified package
      */
-    public function getHostsWithPackage(array $hostsId, string $packageName)
+    public function getHostsWithPackage(array $hostsId, string $packageName) : array
     {
         $hosts = array();
 
-        /**
-         *  Si il manque l'id de l'hôte, on quitte car on en a besoin pour ouvrir sa BDD dédiée
-         */
         if (empty($hostsId)) {
-            throw new Exception("Host(s) Id must be specified");
+            throw new Exception('No host specified');
         }
+
         if (!is_array($hostsId)) {
-            throw new Exception("Host(s) Id must be an array");
+            throw new Exception('Invalid host Ids format');
         }
 
         /**
-         *  On vérifie que le nom du paquet ne contient pas de caractères invalides
+         *  Check if the package name is valid
          */
-        if (!Common::isAlphanumDash($packageName, array('*'))) {
+        if (!\Controllers\Common::isAlphanumDash($packageName, array('*'))) {
             throw new Exception('Package name contains invalid characters');
         }
 
+        /**
+         *  For each host, search for the package in the host's database and return the result
+         */
         foreach ($hostsId as $id) {
-            /**
-             *  Ouverture de la BDD dédiée de l'hôte
-             */
-            $this->model->openHostDb($id);
-            $hosts[$id] = $this->model->getHostsWithPackage($packageName);
-            $this->model->closeHostDb();
+            $hostPackageController = new \Controllers\Host\Package\Package($id);
+            $hosts[$id] = $hostPackageController->searchPackage($packageName);
         }
+
+        unset($hostPackageController);
 
         return $hosts;
     }
@@ -1114,7 +586,7 @@ class Host
     /**
      *  Update hostname in database
      */
-    public function updateHostname(string $hostname)
+    public function updateHostname(string $hostname) : void
     {
         $this->model->updateHostname($this->id, \Controllers\Common::validateData($hostname));
     }
@@ -1122,7 +594,7 @@ class Host
     /**
      *  Update OS in database
      */
-    public function updateOS(string $os)
+    public function updateOS(string $os) : void
     {
         $this->model->updateOS($this->id, \Controllers\Common::validateData($os));
     }
@@ -1130,7 +602,7 @@ class Host
     /**
      *  Update OS version in database
      */
-    public function updateOsVersion(string $osVersion)
+    public function updateOsVersion(string $osVersion) : void
     {
         $this->model->updateOsVersion($this->id, \Controllers\Common::validateData($osVersion));
     }
@@ -1138,7 +610,7 @@ class Host
     /**
      *  Update OS family in database
      */
-    public function updateOsFamily(string $osFamily)
+    public function updateOsFamily(string $osFamily) : void
     {
         $this->model->updateOsFamily($this->id, \Controllers\Common::validateData($osFamily));
     }
@@ -1146,7 +618,7 @@ class Host
     /**
      *  Update virtualization type in database
      */
-    public function updateType(string $virtType)
+    public function updateType(string $virtType) : void
     {
         $this->model->updateType($this->id, \Controllers\Common::validateData($virtType));
     }
@@ -1154,7 +626,7 @@ class Host
     /**
      *  Update kernel version in database
      */
-    public function updateKernel(string $kernel)
+    public function updateKernel(string $kernel) : void
     {
         $this->model->updateKernel($this->id, \Controllers\Common::validateData($kernel));
     }
@@ -1162,7 +634,7 @@ class Host
     /**
      *  Update arch in database
      */
-    public function updateArch(string $arch)
+    public function updateArch(string $arch) : void
     {
         $this->model->updateArch($this->id, \Controllers\Common::validateData($arch));
     }
@@ -1170,7 +642,7 @@ class Host
     /**
      *  Update profile in database
      */
-    public function updateProfile(string $profile)
+    public function updateProfile(string $profile) : void
     {
         $this->model->updateProfile($this->id, \Controllers\Common::validateData($profile));
     }
@@ -1178,7 +650,7 @@ class Host
     /**
      *  Update environment in database
      */
-    public function updateEnv(string $env)
+    public function updateEnv(string $env) : void
     {
         $this->model->updateEnv($this->id, \Controllers\Common::validateData($env));
     }
@@ -1186,7 +658,7 @@ class Host
     /**
      *  Update agent status in database
      */
-    public function updateAgentStatus(string $status)
+    public function updateAgentStatus(string $status) : void
     {
         if ($status != 'running' and $status != 'stopped' and $status != 'disabled') {
             throw new Exception('Agent status is invalid');
@@ -1198,7 +670,7 @@ class Host
     /**
      *  Update host's linupdate version in database
      */
-    public function updateLinupdateVersion(string $version)
+    public function updateLinupdateVersion(string $version) : void
     {
         $this->model->updateLinupdateVersion($this->id, \Controllers\Common::validateData($version));
     }
@@ -1206,7 +678,7 @@ class Host
     /**
      *  Update host's reboot required status in database
      */
-    public function updateRebootRequired(string $status)
+    public function updateRebootRequired(string $status) : void
     {
         if ($status != 'true' and $status != 'false') {
             throw new Exception('Reboot status is invalid');
@@ -1216,35 +688,30 @@ class Host
     }
 
     /**
-     *  Ajouter / supprimer des hôtes dans un groupe
+     *  Add/delete hosts to/from a group
      */
-    public function addHostsIdToGroup(array $hostsId = null, int $groupId)
+    public function addHostsIdToGroup(array $hostsId = null, int $groupId) : void
     {
         $mygroup = new \Controllers\Group('host');
 
         if (!empty($hostsId)) {
             foreach ($hostsId as $hostId) {
-                /**
-                 *  On vérifie que l'Id de l'hôte spécifié existe en base de données
-                 */
                 if ($this->existsId($hostId) === false) {
-                    throw new Exception("Specified host <b>$hostId</b> Id does not exist");
+                    throw new Exception('Specified host Id #' . $hostId . ' does not exist');
                 }
 
-                /**
-                 *  Ajout de l'hôte au groupe
-                 */
+                // Add to group
                 $this->model->addToGroup($hostId, $groupId);
             }
         }
 
         /**
-         *  3. On récupère la liste des hôtes actuellement dans le groupe afin de supprimer ceux qui n'ont pas été sélectionnés
+         *  Retrieve the list of hosts currently in the group to remove those that have not been selected
          */
         $actualHostsMembers = $mygroup->getHostsMembers($groupId);
 
         /**
-         *  4. Parmis cette liste on ne récupère que les Id des repos actuellement membres
+         *  From this list we only get the Id of the currently member hosts
          */
         $actualHostsId = array();
 
@@ -1253,7 +720,7 @@ class Host
         }
 
         /**
-         *  5. Enfin, on supprime tous les Id de repos actuellement membres qui n'ont pas été spécifiés par l'utilisateur
+         *  Finally, we remove all the currently member hosts Id that have not been specified by the user
          */
         foreach ($actualHostsId as $actualHostId) {
             if (!in_array($actualHostId, $hostsId)) {

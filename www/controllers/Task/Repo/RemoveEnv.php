@@ -10,6 +10,7 @@ class RemoveEnv
 
     private $repo;
     private $task;
+    private $repoSnapshotController;
     private $taskLogStepController;
     private $taskLogSubStepController;
 
@@ -17,6 +18,7 @@ class RemoveEnv
     {
         $this->repo = new \Controllers\Repo\Repo();
         $this->task = new \Controllers\Task\Task();
+        $this->repoSnapshotController = new \Controllers\Repo\Snapshot();
         $this->taskLogStepController = new \Controllers\Task\Log\Step($taskId);
         $this->taskLogSubStepController = new \Controllers\Task\Log\SubStep($taskId);
 
@@ -89,19 +91,18 @@ class RemoveEnv
             $this->taskLogStepController->new('cleaning', 'CLEANING');
 
             /**
-             *  Automatic cleaning of unused snapshots
-             */
-            $snapshotsRemoved = $this->repo->cleanSnapshots();
-
-            /**
              *  Clean unused repos in groups
              */
             $this->repo->cleanGroups();
 
-            if (!empty($snapshotsRemoved)) {
+            /**
+             *  Clean unused snapshots
+             */
+            try {
+                $snapshotsRemoved = $this->repoSnapshotController->clean();
                 $this->taskLogStepController->completed($snapshotsRemoved);
-            } else {
-                $this->taskLogStepController->completed();
+            } catch (Exception $e) {
+                $this->taskLogStepController->error($e->getMessage());
             }
 
             /**

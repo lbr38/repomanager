@@ -46,7 +46,7 @@
 
         <input type="text" id="installed-packages-search" class="margin-bottom-5" onkeyup="filterPackage()" autocomplete="off" placeholder="Search package">
 
-        <div id="installed-packages-container">
+        <div id="installed-packages-container" class="margin-top-15">
             <?php
             if (!empty($packagesInventored)) :
                 foreach ($packagesInventored as $item) : ?>
