@@ -688,7 +688,6 @@ class Host
     }
 
     /**
-     *  Ajouter / supprimer des hôtes dans un groupe
      *  Add/delete hosts to/from a group
      */
     public function addHostsIdToGroup(array $hostsId = null, int $groupId) : void
