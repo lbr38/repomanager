@@ -53,12 +53,6 @@ if ($action == "getHostsWithPackage" and !empty($_POST['hostsIdArray']) and !emp
 
     try {
         $result = $myhost->getHostsWithPackage($_POST['hostsIdArray'], $_POST['package']);
-        /**
-         *  If no hosts have been found
-         */
-        if ($result === false) {
-            response(HTTP_BAD_REQUEST, 'Package has not been found on any hosts');
-        }
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
