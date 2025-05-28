@@ -12,6 +12,7 @@ class Controller
     protected $apiKeyAuthentication = false;
     protected $hostAuthentication = false;
     protected $hostId;
+    protected $hostAuthId;
     protected $hostToken;
 
     public function __construct(string $method, array $uri)
@@ -39,9 +40,9 @@ class Controller
     /**
      *  Set host authId
      */
-    public function setHostId(string $hostId)
+    public function setHostAuthId(string $hostAuthId)
     {
-        $this->hostId = $hostId;
+        $this->hostAuthId = $hostAuthId;
     }
 
     /**

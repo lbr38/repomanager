@@ -1,14 +1,10 @@
 <?php
-$myhost = new \Controllers\Host();
 $reloadableTableOffset = 0;
 
 $id = __ACTUAL_URI__[2];
-$hostPackageEventController = new \Controllers\Host\Package\Event($id);
 
-/**
- *  Open host database
- */
-$myhost->openHostDb($id);
+$hostPackageController = new \Controllers\Host\Package\Package($id);
+$hostPackageEventController = new \Controllers\Host\Package\Event($id);
 
 /**
  *  Retrieve offset from cookie if exists
@@ -31,37 +27,37 @@ foreach ($events as $event) {
     /**
      *  Getting installed packages from this event
      */
-    $event['PackagesInstalled'] = $myhost->getEventPackagesList($event['Id'], 'installed');
+    $event['PackagesInstalled'] = $hostPackageController->getEventPackagesList($event['Id'], 'installed');
 
     /**
      *  Getting reinstalled packages from this event
      */
-    $event['PackagesReinstalled'] = $myhost->getEventPackagesList($event['Id'], 'reinstalled');
+    $event['PackagesReinstalled'] = $hostPackageController->getEventPackagesList($event['Id'], 'reinstalled');
 
     /**
      *  Getting isntalled dependencies packages from this event
      */
-    $event['DependenciesInstalled'] = $myhost->getEventPackagesList($event['Id'], 'dep-installed');
+    $event['DependenciesInstalled'] = $hostPackageController->getEventPackagesList($event['Id'], 'dep-installed');
 
     /**
      *  Getting updated packages from this event
      */
-    $event['PackagesUpdated'] = $myhost->getEventPackagesList($event['Id'], 'upgraded');
+    $event['PackagesUpdated'] = $hostPackageController->getEventPackagesList($event['Id'], 'upgraded');
 
     /**
      *  Getting downgraded packages from this event
      */
-    $event['PackagesDowngraded'] = $myhost->getEventPackagesList($event['Id'], 'downgraded');
+    $event['PackagesDowngraded'] = $hostPackageController->getEventPackagesList($event['Id'], 'downgraded');
 
     /**
      *  Getting removed packages from this event
      */
-    $event['PackagesRemoved'] = $myhost->getEventPackagesList($event['Id'], 'removed');
+    $event['PackagesRemoved'] = $hostPackageController->getEventPackagesList($event['Id'], 'removed');
 
     /**
      *  Getting purged packages from this event
      */
-    $event['PackagesPurged'] = $myhost->getEventPackagesList($event['Id'], 'purged');
+    $event['PackagesPurged'] = $hostPackageController->getEventPackagesList($event['Id'], 'purged');
 
     /**
      *  Add this event to the list of events with packages
@@ -86,9 +82,4 @@ $reloadableTableTotalPages = ceil($reloadableTableTotalItems / 10);
  */
 $reloadableTableCurrentPage = ceil($reloadableTableOffset / 10) + 1;
 
-/**
- *  Close host database
- */
-$myhost->closeHostDb();
-
-unset($myhost, $events, $eventsWithPackages);
+unset($hostPackageController, $hostPackageEventController, $events, $eventsWithPackages);

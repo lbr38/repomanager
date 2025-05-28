@@ -222,19 +222,21 @@ trait Finalize
             $this->taskLogStepController->completed();
         }
 
-        /**
-         *  Clean snapshots older than 30 days
-         */
-        $snapshotsRemoved = $this->repo->cleanSnapshots();
-
-        if (!empty($snapshotsRemoved)) {
-            $this->taskLogStepController->new('cleaning', 'CLEANING');
-            $this->taskLogStepController->completed($snapshotsRemoved);
-        }
+        $this->taskLogStepController->new('cleaning', 'CLEANING');
 
         /**
          *  Clean unused repos in groups
          */
         $this->repo->cleanGroups();
+
+        /**
+         *  Clean unused snapshots
+         */
+        try {
+            $snapshotsRemoved = $this->repoSnapshotController->clean();
+            $this->taskLogStepController->completed($snapshotsRemoved);
+        } catch (Exception $e) {
+            $this->taskLogStepController->error($e->getMessage());
+        }
     }
 }

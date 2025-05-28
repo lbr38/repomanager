@@ -7,7 +7,7 @@ $totalUptodate = 0;
 /**
  *  Getting hosts list
  */
-$hostsList = $myhost->listAll('active');
+$hostsList = $myhost->listAll();
 
 /**
  *  Getting total hosts
@@ -41,7 +41,6 @@ foreach ($hostsList as $host) {
     /**
      *  Open the dedicated database of the host from its ID to be able to retrieve additional information
      */
-    $myhost->openHostDb($host['Id']);
     $hostPackageController = new \Controllers\Host\Package\Package($host['Id']);
 
     /**
@@ -67,7 +66,6 @@ foreach ($hostsList as $host) {
     /**
      *  Close the dedicated database of the host
      */
-    $myhost->closeHostDb();
 }
 
 /**

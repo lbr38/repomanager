@@ -40,7 +40,7 @@ class Directory
     /**
      *  Delete specified directory recursively
      */
-    public static function deleteRecursive(string $directoryPath)
+    public static function deleteRecursive(string $directoryPath) : bool
     {
         /**
          *  Return true if there is nothing to delete
@@ -82,17 +82,11 @@ class Directory
      */
     public static function isEmpty($dir)
     {
-        $handle = opendir($dir);
+        $files = \Controllers\Filesystem\File::recursiveScan($dir);
 
-        while (false !== ($entry = readdir($handle))) {
-            if ($entry != "." && $entry != "..") {
-                closedir($handle);
-
-                return false;
-            }
+        if (!empty($files)) {
+            return false;
         }
-
-        closedir($handle);
 
         return true;
     }

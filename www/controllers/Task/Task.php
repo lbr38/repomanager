@@ -3,6 +3,7 @@
 namespace Controllers\Task;
 
 use Exception;
+use JsonException;
 use Datetime;
 
 class Task
@@ -353,7 +354,7 @@ class Task
     /**
      *  Execute one or more tasks
      */
-    public function execute(array $tasksParams)
+    public function execute(array $tasksParams) : void
     {
         /**
          *  $tasksParams can contain one or more tasks
@@ -441,11 +442,11 @@ class Task
     /**
      *  Execute a task in background from its task Id
      */
-    public function executeId(int $id)
+    public function executeId(int $id) : void
     {
-        $myprocess = new \Controllers\Process('/usr/bin/php ' . ROOT . '/tasks/execute.php --id="' . $id . '" >/dev/null 2>/dev/null &');
-        $myprocess->execute();
-        $myprocess->close();
+        // $myprocess = new \Controllers\Process('/usr/bin/php ' . ROOT . '/tasks/execute.php --id="' . $id . '" >/dev/null 2>/dev/null &');
+        // $myprocess->execute();
+        // $myprocess->close();
     }
 
     /**
@@ -459,7 +460,7 @@ class Task
     /**
      *  Start task
      */
-    public function start()
+    public function start() : void
     {
         /**
          *  Generate time start
@@ -489,89 +490,98 @@ class Task
     /**
      *  End task
      */
-    public function end()
+    public function end() : void
     {
-        /**
-         *  Get task details
-         */
-        $task = $this->getById($this->id);
-        $taskRawParams = json_decode($task['Raw_params'], true);
-
-        /**
-         *  Delete pid file
-         */
-        if (file_exists(PID_DIR . '/' . $this->id . '.pid')) {
-            if (!unlink(PID_DIR . '/' . $this->id . '.pid')) {
-                throw new Exception('Could not delete PID file ' . PID_DIR . '/' . $this->id . '.pid');
-            }
-        }
-
-        /**
-         *  Update duration
-         */
-        $this->updateDuration($this->id, $this->getDuration());
-
-        /**
-         *  If task was a scheduled task
-         */
-        if ($task['Type'] == 'scheduled') {
-            $myTaskNotify = new \Controllers\Task\Notify();
-
+        try {
             /**
-             *  Send notifications if needed
+             *  Get task details
              */
+            $task = $this->getById($this->id);
 
-            /**
-             *  If the task has a notification on error, send it
-             */
-            if ($taskRawParams['schedule']['schedule-notify-error'] == 'true' and $this->status == 'error') {
-                $myTaskNotify->error($task, $this->error);
+            try {
+                $taskRawParams = json_decode($task['Raw_params'], true, 512, JSON_THROW_ON_ERROR);
+            } catch (JsonException $e) {
+                throw new Exception('could not decode task parameters JSON: ' . $e->getMessage());
             }
 
             /**
-             *  If the task has a notification on success, send it
+             *  Delete pid file
              */
-            if ($taskRawParams['schedule']['schedule-notify-success'] == 'true' and $this->status == 'done') {
-                $myTaskNotify->success($task);
+            if (file_exists(PID_DIR . '/' . $this->id . '.pid')) {
+                if (!unlink(PID_DIR . '/' . $this->id . '.pid')) {
+                    throw new Exception('could not delete PID file ' . PID_DIR . '/' . $this->id . '.pid');
+                }
             }
 
             /**
-             *  If it is a recurring task, duplicate the task in database and reschedule it
+             *  Update duration
              */
-            if ($taskRawParams['schedule']['schedule-type'] == 'recurring') {
-                $newTaskId = $this->duplicate($this->id);
+            $this->updateDuration($this->id, $this->getDuration());
+
+            /**
+             *  If task was a scheduled task
+             */
+            if ($task['Type'] == 'scheduled') {
+                $myTaskNotify = new \Controllers\Task\Notify();
 
                 /**
-                 *  Reset real execution date and time
+                 *  Send notifications if needed
                  */
-                $this->updateDate($newTaskId, '');
-                $this->updateTime($newTaskId, '');
-                $this->updateStatus($newTaskId, 'scheduled');
+
+                /**
+                 *  If the task has a notification on error, send it
+                 */
+                if ($taskRawParams['schedule']['schedule-notify-error'] == 'true' and $this->status == 'error') {
+                    $myTaskNotify->error($task, $this->error);
+                }
+
+                /**
+                 *  If the task has a notification on success, send it
+                 */
+                if ($taskRawParams['schedule']['schedule-notify-success'] == 'true' and $this->status == 'done') {
+                    $myTaskNotify->success($task);
+                }
+
+                /**
+                 *  If it is a recurring task, duplicate the task in database and reschedule it
+                 */
+                if ($taskRawParams['schedule']['schedule-type'] == 'recurring') {
+                    $newTaskId = $this->duplicate($this->id);
+
+                    /**
+                     *  Reset real execution date and time
+                     */
+                    $this->updateDate($newTaskId, '');
+                    $this->updateTime($newTaskId, '');
+                    $this->updateStatus($newTaskId, 'scheduled');
+                }
+
+                unset($myTaskNotify);
             }
 
-            unset($myTaskNotify);
+            /**
+             *  Clean unused repos from profiles
+             */
+            $this->profileController->cleanProfiles();
+
+            /**
+             *  Update layout containers states
+             */
+            $this->layoutContainerReloadController->reload('header/menu');
+            $this->layoutContainerReloadController->reload('repos/list');
+            $this->layoutContainerReloadController->reload('repos/properties');
+            $this->layoutContainerReloadController->reload('tasks/list');
+            $this->layoutContainerReloadController->reload('browse/list');
+            $this->layoutContainerReloadController->reload('browse/actions');
+        } catch (Exception $e) {
+            throw new Exception('Error while ending task: ' . $e->getMessage());
         }
-
-        /**
-         *  Clean unused repos from profiles
-         */
-        $this->profileController->cleanProfiles();
-
-        /**
-         *  Update layout containers states
-         */
-        $this->layoutContainerReloadController->reload('header/menu');
-        $this->layoutContainerReloadController->reload('repos/list');
-        $this->layoutContainerReloadController->reload('repos/properties');
-        $this->layoutContainerReloadController->reload('tasks/list');
-        $this->layoutContainerReloadController->reload('browse/list');
-        $this->layoutContainerReloadController->reload('browse/actions');
     }
 
     /**
      *  Relaunch a task
      */
-    public function relaunch(int $id)
+    public function relaunch(int $id) : void
     {
         if (!IS_ADMIN) {
             throw new Exception('You are not allowed to relaunch a task');
@@ -610,7 +620,7 @@ class Task
     /**
      *  Stop a task based on the specified PID
      */
-    public function kill(string $taskId)
+    public function kill(string $taskId) : void
     {
         if (!IS_ADMIN) {
             throw new Exception('You are not allowed to stop a task');
@@ -699,7 +709,7 @@ class Task
     /**
      *  Add subpid to main PID file
      */
-    public function addsubpid(int $pid)
+    public function addsubpid(int $pid) : void
     {
         /**
          *  Add specified PID to the main PID file
@@ -748,7 +758,7 @@ class Task
     /**
      *  Return an array with all children PID of the specified PID or false if no children PID
      */
-    public function getChildrenPid(int $pid)
+    public function getChildrenPid(int $pid) : array|bool
     {
         /**
          *  Specified PID could have children PID, we need to get them all
@@ -780,7 +790,7 @@ class Task
     /**
      *  Enable a recurrent task
      */
-    public function enable(int $id)
+    public function enable(int $id) : void
     {
         $this->model->enable($id);
     }

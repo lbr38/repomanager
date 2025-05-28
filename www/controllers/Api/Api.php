@@ -16,6 +16,7 @@ class Api
     private $apiKeyAuthentication = false;
     private $hostAuthentication = false;
     private $hostId;
+    private $hostAuthId;
     private $hostToken;
 
     public function __construct()
@@ -168,7 +169,7 @@ class Api
                 /**
                  *  Set host authId and token
                  */
-                $hostId = $hostIdToken[0];
+                $hostAuthId = $hostIdToken[0];
                 $hostToken = $hostIdToken[1];
             }
         }
@@ -176,7 +177,7 @@ class Api
         /**
          *  If no API key or host authId and token are specified
          */
-        if (empty($apiKey) and (empty($hostId) or empty($hostToken))) {
+        if (empty($apiKey) and (empty($hostAuthId) or empty($hostToken))) {
             return false;
         }
 
@@ -207,8 +208,8 @@ class Api
         /**
          *  If a host authId and token have been specified, check if they are valid
          */
-        if (!empty($hostId) and !empty($hostToken)) {
-            if (!$this->hostController->checkIdToken($hostId, $hostToken)) {
+        if (!empty($hostAuthId) and !empty($hostToken)) {
+            if (!$this->hostController->checkIdToken($hostAuthId, $hostToken)) {
                 return false;
             }
 
@@ -216,7 +217,7 @@ class Api
              *  Set hostAuthentication to true if host authId and token are valid
              */
             $this->hostAuthentication = true;
-            $this->hostId = $hostId;
+            $this->hostAuthId = $hostAuthId;
             $this->hostToken = $hostToken;
         }
 
@@ -266,7 +267,7 @@ class Api
             $myapiController->setHostAuthentication($this->hostAuthentication);
 
             if ($this->hostAuthentication) {
-                $myapiController->setHostId($this->hostId);
+                $myapiController->setHostAuthId($this->hostAuthId);
                 $myapiController->setHostToken($this->hostToken);
             }
 

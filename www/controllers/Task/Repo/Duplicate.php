@@ -369,12 +369,12 @@ class Duplicate
                 $this->task->setStatus('done');
                 $this->task->updateStatus($this->task->getId(), 'done');
             /**
-             *  If an error occured after the temporary directory was renamed, clean the target directory
+             *  If an error occurred after the temporary directory was renamed, clean the target directory
              */
             } catch (Exception $e) {
                 if (file_exists($targetDir)) {
                     if (!\Controllers\Filesystem\Directory::deleteRecursive($targetDir)) {
-                        throw new Exception('An error occured while finalizing the task, and the target directory ' . $targetDir . ' could not be cleaned');
+                        throw new Exception('An error occurred while finalizing the task, and the target directory ' . $targetDir . ' could not be cleaned');
                     }
                 }
 
