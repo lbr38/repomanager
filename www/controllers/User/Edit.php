@@ -102,7 +102,7 @@ class Edit extends User
          *  If result is empty then it is anormal
          */
         if (empty($actualPasswordHashed)) {
-            throw new Exception('An error occured while checking user password');
+            throw new Exception('An error occurred while checking user password');
         }
 
         /**

@@ -779,14 +779,11 @@ $(document).on('click','.request-show-log-btn',function (e) {
         // Print success alert:
         false,
         // Print error alert:
-        true,
-        // Reload container:
-        [],
-        // Execute functions on success:
-        [
-            "printModalWindow(jsonValue.message, 'LOG')"
-        ]
-    );
+        true
+    ).then(function () {
+        // Print the modal window with the log
+        printModalWindow(jsonValue.message, 'LOG', true, false);
+    });
 });
 
 /**
@@ -814,14 +811,10 @@ $(document).on('click','.request-show-package-log-btn',function (e) {
         // Print success alert:
         false,
         // Print error alert:
-        true,
-        // Reload container:
-        [],
-        // Execute functions on success:
-        [
-            "printModalWindow(jsonValue.message, 'LOG')"
-        ]
-    );
+        true
+    ).then(function () {
+        printModalWindow(jsonValue.message, 'LOG', true, false);
+    });
 });
 
 /**
@@ -886,14 +879,10 @@ $(document).on('click','.get-package-timeline',function () {
         // Print success alert:
         false,
         // Print error alert:
-        true,
-        // Reload container:
-        [],
-        // Execute functions on success:
-        [
-            "printModalWindow(jsonValue.message, '" + title + "', false)"
-        ]
-    );
+        true
+    ).then(function () {
+        printModalWindow(jsonValue.message, title, false, false)
+    });
 });
 
 /**

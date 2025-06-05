@@ -15,6 +15,7 @@ class Update
     private $sourceRepo;
     private $repo;
     private $task;
+    private $repoSnapshotController;
     private $taskLogStepController;
     private $taskLogSubStepController;
     private $packagesToSign = null;
@@ -24,6 +25,7 @@ class Update
         $this->sourceRepo = new \Controllers\Repo\Repo();
         $this->repo = new \Controllers\Repo\Repo();
         $this->task = new \Controllers\Task\Task();
+        $this->repoSnapshotController = new \Controllers\Repo\Snapshot();
         $this->taskLogStepController = new \Controllers\Task\Log\Step($taskId);
         $this->taskLogSubStepController = new \Controllers\Task\Log\SubStep($taskId);
 

@@ -143,20 +143,22 @@ class Listing extends \Models\Model
     }
 
     /**
-     *  Retourne un array de tous les noms de repos, sans informations des snapshots et environnements associés
-     *  Si le paramètre 'true' est passé alors la fonction renverra uniquement les noms des repos qui ont un snapshot actif rattaché
-     *  Si le paramètre 'false' est passé alors la fonction renverra tous les noms de repos avec ou sans snapshot rattaché
+     *  Return an array of all repo names, with or without associated snapshots and environments
+     *  If 'true' parameter is passed then the function will return only the names of the repos that have an active snapshot attached
+     *  If 'false' parameter is passed then the function will return all repo names with or without attached snapshot
      */
-    public function listNameOnly(bool $bool)
+    public function listNameOnly(bool $withActiveSnapshots)
     {
+        $repos = array();
+
         try {
-            if ($bool == false) {
+            if (!$withActiveSnapshots) {
                 $result = $this->db->query("SELECT DISTINCT *
                 FROM repos
                 ORDER BY Name ASC, Dist ASC, Section ASC");
             }
 
-            if ($bool == true) {
+            if ($withActiveSnapshots) {
                 $result = $this->db->query("SELECT DISTINCT
                 repos.Id,
                 repos.Name,
@@ -174,8 +176,6 @@ class Listing extends \Models\Model
         } catch (\Exception $e) {
             $this->db->logError($e);
         }
-
-        $repos = array();
 
         while ($datas = $result->fetchArray(SQLITE3_ASSOC)) {
             $repos[] = $datas;
