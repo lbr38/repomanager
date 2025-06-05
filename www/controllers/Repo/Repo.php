@@ -551,7 +551,7 @@ class Repo
     /**
      *  Return latest snapshot Id from repo Id
      */
-    public function getLatestSnapId(int $repoId)
+    public function getLatestSnapId(int $repoId) : int|null
     {
         return $this->model->getLatestSnapId($repoId);
     }

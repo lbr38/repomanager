@@ -212,9 +212,9 @@ class Repo extends \Models\Model
     /**
      *  Return latest snapshot Id from repo Id
      */
-    public function getLatestSnapId(int $repoId)
+    public function getLatestSnapId(int $repoId) : int|null
     {
-        $snapId = '';
+        $snapId = null;
 
         try {
             $stmt = $this->db->prepare("SELECT Id FROM repos_snap WHERE Id_repo = :repoId AND Status = 'active' ORDER BY Date DESC LIMIT 1");
