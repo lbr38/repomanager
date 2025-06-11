@@ -89,6 +89,20 @@
                             responsive: true,
                             maintainAspectRatio: false,                            
                             tension: 0.2,
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    labels: {
+                                        font: {
+                                            size: 14,
+                                            family: 'Roboto',
+                                        },
+                                        color: '#8A99AA',
+                                        useBorderRadius: true,
+                                        borderRadius: 5,
+                                    },
+                                }
+                            },
                             scales: {
                                 x: {
                                     display: true,
@@ -154,6 +168,17 @@
                         },
                         options: {
                             tension: 0.2,
+                            plugins: {
+                                legend: {
+                                    font: {
+                                        size: 13,
+                                        family: 'Roboto',
+                                    },
+                                    color: '#8A99AA',
+                                    useBorderRadius: true,
+                                    borderRadius: 5
+                                }
+                            },
                             scales: {
                                 x: {
                                     display: true,
@@ -206,6 +231,17 @@
                         },
                         options: {
                             tension: 0.2,
+                            plugins: {
+                                legend: {
+                                    font: {
+                                        size: 13,
+                                        family: 'Roboto',
+                                    },
+                                    color: '#8A99AA',
+                                    useBorderRadius: true,
+                                    borderRadius: 5
+                                }
+                            },
                             scales: {
                                 x: {
                                     display: true,

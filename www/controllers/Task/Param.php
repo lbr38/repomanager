@@ -16,6 +16,8 @@ trait Param
          */
         foreach ($requiredParams as $param) {
             if (empty($taskParams[$param])) {
+                // TODO debug
+                file_put_contents(ROOT . '/toto', print_r($taskParams, true));
                 throw new Exception($taskType . ': parameter ' . $param . ' is not defined.');
             }
         }
@@ -63,7 +65,6 @@ trait Param
          */
         if (!empty($optionalParams)) {
             foreach ($optionalParams as $param) {
-                // if (!empty($taskParams[$param])) {
                 if (isset($taskParams[$param])) {
                     $setterFunction = $setters[$param];
                     $this->repo->$setterFunction($taskParams[$param]);

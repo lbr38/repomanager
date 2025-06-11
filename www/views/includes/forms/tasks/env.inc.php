@@ -11,7 +11,7 @@ if ($myrepo->getPackageType() == 'deb') {
 ⸺<span class="label-black"><?= $myrepo->getDateFormatted() ?></span><span id="point-env-show-target-env-<?= $myrepo->getSnapId() ?>"></span>
 
 <h6 class="required">ENVIRONMENT</h6>
-<select id="point-env-target-env-select-<?= $myrepo->getSnapId() ?>" class="task-param" param-name="env" required>
+<select id="point-env-target-env-select-<?= $myrepo->getSnapId() ?>" class="task-param" param-name="env" multiple required>
     <?php
     foreach (ENVS as $env) {
         /**
@@ -37,6 +37,8 @@ $scheduleForm['type'] = array('unique'); ?>
 
 <script>
 $(document).ready(function() {
+    selectToSelect2('#point-env-target-env-select-<?= $myrepo->getSnapId() ?>');
+
     /**
      *  Update repo->date<-env schema if an env is selected
      */

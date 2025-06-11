@@ -38,7 +38,10 @@
         <div>
             <h6>ENVIRONMENT</h6>
             <p>
-                <?= \Controllers\Common::envtag($rawParams['env']) ?>
+                <?php
+                foreach ($rawParams['env'] as $env) {
+                    echo \Controllers\Common::envtag($env) . ' ';
+                } ?>
             </p>
         </div>
     </div>

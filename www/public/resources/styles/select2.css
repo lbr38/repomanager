@@ -69,7 +69,7 @@ https://github.com/select2/select2/issues/3278#issuecomment-258481272 : */
 
 .select2-dropdown {
   /*background-color: white;*/
-  background-color: #25394b;
+  background-color: #22384F;
   border: 1px solid #aaa;
   border-radius: 2px;
   box-sizing: border-box;
@@ -152,7 +152,7 @@ https://github.com/select2/select2/issues/3278#issuecomment-258481272 : */
   white-space: nowrap !important; }
 
 .select2-container--default .select2-selection--single {
-  background-color: #25394b; /* modifié */
+  background-color: #22384F; /* modifié */
   /*background-color: #fff;*/
   /* border: 1px solid #aaa; */
   border-radius: 20px; }
@@ -206,7 +206,7 @@ https://github.com/select2/select2/issues/3278#issuecomment-258481272 : */
   border-width: 0 4px 5px 4px; }
 
 .select2-container--default .select2-selection--multiple {
-  background-color: #25394b; /* modifié */
+  background-color: #22384F; /* modifié */
   border-radius: 20px;
   cursor: text;
   padding-bottom: 5px;
@@ -529,7 +529,7 @@ https://github.com/select2/select2/issues/3278#issuecomment-258481272 : */
   box-shadow: none; }
 
 .select2-container--classic .select2-dropdown {
-  background-color: #25394b; /* modifié */
+  background-color: #22384F; /* modifié */
   border: 1px solid transparent; }
 
 .select2-container--classic .select2-dropdown--above {

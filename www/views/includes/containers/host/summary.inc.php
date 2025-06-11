@@ -162,20 +162,23 @@
                     {
                         label: 'Installed',
                         data: [<?=$lineChartInstalledPackagesCount?>],
-                        borderColor: '#14be7e',
-                        fill: false
+                        borderColor: '#15bf7f',
+                        backgroundColor: 'rgba(21, 191, 127, 0.2)',
+                        fill: true
                     },
                     {
                         label: 'Updated',
                         data: [<?=$lineChartUpgradedPackagesCount?>],
                         borderColor: '#cc9951',
-                        fill: false
+                        backgroundColor: 'rgba(204, 153, 81, 0.2)',
+                        fill: true
                     },
                     {
                         label: 'Uninstalled',
                         data: [<?=$lineChartRemovedPackagesCount?>],
                         borderColor: '#F32F63',
-                        fill: false
+                        backgroundColor: 'rgba(243, 47, 99, 0.2)',
+                        fill: true
                     }
                 ],
             };
@@ -209,8 +212,11 @@
                                 size: 13,
                                 family: 'Roboto',
                             },
-                            color: '#8A99AA'
+                            color: '#8A99AA',
+                            useBorderRadius: true,
+                            borderRadius: 5
                         },
+
                         display: true,
                         position: 'left',
                         title: {
