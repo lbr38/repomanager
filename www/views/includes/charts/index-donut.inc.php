@@ -28,7 +28,6 @@ $(document).ready(function() {
     var doughnutChartData = {
         datasets: [{
             labels: ['Used space', 'Free space'],
-            // borderWidth: 3,
             data: [<?= "$diskUsedSpacePercent, $diskFreeSpacePercent" ?>],
             backgroundColor: [<?= $donutColor ?>],
             borderColor: [<?= $borderColor ?>],

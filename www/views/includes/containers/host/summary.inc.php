@@ -207,21 +207,20 @@
                 plugins: {
                     legend: {
                         labels: {
-                            padding: 15,
+                            padding: 20,
                             font: {
                                 size: 13,
                                 family: 'Roboto',
                             },
                             color: '#8A99AA',
-                            useBorderRadius: true,
-                            borderRadius: 5
+                            usePointStyle: true
                         },
 
                         display: true,
                         position: 'left',
                         title: {
                             display: true,
-                            text: 'Packages evolution',
+                            text: 'Packages',
                             font: {
                                 size: 14,
                                 family: 'Roboto',

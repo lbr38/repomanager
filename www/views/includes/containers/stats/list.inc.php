@@ -98,8 +98,7 @@
                                             family: 'Roboto',
                                         },
                                         color: '#8A99AA',
-                                        useBorderRadius: true,
-                                        borderRadius: 5,
+                                        usePointStyle: true
                                     },
                                 }
                             },
@@ -160,7 +159,7 @@
                             labels: [<?= $sizeDateLabels ?>],    
                             datasets: [{
                                 data: [<?= $sizeData ?>],
-                                label: 'Size in MB (last 60 days)',
+                                label: 'Size in MB (60 days max)',
                                 borderColor: '#15bf7f',
                                 backgroundColor: 'rgba(21, 191, 127, 0.2)',
                                 fill: true
@@ -170,13 +169,14 @@
                             tension: 0.2,
                             plugins: {
                                 legend: {
-                                    font: {
-                                        size: 13,
-                                        family: 'Roboto',
-                                    },
-                                    color: '#8A99AA',
-                                    useBorderRadius: true,
-                                    borderRadius: 5
+                                    labels: {
+                                        font: {
+                                            size: 13,
+                                            family: 'Roboto',
+                                        },
+                                        color: '#8A99AA',
+                                        usePointStyle: true
+                                    }
                                 }
                             },
                             scales: {
@@ -223,7 +223,7 @@
                             labels: [<?= $countDateLabels ?>],    
                             datasets: [{
                                 data: [<?= $countData ?>],
-                                label: 'Total packages (last 60 days)',
+                                label: 'Total packages (60 days max)',
                                 borderColor: '#15bf7f',
                                 backgroundColor: 'rgba(21, 191, 127, 0.2)',
                                 fill: true
@@ -233,13 +233,14 @@
                             tension: 0.2,
                             plugins: {
                                 legend: {
-                                    font: {
-                                        size: 13,
-                                        family: 'Roboto',
-                                    },
-                                    color: '#8A99AA',
-                                    useBorderRadius: true,
-                                    borderRadius: 5
+                                    labels: {
+                                        font: {
+                                            size: 13,
+                                            family: 'Roboto',
+                                        },
+                                        color: '#8A99AA',
+                                        usePointStyle: true
+                                    }
                                 }
                             },
                             scales: {
