@@ -155,7 +155,7 @@
 
         <h6>POINT AN ENVIRONMENT</h6>
         <p class="note">Point an environment to the newly created repository.</p>
-        <select id="new-repo-target-env-select" class="task-param" param-name="env" package-type="all">
+        <select id="new-repo-target-env-select" class="task-param" param-name="env" package-type="all" multiple>
             <option value=""></option>
             <?php
             foreach (ENVS as $env) {
@@ -253,6 +253,7 @@ $(document).ready(function(){
     selectToSelect2('select.task-param[param-name="dist"]', 'Select distribution', true);
     selectToSelect2('select.task-param[param-name="section"]', 'Select component', true);
     selectToSelect2('select.task-param[param-name="arch"]', 'Select architecture', true);
+    selectToSelect2('select#new-repo-target-env-select', 'Select environment(s)', true);
     selectToSelect2('select.task-param[param-name="package-include"]', 'Specify package(s)', true);
     selectToSelect2('select.task-param[param-name="package-exclude"]', 'Specify package(s)', true);
     selectToSelect2('select.task-param[param-name="schedule-day"]', 'Select day(s)', true);

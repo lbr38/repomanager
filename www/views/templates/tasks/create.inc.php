@@ -68,6 +68,19 @@
             </div>
 
             <?php
+        endif;
+
+        if (!empty($rawParams['env'])) : ?>
+            <div>
+                <h6>ENVIRONMENT</h6>
+                <div class="flex column-gap-5 row-gap-5">
+                    <?php
+                    foreach ($rawParams['env'] as $env) {
+                        echo \Controllers\Common::envtag($env) . ' ';
+                    } ?>
+                </div>
+            </div>
+            <?php
         endif ?>
     </div>
 

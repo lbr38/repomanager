@@ -25,6 +25,7 @@ class Repo
     private $dateFormatted;
     private $time;
     private $env;
+    private $envs;
     private $description;
     private $group;
     private $packagesToInclude = [];
@@ -34,10 +35,6 @@ class Repo
     private $rebuild;
     private $gpgCheck;
     private $gpgSign;
-    private $targetName;
-    private $targetDate;
-    private $targetTime;
-    private $targetEnv;
     private $releasever;
     private $targetArch;
 
@@ -77,7 +74,7 @@ class Repo
         $this->section = $section;
     }
 
-    public function setEnv(string $env)
+    public function setEnv(string|array $env)
     {
         $this->env = $env;
     }
@@ -130,16 +127,6 @@ class Repo
     public function setPackageType(string $type)
     {
         $this->packageType = $type;
-    }
-
-    public function setTargetName(string $name)
-    {
-        $this->targetName = $name;
-    }
-
-    public function setTargetEnv(string $env)
-    {
-        $this->targetEnv = $env;
     }
 
     public function setGroup(string $group)
@@ -226,11 +213,6 @@ class Repo
         return $this->env;
     }
 
-    public function getTargetEnv()
-    {
-        return $this->targetEnv;
-    }
-
     public function getDate()
     {
         return $this->date;
@@ -299,11 +281,6 @@ class Repo
     public function getDescription()
     {
         return $this->description;
-    }
-
-    public function getTargetName()
-    {
-        return $this->targetName;
     }
 
     public function getGroup()
@@ -693,13 +670,13 @@ class Repo
         $this->model->addSnap($date, $time, $gpgSignature, $arch, $includeTranslation, $packagesIncluded, $packagesExcluded, $type, $status, $repoId);
     }
 
-    /**
-     *  Associate a new env to a snapshot
-     */
-    public function addEnv(string $env, string $description = null, string $snapId)
-    {
-        $this->model->addEnv($env, $description, $snapId);
-    }
+    // /**
+    //  *  Associate a new env to a snapshot
+    //  */
+    // public function addEnv(string $env, string $description = null, string $snapId)
+    // {
+    //     $this->model->addEnv($env, $description, $snapId);
+    // }
 
     /**
      *  Remove an env in database

@@ -11,6 +11,7 @@ class Env
     private $repo;
     private $task;
     private $repoSnapshotController;
+    private $repoEnvController;
     private $taskLogStepController;
     private $taskLogSubStepController;
 
@@ -19,6 +20,7 @@ class Env
         $this->repo = new \Controllers\Repo\Repo();
         $this->task = new \Controllers\Task\Task();
         $this->repoSnapshotController = new \Controllers\Repo\Snapshot();
+        $this->repoEnvController = new \Controllers\Repo\Environment();
         $this->taskLogStepController = new \Controllers\Task\Log\Step($taskId);
         $this->taskLogSubStepController = new \Controllers\Task\Log\SubStep($taskId);
 
@@ -28,12 +30,10 @@ class Env
         $task = $this->task->getById($taskId);
         $taskParams = json_decode($task['Raw_params'], true);
 
-        $requiredParams = array('snap-id');
-        $optionalParams = array('description');
-
         /**
          *  Check snap Id parameter
          */
+        $requiredParams = array('snap-id');
         $this->taskParamsCheck('Point environment on repository', $taskParams, $requiredParams);
 
         /**
@@ -42,14 +42,11 @@ class Env
         $this->repo->getAllById(null, $taskParams['snap-id'], null);
 
         /**
-         *  Set optionnal task parameters
+         *  Check and set others task parameters
          */
-        $this->taskParamsSet($taskParams, null, $optionalParams);
-
-        /**
-         *  Manually set the environment(s) to point to the repository snapshot
-         */
-        $this->repo->envsToPoint = $taskParams['env'];
+        $requiredParams = array('env');
+        $optionalParams = array('description');
+        $this->taskParamsSet($taskParams, $requiredParams, $optionalParams);
 
         /**
          *  Prepare task and task log
@@ -77,7 +74,9 @@ class Env
     public function execute()
     {
         try {
-            foreach ($this->repo->envsToPoint as $env) {
+            foreach ($this->repo->getEnv() as $env) {
+                $actualDescription = null;
+
                 $this->taskLogStepController->new('point-env-' . $env, 'POINT ENVIRONMENT ' . \Controllers\Common::envtag($env));
 
                 /**
@@ -155,7 +154,7 @@ class Env
                         /**
                          *  Add environment to database
                          */
-                        $this->repo->addEnv($env, $this->repo->getDescription(), $this->repo->getSnapId());
+                        $this->repoEnvController->add($env, $this->repo->getDescription(), $this->repo->getSnapId());
 
                         /**
                          *  Close current step
@@ -199,7 +198,7 @@ class Env
                         /**
                          *  Then we declare the new environment and we make it point to the previously created snapshot
                          */
-                        $this->repo->addEnv($env, $this->repo->getDescription(), $this->repo->getSnapId());
+                        $this->repoEnvController->add($env, $this->repo->getDescription(), $this->repo->getSnapId());
 
                         /**
                          *  Close current step
@@ -235,7 +234,7 @@ class Env
                         /**
                          *  Add environment to database
                          */
-                        $this->repo->addEnv($env, $this->repo->getDescription(), $this->repo->getSnapId());
+                        $this->repoEnvController->add($env, $this->repo->getDescription(), $this->repo->getSnapId());
 
                         /**
                          *  Close current step
@@ -279,7 +278,7 @@ class Env
                         /**
                          *  Then we declare the new environment and we make it point to the previously created snapshot
                          */
-                        $this->repo->addEnv($env, $this->repo->getDescription(), $this->repo->getSnapId());
+                        $this->repoEnvController->add($env, $this->repo->getDescription(), $this->repo->getSnapId());
 
                         /**
                          *  Close current step

@@ -146,7 +146,7 @@
                     /**
                      *  If action is 'env' or 'removeEnv', print environment
                      */
-                    if ($taskRawParams['action'] == 'env' || $taskRawParams['action'] == 'removeEnv') {
+                    if (in_array($taskRawParams['action'], ['env', 'removeEnv'])) {
                         if (is_string($taskRawParams['env'])) {
                             echo \Controllers\Common::envtag($taskRawParams['env']);
                         }

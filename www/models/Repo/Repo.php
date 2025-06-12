@@ -939,18 +939,18 @@ class Repo extends \Models\Model
     /**
      *  Associate a new env to a snapshot
      */
-    public function addEnv(string $env, string $description = null, string $snapId)
-    {
-        try {
-            $stmt = $this->db->prepare("INSERT INTO repos_env ('Env', 'Description', 'Id_snap') VALUES (:env, :description, :snapId)");
-            $stmt->bindValue(':env', $env);
-            $stmt->bindValue(':description', $description);
-            $stmt->bindValue(':snapId', $snapId);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-    }
+    // public function addEnv(string $env, string $description = null, string $snapId)
+    // {
+    //     try {
+    //         $stmt = $this->db->prepare("INSERT INTO repos_env ('Env', 'Description', 'Id_snap') VALUES (:env, :description, :snapId)");
+    //         $stmt->bindValue(':env', $env);
+    //         $stmt->bindValue(':description', $description);
+    //         $stmt->bindValue(':snapId', $snapId);
+    //         $stmt->execute();
+    //     } catch (\Exception $e) {
+    //         $this->db->logError($e);
+    //     }
+    // }
 
     /**
      *  Ajout du repo au groupe spécifié en base de données

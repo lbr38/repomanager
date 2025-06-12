@@ -94,7 +94,9 @@ trait Finalize
              *  Add env in database if an env has been specified by the user
              */
             if (!empty($this->repo->getEnv())) {
-                $this->repo->addEnv($this->repo->getEnv(), $this->repo->getDescription(), $this->repo->getSnapId());
+                foreach ($this->repo->getEnv() as $env) {
+                    $this->repoEnvController->add($env, $this->repo->getDescription(), $this->repo->getSnapId());
+                }
             }
         }
 
@@ -155,45 +157,47 @@ trait Finalize
          *  If the user has specified an environment to point to the created snapshot
          */
         if (!empty($this->repo->getEnv())) {
-            /**
-             *  If the user has not specified any description, then we retrieve the one currently in place on the environment of the same name (if the environment exists and if it has a description)
-             */
-            if (empty($this->repo->getDescription())) {
-                if ($this->repo->getPackageType() == 'rpm') {
-                    $actualDescription = $this->repo->getDescriptionByName($this->repo->getName(), '', '', $this->repo->getEnv());
-                }
-                if ($this->repo->getPackageType() == 'deb') {
-                    $actualDescription = $this->repo->getDescriptionByName($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection(), $this->repo->getEnv());
+            foreach($this->repo->getEnv() as $env) {
+                /**
+                 *  If the user has not specified any description, then we retrieve the one currently in place on the environment of the same name (if the environment exists and if it has a description)
+                 */
+                if (empty($this->repo->getDescription())) {
+                    if ($this->repo->getPackageType() == 'rpm') {
+                        $actualDescription = $this->repo->getDescriptionByName($this->repo->getName(), '', '', $env);
+                    }
+                    if ($this->repo->getPackageType() == 'deb') {
+                        $actualDescription = $this->repo->getDescriptionByName($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection(), $env);
+                    }
+
+                    /**
+                     *  If the retrieved description is empty then the description will remain empty
+                     */
+                    if (!empty($actualDescription)) {
+                        $this->repo->setDescription(htmlspecialchars_decode($actualDescription));
+                    } else {
+                        $this->repo->setDescription('');
+                    }
                 }
 
                 /**
-                 *  If the retrieved description is empty then the description will remain empty
+                 *  Retrieve the Id of the environment currently in place (if there is one)
                  */
-                if (!empty($actualDescription)) {
-                    $this->repo->setDescription(htmlspecialchars_decode($actualDescription));
-                } else {
-                    $this->repo->setDescription('');
+                $actualEnvIds = $this->repo->getEnvIdFromRepoName($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection(), $env);
+
+                /**
+                 *  Delete the possible environment of the same name pointing to a snapshot of this repo (if there is one)
+                 */
+                if (!empty($actualEnvIds)) {
+                    foreach ($actualEnvIds as $actualEnvId) {
+                        $this->repo->removeEnv($actualEnvId['Id']);
+                    }
                 }
+
+                /**
+                 *  Then we declare the new environment and make it point to the previously created snapshot
+                 */
+                $this->repoEnvController->add($env, $this->repo->getDescription(), $this->repo->getSnapId());
             }
-
-            /**
-             *  Retrieve the Id of the environment currently in place (if there is one)
-             */
-            $actualEnvIds = $this->repo->getEnvIdFromRepoName($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection(), $this->repo->getEnv());
-
-            /**
-             *  Delete the possible environment of the same name pointing to a snapshot of this repo (if there is one)
-             */
-            if (!empty($actualEnvIds)) {
-                foreach ($actualEnvIds as $actualEnvId) {
-                    $this->repo->removeEnv($actualEnvId['Id']);
-                }
-            }
-
-            /**
-             *  Then we declare the new environment and make it point to the previously created snapshot
-             */
-            $this->repo->addEnv($this->repo->getEnv(), $this->repo->getDescription(), $this->repo->getSnapId());
         }
 
         /**
