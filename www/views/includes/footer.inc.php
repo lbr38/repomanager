@@ -33,10 +33,12 @@
 
 <!-- Import some classes -->
 <script src="/resources/js/classes/Panel.js?<?= VERSION ?>"></script>
+<script src="/resources/js/classes/Tooltip.js?<?= VERSION ?>"></script>
 
 <script>
     // I will gradually regroup some functions in classes
     const mypanel = new Panel();
+    const mytooltip = new Tooltip();
 </script>
 
 <script>

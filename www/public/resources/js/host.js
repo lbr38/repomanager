@@ -368,7 +368,7 @@ $(document).on('mouseenter',".hosts-charts-list-label[chart-type=kernel]",functi
     /**
      *  Create a new <div> hosts-charts-list-label-hosts-list
      */
-    $('footer').append('<div class="hosts-charts-list-label-hosts-list"><span>Loading<img src="/assets/icons/loading.svg" class="icon"/></span></div>');
+    $('body').append('<div class="hosts-charts-list-label-hosts-list"><div class="flex align-item-center column-gap-5"><p>Loading</p><img src="/assets/icons/loading.svg" class="icon"/></div></div>');
 
     ajaxRequest(
         // Controller:
@@ -446,16 +446,34 @@ $(document).on('mouseenter',".hosts-charts-list-label[chart-type=kernel]",functi
     });
 });
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /**
  *  Event: Search hosts on 'profile' mouse hover
  */
 $(document).on('mouseenter',".hosts-charts-list-label[chart-type=profile]",function (e) {
-    var profile = $(this).attr('profile');
+    const profile = $(this).attr('profile');
 
-    /**
-     *  Create a new <div> hosts-charts-list-label-hosts-list
-     */
-    $('footer').append('<div class="hosts-charts-list-label-hosts-list"><span>Loading<img src="/assets/icons/loading.svg" class="icon"/></span></div>');
+    // Print tooltip loading
+    mytooltip.loading();
 
     ajaxRequest(
         // Controller:
@@ -504,34 +522,36 @@ $(document).on('mouseenter',".hosts-charts-list-label[chart-type=profile]",funct
             content += '</div></div>';
         });
 
-        $('.hosts-charts-list-label-hosts-list').html(content);
-
-        /**
-         *  Get screen width
-         *  Then reduce the width of screen by 50px to have some margin
-         */
-        var screenWidth = window.screen.width;
-        screenWidth = screenWidth - 50;
-
-        /**
-         *  If hosts-charts-list-label-hosts-list is outside the screen on the right then print it on the left of the mouse cursor
-         *  Else print it on the right of the mouse cursor
-         */
-        if (e.pageX + $('.hosts-charts-list-label-hosts-list').width() >= screenWidth) {
-            $('.hosts-charts-list-label-hosts-list').css({
-                top: e.pageY - $('.hosts-charts-list-label-hosts-list').height() / 2,
-                left: e.pageX - $('.hosts-charts-list-label-hosts-list').width() - 10
-            });
-        } else {
-            $('.hosts-charts-list-label-hosts-list').css({
-                top: e.pageY - $('.hosts-charts-list-label-hosts-list').height() / 2,
-                left: e.pageX
-            });
-        }
-
-        $('.hosts-charts-list-label-hosts-list').css('display', 'flex');
+        // Print tooltip
+        mytooltip.print(content);
     });
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  *  Event: Remove all hosts list <div> from the DOM when mouse has leave
