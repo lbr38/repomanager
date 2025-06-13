@@ -365,10 +365,8 @@ function hideGroupDiv()
 $(document).on('mouseenter',".hosts-charts-list-label[chart-type=kernel]",function (e) {
     var kernel = $(this).attr('kernel');
 
-    /**
-     *  Create a new <div> hosts-charts-list-label-hosts-list
-     */
-    $('body').append('<div class="hosts-charts-list-label-hosts-list"><div class="flex align-item-center column-gap-5"><p>Loading</p><img src="/assets/icons/loading.svg" class="icon"/></div></div>');
+    // Print tooltip loading
+    mytooltip.loading(e);
 
     ajaxRequest(
         // Controller:
@@ -417,54 +415,10 @@ $(document).on('mouseenter',".hosts-charts-list-label[chart-type=kernel]",functi
             content += '</div></div>';
         });
 
-        $('.hosts-charts-list-label-hosts-list').html(content);
-
-        /**
-         *  Get screen width
-         *  Then reduce the width of screen by 50px to have some margin
-         */
-        var screenWidth = window.screen.width;
-        screenWidth = screenWidth - 50;
-
-        /**
-         *  If hosts-charts-list-label-hosts-list is outside the screen on the right then print it on the left of the mouse cursor
-         *  Else print it on the right of the mouse cursor
-         */
-        if (e.pageX + $('.hosts-charts-list-label-hosts-list').width() >= screenWidth) {
-            $('.hosts-charts-list-label-hosts-list').css({
-                top: e.pageY - $('.hosts-charts-list-label-hosts-list').height() / 2,
-                left: e.pageX - $('.hosts-charts-list-label-hosts-list').width() - 10
-            });
-        } else {
-            $('.hosts-charts-list-label-hosts-list').css({
-                top: e.pageY - $('.hosts-charts-list-label-hosts-list').height() / 2,
-                left: e.pageX
-            });
-        }
-
-        $('.hosts-charts-list-label-hosts-list').css('display', 'flex');
+        // Print tooltip
+        mytooltip.print(content, e);
     });
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /**
  *  Event: Search hosts on 'profile' mouse hover
@@ -473,7 +427,7 @@ $(document).on('mouseenter',".hosts-charts-list-label[chart-type=profile]",funct
     const profile = $(this).attr('profile');
 
     // Print tooltip loading
-    mytooltip.loading();
+    mytooltip.loading(e);
 
     ajaxRequest(
         // Controller:
@@ -523,47 +477,8 @@ $(document).on('mouseenter',".hosts-charts-list-label[chart-type=profile]",funct
         });
 
         // Print tooltip
-        mytooltip.print(content);
+        mytooltip.print(content, e);
     });
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/**
- *  Event: Remove all hosts list <div> from the DOM when mouse has leave
- */
-$(document).on('mouseleave',".hosts-charts-list-label",function () {
-    if ($('.hosts-charts-list-label-hosts-list:hover').length == 0) {
-        $('.hosts-charts-list-label-hosts-list').remove();
-    }
-});
-
-$(document).on('mouseleave',".hosts-charts-list-label-hosts-list",function () {
-    $('.hosts-charts-list-label-hosts-list').remove();
 });
 
 /**
@@ -1000,11 +915,6 @@ $(document).on('click','.get-package-timeline',function () {
  */
 $(document).on('mouseenter', '.event-packages-btn', function (e) {
     /**
-     *  If a span event-packages-details has already been generated in the DOM then we destroy it
-     */
-    $('.event-packages-details').remove();
-
-    /**
      *  Retrieve host id
      */
     var hostId = $(this).attr('host-id');
@@ -1015,47 +925,27 @@ $(document).on('mouseenter', '.event-packages-btn', function (e) {
     var eventId = $(this).attr('event-id');
     var packageState = $(this).attr('package-state');
 
-    /**
-     *  Create a new <div> event-packages-details
-     */
-    $('footer').append('<div class="event-packages-details"><div class="flex align-item-center column-gap-5"><p>Loading</p><img src="/assets/icons/loading.svg" class="icon"/></div></div>');
+    mytooltip.loading(e);
 
-    /**
-     *  Get screen width
-     *  Then reduce the width of screen by 200px to have some margin
-     */
-    var screenWidth = window.screen.width;
-    screenWidth = screenWidth - 500;
-
-    /**
-     *  If event-packages-details is outside the screen on the right
-     *  Then print it on the left of the mouse cursor
-     */
-    if (e.pageX + $('.event-packages-details').width() >= screenWidth) {
-        $('.event-packages-details').css({
-            top: e.pageY - $('.event-packages-details').height() / 2,
-            left: e.pageX - $('.event-packages-details').width() - 10
-        });
-    /**
-     * Else print it on the right of the mouse cursor
-     */
-    } else {
-        $('.event-packages-details').css({
-            top: e.pageY - $('.event-packages-details').height() / 2,
-            left: e.pageX
-        });
-    }
-
-    $('.event-packages-details').show();
-
-    getEventDetails(hostId, eventId, packageState);
-});
-
-/**
- *  Event: Remove event-packages-details <div> from the DOM when mouse has leave
- */
-$(document).on('mouseleave', '.event-packages-details', function () {
-    $('.event-packages-details').remove();
+    ajaxRequest(
+        // Controller:
+        'host',
+        // Action:
+        'getEventDetails',
+        // Data:
+        {
+            hostId: hostId,
+            eventId: eventId,
+            packageState: packageState
+        },
+        // Print success alert:
+        false,
+        // Print error alert:
+        true
+    ).then(() => {
+        // Print the tooltip with the content
+        mytooltip.print(jsonValue.message, e);
+    });
 });
 
 /**
@@ -1111,35 +1001,5 @@ function getHostsWithPackageAjax(hosts, package)
         }
 
         hideGroupDiv();
-    });
-}
-
-/**
- * Ajax : récupérer les détails d'un évènement (la liste des paquets installés, mis à jour...)
- * @param {string} hostId
- * @param {string} eventId
- * @param {string} packageState
- */
-function getEventDetails(hostId, eventId, packageState)
-{
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "host",
-            action: "getEventDetails",
-            hostId: hostId,
-            eventId: eventId,
-            packageState: packageState
-        },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            $('.event-packages-details').html('<div>' + jsonValue.message + '</div>');
-        },
-        error: function (jqXHR, textStatus, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
     });
 }

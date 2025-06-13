@@ -150,7 +150,7 @@
     display: none;
 }
 
-.event-packages-details, .hosts-charts-list-label-hosts-list, #hosts-requiring-reboot-chart-list {
+.event-packages-details, #hosts-requiring-reboot-chart-list {
     display: none;
     position: absolute;
     left: 0;
@@ -163,45 +163,16 @@
     z-index: 5;
     border-radius: 20px;
     background-color: #112334;
-    -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
     box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
 }
 
-#hosts-requiring-reboot-chart-list, .hosts-charts-list-label-hosts-list {
+#hosts-requiring-reboot-chart-list {
     flex-direction: column;
     row-gap: 6px;
     top: 100px;
     max-height: 500px;
     overflow: auto;
 }
-
-#tooltip {
-    display: flex;
-    position: absolute;
-    left: 0;
-    top: 0;
-    min-width: 300px;
-    width: max-content;
-    margin-top: 10px;
-    padding: 20px 15px 20px 15px;
-    text-align: left;
-    z-index: 5;
-    border-radius: 20px;
-    background-color: #112334;
-    -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
-    box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
-
-    flex-direction: column;
-    row-gap: 6px;
-    /* top: 100px; */
-    max-height: 500px;
-    overflow: auto;
-}
-
-
-
-
-
 
 /**
  * Package timeline
