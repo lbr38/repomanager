@@ -7,40 +7,20 @@ use Datetime;
 
 class Host extends Model
 {
-    protected $dedicatedDb;
-
     public function __construct()
     {
-        /**
-         *  Ouverture de la base de données 'hosts' (repomanager-hosts.db)
-         */
         $this->getConnection('hosts');
     }
 
     /**
-     *  Ouverture de la BDD dédiée de l'hôte si ce n'est pas déjà fait
-     *  Fournir l'id de l'hôte et le mode d'ouverture de la base (ro = lecture seule / rw = lecture-écriture)
+     *  Return all hosts from a group
      */
-    public function openHostDb(string $hostId)
+    public function listByGroup(string $groupName) : array
     {
-        $this->getConnection('host', $hostId);
-    }
+        $hostsIn = array();
 
-    /**
-     *  Fermeture de la BDD dédiée de l'hôte
-     */
-    public function closeHostDb()
-    {
-        $this->dedicatedDb->close();
-    }
-
-    /**
-     *  Retourne la liste de tous les hôtes d'un groupe
-     */
-    public function listByGroup(string $groupName)
-    {
         /**
-         *  Si le nom du groupe est 'Default' (groupe fictif) alors on affiche tous les hotes n'ayant pas de groupe
+         *  If the group name is 'Default' (fictitious group) then we display all hosts without a group
          */
         try {
             if ($groupName == 'Default') {
@@ -50,7 +30,10 @@ class Host extends Model
                 AND Status = 'active'
                 ORDER BY hosts.Hostname ASC");
             } else {
-                // Note : ne pas utiliser SELECT *, comme il s'agit d'une jointure il faut bien préciser les données souhaitées
+                /**
+                 *  Note: do not use SELECT *
+                 *  As it is a join, you must specify the desired data
+                 */
                 $stmt = $this->db->prepare("SELECT
                 hosts.Id,
                 hosts.Ip,
@@ -81,11 +64,9 @@ class Host extends Model
                 $hostsInGroup = $stmt->execute();
                 unset($stmt);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
-
-        $hostsIn = array();
 
         while ($datas = $hostsInGroup->fetchArray(SQLITE3_ASSOC)) {
             $hostsIn[] = $datas;
@@ -95,84 +76,16 @@ class Host extends Model
     }
 
     /**
-     *  Copie l'état actuel d'un paquet de la table packages vers la table packages_history afin de conserver une trace de cet état
-     */
-    public function setPackageHistory(string $packageName, string $packageVersion, string $packageState, string $packageType, string $packageDate, string $packageTime, string $eventId)
-    {
-        try {
-            $stmt = $this->dedicatedDb->prepare("INSERT INTO packages_history ('Name', 'Version', 'State', 'Type', 'Date', 'Time', 'Id_event') VALUES (:name, :version, :state, :type, :date, :time, :id_event)");
-            $stmt->bindValue(':name', $packageName);
-            $stmt->bindValue(':version', $packageVersion);
-            $stmt->bindValue(':state', $packageState);
-            $stmt->bindValue(':type', $packageType);
-            $stmt->bindValue(':date', $packageDate);
-            $stmt->bindValue(':time', $packageTime);
-            $stmt->bindValue(':id_event', $eventId);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            $this->dedicatedDb->logError($e);
-        }
-    }
-
-    /**
-     *  Ajout d'un état de paquet en BDD
-     */
-    public function setPackageState(string $name, string $version, string $state, string $date, string $time, string $id_event = null)
-    {
-        try {
-            $stmt = $this->dedicatedDb->prepare("UPDATE packages SET Version = :version, Date = :date, Time = :time, State = :state, Id_event = :id_event WHERE Name = :name");
-            $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':version', $version);
-            $stmt->bindValue(':state', $state);
-            $stmt->bindValue(':date', $date);
-            $stmt->bindValue(':time', $time);
-            $stmt->bindValue(':id_event', $id_event);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            $this->dedicatedDb->logError($e);
-        }
-    }
-
-    /**
-     *  Ajout d'un nouveau paquet en base données
-     */
-    public function addPackage(string $name, string $version, string $state, string $type, string $date, string $time, string $id_event = null)
-    {
-        try {
-            if (!empty($id_event)) {
-                $stmt = $this->dedicatedDb->prepare("INSERT INTO packages ('Name', 'Version', 'State', 'Type', 'Date', 'Time', 'Id_event') VALUES (:name, :version, :state, :type, :date, :time, :id_event)");
-                $stmt->bindValue(':id_event', $id_event);
-            } else {
-                $stmt = $this->dedicatedDb->prepare("INSERT INTO packages ('Name', 'Version', 'State', 'Type', 'Date', 'Time') VALUES (:name, :version, 'inventored', 'package', :date, :time)");
-            }
-            $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':version', $version);
-            $stmt->bindValue(':state', $state);
-            $stmt->bindValue(':type', $type);
-            $stmt->bindValue(':date', $date);
-            $stmt->bindValue(':time', $time);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            $this->dedicatedDb->logError($e);
-        }
-    }
-
-/**
- *
- *  Mises à jour en base de données
- *
- */
-    /**
      *  Update hostname in database
      */
-    public function updateHostname(string $id, string $hostname)
+    public function updateHostname(string $id, string $hostname) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE hosts SET Hostname = :hostname WHERE Id = :id");
             $stmt->bindValue(':hostname', $hostname);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
@@ -180,29 +93,29 @@ class Host extends Model
     /**
      *  Update OS in database
      */
-    public function updateOS(string $id, string $os)
+    public function updateOS(string $id, string $os) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE hosts SET Os = :os WHERE Id = :id");
             $stmt->bindValue(':os', $os);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
 
     /**
-     *  Update OS release version in database
+     *  Update OS version in database
      */
-    public function updateOsVersion(string $id, string $osVersion)
+    public function updateOsVersion(string $id, string $osVersion) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE hosts SET Os_version = :os_version WHERE Id = :id");
             $stmt->bindValue(':os_version', $osVersion);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
@@ -210,14 +123,14 @@ class Host extends Model
     /**
      *  Update OS family in database
      */
-    public function updateOsFamily(string $id, string $osFamily)
+    public function updateOsFamily(string $id, string $osFamily) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE hosts SET Os_family = :os_family WHERE Id = :id");
             $stmt->bindValue(':os_family', $osFamily);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
@@ -225,14 +138,14 @@ class Host extends Model
     /**
      *  Update virtualization type in database
      */
-    public function updateType(string $id, string $type)
+    public function updateType(string $id, string $type) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE hosts SET Type = :type WHERE Id = :id");
             $stmt->bindValue(':type', $type);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
@@ -240,14 +153,14 @@ class Host extends Model
     /**
      *  Update kernel version in database
      */
-    public function updateKernel(string $id, string $kernel)
+    public function updateKernel(string $id, string $kernel) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE hosts SET Kernel = :kernel WHERE Id = :id");
             $stmt->bindValue(':kernel', $kernel);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
@@ -255,14 +168,14 @@ class Host extends Model
     /**
      *  Update arch in database
      */
-    public function updateArch(string $id, string $arch)
+    public function updateArch(string $id, string $arch) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE hosts SET Arch = :arch WHERE Id = :id");
             $stmt->bindValue(':arch', $arch);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
@@ -270,14 +183,14 @@ class Host extends Model
     /**
      *  Update profile in database
      */
-    public function updateProfile(string $id, string $profile)
+    public function updateProfile(string $id, string $profile) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE hosts SET Profile = :profile WHERE Id = :id");
             $stmt->bindValue(':profile', $profile);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
@@ -285,14 +198,14 @@ class Host extends Model
     /**
      *  Update environment in database
      */
-    public function updateEnv(string $id, string $env)
+    public function updateEnv(string $id, string $env) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE hosts SET Env = :env WHERE Id = :id");
             $stmt->bindValue(':env', $env);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
@@ -300,7 +213,7 @@ class Host extends Model
     /**
      *  Update agent status in database
      */
-    public function updateAgentStatus(string $id, string $status)
+    public function updateAgentStatus(string $id, string $status) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE hosts SET Online_status = :onlineStatus, Online_status_date = :onlineStatusDate, Online_status_time = :OnlineStatusTime WHERE Id = :id");
@@ -309,7 +222,7 @@ class Host extends Model
             $stmt->bindValue(':OnlineStatusTime', date('H:i:s'));
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
@@ -317,14 +230,14 @@ class Host extends Model
     /**
      *  Update linupdate version in database
      */
-    public function updateLinupdateVersion(string $id, string $version)
+    public function updateLinupdateVersion(string $id, string $version) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE hosts SET Linupdate_version = :version WHERE Id = :id");
             $stmt->bindValue(':version', $version);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
@@ -332,58 +245,30 @@ class Host extends Model
     /**
      *  Update host's reboot required status in database
      */
-    public function updateRebootRequired(string $id, string $status)
+    public function updateRebootRequired(string $id, string $status) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE hosts SET Reboot_required = :reboot WHERE Id = :id");
             $stmt->bindValue(':reboot', $status);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
 
     /**
-     *  Suppression d'un paquet dans la table packages_available
+     *  Return the host Id from its authId
      */
-    public function deletePackageAvailable(string $packageName, string $packageVersion)
+    public function getIdByAuth(string $authId) : int|null
     {
-        try {
-            $stmt = $this->dedicatedDb->prepare("DELETE FROM packages_available WHERE Name = :name and Version = :version");
-            $stmt->bindValue(':name', $packageName);
-            $stmt->bindValue(':version', $packageVersion);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            $this->dedicatedDb->logError($e);
-        }
-    }
-
-    /**
-     *  Vidage de la table packages_available
-     */
-    public function cleanPackageAvailableTable()
-    {
-        $this->dedicatedDb->exec("DELETE FROM packages_available");
-
-        /**
-         *  Nettoie l'espace inutilisé suite à la suppression du contenu de la table
-         */
-        $this->dedicatedDb->exec("VACUUM");
-    }
-
-    /**
-     *  Récupère l'ID en BDD d'un hôte
-     */
-    public function getIdByAuth(string $authId)
-    {
-        $id = '';
+        $id = null;
 
         try {
             $stmt = $this->db->prepare("SELECT Id FROM hosts WHERE AuthId = :authId");
             $stmt->bindValue(':authId', $authId);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
 
@@ -395,19 +280,19 @@ class Host extends Model
     }
 
     /**
-     *  Récupère toutes les informations de l'hôte à partir de son ID
+     *  Return all host information from its Id
      */
-    public function getAllById(string $id)
+    public function getAll(string $id) : array
     {
+        $data = array();
+
         try {
             $stmt = $this->db->prepare("SELECT * from hosts WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
-
-        $data = array();
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $data = $row;
@@ -419,7 +304,7 @@ class Host extends Model
     /**
      *  Return hosts that have the specified kernel
      */
-    public function getHostWithKernel(string $kernel)
+    public function getHostWithKernel(string $kernel) : array
     {
         $hosts = array();
 
@@ -430,7 +315,7 @@ class Host extends Model
             ORDER BY Hostname ASC");
             $stmt->bindValue(':kernel', $kernel);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
 
@@ -444,7 +329,7 @@ class Host extends Model
     /**
      *  Return hosts that have the specified profile
      */
-    public function getHostWithProfile(string $profile)
+    public function getHostWithProfile(string $profile) : array
     {
         $hosts = array();
 
@@ -455,7 +340,7 @@ class Host extends Model
             ORDER BY Hostname ASC");
             $stmt->bindValue(':profile', $profile);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
 
@@ -467,117 +352,16 @@ class Host extends Model
     }
 
     /**
-     *  Retourne un array avec toutes les informations concernant un paquet
+     *  Return true if the Id/token pair is valid
      */
-    public function getPackageInfo(string $packageId)
-    {
-        try {
-            $stmt = $this->dedicatedDb->prepare("SELECT * FROM packages WHERE Id = :packageId");
-            $stmt->bindValue(':packageId', $packageId);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->dedicatedDb->logError($e);
-        }
-
-        $data = array();
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $data = $row;
-        }
-
-        return $data;
-    }
-
-    /**
-     *  Retourne l'Id d'un package en BDD
-     */
-    public function getPackageId(string $packageName, string $packageVersion = null)
-    {
-        /**
-         *  Récupération à partir du nom et de la version si les deux ont été fourni
-         */
-        if (!empty($packageName) and !empty($packageVersion)) {
-            try {
-                $stmt = $this->dedicatedDb->prepare("SELECT Id FROM packages WHERE Name = :name and Version = :version");
-                $stmt->bindValue(':name', $packageName);
-                $stmt->bindValue(':version', $packageVersion);
-                $result = $stmt->execute();
-            } catch (\Exception $e) {
-                $this->dedicatedDb->logError($e);
-            }
-
-            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-                $id = $row['Id'];
-            }
-
-            return $id;
-
-        /**
-         *  Sinon si on a fourni uniquement le nom du paquet à chercher
-         */
-        } elseif (!empty($packageName)) {
-            try {
-                $stmt = $this->dedicatedDb->prepare("SELECT Id FROM packages WHERE Name = :name");
-                $stmt->bindValue(':name', $packageName);
-                $result = $stmt->execute();
-            } catch (\Exception $e) {
-                $this->dedicatedDb->logError($e);
-            }
-
-            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-                $id = $row['Id'];
-            }
-
-            return $id;
-        }
-
-        return false;
-    }
-
-    /**
-     *  Retourne l'état actuel d'un paquet (table packages)
-     */
-    public function getPackageState(string $packageName, string $packageVersion = null)
-    {
-        try {
-            /**
-             *  Cas où on a précisé un numéro de version
-             */
-            if (!empty($packageVersion)) {
-                $stmt = $this->dedicatedDb->prepare("SELECT State FROM packages WHERE Name = :name and Version = :version");
-                $stmt->bindValue(':version', $packageVersion);
-
-            /**
-             *  Cas où on n'a pas précisé un numéro de version
-             */
-            } else {
-                $stmt = $this->dedicatedDb->prepare("SELECT State FROM packages WHERE Name = :name");
-            }
-
-            $stmt->bindValue(':name', $packageName);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->dedicatedDb->logError($e);
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $state = $row['State'];
-        }
-
-        return $state;
-    }
-
-    /**
-     *  Vérifie que le couple ID/token est valide
-     */
-    public function checkIdToken(string $authId, string $token)
+    public function checkIdToken(string $authId, string $token) : bool
     {
         try {
             $stmt = $this->db->prepare("SELECT Id FROM hosts WHERE AuthId = :authId and Token = :token and Status = 'active'");
             $stmt->bindValue(':authId', $authId);
             $stmt->bindValue(':token', $token);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
 
@@ -589,15 +373,13 @@ class Host extends Model
     }
 
     /**
-     *  Liste tous les hôtes
+     *  Return all hosts
      */
-    public function listAll(string $status)
+    public function listAll() : array
     {
-        if ($status == 'active') {
-            $result = $this->db->query("SELECT * FROM hosts WHERE Status = 'active'");
-        }
-
         $datas = array();
+
+        $result = $this->db->query("SELECT * FROM hosts WHERE Status = 'active'");
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $datas[] = $row;
@@ -607,10 +389,9 @@ class Host extends Model
     }
 
     /**
-     *  Fonction qui liste tous les noms d'OS référencés en les comptant
-     *  Retourne le nom des Os et leur nombre
+     *  Return all OS names and their count
      */
-    public function listCountOS()
+    public function listCountOS() : array
     {
         $os = array();
 
@@ -624,10 +405,9 @@ class Host extends Model
     }
 
     /**
-     *  Fonction qui liste tous les kernel d'hôtes référencés en les comptant
-     *  Retourne la version des kernels et leur nombre
+     *  Return all kernel names and their count
      */
-    public function listCountKernel()
+    public function listCountKernel() : array
     {
         $kernel = array();
 
@@ -641,10 +421,9 @@ class Host extends Model
     }
 
     /**
-     *  Fonction qui liste tous les arch d'hôtes référencés en les comptant
-     *  Retourne la version des arch et leur nombre
+     *  Return all arch names and their count
      */
-    public function listCountArch()
+    public function listCountArch() : array
     {
         $arch = array();
 
@@ -658,10 +437,9 @@ class Host extends Model
     }
 
     /**
-     *  Fonction qui liste tous les env d'hôtes référencés en les comptant
-     *  Retourne le nom des env et leur nombre
+     *  Return all env names and their count
      */
-    public function listCountEnv()
+    public function listCountEnv() : array
     {
         $env = array();
 
@@ -675,10 +453,9 @@ class Host extends Model
     }
 
     /**
-     *  Fonction qui liste tous les profils d'hôtes référencés en les comptant
-     *  Retourne le nom des profils et leur nombre
+     *  Return all profile names and their count
      */
-    public function listCountProfile()
+    public function listCountProfile() : array
     {
         $profile = array();
 
@@ -692,9 +469,9 @@ class Host extends Model
     }
 
     /**
-     *  List all hosts agent status and count them
+     *  Return all agent status and their count
      */
-    public function listCountAgentStatus()
+    public function listCountAgentStatus() : array
     {
         $agentStatus = array();
 
@@ -726,10 +503,9 @@ class Host extends Model
     }
 
     /**
-     *  List all hosts agent and count them
-     *  Returns agent version and total
+     *  Return all agent version and their count
      */
-    public function listCountAgentVersion()
+    public function listCountAgentVersion() : array
     {
         $agent = array();
 
@@ -743,9 +519,9 @@ class Host extends Model
     }
 
     /**
-     *  List all hosts that require a reboot and count them
+     *  Return all hosts that require a reboot
      */
-    public function listRebootRequired()
+    public function listRebootRequired() : array
     {
         $hosts = array();
 
@@ -759,15 +535,15 @@ class Host extends Model
     }
 
     /**
-     *  Vérifie si l'Ip existe en BDD parmis les hôtes actifs
+     *  Return true if the IP exists in the database
      */
-    public function ipExists(string $ip)
+    public function ipExists(string $ip) : bool
     {
         try {
             $stmt = $this->db->prepare("SELECT Ip FROM hosts WHERE Ip = :ip and Status = 'active'");
             $stmt->bindValue(':ip', \Controllers\Common::validateData($ip));
             $result = $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
 
@@ -779,15 +555,15 @@ class Host extends Model
     }
 
     /**
-     *  Vérifie si le hostname de l'hôte existe en BDD
+     *  Return true if the hostname exists in the database
      */
-    public function hostnameExists(string $hostname)
+    public function hostnameExists(string $hostname) : bool
     {
         try {
             $stmt = $this->db->prepare("SELECT Hostname FROM hosts WHERE Hostname = :hostname");
             $stmt->bindValue(':hostname', \Controllers\Common::validateData($hostname));
             $result = $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
 
@@ -799,199 +575,15 @@ class Host extends Model
     }
 
     /**
-     *  Vérifie l'existence d'un paquet dans la table packages
+     *  Return hosts settings
      */
-    public function packageExists(string $packageName)
-    {
-        try {
-            $stmt = $this->dedicatedDb->prepare("SELECT * FROM packages WHERE Name = :name");
-            $stmt->bindValue(':name', \Controllers\Common::validateData($packageName));
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->dedicatedDb->logError($e);
-        }
-
-        if ($this->dedicatedDb->isempty($result) === true) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     *  Vérifie l'existence d'un paquet et sa version dans la table package
-     */
-    public function packageVersionExists(string $packageName, string $packageVersion)
-    {
-        try {
-            $stmt = $this->dedicatedDb->prepare("SELECT * FROM packages WHERE Name = :name and Version = :version");
-            $stmt->bindValue(':name', $packageName);
-            $stmt->bindValue(':version', $packageVersion);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->dedicatedDb->logError($e);
-        }
-
-        if ($this->dedicatedDb->isempty($result) === true) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     *  Search hosts with specified package
-     */
-    public function getHostsWithPackage(string $packageName)
-    {
-        $packages = array();
-
-        try {
-            $stmt = $this->dedicatedDb->prepare("SELECT Name, Version FROM packages WHERE Name LIKE :name");
-            $stmt->bindValue(':name', "${packageName}%");
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->dedicatedDb->logError($e);
-        }
-
-        /**
-         *  If no result, return empty array
-         */
-        if ($this->dedicatedDb->isempty($result) === true) {
-            return $packages;
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $packageName = $row['Name'];
-            $packageVersion = $row['Version'];
-            $packages[$packageName] = $packageVersion;
-        }
-
-        /**
-         *  Le résultat sera traité par js donc on transmets un array au format JSON
-         */
-        return $packages;
-    }
-
-    /**
-     *  Vérifie l'existence d'un paquet dans la table packages_available
-     */
-    public function packageAvailableExists(string $packageName)
-    {
-        try {
-            $stmt = $this->dedicatedDb->prepare("SELECT * FROM packages_available WHERE Name = :name");
-            $stmt->bindValue(':name', $packageName);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->dedicatedDb->logError($e);
-        }
-
-        if ($this->dedicatedDb->isempty($result) === true) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     *  Vérifie l'existence d'un paquet et sa version dans la table package_available
-     */
-    public function packageVersionAvailableExists(string $packageName, string $packageVersion)
-    {
-        try {
-            $stmt = $this->dedicatedDb->prepare("SELECT * FROM packages_available WHERE Name = :name and Version = :version");
-            $stmt->bindValue(':name', $packageName);
-            $stmt->bindValue(':version', $packageVersion);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->dedicatedDb->logError($e);
-        }
-
-        if ($this->dedicatedDb->isempty($result) === true) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     *  Ajout d'un paquet dans la table 'packages_available'
-     */
-    public function addPackageAvailable(string $name, string $version)
-    {
-        try {
-            $stmt = $this->dedicatedDb->prepare("INSERT INTO packages_available ('Name', 'Version') VALUES (:name, :version)");
-            $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':version', $version);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            $this->dedicatedDb->logError($e);
-        }
-    }
-
-    /**
-     *  Mise à jour d'un paquet dans la table 'packages_available'
-     */
-    public function updatePackageAvailable(string $name, string $version)
-    {
-        try {
-            $stmt = $this->dedicatedDb->prepare("UPDATE packages_available SET Version = :version WHERE Name = :name");
-            $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':version', $version);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            $this->dedicatedDb->logError($e);
-        }
-    }
-
-    /**
-     *  Retourne true si un évènement existe à la date et heure spécifiés
-     */
-    public function eventExists(string $dateStart, string $timeStart)
-    {
-        try {
-            $stmt = $this->dedicatedDb->prepare("SELECT Id FROM events WHERE Date = :date_start and Time = :time_start");
-            $stmt->bindValue(':date_start', $dateStart);
-            $stmt->bindValue(':time_start', $timeStart);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->dedicatedDb->logError($e);
-        }
-
-        if ($this->dedicatedDb->isempty($result) === true) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     *  Ajoute un nouvel évènement en base de données
-     */
-    public function addEvent(string $dateStart, string $dateEnd, string $timeStart, string $timeEnd)
-    {
-        try {
-            $stmt = $this->dedicatedDb->prepare("INSERT INTO events ('Date', 'Date_end', 'Time', 'Time_end', 'Status') VALUES (:date_start, :date_end, :time_start, :time_end, 'done')");
-            $stmt->bindValue(':date_start', $dateStart);
-            $stmt->bindValue(':date_end', $dateEnd);
-            $stmt->bindValue(':time_start', $timeStart);
-            $stmt->bindValue(':time_end', $timeEnd);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            $this->dedicatedDb->logError($e);
-        }
-    }
-
-    /**
-     *  Récupération des paramètres généraux (table settings)
-     */
-    public function getSettings()
+    public function getSettings() : array
     {
         $settings = array();
 
         try {
             $result = $this->db->query("SELECT * FROM settings");
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
 
@@ -1005,57 +597,22 @@ class Host extends Model
     /**
      *  Edit the display settings on the hosts page
      */
-    public function setSettings(string $packagesConsideredOutdated, string $packagesConsideredCritical)
+    public function setSettings(string $packagesConsideredOutdated, string $packagesConsideredCritical) : void
     {
         try {
             $stmt = $this->db->prepare("UPDATE settings SET pkgs_count_considered_outdated = :packagesConsideredOutdated, pkgs_count_considered_critical = :packagesConsideredCritical");
             $stmt->bindValue(':packagesConsideredOutdated', $packagesConsideredOutdated);
             $stmt->bindValue(':packagesConsideredCritical', $packagesConsideredCritical);
             $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
 
     /**
-     *  Récupère la liste des paquets issus d'un évènemnt et dont l'état des paquets est défini par $packageState (installed, upgraded, removed)
-     *  Les informations sont récupérées à la fois dans la table packages et dans packages_history
-     */
-    public function getEventPackagesList(string $eventId, string $packageState)
-    {
-        /**
-         *  Si la BDD dédiée à l'hôte n'est pas instanciée dans $this->dedicatedDb alors on quitte
-         */
-        if (empty($this->dedicatedDb)) {
-            return false;
-        }
-
-        try {
-            $stmt = $this->dedicatedDb->prepare("SELECT * FROM packages
-            WHERE Id_event = :eventId and State = :packageState
-            UNION
-            SELECT * FROM packages_history       
-            WHERE Id_event = :eventId and State = :packageState");
-            $stmt->bindValue(':eventId', \Controllers\Common::validateData($eventId));
-            $stmt->bindValue(':packageState', \Controllers\Common::validateData($packageState));
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->dedicatedDb->logError($e);
-        }
-
-        $datas = array();
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $datas[] = $row;
-        }
-
-        return $datas;
-    }
-
-    /**
      *  Return the hostname of the host by its Id
      */
-    public function getHostnameById(int $id)
+    public function getHostnameById(int $id) : string
     {
         $hostname = '';
 
@@ -1063,7 +620,7 @@ class Host extends Model
             $stmt = $this->db->prepare("SELECT Hostname FROM hosts WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
 
@@ -1075,15 +632,17 @@ class Host extends Model
     }
 
     /**
-     *  Retourne l'IP d'un hôte à partir de son Id
+     *  Return the IP of a host from its Id
      */
-    public function getIpById(string $id)
+    public function getIpById(string $id) : string
     {
+        $ip = '';
+
         try {
             $stmt = $this->db->prepare("SELECT Ip FROM hosts WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
 
@@ -1095,31 +654,9 @@ class Host extends Model
     }
 
     /**
-     *  Retourne l'état (ping) d'un hôte en base de données
-     */
-    public function getHostStatus(string $hostname)
-    {
-        try {
-            $stmt = $this->db->prepare("SELECT Status FROM hosts WHERE Hostname = :hostname");
-            $stmt->bindValue(':hostname', $hostname);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-
-        $status = '';
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $status = $row['Status'];
-        }
-
-        return $status;
-    }
-
-    /**
      *  Add a new host in database
      */
-    public function add(string $ip, string $hostname, string $authId, string $token, string $onlineStatus, string $date, string $time)
+    public function add(string $ip, string $hostname, string $authId, string $token, string $onlineStatus, string $date, string $time) : void
     {
         try {
             $stmt = $this->db->prepare("INSERT INTO hosts (Ip, Hostname, AuthId, Token, Online_status, Online_status_date, Online_status_time, Status) VALUES (:ip, :hostname, :id, :token, :online_status, :date, :time, 'active')");
@@ -1131,7 +668,7 @@ class Host extends Model
             $stmt->bindValue(':date', $date);
             $stmt->bindValue(':time', $time);
             $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
@@ -1151,29 +688,9 @@ class Host extends Model
     }
 
     /**
-     *  Mise à jour d'un hôte en base de données
-     */
-    public function updateHost(string $ip, string $hostname, string $authId, string $token, string $onlineStatus, string $date, string $time)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Ip = :ip, AuthId = :id, Token = :token, Online_status = :online_status, Online_status_date = :date, Online_status_time = :time, Status = 'active' WHERE Hostname = :hostname");
-            $stmt->bindValue(':ip', $ip);
-            $stmt->bindValue(':hostname', $hostname);
-            $stmt->bindValue(':id', $authId);
-            $stmt->bindValue(':token', $token);
-            $stmt->bindValue(':online_status', $onlineStatus);
-            $stmt->bindValue(':date', $date);
-            $stmt->bindValue(':time', $time);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
      *  Reset host data
      */
-    public function resetHost(string $hostId)
+    public function resetHost(string $hostId) : void
     {
         try {
             /**
@@ -1196,7 +713,7 @@ class Host extends Model
             while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
                 if (file_exists(WS_REQUESTS_LOGS_DIR . '/request-' . $row['Id'] . '.log')) {
                     if (!unlink(WS_REQUESTS_LOGS_DIR . '/request-' . $row['Id'] . '.log')) {
-                        throw new \Exception('Unable to delete request log file: ' . WS_REQUESTS_LOGS_DIR . '/request-' . $row['Id'] . '.log');
+                        throw new Exception('Unable to delete request log file: ' . WS_REQUESTS_LOGS_DIR . '/request-' . $row['Id'] . '.log');
                     }
                 }
             }
@@ -1207,42 +724,21 @@ class Host extends Model
             $stmt = $this->db->prepare("DELETE FROM requests WHERE Id_host = :id");
             $stmt->bindValue(':id', $hostId);
             $stmt->execute();
-
-            /**
-             *  Delete all tables in host database
-             */
-            $this->dedicatedDb->exec("DROP TABLE events");
-            $this->dedicatedDb->exec("DROP TABLE packages");
-            $this->dedicatedDb->exec("DROP TABLE packages_available");
-            $this->dedicatedDb->exec("DROP TABLE packages_history");
-
-            /**
-             *  Then we regenerate them empty
-             */
-            $this->dedicatedDb->generateHostTables();
-        } catch (\Exception $e) {
-            $this->dedicatedDb->logError($e);
+        } catch (Exception $e) {
+            $this->db->logError($e);
         }
     }
 
     /**
-     *  Return the last insert row ID in the dedicated database for a host
+     *  Return true if the host Id exists in the database
      */
-    public function getHostLastInsertRowID()
-    {
-        return $this->dedicatedDb->lastInsertRowID();
-    }
-
-    /**
-     *  Retourne true si l'Id d'hôte existe en base de données
-     */
-    public function existsId(string $id)
+    public function existsId(string $id) : bool
     {
         try {
             $stmt = $this->db->prepare("SELECT Id FROM hosts WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
 
@@ -1254,13 +750,13 @@ class Host extends Model
     }
 
     /**
-     *  Ajout de l'hôte au groupe spécifié en base de données
+     *  Add the host to the specified group in the database
      */
-    public function addToGroup(string $hostId, string $groupId)
+    public function addToGroup(string $hostId, string $groupId) : void
     {
         /**
-         *  On vérifie d'abord que l'hôte n'est pas déjà membre du groupe
-         *  Le raffraichissement du <select> peut provoquer deux fois l'ajout du repo dans le groupe, donc on fait cette vérification pour palier à ce bug
+         *  First, check if the host is not already a member of the group
+         *  (refreshing the <select> can cause the repo to be added to the group twice, so we do this check to avoid this bug)
          */
         try {
             $stmt = $this->db->prepare("SELECT Id FROM group_members WHERE Id_host = :hostId AND Id_group = :groupId");
@@ -1272,7 +768,7 @@ class Host extends Model
         }
 
         /**
-         *  Si l'hôte est déjà présent on ne fait rien
+         *  If the host is already present, do nothing
          */
         if ($this->db->isempty($result) === false) {
             return;
@@ -1289,14 +785,12 @@ class Host extends Model
     }
 
     /**
-     *  Retrait d'un hôte du groupe spécifié
+     *  Remove the host from the specified group
      */
-    public function removeFromGroup(string $hostId, string $groupId = null)
+    public function removeFromGroup(string $hostId, string $groupId = null) : void
     {
         try {
-            /**
-             *  Si on a précisé l'Id du groupe
-             */
+            // If the groupId is specified
             if (!empty($groupId)) {
                 $stmt = $this->db->prepare("DELETE FROM group_members WHERE Id_host = :hostId AND Id_group = :groupId");
                 $stmt->bindValue(':groupId', $groupId);
@@ -1305,30 +799,28 @@ class Host extends Model
             }
             $stmt->bindValue(':hostId', $hostId);
             $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
 
     /**
-     *  Retourne le nombre d'hôtes utilisant le profil spécifié
+     *  Return the number of hosts using the specified profile
      */
-    public function countByProfile(string $profile)
+    public function countByProfile(string $profile) : int
     {
-        $hosts = array();
+        $hosts = 0;
 
         try {
-            $stmt = $this->db->prepare("SELECT Id FROM hosts WHERE Profile = :profile AND Status = 'active'");
+            $stmt = $this->db->prepare("SELECT COUNT(Id) as count FROM hosts WHERE Profile = :profile AND Status = 'active'");
             $stmt->bindValue(':profile', $profile);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $hosts[] = $row;
+            return $row['count'];
         }
-
-        return count($hosts);
     }
 }

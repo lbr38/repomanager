@@ -14,8 +14,8 @@ if ($myrepo->getPackageType() == 'deb') {
 <input type="text" class="task-param" param-name="name" required />
 
 <h6>POINT AN ENVIRONMENT</h6>
-<p class="note">Point an environment to the new snapshot.</p>
-<select id="duplicate-repo-target-env-select-<?=$myrepo->getSnapId()?>" class="task-param" param-name="env">
+<p class="note">Select one or multiple environments to point to the new repository snapshot.</p>
+<select id="duplicate-repo-target-env-select-<?=$myrepo->getSnapId()?>" class="task-param" param-name="env" multiple>
     <option value=""></option>
     <?php
     foreach (ENVS as $env) {
@@ -59,6 +59,8 @@ $scheduleForm['type'] = array('unique'); ?>
 
 <script>
 $(document).ready(function(){
+    selectToSelect2('#duplicate-repo-target-env-select-<?=$myrepo->getSnapId()?>');
+
     /**
      *  Print description field only if an environment is specified
      */

@@ -165,7 +165,7 @@
          */
         $labels = "'Up to date', 'Need update'";
         $datas = "'" . HOSTS_TOTAL_UPTODATE . "', '" . HOSTS_TOTAL_NOT_UPTODATE . "'";
-        $backgrounds = "'rgb(75, 192, 192)','rgb(255, 99, 132)'";
+        $backgrounds = "'#24d794','#F32F63'";
         $title = '';
         $chartId = 'hosts-count-chart';
 

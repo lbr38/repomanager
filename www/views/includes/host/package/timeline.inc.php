@@ -38,7 +38,7 @@
         } ?>
 
         <div class="timeline-container timeline-container-<?= $contentPosition ?>">
-            <div class="table-container flex align-item-center column-gap-20">
+            <div class="div-generic-blue flex align-item-center column-gap-20">
                 <img src="/assets/icons/<?=  $contentIcon ?>.svg" class="icon" />
 
                 <div class="flex flex-direction-column">

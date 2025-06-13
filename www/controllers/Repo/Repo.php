@@ -25,6 +25,7 @@ class Repo
     private $dateFormatted;
     private $time;
     private $env;
+    private $envs;
     private $description;
     private $group;
     private $packagesToInclude = [];
@@ -34,10 +35,6 @@ class Repo
     private $rebuild;
     private $gpgCheck;
     private $gpgSign;
-    private $targetName;
-    private $targetDate;
-    private $targetTime;
-    private $targetEnv;
     private $releasever;
     private $targetArch;
 
@@ -77,7 +74,7 @@ class Repo
         $this->section = $section;
     }
 
-    public function setEnv(string $env)
+    public function setEnv(string|array $env)
     {
         $this->env = $env;
     }
@@ -130,16 +127,6 @@ class Repo
     public function setPackageType(string $type)
     {
         $this->packageType = $type;
-    }
-
-    public function setTargetName(string $name)
-    {
-        $this->targetName = $name;
-    }
-
-    public function setTargetEnv(string $env)
-    {
-        $this->targetEnv = $env;
     }
 
     public function setGroup(string $group)
@@ -226,11 +213,6 @@ class Repo
         return $this->env;
     }
 
-    public function getTargetEnv()
-    {
-        return $this->targetEnv;
-    }
-
     public function getDate()
     {
         return $this->date;
@@ -299,11 +281,6 @@ class Repo
     public function getDescription()
     {
         return $this->description;
-    }
-
-    public function getTargetName()
-    {
-        return $this->targetName;
     }
 
     public function getGroup()
@@ -551,7 +528,7 @@ class Repo
     /**
      *  Return latest snapshot Id from repo Id
      */
-    public function getLatestSnapId(int $repoId)
+    public function getLatestSnapId(int $repoId) : int|null
     {
         return $this->model->getLatestSnapId($repoId);
     }
@@ -593,125 +570,6 @@ class Repo
     public function getDescriptionByName(string $name, string $dist = null, string $section = null, string $env)
     {
         return $this->model->getDescriptionByName($name, $dist, $section, $env);
-    }
-
-    /**
-     *  Nettoyage des snapshots inutilisés
-     */
-    public function cleanSnapshots()
-    {
-        $returnOutput = '';
-        $removedSnaps = array();
-        $removedSnapsError = array();
-        $removedSnapsFinalArray = array();
-
-        if (!is_int(RETENTION) or RETENTION < 0) {
-            return;
-        }
-
-        /**
-         *  On récupère tous les Id et noms de repos
-         */
-        $repos = $this->repoListingController->listNameOnly(true);
-
-        /**
-         *  Pour chaque repo on récupère la liste des snapshots inutilisés (snapshots qui n'ont aucun environnement actif) et on les traite si il y en a
-         */
-        if (!empty($repos)) {
-            foreach ($repos as $repo) {
-                $repoId = $repo['Id'];
-                $repoName = $repo['Name'];
-                if (!empty($repo['Dist'])) {
-                    $repoDist = $repo['Dist'];
-                }
-                if (!empty($repo['Section'])) {
-                    $repoSection = $repo['Section'];
-                }
-                $packageType = $repo['Package_type'];
-
-                /**
-                 *  Récupération des snapshots inutilisés de ce repo
-                 */
-                $unusedSnapshots = $this->model->getUnunsedSnapshot($repoId, RETENTION);
-
-                /**
-                 *  Si il y a des snapshots inutilisés alors on traite
-                 */
-                if (!empty($unusedSnapshots)) {
-                    foreach ($unusedSnapshots as $unusedSnapshot) {
-                        $snapId = $unusedSnapshot['snapId'];
-                        $snapDate = $unusedSnapshot['Date'];
-                        $snapDateFormatted = DateTime::createFromFormat('Y-m-d', $snapDate)->format('d-m-Y');
-                        $result = '';
-
-                        if ($packageType == 'rpm') {
-                            if (is_dir(REPOS_DIR . '/' . $snapDateFormatted . '_' . $repoName)) {
-                                $result = \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/' . $snapDateFormatted . '_' . $repoName);
-                            }
-                        }
-                        if ($packageType == 'deb') {
-                            if (is_dir(REPOS_DIR . '/' . $repoName . '/' . $repoDist . '/' . $snapDateFormatted . '_' . $repoSection)) {
-                                $result = \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/' . $repoName . '/' . $repoDist . '/' . $snapDateFormatted . '_' . $repoSection);
-                            }
-                        }
-
-                        /**
-                         *  Cas où le snapshot a été supprimé avec succès
-                         */
-                        if ($result === true) {
-                            if ($packageType == 'rpm') {
-                                $removedSnaps[] = '<span class="label-white">' . $repoName . '</span>⸺<span class="label-black">' . $snapDateFormatted . '</span> snapshot has been deleted';
-                            }
-                            if ($packageType == 'deb') {
-                                $removedSnaps[] = '<span class="label-white">' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</span>⸺<span class="label-black">' . $snapDateFormatted . '</span> snapshot has been deleted';
-                            }
-
-                            /**
-                             *  Changement du status en base de données
-                             */
-                            $this->snapSetStatus($snapId, 'deleted');
-
-                        /**
-                         *  Cas où il y a eu une erreur lors de la suppression
-                         */
-                        } else {
-                            if ($packageType == 'rpm') {
-                                $removedSnapsError[] = 'Error while automatically deleting snapshot <span class="label-white">' . $repoName . '</span>⸺<span class="label-black">' . $snapDateFormatted . '</span>';
-                            }
-                            if ($packageType == 'deb') {
-                                $removedSnapsError[] = 'Error while automatically deleting snapshot <span class="label-white">' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</span>⸺<span class="label-black">' . $snapDateFormatted . '</span>';
-                            }
-                            /**
-                             *  On passe au snapshot suivant (et donc on ne change pas le status du snapshot en base de données puisqu'il n'a pas pu être supprimé)
-                             */
-                            continue;
-                        }
-                    }
-                }
-            }
-
-            /**
-             *  On merge les deux array contenant des messages de suppression ou d'erreur
-             */
-            if (!empty($removedSnapsError)) {
-                $removedSnapsFinalArray = array_merge($removedSnapsFinalArray, $removedSnapsError);
-            }
-
-            if (!empty($removedSnaps)) {
-                $removedSnapsFinalArray = array_merge($removedSnapsFinalArray, $removedSnaps);
-            }
-
-            /**
-             *  Si des messages ont été récupérés alors on forge le message qui sera affiché dans le log
-             */
-            if (!empty($removedSnapsFinalArray)) {
-                foreach ($removedSnapsFinalArray as $removedSnap) {
-                    $returnOutput .= $removedSnap . '<br>';
-                }
-            }
-        }
-
-        return $returnOutput;
     }
 
     /**
@@ -765,14 +623,6 @@ class Repo
     }
 
     /**
-     *  Set snapshot status
-     */
-    public function snapSetStatus(string $snapId, string $status)
-    {
-        $this->model->snapSetStatus($snapId, $status);
-    }
-
-    /**
      *  Set snapshot signature status
      */
     public function snapSetSigned(string $snapId, string $signed)
@@ -818,14 +668,6 @@ class Repo
     public function addSnap(string $date, string $time, string $gpgSignature, array $arch, array $includeTranslation, array $packagesIncluded, array $packagesExcluded, string $type, string $status, string $repoId)
     {
         $this->model->addSnap($date, $time, $gpgSignature, $arch, $includeTranslation, $packagesIncluded, $packagesExcluded, $type, $status, $repoId);
-    }
-
-    /**
-     *  Associate a new env to a snapshot
-     */
-    public function addEnv(string $env, string $description = null, string $snapId)
-    {
-        $this->model->addEnv($env, $description, $snapId);
     }
 
     /**

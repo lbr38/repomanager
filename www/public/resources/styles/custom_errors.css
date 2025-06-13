@@ -24,7 +24,7 @@ body { background-color: #112334; }
     font-family: 'Roboto', sans-serif;
     color: white;
     text-align: center;
-    border-radius: 8px;
+    border-radius: 20px;
     background-color: #182b3e;
     -webkit-box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
     box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;

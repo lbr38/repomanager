@@ -15,9 +15,9 @@
 
 #explorer li > div {
     min-height: 30px;
-    padding: 9px 15px 9px 15px;
+    padding: 10px 15px;
     margin-bottom: 6px;
-    border-radius: 8px;
+    border-radius: 20px;
     box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
 }
 

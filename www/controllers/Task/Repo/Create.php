@@ -14,6 +14,8 @@ class Create
 
     private $repo;
     private $task;
+    private $repoSnapshotController;
+    private $repoEnvController;
     private $taskLogStepController;
     private $taskLogSubStepController;
     private $type;
@@ -23,6 +25,8 @@ class Create
     {
         $this->repo = new \Controllers\Repo\Repo();
         $this->task = new \Controllers\Task\Task();
+        $this->repoSnapshotController = new \Controllers\Repo\Snapshot();
+        $this->repoEnvController = new \Controllers\Repo\Environment();
         $this->taskLogStepController = new \Controllers\Task\Log\Step($taskId);
         $this->taskLogSubStepController = new \Controllers\Task\Log\SubStep($taskId);
 
@@ -233,32 +237,34 @@ class Create
              *  Create environment symlink, if an environment has been specified
              */
             if (!empty($this->repo->getEnv())) {
-                if ($this->repo->getPackageType() == 'rpm') {
-                    $targetFile = $this->repo->getDateFormatted() . '_' . $this->repo->getName();
-                    $link = REPOS_DIR . '/' . $this->repo->getName() . '_' . $this->repo->getEnv();
-                }
-                if ($this->repo->getPackageType() == 'deb') {
-                    $targetFile = $this->repo->getDateFormatted() . '_' . $this->repo->getSection();
-                    $link = REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '_' . $this->repo->getEnv();
-                }
-
-                /**
-                 *  If a symlink with the same name already exists, we remove it
-                 */
-                if (is_link($link)) {
-                    if (!unlink($link)) {
-                        throw new Exception('Could not remove existing symlink ' . $link);
+                foreach ($this->repo->getEnv() as $env) {
+                    if ($this->repo->getPackageType() == 'rpm') {
+                        $targetFile = $this->repo->getDateFormatted() . '_' . $this->repo->getName();
+                        $link = REPOS_DIR . '/' . $this->repo->getName() . '_' . $env;
                     }
-                }
+                    if ($this->repo->getPackageType() == 'deb') {
+                        $targetFile = $this->repo->getDateFormatted() . '_' . $this->repo->getSection();
+                        $link = REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '_' . $env;
+                    }
 
-                /**
-                 *  Create symlink
-                 */
-                if (!symlink($targetFile, $link)) {
-                    throw new Exception('Could not point environment to the repository');
-                }
+                    /**
+                     *  If a symlink with the same name already exists, we remove it
+                     */
+                    if (is_link($link)) {
+                        if (!unlink($link)) {
+                            throw new Exception('Could not remove existing symlink ' . $link);
+                        }
+                    }
 
-                unset($targetFile, $link);
+                    /**
+                     *  Create symlink
+                     */
+                    if (!symlink($targetFile, $link)) {
+                        throw new Exception('Could not point environment to the repository');
+                    }
+
+                    unset($targetFile, $link);
+                }
             }
 
             /**
@@ -335,7 +341,9 @@ class Create
              *  Add env to database if an env has been specified by the user
              */
             if (!empty($this->repo->getEnv())) {
-                $this->repo->addEnv($this->repo->getEnv(), $this->repo->getDescription(), $this->repo->getSnapId());
+                foreach ($this->repo->getEnv() as $env) {
+                    $this->repoEnvController->add($env, $this->repo->getDescription(), $this->repo->getSnapId());
+                }
             }
 
             /**

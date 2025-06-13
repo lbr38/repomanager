@@ -6,18 +6,20 @@ use Exception;
 
 class Environment
 {
-    public static function check(string $env) : void
+    public static function check(array $envs) : void
     {
         $myenv = new \Controllers\Environment();
 
-        if (empty($env)) {
+        if (empty($envs)) {
             throw new Exception('Environment must be specified');
         }
 
-        if (!$myenv->exists($env)) {
-            throw new Exception('Specified environment does not exist');
+        foreach ($envs as $env) {
+            if (!$myenv->exists($env)) {
+                throw new Exception('Specified environment does not exist');
+            }
         }
 
-        unset($myenv);
+        unset($envs, $myenv);
     }
 }
