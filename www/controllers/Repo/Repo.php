@@ -670,14 +670,6 @@ class Repo
         $this->model->addSnap($date, $time, $gpgSignature, $arch, $includeTranslation, $packagesIncluded, $packagesExcluded, $type, $status, $repoId);
     }
 
-    // /**
-    //  *  Associate a new env to a snapshot
-    //  */
-    // public function addEnv(string $env, string $description = null, string $snapId)
-    // {
-    //     $this->model->addEnv($env, $description, $snapId);
-    // }
-
     /**
      *  Remove an env in database
      */
