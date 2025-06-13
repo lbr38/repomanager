@@ -237,7 +237,7 @@ class Create
              *  Create environment symlink, if an environment has been specified
              */
             if (!empty($this->repo->getEnv())) {
-                foreach($this->repo->getEnv() as $env) {
+                foreach ($this->repo->getEnv() as $env) {
                     if ($this->repo->getPackageType() == 'rpm') {
                         $targetFile = $this->repo->getDateFormatted() . '_' . $this->repo->getName();
                         $link = REPOS_DIR . '/' . $this->repo->getName() . '_' . $env;

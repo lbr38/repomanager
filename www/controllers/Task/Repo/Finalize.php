@@ -157,7 +157,7 @@ trait Finalize
          *  If the user has specified an environment to point to the created snapshot
          */
         if (!empty($this->repo->getEnv())) {
-            foreach($this->repo->getEnv() as $env) {
+            foreach ($this->repo->getEnv() as $env) {
                 /**
                  *  If the user has not specified any description, then we retrieve the one currently in place on the environment of the same name (if the environment exists and if it has a description)
                  */

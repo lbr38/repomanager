@@ -36,20 +36,20 @@ class Tooltip {
         this.position(e);
 
         // Remove tooltip on mouse leave
-        $(document).on('mouseleave', '#tooltip', function() {
+        $(document).on('mouseleave', '#tooltip', function () {
             $('#tooltip').remove();
         });
 
         // Also remove tooltip if mouse is moved away from the tooltip (like 100px away from all sides)
-        $(document).on('mousemove', function(event) {
+        $(document).on('mousemove', function (event) {
             const tooltip = $('#tooltip');
             if (tooltip.length > 0) {
                 const tooltipOffset = tooltip.offset();
                 const tooltipWidth = tooltip.outerWidth();
                 const tooltipHeight = tooltip.outerHeight();
-                if (event.pageX < tooltipOffset.left - 100 || 
+                if (event.pageX < tooltipOffset.left - 100 ||
                     event.pageX > tooltipOffset.left + tooltipWidth + 100 ||
-                    event.pageY < tooltipOffset.top - 100 || 
+                    event.pageY < tooltipOffset.top - 100 ||
                     event.pageY > tooltipOffset.top + tooltipHeight + 100) {
                     $('#tooltip').remove();
                 }
