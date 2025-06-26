@@ -86,32 +86,34 @@ trait Create
          */
         if ($this->task->getAction() == "create" or $this->task->getAction() == "update") {
             if (!empty($this->repo->getEnv())) {
-                if ($this->repo->getPackageType() == 'rpm') {
-                    $targetFile = $this->repo->getDateFormatted() . '_' . $this->repo->getName();
-                    $link = REPOS_DIR . '/' . $this->repo->getName() . '_' . $this->repo->getEnv();
-                }
-                if ($this->repo->getPackageType() == 'deb') {
-                    $targetFile = $this->repo->getDateFormatted() . '_' . $this->repo->getSection();
-                    $link = REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '_' . $this->repo->getEnv();
-                }
-
-                /**
-                 *  If a symlink with the same name already exists, we remove it
-                 */
-                if (is_link($link)) {
-                    if (!unlink($link)) {
-                        throw new Exception('Could not remove existing symlink ' . $link);
+                foreach ($this->repo->getEnv() as $env) {
+                    if ($this->repo->getPackageType() == 'rpm') {
+                        $targetFile = $this->repo->getDateFormatted() . '_' . $this->repo->getName();
+                        $link = REPOS_DIR . '/' . $this->repo->getName() . '_' . $env;
                     }
-                }
+                    if ($this->repo->getPackageType() == 'deb') {
+                        $targetFile = $this->repo->getDateFormatted() . '_' . $this->repo->getSection();
+                        $link = REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '_' . $env;
+                    }
 
-                /**
-                 *  Create symlink
-                 */
-                if (!symlink($targetFile, $link)) {
-                    throw new Exception('Could not point environment to the repository');
-                }
+                    /**
+                     *  If a symlink with the same name already exists, we remove it
+                     */
+                    if (is_link($link)) {
+                        if (!unlink($link)) {
+                            throw new Exception('Could not remove existing symlink ' . $link);
+                        }
+                    }
 
-                unset($targetFile, $link);
+                    /**
+                     *  Create symlink
+                     */
+                    if (!symlink($targetFile, $link)) {
+                        throw new Exception('Could not point environment to the repository');
+                    }
+
+                    unset($targetFile, $link);
+                }
             }
         }
 

@@ -57,9 +57,9 @@ class FatalErrorHandler
                  *  If a task Id has been set, log the error with the task Id
                  */
                 if (!empty($this->taskId)) {
-                    $this->logController->log('error', 'Fatal error occured while running task #' . $this->taskId . ' (you may have to stop the task manually)', $error['message']);
+                    $this->logController->log('error', 'Fatal error occurred while running task #' . $this->taskId . ' (you may have to stop the task manually)', $error['message']);
                 } else {
-                    $this->logController->log('error', 'Fatal error occured', $error['message']);
+                    $this->logController->log('error', 'Fatal error occurred', $error['message']);
                 }
 
                 $this->layoutContainerReloadController->reload('header/general-log-messages');

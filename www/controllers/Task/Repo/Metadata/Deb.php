@@ -321,7 +321,7 @@ class Deb extends Metadata
             Version        "1.0";
             Origin         "$this->repo > $this->dist > $this->section repository";
             Label          "deb packages repository";
-            Suite          "$this->section";
+            Suite          "$this->dist";
             Codename       "$this->dist";
             Architectures  "$architectures";
             Components     "$this->section";

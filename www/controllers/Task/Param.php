@@ -63,7 +63,6 @@ trait Param
          */
         if (!empty($optionalParams)) {
             foreach ($optionalParams as $param) {
-                // if (!empty($taskParams[$param])) {
                 if (isset($taskParams[$param])) {
                     $setterFunction = $setters[$param];
                     $this->repo->$setterFunction($taskParams[$param]);

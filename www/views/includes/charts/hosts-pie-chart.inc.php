@@ -7,6 +7,7 @@ $(document).ready(function() {
     var pieChartData = {
         datasets: [{
             data: [<?= $datas ?>],
+            borderColor: [],
             backgroundColor: [<?= $backgrounds ?>],
             borderWidth: 0.4,
         }],
@@ -23,7 +24,8 @@ $(document).ready(function() {
                         size: 14,
                         family: 'Roboto',
                     },
-                    color: '#8A99AA'
+                    color: '#8A99AA',
+                    usePointStyle: true
                 },
                 display: true,
                 position: 'left'

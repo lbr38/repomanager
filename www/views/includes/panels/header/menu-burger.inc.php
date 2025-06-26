@@ -1,7 +1,7 @@
 <?php ob_start(); ?>
 
 <div class="flex flex-direction-column row-gap-20">
-    <div class="flex align-item-center column-gap-10">
+    <div class="flex column-gap-10">
         <img src="/assets/icons/package.svg" class="icon" />
         <a href="/"><h5 class="margin-0">REPOSITORIES</h5></a>
     </div>

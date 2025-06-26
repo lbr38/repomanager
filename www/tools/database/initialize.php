@@ -18,9 +18,9 @@ try {
         $myconn = new \Models\Connection($database, null, false);
     }
 } catch (\Exception $e) {
-    echo 'There was an error while initializing ' . $database . ' database: ' . $e->getMessage() .  PHP_EOL;
+    echo '[' . date('D M j H:i:s') . '] There was an error while initializing ' . $database . ' database: ' . $e->getMessage() . PHP_EOL;
     exit(1);
 }
 
-echo PHP_EOL . 'Databases check and initialization successful' . PHP_EOL;
+echo '[' . date('D M j H:i:s') . '] Databases check and initialization successful' . PHP_EOL;
 exit(0);

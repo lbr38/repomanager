@@ -8,21 +8,15 @@ $mytask = new \Controllers\Task\Task();
 $totalRepos = $myrepo->count('active');
 
 /**
- *  Get used space
+ *  Get used and free disk space in bytes, and also in percent
  */
 $diskTotalSpace = disk_total_space(REPOS_DIR);
-$diskFreeSpace = disk_free_space(REPOS_DIR);
-$diskUsedSpace = $diskTotalSpace - $diskFreeSpace;
-$diskTotalSpace = $diskTotalSpace / 1073741824;
-$diskUsedSpace = $diskUsedSpace / 1073741824;
-
-/**
- *  Format data to get a percent result without comma
- */
-$diskFreeSpace = round(100 - (($diskUsedSpace / $diskTotalSpace) * 100));
-$diskFreeSpacePercent = $diskFreeSpace;
-$diskUsedSpace = round(100 - ($diskFreeSpace));
-$diskUsedSpacePercent = round(100 - ($diskFreeSpace));
+$diskFreeSpace  = disk_free_space(REPOS_DIR);
+$diskUsedSpace  = $diskTotalSpace - $diskFreeSpace;
+$diskFreeSpaceHuman = \Controllers\Common::sizeFormat($diskFreeSpace);
+$diskUsedSpaceHuman = \Controllers\Common::sizeFormat($diskUsedSpace);
+$diskUsedSpacePercent = round(($diskUsedSpace / $diskTotalSpace) * 100);
+$diskFreeSpacePercent = round(($diskFreeSpace / $diskTotalSpace) * 100);
 
 /**
  *  If scheduled tasks are enabled the get last and next task results

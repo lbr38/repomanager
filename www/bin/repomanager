@@ -50,7 +50,7 @@ function permissions
         exit 1
     fi
 
-    echo -ne "${YELLOW} Setting permissions... ${RESET}"
+    echo "["$(date +"%a %b %d %H:%M:%S")"] Setting permissions... "
  
     # Permissions on repos directory
     chmod 770 "$REPOS_DIR"

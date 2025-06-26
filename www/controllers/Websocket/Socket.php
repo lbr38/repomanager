@@ -68,7 +68,7 @@ class Socket extends WebsocketServer implements MessageComponentInterface
              *  Send a message to the host to inform that the connection is not allowed, and close it
              *  TODO: Add an error Id to the message
              */
-            $conn->send(json_encode(array('error' => "You've been connected but an error occured on the server side. Please try again later.")));
+            $conn->send(json_encode(array('error' => "You've been connected but an error occurred on the server side. Please try again later.")));
             $conn->close();
         }
     }
@@ -172,7 +172,7 @@ class Socket extends WebsocketServer implements MessageComponentInterface
      */
     public function onError(ConnectionInterface $conn, \Exception $e)
     {
-        $this->log('[connection #' . $conn->resourceId . '] An error occured with connection: ' . $e->getMessage());
+        $this->log('[connection #' . $conn->resourceId . '] An error occurred with connection: ' . $e->getMessage());
         $conn->close();
     }
 }

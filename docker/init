@@ -15,8 +15,6 @@ if [ -z "$FQDN" ];then
     exit 1
 fi
 
-echo "Starting up"
-
 # Set FQDN
 # Postfix/mail configuration
 postconf -e "myhostname = $FQDN"

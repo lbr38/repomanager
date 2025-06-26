@@ -32,4 +32,53 @@ class Snapshot extends \Models\Model
 
         return true;
     }
+
+    /**
+     *  Return the list of unused snapshots for the specified repo Id and retention parameter
+     */
+    public function getUnunsed(string $repoId, string $retention) : array
+    {
+        $data = array();
+
+        try {
+            $stmt = $this->db->prepare("SELECT
+            repos_snap.Id AS snapId,
+            repos_snap.Date
+            FROM repos
+            LEFT JOIN repos_snap
+                ON repos_snap.Id_repo = repos.Id
+            LEFT JOIN repos_env
+                ON repos_env.Id_snap = repos_snap.Id
+            WHERE repos_snap.Id_repo = :repoId
+            AND repos_env.Id_snap IS NULL
+            AND repos_snap.Status = 'active'
+            ORDER BY Date DESC LIMIT -1 OFFSET :retention");
+            $stmt->bindValue(':repoId', $repoId);
+            $stmt->bindValue(':retention', $retention);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            $this->db->logError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return $data;
+    }
+
+    /**
+     *  Update snapshot status in the database
+     */
+    public function updateStatus(string $snapId, string $status) : void
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE repos_snap SET Status = :status WHERE Id = :snapId");
+            $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':snapId', $snapId);
+            $stmt->execute();
+        } catch (Exception $e) {
+            $this->db->logError($e);
+        }
+    }
 }

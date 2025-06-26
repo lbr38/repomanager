@@ -11,6 +11,7 @@ class Duplicate
 
     private $sourceRepo;
     private $repo;
+    private $repoEnvController;
     private $task;
     private $taskLogStepController;
     private $taskLogSubStepController;
@@ -20,6 +21,7 @@ class Duplicate
         $this->sourceRepo = new \Controllers\Repo\Repo();
         $this->repo = new \Controllers\Repo\Repo();
         $this->task = new \Controllers\Task\Task();
+        $this->repoEnvController = new \Controllers\Repo\Environment();
         $this->taskLogStepController = new \Controllers\Task\Log\Step($taskId);
         $this->taskLogSubStepController = new \Controllers\Task\Log\SubStep($taskId);
 
@@ -267,36 +269,38 @@ class Duplicate
                  *  Create a symlink to the new repo, only if the user has specified an environment
                  */
                 if (!empty($this->repo->getEnv())) {
-                    $this->taskLogSubStepController->new('pointing-environment', 'POINTING ENVIRONMENT');
+                    foreach ($this->repo->getEnv() as $env) {
+                        $this->taskLogSubStepController->new('pointing-environment', 'POINTING ENVIRONMENT');
 
-                    if ($this->repo->getPackageType() == 'rpm') {
-                        $targetFile = $this->repo->getDateFormatted() . '_' . $this->repo->getName();
-                        $link = REPOS_DIR . '/' . $this->repo->getName() . '_' . $this->repo->getEnv();
-                    }
-                    if ($this->repo->getPackageType() == 'deb') {
-                        $targetFile = $this->repo->getDateFormatted() . '_' . $this->repo->getSection();
-                        $link = REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '_' . $this->repo->getEnv();
-                    }
-
-                    /**
-                     *  If a symlink with the same name already exists, we remove it
-                     */
-                    if (is_link($link)) {
-                        if (!unlink($link)) {
-                            throw new Exception('Could not remove existing symlink ' . $link);
+                        if ($this->repo->getPackageType() == 'rpm') {
+                            $targetFile = $this->repo->getDateFormatted() . '_' . $this->repo->getName();
+                            $link = REPOS_DIR . '/' . $this->repo->getName() . '_' . $env;
                         }
+                        if ($this->repo->getPackageType() == 'deb') {
+                            $targetFile = $this->repo->getDateFormatted() . '_' . $this->repo->getSection();
+                            $link = REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '_' . $env;
+                        }
+
+                        /**
+                         *  If a symlink with the same name already exists, we remove it
+                         */
+                        if (is_link($link)) {
+                            if (!unlink($link)) {
+                                throw new Exception('Could not remove existing symlink ' . $link);
+                            }
+                        }
+
+                        /**
+                         *  Create symlink
+                         */
+                        if (!symlink($targetFile, $link)) {
+                            throw new Exception('Could not point environment to the repository');
+                        }
+
+                        $this->taskLogSubStepController->completed();
+
+                        unset($targetFile, $link);
                     }
-
-                    /**
-                     *  Create symlink
-                     */
-                    if (!symlink($targetFile, $link)) {
-                        throw new Exception('Could not point environment to the repository');
-                    }
-
-                    $this->taskLogSubStepController->completed();
-
-                    unset($targetFile, $link);
                 }
 
                 $this->taskLogSubStepController->new('inserting-database', 'INSERTING REPOSITORY IN DATABASE');
@@ -345,7 +349,9 @@ class Duplicate
                  *  Add the new repo environment in database, only if the user has specified an environment
                  */
                 if (!empty($this->repo->getEnv())) {
-                    $this->repo->addEnv($this->repo->getEnv(), $this->repo->getDescription(), $targetSnapId);
+                    foreach ($this->repo->getEnv() as $env) {
+                        $this->repoEnvController->add($env, $this->repo->getDescription(), $targetSnapId);
+                    }
                 }
 
                 /**
@@ -369,12 +375,12 @@ class Duplicate
                 $this->task->setStatus('done');
                 $this->task->updateStatus($this->task->getId(), 'done');
             /**
-             *  If an error occured after the temporary directory was renamed, clean the target directory
+             *  If an error occurred after the temporary directory was renamed, clean the target directory
              */
             } catch (Exception $e) {
                 if (file_exists($targetDir)) {
                     if (!\Controllers\Filesystem\Directory::deleteRecursive($targetDir)) {
-                        throw new Exception('An error occured while finalizing the task, and the target directory ' . $targetDir . ' could not be cleaned');
+                        throw new Exception('An error occurred while finalizing the task, and the target directory ' . $targetDir . ' could not be cleaned');
                     }
                 }
 

@@ -9,7 +9,7 @@
     </div>
 </div>
 
-<div class="div-generic-blue">
+<div class="div-generic-blue margin-bottom-15">
     <div class="grid grid-2 row-gap-10 column-gap-20">
         <div>
             <h6 class="margin-top-0">REPOSITORY</h6>
@@ -54,9 +54,12 @@
         if (!empty($rawParams['env'])) : ?>
             <div>
                 <h6>POINT AN ENVIRONMENT</h6>
-                <p>
-                    <?= \Controllers\Common::envtag($rawParams['env']) ?>
-                </p>
+                <div class="flex column-gap-5 row-gap-5">
+                    <?php
+                    foreach ($rawParams['env'] as $env) {
+                        echo \Controllers\Common::envtag($env) . ' ';
+                    } ?>
+                </div>
             </div>
             <?php
         endif ?>

@@ -1195,9 +1195,9 @@ class Connection extends SQLite3
         $logController = new \Controllers\Log\Log();
 
         if (!empty($exception)) {
-            $logController->log('error', 'Database', 'An error occured while executing request in database.', $exception);
+            $logController->log('error', 'Database', 'An error occurred while executing request in database.', $exception);
         } else {
-            $logController->log('error', 'Database', 'An error occured while executing request in database.');
+            $logController->log('error', 'Database', 'An error occurred while executing request in database.');
         }
     }
 }

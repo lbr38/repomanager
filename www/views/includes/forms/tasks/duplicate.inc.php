@@ -1,21 +1,27 @@
 <h6>DUPLICATE</h6>
 <p class="note">The repository snapshot to be duplicated.</p>
-<?php
-if ($myrepo->getPackageType() == 'rpm') {
-    echo ' <span class="label-white">' . $myrepo->getName() . '</span>';
-}
-if ($myrepo->getPackageType() == 'deb') {
-    echo ' <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>';
-} ?>
-⸺<span class="label-black"><?=$myrepo->getDateFormatted()?></span>
+
+<div class="flex align-item-center">
+    <p class="label-white">
+        <?php
+        if ($myrepo->getPackageType() == 'rpm') {
+            echo $myrepo->getName();
+        }
+        if ($myrepo->getPackageType() == 'deb') {
+            echo $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection();
+        } ?>
+    </p>
+
+    <p>⸺<span class="label-black"><?=$myrepo->getDateFormatted()?></span></p>
+</div>
   
 <h6 class="required">NEW REPOSITORY NAME</h6>
 <p class="note">The name of the new repository.</p>
 <input type="text" class="task-param" param-name="name" required />
 
 <h6>POINT AN ENVIRONMENT</h6>
-<p class="note">Point an environment to the new snapshot.</p>
-<select id="duplicate-repo-target-env-select-<?=$myrepo->getSnapId()?>" class="task-param" param-name="env">
+<p class="note">Select one or multiple environments to point to the new repository snapshot.</p>
+<select id="duplicate-repo-target-env-select-<?=$myrepo->getSnapId()?>" class="task-param" param-name="env" multiple>
     <option value=""></option>
     <?php
     foreach (ENVS as $env) {
@@ -59,6 +65,8 @@ $scheduleForm['type'] = array('unique'); ?>
 
 <script>
 $(document).ready(function(){
+    selectToSelect2('#duplicate-repo-target-env-select-<?=$myrepo->getSnapId()?>');
+
     /**
      *  Print description field only if an environment is specified
      */

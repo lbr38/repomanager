@@ -121,12 +121,8 @@ $(document).on('click','#websocket-log-btn',function () {
         // Print success alert:
         false,
         // Print error alert:
-        true,
-        // Reload container:
-        [],
-        // Execute functions on success:
-        [
-            'printModalWindow(jsonValue.message, "' + logfile + '")'
-        ]
-    );
+        true
+    ).then(function () {
+        printModalWindow(jsonValue.message, logfile, true, false);
+    });
 });

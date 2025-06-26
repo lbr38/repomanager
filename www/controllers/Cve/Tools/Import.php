@@ -402,7 +402,7 @@ class Import
             /**
              *  Get all active hosts
              */
-            $hosts = $myhost->listAll('active');
+            $hosts = $myhost->listAll();
 
             /**
              *  Quit if there is no active host

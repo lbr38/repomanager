@@ -39,7 +39,7 @@
     <div id="repo-access-chart-div" class="div-generic-blue">
         <div class="flex justify-space-between">
             <div>
-                <h6 class="margin-top-0">ACCESS CHART</h6>
+                <h6 class="margin-top-0">REPOSITORY ACCESS</h6>
                 <p class="note">This chart shows the number of accesses to the repository snapshot over time.</p>
             </div>
 
@@ -81,21 +81,47 @@
                                 data: [<?= $repoAccessChartData ?>],
                                 label: "Total access",
                                 borderColor: '#15bf7f',
-                                fill: false
+                                backgroundColor: 'rgba(21, 191, 127, 0.2)',
+                                fill: true
                             }]
                         },
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,                            
                             tension: 0.2,
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    labels: {
+                                        font: {
+                                            size: 14,
+                                            family: 'Roboto',
+                                        },
+                                        color: '#8A99AA',
+                                        usePointStyle: true
+                                    },
+                                }
+                            },
                             scales: {
                                 x: {
                                     display: true,
+                                    ticks: {
+                                        color: '#8A99AA',
+                                        font: {
+                                            size: 13,
+                                            family: 'Roboto'
+                                        }
+                                    }
                                 },
                                 y: {
                                     beginAtZero: true,
                                     display: true,
                                     ticks: {
+                                        color: '#8A99AA',
+                                        font: {
+                                            size: 13,
+                                            family: 'Roboto'
+                                        },
                                         stepSize: 1
                                     }
                                 }
@@ -133,20 +159,45 @@
                             labels: [<?= $sizeDateLabels ?>],    
                             datasets: [{
                                 data: [<?= $sizeData ?>],
-                                label: 'Size in MB (last 60 days)',
+                                label: 'Size in MB (60 days max)',
                                 borderColor: '#15bf7f',
-                                fill: false
+                                backgroundColor: 'rgba(21, 191, 127, 0.2)',
+                                fill: true
                             }]
                         },
                         options: {
                             tension: 0.2,
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        font: {
+                                            size: 13,
+                                            family: 'Roboto',
+                                        },
+                                        color: '#8A99AA',
+                                        usePointStyle: true
+                                    }
+                                }
+                            },
                             scales: {
                                 x: {
                                     display: true,
+                                    ticks: {
+                                        color: '#8A99AA',
+                                        font: {
+                                            size: 13,
+                                            family: 'Roboto'
+                                        }
+                                    }
                                 },
                                 y: {
                                     display: true,
                                     ticks: {
+                                        color: '#8A99AA',
+                                        font: {
+                                            size: 13,
+                                            family: 'Roboto'
+                                        },
                                         stepSize: 1
                                     }
                                 }
@@ -172,21 +223,46 @@
                             labels: [<?= $countDateLabels ?>],    
                             datasets: [{
                                 data: [<?= $countData ?>],
-                                label: 'Total packages (last 60 days)',
+                                label: 'Total packages (60 days max)',
                                 borderColor: '#15bf7f',
-                                fill: false
+                                backgroundColor: 'rgba(21, 191, 127, 0.2)',
+                                fill: true
                             }]
                         },
                         options: {
                             tension: 0.2,
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        font: {
+                                            size: 13,
+                                            family: 'Roboto',
+                                        },
+                                        color: '#8A99AA',
+                                        usePointStyle: true
+                                    }
+                                }
+                            },
                             scales: {
                                 x: {
                                     display: true,
+                                    ticks: {
+                                        color: '#8A99AA',
+                                        font: {
+                                            size: 13,
+                                            family: 'Roboto'
+                                        }
+                                    }
                                 },
                                 y: {
                                     display: true,
                                     ticks: {
-                                        stepSize: 1,
+                                        color: '#8A99AA',
+                                        font: {
+                                            size: 13,
+                                            family: 'Roboto'
+                                        },
+                                        stepSize: 1
                                     }
                                 }
                             },
