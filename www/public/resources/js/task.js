@@ -155,6 +155,18 @@ $(document).on('click','.delete-env-btn',function () {
  */
 $(document).on('click',"input[name=checkbox-repo]",function () {
     /**
+     *  The buttons that will be displayed in the confirm box
+     */
+    var buttons = [];
+
+    /**
+     *  The list of allowed actions the user can execute on the selected repositories
+     *  By default: all, unless the user has specific permissions
+     *  Those permissions are later verified by the server so even if the user tries to execute an action he is not allowed to, it will not work
+     */
+    var allowedActions = ['update', 'duplicate', 'env', 'rebuild', 'edit', 'install', 'delete'];
+
+    /**
      *  Retrieve checkbox's group id
      */
     var groupId = $(this).attr('group-id');
@@ -175,62 +187,105 @@ $(document).on('click',"input[name=checkbox-repo]",function () {
     }
 
     /**
-     *  Define confirm box buttons
+     *  Get permissions from cookie
      */
-    var buttons = [];
+    if (mycookie.exists('user_permissions')) {
+        var userPermissions = JSON.parse(mycookie.get('user_permissions'));
 
-    // Add all other buttons
+        // Reset allowed actions array
+        var allowedActions = [];
+
+        // Loop through all permissions and check if the user has the permission to execute the action
+        if (userPermissions.repositories && userPermissions.repositories['allowed-actions'] && userPermissions.repositories['allowed-actions']['repos']) {
+            var allowedActions = userPermissions.repositories['allowed-actions']['repos'];
+        }
+    }
+
+    /**
+     *  Define confirm box buttons depending on the allowed actions
+     */
+    if (allowedActions.includes('update')) {
+        buttons.push(
+            {
+                'text': 'Update',
+                'color': 'blue-alt',
+                'callback': function () {
+                    executeAction('update')
+                }
+            }
+        );
+    }
+
+    if (allowedActions.includes('duplicate')) {
+        buttons.push(
+            {
+                'text': 'Duplicate',
+                'color': 'blue-alt',
+                'callback': function () {
+                    executeAction('duplicate');
+                }
+            }
+        );
+    }
+
+    if (allowedActions.includes('env')) {
+        buttons.push(
+            {
+                'text': 'Point an environment',
+                'color': 'blue-alt',
+                'callback': function () {
+                    executeAction('env');
+                }
+            }
+        );
+    }
+
+    if (allowedActions.includes('rebuild')) {
+        buttons.push(
+            {
+                'text': 'Rebuild',
+                'color': 'blue-alt',
+                'callback': function () {
+                    executeAction('rebuild');
+                }
+            }
+        );
+    }
+
+    if (allowedActions.includes('edit')) {
+        buttons.push(
+            {
+                'text': 'Edit',
+                'color': 'blue-alt',
+                'callback': function () {
+                    executeAction('edit')
+                }
+            }
+        );
+    }
+
+    // Install is always allowed by default
     buttons.push(
-        {
-            'text': 'Update',
-            'color': 'blue-alt',
-            'callback': function () {
-                executeAction('update')
-            }
-        },
-        {
-            'text': 'Duplicate',
-            'color': 'blue-alt',
-            'callback': function () {
-                executeAction('duplicate');
-            }
-        },
-        {
-            'text': 'Point an environment',
-            'color': 'blue-alt',
-            'callback': function () {
-                executeAction('env');
-            }
-        },
-        {
-            'text': 'Rebuild',
-            'color': 'blue-alt',
-            'callback': function () {
-                executeAction('rebuild');
-            }
-        },
-        {
-            'text': 'Edit',
-            'color': 'blue-alt',
-            'callback': function () {
-                executeAction('edit')
-            }
-        },
         {
             'text': 'Install',
             'color': 'blue-alt',
             'callback': function () {
                 executeAction('install')
             }
-        },
-        {
-            'text': 'Delete',
-            'color': 'red',
-            'callback': function () {
-                executeAction('delete');
-            }
         }
     );
+
+    if (allowedActions.includes('delete')) {
+        buttons.push(
+            {
+                'text': 'Delete',
+                'color': 'red',
+                'callback': function () {
+                    executeAction('delete');
+                }
+            }
+        );
+    }
 
     confirmBox(
         {

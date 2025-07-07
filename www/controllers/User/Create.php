@@ -6,6 +6,19 @@ use \Controllers\Common;
 
 class Create extends User
 {
+    private $defaultPermissions = [
+        'repositories' => [
+            'allowed-actions' => [
+                'repos' => [],
+                'hosts' => [],
+            ],
+            'view' => [
+                'all',
+                'groups' => []
+            ],
+        ]
+    ];
+
     public function __construct()
     {
         parent::__construct();
@@ -71,7 +84,7 @@ class Create extends User
         /**
          *  Insert new user in database
          */
-        $this->model->create($username, $hashedPassword, $role, null, null, null, 'local');
+        $this->model->create($username, $hashedPassword, $role, null, null, null, 'local', $this->defaultPermissions);
 
         /**
          *  Add history
@@ -146,7 +159,7 @@ class Create extends User
          *  If the user already exists (from a previous SSO connection) then update its informations (as it may have changed)
          */
         if (!$this->exists($username, 'sso')) {
-            $this->model->create($username, null, $role, $firstName, $lastName, $email, 'sso');
+            $this->model->create($username, null, $role, $firstName, $lastName, $email, 'sso', $this->defaultPermissions);
         } else {
             /**
              *  Get user Id

@@ -28,7 +28,10 @@ class Render
              */
             include_once(ROOT . '/views/includes/containers/' . $container . '.inc.php');
         } catch (Exception $e) {
-            echo '<p class="note">' . $e->getMessage() . '</p>';
+            /**
+             *  Include error container
+             */
+            include(ROOT . '/views/includes/containers/error.inc.php');
         }
     }
 }

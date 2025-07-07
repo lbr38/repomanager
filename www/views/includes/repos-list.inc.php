@@ -5,9 +5,22 @@
 if (!empty($groupsList)) {
     foreach ($groupsList as $group) :
         /**
+         *  Permissions
+         *  If the user is not an admin, check if the group is in the user permissions
+         */
+        if (!IS_ADMIN) {
+            // If 'all' is not in the user permissions, then it means the user has specific permissions and cannot view all groups
+            if (!in_array('all', USER_PERMISSIONS['repositories']['view'])) {
+                // Check if the current group Id is in the user permissions, if not then skip to the next group
+                if (!in_array($group['Id'], USER_PERMISSIONS['repositories']['view']['groups'])) {
+                    continue;
+                }
+            }
+        }
+
+        /**
          *  Getting repos list of the group
          */
-
         $reposList = $myrepoListing->listByGroup($group['Name']);
 
         /**
@@ -240,20 +253,18 @@ if (!empty($groupsList)) {
                                 }
 
                                 /**
-                                 *  Checkbox are only printed for admin users
+                                 *  Checkbox are printed for all users
+                                 *  Admins can execute all actions
+                                 *  Regular users can execute actions only if they have the permission to do so (but they can at least 'Install' the repository)
                                  */
-                                if (IS_ADMIN) :
-                                    /**
-                                     *  Print checkbox only if the snapshot is different from the previous one and there is no operation running on the snapshot
-                                     */
-                                    if ($snapId != $previousSnapId) :
-                                        if ($repoSnapshotController->taskRunning($snapId)) : ?>
-                                            <img src="/assets/icons/loading.svg" class="icon-np" title="A task is running on this repository snaphot." />
-                                            <?php
-                                        else : ?>
-                                            <input type="checkbox" class="icon-lowopacity" name="checkbox-repo" repo-id="<?= $repoId ?>" snap-id="<?= $snapId ?>" <?php echo !empty($envId) ? 'env-id="' . $envId . '"' : ''; ?> env-name="<?= $env ?>" repo-type="<?= $type ?>" group-id="<?= $group['Id'] ?>" title="Select and execute an action.">
-                                            <?php
-                                        endif;
+                                // Print checkbox only if the snapshot is different from the previous one and there is no operation running on the snapshot
+                                if ($snapId != $previousSnapId) :
+                                    if ($repoSnapshotController->taskRunning($snapId)) : ?>
+                                        <img src="/assets/icons/loading.svg" class="icon-np" title="A task is running on this repository snaphot." />
+                                        <?php
+                                    else : ?>
+                                        <input type="checkbox" class="icon-lowopacity" name="checkbox-repo" repo-id="<?= $repoId ?>" snap-id="<?= $snapId ?>" <?php echo !empty($envId) ? 'env-id="' . $envId . '"' : ''; ?> env-name="<?= $env ?>" repo-type="<?= $type ?>" group-id="<?= $group['Id'] ?>" title="Select and execute an action.">
+                                        <?php
                                     endif;
                                 endif ?>
                             </div>
@@ -274,9 +285,16 @@ if (!empty($groupsList)) {
                                 <?php
                                 if ($snapId != $previousSnapId) : ?>
                                     <div class="item-date">
-                                        <a href="/browse/<?= $snapId ?>" title="<?= "Browse snapshot ($dateFormatted $time) content" ?>">
+                                        <?php
+                                        if (IS_ADMIN or in_array('browse', USER_PERMISSIONS['repositories']['allowed-actions']['repos'])) : ?>
+                                            <a href="/browse/<?= $snapId ?>" title="<?= "Browse snapshot ($dateFormatted $time) content" ?>">
+                                                <span><?= $dateFormatted ?></span>
+                                            </a>
+                                            <?php
+                                        else : ?>
                                             <span><?= $dateFormatted ?></span>
-                                        </a>
+                                            <?php
+                                        endif ?>
                                     </div>
 
                                     <div class="item-info">
@@ -326,7 +344,7 @@ if (!empty($groupsList)) {
                                     /**
                                      *  Print env with a link to stats page if enabled
                                      */
-                                    if (STATS_ENABLED == "true") {
+                                    if (STATS_ENABLED == "true" and (IS_ADMIN or in_array('view-stats', USER_PERMISSIONS['repositories']['allowed-actions']['repos']))) {
                                         echo '<a href="/stats/' . $envId . '" title="Visualize stats and metrics">';
                                         echo \Controllers\Common::envtag($env, 'fit');
                                         echo '</a>';
@@ -343,8 +361,11 @@ if (!empty($groupsList)) {
                                 /**
                                  *  Remove env icon
                                  */
-                                if (!empty($env) and IS_ADMIN) {
-                                    echo '<img src="/assets/icons/delete.svg" class="delete-env-btn icon-lowopacity" title="Remove ' . $env . ' environment" repo-id="' . $repoId . '" snap-id="' . $snapId . '" env-id="' . $envId . '" env="' . $env . '" />';
+                                if (!empty($env)) {
+                                    // If the user is an admin or is a regular user with the 'removeEnv' permission
+                                    if (IS_ADMIN or in_array('removeEnv', USER_PERMISSIONS['repositories']['allowed-actions']['repos'])) {
+                                        echo '<img src="/assets/icons/delete.svg" class="delete-env-btn icon-lowopacity" title="Remove ' . $env . ' environment" repo-id="' . $repoId . '" snap-id="' . $snapId . '" env-id="' . $envId . '" env="' . $env . '" />';
+                                    }
                                 } ?>
                             </div>
 

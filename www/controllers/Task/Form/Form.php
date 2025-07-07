@@ -123,6 +123,13 @@ class Form
             }
 
             /**
+             *  If the user is not an administrator or does not have permission to perform the specified action, prevent execution of the task.
+             */
+            if (!IS_ADMIN and !in_array($task['action'], USER_PERMISSIONS['repositories']['allowed-actions']['repos'])) {
+                throw new Exception('You are not allowed to execute this action');
+            }
+
+            /**
              *  Generate controller name
              */
             $controllerPath = '\Controllers\Task\Form\\' . ucfirst($task['action']);

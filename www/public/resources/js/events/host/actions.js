@@ -271,8 +271,8 @@ $(document).on('click','input[type="checkbox"].available-package-checkbox',funct
     /**
      *  If a cookie exists, retrieve it
      */
-    if (getCookie('temp/host-av-package-selected')) {
-        var packages = JSON.parse(getCookie('temp/host-av-package-selected'));
+    if (mycookie.get('temp/host-av-package-selected')) {
+        var packages = JSON.parse(mycookie.get('temp/host-av-package-selected'));
     } else {
         var packages = {
             packages: []
@@ -308,7 +308,7 @@ $(document).on('click','input[type="checkbox"].available-package-checkbox',funct
     /**
      *  Save the array in a cookie
      */
-    setCookie('temp/host-av-package-selected', JSON.stringify(packages), 1);
+    mycookie.set('temp/host-av-package-selected', JSON.stringify(packages), 1);
 
     /**
      *  Count the number of checked checkboxes
@@ -350,7 +350,7 @@ $(document).on('click','input[type="checkbox"].available-package-checkbox',funct
                         );
 
                         // Remove cookie
-                        setCookie('temp/host-av-package-selected', '', -1);
+                        mycookie.set('temp/host-av-package-selected', '', -1);
                     }
                 }]
             }

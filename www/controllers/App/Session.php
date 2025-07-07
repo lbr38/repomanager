@@ -29,7 +29,7 @@ class Session
         /**
          *  If session has reached 60min timeout then redirect to logout page
          */
-        if (isset($_SESSION['start_time']) && (time() - $_SESSION['start_time'] > 3600)) {
+        if (isset($_SESSION['start_time']) && (time() - $_SESSION['start_time'] > SESSION_TIMEOUT)) {
             header('Location: /logout');
             exit();
         }

@@ -1,15 +1,23 @@
 <?php
 $myrepo = new \Controllers\Repo\Repo();
+$repoSnapshotController = new \Controllers\Repo\Snapshot();
 
 if (empty(__ACTUAL_URI__[2])) {
-    throw new Exception('Error: no repo snapshot ID specified.');
+    throw new Exception('Error: no repository snapshot ID specified.');
 }
 
 if (!is_numeric(__ACTUAL_URI__[2])) {
-    throw new Exception('Error: invalid repo snapshot ID.');
+    throw new Exception('Error: invalid repository snapshot ID.');
 }
 
 $snapId = __ACTUAL_URI__[2];
+
+/**
+ *  Check if the snapshot exists
+ */
+if (!$repoSnapshotController->exists($snapId)) {
+    throw new Exception('Error: repository snapshot #' . $snapId . ' does not exist.');
+}
 
 /**
  *  Retrieve repo infos from DB
@@ -46,10 +54,6 @@ $rebuild = $myrepo->getRebuild();
 if (!empty($_POST['action']) and $_POST['action'] == 'uploadPackage' and !empty($_POST['snapId']) and is_numeric($_POST['snapId']) and !empty($_FILES['packages'])) {
     $myrepoPackage = new \Controllers\Repo\Package();
 
-    if (!IS_ADMIN) {
-        throw new Exception('You are not allowed to upload packages.');
-    }
-
     try {
         $myrepoPackage->upload($_POST['snapId'], \Controllers\Browse::reArrayFiles($_FILES['packages']));
         $uploadSuccessMessage = 'Packages uploaded successfully';
@@ -59,3 +63,5 @@ if (!empty($_POST['action']) and $_POST['action'] == 'uploadPackage' and !empty(
 
     unset($myrepoPackage);
 }
+
+unset($repoSnapshotController);

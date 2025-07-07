@@ -15,7 +15,10 @@
                         <img src="/assets/icons/internet.svg" />
                         <span>Manage source repositories</span>
                     </div>
+                    <?php
+                endif;
 
+                if (IS_ADMIN or in_array('create', USER_PERMISSIONS['repositories']['allowed-actions']['repos'])) : ?>
                     <div class="slide-btn get-panel-btn" panel="repos/new" title="Create a new mirror or local repository">
                         <img src="/assets/icons/plus.svg" />
                         <span>Create a new repository</span>

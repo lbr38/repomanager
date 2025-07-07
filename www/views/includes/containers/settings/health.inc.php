@@ -130,8 +130,8 @@
 
                     <select name="role" required>
                         <option value="">Select role...</option>
-                        <option value="usage">usage (read-only)</option>
-                        <option value="administrator">administrator</option>
+                        <option value="usage">Standard user</option>
+                        <option value="administrator">Administrator</option>
                     </select>
 
                     <div>
@@ -158,14 +158,14 @@
                             $roleIcon = 'star';
                         }
                         if ($user['Role_name'] == 'usage') {
-                            $role = 'Read-only';
-                            $roleIcon = 'view';
+                            $role = 'Standard user';
+                            $roleIcon = 'user';
                         } ?>
 
                         <div class="table-container grid-2 bck-blue-alt">
                             <div>
                                 <div class="flex align-item-center column-gap-8">
-                                    <p><?= $user['Username'] ?></p>
+                                    <p class="wordbreakall"><?= $user['Username'] ?></p>
                                     <code class="font-size-9" title="Account type"><?= $user['Type'] ?></code>
                                 </div>
                                 <div class="flex align-item-center lowopacity-cst column-gap-5">
@@ -176,10 +176,15 @@
                                 </div>
                             </div>
 
-                            <div class="flex column-gap-10 justify-end">
+                            <div class="flex column-gap-15 align-item-center justify-end">
                                 <?php
                                 // Do not print the buttons for the admin account or if $user['Username'] == current user
                                 if ($user['Username'] != 'admin' and $user['Username'] != $_SESSION['username']) :
+                                    // Edit permissions button
+                                    if ($user['Role_name'] == 'usage') {
+                                        echo '<img src="/assets/icons/build.svg" class="icon-lowopacity user-permissions-edit-btn" user-id="' . $user['Id'] . '" title="Edit permissions of user ' . $user['Username'] . '" />';
+                                    }
+
                                     // Only local accounts can have their password reseted
                                     if ($user['Type'] == 'local') : ?>
                                         <p class="reset-password-btn" user-id="<?= $user['Id'] ?>" username="<?= $user['Username'] ?>" title="Reset password of user <?= $user['Username'] ?>">
@@ -209,14 +214,14 @@
                 <p class="note">Debug mode will display additional information on the interface.</p>
 
                 <label class="onoff-switch-label">
-                    <input id="debug-mode-btn" class="onoff-switch-input" type="checkbox" value="true" <?php echo (DEBUG_MODE == "true") ? 'checked' : ''; ?>>
+                    <input id="debug-mode-btn" class="onoff-switch-input" type="checkbox" value="true" <?php echo DEBUG_MODE === true ? 'checked' : ''; ?>>
                     <span class="onoff-switch-slider"></span>
                 </label>
             </div>
         </div>
 
         <?php
-        if (DEBUG_MODE == 'true') : ?>
+        if (DEBUG_MODE) : ?>
             <div>
                 <h3>LOGS</h3>
                 <div class="div-generic-blue">

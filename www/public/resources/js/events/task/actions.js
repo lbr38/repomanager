@@ -45,7 +45,7 @@ $(document).on('click','.show-task-btn',function () {
  *  Event: enable / disable automatic scroll on log
  */
 $(document).on('click','#autoscroll-btn',function () {
-    var autoscroll = getCookie('autoscroll');
+    var autoscroll = mycookie.get('autoscroll');
 
     // Enable autoscroll
     if (autoscroll == 'false') {

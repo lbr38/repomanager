@@ -1,4 +1,4 @@
-<div class="div-generic-blue">
+<div class="div-generic-blue margin-bottom-15">
     <div class="flex align-item-center justify-space-between">
         <h3>REMOVE ENVIRONMENT</h3>
 

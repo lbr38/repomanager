@@ -1,4 +1,4 @@
-<div class="div-generic-blue">
+<div class="div-generic-blue margin-bottom-15">
     <div class="flex align-item-center justify-space-between">
         <h3>POINT AN ENVIRONMENT</h3>
 
@@ -37,12 +37,12 @@
     <div class="grid grid-2 row-gap-10 column-gap-20">
         <div>
             <h6>ENVIRONMENT</h6>
-            <p>
+            <div class="flex column-gap-5 row-gap-5 flex-wrap">
                 <?php
                 foreach ($rawParams['env'] as $env) {
-                    echo \Controllers\Common::envtag($env) . ' ';
+                    echo \Controllers\Common::envtag($env);
                 } ?>
-            </p>
+            </div>
         </div>
     </div>
 

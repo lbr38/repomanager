@@ -92,11 +92,14 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  Parse the whole file, searching for the desired lines
              */
             foreach ($content as $line) {
+                // Clean line
+                $line = trim($line);
+
                 if (preg_match("#$regex#", $line)) {
                     /**
                      *  Explode the line to separate hashes and location
                      */
-                    $splittedLine = explode(' ', trim($line));
+                    $splittedLine = explode(' ', $line);
 
                     /**
                      *  We only need the location with its SHA256 (64 characters long)

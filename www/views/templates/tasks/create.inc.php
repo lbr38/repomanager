@@ -1,4 +1,4 @@
-<div class="div-generic-blue">
+<div class="div-generic-blue margin-bottom-15">
     <div class="flex align-item-center justify-space-between">
         <h3>
             <?php
@@ -59,7 +59,7 @@
         if (!empty($repoController->getArch())) : ?>
             <div>
                 <h6>ARCHITECTURE</h6>
-                <div class="flex column-gap-5 row-gap-5">
+                <div class="flex column-gap-5 row-gap-5 flex-wrap">
                     <?php
                     foreach ($repoController->getArch() as $arch) {
                         echo '<span class="label-black">' . $arch . '</span>';
@@ -73,10 +73,10 @@
         if (!empty($rawParams['env'])) : ?>
             <div>
                 <h6>ENVIRONMENT</h6>
-                <div class="flex column-gap-5 row-gap-5">
+                <div class="flex column-gap-5 row-gap-5 flex-wrap">
                     <?php
                     foreach ($rawParams['env'] as $env) {
-                        echo \Controllers\Common::envtag($env) . ' ';
+                        echo \Controllers\Common::envtag($env);
                     } ?>
                 </div>
             </div>
@@ -90,7 +90,7 @@
             if (!empty($repoController->getPackagesToInclude())) : ?>
                 <div>
                     <h6>PACKAGES TO INCLUDE</h6>
-                    <div class="flex column-gap-5 row-gap-5">
+                    <div class="flex column-gap-5 row-gap-5 flex-wrap">
                         <?php
                         foreach ($repoController->getPackagesToInclude() as $package) {
                             echo '<span class="label-black">' . $package . '</span>';
@@ -103,7 +103,7 @@
             if (!empty($repoController->getPackagesToExclude())) : ?>
                 <div>
                     <h6>PACKAGES TO EXCLUDE</h6>
-                    <div class="flex column-gap-5 row-gap-5">
+                    <div class="flex column-gap-5 row-gap-5 flex-wrap">
                         <?php
                         foreach ($repoController->getPackagesToExclude() as $package) {
                             echo '<span class="label-black">' . $package . '</span>';

@@ -201,6 +201,7 @@ class Login extends User
             /**
              *  Saving user informations in session variable
              */
+            $_SESSION['id']         = $this->getIdByUsername($username, 'sso');
             $_SESSION['username']   = $username;
             $_SESSION['role']       = $role;
             $_SESSION['first_name'] = $firstName;

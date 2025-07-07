@@ -291,15 +291,8 @@ function printLoadingVeilByParentClass(name)
  * @param {*} title
  * @param {*} inPre
  */
-function printModalWindow(content, title, inPre = true, fullscreen = true)
+function printModalWindow(content, title, inPre = true)
 {
-    var modalClass = 'modal-window';
-
-    console.log(fullscreen);
-    if (fullscreen) {
-        modalClass = 'modal-window-fullscreen';
-    }
-
     printLoading();
 
     /**
@@ -308,9 +301,9 @@ function printModalWindow(content, title, inPre = true, fullscreen = true)
     $('.modal-window-container').remove();
 
     html = '<div class="modal-window-container">'
-        + '<div class="' + modalClass + '">'
+        + '<div class="modal-window">'
         + '<div class="modal-window-title">'
-        + '<h4>' + title + '</h4>'
+        + '<h4 class="margin-0">' + title + '</h4>'
         + '<span class="modal-window-close-btn"><img title="Close" class="close-btn lowopacity" src="/assets/icons/close.svg" /></span>'
         + '</div>'
         + '<div class="modal-window-content">';
@@ -406,44 +399,6 @@ function printOsIcon(os = '', os_family = '')
      *  Else return generic icon
      */
     return '<img src="/assets/icons/products/tux.png" class="icon-np" title="' + os + '">';
-}
-
-/**
- * Get cookie value by name
- * @param {*} cname
- * @returns
- */
-function getCookie(cname)
-{
-    let name = cname + "=";
-    let decodedCookie = decodeURIComponent(document.cookie);
-    let ca = decodedCookie.split(';');
-
-    for (let i = 0; i <ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) == ' ') {
-            c = c.substring(1);
-        }
-        if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length);
-        }
-    }
-
-    return "";
-}
-
-/**
- * Set cookie value
- * @param {*} cname
- * @param {*} cvalue
- * @param {*} exdays
- */
-function setCookie(cname, cvalue, exdays)
-{
-    const d = new Date();
-    d.setTime(d.getTime() + (exdays*24*60*60*1000));
-    let expires = "expires="+ d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/;Secure";
 }
 
 /**

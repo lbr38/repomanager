@@ -370,6 +370,13 @@ class Connection extends SQLite3
         State CHAR(7) NOT NULL)"); /* active / deleted */
 
         /**
+         *  Create user_permissions table
+         */
+        $this->exec("CREATE TABLE IF NOT EXISTS user_permissions (
+        Permissions VARCHAR(255),
+        User_id INTEGER NOT NULL)");
+
+        /**
          *  user_role table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS user_role (
@@ -540,6 +547,7 @@ class Connection extends SQLite3
         DEBUG_MODE CHAR(5),
         TIMEZONE VARCHAR(255),
         EMAIL_RECIPIENT VARCHAR(255),
+        SESSION_TIMEOUT INTEGER,
         PROXY VARCHAR(255),
         TASK_EXECUTION_MEMORY_LIMIT INTEGER,
         TASK_QUEUING CHAR(5),
@@ -557,6 +565,7 @@ class Connection extends SQLite3
         RPM_DEFAULT_ARCH VARCHAR(255),
         RPM_MISSING_SIGNATURE VARCHAR(255), /* download, ignore, error */
         RPM_INVALID_SIGNATURE VARCHAR(255), /* download, ignore, error */
+        RPM_SIGNATURE_FAIL VARCHAR(255), /* keep, ignore, error */
         /* DEB */
         DEB_REPO CHAR(5),
         DEB_SIGN_REPO CHAR(5),
@@ -643,6 +652,7 @@ class Connection extends SQLite3
 
             $this->exec("INSERT INTO settings (
                 EMAIL_RECIPIENT,
+                SESSION_TIMEOUT,
                 DEBUG_MODE,
                 REPO_CONF_FILES_PREFIX,
                 TIMEZONE,
@@ -657,6 +667,7 @@ class Connection extends SQLite3
                 RPM_DEFAULT_ARCH,
                 RPM_MISSING_SIGNATURE,
                 RPM_INVALID_SIGNATURE,
+                RPM_SIGNATURE_FAIL,
                 DEB_REPO,
                 DEB_SIGN_REPO,
                 DEB_DEFAULT_ARCH,
@@ -692,6 +703,7 @@ class Connection extends SQLite3
             )
             VALUES (
                 '',
+                '3600',
                 'false',
                 'repomanager-',
                 'Europe/Paris',
@@ -704,6 +716,7 @@ class Connection extends SQLite3
                 'true',
                 '8',
                 'noarch,x86_64',
+                'error',
                 'error',
                 'error',
                 'true',

@@ -1,3 +1,11 @@
+/**
+ *  Event: Open user permission panel
+ */
+$(document).on('click','.user-permissions-edit-btn',function () {
+    var id = $(this).attr('user-id');
+
+    mypanel.get('settings/user/permissions', {'Id': id});
+});
 
 /**
  *  Event: create a new user
@@ -109,4 +117,44 @@ $(document).on('click','.delete-user-btn',function () {
             }]
         }
     );
+});
+
+/**
+ *  Event: edit user permissions
+ */
+$(document).on('submit','#user-permissions-form',function () {
+    event.preventDefault();
+
+    var id = $(this).attr('user-id');
+    var reposView = $(this).find('#user-permissions-repos-view').val();
+    var reposActions = $(this).find('#user-permissions-repos-actions').val();
+
+    // If no repos view are selected, set to empty array
+    if (empty(reposView)) {
+        reposView = [''];
+    }
+
+    // If no repos actions are selected, set to empty array
+    if (empty(reposActions)) {
+        reposActions = [''];
+    }
+
+    ajaxRequest(
+        // Controller:
+        'settings/user',
+        // Action:
+        'edit-permissions',
+        // Data:
+        {
+            id: id,
+            reposView: reposView,
+            reposActions: reposActions
+        },
+        // Print success alert:
+        true,
+        // Print error alert:
+        true
+    );
+
+    return false;
 });

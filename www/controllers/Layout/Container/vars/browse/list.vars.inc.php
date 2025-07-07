@@ -1,15 +1,23 @@
 <?php
 $myrepo = new \Controllers\Repo\Repo();
+$repoSnapshotController = new \Controllers\Repo\Snapshot();
 
 if (empty(__ACTUAL_URI__[2])) {
-    throw new Exception('Error: no repo snapshot ID specified.');
+    throw new Exception('Error: no repository snapshot ID specified.');
 }
 
 if (!is_numeric(__ACTUAL_URI__[2])) {
-    throw new Exception('Error: invalid repo snapshot ID.');
+    throw new Exception('Error: invalid repository snapshot ID.');
 }
 
 $snapId = __ACTUAL_URI__[2];
+
+/**
+ *  Check if the snapshot exists
+ */
+if (!$repoSnapshotController->exists($snapId)) {
+    throw new Exception('Error: repository snapshot #' . $snapId . ' does not exist.');
+}
 
 /**
  *  Retrieve repo infos from DB
@@ -50,3 +58,5 @@ if ($myrepo->getPackageType() == 'deb') {
  *  Convert repo size in the most suitable byte format
  */
 $repoSize = \Controllers\Common::sizeFormat($repoSize);
+
+unset($repoSnapshotController);

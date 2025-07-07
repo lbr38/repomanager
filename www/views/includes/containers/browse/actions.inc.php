@@ -1,9 +1,12 @@
-<?php
-/**
- *  The 'actions' section is only available to admins
- */
-if (IS_ADMIN) : ?>
-    <section class="section-right reloadable-container" container="browse/actions">
+<section class="section-right reloadable-container" container="browse/actions">
+    <?php
+    try {
+        /**
+         *  If the user is not an administrator or does not have permission to upload packages, prevent access to this panel.
+         */
+        if (!IS_ADMIN and !in_array('upload-package', USER_PERMISSIONS['repositories']['allowed-actions']['repos'])) {
+            throw new Exception('You are not allowed to upload packages');
+        } ?>
 
         <h3>UPLOAD PACKAGES</h3>
 
@@ -56,10 +59,29 @@ if (IS_ADMIN) : ?>
                     } ?>
                 </div>
             </div>
-            
-            <h3>REBUILD REPO</h3>
-
             <?php
+        endif;
+    } catch (Exception $e) {
+        // echo '<div class="div-generic-blue">';
+        // echo $e->getMessage();
+        // echo '</div>';
+    }
+
+    try {
+        /**
+         *  If the user is not an administrator or does not have permission to rebuild repositories, prevent access to this panel.
+         */
+        if (!IS_ADMIN and !in_array('rebuild', USER_PERMISSIONS['repositories']['allowed-actions']['repos'])) {
+            throw new Exception('You are not allowed to rebuild repositories');
+        } ?>
+            
+        <h3>REBUILD REPO</h3>
+
+        <?php
+        /**
+         *  If there is no task running on this repo then print action buttons
+         */
+        if (empty($rebuild) or (!empty($rebuild) and $rebuild != 'running')) :
             $gpgSignChecked = '';
 
             if ($myrepo->getPackageType() == 'rpm' && RPM_SIGN_PACKAGES == 'true') {
@@ -81,7 +103,10 @@ if (IS_ADMIN) : ?>
                 <button id="rebuild-btn" snap-id="<?= $snapId ?>" type="button" class="btn-large-red">Execute</button>
             </div>
             <?php
-        endif ?>
-    </section>
-    <?php
-endif ?>
+        endif;
+    } catch (Exception $e) {
+        // echo '<div class="div-generic-blue">';
+        // echo $e->getMessage();
+        // echo '</div>';
+    } ?>
+</section>

@@ -57,6 +57,7 @@ class Autoloader
             \Controllers\App\Structure\Directory::create();
             \Controllers\App\Structure\File::create();
             \Controllers\App\Session::load();
+            \Controllers\App\Permissions::load();
             \Controllers\App\Config\Log::get();
             \Controllers\App\Config\Notification::get();
         }

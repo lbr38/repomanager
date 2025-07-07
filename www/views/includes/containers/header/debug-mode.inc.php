@@ -3,7 +3,7 @@
     /**
      *  Debug mode
      */
-    if (DEBUG_MODE == 'true') : ?>
+    if (DEBUG_MODE) : ?>
         <section class="section-main">
             <div class="div-generic-blue">
                 <div class="flex align-item-center column-gap-5">

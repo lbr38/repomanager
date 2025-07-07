@@ -11,6 +11,13 @@ class Package
      */
     public function upload(int $snapId, $packages)
     {
+        /**
+         *  If the user is not an administrator and does not have permission to upload packages, prevent access to this action.
+         */
+        if (!IS_ADMIN and !in_array('upload-package', USER_PERMISSIONS['repositories']['allowed-actions']['repos'])) {
+            throw new Exception('You are not allowed to upload packages');
+        }
+
         $myrepo = new \Controllers\Repo\Repo();
 
         /**
@@ -251,12 +258,15 @@ class Package
      */
     public function delete(int $snapId, array $packages)
     {
-        $myrepo = new \Controllers\Repo\Repo();
-        $deletedPackages = array();
-
-        if (!IS_ADMIN) {
+        /**
+         *  If the user is not an administrator and does not have permission to delete packages, prevent access to this action.
+         */
+        if (!IS_ADMIN and !in_array('delete-package', USER_PERMISSIONS['repositories']['allowed-actions']['repos'])) {
             throw new Exception('You are not allowed to delete packages.');
         }
+
+        $myrepo = new \Controllers\Repo\Repo();
+        $deletedPackages = array();
 
         /**
          *  Retrieve repo infos from DB

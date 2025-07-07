@@ -2,40 +2,81 @@
  *  Event: when we click on a checkbox, we show the 'Delete' and 'Download' buttons
  */
 $(document).on('click',".package-checkbox",function () {
-    // Count the number of checked checkbox
-    var checked = $('body').find('input[name=packageName\\[\\]]:checked').length;
     var snapId = $('#packages-list').attr('snap-id');
 
-    // If there is at least 1 checkbox selected then show the confirm box
-    if (checked >= 1) {
-        confirmBox(
+    /**
+     *  The list of allowed actions the user can execute on the selected repositories
+     *  By default: all (only 'delete-package' for now but maybe more later), unless the user has specific permissions
+     *  Those permissions are later verified by the server so even if the user tries to execute an action he is not allowed to, it will not work
+     */
+    var allowedActions = ['delete-package'];
+
+    /**
+     *  The buttons that will be displayed in the confirm box
+     */
+    var buttons = [];
+
+    /**
+     *  If no checkbox is selected then hide the buttons
+     */
+    if ($('body').find('input[name=packageName\\[\\]]:checked').length == 0) {
+        closeConfirmBox();
+        return;
+    }
+
+    /**
+     *  Get permissions from cookie
+     */
+    if (mycookie.exists('user_permissions')) {
+        var userPermissions = JSON.parse(mycookie.get('user_permissions'));
+
+        // Reset allowed actions array
+        var allowedActions = [];
+
+        // Loop through all permissions and check if the user has the permission to execute the action
+        if (userPermissions.repositories && userPermissions.repositories['allowed-actions'] && userPermissions.repositories['allowed-actions']['repos']) {
+            var allowedActions = userPermissions.repositories['allowed-actions']['repos'];
+        }
+    }
+
+    /**
+     *  Define confirm box buttons depending on the allowed actions
+     */
+
+    // Download is always allowed by default
+    buttons.push(
+        {
+            'text': 'Download',
+            'color': 'blue-alt',
+            'callback': function () {
+                downloadPackage();
+            }
+        }
+    );
+
+    if (allowedActions.includes('delete-package')) {
+        buttons.push(
             {
-                'title': 'Select packages',
-                'message': 'Select an action to perform on the selected packages:',
-                'id': 'select-package',
-                'buttons': [
-                {
-                    'text': 'Delete',
-                    'color': 'red',
-                    'callback': function () {
-                        deletePackages(snapId);
-                    }
-                },
-                {
-                    'text': 'Download',
-                    'color': 'blue-alt',
-                    'callback': function () {
-                        downloadPackage();
-                    }
-                }]
+                'text': 'Delete',
+                'color': 'red',
+                'callback': function () {
+                    deletePackages(snapId);
+                }
             }
         );
     }
 
-    // If no checkbox is selected then we hide the buttons
-    if (checked == 0) {
-        closeConfirmBox();
-    }
+    /**
+     *  Show the confirm box
+     */
+    confirmBox(
+        {
+            'title': 'Select packages',
+            'message': 'Select an action to perform on the selected packages:',
+            'id': 'select-package',
+            'buttons': buttons
+        }
+    );
 });
 
 /**

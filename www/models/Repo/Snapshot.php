@@ -81,4 +81,24 @@ class Snapshot extends \Models\Model
             $this->db->logError($e);
         }
     }
+
+    /**
+     *  Return true if a snapshot with the specified ID exists
+     */
+    public function exists(int $id) : bool
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT Id FROM repos_snap WHERE Id = :id");
+            $stmt->bindValue(':id', $id);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            $this->db->logError($e);
+        }
+
+        if ($this->db->isempty($result) === true) {
+            return false;
+        }
+
+        return true;
+    }
 }

@@ -41,7 +41,7 @@ class Repo
     public function __construct()
     {
         $this->model = new \Models\Repo\Repo();
-        $this->repoListingController = new \Controllers\Repo\Listing();
+        // $this->repoListingController = new \Controllers\Repo\Listing();
     }
 
     public function setRepoId(string $id)

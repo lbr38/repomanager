@@ -1,4 +1,4 @@
-<div class="div-generic-blue">
+<div class="div-generic-blue margin-bottom-15">
     <div class="flex align-item-center justify-space-between">
         <h3>DUPLICATE REPOSITORY SNAPSHOT</h3>
 
@@ -54,7 +54,7 @@
         if (!empty($rawParams['env'])) : ?>
             <div>
                 <h6>POINT AN ENVIRONMENT</h6>
-                <div class="flex column-gap-5 row-gap-5">
+                <div class="flex column-gap-5 row-gap-5 flex-wrap">
                     <?php
                     foreach ($rawParams['env'] as $env) {
                         echo \Controllers\Common::envtag($env) . ' ';
