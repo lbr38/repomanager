@@ -45,6 +45,10 @@
                 echo '<button type="button" id="send-test-email-btn" class="btn-medium-blue margin-top-5" title="Send a test email">Send a test email</button>';
             } ?>
 
+            <h6>SESSION TIMEOUT</h6>
+            <p class="note">User session timeout in seconds.</p>
+            <input class="settings-param" param-name="session-timeout" type="number" min="15" value="<?= SESSION_TIMEOUT ?>" placeholder="Default is 3600 (1 hour)">
+
             <h6>USE A PROXY</h6>
             <p class="note">Specify the proxy URL to use to access the internet. e.g. https://myproxy.com:8080</p>
             <input class="settings-param" param-name="proxy" type="text" value="<?= PROXY ?>" placeholder="https://">
@@ -174,12 +178,20 @@
                     <option value="error" <?php echo (RPM_MISSING_SIGNATURE == 'error') ? 'selected' : '' ?>>End mirroring task with error</option>
                 </select>
 
-                <h6  class="required">WHEN PACKAGE SIGNATURE IS INVALID</h6>
+                <h6 class="required">WHEN PACKAGE SIGNATURE IS INVALID</h6>
                 <p class="note">Package retrieved from a remote repository may have invalid signature (because the GPG key used to sign the package was not imported, or because the publisher signed the package with a different GPG key, or because the package's signature is corrupted or somehow broken). This parameter allows you to choose what to do in this case.</p>
                 <select class="settings-param" param-name="rpm-invalid-signature">
                     <option value="download" <?php echo (RPM_INVALID_SIGNATURE == 'download') ? 'selected' : '' ?>>Download package anyway</option>
                     <option value="ignore" <?php echo (RPM_INVALID_SIGNATURE == 'ignore') ? 'selected' : '' ?>>Ignore package (do not download)</option>
                     <option value="error" <?php echo (RPM_INVALID_SIGNATURE == 'error') ? 'selected' : '' ?>>End mirroring task with error</option>
+                </select>
+
+                <h6 class="required">WHEN PACKAGE SIGNATURE FAILS</h6>
+                <p class="note">Package retrieved from a remote repository may fail to be signed (for example, the package is not a valid RPM package or it is corrupted). This parameter allows you to choose what to do in this case.</p>
+                <select class="settings-param" param-name="rpm-signature-fail">
+                    <option value="keep" <?php echo (RPM_SIGNATURE_FAIL == 'keep') ? 'selected' : '' ?>>Keep the package anyway (not recommended)</option>
+                    <option value="ignore" <?php echo (RPM_SIGNATURE_FAIL == 'ignore') ? 'selected' : '' ?>>Ignore package (delete it) and continue</option>
+                    <option value="error" <?php echo (RPM_SIGNATURE_FAIL == 'error') ? 'selected' : '' ?>>End signing task with error</option>
                 </select>
                 <?php
             endif ?>

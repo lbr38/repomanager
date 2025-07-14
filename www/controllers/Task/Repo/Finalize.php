@@ -7,36 +7,26 @@ use Exception;
 trait Finalize
 {
     /**
-    *   Finalisation du repo : ajout en base de données et application des droits
-    */
+     *  Finalize the repository: add to the database and apply permissions
+     */
     protected function finalize()
     {
         $this->taskLogStepController->new('finalizing', 'FINALIZING');
 
         /**
-         *  Le type d'opération doit être renseigné pour cette fonction (soit 'create' soit 'update')
-         */
-        if (empty($this->task->getAction())) {
-            throw new Exception('task action unknown (empty)');
-        }
-        if ($this->task->getAction() != 'create' and $this->task->getAction() != 'update') {
-            throw new Exception('task action is invalid');
-        }
-
-        /**
-         *  1. Mise à jour de la BDD
-         *  - Si il s'agit d'un nouveau repo alors on l'ajoute en base de données
+         *  Update the database
+         *  If the task is a 'create' then we add the repository to the database.
          */
         if ($this->task->getAction() == 'create') {
             /**
-             *  Si actuellement aucun repo rpm de ce nom n'existe en base de données alors on l'ajoute
+             *  If currently no rpm repo of this name exists in the database then we add it
              */
             if ($this->repo->getPackageType() == 'rpm') {
                 if ($this->repo->exists($this->repo->getName()) === false) {
                     $this->repo->add($this->repo->getSource(), 'rpm', $this->repo->getName());
 
                     /**
-                     *  L'Id du repo devient alors l'Id de la dernière ligne insérée en base de données
+                     *  Repository Id becomes the Id of the last inserted row in the database
                      */
                     $this->repo->setRepoId($this->repo->getLastInsertRowID());
 
@@ -46,7 +36,7 @@ trait Finalize
                     $this->repo->updateReleasever($this->repo->getRepoId(), $this->repo->getReleasever());
 
                 /**
-                 *  Sinon si un repo de même nom existe, on récupère son Id en base de données
+                 *  Otherwise, if a repo of the same name exists, we retrieve its Id from the database
                  */
                 } else {
                     $this->repo->setRepoId($this->repo->getIdByName($this->repo->getName(), '', ''));
@@ -54,14 +44,14 @@ trait Finalize
             }
 
             /**
-             *  Si actuellement aucun repo deb de ce nom n'existe en base de données alors on l'ajoute
+             *  If currently no deb repo of this name exists in the database then we add it
              */
             if ($this->repo->getPackageType() == 'deb') {
                 if ($this->repo->exists($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection()) === false) {
                     $this->repo->add($this->repo->getSource(), 'deb', $this->repo->getName());
 
                     /**
-                     *  L'Id du repo devient alors l'Id de la dernière ligne insérée en base de données
+                     *  Repository Id becomes the Id of the last inserted row in the database
                      */
                     $this->repo->setRepoId($this->repo->getLastInsertRowID());
 
@@ -72,7 +62,7 @@ trait Finalize
                     $this->repo->updateSection($this->repo->getRepoId(), $this->repo->getSection());
 
                 /**
-                 *  Sinon si un repo de même nom existe, on récupère son Id en base de données
+                 *  Otherwise, if a repo of the same name exists, we retrieve its Id from the database
                  */
                 } else {
                     $this->repo->setRepoId($this->repo->getIdByName($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection()));
@@ -129,12 +119,12 @@ trait Finalize
                 /**
                  *  Update date
                  */
-                $this->repo->snapSetDate($this->repo->getSnapId(), date('Y-m-d'));
+                $this->repo->snapSetDate($this->repo->getSnapId(), $this->repo->getDate());
 
                 /**
                  *  Update time
                  */
-                $this->repo->snapSetTime($this->repo->getSnapId(), date('H:i'));
+                $this->repo->snapSetTime($this->repo->getSnapId(), $this->repo->getTime());
 
             /**
              *  Otherwise we add a new snapshot in the database with today's date

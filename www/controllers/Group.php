@@ -113,21 +113,28 @@ class Group
         $name = \Controllers\Common::validateData($name);
 
         /**
-         *  1. On vérifie que le nom du groupe ne contient pas de caractères interdits
+         *  Check that group name does not contain invalid characters
          */
         if (\Controllers\Common::isAlphanumDash($name) === false) {
             throw new Exception("Group <b>$name</b> contains invalid characters");
         }
 
         /**
-         *  2. On vérifie que le groupe n'existe pas déjà
+         *  Group name cannot be 'Default'
+         */
+        if (strtolower($name) === 'default') {
+            throw new Exception('Default is a reserved group name');
+        }
+
+        /**
+         *  Check if group name already exists
          */
         if ($this->exists($name) === true) {
             throw new Exception("Group name <b>$name</b> already exists");
         }
 
         /**
-         *  3. Insertion du nouveau groupe
+         *  Add the new group to the database
          */
         $this->model->add($name);
 

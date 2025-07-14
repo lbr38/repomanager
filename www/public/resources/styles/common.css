@@ -1,5 +1,5 @@
 /**
- *  v1.15
+ *  v1.16
  */
 @font-face{font-family: 'Roboto'; src: url('/assets/fonts/Roboto/Roboto-Regular.ttf') format('truetype');}
 
@@ -1081,10 +1081,10 @@ textarea {
     height: 100vh;
     z-index: 999;
     margin: auto;
-    background-color: #182b3e82;
+    background-color: #1b1f2682;
 }
 
-.modal-window, .modal-window-fullscreen {
+.modal-window {
     display: flex;
     flex-direction: column;
     width: 100vw;
@@ -1096,14 +1096,6 @@ textarea {
     background-color: #182b3e;
 }
 
-.modal-window {
-    border-radius: 20px;
-    width: 80vw;
-    height: 80vh;
-    border: 1px solid #00000033;
-    box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
-}
-
 .modal-window-title {
     display: flex;
     justify-content: space-between;
@@ -1113,7 +1105,6 @@ textarea {
 
 .modal-window-content {
     height: 100%;
-    padding: 0px 20px;
     text-wrap: wrap;
     word-break: break-word;
     overflow-y: auto;
@@ -1178,5 +1169,17 @@ textarea {
 
     .confirm-box {
         width: 29%;
+    }
+
+    .modal-window {
+        width: 80vw !important;
+        height: 80vh !important;
+        border-radius: 20px;
+        border: 1px solid #00000033;
+        box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
+    }
+
+    .modal-window-content {
+        padding: 0px 20px;
     }
 }

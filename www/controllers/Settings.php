@@ -62,6 +62,12 @@ class Settings
             $settingsToApply['EMAIL_RECIPIENT'] = '';
         }
 
+        if (!empty($sendSettings['session-timeout'])) {
+            if (is_numeric($sendSettings['session-timeout']) and $sendSettings['session-timeout'] >= 15) {
+                $settingsToApply['SESSION_TIMEOUT'] = $sendSettings['session-timeout'];
+            }
+        }
+
         if (!empty($sendSettings['proxy'])) {
             /**
              *  Check that URL is valid
@@ -175,6 +181,14 @@ class Settings
                 $settingsToApply['RPM_INVALID_SIGNATURE'] = $sendSettings['rpm-invalid-signature'];
             } else {
                 $settingsToApply['RPM_INVALID_SIGNATURE'] = 'error';
+            }
+        }
+
+        if (!empty($sendSettings['rpm-signature-fail'])) {
+            if (in_array($sendSettings['rpm-signature-fail'], ['keep', 'ignore', 'error'])) {
+                $settingsToApply['RPM_SIGNATURE_FAIL'] = $sendSettings['rpm-signature-fail'];
+            } else {
+                $settingsToApply['RPM_SIGNATURE_FAIL'] = 'error';
             }
         }
 

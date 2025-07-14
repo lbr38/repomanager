@@ -41,4 +41,18 @@ if ($action == 'delete' and !empty($_POST['id'])) {
     response(HTTP_OK, 'User has been deleted');
 }
 
+/**
+ *  Edit user permissions
+ */
+if ($action == 'edit-permissions' and !empty($_POST['id']) and isset($_POST['reposView']) and isset($_POST['reposActions'])) {
+    try {
+        $userPermissionController = new \Controllers\User\Permission();
+        $userPermissionController->set($_POST['id'], $_POST['reposView'], $_POST['reposActions']);
+    } catch (Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, 'User permissions have been updated');
+}
+
 response(HTTP_BAD_REQUEST, 'Invalid action');

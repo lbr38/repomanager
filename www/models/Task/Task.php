@@ -420,8 +420,8 @@ class Task extends \Models\Model
         $data = array();
 
         try {
-            $stmt = $this->db->prepare("SELECT * FROM tasks WHERE Date < :date");
-            $stmt->bindValue(':date', $date);
+            $stmt = $this->db->prepare("SELECT * FROM tasks WHERE Date < :date AND Status != 'running' AND Status != 'queued' AND Status != 'scheduled' AND Status != 'disabled'");
+            $stmt->bindValue(':date', $date, SQLITE3_TEXT);
             $result = $stmt->execute();
         } catch (Exception $e) {
             $this->db->logError($e);

@@ -261,8 +261,8 @@
     border-top: 10px solid transparent;
     border-bottom: 10px solid transparent;
 }
-.timeline-container-left::before       { border-left: 11px solid #182b3e; }
-.timeline-container-right::before      { border-right: 11px solid #182b3e; }
+.timeline-container-left::before       { border-left: 11px solid #22384F; }
+.timeline-container-right::before      { border-right: 11px solid #22384F; }
 
 /* Fix the circle for containers on the right side */
 .timeline-container-right::after {

@@ -172,4 +172,12 @@ class Snapshot
 
         return $returnOutput;
     }
+
+    /**
+     *  Return true if a snapshot with the specified ID exists
+     */
+    public function exists(int $id) : bool
+    {
+        return $this->model->exists($id);
+    }
 }

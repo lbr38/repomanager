@@ -14,8 +14,8 @@ class Listing
     }
 
     /**
-     *  Retourne la liste des repos, leurs snapshots et leur environnements
-     *  N'affiche pas les repos qui n'ont aucun environnement actif
+     *  Return the list of repos, their snapshots and their environments
+     *  Does not display repos that have no active environments
      */
     public function list()
     {
@@ -23,7 +23,7 @@ class Listing
     }
 
     /**
-     *  Retourne la liste des repos par groupes
+     *  Return the list of repos by group name
      */
     public function listByGroup(string $groupName)
     {

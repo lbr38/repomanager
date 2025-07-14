@@ -1043,7 +1043,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              *  For each URL that has been tested and returned an error, add it to the error message
              */
             foreach ($errorUrls as $errorUrl) {
-                $errorUrlsString .= '<p> 🠶 <span class="copy">' . $errorUrl['url'] . '</span></p>';
+                $errorUrlsString .= '<p> 🠶 <span class="copy wordbreakall">' . $errorUrl['url'] . '</span></p>';
                 $errorUrlsString .= '<p class="note">Error details: ' . $errorUrl['error'] . '</p>';
             }
 
@@ -1054,7 +1054,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          *  If there was no error, print the URLs that will be used to retrieve packages
          */
         foreach ($this->archUrls as $url) {
-            $this->taskLogSubStepController->output(' 🠶 <span class="copy">' . $url . '</span>');
+            $this->taskLogSubStepController->output(' 🠶 <span class="copy wordbreakall">' . $url . '</span>');
         }
 
         $this->taskLogSubStepController->completed();

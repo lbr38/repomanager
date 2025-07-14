@@ -82,7 +82,7 @@ class Panel {
     }
 
     /**
-     * Relaod panel content, by name
+     * Reload panel content, by name
      * @param {*} name
      * @param {*} params
      * @returns

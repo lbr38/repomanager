@@ -144,7 +144,7 @@ $(document).on('click','.reloadable-table-page-btn',function () {
      *  Set cookie for PHP to load the right content
      *  e.g tables/tasks/list-done/offset
      */
-    setCookie('tables/' + table + '/offset', offset, 1);
+    mycookie.set('tables/' + table + '/offset', offset, 1);
 
     reloadTable(table, offset);
 });

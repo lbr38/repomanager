@@ -12,8 +12,6 @@ trait Sign
      */
     private function signPackage()
     {
-        $signError = 0;
-
         /**
          *  Skip if not rpm
          */
@@ -88,7 +86,7 @@ trait Sign
                  *  Count total packages to sign and initialize counter
                  */
                 $totalPackages = count($rpmFiles);
-                $packageCounter = 1;
+                $packageCounter = 0;
 
                 /**
                  *  Print if all packages are to be signed or if specific packages are to be signed
@@ -104,6 +102,8 @@ trait Sign
                  *  Process each found file
                  */
                 foreach ($rpmFiles as $rpmFile) {
+                    $packageCounter++;
+
                     /**
                      *  We need a gpg macros file, we sign only if the macros file is present, otherwise we return an error
                      */
@@ -135,14 +135,44 @@ trait Sign
                      */
                     $output = $myprocess->getOutput();
 
+                    $myprocess->close();
+
                     /**
-                     *  If the signature of the current package failed, we increment $signError to indicate an error and we exit the loop to not process the next package
+                     *  If the signature of the current package fails
                      */
                     if ($myprocess->getExitCode() != 0) {
-                        throw new Exception('Error while signing package:<br><pre class="codeblock margin-top-10">' . $output . '</pre>');
-                    }
+                        // If the RPM_SIGNATURE_FAIL setting is set to 'error', then stop the task with an error
+                        if (RPM_SIGNATURE_FAIL == 'error') {
+                            // First, delete everything to avoid leaving a broken repository (don't delete if the action is 'rebuild')
+                            if ($this->task->getAction() != 'rebuild') {
+                                \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName());
+                            }
 
-                    $myprocess->close();
+                            throw new Exception('Error while signing package<br><pre class="codeblock margin-top-10">' . $output . '</pre>');
+                        }
+
+                        // If the RPM_SIGNATURE_FAIL setting is set to 'keep', then we keep the package and continue
+                        if (RPM_SIGNATURE_FAIL == 'keep') {
+                            $this->taskLogSubStepController->warning('Package signature failed (package kept anyway)');
+                            $this->taskLogSubStepController->output($output, 'pre');
+
+                            continue;
+                        }
+
+                        // If the RPM_SIGNATURE_FAIL setting is set to 'ignore', then we ignore the package (delete it) and continue
+                        if (RPM_SIGNATURE_FAIL == 'ignore') {
+                            $this->taskLogSubStepController->warning('Package signature failed, ignoring package (deleting it) and continuing');
+
+                            // Delete the package
+                            if (file_exists($rpmFile)) {
+                                unlink($rpmFile);
+                            }
+
+                            $this->taskLogSubStepController->output($output, 'pre');
+
+                            continue;
+                        }
+                    }
 
                     /**
                      *  Specific case, we will display a warning if "warning:" has been detected in the logs
@@ -160,8 +190,6 @@ trait Sign
                     } else {
                         $this->taskLogSubStepController->completed();
                     }
-
-                    $packageCounter++;
                 }
             }
         } catch (Exception $e) {
@@ -169,23 +197,6 @@ trait Sign
              *  Throw exception with error message
              */
             throw new Exception($e->getMessage());
-        }
-
-        /**
-         *  If there was an error, delete what has been done
-         */
-        if ($signError != 0) {
-            /**
-             *  If the action is 'rebuild' then we do not delete what has been done (otherwise it deletes the repo!)
-             */
-            if ($this->task->getAction() != 'rebuild') {
-                /**
-                 *  Delete what has been done
-                 */
-                \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName());
-            }
-
-            throw new Exception('Packages signature has failed');
         }
 
         // Set the main substep as completed

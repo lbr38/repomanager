@@ -89,7 +89,7 @@ function enableAutoScroll()
     // Autoscroll can be enabled only if the task is running
     if ($('#log-refresh-container').attr('task-status') == 'running') {
         // Set autoscroll cookie to true to enable autoscroll
-        setCookie('autoscroll', 'true');
+        mycookie.set('autoscroll', 'true');
 
         $('#autoscroll-btn').find('img').attr('src', '/assets/icons/pause.svg');
         $('#autoscroll-btn').addClass('round-btn-yellow').removeClass('round-btn-green');
@@ -108,9 +108,9 @@ function enableAutoScroll()
 function disableAutoScroll()
 {
     // Get current autoscroll status
-    if (getCookie('autoscroll') == '' || getCookie('autoscroll') == 'true') {
+    if (mycookie.get('autoscroll') == '' || mycookie.get('autoscroll') == 'true') {
         // Set autoscroll cookie to false to disable autoscroll
-        setCookie('autoscroll', 'false');
+        mycookie.set('autoscroll', 'false');
 
         $('#autoscroll-btn').find('img').attr('src', '/assets/icons/play.svg');
         $('#autoscroll-btn').addClass('round-btn-green').removeClass('round-btn-yellow');
@@ -158,7 +158,7 @@ function refreshStepsInDOM(steps)
                 }
 
                 // If autoscroll if enabled, scroll to the bottom of the step content
-                if (getCookie('autoscroll') == '' || getCookie('autoscroll') == 'true') {
+                if (mycookie.get('autoscroll') == '' || mycookie.get('autoscroll') == 'true') {
                     autoscroll = true;
                 }
 

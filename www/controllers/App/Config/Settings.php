@@ -76,9 +76,17 @@ class Settings
             }
         }
 
+        if (!defined('SESSION_TIMEOUT')) {
+            if (!empty($settings['SESSION_TIMEOUT'])) {
+                define('SESSION_TIMEOUT', $settings['SESSION_TIMEOUT']);
+            } else {
+                define('SESSION_TIMEOUT', '3600');
+            }
+        }
+
         if (!defined('DEBUG_MODE')) {
-            if (!empty($settings['DEBUG_MODE'])) {
-                define('DEBUG_MODE', $settings['DEBUG_MODE']);
+            if (!empty($settings['DEBUG_MODE']) and $settings['DEBUG_MODE'] == 'true') {
+                define('DEBUG_MODE', true);
             } else {
                 define('DEBUG_MODE', false);
             }
@@ -229,6 +237,14 @@ class Settings
                 define('RPM_INVALID_SIGNATURE', $settings['RPM_INVALID_SIGNATURE']);
             } else {
                 define('RPM_INVALID_SIGNATURE', 'error');
+            }
+        }
+
+        if (!defined('RPM_SIGNATURE_FAIL')) {
+            if (!empty($settings['RPM_SIGNATURE_FAIL'])) {
+                define('RPM_SIGNATURE_FAIL', $settings['RPM_SIGNATURE_FAIL']);
+            } else {
+                define('RPM_SIGNATURE_FAIL', 'error');
             }
         }
 

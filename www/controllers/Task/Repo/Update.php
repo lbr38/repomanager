@@ -37,9 +37,6 @@ class Update
         $task = $this->task->getById($taskId);
         $taskParams = json_decode($task['Raw_params'], true);
 
-        // TODO debug
-        // file_put_contents(ROOT . '/debug2', '(1) Task params:' . PHP_EOL . print_r($taskParams, true) . PHP_EOL . PHP_EOL);
-
         /**
          *  If task is a scheduled task and it is recurring, then update the snap-id parameter to be the last snap-id
          *  If not, the task could try to update a repo with an old and possibly deleted snap-id
@@ -50,9 +47,6 @@ class Update
                  *  Retrieve repository latest snapshot Id, from the repo Id
                  */
                 $latestSnapId = $this->repo->getLatestSnapId($taskParams['repo-id']);
-
-                // TODO debug
-                // file_put_contents(ROOT . '/debug2', '(2) Latest snap id: ' . $latestSnapId . PHP_EOL . PHP_EOL, FILE_APPEND);
 
                 /**
                  *  Throw error if no snapshot is found
@@ -72,9 +66,6 @@ class Update
                 $this->task->updateRawParams($taskId, json_encode($taskParams));
             }
         }
-
-        // TODO debug
-        // file_put_contents(ROOT . '/debug2', '(3) Task params:' . PHP_EOL . print_r($taskParams, true) . PHP_EOL . PHP_EOL, FILE_APPEND);
 
         /**
          *  Check source repo snap Id parameter
@@ -102,9 +93,6 @@ class Update
             $requiredParams = array('gpg-sign', 'arch');
             $optionalParams = array('env');
         }
-
-        // TODO debug
-        // file_put_contents(ROOT . '/debug2', '(4) Task params:' . PHP_EOL . print_r($taskParams, true) . PHP_EOL . PHP_EOL, FILE_APPEND);
 
         $this->taskParamsCheck('Update repo', $taskParams, $requiredParams);
         $this->taskParamsSet($taskParams, $requiredParams, $optionalParams);

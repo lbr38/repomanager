@@ -76,17 +76,16 @@ trait Sync
             /**
              *  Define temporary working directory
              */
-            // $workingDir = REPOS_DIR . '/download-mirror-task-' . $this->task->getId();
             $workingDir = REPOS_DIR . '/temporary-task-' . $this->task->getId();
 
             /**
              *  Define final repo/section directory path
              */
             if ($this->repo->getPackageType() == 'rpm') {
-                $repoPath = REPOS_DIR . '/' . DATE_DMY . '_' . $this->repo->getName();
+                $repoPath = REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName();
             }
             if ($this->repo->getPackageType() == 'deb') {
-                $repoPath = REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . DATE_DMY . '_' . $this->repo->getSection();
+                $repoPath = REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection();
             }
 
             /**

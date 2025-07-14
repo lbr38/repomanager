@@ -1,5 +1,5 @@
 <div class="reloadable-table div-generic-blue" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
-    <div class="flex justify-space-between">
+    <div class="flex flex-wrap row-gap-5 justify-space-between">
         <div>
             <h6 class="margin-top-0">ACTIONS</h6>
             <p class="note">View all actions performed by users.</p>
@@ -40,21 +40,27 @@
                             echo '<img src="/assets/icons/check.svg" class="icon-np" tiel="Error" />';
                         } ?>
 
-                        <div>
+                        <div class="flex flex-direction-column row-gap-5">
                             <p><b><?= $item['Date'] ?> <?= $item['Time'] ?></b></p>
-                            <?php
-                            if (!empty($item['Username'])) {
-                                $account = 'Account: ' . $item['Username'];
-                            } else if (!empty($item['Id_user'])) {
-                                $account = 'Account: #' . $item['Id_user'];
-                            } else {
-                                $account = 'Unknown account';
-                            } ?>
-                            <p class="mediumopacity-cst"><?= $account ?></p>
+                            <div class="flex align-item-center column-gap-5">
+                                <img src="/assets/icons/user.svg" class="icon-np icon-medium mediumopacity-cst" />
+                                <?php
+                                if (!empty($item['Username'])) {
+                                    $account = $item['Username'];
+                                } else if (!empty($item['Id_user'])) {
+                                    $account = '#' . $item['Id_user'];
+                                } else {
+                                    $account = 'Unknown account';
+                                } ?>
+                                <p class="mediumopacity-cst" title="The account that performed the action"><?= $account ?></p>
+                            </div>
                         </div>
                     </div>
 
-                    <p><?= htmlspecialchars_decode($item['Action']) ?></p>
+                    <div class="flex flex-direction-column row-gap-5">
+                        <p><b>Action</b></p>
+                        <p><?= htmlspecialchars_decode($item['Action']) ?></p>
+                    </div>
                 </div>
 
                 <div>
@@ -73,7 +79,7 @@
                         $userAgent = $item['User_agent'];
                     } ?>
 
-                    <p>IP and user agent</p>
+                    <p><b>IP and user agent</b></p>
                     <p class="mediumopacity-cst"><?= $ip ?> - <?= $userAgent ?></p>
                 </div>
             </div>

@@ -12,7 +12,8 @@ class Listing extends \Models\Model
     }
 
     /**
-     *  Retourne la liste des repos actifs, càd ayant au moins 1 snapshot actif, et leur environnement si il y en a
+     *  Return the list of repos, their snapshots and their environments
+     *  Does not display repos that have no active environments
      */
     public function list()
     {
@@ -42,7 +43,7 @@ class Listing extends \Models\Model
                 ON repos_snap.Id = repos_env.Id_snap
             WHERE repos_snap.Status = 'active'
             ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC, repos_env.Env ASC");
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
 
@@ -56,13 +57,11 @@ class Listing extends \Models\Model
     }
 
     /**
-     *  Retourne la liste des repos actifs, par groupe
+     *  Return the list of repos by group name
      */
     public function listByGroup(string $groupName)
     {
-        /**
-         *  Si le groupe == 'Default' (groupe fictif) alors on affiche tous les repos n'ayant pas de groupe
-         */
+        // If the group is 'Default' (a fictitious group), then we display all repos that do not belong to any group
         try {
             if ($groupName == 'Default') {
                 $reposInGroup = $this->db->query("SELECT DISTINCT
@@ -129,7 +128,7 @@ class Listing extends \Models\Model
                 $stmt->bindValue(':groupname', $groupName);
                 $reposInGroup = $stmt->execute();
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
 
@@ -173,7 +172,7 @@ class Listing extends \Models\Model
                 AND repos_snap.Status = 'active'
                 ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC");
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
 

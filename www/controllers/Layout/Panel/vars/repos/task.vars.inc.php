@@ -1,8 +1,4 @@
 <?php
-if (!IS_ADMIN) {
-    throw new Exception('You are not allowed to access this panel');
-}
-
 $myTaskForm = new \Controllers\Task\Form\Form();
 
 /**
@@ -13,6 +9,20 @@ if (empty($item['action'])) {
 }
 if (empty($item['repos'])) {
     throw new Exception('Task repositories required');
+}
+
+/**
+ *  Check that action is valid
+ */
+if (!in_array($item['action'], ['update', 'env', 'duplicate', 'delete', 'rebuild'])) {
+    throw new Exception('Invalid action: ' . $item['action']);
+}
+
+/**
+ *  If the user is not an administrator or does not have permission to perform the specified action, prevent access to this panel.
+ */
+if (!IS_ADMIN and !in_array($item['action'], USER_PERMISSIONS['repositories']['allowed-actions']['repos'])) {
+    throw new Exception('You are not allowed to access this panel');
 }
 
 if ($item['action'] == 'update') {
@@ -34,4 +44,8 @@ if ($item['action'] == 'rebuild') {
 /**
  *  Get form content for the specified action
  */
-$formContent = $myTaskForm->get($item['action'], json_decode($item['repos'], true));
+try {
+    $formContent = $myTaskForm->get($item['action'], json_decode($item['repos'], true));
+} catch (JsonException $e) {
+    throw new Exception('Error decoding repositories: ' . $e->getMessage());
+}
