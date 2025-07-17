@@ -23,9 +23,9 @@ class Autoloader
 
         /**
          *  Load minimal components
-         *  Useful for login/logout
+         *  Useful for login/logout and API
          */
-        if ($level == 'minimal') {
+        if ($level == 'minimal' or $level == 'api') {
             \Controllers\App\Config\Properties::get();
             \Controllers\App\Config\Main::get();
             \Controllers\App\Config\Settings::getYaml();
@@ -60,18 +60,6 @@ class Autoloader
             \Controllers\App\Permissions::load();
             \Controllers\App\Config\Log::get();
             \Controllers\App\Config\Notification::get();
-        }
-
-        /**
-         *  Load components for API
-         */
-        if ($level == 'api') {
-            \Controllers\App\Config\Properties::get();
-            \Controllers\App\Config\Main::get();
-            \Controllers\App\Config\Settings::get();
-            \Controllers\App\Config\Env::get();
-            \Controllers\App\Structure\Directory::create();
-            \Controllers\App\Structure\File::create();
         }
 
         /**

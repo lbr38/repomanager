@@ -12,6 +12,7 @@ trait Finalize
     protected function finalize()
     {
         $this->taskLogStepController->new('finalizing', 'FINALIZING');
+        $this->taskLogSubStepController->new('updating-database', 'UPDATING DATABASE');
 
         /**
          *  Update the database
@@ -143,10 +144,14 @@ trait Finalize
             }
         }
 
+        $this->taskLogSubStepController->completed();
+
         /**
          *  If the user has specified an environment to point to the created snapshot
          */
         if (!empty($this->repo->getEnv())) {
+            $this->taskLogSubStepController->new('adding-env', 'ADDING ENVIRONMENT');
+
             foreach ($this->repo->getEnv() as $env) {
                 /**
                  *  If the user has not specified any description, then we retrieve the one currently in place on the environment of the same name (if the environment exists and if it has a description)
@@ -188,11 +193,15 @@ trait Finalize
                  */
                 $this->repoEnvController->add($env, $this->repo->getDescription(), $this->repo->getSnapId());
             }
+
+            $this->taskLogSubStepController->completed();
         }
 
         /**
          *  Apply permissions on the created snapshot
          */
+        $this->taskLogSubStepController->new('applying-permissions', 'APPLYING PERMISSIONS');
+
         if ($this->repo->getPackageType() == 'rpm') {
             \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName(), 'file', 660);
             \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName(), 'dir', 770);
@@ -203,6 +212,7 @@ trait Finalize
             \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection(), 'dir', 770);
             \Controllers\Filesystem\File::recursiveChown(REPOS_DIR . '/' . $this->repo->getName(), WWW_USER, 'repomanager');
         }
+        $this->taskLogSubStepController->completed();
 
         $this->taskLogStepController->completed();
 
@@ -226,11 +236,9 @@ trait Finalize
         /**
          *  Clean unused snapshots
          */
-        try {
-            $snapshotsRemoved = $this->repoSnapshotController->clean();
-            $this->taskLogStepController->completed($snapshotsRemoved);
-        } catch (Exception $e) {
-            $this->taskLogStepController->error($e->getMessage());
-        }
+        $this->taskLogSubStepController->new('cleaning-snapshots', 'CLEANING SNAPSHOTS');
+        $this->taskLogSubStepController->completed($this->repoSnapshotController->clean());
+
+        $this->taskLogStepController->completed();
     }
 }

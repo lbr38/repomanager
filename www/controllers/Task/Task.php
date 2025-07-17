@@ -199,9 +199,9 @@ class Task
      *  Return last done task Id
      *  Can return null if no task is found (e.g. brand new installation with no task)
      */
-    public function getLastTaskId() : int|null
+    public function getLastTaskId(string $status = null) : int|null
     {
-        return $this->model->getLastTaskId();
+        return $this->model->getLastTaskId($status);
     }
 
     /**
@@ -607,7 +607,7 @@ class Task
      */
     public function relaunch(int $id) : void
     {
-        if (!IS_ADMIN) {
+        if (!IS_ADMIN and !in_array('relaunch', USER_PERMISSIONS['tasks']['allowed-actions'])) {
             throw new Exception('You are not allowed to relaunch a task');
         }
 
@@ -646,7 +646,7 @@ class Task
      */
     public function kill(string $taskId) : void
     {
-        if (!IS_ADMIN) {
+        if (!IS_ADMIN and !in_array('stop', USER_PERMISSIONS['tasks']['allowed-actions'])) {
             throw new Exception('You are not allowed to stop a task');
         }
 
@@ -816,6 +816,10 @@ class Task
      */
     public function enable(int $id) : void
     {
+        if (!IS_ADMIN and !in_array('enable', USER_PERMISSIONS['tasks']['allowed-actions'])) {
+            throw new Exception('You are not allowed to enable a task.');
+        }
+
         $this->model->enable($id);
     }
 
@@ -824,6 +828,10 @@ class Task
      */
     public function disable(int $id) : void
     {
+        if (!IS_ADMIN and !in_array('disable', USER_PERMISSIONS['tasks']['allowed-actions'])) {
+            throw new Exception('You are not allowed to disable a task.');
+        }
+
         $this->model->disable($id);
     }
 
@@ -832,6 +840,10 @@ class Task
      */
     public function delete(int $id) : void
     {
+        if (!IS_ADMIN and !in_array('delete', USER_PERMISSIONS['tasks']['allowed-actions'])) {
+            throw new Exception('You are not allowed to delete a task.');
+        }
+
         $this->model->delete($id);
     }
 

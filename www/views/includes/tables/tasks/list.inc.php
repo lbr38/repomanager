@@ -164,7 +164,9 @@
                      *  Delete task button, only for scheduled and queued tasks
                      */
                     if ($item['Status'] == 'scheduled' or $item['Status'] == 'queued') {
-                        echo '<img class="icon-lowopacity cancel-task-btn" src="/assets/icons/delete.svg" task-id="' . $item['Id'] . '" title="Cancel and delete scheduled task" />';
+                        if (IS_ADMIN or in_array('delete', USER_PERMISSIONS['tasks']['allowed-actions'])) {
+                            echo '<img class="icon-lowopacity cancel-task-btn" src="/assets/icons/delete.svg" task-id="' . $item['Id'] . '" title="Cancel and delete scheduled task" />';
+                        }
                     }
 
                     /**
@@ -182,11 +184,15 @@
                         if ($taskRawParams['schedule']['schedule-type'] == 'recurring') {
                             if (in_array($taskRawParams['schedule']['schedule-frequency'], ['hourly', 'daily', 'weekly', 'monthly'])) {
                                 if ($item['Status'] == 'scheduled') {
-                                    echo '<img class="icon-lowopacity disable-scheduled-task-btn" src="/assets/icons/disabled.svg" task-id="' . $item['Id'] . '" title="Disable scheduled task" />';
+                                    if (IS_ADMIN or in_array('disable', USER_PERMISSIONS['tasks']['allowed-actions'])) {
+                                        echo '<img class="icon-lowopacity disable-scheduled-task-btn" src="/assets/icons/disabled.svg" task-id="' . $item['Id'] . '" title="Disable scheduled task" />';
+                                    }
                                 }
 
                                 if ($item['Status'] == 'disabled') {
-                                    echo '<img class="icon-lowopacity enable-scheduled-task-btn" src="/assets/icons/enabled.svg" task-id="' . $item['Id'] . '" title="Enable scheduled task" />';
+                                    if (IS_ADMIN or in_array('enable', USER_PERMISSIONS['tasks']['allowed-actions'])) {
+                                        echo '<img class="icon-lowopacity enable-scheduled-task-btn" src="/assets/icons/enabled.svg" task-id="' . $item['Id'] . '" title="Enable scheduled task" />';
+                                    }
                                 }
                             }
                         }
@@ -202,8 +208,10 @@
                     /**
                      *  Print relaunch button if task has failed
                      */
-                    if (($item['Status'] == 'error' or $item['Status'] == 'stopped') and !empty($item['Id']) and IS_ADMIN) {
-                        echo '<img class="icon-lowopacity relaunch-task-btn" src="/assets/icons/update.svg" task-id="' . $item['Id'] . '" title="Relaunch this task with the same parameters." />';
+                    if (($item['Status'] == 'error' or $item['Status'] == 'stopped') and !empty($item['Id'])) {
+                        if (IS_ADMIN or in_array('relaunch', USER_PERMISSIONS['tasks']['allowed-actions'])) {
+                            echo '<img class="icon-lowopacity relaunch-task-btn" src="/assets/icons/update.svg" task-id="' . $item['Id'] . '" title="Relaunch this task with the same parameters." />';
+                        }
                     }
 
                     if ($item['Status'] == 'scheduled' or $item['Status'] == 'queued') {
@@ -211,7 +219,9 @@
                     }
 
                     if ($item['Status'] == 'running') {
-                        echo '<span title="Stop task" class="stop-task-btn" task-id="' . $item['Id'] . '"><img src="/assets/icons/delete.svg" class="icon-lowopacity"></span>';
+                        if (IS_ADMIN or in_array('stop', USER_PERMISSIONS['tasks']['allowed-actions'])) {
+                            echo '<span title="Stop task" class="stop-task-btn" task-id="' . $item['Id'] . '"><img src="/assets/icons/delete.svg" class="icon-lowopacity"></span>';
+                        }
                         echo '<img src="/assets/icons/loading.svg" class="icon-np" title="Task running" />';
                     }
 

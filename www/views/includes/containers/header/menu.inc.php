@@ -99,9 +99,13 @@
                                             <span class="label-white"><?= $myTask->getRepo($task['Id']); ?></span>
                                         </a>
 
-                                        <span title="Stop task" class="stop-task-btn" task-id="<?= $task['Id'] ?>">
-                                            <img src="/assets/icons/delete.svg" class="icon">
-                                        </span>
+                                        <?php
+                                        if (IS_ADMIN or in_array('stop', USER_PERMISSIONS['tasks']['allowed-actions'])) : ?>
+                                            <span title="Stop task" class="stop-task-btn" task-id="<?= $task['Id'] ?>">
+                                                <img src="/assets/icons/delete.svg" class="icon">
+                                            </span>
+                                            <?php
+                                        endif ?>
                                     </div>
                                     <?php
                                 endforeach;

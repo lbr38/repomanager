@@ -103,6 +103,9 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         } else if (pathinfo($this->modulesLocation, PATHINFO_EXTENSION) == 'yaml') {
             $modulesFileExtension = 'yaml';
             $modulesFileTargetName = 'modules-temp.yaml';
+        } else if (pathinfo($this->modulesLocation, PATHINFO_EXTENSION) == 'zst') {
+            $modulesFileExtension = 'zst';
+            $modulesFileTargetName = 'modules-temp.yaml.zst';
         } else {
             throw new Exception('Unsupported file extension ' . pathinfo($this->modulesLocation, PATHINFO_EXTENSION) . ' for <code>modules</code> file. Please contact the developer to add support for this file extension.');
         }
@@ -169,6 +172,21 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             }
         }
 
+        if ($modulesFileExtension == 'zst') {
+            try {
+                \Controllers\Common::zstdUncompress($this->workingDir . '/' . $modulesFileTargetName);
+            } catch (Exception $e) {
+                throw new Exception('Error while uncompressing <code>' . $modulesFileTargetName . '</code><br><pre class="codeblock">' . $e->getMessage() . '</pre>');
+            }
+
+            /**
+             *  Delete original .zst file
+             */
+            if (!unlink($this->workingDir . '/' . $modulesFileTargetName)) {
+                throw new Exception('Could not delete <code>' . $modulesFileTargetName . '</code> file');
+            }
+        }
+
         $this->taskLogSubStepController->completed();
     }
 
@@ -198,6 +216,9 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         } else if (pathinfo($this->updateInfoLocation, PATHINFO_EXTENSION) == 'xml') {
             $updateInfoFileExtension = 'xml';
             $updateInfoFileTargetName = 'updateinfo.xml';
+        } else if (pathinfo($this->updateInfoLocation, PATHINFO_EXTENSION) == 'zst') {
+            $updateInfoFileExtension = 'zst';
+            $updateInfoFileTargetName = 'updateinfo.xml.zst';
         } else {
             throw new Exception('Unsupported file extension ' . pathinfo($this->updateInfoLocation, PATHINFO_EXTENSION) . ' for <code>updateinfo</code> file. Please contact the developer to add support for this file extension.');
         }
@@ -255,6 +276,21 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
 
             /**
              *  Delete original .xz file
+             */
+            if (!unlink($this->workingDir . '/' . $updateInfoFileTargetName)) {
+                throw new Exception('Could not delete <code>' . $updateInfoFileTargetName . '</code> file');
+            }
+        }
+
+        if ($updateInfoFileExtension == 'zst') {
+            try {
+                \Controllers\Common::zstdUncompress($this->workingDir . '/' . $updateInfoFileTargetName);
+            } catch (Exception $e) {
+                throw new Exception('Error while uncompressing <code>' . $updateInfoFileTargetName . '</code><br><pre class="codeblock">' . $e->getMessage() . '</pre>');
+            }
+
+            /**
+             *  Delete original .zst file
              */
             if (!unlink($this->workingDir . '/' . $updateInfoFileTargetName)) {
                 throw new Exception('Could not delete <code>' . $updateInfoFileTargetName . '</code> file');

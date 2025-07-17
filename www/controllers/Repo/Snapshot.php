@@ -157,7 +157,7 @@ class Snapshot
          *  If messages have been retrieved, then we forge the message that will be displayed in the log
          */
         if (!empty($removedSnapsFinalArray)) {
-            $returnOutput = '<div class="flex flex-direction-column align-item-center row-gap-10">';
+            $returnOutput = '<div class="flex flex-direction-column row-gap-10">';
 
             foreach ($removedSnapsFinalArray as $removedSnap) {
                 $returnOutput .= '<p class="wordbreakall">' . $removedSnap . '</p>';

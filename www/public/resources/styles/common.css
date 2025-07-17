@@ -1,5 +1,5 @@
 /**
- *  v1.16
+ *  v1.17
  */
 @font-face{font-family: 'Roboto'; src: url('/assets/fonts/Roboto/Roboto-Regular.ttf') format('truetype');}
 
@@ -198,6 +198,8 @@ pre.codeblock {
 .grid-fr-5 {grid-template-columns: 1fr 1fr 1fr 1fr 1fr !important}
 .grid-fr-6 {grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr !important}
 .grid-40p-45p-10p{grid-template-columns: 40% 45% 10% !important}
+/* For responsive */
+.grid-rfr-1-2{grid-template-columns: 1fr !important}
 .justify-center {justify-content: center}
 .justify-space-between {justify-content: space-between}
 .justify-space-around{justify-content: space-around}
@@ -1147,6 +1149,8 @@ textarea {
 
 /* Desktop configuration */
 @media (min-width:1025px) {
+    .grid-rfr-1-2{grid-template-columns: 1fr 1fr !important}
+
     /* All buttons */
     [class^="btn-"], [class*=" btn-"], input::file-selector-button {
         padding: 9px 5px 9px 5px;

@@ -38,8 +38,12 @@ class Permission extends \Models\Model
      */
     public function set(int $id, string $permissions) : void
     {
+        // First, delete existing permissions if any
+        $this->delete($id);
+
         try {
-            $stmt = $this->db->prepare("UPDATE user_permissions SET Permissions = :permissions WHERE User_id = :id");
+            // Then insert new permissions
+            $stmt = $this->db->prepare("INSERT INTO user_permissions (User_id, Permissions) VALUES (:id, :permissions)");
             $stmt->bindValue(':permissions', $permissions);
             $stmt->bindValue(':id', $id);
             $stmt->execute();

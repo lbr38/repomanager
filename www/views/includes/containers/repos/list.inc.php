@@ -28,14 +28,20 @@
             </div>
         </div>
 
-        <input id="repo-search-input" class="margin-bottom-10" type="text" placeholder="Search" onkeyup="searchRepo()" title="Search by repository name, distribution, section or release version" />
+        <?php
+        if (IS_ADMIN or (!empty(USER_PERMISSIONS['repositories']['view']['groups']) or in_array('all', USER_PERMISSIONS['repositories']['view']))) { ?>
+            <input id="repo-search-input" class="margin-bottom-10" type="text" placeholder="Search" onkeyup="searchRepo()" title="Search by repository name, distribution, section or release version" />
 
-        <div id="hideAllReposGroups" class="flex justify-end column-gap-5 margin-bottom-10 margin-right-15 lowopacity pointer" state="visible">
-            <img src="/assets/icons/view.svg" class="icon" title="Hide/Show all repositories groups" />
-        </div>
+            <div id="hideAllReposGroups" class="flex justify-end column-gap-5 margin-bottom-10 margin-right-15 lowopacity pointer" state="visible">
+                <img src="/assets/icons/view.svg" class="icon" title="Hide/Show all repositories groups" />
+            </div>
 
-        <div id="repos-list-container">
-            <?php include_once(ROOT . '/views/includes/repos-list.inc.php'); ?>
-        </div>
+            <div id="repos-list-container">
+                <?php include_once(ROOT . '/views/includes/repos-list.inc.php'); ?>
+            </div>
+            <?php
+        } else {
+            echo '<p class="note">Nothing to show here!</p>';
+        } ?>
     </div>
 </section>
