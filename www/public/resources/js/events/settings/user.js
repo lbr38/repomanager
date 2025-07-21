@@ -125,9 +125,10 @@ $(document).on('click','.delete-user-btn',function () {
 $(document).on('submit','#user-permissions-form',function () {
     event.preventDefault();
 
-    var id = $(this).attr('user-id');
+    const id = $(this).attr('user-id');
     var reposView = $(this).find('#user-permissions-repos-view').val();
     var reposActions = $(this).find('#user-permissions-repos-actions').val();
+    var tasksActions = $(this).find('#user-permissions-tasks-actions').val();
 
     // If no repos view are selected, set to empty array
     if (empty(reposView)) {
@@ -139,6 +140,11 @@ $(document).on('submit','#user-permissions-form',function () {
         reposActions = [''];
     }
 
+    // If no tasks actions are selected, set to empty array
+    if (empty(tasksActions)) {
+        tasksActions = [''];
+    }
+
     ajaxRequest(
         // Controller:
         'settings/user',
@@ -148,7 +154,8 @@ $(document).on('submit','#user-permissions-form',function () {
         {
             id: id,
             reposView: reposView,
-            reposActions: reposActions
+            reposActions: reposActions,
+            tasksActions: tasksActions
         },
         // Print success alert:
         true,

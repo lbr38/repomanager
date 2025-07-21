@@ -344,17 +344,29 @@ class Task extends \Models\Model
      *  Return last done task Id
      *  Can return null if no task is found (e.g. brand new installation with no task)
      */
-    public function getLastTaskId() : int|null
+    public function getLastTaskId(string|null $status) : int|null
     {
         $id = null;
 
         try {
-            $result = $this->db->query("SELECT Id FROM tasks
-            WHERE Status != 'queued'
-            AND Status != 'scheduled'
-            AND Status !='disabled'
-            ORDER BY Id DESC LIMIT 1");
-        } catch (\Exception $e) {
+            // Generate query
+            $query = "SELECT Id FROM tasks";
+
+            // If a status is provided, filter by status
+            // Otherwise, filter out 'queued', 'scheduled', and 'disabled' statuses
+            if (!empty($status)) {
+                $query .= " WHERE Status = :status";
+            } else {
+                $query .= " WHERE Status != 'queued' AND Status != 'scheduled' AND Status != 'disabled'";
+            }
+
+            $query .= " ORDER BY Id DESC LIMIT 1";
+
+            // Execute query
+            $stmt = $this->db->prepare($query);
+            $stmt->bindValue(':status', $status, SQLITE3_TEXT);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
 

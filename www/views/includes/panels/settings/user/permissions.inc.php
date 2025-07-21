@@ -1,6 +1,8 @@
 <?php ob_start(); ?>
 
 <form id="user-permissions-form" user-id="<?= $userId ?>">
+    <h5>REPOSITORIES</h5>
+
     <h6>ALLOW VIEWING OF REPOSITORIES</h6>
     <p class="note">Select the repositories that this user can view.</p>
     <select id="user-permissions-repos-view" user-id="<?= $userId ?>" multiple>
@@ -39,6 +41,18 @@
         <option value="view-stats" <?= isset($permissions['repositories']['allowed-actions']['repos']) && in_array('view-stats', $permissions['repositories']['allowed-actions']['repos']) ? 'selected' : '' ?>>View repository statistics</option>
     </select>
 
+    <h5>TASKS</h5>
+
+    <h6>ALLOW ACTIONS ON TASKS</h6>
+    <p class="note">Select the tasks actions that this user can perform.</p>
+    <select id="user-permissions-tasks-actions" user-id="<?= $userId ?>" multiple>
+        <option value="relaunch" <?= isset($permissions['tasks']['allowed-actions']) && in_array('relaunch', $permissions['tasks']['allowed-actions']) ? 'selected' : '' ?>>Relaunch tasks</option>
+        <option value="delete" <?= isset($permissions['tasks']['allowed-actions']) && in_array('delete', $permissions['tasks']['allowed-actions']) ? 'selected' : '' ?>>Cancel and delete tasks</option>
+        <option value="enable" <?= isset($permissions['tasks']['allowed-actions']) && in_array('enable', $permissions['tasks']['allowed-actions']) ? 'selected' : '' ?>>Enable tasks</option>
+        <option value="disable" <?= isset($permissions['tasks']['allowed-actions']) && in_array('disable', $permissions['tasks']['allowed-actions']) ? 'selected' : '' ?>>Disable tasks</option>
+        <option value="stop" <?= isset($permissions['tasks']['allowed-actions']) && in_array('stop', $permissions['tasks']['allowed-actions']) ? 'selected' : '' ?>>Stop tasks</option>
+    </select>
+
     <br><br>
     <button type="submit" class="btn-small-green">Save</button>
 </form>
@@ -46,6 +60,7 @@
 <script>
     selectToSelect2('#user-permissions-repos-actions', 'Select allowed actions...');
     selectToSelect2('#user-permissions-repos-view', 'Select repositories...');
+    selectToSelect2('#user-permissions-tasks-actions', 'Select allowed actions...');
 </script>
 
 <?php

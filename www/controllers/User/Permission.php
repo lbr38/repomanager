@@ -5,15 +5,29 @@ namespace Controllers\User;
 use Exception;
 use JsonException;
 
-class Permission
+class Permission extends User
 {
-    private $model;
-    private $userController;
+    private $permissionModel;
+    private $defaultPermissions = [
+        'repositories' => [
+            'allowed-actions' => [
+                'repos' => [],
+                'hosts' => [],
+            ],
+            'view' => [
+                'all',
+                'groups' => []
+            ],
+        ],
+        'tasks' => [
+            'allowed-actions' => [],
+        ],
+    ];
 
     public function __construct()
     {
-        $this->model = new \Models\User\Permission();
-        $this->userController = new \Controllers\User\User();
+        parent::__construct();
+        $this->permissionModel = new \Models\User\Permission();
     }
 
     /**
@@ -21,51 +35,68 @@ class Permission
      */
     public function get(int $id) : array
     {
-        $permissions = $this->model->get($id);
+        $permissions = $this->permissionModel->get($id);
+
+        /**
+         *  If permissions are empty, create default permissions and return them
+         */
+        if (empty($permissions)) {
+            try {
+                $this->permissionModel->set($id, json_encode($this->defaultPermissions, JSON_THROW_ON_ERROR));
+            } catch (JsonException $e) {
+                throw new Exception('Error setting default permissions: ' . $e->getMessage());
+            }
+
+            return $this->defaultPermissions;
+        }
 
         /**
          *  Decode permissions (JSON) and return them
          */
         try {
             $permissions = json_decode($permissions, true, 512, JSON_THROW_ON_ERROR);
-            return $permissions;
         } catch (Exception $e) {
             throw new Exception('error decoding permissions: ' . $e->getMessage());
         }
+
+        /**
+         *  Merge with default permissions if some keys are missing
+         */
+        $permissions = array_merge_recursive($this->defaultPermissions, $permissions);
+
+        return $permissions;
+    }
+
+    /**
+     *  Get default permissions definition
+     */
+    public function getDefault() : array
+    {
+        return $this->defaultPermissions;
     }
 
     /**
      *  Set user permissions
      */
-    public function set(int $id, array $reposView, array $reposActions) : void
+    public function set(int $id, array $reposView, array $reposActions, array $tasksActions) : void
     {
         if (!IS_ADMIN) {
             throw new Exception('You are not allowed to execute this action.');
         }
 
-        $permissions = [
-            'repositories' => [
-                'view' => [
-                    'groups' => [],
-                ],
-                'allowed-actions' => [
-                    'repos' => [],
-                    'hosts' => [],
-                ],
-            ],
-        ];
+        $permissions = $this->defaultPermissions;
 
         /**
          *  Check if user exists
          */
-        if (!$this->userController->existsId($id)) {
+        if (!$this->existsId($id)) {
             throw new Exception('User does not exist.');
         }
 
         /**
          *  Check that user is not an administrator
          */
-        $role = $this->userController->getRoleById($id);
+        $role = $this->getRoleById($id);
 
         if ($role == '1' || $role == '2') {
             throw new Exception('You are not allowed to set permissions for an administrator or super-administrator.');
@@ -116,6 +147,21 @@ class Permission
         }
 
         /**
+         *  Set permissions for tasks actions
+         */
+        if (!empty($tasksActions)) {
+            foreach (array_filter($tasksActions) as $action) {
+                // Check that action is valid
+                if (!in_array($action, ['relaunch', 'delete', 'enable', 'disable', 'stop'])) {
+                    throw new Exception('Invalid action: ' . $action);
+                }
+
+                // Add action to allowed actions
+                $permissions['tasks']['allowed-actions'][] = $action;
+            }
+        }
+
+        /**
          *  Encode permissions to JSON
          */
         try {
@@ -127,7 +173,7 @@ class Permission
         /**
          *  Set permissions in database
          */
-        $this->model->set($id, $permissions);
+        $this->permissionModel->set($id, $permissions);
     }
 
     /**
@@ -135,6 +181,6 @@ class Permission
      */
     public function delete(int $id) : void
     {
-        $this->model->delete($id);
+        $this->permissionModel->delete($id);
     }
 }

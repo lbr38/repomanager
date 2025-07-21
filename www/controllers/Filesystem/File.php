@@ -108,6 +108,10 @@ class File
          *  Process all files in array and set owner and group
          */
         foreach ($files as $file) {
+            if (!file_exists($file)) {
+                continue;
+            }
+
             if (!chown($file, $owner)) {
                 throw new Exception('Set permissions error: could not set owner (' . $owner . ') on file: ' . $file);
             }

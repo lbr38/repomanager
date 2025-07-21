@@ -6,23 +6,11 @@ use \Controllers\Common;
 
 class Create extends User
 {
-    private $defaultPermissions = [
-        'repositories' => [
-            'allowed-actions' => [
-                'repos' => [],
-                'hosts' => [],
-            ],
-            'view' => [
-                'all',
-                'groups' => []
-            ],
-        ]
-    ];
-
     public function __construct()
     {
         parent::__construct();
         $this->model = new \Models\User\Create();
+        $this->userPermissionController = new \Controllers\User\Permission();
     }
 
     /**
@@ -84,7 +72,7 @@ class Create extends User
         /**
          *  Insert new user in database
          */
-        $this->model->create($username, $hashedPassword, $role, null, null, null, 'local', $this->defaultPermissions);
+        $this->model->create($username, $hashedPassword, $role, null, null, null, 'local', $this->userPermissionController->getDefault());
 
         /**
          *  Add history
@@ -144,9 +132,6 @@ class Create extends User
         /**
          *  Converting role as Id
          */
-        // if ($role == 'super-administrator') {
-        //     $role = 1;
-        // }
         if ($role == 'administrator') {
             $role = 2;
         }
@@ -159,29 +144,30 @@ class Create extends User
          *  If the user already exists (from a previous SSO connection) then update its informations (as it may have changed)
          */
         if (!$this->exists($username, 'sso')) {
-            $this->model->create($username, null, $role, $firstName, $lastName, $email, 'sso', $this->defaultPermissions);
-        } else {
-            /**
-             *  Get user Id
-             */
-            $id = $this->getIdByUsername($username, 'sso');
-
-            /**
-             *  If the Id could not be found then throw an error
-             */
-            if (empty($id)) {
-                throw new Exception('Could not find associated user Id of username ' . $username);
-            }
-
-            /**
-             *  Edit user informations
-             */
-            $userEditController->edit($id, 'sso', $firstName, $lastName, $email);
-
-            /**
-             *  Edit user role
-             */
-            $userEditController->updateRole($id, $role);
+            $this->model->create($username, null, $role, $firstName, $lastName, $email, 'sso', $this->userPermissionController->getDefault());
+            return;
         }
+
+        /**
+         *  Get user Id
+         */
+        $id = $this->getIdByUsername($username, 'sso');
+
+        /**
+         *  If the Id could not be found then throw an error
+         */
+        if (empty($id)) {
+            throw new Exception('Could not find associated user Id of username ' . $username);
+        }
+
+        /**
+         *  Edit user informations
+         */
+        $userEditController->edit($id, 'sso', $firstName, $lastName, $email);
+
+        /**
+         *  Edit user role
+         */
+        $userEditController->updateRole($id, $role);
     }
 }

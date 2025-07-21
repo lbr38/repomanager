@@ -1,18 +1,23 @@
+#!/usr/bin/env php
 <?php
+// Set process title for task execution
 cli_set_process_title('repomanager.task-run');
 
+// Load configuration
 define('ROOT', '/var/www/repomanager');
 require_once(ROOT . "/controllers/Autoloader.php");
-new \Controllers\Autoloader('api');
+new \Controllers\Autoloader('minimal');
 
+// Set memory limit for task execution
 ini_set('memory_limit', TASK_EXECUTION_MEMORY_LIMIT . 'M');
 
+$mysettings = new \Controllers\Settings();
 $myTask = new \Controllers\Task\Task();
 $mylog = new \Controllers\Log\Log();
 $myFatalErrorHandler = new \Controllers\FatalErrorHandler();
 
 /**
- *  Getting options from command line: task Id is required and cannot be empty.
+ *  Getting options from command line: a task Id can be provided to run a specific task.
  *
  *  First parameter passed to getopt is null: we don't want to work with short options.
  *  More infos about getopt() : https://blog.pascal-martin.fr/post/php-5.3-getopt-parametres-ligne-de-commande/
@@ -21,13 +26,25 @@ $getOptions = getopt(null, ["id:"]);
 
 try {
     /**
-     *  Retrieve task Id
+     *  If a task Id is provided, use it.
+     *  Otherwise, retrieve the latest task Id from the database.
      */
-    if (empty($getOptions['id'])) {
-        throw new Exception('Task Id is not defined');
-    }
+    if (!empty($getOptions['id'])) {
+        if (!is_numeric($getOptions['id'])) {
+            throw new Exception('Task Id must be a number.');
+        }
 
-    $taskId = $getOptions['id'];
+        $taskId = $getOptions['id'];
+    } else {
+        // Retrieve latest task Id
+        $taskId = $myTask->getLastTaskId('queued');
+
+        // If no task Id has been found, throw an exception
+        if (empty($taskId)) {
+            echo 'No task to run.' . PHP_EOL;
+            exit(2);
+        }
+    }
 
     /**
      *  Set task Id for fatal error handler
@@ -65,11 +82,36 @@ try {
         throw new Exception('Invalid action: ' . $taskRawParams['action']);
     }
 
-    /**
-     *  If task queuing is enabled and the maximum number of simultaneous tasks is set, check if the task can be started
-     */
-    if (!empty(TASK_QUEUING) and TASK_QUEUING == 'true' and !empty(TASK_QUEUING_MAX_SIMULTANEOUS)) {
-        while (true) {
+    while (true) {
+        /**
+         *  Get settings
+         */
+        try {
+            $settings = $mysettings->get();
+        } catch (Exception $e) {
+            throw new Exception('Cannot get global settings: ' . $e->getMessage());
+        }
+
+        /**
+         *  If debug mode is enabled, wait
+         */
+        // if ($settings['DEBUG_MODE'] == 'true') {
+        //     echo 'Debug mode is enabled, task is paused. Disable debug mode to run the task.' . PHP_EOL;
+        //     sleep(5);
+        //     continue;
+        // }
+
+        /**
+         *  If task queuing is disabled, run the task immediately
+         */
+        if ($settings['TASK_QUEUING'] == 'false') {
+            break;
+        }
+
+        /**
+         *  If task queuing is enabled and the maximum number of simultaneous tasks is set, check if the task can be started
+         */
+        if ($settings['TASK_QUEUING'] == 'true' and !empty($settings['TASK_QUEUING_MAX_SIMULTANEOUS'])) {
             /**
              *  Get running tasks
              */
@@ -78,7 +120,8 @@ try {
             /**
              *  If number of running tasks is greater than or equal to the maximum number of simultaneous tasks, we wait
              */
-            if (count($runningTasks) >= TASK_QUEUING_MAX_SIMULTANEOUS) {
+            if (count($runningTasks) >= $settings['TASK_QUEUING_MAX_SIMULTANEOUS']) {
+                echo 'Maximum number of simultaneous tasks reached (' . $settings['TASK_QUEUING_MAX_SIMULTANEOUS'] . '). Waiting for a task to finish...' . PHP_EOL;
                 sleep(5);
                 continue;
             }
@@ -101,6 +144,7 @@ try {
              */
             foreach ($newestTask as $task) {
                 if ($task['Type'] == 'scheduled') {
+                    echo 'There are scheduled tasks in the queue list. Waiting for them to finish...' . PHP_EOL;
                     sleep(5);
                     continue 2;
                 }
@@ -113,15 +157,15 @@ try {
             if ($newestTask[0]['Id'] == $taskId) {
                 break;
             }
-
-            // Just for safety
-            sleep(5);
         }
+
+        sleep(5);
     }
 
     /**
      *  Instantiate controller and execute action
-     */
+    */
+    echo 'Running task #' . $taskId . PHP_EOL;
     $controller = new $controllerPath($taskId);
     $controller->execute();
 

@@ -3,7 +3,7 @@
  */
 function websocket_client()
 {
-    const server = window.location.hostname;
+    const server = window.location.host;
 
     // If the target server uses https, then use wss://
     if (window.location.protocol == 'https:') {

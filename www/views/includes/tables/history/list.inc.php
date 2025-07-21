@@ -6,10 +6,10 @@
         </div>
 
         <div class="flex align-item-center column-gap-10">
-            <p>Filter by user</p>
+            <p>Filter</p>
 
             <select id="user-select" class="select-large">
-                <option value="">All</option>
+                <option value="">All users</option>
                 <?php
                 foreach ($users as $user) {
                     if (!empty($userId) and $user['Id'] == $userId) {
@@ -24,13 +24,13 @@
 
     <?php
     if (empty($reloadableTableContent)) {
-        echo '<p class="note">No entries found!</p>';
+        echo '<p class="note margin-top-15">No entries found!</p>';
     }
 
     if (!empty($reloadableTableContent)) :
         foreach ($reloadableTableContent as $item) : ?>
-            <div class="table-container grid-2 bck-blue-alt margin-top-5">
-                <div class="flex align-item-center column-gap-70">
+            <div class="table-container grid-rfr-1-2 column-gap-15 row-gap-15 bck-blue-alt margin-top-5">
+                <div class="grid grid-rfr-1-2 column-gap-15 row-gap-15 align-item-center">
                     <div class="flex align-item-center column-gap-15">
                         <?php
                         if ($item['State'] == 'error') {
