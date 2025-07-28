@@ -125,7 +125,7 @@ $(document).on('click','input[type="checkbox"][name="checkbox-host[]"]',function
             }
         });
 
-        confirmBox(
+        myconfirmbox.print(
             {
                 'title': 'Execute action',
                 'message': 'Select an action to execute on the selected hosts',
@@ -171,7 +171,7 @@ $(document).on('click','input[type="checkbox"][name="checkbox-host[]"]',function
             }
         );
     } else {
-        closeConfirmBox();
+        myconfirmbox.close();
     }
 });
 
@@ -319,7 +319,7 @@ $(document).on('click','input[type="checkbox"].available-package-checkbox',funct
      *  If number of checked checkboxes > 0 then display the action button
      */
     if (countChecked > 0) {
-        confirmBox(
+        myconfirmbox.print(
             {
                 'title': 'Update packages',
                 'message': 'Request the host to update selected packages?',
@@ -356,7 +356,7 @@ $(document).on('click','input[type="checkbox"].available-package-checkbox',funct
             }
         );
     } else {
-        closeConfirmBox();
+        myconfirmbox.close();
     }
 });
 
@@ -366,7 +366,7 @@ $(document).on('click','input[type="checkbox"].available-package-checkbox',funct
 $(document).on('click','#host-reset-btn',function () {
     var id = $(this).attr('host-id');
 
-    confirmBox(
+    myconfirmbox.print(
         {
             'title': 'Reset host',
             'message': 'Do you really want to reset the host informations?',
@@ -388,7 +388,7 @@ $(document).on('click','#host-reset-btn',function () {
 $(document).on('click','#host-delete-btn',function () {
     var id = $(this).attr('host-id');
 
-    confirmBox(
+    myconfirmbox.print(
         {
             'title': 'Delete host',
             'message': 'Do you really want to delete the host?',
@@ -410,7 +410,7 @@ $(document).on('click','#host-delete-btn',function () {
 $(document).on('click','#host-request-btn',function () {
     var id = $(this).attr('host-id');
 
-    confirmBox(
+    myconfirmbox.print(
         {
             'title': 'Request',
             'message': 'Select a request to send to the host',

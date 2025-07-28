@@ -1,0 +1,33 @@
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0px;
+    padding: 0px;
+    background-color: #0e1e2f;
+    color: white;
+    overflow-y: auto;
+    font-family: 'Roboto', sans-serif !important;
+    font-size: 13px;
+}
+
+.div-generic-blue {
+    position: relative;
+    padding: 15px;
+    margin-bottom: 30px;
+    border-radius: 20px;
+    background-color: #182b3e;
+    box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
+}
+
+.div-generic-blue h3 {
+    border: none;
+    margin-top: 0;
+}
+
+.details-div {
+    padding: 10px;
+    background-color: #182b3e;
+    border: 1px solid #24405c;
+    border-radius: 20px;
+}

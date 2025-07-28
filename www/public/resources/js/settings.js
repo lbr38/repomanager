@@ -1,11 +1,4 @@
 /**
- *  Convert some select to select2
- */
-selectToSelect2('#emailRecipientSelect', 'Select recipients...', true);
-selectToSelect2('#debArchitectureSelect', 'Select architectures...');
-selectToSelect2('#rpmArchitectureSelect', 'Select architectures...');
-
-/**
  *  Event: send a test email
  */
 $(document).on('click','#send-test-email-btn',function () {
@@ -123,6 +116,6 @@ $(document).on('click','#websocket-log-btn',function () {
         // Print error alert:
         true
     ).then(function () {
-        printModalWindow(jsonValue.message, logfile, true, false);
+        mymodal.print(jsonValue.message, logfile, true, false);
     });
 });

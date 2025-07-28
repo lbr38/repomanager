@@ -58,9 +58,11 @@
 </form>
 
 <script>
-    selectToSelect2('#user-permissions-repos-actions', 'Select allowed actions...');
-    selectToSelect2('#user-permissions-repos-view', 'Select repositories...');
-    selectToSelect2('#user-permissions-tasks-actions', 'Select allowed actions...');
+$(document).ready(function(){
+    myselect2.convert('#user-permissions-repos-actions', 'Select allowed actions...');
+    myselect2.convert('#user-permissions-repos-view', 'Select repositories...');
+    myselect2.convert('#user-permissions-tasks-actions', 'Select allowed actions...');
+});
 </script>
 
 <?php

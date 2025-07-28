@@ -4,6 +4,7 @@ namespace Controllers\Service;
 
 use Exception;
 use Datetime;
+use Controllers\Log\Cli as CliLog;
 
 class ScheduledTask extends Service
 {
@@ -23,7 +24,7 @@ class ScheduledTask extends Service
      */
     public function execute()
     {
-        echo $this->getDate() . ' Executing scheduled tasks if any...' . PHP_EOL;
+        CliLog::log('Executing scheduled tasks if any...');
 
         /**
          *  Quit if there was an error while loading general settings
@@ -143,7 +144,7 @@ class ScheduledTask extends Service
          */
         if (!empty($taskToExec)) {
             foreach ($taskToExec as $taskId) {
-                echo $this->getDate() . ' Launching scheduled task #' . $taskId . '...' . PHP_EOL;
+                CliLog::log('Launching scheduled task #' . $taskId . '...');
 
                 try {
                     // Add the scheduled task to the queue and execute it
@@ -171,7 +172,7 @@ class ScheduledTask extends Service
             return;
         }
 
-        echo $this->getDate() . ' Sending scheduled tasks reminder if any...' . PHP_EOL;
+        CliLog::log('Sending scheduled tasks reminder if any...');
 
         /**
          *  Quit if there was an error while loading general settings

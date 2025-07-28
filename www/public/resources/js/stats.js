@@ -54,5 +54,5 @@ $(document).on('change', '#ip-access-date-input', function () {
     mycookie.set('tables/stats/ip-access/date', date, 1);
 
     // Then reload table
-    reloadTable('stats/ip-access');
+    mytable.reload('stats/ip-access');
 });

@@ -1,0 +1,309 @@
+
+/* All buttons */
+[class^="btn-"], [class*=" btn-"], input::file-selector-button {
+    padding: 10px 5px 10px 5px;
+    border: none;
+    border-radius: 60px;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: rgba(12, 18, 20, 0.504) 0px 0px 5px 1px;
+}
+
+/* All transparent buttons */
+.btn-large-tr, .btn-medium-tr, .btn-small-tr, .btn-xsmall-tr, .btn-xxsmall-tr, .btn-fit-tr, .round-btn-tr,
+.btn-large-tr-to-red, .btn-medium-tr-to-red, .btn-small-tr-to-red, .btn-xsmall-tr-to-red, .btn-xxsmall-tr-to-red, .btn-fit-tr-to-red, .round-btn-tr-to-red,
+.btn-auto-tr {
+    background-color: initial;
+    box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
+    /* border: 1px solid #24405c; */
+    border: 1px solid #ffffff30;
+}
+
+/* All blue buttons */
+.btn-large-blue, .btn-medium-blue, .btn-small-blue, .btn-xsmall-blue, .btn-xxsmall-blue, .btn-fit-blue, .round-btn-blue, .btn-auto-blue {
+    background-color: #22384F;
+}
+/* All blue alt buttons */
+.btn-large-blue-alt, .btn-medium-blue-alt, .btn-small-blue-alt, .btn-xsmall-blue-alt, .btn-xxsmall-blue-alt, .btn-fit-blue-alt, .round-btn-blue-alt, .btn-auto-blue-alt {
+    background-color: #24405b;
+}
+/* All green buttons */
+.btn-large-green, .btn-medium-green, .btn-small-green, .btn-xsmall-green, .btn-xxsmall-green, .btn-fit-green, .round-btn-green, .btn-auto-green {
+    background-color: #15bf7f;
+}
+/* All red buttons */
+.btn-large-red, .btn-medium-red, .btn-small-red, .btn-xsmall-red, .btn-xxsmall-red, .btn-fit-red, .round-btn-red, .btn-auto-red {
+    background-color: #F32F63;
+}
+/* All yellow buttons */
+.btn-large-yellow, .btn-medium-yellow, .btn-small-yellow, .btn-xsmall-yellow, .btn-xxsmall-yellow, .btn-fit-yellow, .round-btn-yellow, .btn-auto-yellow {
+    background-color: #ffb536;
+}
+/* All auto buttons */
+.btn-auto-blue, .btn-auto-blue-alt, .btn-auto-green, .btn-auto-red, .btn-auto-yellow {
+    width: auto;
+}
+
+/* All large buttons */
+.btn-large, .btn-large-blue, .btn-large-green, .btn-large-red, .btn-large-tr {
+    width: 100%;
+}
+/* All medium buttons */
+.btn-medium, .btn-medium-blue, .btn-medium-green, .btn-medium-red, .btn-medium-tr {
+    width: 150px;
+}
+/* All small buttons */
+.btn-small, .btn-small-blue, .btn-small-green, .btn-small-red, .btn-small-tr {
+    width: 100px;
+}
+/* All very small buttons */
+.btn-xsmall, .btn-xsmall-blue, .btn-xsmall-green, .btn-xsmall-red, .btn-xsmall-tr {
+    width: 50px;
+}
+/* All very very small buttons */
+.btn-xxsmall, .btn-xxsmall-blue, .btn-xxsmall-green, .btn-xxsmall-red, .btn-xxsmall-tr {
+    margin: 2px;
+    width: 34px;
+    height: 34px;
+}
+
+/* All transparent buttons (hover) */
+.btn-large-tr:hover, .btn-medium-tr:hover, .btn-small-tr:hover, .btn-xsmall-tr:hover, .btn-xxsmall-tr:hover, .btn-fit-tr:hover, .round-btn-tr:hover, .btn-auto-tr:hover {
+    transition-duration: 0.2s;
+    background-color: #22384F;
+    opacity: 1;
+}
+
+/* All transparent to red buttons (hover) */
+.btn-large-tr-to-red:hover, .btn-medium-tr-to-red:hover, .btn-small-tr-to-red:hover, .btn-xsmall-tr-to-red:hover, .btn-xxsmall-tr-to-red:hover, .btn-fit-tr-to-red:hover, .round-btn-tr-to-red:hover, .btn-auto-tr-to-red:hover {
+    transition-duration: 0.2s;
+    background-color: #F32F63;
+    border: 1px solid #F32F63;
+    opacity: 1;
+}
+
+/* All blue buttons (hover) */
+.btn-large-blue:hover, .btn-medium-blue:hover, .btn-small-blue:hover, .btn-xsmall-blue:hover, .btn-xxsmall-blue:hover, .btn-fit-blue:hover, .round-btn-blue:hover, .btn-auto-blue:hover {
+    transition-duration: 0.2s;
+    background-color: #1e3a54;
+}
+/* All green buttons (hover) */
+.btn-large-green:hover, .btn-medium-green:hover, .btn-small-green:hover, .btn-xsmall-green:hover, .btn-xxsmall-green:hover, .btn-fit-green:hover, .round-btn-green:hover, .btn-auto-green:hover {
+    transition-duration: 0.2s;
+    background-color: #12a16a;
+}
+/* All red buttons (hover) */
+.btn-large-red:hover, .btn-medium-red:hover, .btn-small-red:hover, .btn-xsmall-red:hover, .btn-xxsmall-red:hover, .btn-fit-red:hover, .round-btn-red:hover, .btn-auto-red:hover {
+    transition-duration: 0.2s;
+    background-color: #f10e4b;
+}
+
+/**
+ *  Round btns
+ */
+[class^="round-btn"] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    text-decoration: none;
+    width: 28px;
+    height: 28px;
+    padding: 2px;
+    -webkit-transition: max-width 0.7s;
+    transition: max-width 0.7s;
+    margin: 0 3px 0 3px;
+    color: white;
+    border-radius: 60px;
+    cursor: pointer;
+}
+
+[class^="round-btn"] img {
+    width: 18px;
+}
+
+/**
+ *  Slide btns
+ */
+[class^="slide-btn"] {
+    display: inline-flex;
+    align-items: center;
+    overflow: hidden;
+    text-decoration: none;
+    width: auto;
+    max-width: 28px;
+    height: 28px;
+    -webkit-transition: max-width 0.7s;
+    transition: max-width 0.7s;
+    margin: 0 3px 0 3px;
+    color: white;
+    background-color: #15bf7f;
+    border-radius: 60px;
+    cursor: pointer;
+    box-shadow: rgba(12, 18, 20, 0.504) 0px 0px 10px 1px;
+}
+[class^="slide-btn"] img {
+    width: 20px;
+    padding-left: 4px;
+    display: flex;
+    align-items: center;
+}
+[class^="slide-btn"] span {
+    white-space: nowrap;
+    padding-right: 12px;
+    padding-left: 8px;
+}
+.slide-btn-red {
+    background-color: #F32F63;
+}
+.slide-btn-red:hover {
+    background-color: #f10e4b;
+}
+.slide-btn-yellow {
+    background-color: #ffb536;
+}
+.slide-btn-yellow:hover {
+    background-color: #eb984e;
+}
+.slide-btn-tr, .slide-btn-medium-tr {
+    background-color: initial;
+    box-shadow: rgb(32 25 25 / 50%) 0px 0px 15px 1px;
+    border: 1px solid #ffffff52;
+}
+
+/* override slide-btn */
+[class^="slide-btn-medium"] {
+    max-width: 34px;
+    height: 34px;
+}
+[class^="slide-btn-medium"] img {
+    width: 18px;
+    padding-left: 8px;
+}
+
+/**
+ *  On/off slider switch
+ */
+
+/* The onoff-switch-label - the box around the slider */
+.onoff-switch-label {
+    position: relative;
+    display: inline-block;
+    width: 35px;
+    height: 20px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+/* Hide default HTML checkbox */
+.onoff-switch-input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+/* The slider */
+.onoff-switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 34px;
+}
+.onoff-switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 50%;
+}
+.onoff-switch-input:checked + .onoff-switch-slider {
+    background-color: #5473e8;
+}
+.onoff-switch-input:focus + .onoff-switch-slider {
+    box-shadow: 0 0 1px #5473e8;
+}
+.onoff-switch-input:checked + .onoff-switch-slider:before {
+    -webkit-transform: translateX(15px);
+    -ms-transform: translateX(15px);
+    transform: translateX(15px);
+}
+
+/**
+ *  Field switch buttons
+ */
+.switch-field,
+.single-switch-field {
+    display: flex;
+    overflow: hidden;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+.switch-field input,
+.single-switch-field input {
+    position: absolute;
+    clip: rect(0, 0, 0, 0);
+    width: 1px;
+    margin-left: 0;
+    margin-right: 0;
+    border: 0;
+    overflow: hidden;
+}
+
+.switch-field label,
+.single-switch-field label {
+    background-color: white;
+    color: #3b3b3b;
+    line-height: 1;
+    text-align: center;
+    padding: 6px 8px;
+    margin-right: -1px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
+    transition: all 0.1s ease-in-out;
+}
+
+.switch-field label:hover,
+.single-switch-field label:hover {
+    cursor: pointer;
+}
+
+.switch-field input:checked + label,
+.single-switch-field input:checked + label {
+    background-color: #5473e8;
+    box-shadow: none;
+    color: white;
+}
+
+.switch-field label:first-of-type {
+    border-radius: 16px 0 0 16px;
+}
+
+.switch-field label:last-of-type {
+    border-radius: 0 16px 16px 0;
+}
+
+.single-switch-field label {
+    border-radius: 16px;
+}
+
+/* Desktop configuration */
+@media (min-width:1025px) {
+    /* Slide btns */
+    [class^="slide-btn"]:hover {
+        max-width: 300px;
+    }
+}

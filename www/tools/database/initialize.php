@@ -6,7 +6,8 @@
 define('ROOT', '/var/www/repomanager');
 
 require_once(ROOT . '/controllers/Autoloader.php');
-new \Controllers\Autoloader('minimal');
+new \Controllers\Autoloader();
+new \Controllers\App\Main('minimal');
 
 try {
     $databases = array('main', 'stats', 'hosts', 'ws');

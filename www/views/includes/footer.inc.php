@@ -30,17 +30,33 @@
 <script src="/resources/js/general.js?<?= VERSION ?>"></script>
 <script src="/resources/js/user.js?<?= VERSION ?>"></script>
 <script src="/resources/js/notification.js?<?= VERSION ?>"></script>
+<script src="/resources/js/events/checkbox.js?<?= VERSION ?>"></script>
 
 <!-- Import some classes -->
+<script src="/resources/js/classes/Layout.js?<?= VERSION ?>"></script>
+<script src="/resources/js/classes/Container.js?<?= VERSION ?>"></script>
+<script src="/resources/js/classes/Table.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/Panel.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/Cookie.js?<?= VERSION ?>"></script>
+<script src="/resources/js/classes/Alert.js?<?= VERSION ?>"></script>
+<script src="/resources/js/classes/ConfirmBox.js?<?= VERSION ?>"></script>
+<script src="/resources/js/classes/Modal.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/Tooltip.js?<?= VERSION ?>"></script>
+<script src="/resources/js/classes/Select2.js?<?= VERSION ?>"></script>
+<script src="/resources/js/classes/SessionStorage.js?<?= VERSION ?>"></script>
 
 <script>
-    // I will gradually regroup some functions in classes
+    const mylayout = new Layout();
+    const mycontainer = new Container();
+    const mytable = new Table();
     const mypanel = new Panel();
     const mycookie = new Cookie();
+    const myalert = new Alert();
+    const myconfirmbox = new ConfirmBox();
+    const mymodal = new Modal();
     const mytooltip = new Tooltip();
+    const myselect2 = new Select2();
+    const mysessionstorage = new SessionStorage();
 </script>
 
 <script>

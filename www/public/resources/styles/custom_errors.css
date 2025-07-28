@@ -2,14 +2,14 @@
 
 body { background-color: #112334; }
 
-#errorDiv-container {
+#error-container {
     width: 98vw;
     height: 98vh;
     position: relative;
     margin: auto;
 }
 
-#errorDiv {
+#error {
     width: 1000px;
     height: 400px;
     position: absolute;
@@ -19,7 +19,7 @@ body { background-color: #112334; }
     -moz-transform: translateX(-50%) translateY(-50%);
     transform: translateX(-50%) translateY(-50%);
     line-height: 400px;
-    padding: 0px;
+    padding: 20px;
     margin: auto;
     font-family: 'Roboto', sans-serif;
     color: white;
@@ -30,13 +30,8 @@ body { background-color: #112334; }
     box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
 }
 
-h1 {
-    font-size: 30px;
-    font-family: 'ethnocentric';
-    color: white;
-    text-align: center;
-    margin-bottom: 100px;
-    margin-top: 30px;
+#error pre {
+    overflow-y: auto;
 }
 
 p {

@@ -40,7 +40,7 @@ class Host extends \Controllers\Api\Controller
          *  https://repomanager.mydomain.net/api/v2/host/
          */
         if (empty($this->component)) {
-            if ($this->apiKeyAuthentication === true) {
+            if (defined('API_KEY')) {
                 /**
                  *  Get list of all active hosts
                  *  https://repomanager.mydomain.net/api/v2/host/
@@ -80,12 +80,12 @@ class Host extends \Controllers\Api\Controller
             /**
              *  Retrieve host database Id if its authId has been specified, it will be useful for next tasks
              */
-            if (!empty($this->hostAuthId)) {
+            if (defined('HOST_AUTH_ID')) {
                 try {
-                    $myhost->setAuthId($this->hostAuthId);
+                    $myhost->setAuthId(HOST_AUTH_ID);
 
                     // Get host database Id from its authId
-                    $this->hostId = $myhost->getIdByAuth($this->hostAuthId);
+                    $this->hostId = $myhost->getIdByAuth(HOST_AUTH_ID);
 
                     // Set host database Id
                     $myhost->setId($this->hostId);
@@ -101,7 +101,7 @@ class Host extends \Controllers\Api\Controller
              *  Following requests are only available if host authentication is valid and
              *  database Id has been retrieved
              */
-            if ($this->hostAuthentication === true and !empty($myhost->getId())) {
+            if (defined('HOST_AUTH_ID') and !empty($myhost->getId())) {
                 /**
                  *  Unregister a host
                  *  https://repomanager.mydomain.net/api/v2/host/registering

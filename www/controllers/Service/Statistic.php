@@ -4,6 +4,7 @@ namespace Controllers\Service;
 
 use Exception;
 use Datetime;
+use Controllers\Log\Cli as CliLog;
 
 class Statistic extends Service
 {
@@ -117,7 +118,7 @@ class Statistic extends Service
             /**
              *  Else, run the access log parsing
              */
-            echo $this->getDate() . ' Running access log parsing...' . PHP_EOL;
+            CliLog::log('Running access log parsing...');
 
             $myprocess = new \Controllers\Process("/usr/bin/php /var/www/repomanager/tools/service.php 'stats/accesslog/parse' >/dev/null 2>/dev/null &");
             $myprocess->execute();

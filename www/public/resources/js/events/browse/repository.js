@@ -20,7 +20,7 @@ $(document).on('click',".package-checkbox",function () {
      *  If no checkbox is selected then hide the buttons
      */
     if ($('body').find('input[name=packageName\\[\\]]:checked').length == 0) {
-        closeConfirmBox();
+        myconfirmbox.close();
         return;
     }
 
@@ -69,7 +69,7 @@ $(document).on('click',".package-checkbox",function () {
     /**
      *  Show the confirm box
      */
-    confirmBox(
+    myconfirmbox.print(
         {
             'title': 'Select packages',
             'message': 'Select an action to perform on the selected packages:',

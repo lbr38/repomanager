@@ -3,7 +3,10 @@ cli_set_process_title('repomanager.service');
 
 define('ROOT', '/var/www/repomanager');
 require_once(ROOT . '/controllers/Autoloader.php');
-new \Controllers\Autoloader('api');
+new \Controllers\Autoloader();
+new \Controllers\App\Main('minimal');
+
+use Controllers\Log\Cli as CliLog;
 
 $myFatalErrorHandler = new \Controllers\FatalErrorHandler();
 $mySignalHandler = new \Controllers\SignalHandler();
@@ -83,11 +86,9 @@ try {
      *  Run main service
      */
     $myService->run();
-} catch (Exception $e) {
-    $myLogController->log('error', 'Service', "General exception: " . $e->getMessage());
-    exit(1);
-} catch (Error $e) {
-    $myLogController->log('error', 'Service', "General error: " . $e->getMessage());
+} catch (Exception | Error $e) {
+    CliLog::error('Service general error', $e->getMessage() . PHP_EOL . $e->getTraceAsString() . PHP_EOL);
+    $myLogController->log('error', 'Service', "General error: " . $e->getMessage(), $e->getTraceAsString());
     exit(1);
 }
 

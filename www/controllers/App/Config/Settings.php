@@ -570,6 +570,17 @@ class Settings
         }
 
         /**
+         *  WebSocket server settings
+         */
+        // if (!defined('WEBSOCKET_SERVER_LISTEN_PORT')) {
+        //     if (isset($appYaml['websocket_server']['listen']) and is_numeric($appYaml['websocket_server']['listen'])) {
+        //         define('WEBSOCKET_SERVER_LISTEN_PORT', trim($appYaml['websocket_server']['listen']));
+        //     } else {
+        //         define('WEBSOCKET_SERVER_LISTEN_PORT', '8081');
+        //     }
+        // }
+
+        /**
          *  OIDC settings
          */
         if (!defined('OIDC_ENABLED') and isset($appYaml['oidc']['enabled'])) {

@@ -65,7 +65,7 @@ $scheduleForm['type'] = array('unique'); ?>
 
 <script>
 $(document).ready(function(){
-    selectToSelect2('#duplicate-repo-target-env-select-<?=$myrepo->getSnapId()?>');
+    myselect2.convert('#duplicate-repo-target-env-select-<?=$myrepo->getSnapId()?>');
 
     /**
      *  Print description field only if an environment is specified

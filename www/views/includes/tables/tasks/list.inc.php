@@ -244,7 +244,7 @@
              *  If task is scheduled, print task info div
              */
             if ($item['Type'] == 'scheduled') : ?>
-                <div class="scheduled-task-info detailsDiv margin-bottom-10 hide" task-id="<?= $item['Id'] ?>">
+                <div class="scheduled-task-info details-div margin-bottom-10 hide" task-id="<?= $item['Id'] ?>">
                     <div class="grid grid-2">
                         <div>
                             <h6 class="margin-top-0">SCHEDULE TYPE</h6>

@@ -516,17 +516,6 @@ footer #github img { width: 25px; }
     break-inside: avoid;
 }
 
-.detailsDiv {
-    padding: 10px;
-    background-color: #182b3e;
-    border: 1px solid #24405c;
-    border-radius: 20px;
-}
-
-/* Gif de chargement caché par défaut */
-.loading { display: none; }
-
-
 /* Scrollbar personnalisée */
 /* Compatible Chrome uniquement */
 /* width */

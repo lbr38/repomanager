@@ -17,13 +17,6 @@ class Snapshot extends \Controllers\Api\Controller
         $mypackage = new \Controllers\Repo\Package();
 
         /**
-         *  Snapshot actions are only allowed for API admins
-         */
-        if (!IS_API_ADMIN) {
-            throw new Exception('You are not allowed to access this resource.');
-        }
-
-        /**
          *  Retrieve snapshot Id if any
          */
         if (!empty($this->uri[4])) {
@@ -72,6 +65,10 @@ class Snapshot extends \Controllers\Api\Controller
                      *  TODO : find a way to not duplicate code
                      */
                     $mytask = new \Controllers\Task\Task();
+
+                    if (!IS_ADMIN and !in_array('rebuild', USER_PERMISSIONS['repositories']['allowed-actions']['repos'])) {
+                        throw new Exception('You are not allowed to rebuild a repository snapshot');
+                    }
 
                     if ($myrepo->existsSnapId($this->snapId) !== true) {
                         throw new Exception('Invalid repository snapshot Id');

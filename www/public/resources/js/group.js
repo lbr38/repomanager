@@ -48,7 +48,7 @@ $(document).on('click','.delete-group-btn',function (e) {
     var id = $(this).attr('group-id');
     var name = $(this).attr('group-name');
 
-    confirmBox(
+    myconfirmbox.print(
         {
             'title': 'Delete group',
             'message': 'Are you sure you want to delete group <b>' + name + '</b>?',

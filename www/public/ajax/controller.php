@@ -24,6 +24,7 @@ function response($responseCode, $message)
 if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == "xmlhttprequest" and !empty($_POST['controller'])) {
     require_once(ROOT . "/controllers/Autoloader.php");
     new \Controllers\Autoloader();
+    new \Controllers\App\Main();
 
     /**
      *  Get target controller

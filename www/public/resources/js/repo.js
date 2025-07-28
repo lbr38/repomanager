@@ -12,7 +12,7 @@ function searchRepo()
         return;
     }
 
-    printLoading();
+    mylayout.printLoading();
 
     /**
      *  Retrieve search input value
@@ -117,7 +117,7 @@ function searchRepo()
         });
     });
 
-    hideLoading();
+    mylayout.hideLoading();
 }
 
 /**

@@ -40,7 +40,7 @@ if (!empty($hostGroupsList)) : ?>
             </div>
         </div>
 
-        <div class="group-config-div detailsDiv margin-bottom-5 hide" group-id="<?= $group['Id'] ?>">
+        <div class="group-config-div details-div margin-bottom-5 hide" group-id="<?= $group['Id'] ?>">
             <form class="group-form" group-id="<?= $group['Id'] ?>" autocomplete="off">
                 <h6 class="required">NAME</h6>
                 <input class="group-name-input" type="text" group-id="<?= $group['Id'] ?>" value="<?= $group['Name'] ?>" />
@@ -76,7 +76,9 @@ if (!empty($hostGroupsList)) : ?>
 endif; ?>
 
 <script>
-    selectToSelect2('select.group-hosts-list', 'Add host');
+$(document).ready(function(){
+    myselect2.convert('select.group-hosts-list', 'Add host');
+});
 </script>
 
 <?php

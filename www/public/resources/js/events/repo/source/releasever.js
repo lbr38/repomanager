@@ -90,7 +90,7 @@ $(document).on('click','.source-repo-remove-releasever-btn',function (e) {
     var id = $(this).attr('source-id');
     var releaseverId = $(this).attr('releasever-id');
 
-    confirmBox(
+    myconfirmbox.print(
         {
             'title': 'Remove release version',
             'buttons': [
@@ -169,7 +169,7 @@ $(document).on('click','.source-repo-edit-releasever-remove-gpgkey-btn',function
     var releaseverId = $(this).attr('releasever-id');
     var gpgkeyId = $(this).attr('gpgkey-id');
 
-    confirmBox(
+    myconfirmbox.print(
         {
             'title': 'Remove GPG key',
             'buttons': [

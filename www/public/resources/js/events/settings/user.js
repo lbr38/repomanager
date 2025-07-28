@@ -32,7 +32,7 @@ $(document).on('submit','#new-user-form',function () {
         true
     ).then(function () {
         // Reload current users div
-        reloadContentById('currentUsers');
+        mylayout.reloadContentById('currentUsers');
 
         // Print generated password for the new user
         $('#users-settings-container').find('#user-settings-generated-passwd').html('<p>Temporary password generated for <b>' + username + '</b>:<br><span class="greentext copy">' + jsonValue.message.password + '</span></p>');
@@ -48,7 +48,7 @@ $(document).on('click','.reset-password-btn',function () {
     var username = $(this).attr('username');
     var id = $(this).attr('user-id');
 
-    confirmBox(
+    myconfirmbox.print(
         {
             'title': 'Reset password',
             'message': 'Reset password of user ' + username + '?',
@@ -87,7 +87,7 @@ $(document).on('click','.delete-user-btn',function () {
     var username = $(this).attr('username');
     var id = $(this).attr('user-id');
 
-    confirmBox(
+    myconfirmbox.print(
         {
             'title': 'Delete user',
             'message': 'Delete user ' + username + '?',
@@ -111,7 +111,7 @@ $(document).on('click','.delete-user-btn',function () {
                         true
                     ).then(function () {
                         // Reload current users div
-                        reloadContentById('currentUsers');
+                        mylayout.reloadContentById('currentUsers');
                     });
                 }
             }]

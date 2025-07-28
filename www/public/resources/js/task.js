@@ -119,7 +119,7 @@ $(document).on('click','.delete-env-btn',function () {
 
     var taskParamsJson = JSON.stringify(taskParams);
 
-    confirmBox(
+    myconfirmbox.print(
         {
             'title': 'Remove environment',
             'message': 'Remove <b>' + envName + '</b> environment?',
@@ -180,7 +180,7 @@ $(document).on('click',"input[name=checkbox-repo]",function () {
      *  If all checkboxes are unchecked then we hide all action buttons
      */
     if (count_checked == 0) {
-        closeConfirmBox();
+        myconfirmbox.close();
         $('.reposList').find('input[name=checkbox-repo]').removeAttr('style');
         $('.repos-list-group[group-id=' + groupId + ']').find('.repos-list-group-select-all-btns').hide();
         return;
@@ -287,7 +287,7 @@ $(document).on('click',"input[name=checkbox-repo]",function () {
         );
     }
 
-    confirmBox(
+    myconfirmbox.print(
         {
             'title': 'Execute',
             'message': 'Select an action to execute with the selected repositories.',
@@ -355,6 +355,9 @@ function executeAction(action)
             repos: repos
         });
     }
+
+    // Remove checked checkboxes from sessionStorage to avoid re-executing an action on the same repos
+    mysessionstorage.removeStartWith('checkbox/')
 }
 
 /**
@@ -640,7 +643,7 @@ $(document).on('submit','#task-form',function () {
         $('.reposList').find('input[name=checkbox-repo]').removeAttr('style');
 
         // Reload right panel
-        reloadContainer('repos/properties');
+        mycontainer.reload('repos/properties');
     });
 
     return false;
@@ -682,15 +685,11 @@ $(document).on('change','select[param-name="source"]',function () {
             // Print success alert:
             false,
             // Print error alert:
-            true,
-            // Reload container:
-            [],
-            // Execute functions on success:
-            [
-                // Update select2 with the new values
-                "updateSelect2('.task-param[param-name=\"dist\"]', jsonValue.message, 'Select distribution', true)"
-            ]
-        );
+            true
+        ).then(function () {
+            // Update select2 with the new values
+            myselect2.update('.task-param[param-name="dist"]', jsonValue.message, 'Select distribution', true);
+        });
     }
 
     // Case of a rpm source
@@ -708,15 +707,11 @@ $(document).on('change','select[param-name="source"]',function () {
             // Print success alert:
             false,
             // Print error alert:
-            true,
-            // Reload container:
-            [],
-            // Execute functions on success:
-            [
-                // Update select2 with the new values
-                "updateSelect2('.task-param[param-name=\"releasever\"]', jsonValue.message, 'Select release version', true)"
-            ]
-        );
+            true
+        ).then(function () {
+            // Update select2 with the new values
+            myselect2.update('.task-param[param-name="releasever"]', jsonValue.message, 'Select release version', true);
+        });
     }
 }).trigger('change');
 
@@ -762,13 +757,10 @@ $(document).on('change','select[param-name="dist"]',function () {
         // Print success alert:
         false,
         // Print error alert:
-        true,
-        // Reload container:
-        [],
-        // Execute functions on success:
-        [
-            // Update select2 with the new values
-            "updateSelect2('.task-param[param-name=\"section\"]', jsonValue.message, 'Select component', true)"
-        ]
-    );
+        true
+    ).then(function () {
+        // Update select2 with the new values
+        myselect2.update('.task-param[param-name="section"]', jsonValue.message, 'Select component', true);
+    });
+
 }).trigger('change');

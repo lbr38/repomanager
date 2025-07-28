@@ -1,10 +1,22 @@
 <head>
-    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- To tell mobile browsers to adjust the width of the window to the width of the device's screen, and set the document scale to 100% of its intended size -->
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=yes">
 
     <!-- CSS for all pages -->
     <link rel="stylesheet" type="text/css" href="/resources/styles/reset.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/normalize.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/common.css?<?= VERSION ?>">
+    <link rel="stylesheet" type="text/css" href="/resources/styles/components/layout.css?<?= VERSION ?>">
+    <link rel="stylesheet" type="text/css" href="/resources/styles/components/alert.css?<?= VERSION ?>">
+    <link rel="stylesheet" type="text/css" href="/resources/styles/components/icon.css?<?= VERSION ?>">
+    <link rel="stylesheet" type="text/css" href="/resources/styles/components/input.css?<?= VERSION ?>">
+    <link rel="stylesheet" type="text/css" href="/resources/styles/components/button.css?<?= VERSION ?>">
+    <link rel="stylesheet" type="text/css" href="/resources/styles/components/label.css?<?= VERSION ?>">
+    <link rel="stylesheet" type="text/css" href="/resources/styles/components/confirmbox.css?<?= VERSION ?>">
+    <link rel="stylesheet" type="text/css" href="/resources/styles/components/modal.css?<?= VERSION ?>">
+    <link rel="stylesheet" type="text/css" href="/resources/styles/components/tooltip.css?<?= VERSION ?>">
+    <link rel="stylesheet" type='text/css' href="/resources/styles/select2.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/main.css?<?= VERSION ?>">
 
     <!-- To tell mobile browsers to adjust the width of the window to the width of the device's screen, and set the document scale to 100% of its intended size -->
@@ -38,11 +50,8 @@
     <script src="/resources/js/libs/jquery-3.7.1.min.js?<?= VERSION ?>"></script>
     <!-- Select2 https://select2.org/ -->
     <script src="/resources/js/libs/select2.js?<?= VERSION ?>"></script>
-    <link rel="stylesheet" type='text/css' href="/resources/styles/select2.css?<?= VERSION ?>">
     <!-- ChartJS -->
     <script src="/resources/js/libs/chartjs-4.4.8.umd.js?<?= VERSION ?>"></script>
-    <!-- Favicon -->
-    <link rel="icon" href="/assets/favicon.ico" />
 
     <?php
     $title = 'Repomanager';

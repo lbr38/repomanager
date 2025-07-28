@@ -79,7 +79,7 @@
                 </div>
             </div>
 
-            <div class="hide source-repo-param-div detailsDiv margin-bottom-5" source-id="<?= $item['Id'] ?>">
+            <div class="hide source-repo-param-div details-div margin-bottom-5" source-id="<?= $item['Id'] ?>">
                 <form class="source-repo-form" source-id="<?= $item['Id'] ?>" autocomplete="off">
                     <input type="hidden" class="source-param" param-name="type" value="<?= $type ?>" />
 

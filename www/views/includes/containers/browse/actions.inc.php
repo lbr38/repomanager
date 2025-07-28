@@ -17,7 +17,10 @@
         if (!empty($rebuild) and $rebuild == 'running') : ?>
             <div class="div-generic-blue">
                 <h6 class="margin-top-0">TASK RUNNING</h6>
-                <p class="note"><img src="/assets/icons/loading.svg" class="icon" /> A task is running on this repository snapshot.</p>
+                <div class="flex align-item-center column-gap-5">
+                    <img src="/assets/icons/loading.svg" class="icon" />
+                    <p class="note">A task is running on this repository snapshot.</p>
+                </div>
             </div>
             <?php
         endif;

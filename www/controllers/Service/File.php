@@ -4,6 +4,7 @@ namespace Controllers\Service;
 
 use Exception;
 use Datetime;
+use Controllers\Log\Cli as CliLog;
 
 class File extends Service
 {
@@ -19,7 +20,7 @@ class File extends Service
      */
     public function cleanUp()
     {
-        echo $this->getDate() . ' Cleaning files' . PHP_EOL;
+        CliLog::log('Cleaning files...');
 
         try {
             /**
@@ -42,7 +43,8 @@ class File extends Service
                 if (!empty($dirs)) {
                     foreach ($dirs as $dir) {
                         if (\Controllers\Filesystem\Directory::isEmpty($dir)) {
-                            echo $this->getDate() . ' Deleting ' . $dir . PHP_EOL;
+                            CliLog::log('Deleting ' . $dir);
+
                             if (!rmdir($dir)) {
                                 throw new Exception('Could not clean temporary directory <b>' . $dir . '</b>');
                             }

@@ -49,6 +49,6 @@ $scheduleForm['type'] = array('unique'); ?>
 
 <script>
 $(document).ready(function() {
-    selectToSelect2('#point-env-target-env-select-<?= $myrepo->getSnapId() ?>');
+    myselect2.convert('#point-env-target-env-select-<?= $myrepo->getSnapId() ?>');
 });
 </script>

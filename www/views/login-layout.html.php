@@ -1,18 +1,12 @@
 <!DOCTYPE html>
 <html>
 <?php
-if (!defined('ROOT')) {
-    define('ROOT', '/var/www/repomanager');
-}
-
-require_once(ROOT . '/controllers/Autoloader.php');
-new \Controllers\Autoloader('minimal');
 include_once(ROOT . '/views/includes/head.inc.php');
 
-$userLoginController = new \Controllers\User\Login();
-$historyController = new \Controllers\History();
-
 try {
+    $userLoginController = new \Controllers\User\Login();
+    $historyController = new \Controllers\History();
+
     if (!empty($_POST['authType']) and $_POST['authType'] == 'local' and SSO_OIDC_ONLY == 'true') {
         throw new Exception('Local account login is disabled');
     }
@@ -61,9 +55,8 @@ try {
     <!-- CSS -->
     <link rel="stylesheet" type="text/css" href="/resources/styles/common.css">
     <link rel="stylesheet" type="text/css" href="/resources/styles/main.css">
+    <link rel="stylesheet" type="text/css" href="/resources/styles/login.css">
 
-    <!-- Favicon -->
-    <link rel="icon" href="/assets/favicon.ico" />
     <title>Login</title>
 </head>
 

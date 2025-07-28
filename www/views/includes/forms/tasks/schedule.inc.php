@@ -160,8 +160,8 @@
 
 <script>
 $(document).ready(function(){
-    selectToSelect2('select.task-param[param-name="schedule-day"]', 'Select day(s)...', true);
-    selectToSelect2('select.task-param[param-name="schedule-reminder"]', 'Select reminder...', true);
-    selectToSelect2('select.task-param[param-name="schedule-recipient"]', 'Select or add recipients...', true);
+    myselect2.convert('select.task-param[param-name="schedule-day"]', 'Select day(s)...', true);
+    myselect2.convert('select.task-param[param-name="schedule-reminder"]', 'Select reminder...', true);
+    myselect2.convert('select.task-param[param-name="schedule-recipient"]', 'Select or add recipients...', true);
 });
 </script>

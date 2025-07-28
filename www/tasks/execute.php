@@ -6,7 +6,8 @@ cli_set_process_title('repomanager.task-run');
 // Load configuration
 define('ROOT', '/var/www/repomanager');
 require_once(ROOT . "/controllers/Autoloader.php");
-new \Controllers\Autoloader('minimal');
+new \Controllers\Autoloader();
+new \Controllers\App\Main('minimal');
 
 // Set memory limit for task execution
 ini_set('memory_limit', TASK_EXECUTION_MEMORY_LIMIT . 'M');

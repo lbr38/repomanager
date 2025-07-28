@@ -534,8 +534,10 @@
     </form>
 
     <script>
-        selectToSelect2('#emailRecipientSelect', 'Select recipients...', true);
-        selectToSelect2('#debArchitectureSelect', 'Select architectures...');
-        selectToSelect2('#rpmArchitectureSelect', 'Select architectures...');
+        $(document).ready(function(){
+            myselect2.convert('#emailRecipientSelect', 'Select recipients...', true);
+            myselect2.convert('#debArchitectureSelect', 'Select architectures...');
+            myselect2.convert('#rpmArchitectureSelect', 'Select architectures...');
+        });
     </script>
 </section>

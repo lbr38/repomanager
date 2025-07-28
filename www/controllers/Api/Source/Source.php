@@ -20,7 +20,7 @@ class Source extends \Controllers\Api\Controller
         /**
          *  Source repositories actions are only allowed for API admins
          */
-        if (!IS_API_ADMIN) {
+        if (!IS_ADMIN) {
             throw new Exception('You are not allowed to access this resource.');
         }
 
