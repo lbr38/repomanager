@@ -14,7 +14,7 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 require_once(ROOT . '/controllers/Autoloader.php');
 require_once(ROOT . '/controllers/Api/Api.php');
 
-new \Controllers\Autoloader('api');
+new \Controllers\Autoloader();
 
 /**
  *  Call and execute main API controller

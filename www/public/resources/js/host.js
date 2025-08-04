@@ -95,7 +95,7 @@ function searchHost()
         return;
     }
 
-    printLoading();
+    mylayout.printLoading();
 
     /**
      *  Retrieve the search term from the input
@@ -260,7 +260,8 @@ function searchHost()
      *  Hide group divs whose all divs have been hidden
      */
     hideGroupDiv();
-    hideLoading();
+
+    mylayout.hideLoading();
 }
 
 /**
@@ -279,7 +280,7 @@ function getHostsWithPackage()
 
     getHostsWithPackage_locked = true;
 
-    printLoading();
+    mylayout.printLoading();
 
     /**
      *  On every input, (re)-display all hidden elements and remove any info in 'host-additionnal-info'
@@ -319,8 +320,7 @@ function getHostsWithPackage()
 
         getHostsWithPackage_locked = false;
 
-        hideLoading();
-
+        mylayout.hideLoading();
     },1000);
 }
 
@@ -525,7 +525,7 @@ $(document).on('click','.delete-group-btn',function (e) {
     var id = $(this).attr('group-id');
     var name = $(this).attr('group-name');
 
-    confirmBox(
+    myconfirmbox.print(
         {
             'title': 'Delete group',
             'message': 'Are you sure you want to delete group <b>' + name + '</b>?',
@@ -671,7 +671,7 @@ $(document).on('click','input[type="checkbox"].js-select-all-button',function ()
 
     // If no checkbox is checked then close confirm box
     if (countCheckedCheckboxes == 0) {
-        closeConfirmBox();
+        myconfirmbox.close();
     }
 });
 
@@ -817,7 +817,7 @@ $(document).on('click','.request-show-log-btn',function (e) {
         true
     ).then(function () {
         // Print the modal window with the log
-        printModalWindow(jsonValue.message, 'LOG', true, false);
+        mymodal.print(jsonValue.message, 'LOG', true, false);
     });
 });
 
@@ -848,7 +848,7 @@ $(document).on('click','.request-show-package-log-btn',function (e) {
         // Print error alert:
         true
     ).then(function () {
-        printModalWindow(jsonValue.message, 'LOG', true, false);
+        mymodal.print(jsonValue.message, 'LOG', true, false);
     });
 });
 
@@ -916,7 +916,7 @@ $(document).on('click','.get-package-timeline',function () {
         // Print error alert:
         true
     ).then(function () {
-        printModalWindow(jsonValue.message, title, false, false)
+        mymodal.print(jsonValue.message, title, false, false)
     });
 });
 

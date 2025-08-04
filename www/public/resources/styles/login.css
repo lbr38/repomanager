@@ -1,0 +1,26 @@
+#login-container {
+    display: grid;
+    grid-template-rows: 60% 40%;
+    justify-content: center;
+    justify-items: center;
+    width: 90vw;
+    height: 90vh;
+    margin: auto;
+}
+#login {
+    align-self: end;
+    width: 250px;
+    text-align: center;
+}
+#login img {
+    max-width: 80px;
+}
+#login form input {
+    display: block;
+}
+#login-error {
+    width: 90vw;
+    max-width: 90vw;
+    text-align: center;
+    overflow: auto;
+}

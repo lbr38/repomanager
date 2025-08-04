@@ -1,13 +1,13 @@
 <h1>REPOMANAGER</h1>
 
-**Repomanager** is a web mirroring tool for ``rpm`` or ``deb`` packages repositories.
+**Repomanager** is a web mirroring tool for ``rpm`` and ``deb`` packages repositories.
 
 <h2>Main features</h2>
 
 - Create ``deb`` and ``rpm`` mirror repositories
 - Sign packages/repositories with GPG
 - Upload packages into repositories
-- Create environments (eg. ``preprod``, ``prod``...) and make mirrors only available for specific envs.
+- Create environments (eg. ``preprod``, ``prod``) and make mirrors only available for specific environments
 - Manage hosts packages updates
 - Schedule tasks
 
@@ -24,6 +24,11 @@
 - CPU and RAM are mostly sollicited during mirror creation if GPG signature is enabled
 - Disk space depends on the size of the repos you need to clone
 
+Minimum requirements:
+- 4 vCPU
+- 4 GB of RAM
+- Please use a SSD disk to avoid disk I/O and latency issues
+
 <h3>Software and configuration</h3>
 
 - **docker** (service must be up and running)
@@ -35,10 +40,6 @@
 Official documentation is available <a href="https://github.com/lbr38/repomanager/wiki">here</a>.
 
 It should help you **installing** and starting using Repomanager.
-
-<h2>Roadmap</h2>
-
-No roadmap, just a todolist with some bug reports and ideas you can find <a href="https://github.com/lbr38/repomanager/blob/devel/Todolist">here</a>.
 
 <h2>Contact</h2>
 

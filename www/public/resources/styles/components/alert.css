@@ -1,0 +1,54 @@
+
+.alert, .alert-success, .alert-error, .confirm-box {
+    width: 95%;
+    max-width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    column-gap: 10px;
+    align-items: flex-start;
+    visibility: hidden;
+    min-height: 20px;
+    padding: 20px 0px 20px 0px;
+    font-size: 16px;
+    position: fixed;
+    bottom: 0;
+    right: -1000px;
+    bottom: 50px;
+    z-index: 1000;
+    background-color: #22384F;
+    box-shadow: 0px 0px 5px 0px rgba(0,0,0,1);
+    color: white;
+    border-radius: 20px 0 0 20px;
+    border-left: 5px solid #15bf7f;
+}
+.alert-success {
+    background-color: #47ebac;
+    border-left: 5px solid #0f8a5b;
+}
+.alert-error {
+    background-color: #F32F63;
+    border-left: 5px solid #780725;
+}
+.alert-success p {
+    color: #0f8a5b;
+}
+.alert-error p {
+    color: #780725;
+}
+.alert-close-btn {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    filter: brightness(0) saturate(100%) invert(9%) sepia(54%) saturate(6819%) hue-rotate(335deg) brightness(98%) contrast(100%);
+}
+.alert-error pre.codeblock {
+    max-height: 100px;
+    overflow: auto;
+}
+
+/* Desktop configuration */
+@media (min-width:1025px) {
+    .alert, .alert-success, .alert-error {
+        width: 29%;
+    }
+}

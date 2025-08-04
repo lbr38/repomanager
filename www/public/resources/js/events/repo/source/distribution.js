@@ -90,7 +90,7 @@ $(document).on('click','.source-repo-remove-distribution-btn',function (e) {
     var id = $(this).attr('source-id');
     var distributionId = $(this).attr('distribution-id');
 
-    confirmBox(
+    myconfirmbox.print(
         {
             'title': 'Remove distribution',
             'buttons': [
@@ -165,7 +165,7 @@ $(document).on('click','.source-repo-edit-distribution-remove-section-btn',funct
     var distributionId = $(this).attr('distribution-id');
     var sectionId = $(this).attr('section-id');
 
-    confirmBox(
+    myconfirmbox.print(
         {
             'title': 'Remove component',
             'buttons': [
@@ -246,7 +246,7 @@ $(document).on('click','.source-repo-edit-distribution-remove-gpgkey-btn',functi
     var distributionId = $(this).attr('distribution-id');
     var gpgkeyId = $(this).attr('gpgkey-id');
 
-    confirmBox(
+    myconfirmbox.print(
         {
             'title': 'Remove GPG key',
             'buttons': [

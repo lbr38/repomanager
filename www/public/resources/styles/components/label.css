@@ -1,0 +1,55 @@
+
+[class^="label"] {
+    font-size: 13px;
+    vertical-align: middle;
+    display: inline-block;
+    padding: 6px;
+    min-width: 12px;
+    min-height: 12px;
+    line-height: 12px !important;
+    text-align: center;
+    border-radius: 60px;
+    color: white;
+    box-shadow: rgb(12 18 20 / 67%) 0px 0px 0px 1px;
+}
+.label-icon-tr {
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    align-items: center;
+    justify-items: center;
+    justify-content: space-between;
+    column-gap: 10px;
+    font-size: 12px;
+    padding: 4px 10px;
+    min-width: 50px;
+    min-height: 12px;
+    border-radius: 60px;
+    border: 1px solid #24405c;
+    color: white;
+    text-align: left;
+    box-shadow: rgb(12 18 20 / 67%) 0px 0px 0px 1px;
+}
+.label-black {
+    background-color: rgb(46, 54, 58);
+    box-shadow: rgb(12 18 20 / 67%) 0px 0px 0px 1px;
+}
+.label-white {
+    background-color: white;
+    color: #000000d9;
+}
+.label-green {
+    background-color: #15bf7f;
+}
+.label-blue {
+    background-color: #5473e8;
+}
+.label-red {
+    background-color: #F32F63;
+}
+.label-yellow {
+    background-color: #ffb536;
+}
+.label-tr {
+    background-color: initial;
+    border: 1px solid #24405c;
+}

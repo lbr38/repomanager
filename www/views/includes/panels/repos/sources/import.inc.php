@@ -129,7 +129,9 @@
         </div>
 
         <script>
-            selectToSelect2('select[name="source-repos-list"]', 'Select list...');
+            $(document).ready(function(){
+                myselect2.convert('select[name="source-repos-list"]', 'Select list...');
+            });
         </script>
     </div>
 </div>

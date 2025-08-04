@@ -41,7 +41,7 @@ $(document).on('click','.delete-env-btn',function () {
     var id = $(this).attr('env-id');
     var name = $(this).attr('env-name');
 
-    confirmBox(
+    myconfirmbox.print(
         {
             'title': 'Delete environment',
             'message': 'Are you sure you want to delete environment <b>' + name + '</b>?',
@@ -62,14 +62,10 @@ $(document).on('click','.delete-env-btn',function () {
                         // Print success alert:
                         true,
                         // Print error alert:
-                        true,
-                        // Reload container:
-                        [],
-                        // Execute functions on success:
-                        [
-                            "reloadContentById('envs-div')"
-                        ]
-                    );
+                        true
+                    ).then(function () {
+                        mylayout.reloadContentById('envs-div');
+                    });
                 }
             }]
         }

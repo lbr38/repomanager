@@ -273,7 +273,7 @@
                 </div>
             </div>
 
-            <div class="request-details detailsDiv hide margin-bottom-10" request-id="<?= $item['Id'] ?>">
+            <div class="request-details details-div hide margin-bottom-10" request-id="<?= $item['Id'] ?>">
                 <?php
                 /**
                  *  If there are update params

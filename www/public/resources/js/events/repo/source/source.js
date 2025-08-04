@@ -54,7 +54,7 @@ $(document).on('submit','#import-source-repos',function () {
 
     list = $(this).find('select[name="source-repos-list"]').val();
 
-    printAlert('Importing source repositories...', null, null);
+    myalert.print('Importing source repositories...', null, null);
 
     ajaxRequest(
         // Controller:
@@ -137,7 +137,7 @@ $(document).on('click','.source-repo-delete-btn',function (e) {
     var sourceId = $(this).attr('source-id');
     var name = $(this).attr('source-name');
 
-    confirmBox(
+    myconfirmbox.print(
         {
             'title': 'Delete source repository',
             'message': 'Are you sure you want to delete <b>' + name + '</b> source repository?',
@@ -176,7 +176,7 @@ $(document).on('click','.gpgKeyDeleteBtn',function () {
     var gpgKeyId = $(this).attr('gpgkey-id');
     var gpgkeyName = $(this).attr('gpgkey-name');
 
-    confirmBox(
+    myconfirmbox.print(
         {
             'title': 'Delete GPG key',
             'message': 'Are you sure you want to delete <b>' + gpgkeyName + '</b> GPG key?',

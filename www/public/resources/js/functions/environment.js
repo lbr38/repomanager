@@ -19,14 +19,10 @@ function addEnv()
         // Print success alert:
         true,
         // Print error alert:
-        true,
-        // Reload container:
-        [],
-        // Execute functions on success:
-        [
-            "reloadContentById('envs-div')"
-        ]
-    );
+        true
+    ).then(function () {
+        mylayout.reloadContentById('envs-div');
+    });
 }
 
 /**
@@ -58,12 +54,8 @@ function editEnv()
         // Print success alert:
         true,
         // Print error alert:
-        true,
-        // Reload container:
-        [],
-        // Execute functions on success:
-        [
-            "reloadContentById('envs-div')"
-        ]
-    );
+        true
+    ).then(function () {
+        mylayout.reloadContentById('envs-div');
+    });
 }

@@ -63,8 +63,8 @@ $(document).on('click','.modal-window-close-btn',function () {
 $(document).keyup(function (e) {
     if (e.key === "Escape") {
         mypanel.close();
-        closeAlert();
-        closeConfirmBox();
+        myalert.close();
+        myconfirmbox.close();
         $(".modal-window-container").remove();
     }
 });
@@ -99,9 +99,9 @@ $(document).on('click','.icon-copy, .icon-copy-top-right',function (e) {
     var text = $(this).parent().text().trim();
 
     navigator.clipboard.writeText(text).then(() => {
-        printAlert('Copied to clipboard', 'success');
+        myalert.print('Copied to clipboard', 'success');
     },() => {
-        printAlert('Failed to copy', 'error');
+        myalert.print('Failed to copy', 'error');
     });
 });
 
@@ -112,9 +112,9 @@ $(document).on('click','.copy-input-onclick',function (e) {
     var text = $(this).val().trim();
 
     navigator.clipboard.writeText(text).then(() => {
-        printAlert('Copied to clipboard', 'success');
+        myalert.print('Copied to clipboard', 'success');
     },() => {
-        printAlert('Failed to copy', 'error');
+        myalert.print('Failed to copy', 'error');
     });
 });
 
@@ -146,137 +146,5 @@ $(document).on('click','.reloadable-table-page-btn',function () {
      */
     mycookie.set('tables/' + table + '/offset', offset, 1);
 
-    reloadTable(table, offset);
+    mytable.reload(table, offset);
 });
-
-/**
- *  Reload opened or closed elements that where opened/closed before reloading
- */
-function reloadOpenedClosedElements()
-{
-    /**
-     *  Retrieve sessionStorage with key finishing by /opened (<element>/opened)
-     */
-    var openedElements = Object.keys(sessionStorage).filter(function (key) {
-        return key.endsWith('/opened');
-    });
-
-    /**
-     *  If there are /opened elements set to true, open them
-     */
-    openedElements.forEach(function (element) {
-        if (sessionStorage.getItem(element) == 'true') {
-            var element = element.replace('/opened', '');
-            $(element).show();
-        }
-        if (sessionStorage.getItem(element) == 'false') {
-            var element = element.replace('/opened', '');
-            $(element).hide();
-        }
-    });
-}
-
-/**
- * Ajax: Get and reload container
- * @param {*} container
- */
-function reloadContainer(container)
-{
-    return new Promise((resolve, reject) => {
-        try {
-            /**
-             *  If the container to reload does not exist, return
-             */
-            if (!$('.reloadable-container[container="' + container + '"]').length) {
-                return;
-            }
-
-            /**
-             *  Print a loading icon on the bottom of the page
-             */
-            printLoading();
-
-            /**
-             *  Check if container has children with class .veil-on-reload
-             *  If so print a veil on them
-             */
-            printLoadingVeilByParentClass('reloadable-container[container="' + container + '"]');
-
-            ajaxRequest(
-                // Controller:
-                'general',
-                // Action:
-                'getContainer',
-                // Data:
-                {
-                    sourceUrl: window.location.href,
-                    sourceUri: window.location.pathname,
-                    container: container
-                },
-                // Print success alert:
-                false,
-                // Print error alert:
-                true,
-                // Reload container:
-                [],
-                // Execute functions on success:
-                [
-                    // Replace container with itself, with new content
-                    "$('.reloadable-container[container=\"" + container + "\"]').replaceWith(jsonValue.message)",
-                    // Reload opened or closed elements that were opened/closed before reloading
-                    "reloadOpenedClosedElements()"
-                ]
-            ).then(() => {
-                // Hide loading icon
-                hideLoading();
-
-                // Resolve promise
-                resolve('Container reloaded');
-            });
-        } catch (error) {
-            // Reject promise
-            reject('Failed to reload container');
-        }
-    });
-}
-
-/**
- * Ajax: Get and reload table
- * @param {*} table
- * @param {*} offset
- */
-function reloadTable(table, offset = 0)
-{
-    printLoading();
-
-    ajaxRequest(
-        // Controller:
-        'general',
-        // Action:
-        'getTable',
-        // Data:
-        {
-            table: table,
-            offset: offset,
-            sourceUrl: window.location.href,
-            sourceUri: window.location.pathname,
-            sourceGetParameters: getGetParams()
-        },
-        // Print success alert:
-        false,
-        // Print error alert:
-        true,
-        // Reload container:
-        [],
-        // Execute functions on success:
-        [
-            // Replace table with itself, with new content
-            "$('.reloadable-table[table=\"" + table + "\"]').replaceWith(jsonValue.message)"
-        ]
-    );
-
-    /**
-     *  Hide loading icon
-     */
-    hideLoading();
-}

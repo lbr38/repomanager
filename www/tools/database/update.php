@@ -7,7 +7,8 @@ define('ROOT', '/var/www/repomanager');
 ini_set('memory_limit', '512M');
 
 require_once(ROOT . '/controllers/Autoloader.php');
-new \Controllers\Autoloader('minimal');
+new \Controllers\Autoloader();
+new \Controllers\App\Main('minimal');
 
 $myupdate = new \Controllers\Update();
 $error = 0;

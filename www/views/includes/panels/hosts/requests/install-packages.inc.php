@@ -51,8 +51,10 @@
 </form>
 
 <script>
-    selectToSelect2('select[param-name="hosts"]', 'Hosts', true);
-    selectToSelect2('select[param-name="packages"]', 'Packages', true);
+$(document).ready(function(){
+    myselect2.convert('select[param-name="hosts"]', 'Hosts', true);
+    myselect2.convert('select[param-name="packages"]', 'Packages', true);
+});
 </script>
 
 <?php

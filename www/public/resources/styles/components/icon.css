@@ -1,0 +1,40 @@
+.icon, .icon-small, .icon-medium, .icon-large, .icon-lowopacity, .icon-mediumopacity, .icon-nf, .icon-np {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    cursor: pointer;
+}
+.icon-small {
+    width: 12px !important;
+    height: 12px !important;
+}
+.icon-medium {
+    width: 15px !important;
+    height: 15px !important;
+}
+.icon-large {
+    width: 25px !important;
+    height: 25px !important;
+}
+.icon-lowopacity {
+    opacity: 0.60;
+}
+.icon-mediumopacity {
+    opacity: 0.55;
+}
+.icon-lowopacity:hover, .icon-mediumopacity:hover {
+    opacity: 1;
+}
+/* icon with no pointer */
+.icon-np {
+    cursor: default;
+}
+.icon-copy {
+    height: 13px;
+}
+.icon-copy-top-right {
+    position: absolute;
+    height: 18px;
+    top: 8px;
+    right: 8px;
+}

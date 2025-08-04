@@ -4,6 +4,7 @@ namespace Controllers\Service;
 
 use Exception;
 use Datetime;
+use Controllers\Log\Cli as CliLog;
 
 class Service
 {
@@ -113,7 +114,7 @@ class Service
      */
     private function getNotifications()
     {
-        echo $this->getDate() . ' Getting notifications...' . PHP_EOL;
+        CliLog::log('Getting notifications...');
 
         try {
             $mynotification = new \Controllers\Notification();
@@ -124,19 +125,11 @@ class Service
     }
 
     /**
-     *  Get current date and time
-     */
-    protected function getDate()
-    {
-        return '[' . date('D M j H:i:s') . ']';
-    }
-
-    /**
      *  Check if a new version is available on Github
      */
     private function checkVersion()
     {
-        echo $this->getDate() . ' Checking for a new version on github...' . PHP_EOL;
+        CliLog::log('Checking for a new version on github...');
 
         try {
             $outputFile = fopen(DATA_DIR . '/version.available', "w");
@@ -292,19 +285,19 @@ class Service
                         /**
                          *  Clean old statistics
                          */
-                        echo $this->getDate() . ' Cleaning old statistics...' . PHP_EOL;
+                        CliLog::log('Cleaning old statistics...');
                         $this->serviceStatisticController->statsClean();
 
                         /**
                          *  Generate repo size statistics
                          */
-                        echo $this->getDate() . ' Generating statistics...' . PHP_EOL;
+                        CliLog::log('Generating statistics...');
                         $this->serviceStatisticController->statsGenerate();
 
                         /**
                          *  Clean old tasks
                          */
-                        echo $this->getDate() . ' Cleaning old tasks...' . PHP_EOL;
+                        CliLog::log('Cleaning old tasks...');
                         $this->taskController->clean();
                     }
 
@@ -359,7 +352,7 @@ class Service
             /**
              *  Else, run the service with the specified parameter
              */
-            echo $this->getDate() . ' Running ' . $name . '...' . PHP_EOL;
+            CliLog::log('Running ' . $name . '...');
 
             $myprocess = new \Controllers\Process("/usr/bin/php " . ROOT . "/tools/service.php '" . $parameter . "' >/dev/null 2>/dev/null &");
             $myprocess->execute();

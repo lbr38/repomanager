@@ -9,7 +9,7 @@ class Panel {
     get(name, params = [''], append = true)
     {
         // Print a loading icon on the bottom of the page
-        printLoading();
+        mylayout.printLoading();
 
         if ($('.slide-panel-container[slide-panel="' + name + '"]').length == 0) {
             // Create an empty panel container, append it to the body and show it
@@ -76,7 +76,7 @@ class Panel {
                 reject('Failed to get panel: ' + e);
             }).finally(function () {
                 // Hide loading icon
-                hideLoading();
+                mylayout.hideLoading();
             });
         });
     }
@@ -90,10 +90,10 @@ class Panel {
     reload(name, params = [''])
     {
         // Print a loading icon on the bottom of the page
-        printLoading();
+        mylayout.printLoading();
 
         // Check if panel has children with class .veil-on-reload, if so print a veil on them
-        printLoadingVeilByParentClass('slide-panel-reloadable-div[slide-panel="' + name + '"]');
+        mylayout.printLoadingVeilByParentClass('slide-panel-reloadable-div[slide-panel="' + name + '"]');
 
         return new Promise((resolve, reject) => {
             /**
@@ -126,14 +126,14 @@ class Panel {
                 $('.slide-panel-container[slide-panel="' + name + '"]').find('.slide-panel').html(html);
 
                 // Reload opened or closed elements that where opened/closed before reloading
-                reloadOpenedClosedElements();
+                mylayout.reloadOpenedClosedElements();
 
                 resolve('Panel reloaded successfully');
             }).catch(function (e) {
                 reject('Failed to reload panel ' + name + ': ' + e);
             }).finally(function () {
                 // Hide loading icon
-                hideLoading();
+                mylayout.hideLoading();
             });
         });
     }

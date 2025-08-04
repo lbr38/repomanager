@@ -4,7 +4,8 @@
  */
 define('ROOT', '/var/www/repomanager');
 require_once(ROOT . '/controllers/Autoloader.php');
-new \Controllers\Autoloader('api');
+new \Controllers\Autoloader();
+new \Controllers\App\Main('minimal');
 
 $logController = new \Controllers\Log\Log();
 

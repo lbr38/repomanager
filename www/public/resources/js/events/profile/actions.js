@@ -40,7 +40,7 @@ $(document).on('click','.profile-delete-btn',function (e) {
     var id = $(this).attr('profile-id');
     var name = $(this).attr('profile-name');
 
-    confirmBox(
+    myconfirmbox.print(
         {
             'title': 'Delete profile',
             'message': 'Are you sure you want to delete profile <b>' + name + '</b>?',

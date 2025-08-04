@@ -1,0 +1,62 @@
+name: Test Repomanager API
+
+on:
+  push:
+    branches: [ devel ]
+  pull_request:
+    push:
+      branches: [ main ]
+
+jobs:
+  api-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install curl
+        run: sudo apt-get install curl jq -y
+
+      - name: Check if API is reachable
+        run: |
+          RESULT=$(curl -s -q --fail-with-body ${{ secrets.API_TEST_HOST }})
+          if [ $? -ne 0 ]; then
+              echo "API is not unreachable"
+              exit 1
+          fi
+
+      #
+      # Run tests as admin user
+      #
+
+      # Register a host and retrieve the host Id and token from results
+      # Then retrieve and export the host ID and token as environment variables for later steps
+      - name: (admin) Try to register a host with an admin API key
+        run: |
+          RESULT=$(curl --fail-with-body --post301 -s -q -L -X POST -H "Authorization: Bearer ${{ secrets.API_TEST_ADMIN_API_KEY }}" -H "Content-Type: application/json" -d '{"hostname":"test.local","ip":"1.2.3.4"}' ${{ secrets.API_TEST_HOST }}/api/v2/host/registering)
+          if [ $? -ne 0 ]; then
+              echo "Failed to register host"
+              exit 1
+          fi
+
+          HOST_ID=$(echo "$RESULT" | jq .results.id | tr -d '"')
+          HOST_TOKEN=$(echo "$RESULT" | jq -r .results.token | tr -d '"')
+
+          if [ -z "$HOST_ID" ] || [ -z "$HOST_TOKEN" ]; then
+              echo "Failed to retrieve host ID or token"
+              exit 1
+          fi
+
+          echo "HOST_ID=$HOST_ID" >> $GITHUB_ENV
+          echo "HOST_TOKEN=$HOST_TOKEN" >> $GITHUB_ENV
+
+      # Unregister the host using the retrieved host ID and token
+      - name: (admin) Try to unregister a host with an admin API key
+        run: |
+          curl --fail-with-body -L -s -q -X DELETE -H "Authorization: Host $HOST_ID:$HOST_TOKEN" -H "Content-Type: application/json" ${{ secrets.API_TEST_HOST }}/api/v2/host/registering
+          if [ $? -ne 0 ]; then
+              echo "Failed to unregister host"
+              exit 1
+          fi

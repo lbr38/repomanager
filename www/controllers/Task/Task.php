@@ -1092,7 +1092,7 @@ class Task
                 }
 
                 // Delete task from database
-                $this->delete($task['Id']);
+                $this->model->delete($task['Id']);
             }
         } catch (Exception $e) {
             $logController->log('error', 'Service', 'Error while cleaning old tasks: ' . $e->getMessage());

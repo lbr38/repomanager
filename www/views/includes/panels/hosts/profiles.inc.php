@@ -59,7 +59,7 @@ if (!empty($profiles)) :
                 </div>
             </div>
 
-            <div class="profile-config-div hide margin-bottom-5 detailsDiv" profile-id="<?= $profile['Id'] ?>">
+            <div class="profile-config-div hide margin-bottom-5 details-div" profile-id="<?= $profile['Id'] ?>">
                 <form class="profile-config-form" profile-id="<?= $profile['Id'] ?>" autocomplete="off">
                     <h6 class="required">NAME</h6>
                     <input type="text" name="profile-name" value="<?= $profile['Name'] ?>" />
@@ -213,11 +213,11 @@ if (!empty($profiles)) :
 
     <script>
         $(document).ready(function() {
-            selectToSelect2('select[name=profile-repos]', 'Select repo 🖉');
-            selectToSelect2('select[name=profile-exclude-major]', 'Select package 🖉', true);
-            selectToSelect2('select[name=profile-exclude]', 'Select package 🖉', true);
-            selectToSelect2('select[name=profile-service-restart]', 'Select service 🖉', true);
-            selectToSelect2('select[name=profile-service-reload]', 'Select service 🖉', true);
+            myselect2.convert('select[name=profile-repos]', 'Select repo 🖉');
+            myselect2.convert('select[name=profile-exclude-major]', 'Select package 🖉', true);
+            myselect2.convert('select[name=profile-exclude]', 'Select package 🖉', true);
+            myselect2.convert('select[name=profile-service-restart]', 'Select service 🖉', true);
+            myselect2.convert('select[name=profile-service-reload]', 'Select service 🖉', true);
         });
     </script>
     <?php

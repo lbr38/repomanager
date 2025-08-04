@@ -16,5 +16,5 @@ $(document).on('click','#compact-view-btn',function () {
     }
 
     // Reload the container
-    reloadContainer('hosts/list');
+    mycontainer.reload('hosts/list');
 });

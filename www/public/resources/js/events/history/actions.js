@@ -4,5 +4,5 @@ $(document).on('change','#user-select',function () {
     mycookie.set('tables/history/list/id', id, 1);
 
     // Then reload table
-    reloadTable('history/list');
+    mytable.reload('history/list');
 });

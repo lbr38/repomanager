@@ -1,0 +1,19 @@
+#tooltip {
+    display: flex;
+    flex-direction: column;
+    row-gap: 6px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    min-width: 300px;
+    max-height: 500px;
+    width: max-content;
+    margin-top: 10px;
+    padding: 20px 15px 20px 15px;
+    text-align: left;
+    z-index: 5;
+    overflow: auto;
+    border-radius: 20px;
+    background-color: #112334;
+    box-shadow: 0px 0px 5px 0px #000000, 0px 0px 0px 0px rgb(0 0 0 / 15%);
+}

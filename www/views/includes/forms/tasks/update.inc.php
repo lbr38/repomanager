@@ -126,9 +126,9 @@ $(document).ready(function(){
     /**
      *  Convert select to select2
      */
-    selectToSelect2('#update-repo-target-env-select-<?= $myrepo->getSnapId() ?>');
-    selectToSelect2('select.task-param[param-name="arch"]');
-    selectToSelect2('select.task-param[param-name="package-include"]', 'Specify package(s)', true);
-    selectToSelect2('select.task-param[param-name="package-exclude"]', 'Specify package(s)', true);
+    myselect2.convert('#update-repo-target-env-select-<?= $myrepo->getSnapId() ?>');
+    myselect2.convert('select.task-param[param-name="arch"]', 'Select architecture(s)', true);
+    myselect2.convert('select.task-param[param-name="package-include"]', 'Specify package(s)', true);
+    myselect2.convert('select.task-param[param-name="package-exclude"]', 'Specify package(s)', true);
 });
 </script>

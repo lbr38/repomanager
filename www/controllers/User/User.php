@@ -53,6 +53,25 @@ class User
     }
 
     /**
+     *  Get user Id by API key
+     */
+    public function getIdByApiKey(string $apiKey) : int|null
+    {
+        // Get all users to retrieve their API key
+        $usersList = $this->getUsers();
+
+        // Loop through all users API key
+        foreach ($usersList as $user) {
+            //  Test if specified API key is one of the users API key
+            if (password_verify($apiKey, $user['Api_key'])) {
+                return $user['Id'];
+            }
+        }
+
+        return null;
+    }
+
+    /**
      *  Get username by user Id
      */
     public function getUsernameById(string $id)

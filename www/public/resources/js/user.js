@@ -2,7 +2,7 @@
  *  Event: generate new apikey
  */
 $(document).on('click','#user-generate-apikey-btn',function () {
-    confirmBox(
+    myconfirmbox.print(
         {
             'title': 'Generate API key',
             'message': 'Are you sure you want to generate a new API key? Once you generate a new API key, the old one will be invalid.',

@@ -49,7 +49,7 @@ function ajaxRequest(controller, action, additionalData = null, printSuccessAler
                  */
                 // Print alert
                 if (printSuccessAlert === true) {
-                    printAlert(jsonValue.message, 'success');
+                    myalert.print(jsonValue.message, 'success');
                 }
                 // Print to console
                 if (printSuccessAlert == 'console') {
@@ -61,7 +61,7 @@ function ajaxRequest(controller, action, additionalData = null, printSuccessAler
                  */
                 if (reloadContainers != null) {
                     for (let i = 0; i < reloadContainers.length; i++) {
-                        reloadContainer(reloadContainers[i]);
+                        mycontainer.reload(reloadContainers[i]);
                     }
                 }
 
@@ -88,7 +88,7 @@ function ajaxRequest(controller, action, additionalData = null, printSuccessAler
                  */
                 // Print alert
                 if (printErrorAlert === true) {
-                    printAlert(jsonValue.message, 'error');
+                    myalert.print(jsonValue.message, 'error');
                 }
                 // Print to console
                 if (printErrorAlert == 'console') {
@@ -108,54 +108,4 @@ function ajaxRequest(controller, action, additionalData = null, printSuccessAler
             },
         });
     });
-}
-
-/**
- *  Convert select tag to a select2 by specified element
- *  @param {*} element
- */
-function selectToSelect2(element, placeholder = 'Select...', tags = false)
-{
-    $(element).select2({
-        closeOnSelect: false,
-        placeholder: placeholder,
-        tags: tags,
-        minimumResultsForSearch: Infinity, /* disable search box */
-        allowClear: true /* add a clear button */
-    });
-}
-
-/**
- * Update a select2 with new data
- * @param {*} select
- * @param {*} data
- * @param {*} placeholder
- * @param {*} tags
- * @returns
- */
-function updateSelect2(select, data, placeholder = '', tags = false)
-{
-    /**
-     *  Quit if the select is not found
-     */
-    if (!$(select).length) {
-        return;
-    }
-
-    /**
-     *  Clear current select options
-     */
-    $(select).empty();
-
-    /**
-     *  Update select2 with new data
-     */
-    $(select).select2({
-        data: data,
-        closeOnSelect: false,
-        placeholder: placeholder,
-        tags: tags,
-        minimumResultsForSearch: Infinity, /* disable search box */
-        allowClear: true
-    })
 }

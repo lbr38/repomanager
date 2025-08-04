@@ -9,226 +9,92 @@ class Api
     private $method;
     private $uri;
     private $route;
-    private $authHeader;
     private $data;
-    private $userController;
-    private $hostController;
-    private $apiKeyAuthentication = false;
-    private $hostAuthentication = false;
-    private $hostId;
-    private $hostAuthId;
-    private $hostToken;
 
     public function __construct()
     {
-        $this->userController = new \Controllers\User\User();
-        $this->hostController = new \Controllers\Host();
+        try {
+            new \Controllers\App\Main('api');
 
-        /**
-         *  Exit if method is not allowed
-         */
-        if ($_SERVER['REQUEST_METHOD'] != 'GET' and $_SERVER['REQUEST_METHOD'] != 'POST' and $_SERVER['REQUEST_METHOD'] != 'PUT' and $_SERVER['REQUEST_METHOD'] != 'DELETE') {
-            http_response_code(405);
-            echo json_encode(["return" => "405", "message_error" => array('Method not allowed')]);
-            exit;
-        }
-
-        /**
-         *  Retrieve method
-         */
-        $this->method = $_SERVER['REQUEST_METHOD'];
-
-        /**
-         *  Retrieve data if any
-         */
-        $this->data = file_get_contents("php://input");
-
-        if (!empty($this->data)) {
-            $this->data = json_decode($this->data);
-
-            if ($this->data == null) {
-                self::returnError(400, 'Invalid JSON data');
-            }
-        }
-
-        /**
-         *  Quit on error if no data was sent
-         */
-        // if (empty($this->data)) {
-        //     self::returnError(400, 'Missing data.');
-        // }
-
-        /**
-         *  Retrieve URI
-         */
-        $this->uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-        $this->uri = explode('/', $this->uri);
-
-        /**
-         *  Retrieve route from URI
-         */
-        $this->route = $this->uri[3];
-
-        /**
-         *  Quit if autoload has encountered any error
-         */
-        if (__LOAD_GENERAL_ERROR != 0) {
-            http_response_code(503);
-            echo json_encode(["return" => "503", "message_error" => array('Reposerver configuration error. Please contact the administrator.')]);
-            exit;
-        }
-
-        /**
-         *  Return 403 if an update is running
-         */
-        if (UPDATE_RUNNING === true) {
-            http_response_code(403);
-            echo json_encode(["return" => "403", "message_error" => array('Reposerver is actually being updated. Please try again later.')]);
-            exit;
-        }
-
-        /**
-         *  Check if authentication is valid from data sent
-         */
-        if (!$this->authenticate()) {
-            self::returnError(401, 'Bad credentials');
-        }
-
-        /**
-         *  Check if method and URI are specified
-         */
-        if (empty($_SERVER['REQUEST_METHOD'])) {
-            throw new Exception('No method specified');
-        }
-        if (empty($_SERVER['REQUEST_URI'])) {
-            throw new Exception('No route specified');
-        }
-    }
-
-    /**
-     *  Check if authentication is valid
-     *  It can be an API key authentication or a host authId+token authentication
-     */
-    public function authenticate()
-    {
-        $isApiAdmin = false;
-
-        /**
-         *  Retrieve authentication header
-         */
-        if (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
-            $this->authHeader = $_SERVER['HTTP_AUTHORIZATION'];
-        } else {
             /**
-             *  If no authentication header is specified, return false to quit with error
+             *  Exit if method is not allowed
              */
-            return false;
-        }
-
-        /**
-         *  New authentication method
-         */
-
-        /**
-         *  If API key or host Id+token is specified through the Authorization header
-         *  e.g.
-         *      "Authorization: Bearer <API_KEY>"
-         *      "Authorization: Host <HOST_ID>:<HOST_TOKEN>"
-         */
-        if (!empty($this->authHeader)) {
-            if (strpos($this->authHeader, 'Bearer ') === 0) {
-                /**
-                 *  Extract the token
-                 *  Remove "Bearer " from the header
-                 */
-                $apiKey = substr($this->authHeader, 7);
+            if ($_SERVER['REQUEST_METHOD'] != 'GET' and $_SERVER['REQUEST_METHOD'] != 'POST' and $_SERVER['REQUEST_METHOD'] != 'PUT' and $_SERVER['REQUEST_METHOD'] != 'DELETE') {
+                http_response_code(405);
+                echo json_encode(["return" => "405", "message_error" => array('Method not allowed')]);
+                exit;
             }
 
             /**
-             *  If host Id+token are specified through the Authorization header
+             *  Retrieve method
              */
-            if (strpos($this->authHeader, 'Host ') === 0) {
-                /**
-                 *  Extract the host Id and token
-                 *  Remove "Host " from the header
-                 */
-                $hostIdToken = substr($this->authHeader, 5);
+            $this->method = $_SERVER['REQUEST_METHOD'];
 
-                /**
-                 *  Split the host Id and token
-                 */
-                $hostIdToken = explode(':', $hostIdToken);
+            /**
+             *  Retrieve data if any
+             */
+            $this->data = file_get_contents("php://input");
 
-                /**
-                 *  Check if host Id and token are specified
-                 */
-                if (count($hostIdToken) != 2) {
-                    return false;
+            if (!empty($this->data)) {
+                $this->data = json_decode($this->data);
+
+                if ($this->data == null) {
+                    self::returnError(400, 'Invalid JSON data');
+                }
+            }
+
+            /**
+             *  Retrieve URI
+             */
+            $this->uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+            $this->uri = explode('/', $this->uri);
+
+            /**
+             *  Retrieve route from URI
+             */
+            $this->route = $this->uri[3];
+
+            /**
+             *  Quit if app has encountered any error
+             */
+            if (__LOAD_GENERAL_ERROR != 0) {
+                http_response_code(503);
+                echo json_encode(["return" => "503", "message_error" => array('Reposerver configuration error. Please contact the administrator.')]);
+                exit;
+            }
+
+            /**
+             *  Return 403 if an update is running
+             */
+            if (UPDATE_RUNNING === true) {
+                http_response_code(403);
+                echo json_encode(["return" => "403", "message_error" => array('Reposerver is actually being updated. Please try again later.')]);
+                exit;
+            }
+
+            /**
+             *  Check if authentication is valid
+             */
+            if (AUTHENTICATED === false) {
+                if (defined('AUTHENTICATION_ERROR')) {
+                    self::returnError(401, 'Authentication error: ' . AUTHENTICATION_ERROR);
                 }
 
-                /**
-                 *  Set host authId and token
-                 */
-                $hostAuthId = $hostIdToken[0];
-                $hostToken = $hostIdToken[1];
-            }
-        }
-
-        /**
-         *  If no API key or host authId and token are specified
-         */
-        if (empty($apiKey) and (empty($hostAuthId) or empty($hostToken))) {
-            return false;
-        }
-
-        /**
-         *  If API key is specified, check that it is valid
-         */
-        if (!empty($apiKey)) {
-            /**
-             *  Check if API key exists
-             */
-            if (!$this->userController->apiKeyValid($apiKey)) {
-                return false;
+                self::returnError(401, 'Authentication error');
             }
 
             /**
-             *  Set apiKeyAuthentication to true if API key is valid
+             *  Check if method and URI are specified
              */
-            $this->apiKeyAuthentication = true;
-
-            /**
-             *  Check if API key is an Admin API key
-             */
-            if ($this->userController->apiKeyIsAdmin($apiKey)) {
-                $isApiAdmin = true;
+            if (empty($_SERVER['REQUEST_METHOD'])) {
+                throw new Exception('No method specified');
             }
-        }
-
-        /**
-         *  If a host authId and token have been specified, check if they are valid
-         */
-        if (!empty($hostAuthId) and !empty($hostToken)) {
-            if (!$this->hostController->checkIdToken($hostAuthId, $hostToken)) {
-                return false;
+            if (empty($_SERVER['REQUEST_URI'])) {
+                throw new Exception('No route specified');
             }
-
-            /**
-             *  Set hostAuthentication to true if host authId and token are valid
-             */
-            $this->hostAuthentication = true;
-            $this->hostAuthId = $hostAuthId;
-            $this->hostToken = $hostToken;
+        } catch (Exception $e) {
+            self::returnError(400, $e->getMessage());
         }
-
-        /**
-         *  Define if the API authentication is an admin API authentication
-         */
-        if (!defined('IS_API_ADMIN')) {
-            define('IS_API_ADMIN', $isApiAdmin);
-        }
-
-        return true;
     }
 
     /**
@@ -259,17 +125,6 @@ class Api
              *  Call API controller
              */
             $myapiController = new $apiControllerPath($this->method, $this->uri);
-
-            /**
-             *  Set authentication method (true or false)
-             */
-            $myapiController->setApiKeyAuthentication($this->apiKeyAuthentication);
-            $myapiController->setHostAuthentication($this->hostAuthentication);
-
-            if ($this->hostAuthentication) {
-                $myapiController->setHostAuthId($this->hostAuthId);
-                $myapiController->setHostToken($this->hostToken);
-            }
 
             /**
              *  Set JSON data if any
@@ -309,6 +164,6 @@ class Api
     {
         http_response_code($code);
         echo json_encode(['return' => $code, 'message_error' => array($message)]);
-        exit;
+        exit(1);
     }
 }

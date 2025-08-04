@@ -35,7 +35,7 @@ $(document).on('click','.show-task-btn',function () {
     history.pushState(null, null, '/run/' + taskId);
 
     // Reload task container to print the new task log
-    reloadContainer('tasks/log').then(function () {
+    mycontainer.reload('tasks/log').then(function () {
         // Restart log scroll event listener
         scrollEventListener();
     });
@@ -280,7 +280,7 @@ $(document).on('click','.cancel-task-btn',function (e) {
 
     var taskId = $(this).attr('task-id');
 
-    confirmBox(
+    myconfirmbox.print(
         {
             'title': 'Cancel task',
             'message': 'Are you sure you want to cancel and delete this task?',

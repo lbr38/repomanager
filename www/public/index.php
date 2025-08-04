@@ -1,6 +1,6 @@
 <?php
-    require_once('../controllers/Controller.php');
+require_once('../controllers/Controller.php');
 
-    \Controllers\Controller::render();
+\Controllers\Controller::render();
 
-    exit();
+exit();
