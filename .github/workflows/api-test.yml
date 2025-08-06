@@ -19,6 +19,18 @@ jobs:
       - name: Install curl
         run: sudo apt-get install curl jq -y
 
+      # Wait for the target URL to be ready
+      # Generally after the 30 first minutes of the current hour
+      - name: Wait until API URL is ready
+        run: |
+          while (true); do
+            if $(date +%M | grep -q '^[3-5][0-9]$'); then
+              break
+            fi
+
+            sleep 60
+          done
+            
       - name: Check if API is reachable
         run: |
           RESULT=$(curl -s -q --fail-with-body ${{ secrets.API_TEST_HOST }})

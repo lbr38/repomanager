@@ -5,6 +5,8 @@ $hostPackageController = new \Controllers\Host\Package\Package($id);
 $hostRequestController = new \Controllers\Host\Request();
 $profileController = new \Controllers\Profile();
 $reloadableTableOffset = 0;
+$packageExcluded = [];
+$packageExcludedMajor = [];
 
 /**
  *  Retrieve offset from cookie if exists
@@ -44,18 +46,24 @@ $reloadableTableCurrentPage = ceil($reloadableTableOffset / 10) + 1;
 $packageUpdateRunning = $hostRequestController->isPackageUpdateRequestRunning($id);
 
 /**
- *  Get the host profile configuration to retrieve the list of packages that are excluded
+ *  If the host has non-empty informations (the host is not a new host or is not resetted)
+ *  Then retrieve the profile configuration
  */
-$profileConfiguration = $profileController->getProfilePackagesConfiguration($host['Profile']);
+if (!empty($host['Profile'])) {
+    /**
+     *  Get the host profile configuration to retrieve the list of packages that are excluded
+     */
+    $profileConfiguration = $profileController->getProfilePackagesConfiguration($host['Profile']);
 
-/**
- *  Get the list of packages that are excluded from updates
- */
-$packageExcluded = array_filter(explode(',', $profileConfiguration['Package_exclude']));
+    /**
+     *  Get the list of packages that are excluded from updates
+     */
+    $packageExcluded = array_filter(explode(',', $profileConfiguration['Package_exclude']));
 
-/**
- *  Get the list of packages that are excluded from major updates
- */
-$packageExcludedMajor = array_filter(explode(',', $profileConfiguration['Package_exclude_major']));
+    /**
+     *  Get the list of packages that are excluded from major updates
+     */
+    $packageExcludedMajor = array_filter(explode(',', $profileConfiguration['Package_exclude_major']));
+}
 
 unset($hostController, $hostPackageController, $hostRequestController, $profileController, $host, $profileConfiguration);

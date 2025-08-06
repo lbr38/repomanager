@@ -117,6 +117,14 @@
             <p class="note">Maximum time allowed to download a package during a mirroring process.</p>
             <input class="settings-param" param-name="mirrorPackageDownloadTimeout" min="1" type="number" value="<?= MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT ?>" placeholder="Default is 300">
 
+            <h6 class="required">PACKAGE CHECKSUM MATCH FAILURE</h6>
+            <p class="note">If a package checksum does not match the expected checksum, this parameter allows you to choose what to do in this case.</p>
+            <select class="settings-param" param-name="mirrorPackageChecksumFailure">
+                <option value="error" <?php echo (MIRRORING_PACKAGE_CHECKSUM_FAILURE == 'error') ? 'selected' : '' ?>>End mirroring task with error</option>
+                <option value="ignore" <?php echo (MIRRORING_PACKAGE_CHECKSUM_FAILURE == 'ignore') ? 'selected' : '' ?>>Ignore package (delete it) and continue</option>
+                <option value="keep" <?php echo (MIRRORING_PACKAGE_CHECKSUM_FAILURE == 'keep') ? 'selected' : '' ?>>Keep the package anyway (not recommended)</option>
+            </select>            
+
             <hr class="margin-top-20 margin-bottom-20">
 
             <h5>RPM</h5>

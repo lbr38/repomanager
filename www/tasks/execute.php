@@ -119,6 +119,20 @@ try {
             $runningTasks = $myTask->listRunning();
 
             /**
+             *  Get all currently queued tasks
+             */
+            $queuedTasks = $myTask->listQueued();
+
+            /**
+             *  First, check if the taskId is still in the queued tasks list.
+             *  The queued task may have been cancelled by the user, so we don't want to run it if it's not in the running tasks list anymore.
+             */
+            if (!in_array($taskId, array_column($queuedTasks, 'Id'))) {
+                echo 'Task #' . $taskId . ' is not in the running tasks list anymore. Exiting...' . PHP_EOL;
+                exit(2);
+            }
+
+            /**
              *  If number of running tasks is greater than or equal to the maximum number of simultaneous tasks, we wait
              */
             if (count($runningTasks) >= $settings['TASK_QUEUING_MAX_SIMULTANEOUS']) {
@@ -136,14 +150,9 @@ try {
             }
 
             /**
-             *  If the task type is 'immediate', get all currently queued tasks
-             */
-            $newestTask = $myTask->listQueued();
-
-            /**
              *  If there are tasks of type 'scheduled' in the queue list, we wait, they have more priority
              */
-            foreach ($newestTask as $task) {
+            foreach ($queuedTasks as $task) {
                 if ($task['Type'] == 'scheduled') {
                     echo 'There are scheduled tasks in the queue list. Waiting for them to finish...' . PHP_EOL;
                     sleep(5);
@@ -155,7 +164,7 @@ try {
              *  If there is no task of type 'scheduled' in the queue list, this task may be started
              *  If the first task in the list has the same Id as $taskId, then this task can be started
              */
-            if ($newestTask[0]['Id'] == $taskId) {
+            if ($queuedTasks[0]['Id'] == $taskId) {
                 break;
             }
         }

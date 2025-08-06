@@ -810,7 +810,33 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              *  Check that downloaded rpm package matches the checksum specified by the primary.xml file
              */
             if (!$this->checksum($absoluteDir . '/' . $rpmPackageName, $rpmPackageChecksum)) {
-                throw new Exception('Checksum of the downloaded package does not match the checksum indicated by the source repository metadata (tested sha512, sha256 and sha1)');
+                $message = 'Checksum of the downloaded package does not match the checksum indicated by the source repository metadata';
+
+
+                // If the MIRRORING_PACKAGE_CHECKSUM_FAILURE setting is set to 'error', then throw an exception
+                if (MIRRORING_PACKAGE_CHECKSUM_FAILURE == 'error') {
+                    throw new Exception($message);
+                }
+
+                // If the MIRRORING_PACKAGE_CHECKSUM_FAILURE setting is set to 'ignore', then we ignore the package (delete it) and continue
+                if (MIRRORING_PACKAGE_CHECKSUM_FAILURE == 'ignore') {
+                    $this->taskLogSubStepController->warning($message . ', ignoring package (deleting it) and continuing');
+
+                    // Delete the package
+                    if (file_exists($absoluteDir . '/' . $rpmPackageName)) {
+                        unlink($absoluteDir . '/' . $rpmPackageName);
+                    }
+
+                    continue;
+                }
+
+                // If the MIRRORING_PACKAGE_CHECKSUM_FAILURE setting is set to 'keep', then we keep the package anyway and continue
+                if (MIRRORING_PACKAGE_CHECKSUM_FAILURE == 'keep') {
+                    $this->taskLogSubStepController->warning($message . ', keeping package anyway');
+                    continue;
+                }
+
+                unset($message);
             }
 
             /**

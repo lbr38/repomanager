@@ -132,6 +132,12 @@ class Settings
             }
         }
 
+        if (!empty($sendSettings['mirrorPackageChecksumFailure'])) {
+            if (in_array($sendSettings['mirrorPackageChecksumFailure'], ['error', 'ignore', 'keep'])) {
+                $settingsToApply['MIRRORING_PACKAGE_CHECKSUM_FAILURE'] = $sendSettings['mirrorPackageChecksumFailure'];
+            }
+        }
+
         /**
          *  Repositories / RPM
          */

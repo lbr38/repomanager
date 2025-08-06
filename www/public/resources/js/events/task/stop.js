@@ -4,7 +4,7 @@
 $(document).on('click','.stop-task-btn',function () {
     var taskId = $(this).attr('task-id');
 
-    myalert.print('Stopping task...', 'info');
+    myalert.print('Stopping task...');
 
     ajaxRequest(
         // Controller:

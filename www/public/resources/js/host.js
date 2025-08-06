@@ -684,9 +684,9 @@ function executeAction(action, hosts)
 {
     ajaxRequest(
         // Controller:
-        'host',
+        'host/execute',
         // Action:
-        'executeAction',
+        'action',
         // Data:
         {
             exec: action,
@@ -695,15 +695,14 @@ function executeAction(action, hosts)
         // Print success alert:
         true,
         // Print error alert:
-        true,
-        // Reload container:
-        ['hosts/list', 'host/requests', 'host/history'],
-        // Execute functions on success:
-        []
-    )
+        true
+    ).then(function () {
+        // Reload containers
+        mycontainer.reload('hosts/list');
+        mycontainer.reload('host/requests');
+        mycontainer.reload('host/history');
+    });
 }
-
-
 
 /**
  *  Event: show/hide the list of packages available on the host
