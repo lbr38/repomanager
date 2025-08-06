@@ -558,6 +558,7 @@ class Connection extends SQLite3
         REPO_CONF_FILES_PREFIX VARCHAR(255),
         /* Mirroring */
         MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT INTEGER,
+        MIRRORING_PACKAGE_CHECKSUM_FAILURE VARCHAR(20), /* error, ignore, keep */
         /* RPM */
         RPM_REPO CHAR(5),
         RPM_SIGN_PACKAGES CHAR(5),
@@ -661,6 +662,7 @@ class Connection extends SQLite3
                 TASK_QUEUING_MAX_SIMULTANEOUS,
                 TASK_CLEAN_OLDER_THAN,
                 MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT,
+                MIRRORING_PACKAGE_CHECKSUM_FAILURE,
                 RPM_REPO,
                 RPM_SIGN_PACKAGES,
                 RELEASEVER,
@@ -712,6 +714,7 @@ class Connection extends SQLite3
                 '3',
                 '730',
                 '300',
+                'error',
                 'true',
                 'true',
                 '8',
@@ -944,8 +947,7 @@ class Connection extends SQLite3
         Online_status_date DATE,
         Online_status_time TIME,
         Reboot_required CHAR(5),
-        Linupdate_version VARCHAR(255),
-        Status VARCHAR(8) NOT NULL)"); /* active / disabled / deleted */
+        Linupdate_version VARCHAR(255))"); /* active / disabled / deleted */
 
         /**
          *  groups table
@@ -981,14 +983,14 @@ class Connection extends SQLite3
          *  Create indexes
          */
         // hosts table indexes:
-        $this->exec("CREATE INDEX IF NOT EXISTS hosts_index ON hosts (Ip, Hostname, Os, Os_version, Os_family, Kernel, Arch, Type, Profile, Env, AuthId, Token, Online_status, Online_status_date, Online_status_time, Reboot_required, Linupdate_version, Status)");
+        $this->exec("CREATE INDEX IF NOT EXISTS hosts_index ON hosts (Ip, Hostname, Os, Os_version, Os_family, Kernel, Arch, Type, Profile, Env, AuthId, Token, Online_status, Online_status_date, Online_status_time, Reboot_required, Linupdate_version)");
         $this->exec("CREATE INDEX IF NOT EXISTS hosts_authid_index ON hosts (AuthId)");
         $this->exec("CREATE INDEX IF NOT EXISTS hosts_token_index ON hosts (Token)");
-        $this->exec("CREATE INDEX IF NOT EXISTS hosts_authid_token_status_index ON hosts (AuthId, Token, Status)");
+        $this->exec("CREATE INDEX IF NOT EXISTS hosts_authid_token_index ON hosts (AuthId, Token)");
         $this->exec("CREATE INDEX IF NOT EXISTS hosts_hostname_index ON hosts (Hostname)");
         $this->exec("CREATE INDEX IF NOT EXISTS hosts_kernel_index ON hosts (Kernel)");
         $this->exec("CREATE INDEX IF NOT EXISTS hosts_profile_index ON hosts (Profile)");
-        $this->exec("CREATE INDEX IF NOT EXISTS hosts_status_online_status_date_time ON hosts (Status, Online_status, Online_status_date, Online_status_time)");
+        $this->exec("CREATE INDEX IF NOT EXISTS hosts_status_online_date_time ON hosts (Online_status, Online_status_date, Online_status_time)");
         // groups table indexes:
         $this->exec("CREATE INDEX IF NOT EXISTS groups_index ON groups (Name)");
         // group_members table indexes:

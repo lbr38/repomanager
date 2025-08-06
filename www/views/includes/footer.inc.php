@@ -44,6 +44,7 @@
 <script src="/resources/js/classes/Tooltip.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/Select2.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/SessionStorage.js?<?= VERSION ?>"></script>
+<script src="/resources/js/classes/Host.js?<?= VERSION ?>"></script>
 
 <script>
     const mylayout = new Layout();
@@ -57,6 +58,7 @@
     const mytooltip = new Tooltip();
     const myselect2 = new Select2();
     const mysessionstorage = new SessionStorage();
+    const myhost = new Host();
 </script>
 
 <script>

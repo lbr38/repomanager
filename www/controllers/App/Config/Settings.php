@@ -184,6 +184,14 @@ class Settings
             }
         }
 
+        if (!defined('MIRRORING_PACKAGE_CHECKSUM_FAILURE')) {
+            if (!empty($settings['MIRRORING_PACKAGE_CHECKSUM_FAILURE'])) {
+                define('MIRRORING_PACKAGE_CHECKSUM_FAILURE', $settings['MIRRORING_PACKAGE_CHECKSUM_FAILURE']);
+            } else {
+                define('MIRRORING_PACKAGE_CHECKSUM_FAILURE', 'error');
+            }
+        }
+
         // RPM
         if (!defined('RPM_REPO')) {
             if (!empty($settings['RPM_REPO'])) {
@@ -568,17 +576,6 @@ class Settings
                 }
             }
         }
-
-        /**
-         *  WebSocket server settings
-         */
-        // if (!defined('WEBSOCKET_SERVER_LISTEN_PORT')) {
-        //     if (isset($appYaml['websocket_server']['listen']) and is_numeric($appYaml['websocket_server']['listen'])) {
-        //         define('WEBSOCKET_SERVER_LISTEN_PORT', trim($appYaml['websocket_server']['listen']));
-        //     } else {
-        //         define('WEBSOCKET_SERVER_LISTEN_PORT', '8081');
-        //     }
-        // }
 
         /**
          *  OIDC settings

@@ -289,23 +289,53 @@ class Package extends \Models\Model
     /**
      *  Search for package(s) in the database of the host
      */
-    public function searchPackage(string $name) : array
+    public function searchPackage(string $name, string|null $version, bool $strictName, bool $strictVersion) : array
     {
         $packages = array();
 
         try {
-            $stmt = $this->dedicatedDb->prepare("SELECT Name, Version FROM packages WHERE Name LIKE :name");
-            $stmt->bindValue(':name', $name . '%');
+            // If strict mode is enabled, we search for the exact package name
+            if ($strictName) {
+                $query = "SELECT Name, Version FROM packages WHERE Name = :name";
+            }
+
+            // If strict mode is disabled, we search for packages containing the specified name
+            if (!$strictName) {
+                $query = "SELECT Name, Version FROM packages WHERE Name LIKE :name";
+            }
+
+            if (!empty($version)) {
+                // If strict mode is enabled, we search for the exact package version
+                if ($strictVersion) {
+                    $query .= " and Version = :version";
+                }
+
+                // If strict mode is disabled, we search for packages containing the specified version
+                if (!$strictVersion) {
+                    $query .= " and Version LIKE :version";
+                }
+            }
+
+            // Prepare the query
+            $stmt = $this->dedicatedDb->prepare($query);
+
+            if ($strictName) {
+                $stmt->bindValue(':name', $name);
+            } else {
+                $stmt->bindValue(':name', $name . '%');
+            }
+
+            if (!empty($version)) {
+                if ($strictVersion) {
+                    $stmt->bindValue(':version', $version);
+                } else {
+                    $stmt->bindValue(':version', $version . '%');
+                }
+            }
+
             $result = $stmt->execute();
         } catch (Exception $e) {
             $this->dedicatedDb->logError($e);
-        }
-
-        /**
-         *  If no result, return empty array
-         */
-        if ($this->dedicatedDb->isempty($result) === true) {
-            return [];
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {

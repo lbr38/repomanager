@@ -1,10 +1,21 @@
 <div class="reloadable-table" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
-    <p class="text-right margin-bottom-15">
-        <b><?= $reloadableTableTotalItems ?></b> CVEs
-    </p>
-
     <?php
+    if (empty($reloadableTableContent)) {
+        echo '<p class="note">Nothing for now!</p>';
+    }
+
     if (!empty($reloadableTableContent)) : ?>
+        <div class='margin-bottom-15'>
+            <h6>SEARCH CVE</h6>
+            <form action="/cves" method="get">
+                <input class="input-medium" type="text" name="search" autocomplete="off" placeholder="Search CVE">
+            </form>
+        </div>
+
+        <p class="margin-bottom-15">
+            <b><?= $reloadableTableTotalItems ?></b> CVEs
+        </p>
+
         <div class="table-container cve-table bck-blue-alt">
             <p><b>Score</b></p>
             <p><b>CVE</b></p>

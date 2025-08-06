@@ -8,8 +8,8 @@ use Datetime;
 class Host
 {
     protected $dedicatedDb;
-    private $model;
-    private $layoutContainerReloadController;
+    protected $model;
+    protected $layoutContainerReloadController;
     private $id;
     private $idArray = array();
     private $ip;
@@ -140,6 +140,14 @@ class Host
     public function getAll(string $id) : array
     {
         return $this->model->getAll($id);
+    }
+
+    /**
+     *  Return the IP of the host by its Id
+     */
+    public function getIpById(int $id) : string
+    {
+        return $this->model->getIpById($id);
     }
 
     /**
@@ -364,6 +372,14 @@ class Host
     }
 
     /**
+     *  Reset a host in the database
+     */
+    public function reset(int $id) : void
+    {
+        $this->model->reset($id);
+    }
+
+    /**
      *  Delete a host from the database
      */
     public function delete(int $id) : void
@@ -391,196 +407,38 @@ class Host
     }
 
     /**
-     *  Ask one or more host(s) to execute an action
-     */
-    public function hostExec(array $hostsId, string $action) : string
-    {
-        /**
-         *  Only admins should be able to perform actions
-         */
-        if (!IS_ADMIN) {
-            throw new Exception('You are not allowed to perform this action');
-        }
-
-        $hostRequestController = new \Controllers\Host\Request();
-        $validActions = ['reset', 'delete', 'request-general-infos', 'request-packages-infos'];
-
-        /**
-         *  Check if the action to execute is valid
-         */
-        if (!in_array($action, $validActions)) {
-            throw new Exception('Action to execute is invalid');
-        }
-
-        /**
-         *  First check that hosts Id are valid
-         */
-        foreach ($hostsId as $hostId) {
-            if (!is_numeric($hostId)) {
-                throw new Exception('Invalid host Id: ' . $hostId);
-            }
-        }
-
-        foreach ($hostsId as $hostId) {
-            $hostId = \Controllers\Common::validateData($hostId);
-
-            /**
-             *  Retrieve the IP and hostname of the host to be processed
-             */
-            $hostname = $this->getHostnameById($hostId);
-            $ip = $this->model->getIpById($hostId);
-
-            /**
-             *  If the retrieved ip is empty, we move on to the next host
-             */
-            if (empty($ip)) {
-                continue;
-            }
-
-            /**
-             *  Case where the requested action is a reset
-             */
-            if ($action == 'reset') {
-                /**
-                 *  Reset host data in database
-                 */
-                $this->model->resetHost($hostId);
-
-                /**
-                 *  Delete host's dedicated database
-                 */
-                if (file_exists(HOSTS_DIR . '/' . $hostId . '/properties.db')) {
-                    if (!unlink(HOSTS_DIR . '/' . $hostId . '/properties.db')) {
-                        throw new Exception('Could not reset ' . $hostname . ' database');
-                    }
-                }
-            }
-
-            /**
-             *  Case where the requested action is a delete
-             */
-            if ($action == 'delete') {
-                $this->delete($hostId);
-            }
-
-            /**
-             *  Case where the requested action is a general status update
-             */
-            if ($action == 'request-general-infos') {
-                /**
-                 *  Add a new websocket request in the database
-                 */
-                $hostRequestController->new($hostId, 'request-general-infos');
-            }
-
-            /**
-             *  Case where the requested action is a packages status update
-             */
-            if ($action == 'request-packages-infos') {
-                /**
-                 *  Add a new websocket request in the database
-                 */
-                $hostRequestController->new($hostId, 'request-packages-infos');
-            }
-
-            /**
-             *  If the host has a hostname, we push it in the array, otherwise we push only its ip
-             */
-            if (!empty($hostname)) {
-                $hosts[] = array('ip' => $ip, 'hostname' => $hostname);
-            } else {
-                $hosts[] = array('ip' => $ip);
-            }
-        }
-
-        /**
-         *  Generate a confirmation message with the name/ip of the hosts on which the action has been performed
-         */
-        if ($action == 'reset') {
-            $message = 'Following hosts have been reseted:';
-            $this->layoutContainerReloadController->reload('hosts/overview');
-            $this->layoutContainerReloadController->reload('hosts/list');
-            $this->layoutContainerReloadController->reload('host/summary');
-            $this->layoutContainerReloadController->reload('host/packages');
-            $this->layoutContainerReloadController->reload('host/history');
-        }
-
-        if ($action == 'delete') {
-            $message = 'Following hosts have been deleted:';
-            $this->layoutContainerReloadController->reload('hosts/overview');
-            $this->layoutContainerReloadController->reload('hosts/list');
-        }
-
-        if ($action == 'request-all-packages-update') {
-            $message = 'Requesting packages update to the following hosts:';
-            $this->layoutContainerReloadController->reload('host/requests');
-        }
-
-        if ($action == 'request-general-infos') {
-            $message = 'Requesting general informations to the following hosts:';
-            $this->layoutContainerReloadController->reload('host/requests');
-        }
-
-        if ($action == 'request-packages-infos') {
-            $message = 'Requesting packages informations to the following hosts:';
-            $this->layoutContainerReloadController->reload('host/requests');
-        }
-
-        $message .= '<div class="grid grid-2 column-gap-10 row-gap-10 margin-top-5">';
-
-        /**
-         *  Print the hostname and ip of the hosts on which the action has been performed
-         *  Do not print more than 10 hosts, print +X more if there are more than 10 hosts
-         */
-        $count = 1;
-        foreach ($hosts as $host) {
-            if ($count > 10) {
-                $message .= '<p><b>+' . (count($hosts) - 10) . ' more</b></p>';
-                break;
-            }
-
-            $message .= '<span class="label-white">' . $host['hostname'] . ' (' . $host['ip'] . ')</span> ';
-            $count++;
-        }
-
-        $message .= '</div>';
-
-        return $message;
-    }
-
-    /**
      *  Return hosts that have the specified package
      */
-    public function getHostsWithPackage(array $hostsId, string $packageName) : array
+    public function getHostsWithPackage(array $hosts, string $name, string|null $version, bool $strictName, bool $strictVersion) : array
     {
-        $hosts = array();
+        $results = array();
 
-        if (empty($hostsId)) {
+        if (empty($hosts)) {
             throw new Exception('No host specified');
         }
 
-        if (!is_array($hostsId)) {
+        if (!is_array($hosts)) {
             throw new Exception('Invalid host Ids format');
         }
 
         /**
          *  Check if the package name is valid
          */
-        if (!\Controllers\Common::isAlphanumDash($packageName, array('*'))) {
+        if (!\Controllers\Common::isAlphanumDash($name, array('*'))) {
             throw new Exception('Package name contains invalid characters');
         }
 
         /**
          *  For each host, search for the package in the host's database and return the result
          */
-        foreach ($hostsId as $id) {
+        foreach ($hosts as $id) {
             $hostPackageController = new \Controllers\Host\Package\Package($id);
-            $hosts[$id] = $hostPackageController->searchPackage($packageName);
+            $results[$id] = $hostPackageController->searchPackage($name, $version, $strictName, $strictVersion);
         }
 
         unset($hostPackageController);
 
-        return $hosts;
+        return $results;
     }
 
     /**

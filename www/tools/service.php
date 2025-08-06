@@ -27,13 +27,28 @@ try {
      *  Run websocket server
      */
     if (!empty($argv[1]) && $argv[1] == 'wss') {
+        $port = 8081; // Default port is 8081
+
         cli_set_process_title('repomanager.wss');
 
         /**
-         *  Start websocket server on port 8081
+         *  If a .wss file exists, read the port from it
+         */
+        if (file_exists(ROOT . '/.wss')) {
+            $content = trim(file_get_contents(ROOT . '/.wss'));
+
+            if (!empty($content) && is_numeric($content)) {
+                $port = $content;
+            }
+
+            unset($content);
+        }
+
+        /**
+         *  Start websocket server
          */
         $websockerServer = new \Controllers\Websocket\WebsocketServer();
-        $websockerServer->run(8081);
+        $websockerServer->run($port);
         exit;
     }
 

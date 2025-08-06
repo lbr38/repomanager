@@ -27,7 +27,6 @@ class Host extends Model
                 $hostsInGroup = $this->db->query("SELECT *
                 FROM hosts
                 WHERE Id NOT IN (SELECT Id_host FROM group_members)
-                AND Status = 'active'
                 ORDER BY hosts.Hostname ASC");
             } else {
                 /**
@@ -50,15 +49,13 @@ class Host extends Model
                 hosts.Online_status_date,
                 hosts.Online_status_time,
                 hosts.Reboot_required,
-                hosts.Linupdate_version,
-                hosts.Status
+                hosts.Linupdate_version
                 FROM hosts
                 INNER JOIN group_members
                     ON hosts.Id = group_members.Id_host
                 INNER JOIN groups
                     ON groups.Id = group_members.Id_group
                 WHERE groups.Name=:groupname
-                and hosts.Status = 'active'
                 ORDER BY hosts.Hostname ASC");
                 $stmt->bindValue(':groupname', $groupName);
                 $hostsInGroup = $stmt->execute();
@@ -309,10 +306,7 @@ class Host extends Model
         $hosts = array();
 
         try {
-            $stmt = $this->db->prepare("SELECT Id, Hostname, Ip, Os, Os_family FROM hosts
-            WHERE Kernel = :kernel
-            AND Status = 'active'
-            ORDER BY Hostname ASC");
+            $stmt = $this->db->prepare("SELECT Id, Hostname, Ip, Os, Os_family FROM hosts WHERE Kernel = :kernel ORDER BY Hostname ASC");
             $stmt->bindValue(':kernel', $kernel);
             $result = $stmt->execute();
         } catch (Exception $e) {
@@ -334,10 +328,7 @@ class Host extends Model
         $hosts = array();
 
         try {
-            $stmt = $this->db->prepare("SELECT Id, Hostname, Ip, Os, Os_family FROM hosts
-            WHERE Profile = :profile
-            AND Status = 'active'
-            ORDER BY Hostname ASC");
+            $stmt = $this->db->prepare("SELECT Id, Hostname, Ip, Os, Os_family FROM hosts WHERE Profile = :profile ORDER BY Hostname ASC");
             $stmt->bindValue(':profile', $profile);
             $result = $stmt->execute();
         } catch (Exception $e) {
@@ -357,7 +348,7 @@ class Host extends Model
     public function checkIdToken(string $authId, string $token) : bool
     {
         try {
-            $stmt = $this->db->prepare("SELECT Id FROM hosts WHERE AuthId = :authId and Token = :token and Status = 'active'");
+            $stmt = $this->db->prepare("SELECT Id FROM hosts WHERE AuthId = :authId and Token = :token");
             $stmt->bindValue(':authId', $authId);
             $stmt->bindValue(':token', $token);
             $result = $stmt->execute();
@@ -379,7 +370,7 @@ class Host extends Model
     {
         $datas = array();
 
-        $result = $this->db->query("SELECT * FROM hosts WHERE Status = 'active'");
+        $result = $this->db->query("SELECT * FROM hosts");
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $datas[] = $row;
@@ -395,7 +386,7 @@ class Host extends Model
     {
         $os = array();
 
-        $result = $this->db->query("SELECT Os, Os_version, COUNT(*) as Os_count FROM hosts WHERE Status = 'active' GROUP BY Os, Os_version");
+        $result = $this->db->query("SELECT Os, Os_version, COUNT(*) as Os_count FROM hosts GROUP BY Os, Os_version");
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $os[] = $row;
@@ -411,7 +402,7 @@ class Host extends Model
     {
         $kernel = array();
 
-        $result = $this->db->query("SELECT Kernel, COUNT(*) as Kernel_count FROM hosts WHERE Status = 'active' GROUP BY Kernel");
+        $result = $this->db->query("SELECT Kernel, COUNT(*) as Kernel_count FROM hosts GROUP BY Kernel");
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $kernel[] = $row;
@@ -427,7 +418,7 @@ class Host extends Model
     {
         $arch = array();
 
-        $result = $this->db->query("SELECT Arch, COUNT(*) as Arch_count FROM hosts WHERE Status = 'active' GROUP BY Arch");
+        $result = $this->db->query("SELECT Arch, COUNT(*) as Arch_count FROM hosts GROUP BY Arch");
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $arch[] = $row;
@@ -443,7 +434,7 @@ class Host extends Model
     {
         $env = array();
 
-        $result = $this->db->query("SELECT Env, COUNT(*) as Env_count FROM hosts WHERE Status = 'active' GROUP BY Env");
+        $result = $this->db->query("SELECT Env, COUNT(*) as Env_count FROM hosts GROUP BY Env");
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $env[] = $row;
@@ -459,7 +450,7 @@ class Host extends Model
     {
         $profile = array();
 
-        $result = $this->db->query("SELECT Profile, COUNT(*) as Profile_count FROM hosts WHERE Status = 'active' GROUP BY Profile");
+        $result = $this->db->query("SELECT Profile, COUNT(*) as Profile_count FROM hosts GROUP BY Profile");
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $profile[] = $row;
@@ -478,16 +469,16 @@ class Host extends Model
         $stmt = $this->db->prepare("SELECT * FROM
         (SELECT COUNT(*) as Linupdate_agent_status_online_count
         FROM hosts
-        WHERE Status = 'active' AND Online_status = 'running' AND Online_status_date = :todayDate AND Online_status_time >= :maxTime),
+        WHERE Online_status = 'running' AND Online_status_date = :todayDate AND Online_status_time >= :maxTime),
         (SELECT COUNT(*) as Linupdate_agent_status_seems_stopped_count
         FROM hosts
-        WHERE Status = 'active' AND Online_status != 'stopped' AND (Online_status_date != :todayDate OR Online_status_time <= :maxTime)),
+        WHERE Online_status != 'stopped' AND (Online_status_date != :todayDate OR Online_status_time <= :maxTime)),
         (SELECT COUNT(*) as Linupdate_agent_status_disabled_count
         FROM hosts
-        WHERE Status = 'active' AND Online_status = 'disabled'),
+        WHERE Online_status = 'disabled'),
         (SELECT COUNT(*) as Linupdate_agent_status_stopped_count
         FROM hosts
-        WHERE Status = 'active' AND Online_status = 'stopped')");
+        WHERE Online_status = 'stopped')");
         $stmt->bindValue(':todayDate', DATE_YMD);
         $stmt->bindValue(':maxTime', date('H:i:s', strtotime(date('H:i:s') . ' - 70 minutes')));
         $result = $stmt->execute();
@@ -509,7 +500,7 @@ class Host extends Model
     {
         $agent = array();
 
-        $result = $this->db->query("SELECT Linupdate_version, COUNT(*) as Linupdate_version_count FROM hosts WHERE Status = 'active' GROUP BY Linupdate_version");
+        $result = $this->db->query("SELECT Linupdate_version, COUNT(*) as Linupdate_version_count FROM hosts GROUP BY Linupdate_version");
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $agent[] = $row;
@@ -525,7 +516,7 @@ class Host extends Model
     {
         $hosts = array();
 
-        $result = $this->db->query("SELECT Id, Hostname, Ip, Os, Os_family FROM hosts WHERE Status = 'active' AND Reboot_required = 'true' ORDER BY Hostname ASC");
+        $result = $this->db->query("SELECT Id, Hostname, Ip, Os, Os_family FROM hosts WHERE Reboot_required = 'true' ORDER BY Hostname ASC");
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $hosts[] = $row;
@@ -540,7 +531,7 @@ class Host extends Model
     public function ipExists(string $ip) : bool
     {
         try {
-            $stmt = $this->db->prepare("SELECT Ip FROM hosts WHERE Ip = :ip and Status = 'active'");
+            $stmt = $this->db->prepare("SELECT Ip FROM hosts WHERE Ip = :ip");
             $stmt->bindValue(':ip', \Controllers\Common::validateData($ip));
             $result = $stmt->execute();
         } catch (Exception $e) {
@@ -659,7 +650,7 @@ class Host extends Model
     public function add(string $ip, string $hostname, string $authId, string $token, string $onlineStatus, string $date, string $time) : void
     {
         try {
-            $stmt = $this->db->prepare("INSERT INTO hosts (Ip, Hostname, AuthId, Token, Online_status, Online_status_date, Online_status_time, Status) VALUES (:ip, :hostname, :id, :token, :online_status, :date, :time, 'active')");
+            $stmt = $this->db->prepare("INSERT INTO hosts (Ip, Hostname, AuthId, Token, Online_status, Online_status_date, Online_status_time) VALUES (:ip, :hostname, :id, :token, :online_status, :date, :time)");
             $stmt->bindValue(':ip', $ip);
             $stmt->bindValue(':hostname', $hostname);
             $stmt->bindValue(':id', $authId);
@@ -690,7 +681,7 @@ class Host extends Model
     /**
      *  Reset host data
      */
-    public function resetHost(string $hostId) : void
+    public function reset(int $hostId) : void
     {
         try {
             /**
@@ -812,7 +803,7 @@ class Host extends Model
         $hosts = 0;
 
         try {
-            $stmt = $this->db->prepare("SELECT COUNT(Id) as count FROM hosts WHERE Profile = :profile AND Status = 'active'");
+            $stmt = $this->db->prepare("SELECT COUNT(Id) as count FROM hosts WHERE Profile = :profile");
             $stmt->bindValue(':profile', $profile);
             $result = $stmt->execute();
         } catch (Exception $e) {

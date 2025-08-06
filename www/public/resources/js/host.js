@@ -45,286 +45,6 @@ function filterPackage()
 }
 
 /**
- *  Gestion des checkbox
- */
-/**
- * Fonction permettant de compter le nb de checkbox cochée pour un groupe, permets d'afficher un bouton 'Tout sélectionner'
- * @param {string} group
- */
-function countChecked(group)
-{
-    var countTotal = $('body').find('input[name="checkbox-host[]"][group="' + group + '"]:checked').length
-    return countTotal;
-};
-
-/**
- * Fonction permettant de compter la totalité des checkbox d'un groupe, cochées ou non
- * @param {string} group
- */
-function countTotalCheckboxInGroup(group)
-{
-    var countTotal = $('body').find('input[name="checkbox-host[]"][group="' + group + '"]').length
-    return countTotal;
-};
-
-/**
- *  Search host in the host list
- */
-function searchHost()
-{
-    var div, txtValue;
-    var filter_os = '';
-    var filter_os_version = '';
-    var filter_os_family = '';
-    var filter_type = '';
-    var filter_kernel = '';
-    var filter_arch = '';
-    var filter_profile = '';
-    var filter_env = '';
-    var filter_agent_version = '';
-    var filter_reboot_required = '';
-
-    /**
-     *  If the input is empty, quit
-     */
-    if (!$("#search-host-input").val()) {
-        // Show all containers and host lines before quit
-        $('.hosts-group-container, .js-select-all-button').show();
-        $('.host-line').addClass('flex').show();
-
-        return;
-    }
-
-    mylayout.printLoading();
-
-    /**
-     *  Retrieve the search term from the input
-     *  Convert the search term to uppercase to ignore case when searching
-     */
-    search = $("#search-host-input").val().toUpperCase();
-
-    /**
-     *  Print all group containers (in case they were hidden during a previous search)
-     */
-    $(".hosts-group-container").show();
-
-    /**
-     *  Hide all host lines, only those corresponding to the search will be re-displayed
-     */
-    $('.js-select-all-button').hide();
-    $('.host-line, .js-select-all-button').removeClass('flex').hide();
-
-    /**
-     *  Check if the user has entered a filter in his search, different filters are possible:
-     *  os:
-     *  os_version:
-     *  kernel:
-     *  arch:
-     *  ...
-     *
-     *  As the input retrieved has been converted to uppercase, we search for the presence of a filter in uppercase
-     */
-    if (search.includes("OS:")) {
-        // Retrieve the os searched by getting the term following 'os:'
-        filter_os = search.split('OS:')[1].split(" ")[0];
-        // Remove the filter from the global search
-        search = search.replaceAll('OS:' + filter_os, '');
-    }
-    if (search.includes("OS_VERSION:")) {
-        // Retrieve the os version searched by getting the term following 'os_version:'
-        filter_os_version = search.split('OS_VERSION:')[1].split(" ")[0];
-        // Remove the filter from the global search
-        search = search.replaceAll('OS_VERSION:' + filter_os_version, '');
-    }
-    if (search.includes("OS_FAMILY:")) {
-        // Retrieve the os family searched by getting the term following 'os_family:'
-        filter_os_family = search.split('OS_FAMILY:')[1].split(" ")[0];
-        // Remove the filter from the global search
-        search = search.replaceAll('OS_FAMILY:' + filter_os_family, '');
-    }
-    if (search.includes("TYPE:")) {
-        // Retrieve the type searched by getting the term following 'type:'
-        filter_type = search.split('TYPE:')[1].split(" ")[0];
-        // Remove the filter from the global search
-        search = search.replaceAll('TYPE:' + filter_type, '');
-    }
-    if (search.includes("KERNEL:")) {
-        // Retrieve the kernel searched by getting the term following 'kernel:'
-        filter_kernel = search.split('KERNEL:')[1].split(" ")[0];
-        // Remove the filter from the global search
-        search = search.replaceAll('KERNEL:' + filter_kernel, '');
-    }
-    if (search.includes("ARCH:")) {
-        // Retrieve the arch searched by getting the term following 'arch:'
-        filter_arch = search.split('ARCH:')[1].split(" ")[0];
-        // Remove the filter from the global search
-        search = search.replaceAll('ARCH:' + filter_arch, '');
-    }
-    if (search.includes("PROFILE:")) {
-        // Retrieve the profile searched by getting the term following 'profile:'
-        filter_profile = search.split('PROFILE:')[1].split(" ")[0];
-        // Remove the filter from the global search
-        search = search.replaceAll('PROFILE:' + filter_profile, '');
-    }
-    if (search.includes("ENV:")) {
-        // Retrieve the env searched by getting the term following 'env:'
-        filter_env = search.split('ENV:')[1].split(" ")[0];
-        // Remove the filter from the global search
-        search = search.replaceAll('ENV:' + filter_env, '');
-    }
-    if (search.includes("AGENT_VERSION:")) {
-        // Retrieve the agent version searched by getting the term following 'agent_version:'
-        filter_agent_version = search.split('AGENT_VERSION:')[1].split(" ")[0];
-        // Remove the filter from the global search
-        search = search.replaceAll('AGENT_VERSION:' + filter_agent_version, '');
-    }
-    if (search.includes("REBOOT_REQUIRED:")) {
-        // Retrieve the reboot required searched by getting the term following 'reboot_required:'
-        filter_reboot_required = search.split('REBOOT_REQUIRED:')[1].split(" ")[0];
-        // Remove the filter from the global search
-        search = search.replaceAll('REBOOT_REQUIRED:' + filter_reboot_required, '');
-    }
-
-    /**
-     *  Using filters can leave white spaces, remove all white spaces from the global search
-     */
-    search = search.replaceAll(' ', '');
-
-    /**
-     *  If a filter has been specified then we only retrieve the '.host-line' divs corresponding to this filter
-     */
-    if (filter_os != "") {
-        line = $('.host-line').filter(function () {
-            return $(this).attr('os').toUpperCase().indexOf(filter_os) > -1;
-        });
-    } else if (filter_os_version != "") {
-        line = $('.host-line').filter(function () {
-            return $(this).attr('os_version').toUpperCase().indexOf(filter_os_version) > -1;
-        });
-    } else if (filter_os_family != "") {
-        line = $('.host-line').filter(function () {
-            return $(this).attr('os_family').toUpperCase().indexOf(filter_os_family) > -1;
-        });
-    } else if (filter_type != "") {
-        line = $('.host-line').filter(function () {
-            return $(this).attr('type').toUpperCase().indexOf(filter_type) > -1;
-        });
-    } else if (filter_kernel != "") {
-        line = $('.host-line').filter(function () {
-            return $(this).attr('kernel').toUpperCase().indexOf(filter_kernel) > -1;
-        });
-    } else if (filter_arch != "") {
-        line = $('.host-line').filter(function () {
-            return $(this).attr('arch').toUpperCase().indexOf(filter_arch) > -1;
-        });
-    } else if (filter_profile != "") {
-        line = $('.host-line').filter(function () {
-            return $(this).attr('profile').toUpperCase().indexOf(filter_profile) > -1;
-        });
-    } else if (filter_env != "") {
-        line = $('.host-line').filter(function () {
-            return $(this).attr('env').toUpperCase().indexOf(filter_env) > -1;
-        });
-    } else if (filter_agent_version != "") {
-        line = $('.host-line').filter(function () {
-            return $(this).attr('agent_version').toUpperCase().indexOf(filter_agent_version) > -1;
-        });
-    } else if (filter_reboot_required != "") {
-        line = $('.host-line').filter(function () {
-            return $(this).attr('reboot_required').toUpperCase().indexOf(filter_reboot_required) > -1;
-        });
-    /**
-     *  If no filter has been specified then we retrieve all the '.host-line' divs
-     */
-    } else {
-        line = $(".host-line");
-    }
-
-    /**
-     *  Then we process each div retrieved and display only those corresponding to the search
-     */
-    $.each(line, function () {
-        div = $(this).find("div")[0];
-
-        if (div) {
-            txtValue = div.textContent || div.innerText;
-            if (txtValue.toUpperCase().indexOf(search) > -1) {
-                $(this).addClass('flex').show();
-            } else {
-                $(this).removeClass('flex').hide();
-            }
-        }
-    });
-
-    /**
-     *  Hide group divs whose all divs have been hidden
-     */
-    hideGroupDiv();
-
-    mylayout.hideLoading();
-}
-
-/**
- *  Research hosts with a package
- */
-var getHostsWithPackage_locked = false;
-
-function getHostsWithPackage()
-{
-    /**
-     *  If a search is already in progress, exit
-     */
-    if (getHostsWithPackage_locked === true) {
-        return;
-    }
-
-    getHostsWithPackage_locked = true;
-
-    mylayout.printLoading();
-
-    /**
-     *  On every input, (re)-display all hidden elements and remove any info in 'host-additionnal-info'
-     */
-    $('.hosts-group-container').show();
-    $('.host-line').show();
-    $('div.host-additionnal-info').html('');
-    $('div.host-additionnal-info').hide();
-
-    /**
-     *  Use a setTimeout to give the user time to finish typing before searching
-     */
-    setTimeout(function () {
-        /**
-         *  If the input is empty, quit
-         */
-        if (!$("#getHostsWithPackageInput").val()) {
-            getHostsWithPackage_locked = false;
-            return;
-        }
-
-        /**
-         *  Retrieve the search term from the input
-         */
-        var package = $("#getHostsWithPackageInput").val();
-        var hosts = [];
-
-        /**
-         *  For each Id, call the getHostsWithPackageAjax function to check if the package exists on the host
-         */
-        $('.hosts-table').find(".host-line").each(function () {
-            var hostid = $(this).attr('hostid');
-            hosts.push(hostid);
-        });
-
-        getHostsWithPackageAjax(hosts, package);
-
-        getHostsWithPackage_locked = false;
-
-        mylayout.hideLoading();
-    },1000);
-}
-
-/**
  *  Masquer les groupes d'hôtes dont les hôtes ont tous été masqués (au cours d'une recherche)
  */
 function hideGroupDiv()
@@ -638,44 +358,6 @@ $(document).on('submit','#hostsSettingsForm',function () {
 });
 
 /**
- *  Event: when a 'Select all' button is clicked, it selects all checkbox-host[] of the group
- */
-$(document).on('click','input[type="checkbox"].js-select-all-button',function () {
-    // Retrieve the group name of the button which has been clicked
-    var group = $(this).attr('group');
-
-    // Count the total number of checkbox in the group (checked or not)
-    // If the number of checked checkbox = total number of checkbox, then the 'Select all' button will uncheck all checkbox, else it will check all checkbox
-    var countTotalCheckboxes = countTotalCheckboxInGroup(group);
-    var countCheckedCheckboxes = countChecked(group);
-
-    if (countTotalCheckboxes == countCheckedCheckboxes) {
-        $('input[name="checkbox-host[]"][group="' + group + '"]').each(function () {
-            if ($(this).is(':checked')) {
-                // Simulate a click on the checkbox to trigger confirm box
-                $(this).click();
-            }
-        });
-    } else {
-        // Check all checkbox-host[] of the same group
-        $('input[name="checkbox-host[]"][group="' + group + '"]').each(function () {
-            if (!$(this).is(':checked')) {
-                // Simulate a click on the checkbox to trigger confirm box
-                $(this).click();
-            }
-        });
-    }
-
-    // Count again the number of checked checkbox
-    var countCheckedCheckboxes = countChecked(group);
-
-    // If no checkbox is checked then close confirm box
-    if (countCheckedCheckboxes == 0) {
-        myconfirmbox.close();
-    }
-});
-
-/**
  * Execute an action on selected hosts
  * @param {*} action
  * @param {*} hosts
@@ -684,9 +366,9 @@ function executeAction(action, hosts)
 {
     ajaxRequest(
         // Controller:
-        'host',
+        'host/execute',
         // Action:
-        'executeAction',
+        'action',
         // Data:
         {
             exec: action,
@@ -695,15 +377,14 @@ function executeAction(action, hosts)
         // Print success alert:
         true,
         // Print error alert:
-        true,
-        // Reload container:
-        ['hosts/list', 'host/requests', 'host/history'],
-        // Execute functions on success:
-        []
-    )
+        true
+    ).then(function () {
+        // Reload containers
+        mycontainer.reload('hosts/list');
+        mycontainer.reload('host/requests');
+        mycontainer.reload('host/history');
+    });
 }
-
-
 
 /**
  *  Event: show/hide the list of packages available on the host
@@ -957,59 +638,3 @@ $(document).on('mouseenter', '.event-packages-btn', function (e) {
         mytooltip.print(jsonValue.message, e);
     });
 });
-
-/**
- * Ajax: get hosts with a specific package
- * @param {array} hosts
- * @param {string} package
- */
-function getHostsWithPackageAjax(hosts, package)
-{
-    ajaxRequest(
-        // Controller:
-        'host',
-        // Action:
-        'getHostsWithPackage',
-        // Data:
-        {
-            hostsIdArray: hosts,
-            package: package
-        },
-        // Print success alert:
-        false,
-        // Print error alert:
-        true
-    ).then(() => {
-        const hostsArray = jQuery.parseJSON(jsonValue.message);
-
-        for (const [hostId, subArray] of Object.entries(hostsArray)) {
-            packagesFound = '';
-
-            /**
-             *  If package found
-             */
-            if (Object.keys(subArray).length > 0) {
-                for (const [packageName, packageVersion] of Object.entries(subArray)) {
-                    /**
-                     *  Build package list
-                     */
-                    packagesFound += '<div class="flex align-item-center column-gap-5"><img src="/assets/icons/package.svg" class="icon-np">   <span>' + packageName + ' (' + packageVersion + ')</span></div>';
-                }
-
-                /**
-                 *  Show the host and print the package(s) found
-                 */
-                $('.host-line[hostid=' + hostId + ']').find('div.host-additionnal-info').html('<h6>RESULTS</h6>' + packagesFound);
-                $('.host-line[hostid=' + hostId + ']').find('div.host-additionnal-info').css('display', 'flex');
-                $('.host-line[hostid=' + hostId + ']').show();
-            } else {
-                /**
-                 *  Else hide the host
-                 */
-                $('.host-line[hostid=' + hostId + ']').removeClass('flex').hide();
-            }
-        }
-
-        hideGroupDiv();
-    });
-}

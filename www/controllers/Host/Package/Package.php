@@ -527,8 +527,8 @@ class Package
     /**
      *  Search for package(s) in the database of the host
      */
-    public function searchPackage(string $name) : array
+    public function searchPackage(string $name, string|null $version, bool $strictName = false, $strictVersion = false) : array
     {
-        return $this->model->searchPackage($name);
+        return $this->model->searchPackage($name, $version, $strictName, $strictVersion);
     }
 }
