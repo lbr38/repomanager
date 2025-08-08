@@ -75,7 +75,7 @@ class Package
              *  Package name must not contain special characters
              *  Only allow dashes and underscores and one more character: the dot (because package names contain dots)
              */
-            if (!\Controllers\Common::isAlphanumDash($packageName, array('.', '+'))) {
+            if (!\Controllers\Common::isAlphanumDash($packageName, array('.', '+', '~'))) {
                 $uploadError++;
                 $packageInvalidName[] = $packageName;
                 continue;

@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install curl
-        run: sudo apt-get install curl jq -y
+        run: sudo apt-get install curl jq wget -y
 
       # Wait for the target URL to be ready
       # Generally after the 30 first minutes of the current hour
@@ -38,6 +38,15 @@ jobs:
               echo "API is not unreachable"
               exit 1
           fi
+
+      #
+      # Download rpm and deb packages from https://packages.repomanager.net that will be used for upload testing
+      # To avoid an upload test failure due to the package already been uploaded (when multiple pipelines run at the same time), prefix them with the hostname of the CI runner
+      #
+      - name: Download test packages
+        run: |
+          wget -O ${HOSTNAME}_nginx-1.26.0-1.el7.ngx.x86_64.rpm https://packages.repomanager.net/repo/ci-test_prod/packages/x86_64/nginx-1.26.0-1.el7.ngx.x86_64.rpm
+          wget -O ${HOSTNAME}_nginx_1.26.0-1~bookworm_amd64.deb https://packages.repomanager.net/repo/ci-test/bookworm/main_prod/pool/main/nginx_1.26.0-1~bookworm_amd64.deb
 
       #
       # Run tests as admin user
@@ -72,3 +81,24 @@ jobs:
               echo "Failed to unregister host"
               exit 1
           fi
+
+      # Upload a deb package using the admin API key
+      - name: (admin) Try to upload a deb package with an admin API key
+        run: |
+          cp ${HOSTNAME}_nginx_1.26.0-1~bookworm_amd64.deb ${HOSTNAME}-admin_nginx_1.26.0-1~bookworm_amd64.deb
+          curl --fail-with-body -L --post301 -s -q -X POST -H "Authorization: Bearer ${{ secrets.API_TEST_ADMIN_API_KEY }}" -F "files=@${HOSTNAME}-admin_nginx_1.26.0-1~bookworm_amd64.deb" https://ci-test.repomanager.net/api/v2/snapshot/1/upload
+          if [ $? -ne 0 ]; then
+              echo "Failed to upload deb package"
+              exit 1
+          fi
+
+      # Upload an rpm package using the admin API key
+      - name: (admin) Try to upload an rpm package with an admin API key
+        run: |
+          cp ${HOSTNAME}_nginx-1.26.0-1.el7.ngx.x86_64.rpm ${HOSTNAME}-admin_nginx-1.26.0-1.el7.ngx.x86_64.rpm
+          curl --fail-with-body -L --post301 -s -q -X POST -H "Authorization: Bearer ${{ secrets.API_TEST_ADMIN_API_KEY }}" -F "files=@${HOSTNAME}-admin_nginx-1.26.0-1.el7.ngx.x86_64.rpm" https://ci-test.repomanager.net/api/v2/snapshot/2/upload
+          if [ $? -ne 0 ]; then
+              echo "Failed to upload rpm package"
+              exit 1
+          fi
+      
