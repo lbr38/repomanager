@@ -12,8 +12,7 @@
 - Schedule tasks
 
 ![alt text](https://github.com/user-attachments/assets/5a7c2bc5-72c7-45ad-8b67-0be9aaccd8f6)
-![alt text](https://assets.repomanager.net/github/screenshots/repomanager/readme/1.png)
-<img src="https://assets.repomanager.net/github/screenshots/repomanager/readme/1.png">
+![alt text](https://github.com/user-attachments/assets/e9be42e1-9466-4d0f-845a-5b9cfc4e58f2)
 ![alt text](https://github.com/user-attachments/assets/e285657e-5b3e-49db-a3ea-ed3a3ae2ffb7)
 ![alt text](https://github.com/user-attachments/assets/b99d6a21-06ab-4079-8fe0-7be3842651d7)
 ![alt text](https://github.com/user-attachments/assets/27b7b7fa-a5b3-4fc5-9954-9b28abcb09a8)
