@@ -155,6 +155,13 @@ $(document).on('click','input[type="checkbox"][name="checkbox-host[]"]',function
                     }
                 },
                 {
+                    'text': 'Export to CSV',
+                    'color': 'blue-alt',
+                    'callback': function () {
+                        myhost.export(hosts);
+                    }
+                },
+                {
                     'text': 'Reset',
                     'color': 'red',
                     'callback': function () {

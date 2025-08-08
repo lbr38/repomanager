@@ -71,7 +71,11 @@
                                 <input type="text" id="getHostsWithPackageInput" onkeyup="getHostsWithPackage()" autocomplete="off" placeholder="Package name" />
                             </div>
                         </div>
-                        <br><br>
+
+                        <div id="select-all-hosts" class="flex align-item-center column-gap-5 justify-end mediumopacity pointer margin-top-10 margin-bottom-10 margin-right-30">
+                            <p>Select all hosts</p>
+                            <input type="checkbox" title="Select all hosts" />
+                        </div>
                         <?php
                     endif ?>
                     

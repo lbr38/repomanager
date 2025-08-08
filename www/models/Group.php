@@ -262,8 +262,7 @@ class Group extends Model
                 ON hosts.Id = group_members.Id_host
             INNER JOIN groups
                 ON groups.Id = group_members.Id_group
-            WHERE Id_group = :id
-            AND hosts.Status = 'active'");
+            WHERE Id_group = :id");
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
@@ -290,8 +289,7 @@ class Group extends Model
             hosts.Hostname,
             hosts.Ip
             FROM hosts
-            WHERE hosts.Id NOT IN (SELECT Id_host FROM group_members)
-            AND hosts.Status = 'active'");
+            WHERE hosts.Id NOT IN (SELECT Id_host FROM group_members)");
         } catch (\Exception $e) {
             $this->db->logError($e);
         }

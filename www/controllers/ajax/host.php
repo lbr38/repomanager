@@ -60,21 +60,6 @@ if ($action == "getHostsWithPackage" and !empty($_POST['hostsIdArray']) and !emp
     response(HTTP_OK, json_encode($result));
 }
 
-/*
- *  Execute an action on selected host(s)
- */
-if ($action == "executeAction" and !empty($_POST['exec']) and !empty($_POST['hosts'])) {
-    $myhost = new \Controllers\Host();
-
-    try {
-        $content = $myhost->hostExec($_POST['hosts'], $_POST['exec']);
-    } catch (\Exception $e) {
-        response(HTTP_BAD_REQUEST, $e->getMessage());
-    }
-
-    response(HTTP_OK, $content);
-}
-
 /**
  *  Show request log details
  */

@@ -45,6 +45,7 @@ jobs:
           /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/deb/env'" www-data
           /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/deb/rebuild'" www-data
           /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/deb/delete'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/deb/local'" www-data
 
       # Create some environments for the tasks to run
       - name: Set basic configuration
@@ -76,6 +77,9 @@ jobs:
 
       - name: Run job - Delete deb repo
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='6'" www-data
+
+      - name: Run job - Local deb repo
+        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='7'" www-data
 
   run-rpm-tasks:
     runs-on: ubuntu-latest
@@ -114,6 +118,7 @@ jobs:
           /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/rpm/env'" www-data
           /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/rpm/rebuild'" www-data
           /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/rpm/delete'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/rpm/local'" www-data
 
       # Create some environments for the tasks to run
       - name: Set basic configuration
@@ -145,3 +150,6 @@ jobs:
 
       - name: Run job - Delete rpm repo
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='6'" www-data
+
+      - name: Run job - Local rpm repo
+        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='7'" www-data

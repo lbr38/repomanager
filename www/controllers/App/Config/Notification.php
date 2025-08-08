@@ -21,7 +21,7 @@ class Notification
         /**
          *  If an update is available, generate a new notification
          */
-        if (UPDATE_AVAILABLE) {
+        if (IS_ADMIN && UPDATE_AVAILABLE) {
             /**
              *  Check if its a major release version
              *  If first digit of the version is different, its a major release
@@ -50,7 +50,7 @@ class Notification
          */
         if (empty($_SESSION['email'])) {
             $message = '<span>You can configure your email in your user profile. This email can be used as a recipient to send notifications of events like scheduled tasks status or scheduled tasks reminders.</span>';
-            $NOTIFICATION_MESSAGES[] = array('Title' => 'Email contact not set', 'Message' =>  $message);
+            $NOTIFICATION_MESSAGES[] = array('Title' => 'Email contact is not set', 'Message' =>  $message);
             $NOTIFICATION++;
         }
 

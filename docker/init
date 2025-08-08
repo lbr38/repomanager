@@ -8,6 +8,7 @@ DATA_DIR="/var/lib/repomanager"
 #  - MAX_UPLOAD_SIZE=xxM
 #  - PHP_MEMORY_LIMIT=xxM
 #  - NGINX_LISTEN_PORT=xxxx
+#  - WEBSOCKET_LISTEN_PORT=xxxx
 
 # Quit if FQDN is not set
 if [ -z "$FQDN" ];then
@@ -18,9 +19,9 @@ fi
 # Set FQDN
 # Postfix/mail configuration
 postconf -e "myhostname = $FQDN"
-echo $FQDN > /etc/mailname
+echo "$FQDN" > /etc/mailname
 # Repomanager configuration
-echo $FQDN > "$WWW_DIR/.fqdn"
+echo "$FQDN" > "$WWW_DIR/.fqdn"
 
 # Set max upload size
 if [ ! -z "$MAX_UPLOAD_SIZE" ];then
@@ -39,6 +40,13 @@ fi
 # Set Nginx listen port
 if [ ! -z "$NGINX_LISTEN_PORT" ];then
     sed -i "s/listen 8080;/listen ${NGINX_LISTEN_PORT};/g" /etc/nginx/sites-enabled/repomanager.conf
+fi
+
+# Set WebSocket server listen port
+if [ ! -z "$WEBSOCKET_LISTEN_PORT" ];then
+    sed -i "s/set \$WEBSOCKET_LISTEN_PORT.*;/set \$WEBSOCKET_LISTEN_PORT $WEBSOCKET_LISTEN_PORT;/g" /etc/nginx/sites-enabled/repomanager.conf
+    # Also create a .wss file
+    echo "$WEBSOCKET_LISTEN_PORT" > "$WWW_DIR/.wss"
 fi
 
 # If app.yaml does not exist, create it
