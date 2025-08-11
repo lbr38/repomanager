@@ -3,7 +3,7 @@ class Container {
      * Reload container content
      * @param {*} container
      */
-    reload(container)
+    reload(container, identifier = null)
     {
         return new Promise((resolve, reject) => {
             try {
@@ -41,8 +41,19 @@ class Container {
                     // Print error alert:
                     true
                 ).then(() => {
-                    // Replace container with itself, with new content
-                    $('.reloadable-container[container="' + container + '"]').replaceWith(jsonValue.message);
+                    // If an identifier is provided, reload only that specific container
+                    if (identifier) {
+                        // Find the specific identifier (e.g #hostDiv) in jsonValue.message
+                        const content = $(jsonValue.message).find(identifier);
+
+                        // If the content is found, replace the container with the new content
+                        if (content.length) {
+                            $('.reloadable-container[container="' + container + '"] > ' + identifier).replaceWith(content);
+                        }
+                    // Otherwise, replace the entire container with the new content
+                    } else {
+                        $('.reloadable-container[container="' + container + '"]').replaceWith(jsonValue.message);
+                    }
 
                     // Reload opened or closed elements that were opened/closed before reloading
                     mylayout.reloadOpenedClosedElements();

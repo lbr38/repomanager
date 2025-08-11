@@ -25,7 +25,6 @@ $kernel           = $hostProperties['Kernel'];
 $arch             = $hostProperties['Arch'];
 $profile          = $hostProperties['Profile'];
 $env              = $hostProperties['Env'];
-$status           = $hostProperties['Status'];
 $agentStatus      = $hostProperties['Online_status'];
 $agentVersion     = $hostProperties['Linupdate_version'];
 $rebootRequired   = $hostProperties['Reboot_required'];
@@ -40,13 +39,6 @@ $agentLastSendStatusMsg = 'state on ' . DateTime::createFromFormat('Y-m-d', $hos
  */
 if ($hostProperties['Online_status_date'] != DATE_YMD or $hostProperties['Online_status_time'] <= date('H:i:s', strtotime(date('H:i:s') . ' - 70 minutes'))) {
     $agentStatus = 'seems-stopped';
-}
-
-/**
- *  If the host has 'deleted' state then don't print it
- */
-if ($status == 'deleted') {
-    die('Error: host has been deleted.');
 }
 
 /**

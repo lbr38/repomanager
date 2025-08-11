@@ -106,73 +106,121 @@ $(document).on('click','.host-update-packages-btn',function () {
  *  Event: when a host checkbox is checked
  */
 $(document).on('click','input[type="checkbox"][name="checkbox-host[]"]',function () {
-    // Get the group name of the host which checkbox has been checked
-    var group = $(this).attr('group');
+    // Print actions for selected hosts
+    myhost.getActionBox();
+});
 
-    // Then we count the number of checked checkbox in this group
-    var count = countChecked(group);
+/**
+ *  Event: when a 'Select all' button is clicked, it selects all checkbox-host[] of the group
+ */
+$(document).on('click','input[type="checkbox"].select-group-hosts-checkbox',function () {
+    // Retrieve the group name of the button which has been clicked
+    const group = $(this).attr('group');
 
-    // If there is at least 1 checkbox checked then display actions buttons
-    if (count > 0) {
-        var hosts = [];
+    // Retrieve checkbox status
+    const status = $(this).attr('status');
 
-        // Get all checked checkbox
-        $('input[type="checkbox"][name="checkbox-host[]"]').each(function () {
-            // If checkbox is checked then add host id to hosts
-            if (this.checked) {
-                hostId = $(this).val();
-                hosts.push(hostId);
+    // Retrieve all checkboxes of the group
+    const hostsCheckboxes = $('input[name="checkbox-host[]"][group="' + group + '"]:visible');
+
+    // If current status is 'selected', then unselect all hosts
+    if (status == 'selected') {
+        hostsCheckboxes.each(function () {
+            if ($(this).is(':checked')) {
+                $(this).prop('checked', false);
             }
         });
 
-        myconfirmbox.print(
-            {
-                'title': 'Execute action',
-                'message': 'Select an action to execute on the selected hosts',
-                'id': 'execute-action-confirm-box',
-                'buttons': [
-                {
-                    'text': 'Request general informations',
-                    'color': 'blue-alt',
-                    'callback': function () {
-                        executeAction('request-general-infos', hosts);
-                    }
-                },
-                {
-                    'text': 'Request packages informations',
-                    'color': 'blue-alt',
-                    'callback': function () {
-                        executeAction('request-packages-infos', hosts);
-                    }
-                },
-                {
-                    'text': 'Update packages',
-                    'color': 'blue-alt',
-                    'callback': function () {
-                        mypanel.get('hosts/requests/update-packages', {
-                            hostsId: hosts
-                        });
-                    }
-                },
-                {
-                    'text': 'Reset',
-                    'color': 'red',
-                    'callback': function () {
-                        executeAction('reset', hosts);
-                    }
-                },
-                {
-                    'text': 'Delete',
-                    'color': 'red',
-                    'callback': function () {
-                        executeAction('delete', hosts);
-                    }
-                }]
-            }
-        );
+        // Set status to 'unselected'
+        $(this).attr('status', 'unselected');
+
+    // Make sure the 'Select all hosts' button is unchecked
     } else {
-        myconfirmbox.close();
+        // Check all checkbox-host[] of the same group
+        hostsCheckboxes.each(function () {
+            if (!$(this).is(':checked')) {
+                $(this).prop('checked', true);
+            }
+        });
+
+        // Set status to 'selected'
+        $(this).attr('status', 'selected');
     }
+
+    // Print actions for selected hosts
+    myhost.getActionBox();
+});
+
+/**
+ *  Event: click on 'Select all hosts' checkbox
+ */
+$(document).on('click', '#select-all-hosts', function () {
+    /**
+     *  Retrieve all host groups checkboxes that are visible
+     */
+    const hostGroupsCheckboxes = $('input[type="checkbox"].select-group-hosts-checkbox:visible');
+
+    /**
+     *  Retrieve all hosts checkboxes that are visible
+     */
+    const hostCheckboxes = $('input[type="checkbox"][name="checkbox-host[]"]:visible');
+
+    /**
+     *  Retrieve select status
+     */
+    const selectStatus = $(this).attr('status');
+
+    /**
+     *  If current status is not 'selected', then select all hosts
+     */
+    if (selectStatus != 'selected') {
+        hostGroupsCheckboxes.each(function () {
+            if (!$(this).is(':checked')) {
+                $(this).prop('checked', true);
+            }
+        });
+
+        hostCheckboxes.each(function () {
+            if (!$(this).is(':checked')) {
+                $(this).prop('checked', true);
+            }
+        });
+
+        // Set status to 'selected'
+        $(this).attr('status', 'selected');
+
+        // Make sure the 'Select all hosts' button is visible and is checked
+        $(this).css('opacity', '1');
+        $(this).css('filter', 'initial');
+        $(this).find('input[type="checkbox"]').prop('checked', true);
+
+    /**
+     *  Otherwise, unselect all hosts
+     */
+    } else {
+        hostGroupsCheckboxes.each(function () {
+            if ($(this).is(':checked')) {
+                $(this).prop('checked', false);
+            }
+        });
+
+        hostCheckboxes.each(function () {
+            if ($(this).is(':checked')) {
+                $(this).prop('checked', false);
+            }
+        });
+
+        // Set status to 'unselected'
+        $(this).attr('status', 'unselected');
+
+        // Make sure the 'Select all hosts' button is unchecked
+        $(this).css('opacity', '');
+        $(this).css('filter', '');
+        $(this).find('input[type="checkbox"]').prop('checked', false);
+    }
+
+    // Print actions for selected hosts
+    myhost.getActionBox();
 });
 
 /**

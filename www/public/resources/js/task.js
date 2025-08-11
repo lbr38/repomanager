@@ -289,8 +289,8 @@ $(document).on('click',"input[name=checkbox-repo]",function () {
 
     myconfirmbox.print(
         {
-            'title': 'Execute',
-            'message': 'Select an action to execute with the selected repositories.',
+            'title': 'Execute an action',
+            'message': count_checked + ' snapshot' + (count_checked > 1 ? 's' : '') + ' selected',
             'id': 'repo-actions-confirm-box',
             'buttons': buttons
         }

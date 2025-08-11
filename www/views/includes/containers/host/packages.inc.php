@@ -29,8 +29,10 @@
     </div>
 
     <div id="packagesContainerLoader">
-        <br><br>
-        <span>Loading <img src="/assets/icons/loading.svg" class="icon" /></span>
+        <div class="flex align-item-center column-gap-10">
+            <p>Loading</p>
+            <img src="/assets/icons/loading.svg" class="icon" />
+        </div>
     </div>
 
     <div id="available-packages-div">
