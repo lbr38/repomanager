@@ -561,7 +561,7 @@ class Profile
          *  Get unused repos Id (repos that have no active snapshot and so are not visible from web UI)
          */
         $myrepo = new \Controllers\Repo\Repo();
-        $unusedRepos = $myrepo->getUnusedRepos();
+        $unusedRepos = $myrepo->getUnused();
 
         /**
          *  Remove those repos Id from profiles

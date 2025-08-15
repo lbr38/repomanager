@@ -354,37 +354,6 @@ class Repo extends \Models\Model
     }
 
     /**
-     *  Retourne l'Id du snapshot le + récent du repo
-     */
-    public function getLastSnapshotId(string $repoId)
-    {
-        try {
-            $stmt = $this->db->prepare("SELECT
-            repos_snap.Id AS snapId,
-            repos_snap.Date
-            FROM repos_snap
-            INNER JOIN repos
-                ON repos.Id = repos_snap.Id_repo
-            WHERE repos.Id = :repoId
-            AND repos_snap.Status = 'active'
-            ORDER BY repos_snap.Date DESC
-            LIMIT 1;");
-            $stmt->bindValue(':repoId', $repoId);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-
-        $id = '';
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $id = $row['snapId'];
-        }
-
-        return $id;
-    }
-
-    /**
      *  Get repository environment description by the repo name
      */
     public function getDescriptionByName(string $name, string $dist = null, string $section = null, string $env)
@@ -459,7 +428,7 @@ class Repo extends \Models\Model
     /**
      *  Get unused repos Id (repos that have no active snapshot and so are not visible from web UI)
      */
-    public function getUnusedRepos()
+    public function getUnused()
     {
         try {
             $stmt = $this->db->prepare("SELECT
@@ -671,37 +640,6 @@ class Repo extends \Models\Model
     }
 
     /**
-     *  Vérifie que le repo existe à partir de son nom
-     *  Retourne true si existe
-     *  Retourne false si n'existe pas
-     */
-    public function exists(string $name, string $dist = '', string $section = '')
-    {
-        try {
-            if (!empty($dist) and !empty($section)) {
-                $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name = :name AND Dist = :dist AND Section = :section");
-                $stmt->bindValue(':dist', $dist);
-                $stmt->bindValue(':section', $section);
-            } else {
-                $stmt = $this->db->prepare("SELECT * FROM repos WHERE
-                Name = :name
-                AND (Dist IS NULL OR Dist = '')
-                AND (Section IS NULL OR Section = '')");
-            }
-            $stmt->bindValue(':name', $name);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-
-        if ($this->db->isempty($result) === true) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      *  Vérifie qu'un environnement de repo existe
      *  Retourne true si existe
      *  Retourne false si n'existe pas
@@ -882,35 +820,6 @@ class Repo extends \Models\Model
         }
 
         return $this->db->count($result);
-    }
-
-    /**
-     *  Add a repo in database
-     */
-    public function add(string $source, string $packageType, string $name, string $dist = null, string $section = null)
-    {
-        try {
-            /**
-             *  Cas où seul le nom a été renseigné
-             */
-            if (empty($dist) or empty($section)) {
-                $stmt = $this->db->prepare("INSERT INTO repos ('Name', 'Source', 'Package_type') VALUES (:name, :source, :packageType)");
-
-            /**
-             *  Cas où une distribution et une section ont été renseignés
-             */
-            } else {
-                $stmt = $this->db->prepare("INSERT INTO repos ('Name', 'Dist', 'Section', 'Source', 'Package_type') VALUES (:name, :dist, :section, :source, :packageType)");
-                $stmt->bindValue(':dist', $dist);
-                $stmt->bindValue(':section', $section);
-            }
-            $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':source', $source);
-            $stmt->bindValue(':packageType', $packageType);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
     }
 
     /**

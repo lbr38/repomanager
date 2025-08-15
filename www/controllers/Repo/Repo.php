@@ -7,9 +7,7 @@ use Datetime;
 
 class Repo
 {
-    private $model;
-    private $repoListingController;
-
+    protected $model;
     private $taskId;
     private $repoId;
     private $snapId;
@@ -41,7 +39,6 @@ class Repo
     public function __construct()
     {
         $this->model = new \Models\Repo\Repo();
-        // $this->repoListingController = new \Controllers\Repo\Listing();
     }
 
     public function setRepoId(string $id)
@@ -393,31 +390,15 @@ class Repo
     }
 
     /**
-     *  Retourne l'Id du snapshot le + récent du repo
-     */
-    public function getLastSnapshotId(string $repoId)
-    {
-        return $this->model->getLastSnapshotId($repoId);
-    }
-
-    /**
      *  Get unused repos Id (repos that have no active snapshot and so are not visible from web UI)
      */
-    public function getUnusedRepos()
+    public function getUnused()
     {
-        return $this->model->getUnusedRepos();
+        return $this->model->getUnused();
     }
 
     /**
-     *  Check if repo exists in database, by its name
-     */
-    public function exists(string $name, string $dist = '', string $section = '')
-    {
-        return $this->model->exists($name, $dist, $section);
-    }
-
-    /**
-     *  Retoune true si l'Id de repo existe en base de données
+     *  Return true if a repo Id exists in database
      */
     public function existsId(string $repoId)
     {
@@ -425,7 +406,7 @@ class Repo
     }
 
     /**
-     *  Retourne true si un Id de snapshot existe en base de données
+     *  Return true if a snapshot Id exists in database
      */
     public function existsSnapId(string $snapId)
     {
@@ -652,14 +633,6 @@ class Repo
     public function snapSetPackagesExcluded(int $snapId, array $packages)
     {
         $this->model->snapSetPackagesExcluded($snapId, implode(',', $packages));
-    }
-
-    /**
-     *  Add a repo in database
-     */
-    public function add(string $source, string $packageType, string $name)
-    {
-        $this->model->add($source, $packageType, $name);
     }
 
     /**

@@ -15,8 +15,10 @@ class Listing extends \Models\Model
      *  Return the list of repos, their snapshots and their environments
      *  Does not display repos that have no active environments
      */
-    public function list()
+    public function list() : array
     {
+        $data = [];
+
         try {
             $result = $this->db->query("SELECT
             repos.Id AS repoId,
@@ -47,24 +49,24 @@ class Listing extends \Models\Model
             $this->db->logError($e);
         }
 
-        $repos = array();
-
-        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) {
-            $repos[] = $datas;
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
         }
 
-        return $repos;
+        return $data;
     }
 
     /**
      *  Return the list of repos by group name
      */
-    public function listByGroup(string $groupName)
+    public function listByGroup(string $groupName) : array
     {
+        $data = [];
+
         // If the group is 'Default' (a fictitious group), then we display all repos that do not belong to any group
         try {
             if ($groupName == 'Default') {
-                $reposInGroup = $this->db->query("SELECT DISTINCT
+                $result = $this->db->query("SELECT DISTINCT
                 repos.Id AS repoId,
                 repos_snap.Id AS snapId,
                 repos_env.Id AS envId,
@@ -124,21 +126,18 @@ class Listing extends \Models\Model
                 WHERE groups.Name = :groupname
                 AND repos_snap.Status = 'active'
                 ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC, repos_snap.Date DESC");
-
                 $stmt->bindValue(':groupname', $groupName);
-                $reposInGroup = $stmt->execute();
+                $result = $stmt->execute();
             }
         } catch (Exception $e) {
             $this->db->logError($e);
         }
 
-        $reposIn = array();
-
-        while ($datas = $reposInGroup->fetchArray(SQLITE3_ASSOC)) {
-            $reposIn[] = $datas;
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
         }
 
-        return $reposIn;
+        return $data;
     }
 
     /**
@@ -148,7 +147,7 @@ class Listing extends \Models\Model
      */
     public function listNameOnly(bool $withActiveSnapshots)
     {
-        $repos = array();
+        $data = [];
 
         try {
             if (!$withActiveSnapshots) {
@@ -161,6 +160,7 @@ class Listing extends \Models\Model
                 $result = $this->db->query("SELECT DISTINCT
                 repos.Id,
                 repos.Name,
+                repos.Releasever,
                 repos.Dist,
                 repos.Section,
                 repos.Source,
@@ -176,10 +176,32 @@ class Listing extends \Models\Model
             $this->db->logError($e);
         }
 
-        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) {
-            $repos[] = $datas;
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
         }
 
-        return $repos;
+        return $data;
+    }
+
+    /**
+     *  Return the list of snapshots for a repository
+     */
+    public function listSnapshots(int $repoId) : array
+    {
+        $data = [];
+
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM repos_snap WHERE Id_repo = :repoId AND Status = 'active' ORDER BY Date DESC");
+            $stmt->bindValue(':repoId', $repoId);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            $this->db->logError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return $data;
     }
 }
