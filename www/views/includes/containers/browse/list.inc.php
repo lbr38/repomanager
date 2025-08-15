@@ -12,7 +12,10 @@
     <div class="div-generic-blue grid grid-4">
         <div>
             <h6 class="margin-top-0">REPOSITORY</h6>
-            <p><span class="label-white"><?= $repo ?></span></p>
+            <div class="flex align-item-center column-gap-5">
+                <p><span class="label-white"><?= $repo ?></span></p>
+                <span class="label-pkg-<?= $myrepo->getPackageType() ?>"><?= strtoupper($myrepo->getPackageType()) ?></span>
+            </div>
         </div>
 
         <div>

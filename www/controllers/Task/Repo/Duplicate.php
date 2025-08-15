@@ -11,6 +11,8 @@ class Duplicate
 
     private $sourceRepo;
     private $repo;
+    private $rpmRepoController;
+    private $debRepoController;
     private $repoEnvController;
     private $task;
     private $taskLogStepController;
@@ -20,6 +22,8 @@ class Duplicate
     {
         $this->sourceRepo = new \Controllers\Repo\Repo();
         $this->repo = new \Controllers\Repo\Repo();
+        $this->rpmRepoController = new \Controllers\Repo\Rpm();
+        $this->debRepoController = new \Controllers\Repo\Deb();
         $this->task = new \Controllers\Task\Task();
         $this->repoEnvController = new \Controllers\Repo\Environment();
         $this->taskLogStepController = new \Controllers\Task\Log\Step($taskId);
@@ -306,33 +310,15 @@ class Duplicate
                 $this->taskLogSubStepController->new('inserting-database', 'INSERTING REPOSITORY IN DATABASE');
 
                 /**
-                 *  Insert the new repo in database
+                 *  Insert the new repo in database and retrieve its Id
                  */
                 if ($this->repo->getPackageType() == 'rpm') {
-                    $this->repo->add($this->repo->getSource(), 'rpm', $this->repo->getName());
+                    $this->rpmRepoController->add($this->repo->getName(), $this->repo->getReleasever(), $this->repo->getSource());
+                    $targetRepoId = $this->rpmRepoController->getLastInsertRowID();
                 }
                 if ($this->repo->getPackageType() == 'deb') {
-                    $this->repo->add($this->repo->getSource(), 'deb', $this->repo->getName());
-                }
-
-                /**
-                 *  Retrieve the Id of the new repo in database
-                 */
-                $targetRepoId = $this->repo->getLastInsertRowID();
-
-                if ($this->repo->getPackageType() == 'rpm') {
-                    /**
-                     *  Set repo releasever
-                     */
-                    $this->repo->updateReleasever($targetRepoId, $this->repo->getReleasever());
-                }
-
-                if ($this->repo->getPackageType() == 'deb') {
-                    /**
-                     *  Set repo dist and section
-                     */
-                    $this->repo->updateDist($targetRepoId, $this->repo->getDist());
-                    $this->repo->updateSection($targetRepoId, $this->repo->getSection());
+                    $this->debRepoController->add($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection(), $this->repo->getSource());
+                    $targetRepoId = $this->debRepoController->getLastInsertRowID();
                 }
 
                 /**

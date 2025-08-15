@@ -97,6 +97,14 @@
             <p class="note">Root URL for accessing repositories. This URL is not browseable for security reasons. To explore the content of a repository snapshot, use the snapshot browsing system.</p>
             <input type="text" value="<?= WWW_REPOS_DIR_URL ?>" readonly />
 
+            <h6 class="required">DEDUPLICATION</h6>
+            <p class="note">Enable or disable deduplication of packages in snapshots. When enabled, identical packages in snapshots will be stored only once, saving disk space. Default: enabled.</p>
+            <p class="note">Note: deduplication is using hard links, disable it if your repositories are stored on a filesystem that does not support hard links (e.g., S3, NFS).</p>
+            <label class="onoff-switch-label">
+                <input class="settings-param onoff-switch-input" param-name="repo-deduplication" type="checkbox" value="true" <?php echo (REPO_DEDUPLICATION) ? 'checked' : ''; ?>>
+                <span class="onoff-switch-slider"></span>
+            </label>
+
             <h6 class="required">RETENTION</h6>
             <p class="note">Maximum number of unused snapshots to keep per repository. Set to 0 to disable retention.</p>
             <input class="settings-param" param-name="retention" type="number" min="0" value="<?= RETENTION ?>">

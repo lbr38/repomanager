@@ -781,21 +781,24 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             }
 
             /**
+             *  Deduplication
              *  Check if package already exists in the previous snapshot
              *  If so, just create a hard link to the package
              */
-            if (isset($this->previousSnapshotDirPath)) {
-                if (file_exists($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $rpmPackageName)) {
-                    /**
-                     *  Create hard link to the package
-                     */
-                    if (!link($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $rpmPackageName, $absoluteDir . '/' . $rpmPackageName)) {
-                        throw new Exception('Cannot create hard link to package: ' . $this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $rpmPackageName);
+            if (REPO_DEDUPLICATION) {
+                if (isset($this->previousSnapshotDirPath)) {
+                    if (file_exists($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $rpmPackageName)) {
+                        /**
+                         *  Create hard link to the package
+                         */
+                        if (!link($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $rpmPackageName, $absoluteDir . '/' . $rpmPackageName)) {
+                            throw new Exception('Cannot create hard link to package: ' . $this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $rpmPackageName);
+                        }
+
+                        $this->taskLogSubStepController->completed('Linked to previous snapshot');
+
+                        continue;
                     }
-
-                    $this->taskLogSubStepController->completed('Linked to previous snapshot');
-
-                    continue;
                 }
             }
 
