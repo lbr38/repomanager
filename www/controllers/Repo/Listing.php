@@ -17,7 +17,7 @@ class Listing
      *  Return the list of repos, their snapshots and their environments
      *  Does not display repos that have no active environments
      */
-    public function list()
+    public function list() : array
     {
         return $this->model->list();
     }
@@ -38,5 +38,13 @@ class Listing
     public function listNameOnly(bool $withActiveSnapshots = false)
     {
         return $this->model->listNameOnly($withActiveSnapshots);
+    }
+
+    /**
+     *  Return the list of snapshots for a repository
+     */
+    public function listSnapshots(int $repoId) : array
+    {
+        return $this->model->listSnapshots($repoId);
     }
 }

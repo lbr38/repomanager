@@ -23,24 +23,19 @@ trait Finalize
              *  If currently no rpm repo of this name exists in the database then we add it
              */
             if ($this->repo->getPackageType() == 'rpm') {
-                if ($this->repo->exists($this->repo->getName()) === false) {
-                    $this->repo->add($this->repo->getSource(), 'rpm', $this->repo->getName());
+                if (!$this->rpmRepoController->exists($this->repo->getName(), $this->repo->getReleasever())) {
+                    $this->rpmRepoController->add($this->repo->getName(), $this->repo->getReleasever(), $this->repo->getSource());
 
                     /**
                      *  Repository Id becomes the Id of the last inserted row in the database
                      */
-                    $this->repo->setRepoId($this->repo->getLastInsertRowID());
-
-                    /**
-                     *  Set repo releasever
-                     */
-                    $this->repo->updateReleasever($this->repo->getRepoId(), $this->repo->getReleasever());
+                    $this->repo->setRepoId($this->rpmRepoController->getLastInsertRowID());
 
                 /**
                  *  Otherwise, if a repo of the same name exists, we retrieve its Id from the database
                  */
                 } else {
-                    $this->repo->setRepoId($this->repo->getIdByName($this->repo->getName(), '', ''));
+                    $this->repo->setRepoId($this->rpmRepoController->getIdByNameReleasever($this->repo->getName(), $this->repo->getReleasever()));
                 }
             }
 
@@ -48,25 +43,19 @@ trait Finalize
              *  If currently no deb repo of this name exists in the database then we add it
              */
             if ($this->repo->getPackageType() == 'deb') {
-                if ($this->repo->exists($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection()) === false) {
-                    $this->repo->add($this->repo->getSource(), 'deb', $this->repo->getName());
+                if (!$this->debRepoController->exists($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection())) {
+                    $this->debRepoController->add($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection(), $this->repo->getSource());
 
                     /**
                      *  Repository Id becomes the Id of the last inserted row in the database
                      */
-                    $this->repo->setRepoId($this->repo->getLastInsertRowID());
-
-                    /**
-                     *  Set repo dist and section
-                     */
-                    $this->repo->updateDist($this->repo->getRepoId(), $this->repo->getDist());
-                    $this->repo->updateSection($this->repo->getRepoId(), $this->repo->getSection());
+                    $this->repo->setRepoId($this->debRepoController->getLastInsertRowID());
 
                 /**
                  *  Otherwise, if a repo of the same name exists, we retrieve its Id from the database
                  */
                 } else {
-                    $this->repo->setRepoId($this->repo->getIdByName($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection()));
+                    $this->repo->setRepoId($this->debRepoController->getIdByNameDistComponent($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection()));
                 }
             }
 
@@ -212,8 +201,8 @@ trait Finalize
             \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection(), 'dir', 770);
             \Controllers\Filesystem\File::recursiveChown(REPOS_DIR . '/' . $this->repo->getName(), WWW_USER, 'repomanager');
         }
-        $this->taskLogSubStepController->completed();
 
+        $this->taskLogSubStepController->completed();
         $this->taskLogStepController->completed();
 
         /**

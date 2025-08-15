@@ -304,6 +304,11 @@ class Connection extends SQLite3
         Package_type VARCHAR(10) NOT NULL)");
 
         /**
+         *  Create indexes
+         */
+        $this->exec("CREATE INDEX IF NOT EXISTS repos_ALL_index ON repos (Name, Releasever, Dist, Section, Source, Package_type)");
+
+        /**
          *  repos_snap table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS repos_snap (
@@ -321,6 +326,11 @@ class Connection extends SQLite3
         Id_repo INTEGER NOT NULL)");
 
         /**
+         *  Create indexes
+         */
+        $this->exec("CREATE INDEX IF NOT EXISTS repos_snap_status_id_repo_index ON repos_snap (Status, Id_repo)");
+
+        /**
          *  repos_env table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS repos_env (
@@ -328,6 +338,11 @@ class Connection extends SQLite3
         Env VARCHAR(255),
         Description VARCHAR(255),
         Id_snap INTEGER NOT NULL)");
+
+        /**
+         *  Create indexes
+         */
+        $this->exec("CREATE INDEX IF NOT EXISTS repos_env_id_snap_index ON repos_env (Id_snap)");
 
         /**
          *  env table
@@ -449,6 +464,12 @@ class Connection extends SQLite3
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Id_repo INTEGER NOT NULL,
         Id_group INTEGER NOT NULL);");
+
+        /**
+         *  Create indexes
+         */
+        $this->exec("CREATE INDEX IF NOT EXISTS group_members_id_repo_index ON group_members (Id_repo)");
+        $this->exec("CREATE INDEX IF NOT EXISTS group_members_id_group_index ON group_members (Id_group)");
 
         $this->exec("CREATE TABLE IF NOT EXISTS tasks (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
