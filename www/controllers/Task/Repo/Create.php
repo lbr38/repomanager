@@ -205,6 +205,7 @@ class Create
         try {
             $this->taskLogStepController->new('create-repo', 'CREATING REPOSITORY');
             $this->taskLogSubStepController->new('create-dirs', 'CREATING DIRECTORIES');
+
             /**
              *  Check if a repo/section with the same name is already active with snapshots
              */
@@ -271,7 +272,7 @@ class Create
                 }
             }
 
-            $this->taskLogStepController->completed();
+            $this->taskLogSubStepController->completed();
 
             $this->taskLogSubStepController->new('updating-database', 'UPDATING DATABASE');
 
@@ -369,7 +370,7 @@ class Create
             }
 
             $this->taskLogSubStepController->completed();
-            
+
             /**
              *  Add repo to group if a group has been specified
              */
