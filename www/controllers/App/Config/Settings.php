@@ -167,6 +167,14 @@ class Settings
             }
         }
 
+        if (!defined('REPO_DEDUPLICATION')) {
+            if (!empty($settings['REPO_DEDUPLICATION']) and $settings['REPO_DEDUPLICATION'] == 'false') {
+                define('REPO_DEDUPLICATION', false);
+            } else {
+                define('REPO_DEDUPLICATION', true);
+            }
+        }
+
         if (!defined('RETENTION')) {
             if (isset($settings['RETENTION']) and $settings['RETENTION'] >= 0) {
                 define('RETENTION', intval($settings['RETENTION'], 8));

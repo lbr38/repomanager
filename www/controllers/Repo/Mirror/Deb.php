@@ -767,21 +767,24 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                 }
 
                 /**
+                 *  Deduplication
                  *  Check if package already exists in the previous snapshot
                  *  If so, just create a hard link to the package
                  */
-                if (isset($this->previousSnapshotDirPath)) {
-                    if (file_exists($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName)) {
-                        /**
-                         *  Create hard link to the package
-                         */
-                        if (!link($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName, $absoluteDir . '/' . $debPackageName)) {
-                            throw new Exception('Cannot create hard link to package: ' . $this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName);
+                if (REPO_DEDUPLICATION) {
+                    if (isset($this->previousSnapshotDirPath)) {
+                        if (file_exists($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName)) {
+                            /**
+                             *  Create hard link to the package
+                             */
+                            if (!link($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName, $absoluteDir . '/' . $debPackageName)) {
+                                throw new Exception('Cannot create hard link to package: ' . $this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName);
+                            }
+
+                            $this->taskLogSubStepController->completed('Linked to previous snapshot');
+
+                            continue;
                         }
-
-                        $this->taskLogSubStepController->completed('Linked to previous snapshot');
-
-                        continue;
                     }
                 }
 

@@ -7,9 +7,7 @@ use Datetime;
 
 class Repo
 {
-    private $model;
-    private $repoListingController;
-
+    protected $model;
     private $taskId;
     private $repoId;
     private $snapId;
@@ -41,7 +39,6 @@ class Repo
     public function __construct()
     {
         $this->model = new \Models\Repo\Repo();
-        // $this->repoListingController = new \Controllers\Repo\Listing();
     }
 
     public function setRepoId(string $id)
@@ -306,7 +303,7 @@ class Repo
     /**
      *  Retrieve all informations from a repo, snapshot and env in database
      */
-    public function getAllById(string|null $repoId = null, string|null $snapId = null, string|null $envId = null)
+    public function getAllById(string|null $repoId = null, string|null $snapId = null, string|null $envId = null) : void
     {
         $data = $this->model->getAllById($repoId, $snapId, $envId);
 
@@ -316,7 +313,7 @@ class Repo
     /**
      *  Function that parses and retrieves the results of the getAllBy* functions
      */
-    private function getAllByParser(array $data)
+    private function getAllByParser(array $data) : void
     {
         if (!empty($data['Source'])) {
             $this->setSource($data['Source']);
@@ -385,49 +382,25 @@ class Repo
     }
 
     /**
-     *  Retourne l'Id d'un repo en base de données, à partir de son nom
-     */
-    public function getIdByName(string $name, string $dist = null, string $section = null)
-    {
-        return $this->model->getIdByName($name, $dist, $section);
-    }
-
-    /**
-     *  Retourne l'Id du snapshot le + récent du repo
-     */
-    public function getLastSnapshotId(string $repoId)
-    {
-        return $this->model->getLastSnapshotId($repoId);
-    }
-
-    /**
      *  Get unused repos Id (repos that have no active snapshot and so are not visible from web UI)
      */
-    public function getUnusedRepos()
+    public function getUnused() : array
     {
-        return $this->model->getUnusedRepos();
+        return $this->model->getUnused();
     }
 
     /**
-     *  Check if repo exists in database, by its name
+     *  Return true if a repo Id exists in database
      */
-    public function exists(string $name, string $dist = '', string $section = '')
-    {
-        return $this->model->exists($name, $dist, $section);
-    }
-
-    /**
-     *  Retoune true si l'Id de repo existe en base de données
-     */
-    public function existsId(string $repoId)
+    public function existsId(string $repoId) : bool
     {
         return $this->model->existsId($repoId);
     }
 
     /**
-     *  Retourne true si un Id de snapshot existe en base de données
+     *  Return true if a snapshot Id exists in database
      */
-    public function existsSnapId(string $snapId)
+    public function existsSnapId(string $snapId) : bool
     {
         return $this->model->existsSnapId($snapId);
     }
@@ -652,14 +625,6 @@ class Repo
     public function snapSetPackagesExcluded(int $snapId, array $packages)
     {
         $this->model->snapSetPackagesExcluded($snapId, implode(',', $packages));
-    }
-
-    /**
-     *  Add a repo in database
-     */
-    public function add(string $source, string $packageType, string $name)
-    {
-        $this->model->add($source, $packageType, $name);
     }
 
     /**

@@ -311,7 +311,7 @@ class Update
             }
 
             /**
-             *  Create hardlinks to the previous snapshot packages
+             *  Deduplication/Copy packages from previous snapshot to the new snapshot
              */
             foreach ($packages as $packagePath) {
                 // Get package name
@@ -320,16 +320,41 @@ class Update
                 // Increment counter
                 $packageCounter++;
 
-                $this->taskLogSubStepController->new('hardlink-package-' . $packageCounter, 'LINKING PACKAGE TO PREVIOUS SNAPSHOT (' . $packageCounter . '/' . $totalPackages . ')', $packagePath);
+                /**
+                 *  Deduplication
+                 *  Create hardlink to the previous snapshot package
+                 */
+                if (REPO_DEDUPLICATION) {
+                    $this->taskLogSubStepController->new('hardlink-package-' . $packageCounter, 'LINKING PACKAGE TO PREVIOUS SNAPSHOT (' . $packageCounter . '/' . $totalPackages . ')', $packagePath);
 
-                if ($this->repo->getPackageType() == 'deb') {
-                    if (!link($packagePath, $repoPath . '/pool/' . $this->repo->getSection() . '/' . $name)) {
-                        throw new Exception('Cannot create hard link to package: ' . $packagePath);
+                    if ($this->repo->getPackageType() == 'deb') {
+                        if (!link($packagePath, $repoPath . '/pool/' . $this->repo->getSection() . '/' . $name)) {
+                            throw new Exception('Cannot create hard link to package: ' . $packagePath);
+                        }
+                    }
+                    if ($this->repo->getPackageType() == 'rpm') {
+                        if (!link($packagePath, $repoPath . '/packages/' . $name)) {
+                            throw new Exception('Cannot create hard link to package: ' . $packagePath);
+                        }
                     }
                 }
-                if ($this->repo->getPackageType() == 'rpm') {
-                    if (!link($packagePath, $repoPath . '/packages/' . $name)) {
-                        throw new Exception('Cannot create hard link to package: ' . $packagePath);
+
+                /**
+                 *  When deduplication is disabled
+                 *  Copy the package from the previous snapshot to the new snapshot
+                 */
+                if (!REPO_DEDUPLICATION) {
+                    $this->taskLogSubStepController->new('copy-package-' . $packageCounter, 'COPYING PACKAGE TO NEW SNAPSHOT (' . $packageCounter . '/' . $totalPackages . ')', $packagePath);
+
+                    if ($this->repo->getPackageType() == 'deb') {
+                        if (!copy($packagePath, $repoPath . '/pool/' . $this->repo->getSection() . '/' . $name)) {
+                            throw new Exception('Cannot copy package: ' . $packagePath);
+                        }
+                    }
+                    if ($this->repo->getPackageType() == 'rpm') {
+                        if (!copy($packagePath, $repoPath . '/packages/' . $name)) {
+                            throw new Exception('Cannot copy package: ' . $packagePath);
+                        }
                     }
                 }
 

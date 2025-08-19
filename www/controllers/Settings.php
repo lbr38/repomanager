@@ -104,6 +104,10 @@ class Settings
         /**
          *  Repositories / Mirroring settings
          */
+        if (!empty($sendSettings['repo-deduplication']) and in_array($sendSettings['repo-deduplication'], ['true', 'false'])) {
+            $settingsToApply['REPO_DEDUPLICATION'] = $sendSettings['repo-deduplication'];
+        }
+
         if (isset($sendSettings['retention'])) {
             $retention = Common::validateData($sendSettings['retention']);
 

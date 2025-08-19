@@ -12,7 +12,10 @@
     <div class="div-generic-blue grid grid-5 margin-bottom-15">
         <div>
             <h6 class="margin-top-0">REPOSITORY</h6>
-            <p><span class="label-white"><?= $repo ?></span></p>
+            <div class="flex align-item-center column-gap-5">
+                <p><span class="label-white"><?= $repo ?></span></p>
+                <span class="label-pkg-<?= $myrepo->getPackageType() ?>"><?= strtoupper($myrepo->getPackageType()) ?></span>
+            </div>
         </div>
 
         <div>
@@ -40,7 +43,7 @@
         <div class="flex justify-space-between">
             <div>
                 <h6 class="margin-top-0">REPOSITORY ACCESS</h6>
-                <p class="note">This chart shows the number of accesses to the repository snapshot over time.</p>
+                <p class="note">Number of accesses to the repository snapshot over time.</p>
             </div>
 
             <div>

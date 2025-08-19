@@ -15,19 +15,11 @@ class Snapshot
     }
 
     /**
-     *  Return true if a task is queued or running for the specified snapshot
-     */
-    public function taskRunning(int $snapId) : bool
-    {
-        return $this->model->taskRunning($snapId);
-    }
-
-    /**
      *  Return the list of unused snapshots for the specified repo Id and retention parameter
      */
-    private function getUnunsed(string $repoId, string $retention) : array
+    private function getUnused(string $repoId, string $retention) : array
     {
-        return $this->model->getUnunsed($repoId, $retention);
+        return $this->model->getUnused($repoId, $retention);
     }
 
     /**
@@ -75,7 +67,7 @@ class Snapshot
             /**
              *  Get the list of unused snapshots for this repository
              */
-            $unusedSnapshots = $this->getUnunsed($repoId, RETENTION);
+            $unusedSnapshots = $this->getUnused($repoId, RETENTION);
 
             /**
              *  Process if there are unused snapshots
@@ -179,5 +171,13 @@ class Snapshot
     public function exists(int $id) : bool
     {
         return $this->model->exists($id);
+    }
+
+    /**
+     *  Return true if a task is queued or running for the specified snapshot
+     */
+    public function taskRunning(int $snapId) : bool
+    {
+        return $this->model->taskRunning($snapId);
     }
 }

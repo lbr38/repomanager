@@ -13,6 +13,8 @@ class Create
     use Finalize;
 
     private $repo;
+    private $rpmRepoController;
+    private $debRepoController;
     private $task;
     private $repoSnapshotController;
     private $repoEnvController;
@@ -24,6 +26,8 @@ class Create
     public function __construct(string $taskId)
     {
         $this->repo = new \Controllers\Repo\Repo();
+        $this->rpmRepoController = new \Controllers\Repo\Rpm();
+        $this->debRepoController = new \Controllers\Repo\Deb();
         $this->task = new \Controllers\Task\Task();
         $this->repoSnapshotController = new \Controllers\Repo\Snapshot();
         $this->repoEnvController = new \Controllers\Repo\Environment();
@@ -199,7 +203,8 @@ class Create
         $this->repo->setTime(date("H:i"));
 
         try {
-            $this->taskLogStepController->new('create-metadata', 'CREATING REPOSITORY');
+            $this->taskLogStepController->new('create-repo', 'CREATING REPOSITORY');
+            $this->taskLogSubStepController->new('create-dirs', 'CREATING DIRECTORIES');
 
             /**
              *  Check if a repo/section with the same name is already active with snapshots
@@ -267,14 +272,18 @@ class Create
                 }
             }
 
+            $this->taskLogSubStepController->completed();
+
+            $this->taskLogSubStepController->new('updating-database', 'UPDATING DATABASE');
+
             /**
              *  Check if repository already exists in database
              */
             if ($this->repo->getPackageType() == 'rpm') {
-                $exists = $this->repo->exists($this->repo->getName());
+                $exists = $this->rpmRepoController->exists($this->repo->getName(), $this->repo->getReleasever());
             }
             if ($this->repo->getPackageType() == 'deb') {
-                $exists = $this->repo->exists($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection());
+                $exists = $this->debRepoController->exists($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection());
             }
 
             /**
@@ -283,30 +292,20 @@ class Create
              */
             if ($exists === false) {
                 if ($this->repo->getPackageType() == 'rpm') {
-                    $this->repo->add($this->repo->getName(), 'rpm', $this->repo->getName());
+                    $this->rpmRepoController->add($this->repo->getName(), $this->repo->getReleasever(), $this->repo->getName());
+
+                    /**
+                     *  Retrieve repo Id from the last insert row
+                     */
+                    $this->repo->setRepoId($this->rpmRepoController->getLastInsertRowID());
                 }
                 if ($this->repo->getPackageType() == 'deb') {
-                    $this->repo->add($this->repo->getName(), 'deb', $this->repo->getName());
-                }
+                    $this->debRepoController->add($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection(), $this->repo->getName());
 
-                /**
-                 *  Retrieve repo Id from the last insert row
-                 */
-                $this->repo->setRepoId($this->repo->getLastInsertRowID());
-
-                /**
-                 *  Set repo releasever
-                 */
-                if ($this->repo->getPackageType() == 'rpm') {
-                    $this->repo->updateReleasever($this->repo->getRepoId(), $this->repo->getReleasever());
-                }
-
-                /**
-                 *  Set repo dist and section
-                 */
-                if ($this->repo->getPackageType() == 'deb') {
-                    $this->repo->updateDist($this->repo->getRepoId(), $this->repo->getDist());
-                    $this->repo->updateSection($this->repo->getRepoId(), $this->repo->getSection());
+                    /**
+                     *  Retrieve repo Id from the last insert row
+                     */
+                    $this->repo->setRepoId($this->debRepoController->getLastInsertRowID());
                 }
 
             /**
@@ -317,15 +316,21 @@ class Create
                  *  Retrieve and set repo Id from database
                  */
                 if ($this->repo->getPackageType() == 'rpm') {
-                    $this->repo->setRepoId($this->repo->getIdByName($this->repo->getName(), '', ''));
+                    $repoId = $this->rpmRepoController->getIdByNameReleasever($this->repo->getName(), $this->repo->getReleasever());
                 }
 
                 if ($this->repo->getPackageType() == 'deb') {
-                    $this->repo->setRepoId($this->repo->getIdByName($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection()));
+                    $repoId = $this->debRepoController->getIdByNameDistComponent($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection());
                 }
+
+                if (empty($repoId)) {
+                    throw new Exception('Could not retrieve repository Id from database');
+                }
+
+                $this->repo->setRepoId($repoId);
             }
 
-            unset($exists);
+            unset($exists, $repoId);
 
             /**
              *  Add snapshot to database
@@ -346,6 +351,10 @@ class Create
                 }
             }
 
+            $this->taskLogSubStepController->completed();
+
+            $this->taskLogSubStepController->new('applying-permissions', 'APPLYING PERMISSIONS');
+
             /**
              *  Apply permissions on the new repo
              */
@@ -360,7 +369,7 @@ class Create
                 \Controllers\Filesystem\File::recursiveChown(REPOS_DIR . '/' . $this->repo->getName(), WWW_USER, 'repomanager');
             }
 
-            $this->taskLogStepController->completed();
+            $this->taskLogSubStepController->completed();
 
             /**
              *  Add repo to group if a group has been specified
@@ -371,10 +380,15 @@ class Create
                 $this->taskLogStepController->completed();
             }
 
+            $this->taskLogSubStepController->new('cleaning', 'CLEANING');
+
             /**
              *  Clean unused repos in groups
              */
             $this->repo->cleanGroups();
+
+            $this->taskLogSubStepController->completed();
+            $this->taskLogStepController->completed();
 
             /**
              *  Set task status to 'done'
