@@ -13,6 +13,7 @@ class Duplicate
     private $repo;
     private $rpmRepoController;
     private $debRepoController;
+    private $repoSnapshotController;
     private $repoEnvController;
     private $task;
     private $taskLogStepController;
@@ -25,6 +26,7 @@ class Duplicate
         $this->rpmRepoController = new \Controllers\Repo\Rpm();
         $this->debRepoController = new \Controllers\Repo\Deb();
         $this->task = new \Controllers\Task\Task();
+        $this->repoSnapshotController = new \Controllers\Repo\Snapshot();
         $this->repoEnvController = new \Controllers\Repo\Environment();
         $this->taskLogStepController = new \Controllers\Task\Log\Step($taskId);
         $this->taskLogSubStepController = new \Controllers\Task\Log\SubStep($taskId);
@@ -324,12 +326,12 @@ class Duplicate
                 /**
                  *  Add the new repo snapshot in database
                  */
-                $this->repo->addSnap($this->repo->getDate(), $this->repo->getTime(), $this->repo->getSigned(), $this->repo->getArch(), array(), $this->repo->getPackagesToInclude(), $this->repo->getPackagesToExclude(), $this->repo->getType(), $this->repo->getStatus(), $targetRepoId);
+                $this->repoSnapshotController->add($this->repo->getDate(), $this->repo->getTime(), $this->repo->getSigned(), $this->repo->getArch(), array(), $this->repo->getPackagesToInclude(), $this->repo->getPackagesToExclude(), $this->repo->getType(), $this->repo->getStatus(), $targetRepoId);
 
                 /**
                  *  Retrieve the Id of the new repo snapshot in database
                  */
-                $targetSnapId = $this->repo->getLastInsertRowID();
+                $targetSnapId = $this->repoSnapshotController->getLastInsertRowID();
 
                 /**
                  *  Add the new repo environment in database, only if the user has specified an environment

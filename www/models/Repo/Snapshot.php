@@ -46,6 +46,29 @@ class Snapshot extends \Models\Model
     }
 
     /**
+     *  Add a snapshot in database
+     */
+    public function add(string $date, string $time, string $gpgSignature, array $arch, array $includeTranslation, array $packagesIncluded, array $packagesExcluded, string $type, string $status, int $repoId) : void
+    {
+        try {
+            $stmt = $this->db->prepare("INSERT INTO repos_snap ('Date', 'Time', 'Signed', 'Arch', 'Pkg_translation', 'Pkg_included', 'Pkg_excluded', 'Type', 'Status', 'Id_repo') VALUES (:date, :time, :signed, :arch, :includeTranslation, :packagesIncluded, :packagesExcluded, :type, :status, :repoId)");
+            $stmt->bindValue(':date', $date);
+            $stmt->bindValue(':time', $time);
+            $stmt->bindValue(':signed', $gpgSignature);
+            $stmt->bindValue(':arch', implode(',', $arch));
+            $stmt->bindValue(':includeTranslation', implode(',', $includeTranslation));
+            $stmt->bindValue(':packagesIncluded', implode(',', $packagesIncluded));
+            $stmt->bindValue(':packagesExcluded', implode(',', $packagesExcluded));
+            $stmt->bindValue(':type', $type);
+            $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':repoId', $repoId);
+            $stmt->execute();
+        } catch (Exception $e) {
+            $this->db->logError($e);
+        }
+    }
+
+    /**
      *  Update snapshot status in the database
      */
     public function updateStatus(string $snapId, string $status) : void

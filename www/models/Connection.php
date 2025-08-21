@@ -328,7 +328,9 @@ class Connection extends SQLite3
         /**
          *  Create indexes
          */
+        $this->exec("CREATE INDEX IF NOT EXISTS repos_snap_index ON repos_snap (Date, Time, Signed, Arch, Pkg_translation, Pkg_included, Pkg_excluded, Type, Reconstruct, Status, Id_repo)");
         $this->exec("CREATE INDEX IF NOT EXISTS repos_snap_status_id_repo_index ON repos_snap (Status, Id_repo)");
+        $this->exec("CREATE INDEX IF NOT EXISTS repos_snap_id_repo_index ON repos_snap (Id_repo)");
 
         /**
          *  repos_env table
@@ -338,6 +340,11 @@ class Connection extends SQLite3
         Env VARCHAR(255),
         Description VARCHAR(255),
         Id_snap INTEGER NOT NULL)");
+
+        /**
+         *  Create indexes
+         */
+        $this->exec("CREATE INDEX IF NOT EXISTS repos_env_index ON repos_env (Env, Description, Id_snap)");
 
         /**
          *  Create indexes
@@ -486,6 +493,7 @@ class Connection extends SQLite3
          *  Create indexes
          */
         $this->exec("CREATE INDEX IF NOT EXISTS tasks_rawparams_status ON tasks (Raw_params, Status)");
+        $this->exec("CREATE INDEX IF NOT EXISTS tasks_status ON tasks (Status)");
 
         /**
          *  profile_settings table

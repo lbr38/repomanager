@@ -23,6 +23,22 @@ class Snapshot
     }
 
     /**
+     *  Return the last insert row ID in database
+     */
+    public function getLastInsertRowID()
+    {
+        return $this->model->getLastInsertRowID();
+    }
+
+    /**
+     *  Add a snapshot in database
+     */
+    public function add(string $date, string $time, string $gpgSignature, array $arch, array $includeTranslation, array $packagesIncluded, array $packagesExcluded, string $type, string $status, int $repoId) : void
+    {
+        $this->model->add($date, $time, $gpgSignature, $arch, $includeTranslation, $packagesIncluded, $packagesExcluded, $type, $status, $repoId);
+    }
+
+    /**
      *  Update snapshot status in the database
      */
     public function updateStatus(string $snapId, string $status) : void

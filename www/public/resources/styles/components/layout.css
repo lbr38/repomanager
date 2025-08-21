@@ -28,6 +28,33 @@ body {
 .details-div {
     padding: 10px;
     background-color: #182b3e;
-    border: 1px solid #24405c;
+    border: 3px solid #22384F;
     border-radius: 20px;
+}
+
+/* Full page loading veil */
+.body-veil {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    row-gap: 20px;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: #0e1e2f;
+    border-radius: 20px;
+    z-index: 90;
+}
+.body-veil img:first-child {
+    width: 120px;
+    height: 120px;
+    opacity: 0.1;
+}
+.body-veil img:last-child {
+    width: 20px;
+    height: 20px;
+    opacity: 0.5;
 }

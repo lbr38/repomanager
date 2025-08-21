@@ -63,12 +63,12 @@ trait Finalize
              *  Add snapshot in database
              *  Empty array() for package translation because it's not used for the moment
              */
-            $this->repo->addSnap($this->repo->getDate(), $this->repo->getTime(), $this->repo->getGpgSign(), $this->repo->getArch(), array(), $this->repo->getPackagesToInclude(), $this->repo->getPackagesToExclude(), $this->repo->getType(), 'active', $this->repo->getRepoId());
+            $this->repoSnapshotController->add($this->repo->getDate(), $this->repo->getTime(), $this->repo->getGpgSign(), $this->repo->getArch(), array(), $this->repo->getPackagesToInclude(), $this->repo->getPackagesToExclude(), $this->repo->getType(), 'active', $this->repo->getRepoId());
 
             /**
              *  Retrieve the last insert row ID
              */
-            $this->repo->setSnapId($this->repo->getLastInsertRowID());
+            $this->repo->setSnapId($this->repoSnapshotController->getLastInsertRowID());
 
             /**
              *  Add env in database if an env has been specified by the user
@@ -123,13 +123,13 @@ trait Finalize
                 /**
                  *  Add snapshot in database
                  */
-                $this->repo->addSnap($this->repo->getDate(), $this->repo->getTime(), $this->repo->getGpgSign(), $this->repo->getArch(), array(), $this->repo->getPackagesToInclude(), $this->repo->getPackagesToExclude(), $this->repo->getType(), 'active', $this->repo->getRepoId());
+                $this->repoSnapshotController->add($this->repo->getDate(), $this->repo->getTime(), $this->repo->getGpgSign(), $this->repo->getArch(), array(), $this->repo->getPackagesToInclude(), $this->repo->getPackagesToExclude(), $this->repo->getType(), 'active', $this->repo->getRepoId());
 
                 /**
                  *  Retrieve the last insert row Id
                  *  And we can set snapId = this Id
                  */
-                $this->repo->setSnapId($this->repo->getLastInsertRowID());
+                $this->repo->setSnapId($this->repoSnapshotController->getLastInsertRowID());
             }
         }
 
@@ -173,7 +173,7 @@ trait Finalize
                  */
                 if (!empty($actualEnvIds)) {
                     foreach ($actualEnvIds as $actualEnvId) {
-                        $this->repo->removeEnv($actualEnvId['Id']);
+                        $this->repoEnvController->remove($actualEnvId['Id']);
                     }
                 }
 

@@ -61,7 +61,7 @@ if (!empty($profiles)) :
 
             <div class="profile-config-div hide margin-bottom-5 details-div" profile-id="<?= $profile['Id'] ?>">
                 <form class="profile-config-form" profile-id="<?= $profile['Id'] ?>" autocomplete="off">
-                    <h6 class="required">NAME</h6>
+                    <h6 class="required margin-top-0">NAME</h6>
                     <input type="text" name="profile-name" value="<?= $profile['Name'] ?>" />
 
                     <h6>REPOSITORIES</h6>

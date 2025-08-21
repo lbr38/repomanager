@@ -44,7 +44,6 @@
 <script src="/resources/js/classes/Tooltip.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/Select2.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/SessionStorage.js?<?= VERSION ?>"></script>
-<script src="/resources/js/classes/Host.js?<?= VERSION ?>"></script>
 
 <script>
     const mylayout = new Layout();
@@ -58,7 +57,6 @@
     const mytooltip = new Tooltip();
     const myselect2 = new Select2();
     const mysessionstorage = new SessionStorage();
-    const myhost = new Host();
 </script>
 
 <script>
@@ -80,9 +78,13 @@ if (!empty(ENVS)) {
 
 <?php
 /**
- *  Additional JS files
+ *  Additional JS classes and files to load, depending on the current page
  */
 if (__ACTUAL_URI__[1] == '') {
+    $jsClasses = [
+        'Environment',
+    ];
+
     $jsFiles = [
         'repo',
         'task',
@@ -96,20 +98,16 @@ if (__ACTUAL_URI__[1] == '') {
         'events/task/stop'
     ];
 }
-if (__ACTUAL_URI__[1] == 'hosts') {
+if (__ACTUAL_URI__[1] == 'hosts' or __ACTUAL_URI__[1] == 'host') {
+    $jsClasses = [
+        'Host',
+    ];
+
     $jsFiles =[
         'host',
         'events/host/layout',
         'events/host/actions',
         'events/profile/actions',
-        'events/task/stop'
-    ];
-}
-if (__ACTUAL_URI__[1] == 'host') {
-    $jsFiles = [
-        'host',
-        'events/host/layout',
-        'events/host/actions',
         'events/task/stop'
     ];
 }
@@ -155,6 +153,27 @@ if (__ACTUAL_URI__[1] == 'cves') {
         'events/task/stop'
     ];
 }
+
+// Load additional JS classes
+if (!empty($jsClasses)) {
+    foreach ($jsClasses as $jsClass) {
+        if (is_file(ROOT . '/public/resources/js/classes/' . $jsClass . '.js')) {
+            echo '<script src="/resources/js/classes/' . $jsClass . '.js?' . VERSION . '"></script>';
+        }
+    }
+} ?>
+
+<script>
+    <?php
+    if (!empty($jsClasses)) {
+        foreach ($jsClasses as $jsClass) {
+            echo 'const my' . strtolower($jsClass) . ' = new ' . $jsClass . '();';
+        }
+    } ?>
+</script>
+
+<?php
+// Load additional JS files
 if (!empty($jsFiles)) {
     foreach ($jsFiles as $jsFile) {
         if (is_file(ROOT . '/public/resources/js/' . $jsFile . '.js')) {

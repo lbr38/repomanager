@@ -42,7 +42,7 @@ if (!empty($hostGroupsList)) : ?>
 
         <div class="group-config-div details-div margin-bottom-5 hide" group-id="<?= $group['Id'] ?>">
             <form class="group-form" group-id="<?= $group['Id'] ?>" autocomplete="off">
-                <h6 class="required">NAME</h6>
+                <h6 class="required margin-top-0">NAME</h6>
                 <input class="group-name-input" type="text" group-id="<?= $group['Id'] ?>" value="<?= $group['Name'] ?>" />
 
                 <h6>HOSTS</h6>
