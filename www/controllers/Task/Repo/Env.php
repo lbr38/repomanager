@@ -175,7 +175,7 @@ class Env
                          */
                         if (!empty($actualEnvIds)) {
                             foreach ($actualEnvIds as $actualEnvId) {
-                                $this->repo->removeEnv($actualEnvId['Id']);
+                                $this->repoEnvController->remove($actualEnvId['Id']);
                             }
                         }
 
@@ -255,7 +255,7 @@ class Env
                          */
                         if (!empty($actualEnvIds)) {
                             foreach ($actualEnvIds as $actualEnvId) {
-                                $this->repo->removeEnv($actualEnvId['Id']);
+                                $this->repoEnvController->remove($actualEnvId['Id']);
                             }
                         }
 

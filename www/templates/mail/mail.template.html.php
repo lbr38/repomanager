@@ -148,8 +148,8 @@
                         <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;border-spacing:0px;">
                           <tbody>
                             <tr>
-                              <td style="width:150px;">
-                                <img height="auto" src="https://github.com/lbr38/repomanager/raw/main/www/public/assets/images/repomanager.png" style="border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;font-size:13px;" width="150" />
+                              <td style="width:50px;">
+                                <img height="auto" src="<?= PROJECT_LOGO ?>" style="border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;font-size:13px;" width="150" />
                               </td>
                             </tr>
                           </tbody>
@@ -176,12 +176,12 @@
                 <table border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
                   <tbody>
                     <tr>
-                      <td style="background-color:#ffffff;border-radius:10px;vertical-align:top;padding-top:30px;padding-right:15px;padding-bottom:30px;padding-left:15px;">
+                      <td style="background-color:#ffffff;border-radius:20px;vertical-align:top;padding-top:30px;padding-right:15px;padding-bottom:30px;padding-left:15px;">
                         <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="" width="100%">
                           <tbody>
                             <tr>
                               <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                <div style="font-family:helvetica;font-size:14px;line-height:1;text-align:left;color:#666666;"><?= $content ?></div>
+                                <div style="font-family:helvetica;font-size:14px;line-height:1.5;text-align:left;color:#666666;"><?= $content ?></div>
                               </td>
                             </tr>
                             <?php if (!empty($link)) : ?>
@@ -222,7 +222,7 @@
                   <tbody>
                     <tr>
                       <td align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                        <div style="font-family:helvetica;font-size:12px;line-height:1;text-align:center;color:#666666;"><?= PROJECT_NAME ?> - release version <?= VERSION ?><br><a href="<?= PROJECT_GIT_REPO ?>" target="_blank" style="font-family:helvetica;font-size:12px;line-height:1;text-align:center;color:#666666;">Github</a></div>
+                        <div style="font-family:helvetica;font-size:12px;line-height:1;text-align:center;color:#8A99AA;"><?= PROJECT_NAME ?> - <a href="<?= PROJECT_GIT_REPO ?>" target="_blank" style="font-family:helvetica;font-size:12px;line-height:1;text-align:center;color:#8A99AA;">Github</a></div>
                       </td>
                     </tr>
                   </tbody>

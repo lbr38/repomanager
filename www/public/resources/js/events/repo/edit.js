@@ -1,5 +1,5 @@
 /**
- *  Event: submit reposiroty edit form
+ *  Event: submit repository edit form
  */
 $(document).on('submit','#edit-form',function () {
     event.preventDefault();
@@ -98,4 +98,17 @@ $(document).on('submit','#edit-form',function () {
     });
 
     return false;
+});
+
+/**
+ *  Event: edit repository description when pressing 'Enter' key
+ */
+$(document).on('keypress','input[type="text"].repo-description-input',function (e) {
+    e.stopPropagation();
+
+    const keycode = (event.keyCode ? event.keyCode : event.which);
+
+    if (keycode == '13') {
+        myenvironment.updateDescription($(this).attr('env-id'), $(this).val());
+    }
 });

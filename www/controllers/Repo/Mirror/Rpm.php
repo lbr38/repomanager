@@ -781,16 +781,15 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             }
 
             /**
-             *  Deduplication
              *  Check if package already exists in the previous snapshot
-             *  If so, just create a hard link to the package
              */
-            if (REPO_DEDUPLICATION) {
-                if (isset($this->previousSnapshotDirPath)) {
-                    if (file_exists($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $rpmPackageName)) {
-                        /**
-                         *  Create hard link to the package
-                         */
+            if (isset($this->previousSnapshotDirPath)) {
+                if (file_exists($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $rpmPackageName)) {
+                    /**
+                     *  If deduplication is enabled
+                     *  Create a hard link to the package
+                     */
+                    if (REPO_DEDUPLICATION) {
                         if (!link($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $rpmPackageName, $absoluteDir . '/' . $rpmPackageName)) {
                             throw new Exception('Cannot create hard link to package: ' . $this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $rpmPackageName);
                         }
@@ -799,6 +798,18 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
 
                         continue;
                     }
+
+                    /**
+                     *  If deduplication is not enabled
+                     *  Copy package from the previous snapshot
+                     */
+                    if (!copy($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $rpmPackageName, $absoluteDir . '/' . $rpmPackageName)) {
+                        throw new Exception('Cannot copy package from previous snapshot: ' . $this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $rpmPackageName);
+                    }
+
+                    $this->taskLogSubStepController->completed('Copied from previous snapshot');
+
+                    continue;
                 }
             }
 

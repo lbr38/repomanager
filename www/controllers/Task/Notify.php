@@ -152,7 +152,7 @@ class Notify
         $message .= '<br>';
 
         $mailSubject = '[ ERROR ] Scheduled task #' . $task['Id'] . ' failed on ' . WWW_HOSTNAME;
-        $mymail = new \Controllers\Mail(implode(',', $taskRawParams['schedule']['schedule-recipient']), $mailSubject, $message, __SERVER_PROTOCOL__ . '://' . WWW_HOSTNAME . '/run/' . $task['Id'], 'View log file');
+        $mymail = new \Controllers\Mail(implode(',', $taskRawParams['schedule']['schedule-recipient']), $mailSubject, $message, __SERVER_PROTOCOL__ . '://' . WWW_HOSTNAME . '/run/' . $task['Id'], 'View task log');
     }
 
     /**
@@ -168,6 +168,6 @@ class Notify
         $message .= '<br>';
 
         $mailSubject = '[ SUCCESS ] Scheduled task #' . $task['Id'] . ' succeeded on ' . WWW_HOSTNAME;
-        $mymail = new \Controllers\Mail(implode(',', $taskRawParams['schedule']['schedule-recipient']), $mailSubject, $message, __SERVER_PROTOCOL__ . '://' . WWW_HOSTNAME . '/run/' . $task['Id'], 'View log file');
+        $mymail = new \Controllers\Mail(implode(',', $taskRawParams['schedule']['schedule-recipient']), $mailSubject, $message, __SERVER_PROTOCOL__ . '://' . WWW_HOSTNAME . '/run/' . $task['Id'], 'View task log');
     }
 }

@@ -11,6 +11,7 @@ class RemoveEnv
     private $repo;
     private $task;
     private $repoSnapshotController;
+    private $repoEnvController;
     private $taskLogStepController;
     private $taskLogSubStepController;
 
@@ -19,6 +20,7 @@ class RemoveEnv
         $this->repo = new \Controllers\Repo\Repo();
         $this->task = new \Controllers\Task\Task();
         $this->repoSnapshotController = new \Controllers\Repo\Snapshot();
+        $this->repoEnvController = new \Controllers\Repo\Environment();
         $this->taskLogStepController = new \Controllers\Task\Log\Step($taskId);
         $this->taskLogSubStepController = new \Controllers\Task\Log\SubStep($taskId);
 
@@ -84,7 +86,7 @@ class RemoveEnv
             /**
              *  Delete environment from database
              */
-            $this->repo->removeEnv($this->repo->getEnvId());
+            $this->repoEnvController->remove($this->repo->getEnvId());
 
             $this->taskLogStepController->completed();
 

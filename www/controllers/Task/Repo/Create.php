@@ -335,12 +335,12 @@ class Create
             /**
              *  Add snapshot to database
              */
-            $this->repo->addSnap($this->repo->getDate(), $this->repo->getTime(), 'false', $this->repo->getArch(), array(), array(), array(), $this->repo->getType(), 'active', $this->repo->getRepoId());
+            $this->repoSnapshotController->add($this->repo->getDate(), $this->repo->getTime(), 'false', $this->repo->getArch(), array(), array(), array(), $this->repo->getType(), 'active', $this->repo->getRepoId());
 
             /**
              *  Retrieve snapshot Id from the last insert row
              */
-            $this->repo->setSnapId($this->repo->getLastInsertRowID());
+            $this->repo->setSnapId($this->repoSnapshotController->getLastInsertRowID());
 
             /**
              *  Add env to database if an env has been specified by the user

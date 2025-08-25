@@ -20,11 +20,11 @@ jobs:
         run: sudo apt-get install curl jq wget -y
 
       # Wait for the API to be ready
-      # Generally after the 30 first minutes of the current hour (xx:30 to xx:59)
+      # Generally after the 45 first minutes of the current hour (xx:45 to xx:59)
       - name: Wait until API URL is ready
         run: |
           while (true); do
-            if $(date +%M | grep -q '^[3-5][0-9]$'); then
+            if $(date +%M | grep -q '^[4-5][5-9]$'); then
               break
             fi
 

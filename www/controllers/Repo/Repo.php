@@ -523,21 +523,6 @@ class Repo
     }
 
     /**
-     *  Set environment description
-     */
-    public function envSetDescription(string $envId, string $description) : void
-    {
-        // Description cannot contain single quotes or backslashes
-        if (str_contains($description, "'") || str_contains($description, "\\")) {
-            throw new Exception('Description contains invalid characters');
-        }
-
-        $description = \Controllers\Common::validateData($description);
-
-        $this->model->envSetDescription($envId, $description);
-    }
-
-    /**
      *  Get repository environment description by the repo name
      */
     public function getDescriptionByName(string $name, string $dist = null, string $section = null, string $env)
@@ -625,22 +610,6 @@ class Repo
     public function snapSetPackagesExcluded(int $snapId, array $packages)
     {
         $this->model->snapSetPackagesExcluded($snapId, implode(',', $packages));
-    }
-
-    /**
-     *  Add a repo snapshot in database
-     */
-    public function addSnap(string $date, string $time, string $gpgSignature, array $arch, array $includeTranslation, array $packagesIncluded, array $packagesExcluded, string $type, string $status, string $repoId)
-    {
-        $this->model->addSnap($date, $time, $gpgSignature, $arch, $includeTranslation, $packagesIncluded, $packagesExcluded, $type, $status, $repoId);
-    }
-
-    /**
-     *  Remove an env in database
-     */
-    public function removeEnv(string $envId)
-    {
-        $this->model->removeEnv($envId);
     }
 
     /**
