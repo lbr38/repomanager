@@ -17,7 +17,7 @@
                 <span class="label-white">
                     <?php
                     if ($repoController->getPackageType() == 'rpm') {
-                        echo $repoController->getName();
+                        echo $repoController->getName() . ' ❯ ' . $repoController->getReleasever();
                     }
                     if ($repoController->getPackageType() == 'deb') {
                         echo $repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection();
@@ -41,7 +41,7 @@
                 <span class="label-white">
                     <?php
                     if ($repoController->getPackageType() == 'rpm') {
-                        echo $rawParams['name'];
+                        echo $rawParams['name'] . ' ❯ ' . $repoController->getReleasever();
                     }
                     if ($repoController->getPackageType() == 'deb') {
                         echo $rawParams['name'] . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection();

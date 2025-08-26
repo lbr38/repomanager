@@ -182,7 +182,7 @@ article {
 
 .repos-list-group-flex-div {
     display: grid;
-    grid-template-columns: 300px 55px auto auto auto 40px 1fr;
+    grid-template-columns: 300px 55px auto auto auto 55px 1fr;
     row-gap: 25px;
     margin-bottom: 12px;
     background-color: #22384F;
@@ -323,7 +323,7 @@ article {
     position: inherit !important;
 }
 
-.item-info img, .item-env-info img {
+.item-info img {
     height: 19px;
     margin-left: 4px !important;
     margin-right: 4px !important;
@@ -335,13 +335,16 @@ article {
 }
 
 .item-env-info {
-    visibility: hidden;
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-content: flex-start;
     flex-wrap: wrap;
-    align-items: center;
-    align-content: flex-start;
-    column-gap: 2px;
-    padding-left: 4px !important;
+    column-gap: 5px;
+    margin-left: 10px;
+}
+
+.item-env-info input[type=checkbox] {
+    visibility: hidden;
 }
 
 .item-desc {

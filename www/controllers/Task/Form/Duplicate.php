@@ -9,6 +9,8 @@ class Duplicate
     public function validate(array $formParams)
     {
         $myrepo = new \Controllers\Repo\Repo();
+        $rpmRepoController = new \Controllers\Repo\Rpm();
+        $debRepoController = new \Controllers\Repo\Deb();
         $myhistory = new \Controllers\History();
 
         /**
@@ -52,12 +54,12 @@ class Duplicate
          *  Check that a repo with the same name does not already exist
          */
         if ($myrepo->getPackageType() == 'rpm') {
-            if ($myrepo->isActive($formParams['name']) === true) {
-                throw new Exception('<span class="label-white">' . $formParams['name'] . '</span> repo already exists');
+            if ($rpmRepoController->isActive($formParams['name'], $myrepo->getReleasever())) {
+                throw new Exception('<span class="label-white">' . $formParams['name'] . ' ❯ ' . $myrepo->getReleasever() . '</span> repository already exists');
             }
         }
         if ($myrepo->getPackageType() == 'deb') {
-            if ($myrepo->isActive($formParams['name'], $myrepo->getDist(), $myrepo->getSection()) === true) {
+            if ($debRepoController->isActive($formParams['name'], $myrepo->getDist(), $myrepo->getSection())) {
                 throw new Exception('<span class="label-white">' . $formParams['name'] . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span> repo already exists');
             }
         }
@@ -76,5 +78,7 @@ class Duplicate
         if ($myrepo->getPackageType() == 'deb') {
             $myhistory->set('Running task: duplicate repository <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span> ➡ <span class="label-white">' . $formParams['name'] . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>', 'success');
         }
+
+        unset($myrepo, $rpmRepoController, $debRepoController, $myhistory);
     }
 }

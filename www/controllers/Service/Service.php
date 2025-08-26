@@ -131,54 +131,42 @@ class Service
     {
         CliLog::log('Checking for a new version on github...');
 
+        $httpRequestController = new \Controllers\HttpRequest();
+
         try {
-            $outputFile = fopen(DATA_DIR . '/version.available', "w");
-
-            curl_setopt($this->curlHandle, CURLOPT_URL, 'https://raw.githubusercontent.com/lbr38/repomanager/main/www/version');
-            curl_setopt($this->curlHandle, CURLOPT_FILE, $outputFile);
-            curl_setopt($this->curlHandle, CURLOPT_TIMEOUT, 120);
-
-            /**
-             *  If a proxy has been specified
-             */
-            if (!empty(PROXY)) {
-                curl_setopt($this->curlHandle, CURLOPT_PROXY, PROXY);
-            }
-
-            /**
-             *  Execute curl
-             */
-            if (curl_exec($this->curlHandle) === false) {
-                curl_close($this->curlHandle);
-                fclose($outputFile);
-
-                /**
-                 *  If curl has failed (meaning a curl param might be invalid)
-                 */
-                throw new Exception('(curl error): ' . curl_error($this->curlHandle));
-            }
-
-            /**
-             *  Check that the http return code is 200 (the file has been downloaded)
-             */
-            $status = curl_getinfo($this->curlHandle);
-
-            if ($status["http_code"] != 200) {
-                /**
-                 *  If return code is 404
-                 */
-                if ($status["http_code"] == '404') {
-                    throw new Exception('(file not found)');
-                } else {
-                    throw new Exception('(http return code is ' . $status["http_code"] . ')');
-                }
-
-                curl_close($this->curlHandle);
-                fclose($outputFile);
-            }
+            $httpRequestController->get([
+                'url'        => 'https://raw.githubusercontent.com/lbr38/repomanager/main/www/version',
+                'outputFile' => DATA_DIR . '/version.available',
+                'timeout'    => 30,
+                'proxy'      => PROXY ?? null,
+            ]);
         } catch (Exception $e) {
-            $this->logController->log('error', 'Service', 'Error while check for new version from Github ' . $e->getMessage());
+            $this->logController->log('error', 'Service', 'Error while checking for new version from Github: ' . $e->getMessage());
         }
+
+        // Also get all releases list from github (parse json and only get the tag names)
+        try {
+            $httpRequestController->get(
+                [
+                    'url'        => 'https://api.github.com/repos/lbr38/repomanager/releases',
+                    'outputFile' => DATA_DIR . '/releases.available',
+                    'timeout'    => 30,
+                    'proxy'      => PROXY ?? null,
+                    'headers'    => [
+                        'User-Agent: repomanager',
+                        'Accept: application/vnd.github.v3+json',
+                    ]
+                ],
+                // Parse the JSON
+                true,
+                // And extract only the name of the releases
+                'name'
+            );
+        } catch (Exception $e) {
+            $this->logController->log('error', 'Service', 'Error while retrieving releases from Github: ' . $e->getMessage());
+        }
+
+        unset($httpRequestController);
     }
 
     /**

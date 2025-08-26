@@ -30,7 +30,7 @@ class Rpm extends \Controllers\Repo\Source\Source
          */
         if (!empty($currentParams['releasever'])) {
             foreach ($currentParams['releasever'] as $releasever) {
-                if ($releasever['name'] == $name) {
+                if ($releasever['name'] === $name) {
                     throw new Exception('Release version ' . $name . ' already exists');
                 }
             }
@@ -51,9 +51,9 @@ class Rpm extends \Controllers\Repo\Source\Source
     }
 
     /**
-     *  Edit a deb source repository release version
+     *  Edit a rpm source repository release version
      */
-    public function editReleasever(int $id, int $releaseverId, array $params)
+    public function editReleasever(int $id, string $releaseverId, array $params)
     {
         /**
          *  Check that the source repository exists
@@ -85,7 +85,7 @@ class Rpm extends \Controllers\Repo\Source\Source
          *  Check that a release version with the same name does not already exist
          */
         foreach ($currentDefinition['releasever'] as $currentReleaseverId => $releasever) {
-            if ($currentReleaseverId != $releaseverId and $releasever['name'] == $params['name']) {
+            if ($currentReleaseverId != $releaseverId and $releasever['name'] === $params['name']) {
                 throw new Exception('Release version ' . $params['name'] . ' already exists');
             }
         }
@@ -105,7 +105,7 @@ class Rpm extends \Controllers\Repo\Source\Source
     /**
      *  Remove a release version from a rpm source repository
      */
-    public function removeReleasever(int $sourceId, int $releaseverId)
+    public function removeReleasever(int $sourceId, string $releaseverId)
     {
         /**
          *  Check that the source repository exists
@@ -140,7 +140,7 @@ class Rpm extends \Controllers\Repo\Source\Source
     /**
      *  Add a gpg key from a deb source repository release version
      */
-    public function addGpgKey(int $id, int $releaseverId, string $gpgKeyUrl, string $gpgKeyFingerprint, string $gpgKeyPlainText)
+    public function addGpgKey(int $id, string $releaseverId, string $gpgKeyUrl, string $gpgKeyFingerprint, string $gpgKeyPlainText)
     {
         $gpgController = new \Controllers\Gpg();
 
@@ -197,7 +197,7 @@ class Rpm extends \Controllers\Repo\Source\Source
     /**
      *  Remove a gpg key from a rpm source repository release version
      */
-    public function removeGpgKey(int $id, int $releaseverId, int $gpgKeyId)
+    public function removeGpgKey(int $id, string $releaseverId, int $gpgKeyId)
     {
         /**
          *  Check that the source repository exists

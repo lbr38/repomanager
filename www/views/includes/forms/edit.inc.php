@@ -1,7 +1,7 @@
 <h6>REPOSITORY</h6>
 <?php
 if ($repoController->getPackageType() == 'rpm') {
-    echo '<span class="label-white">' . $repoController->getName() . '</span>';
+    echo '<span class="label-white">' . $repoController->getName() . ' ❯ ' . $repoController->getReleasever() . '</span>';
 }
 if ($repoController->getPackageType() == 'deb') {
     echo '<span class="label-white">' . $repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection() . '</span>';

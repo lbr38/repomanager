@@ -7,6 +7,19 @@ repositories:
     description: Debian official repositories
     url: https://deb.debian.org/debian
     distributions:
+      # Debian 13
+      - name: trixie
+        description: Debian 13
+        components:
+          - name: main
+          - name: contrib
+          - name: non-free
+          - name: non-free-firmware
+        gpgkeys:
+          - fingerprint: 4CB50190207B4758A3F73A796ED0E7B82643E131
+          - fingerprint: B8E5F13176D2A7A75220028078DBA3BC47EF2265
+          - fingerprint: 41587F7DB8C774BCCF131416762F67A0B2C39DE4
+
       # Debian 12
       - name: bookworm
         description: Debian 12
@@ -14,9 +27,10 @@ repositories:
           - name: main
           - name: contrib
           - name: non-free
+          - name: non-free-firmware
         gpgkeys:
-          - fingerprint: A7236886F3CCCAAD148A27F80E98404D386FA1D9
           - fingerprint: 4CB50190207B4758A3F73A796ED0E7B82643E131
+          - fingerprint: B8E5F13176D2A7A75220028078DBA3BC47EF2265
           - fingerprint: 4D64FEC119C2029067D6E791F8D2585B8783D481
 
       # Debian 11
@@ -36,6 +50,18 @@ repositories:
     description: Debian security repositories
     url: https://deb.debian.org/debian-security
     distributions:
+      # Debian 13
+      - name: trixie-security
+        description: Debian 13
+        components:
+          - name: main
+          - name: contrib
+          - name: non-free
+          - name: non-free-firmware
+        gpgkeys:
+          - fingerprint: B0CAB9266E8C3929798B3EEEBDE6D2B9216EC7A8
+          - fingerprint: 89C87ACEA5DD6B8E6A7068808E9F831205B4BA95
+
       # Debian 12
       - name: bookworm-security
         description: Debian 12
@@ -55,7 +81,6 @@ repositories:
           - name: main
           - name: contrib
           - name: non-free
-          - name: non-free-firmware
         gpgkeys:
           - fingerprint: 5237CEEEF212F3D51C74ABE0112695A0E562B32A
           - fingerprint: ED541312A33F1128F10B1C6C54404762BBB6E853

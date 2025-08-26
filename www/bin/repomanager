@@ -54,7 +54,7 @@ function permissions
  
     # Permissions on repos directory
     chmod 770 "$REPOS_DIR"
-    chown -R www-data:repomanager "$REPOS_DIR"
+    chown -R www-data:repomanager "$REPOS_DIR" > /dev/null 2>&1
     if [ -d "$REPOS_DIR/gpgkeys" ];then
         chown www-data:repomanager $REPOS_DIR/gpgkeys/*
         chmod 660 $REPOS_DIR/gpgkeys/*
@@ -88,8 +88,8 @@ function permissions
     find "$DATA_DIR" -type f -exec chmod 0660 {} \; &
 
     # Permissions on repos directory
-    find "$REPOS_DIR" -type d -exec chmod 0770 {} \; &
-    find "$REPOS_DIR" -type f -exec chmod 0660 {} \; &
+    find "$REPOS_DIR" -type d -exec chmod 0770 {} \; > /dev/null 2>&1 &
+    find "$REPOS_DIR" -type f -exec chmod 0660 {} \; > /dev/null 2>&1 &
 }
 
 echo '

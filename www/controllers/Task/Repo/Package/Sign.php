@@ -55,7 +55,7 @@ trait Sign
              *  If all packages must be signed, retrieve all RPM files recursively
              */
             if (!is_array($this->packagesToSign) and $this->packagesToSign == 'all') {
-                $rpmFiles = \Controllers\Filesystem\File::findRecursive(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName(), ['rpm'], true);
+                $rpmFiles = \Controllers\Filesystem\File::findRecursive(REPOS_DIR . '/rpm/' . $this->repo->getName() . '/' . $this->repo->getReleasever() . '/' . $this->repo->getDate(), ['rpm'], true);
             }
 
             /**
@@ -65,7 +65,7 @@ trait Sign
              */
             if (is_array($this->packagesToSign)) {
                 foreach ($this->packagesToSign as $relativePackagePath) {
-                    $rpmFiles[] = REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName() . '/' . $relativePackagePath;
+                    $rpmFiles[] = REPOS_DIR . '/rpm/' . $this->repo->getName() . '/' . $this->repo->getReleasever() . '/' . $this->repo->getDate() . '/' . $relativePackagePath;
                 }
             }
 
@@ -145,7 +145,7 @@ trait Sign
                         if (RPM_SIGNATURE_FAIL == 'error') {
                             // First, delete everything to avoid leaving a broken repository (don't delete if the action is 'rebuild')
                             if ($this->task->getAction() != 'rebuild') {
-                                \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName());
+                                \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/rpm/' . $this->repo->getName() . '/' . $this->repo->getReleasever() . '/' . $this->repo->getDate());
                             }
 
                             throw new Exception('Error while signing package<br><pre class="codeblock margin-top-10">' . $output . '</pre>');

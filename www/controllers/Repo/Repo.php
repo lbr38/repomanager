@@ -414,22 +414,6 @@ class Repo
     }
 
     /**
-     *  Return true if env exists, based on its name and the repo name it points to
-     */
-    public function existsEnv(string $name, string $dist = null, string $section = null, string $env)
-    {
-        return $this->model->existsEnv($name, $dist, $section, $env);
-    }
-
-    /**
-     *  Vérifie si un repo existe et est actif (contient des snapshots actifs)
-     */
-    public function isActive(string $name, string $dist = null, string $section = null)
-    {
-        return $this->model->isActive($name, $dist, $section);
-    }
-
-    /**
      *  Retourne le nombre total de repos
      */
     public function count()
@@ -507,27 +491,11 @@ class Repo
     }
 
     /**
-     *  Return environment Id from repo name
-     */
-    public function getEnvIdFromRepoName(string $name, string $dist = null, string $section = null, string $env)
-    {
-        return $this->model->getEnvIdFromRepoName($name, $dist, $section, $env);
-    }
-
-    /**
      *  Get env Id(s) by snapshot Id
      */
     public function getEnvIdBySnapId(string $snapId)
     {
         return $this->model->getEnvIdBySnapId($snapId);
-    }
-
-    /**
-     *  Get repository environment description by the repo name
-     */
-    public function getDescriptionByName(string $name, string $dist = null, string $section = null, string $env)
-    {
-        return $this->model->getDescriptionByName($name, $dist, $section, $env);
     }
 
     /**
@@ -618,14 +586,6 @@ class Repo
     public function getSnapDateById(string $snapId)
     {
         return $this->model->getSnapDateById($snapId);
-    }
-
-    /**
-     *  Return true if a snapshot exists at a specific date in database, from the repo name and the date
-     */
-    public function existsRepoSnapDate(string $date, string $name, string|null $dist = null, string|null $section = null)
-    {
-        return $this->model->existsRepoSnapDate($date, $name, $dist, $section);
     }
 
     public function getLastInsertRowID()

@@ -244,44 +244,53 @@ class Task
         if (!empty($taskRawParams['source-snap-id'])) {
             if (is_numeric($taskRawParams['source-snap-id'])) {
                 $myrepo->getAllById('', $taskRawParams['source-snap-id'], '');
-                $repoName    = $myrepo->getName();
-                $repoDist    = $myrepo->getDist();
-                $repoSection = $myrepo->getSection();
+                $name       = $myrepo->getName();
+                $dist       = $myrepo->getDist();
+                $component  = $myrepo->getSection();
+                $releasever = $myrepo->getReleasever();
             }
         } else if (!empty($taskRawParams['repo-id'])) {
             if (is_numeric($taskRawParams['repo-id'])) {
                 $myrepo->getAllById($taskRawParams['repo-id'], '', '');
-                $repoName    = $myrepo->getName();
-                $repoDist    = $myrepo->getDist();
-                $repoSection = $myrepo->getSection();
+                $name       = $myrepo->getName();
+                $dist       = $myrepo->getDist();
+                $component  = $myrepo->getSection();
+                $releasever = $myrepo->getReleasever();
             } else {
-                $repo = explode('|', $taskRawParams['repo-id']);
-                $repoName = $repo[0];
-                if (!empty($repo[1]) and !empty($repo[2])) {
-                    $repoDist    = $repo[1];
-                    $repoSection = $repo[2];
+                if ($taskRawParams['package-type'] == 'rpm') {
+                    $name = $taskRawParams['repo-id'];
+                    $releasever = $taskRawParams['releasever'];
+                }
+                if ($taskRawParams['package-type'] == 'deb') {
+                    $repo = explode('|', $taskRawParams['repo-id']);
+                    $name = $repo[0];
+                    if (!empty($repo[1]) and !empty($repo[2])) {
+                        $dist      = $repo[1];
+                        $component = $repo[2];
+                    }
                 }
             }
         } else if (!empty($taskRawParams['snap-id'])) {
             if (is_numeric($taskRawParams['snap-id'])) {
                 $myrepo->getAllById('', $taskRawParams['snap-id'], '');
-                $repoName    = $myrepo->getName();
-                $repoDist    = $myrepo->getDist();
-                $repoSection = $myrepo->getSection();
+                $name       = $myrepo->getName();
+                $dist       = $myrepo->getDist();
+                $component  = $myrepo->getSection();
+                $releasever = $myrepo->getReleasever();
             }
-        }
-
-        if (!empty($repoName) and !empty($repoDist) and !empty($repoSection)) {
-            $repo = $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection;
-        } elseif (!empty($repoName)) {
-            $repo = $repoName;
-        } else {
-            $repo = 'unknown';
         }
 
         unset($myrepo);
 
-        return $repo;
+        if (!empty($dist) and !empty($component)) {
+            return $name . ' ❯ ' . $dist . ' ❯ ' . $component;
+        }
+
+        if (!empty($releasever)) {
+            return $name . ' ❯ ' . $releasever;
+        }
+
+        return 'unknown';
     }
 
     /**
@@ -631,6 +640,7 @@ class Task
         $this->executeId($newTaskId);
 
         $this->layoutContainerReloadController->reload('tasks/logs');
+        $this->layoutContainerReloadController->reload('tasks/list');
     }
 
     /**

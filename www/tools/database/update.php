@@ -9,6 +9,7 @@ ini_set('memory_limit', '512M');
 require_once(ROOT . '/controllers/Autoloader.php');
 new \Controllers\Autoloader();
 new \Controllers\App\Main('minimal');
+use \Controllers\Log\Cli as CliLog;
 
 $myupdate = new \Controllers\Update();
 $error = 0;
@@ -20,23 +21,24 @@ $error = 0;
 $getOptions = getopt(null, ["release:"]);
 
 /**
- *  Récupération de l'Id de l'opération à traiter
+ *  Retrieve the update ID to process
  */
 if (!empty($getOptions['release'])) {
     $targetVersion = $getOptions['release'];
 }
 
 try {
-    echo '[' . date('D M j H:i:s') . '] Enabling maintenance page' . PHP_EOL;
+    CliLog::log('Enabling maintenance page');
+
     $myupdate->setMaintenance('on');
 
-    echo '[' . date('D M j H:i:s') . '] Updating database' . PHP_EOL;
+    CliLog::log('Updating database');
 
     /**
      *  Only execute specified version update file
      */
     if (!empty($targetVersion)) {
-        echo '[' . date('D M j H:i:s') . '] Executing ' . $targetVersion . ' release SQL queries if there are...' . PHP_EOL;
+        CliLog::log('Executing ' . $targetVersion . ' release SQL queries if there are...');
         $myupdate->updateDB($targetVersion);
 
     /**
@@ -46,13 +48,12 @@ try {
         $myupdate->updateDB();
     }
 } catch (Exception $e) {
-    echo '[' . date('D M j H:i:s') . '] There was an error while executing update: ' . $e->getMessage() . PHP_EOL;
+    CliLog::error('There was an error while executing update', $e->getMessage());
     $error++;
+} finally {
+    CliLog::log('Disabling maintenance page');
+    $myupdate->setMaintenance('off');
 }
-
-echo '[' . date('D M j H:i:s') . '] Disabling maintenance page' . PHP_EOL;
-
-$myupdate->setMaintenance('off');
 
 if ($error > 0) {
     exit(1);

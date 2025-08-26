@@ -190,59 +190,6 @@ class Repo extends \Models\Model
         return $snapId;
     }
 
-    /**
-     *  Return environment Id from repo name
-     */
-    public function getEnvIdFromRepoName(string $name, string|null $dist, string|null $section, string $env)
-    {
-        $data = array();
-
-        try {
-            /**
-             *  Case RPM
-             */
-            if (empty($dist) and empty($section)) {
-                $stmt = $this->db->prepare("SELECT repos_env.Id
-                FROM repos_env
-                INNER JOIN repos_snap
-                    ON repos_snap.Id = repos_env.Id_snap
-                INNER JOIN repos
-                    ON repos.Id = repos_snap.Id_repo
-                WHERE repos.Name = :name
-                AND (repos.Dist IS NULL OR repos.Dist = '')
-                AND (repos.Section IS NULL OR repos.Section = '')
-                AND repos_env.Env = :env");
-            /**
-             *  Case DEB (dist and section are specified)
-             */
-            } else {
-                $stmt = $this->db->prepare("SELECT repos_env.Id
-                FROM repos_env
-                INNER JOIN repos_snap
-                    ON repos_snap.Id = repos_env.Id_snap
-                INNER JOIN repos
-                    ON repos.Id = repos_snap.Id_repo
-                WHERE repos.Name = :name
-                AND repos.Dist = :dist
-                AND repos.Section = :section
-                AND repos_env.Env = :env");
-                $stmt->bindValue(':dist', $dist);
-                $stmt->bindValue(':section', $section);
-            }
-            $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':env', $env);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $data[] = $row;
-        }
-
-        return $data;
-    }
-
     public function getEnvIdBySnapId(string $snapId)
     {
         try {
@@ -310,58 +257,6 @@ class Repo extends \Models\Model
         }
 
         return $snapshots;
-    }
-
-    /**
-     *  Get repository environment description by the repo name
-     */
-    public function getDescriptionByName(string $name, string $dist = null, string $section = null, string $env)
-    {
-        try {
-            if (empty($dist) and empty($section)) {
-                $stmt = $this->db->prepare("SELECT repos_env.Description FROM repos_env
-                INNER JOIN repos_snap
-                    ON repos_snap.Id = repos_env.Id_snap
-                INNER JOIN repos
-                    ON repos.Id = repos_snap.Id_repo
-                WHERE repos.Name = :name
-                AND (repos.Dist IS NULL OR repos.Dist = '')
-                AND (repos.Section IS NULL OR repos.Section = '')
-                AND repos_env.Env = :env
-                AND repos_snap.Status = 'active'");
-            } else {
-                $stmt = $this->db->prepare("SELECT repos_env.Description FROM repos_env
-                INNER JOIN repos_snap
-                    ON repos_snap.Id = repos_env.Id_snap
-                INNER JOIN repos
-                    ON repos.Id = repos_snap.Id_repo
-                WHERE repos.Name = :name
-                AND repos.Dist = :dist
-                AND repos.Section = :section
-                AND repos_env.Env = :env
-                AND repos_snap.Status = 'active'");
-                $stmt->bindValue(':dist', $dist);
-                $stmt->bindValue(':section', $section);
-            }
-            $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':env', $env);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-
-        /**
-         *  Si aucune description n'existe ou si aucun environnement n'existe alors on renvoie une description vide
-         */
-        if ($this->db->isempty($result) === true) {
-            return '';
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $description = $row['Description'];
-        }
-
-        return $description;
     }
 
     /**
@@ -584,98 +479,6 @@ class Repo extends \Models\Model
     }
 
     /**
-     *  Vérifie qu'un environnement de repo existe
-     *  Retourne true si existe
-     *  Retourne false si n'existe pas
-     */
-    public function existsEnv(string $name, string $dist = null, string $section = null, string $env)
-    {
-        try {
-            if (empty($dist) and empty($section)) {
-                $stmt = $this->db->prepare("SELECT repos.Id
-                FROM repos
-                INNER JOIN repos_snap
-                    ON repos_snap.Id_repo = repos.Id
-                INNER JOIN repos_env
-                    ON repos_env.Id_snap = repos_snap.Id
-                WHERE repos.Name = :name
-                AND (repos.Dist IS NULL OR repos.Dist = '')
-                AND (repos.Section IS NULL OR repos.Section = '')
-                AND repos_env.Env = :env
-                AND repos_snap.Status = 'active'");
-            } else {
-                $stmt = $this->db->prepare("SELECT repos.Id
-                FROM repos
-                INNER JOIN repos_snap
-                    ON repos_snap.Id_repo = repos.Id
-                INNER JOIN repos_env
-                    ON repos_env.Id_snap = repos_snap.Id
-                WHERE repos.Name = :name
-                AND repos.Dist = :dist
-                AND repos.Section = :section
-                AND repos_env.Env = :env
-                AND repos_snap.Status = 'active'");
-                $stmt->bindValue(':dist', $dist);
-                $stmt->bindValue(':section', $section);
-            }
-            $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':env', $env);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-
-        if ($this->db->isempty($result) === true) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     *  Return true if a snapshot exists at a specific date in database, from the repo name and the date
-     */
-    public function existsRepoSnapDate(string $date, string $name, string|null $dist, string|null $section)
-    {
-        try {
-            if (empty($dist) and empty($section)) {
-                $stmt = $this->db->prepare("SELECT repos_snap.Id
-                FROM repos
-                INNER JOIN repos_snap
-                    ON repos_snap.Id_repo = repos.Id
-                WHERE repos.Name = :name
-                AND (repos.Dist IS NULL OR repos.Dist = '')
-                AND (repos.Section IS NULL OR repos.Section = '')   
-                AND repos_snap.Date = :date
-                AND repos_snap.Status = 'active'");
-            } else {
-                $stmt = $this->db->prepare("SELECT repos_snap.Id
-                FROM repos
-                INNER JOIN repos_snap
-                    ON repos_snap.Id_repo = repos.Id
-                WHERE repos.Name = :name
-                AND repos.Dist = :dist
-                AND repos.Section = :section            
-                AND repos_snap.Date = :date
-                AND repos_snap.Status = 'active'");
-                $stmt->bindValue(':dist', $dist);
-                $stmt->bindValue(':section', $section);
-            }
-            $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':date', $date);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-
-        if ($this->db->isempty($result) === true) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      *  Return true if env exists, based on its name and the snapshot Id it points to
      */
     public function existsSnapIdEnv(string $snapId, string $env)
@@ -694,49 +497,6 @@ class Repo extends \Models\Model
             $this->db->logError($e);
         }
 
-        if ($this->db->isempty($result) === true) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     *  Vérifie si un repo existe et est actif (contient des snapshots actifs)
-     */
-    public function isActive(string $name, string $dist = null, string $section = null)
-    {
-        try {
-            if (empty($dist) and empty($section)) {
-                $stmt = $this->db->prepare("SELECT repos.Id
-                FROM repos
-                INNER JOIN repos_snap
-                    ON repos_snap.Id_repo = repos.Id
-                WHERE repos.Name = :name
-                AND (repos.Dist IS NULL OR repos.Dist = '')
-                AND (repos.Section IS NULL OR repos.Section = '')
-                AND repos_snap.Status = 'active'");
-            } else {
-                $stmt = $this->db->prepare("SELECT repos.Id
-                FROM repos
-                INNER JOIN repos_snap
-                    ON repos_snap.Id_repo = repos.Id
-                WHERE repos.Name = :name
-                AND repos.Dist = :dist
-                AND repos.Section = :section
-                AND repos_snap.Status = 'active'");
-                $stmt->bindValue(':dist', $dist);
-                $stmt->bindValue(':section', $section);
-            }
-            $stmt->bindValue(':name', $name);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-
-        /**
-         *  Si le résultat est vide alors le repo n'existe pas où alors il ne contient aucun snapshot actif
-         */
         if ($this->db->isempty($result) === true) {
             return false;
         }

@@ -2,7 +2,7 @@
 description: Ubuntu official archived (EOL) repositories
 type: deb
 repositories:
-  - name: ubuntu
+  - name: ubuntu-archive
     type: deb
     description: Ubuntu official archived (EOL) repositories
     url: https://old-releases.ubuntu.com/ubuntu

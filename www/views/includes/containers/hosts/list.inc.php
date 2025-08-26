@@ -74,9 +74,11 @@
                 </div>
             </div>
 
-            <div id="select-all-hosts" class="flex align-item-center column-gap-5 justify-end mediumopacity pointer margin-bottom-10 margin-right-30">
-                <p>Select all hosts</p>
-                <input type="checkbox" title="Select all hosts" />
+            <div class="flex justify-end margin-bottom-10 margin-right-30">
+                <div id="select-all-hosts" class="flex align-item-center column-gap-5 mediumopacity pointer">
+                    <p>Select all hosts</p>
+                    <input type="checkbox" title="Select all hosts" />
+                </div>
             </div>
         </div>
 
