@@ -21,6 +21,22 @@ class Rpm extends \Controllers\Repo\Repo
     }
 
     /**
+     *  Return repository environment description
+     */
+    public function getDescriptionByName(string $name, int $releaseVersion, string $env) : string|null
+    {
+        return $this->model->getDescriptionByName($name, $releaseVersion, $env);
+    }
+
+    /**
+     *  Return environment Id from repo name
+     */
+    public function getEnvIdFromRepoName(string $name, int $releaseVersion, string $env) : array
+    {
+        return $this->model->getEnvIdFromRepoName($name, $releaseVersion, $env);
+    }
+
+    /**
      *  Return true if a repository with the specified name and release version exists
      */
     public function exists(string $name, int $releaseVersion) : bool
@@ -29,10 +45,34 @@ class Rpm extends \Controllers\Repo\Repo
     }
 
     /**
+     *  Return true if a snapshot exists at a specific date in database, from the repository name, version and date
+     */
+    public function existsSnapDate(string $name, int $releaseVersion, string $date) : bool
+    {
+        return $this->model->existsSnapDate($name, $releaseVersion, $date);
+    }
+
+    /**
+     *  Return true if a repository environment exists, based on its name and the repository name it points to
+     */
+    public function existsEnv(string $name, int $releaseVersion, string $env) : bool
+    {
+        return $this->model->existsEnv($name, $releaseVersion, $env);
+    }
+
+    /**
      *  Add a new RPM repository
      */
     public function add(string $name, int $releaseVersion, string $source = '') : void
     {
         $this->model->add($name, $releaseVersion, $source);
+    }
+
+    /**
+     *  Return true if the repository exists and is active (has snapshots)
+     */
+    public function isActive(string $name, int $releaseVersion) : bool
+    {
+        return $this->model->isActive($name, $releaseVersion);
     }
 }

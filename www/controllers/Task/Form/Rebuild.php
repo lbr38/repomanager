@@ -41,5 +41,7 @@ class Rebuild
         if ($myrepo->getPackageType() == 'deb') {
             $myhistory->set('Running task: rebuild repository metadata files of <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span>', 'success');
         }
+
+        unset($myrepo, $myhistory);
     }
 }

@@ -54,30 +54,30 @@ class Statistic extends Service
                     }
 
                     if ($repo['Package_type'] == 'rpm') {
-                        if (file_exists(REPOS_DIR . '/' . $repo['Name'] . '_' . $repo['Env'])) {
+                        if (file_exists(REPOS_DIR . '/rpm/' . $repo['Name'] . '/' . $repo['Releasever'] . '/' . $repo['Env'])) {
                             /**
                              *  Calculate repo size in bytes
                              */
-                            $repoSize = \Controllers\Filesystem\Directory::getSize(REPOS_DIR . '/' . $repo['Name'] . '_' . $repo['Env'] . '/');
+                            $repoSize = \Controllers\Filesystem\Directory::getSize(REPOS_DIR . '/rpm/' . $repo['Name'] . '/' . $repo['Releasever'] . '/' . $repo['Env']);
 
                             /**
                              *  Calculate number of packages in the repo
                              */
-                            $packagesCount = count(\Controllers\Filesystem\File::findRecursive(REPOS_DIR . '/' . $repo['Name'] . '_' . $repo['Env'] . '/', ['rpm']));
+                            $packagesCount = count(\Controllers\Filesystem\File::findRecursive(REPOS_DIR . '/rpm/' . $repo['Name'] . '/' . $repo['Releasever'] . '/' . $repo['Env'], ['rpm']));
                         }
                     }
 
                     if ($repo['Package_type'] == 'deb') {
-                        if (file_exists(REPOS_DIR . '/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '_' . $repo['Env'])) {
+                        if (file_exists(REPOS_DIR . '/deb/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '/' . $repo['Env'])) {
                             /**
                              *  Calculate repo size in bytes
                              */
-                            $repoSize = \Controllers\Filesystem\Directory::getSize(REPOS_DIR . '/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '_' . $repo['Env'] . '/');
+                            $repoSize = \Controllers\Filesystem\Directory::getSize(REPOS_DIR . '/deb/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '/' . $repo['Env']);
 
                             /**
                              *  Calculate number of packages in the repo
                              */
-                            $packagesCount = count(\Controllers\Filesystem\File::findRecursive(REPOS_DIR . '/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '_' . $repo['Env'] . '/', ['deb']));
+                            $packagesCount = count(\Controllers\Filesystem\File::findRecursive(REPOS_DIR . '/deb/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '/' . $repo['Env'], ['deb']));
                         }
                     }
 
@@ -380,14 +380,14 @@ class Statistic extends Service
                          *  Case the repo is a deb repo
                          */
                         if ($repo['Package_type'] == 'deb') {
-                            $repoUri = '/repo/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '_' . $repo['Env'];
+                            $repoUri = '/repo/deb/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '/' . $repo['Env'];
                         }
 
                         /**
                          *  Case the repo is a rpm repo
                          */
                         if ($repo['Package_type'] == 'rpm') {
-                            $repoUri = '/repo/' . $repo['Name'] . '_' . $repo['Env'];
+                            $repoUri = '/repo/rpm/' . $repo['Name'] . '/' . $repo['Releasever'] . '/' . $repo['Env'];
                         }
 
                         /**

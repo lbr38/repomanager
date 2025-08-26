@@ -25,21 +25,21 @@ if (!$repoSnapshotController->exists($snapId)) {
 $myrepo->getAllById('', $snapId, '');
 
 /**
- *  Build repo path
+ *  Define snapshot path
  */
 if ($myrepo->getPackageType() == 'rpm') {
-    $repoPath = REPOS_DIR . '/' . $myrepo->getDateFormatted() . '_' . $myrepo->getName();
+    $snapshotPath = REPOS_DIR . '/rpm/' . $myrepo->getName() . '/' . $myrepo->getReleasever() . '/' . $myrepo->getDate();
 }
 
 if ($myrepo->getPackageType() == 'deb') {
-    $repoPath = REPOS_DIR . '/' . $myrepo->getName() . '/' . $myrepo->getDist() . '/' . $myrepo->getDateFormatted() . '_' . $myrepo->getSection();
+    $snapshotPath = REPOS_DIR . '/deb/' . $myrepo->getName() . '/' . $myrepo->getDist() . '/' . $myrepo->getSection() . '/' . $myrepo->getDate();
 }
 
 /**
  *  If the path does not exist on the server then we quit
  *  browse/list container should have already throwed an error
  */
-if (!is_dir($repoPath)) {
+if (!is_dir($snapshotPath)) {
     throw new Exception();
 }
 

@@ -8,7 +8,8 @@ class Create
 {
     public function validate(array $formParams)
     {
-        $myrepo = new \Controllers\Repo\Repo();
+        $rpmRepoController = new \Controllers\Repo\Rpm();
+        $debRepoController = new \Controllers\Repo\Deb();
         $myhistory = new \Controllers\History();
 
         /**
@@ -122,11 +123,13 @@ class Create
         Param\Arch::check($formParams['arch']);
 
         /**
-         *  Check if a repo/section with the same name is already active with snapshots
+         *  Check if a repository with the same name is already active with snapshots
          */
         if ($formParams['package-type'] == 'rpm') {
-            if ($myrepo->isActive($targetName) === true) {
-                throw new Exception('<span class="label-white">' . $targetName . '</span> repository already exists');
+            foreach ($formParams['releasever'] as $releasever) {
+                if ($rpmRepoController->isActive($targetName, $releasever)) {
+                    throw new Exception('<span class="label-white">' . $targetName . ' ❯ ' . $releasever . '</span> repository already exists');
+                }
             }
         }
 
@@ -136,7 +139,7 @@ class Create
              */
             foreach ($formParams['dist'] as $distribution) {
                 foreach ($formParams['section'] as $section) {
-                    if ($myrepo->isActive($targetName, $distribution, $section) === true) {
+                    if ($debRepoController->isActive($targetName, $distribution, $section)) {
                         throw new Exception('<span class="label-white">' . $targetName . ' ❯ ' . $distribution . ' ❯ ' . $section . '</span> repository already exists');
                     }
                 }
@@ -162,5 +165,7 @@ class Create
                 }
             }
         }
+
+        unset($rpmRepoController, $debRepoController, $myhistory);
     }
 }

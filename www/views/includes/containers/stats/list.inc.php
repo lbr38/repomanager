@@ -3,7 +3,7 @@
 
     <?php
     if ($myrepo->getPackageType() == 'rpm') {
-        $repo = $myrepo->getName();
+        $repo = $myrepo->getName() . ' ❯ ' . $myrepo->getReleasever();
     }
     if ($myrepo->getPackageType() == 'deb') {
         $repo = $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection();

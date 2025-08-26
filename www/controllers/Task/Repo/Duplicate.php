@@ -109,43 +109,45 @@ class Duplicate
              *  Check if a repo with the same name already exists
              */
             if ($this->repo->getPackageType() == 'rpm') {
-                if ($this->repo->isActive($this->repo->getName()) === true) {
-                    throw new Exception('A repo <span class="label-black">' . $this->repo->getName() . '</span> already exists');
+                if ($this->rpmRepoController->isActive($this->repo->getName(), $this->repo->getReleasever())) {
+                    throw new Exception('A repo <span class="label-black">' . $this->repo->getName() . ' (release ver. ' . $this->repo->getReleasever() . ')</span> already exists');
                 }
             }
             if ($this->repo->getPackageType() == 'deb') {
-                if ($this->repo->isActive($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection()) === true) {
+                if ($this->debRepoController->isActive($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection())) {
                     throw new Exception('A repo <span class="label-black">' . $this->repo->getName() . ' ❯ ' . $this->repo->getDist() . ' ❯ ' . $this->repo->getSection() . '</span> already exists');
                 }
             }
 
             /**
-             *  Set target dir path
+             *  Define source snapshot path
              */
-            if ($this->repo->getPackageType() == 'rpm') {
-                $targetDir = REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName();
+            if ($this->sourceRepo->getPackageType() == 'rpm') {
+                $sourceSnapshotPath = REPOS_DIR . '/rpm/' . $this->sourceRepo->getName() . '/' . $this->sourceRepo->getReleasever() . '/' . $this->sourceRepo->getDate();
             }
-            if ($this->repo->getPackageType() == 'deb') {
-                $targetDir = REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection();
-
-                /**
-                 *  Prepare the target directory by creating the dist directory if it does not already exist
-                 */
-                if (!is_dir(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist())) {
-                    if (!mkdir(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist(), 0770, true)) {
-                        throw new Exception('Cannot create directory ' . REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist());
-                    }
-                }
+            if ($this->sourceRepo->getPackageType() == 'deb') {
+                $sourceSnapshotPath = REPOS_DIR . '/deb/' . $this->sourceRepo->getName() . '/' . $this->sourceRepo->getDist() . '/' . $this->sourceRepo->getSection() . '/' . $this->sourceRepo->getDate();
             }
 
             /**
-             *  Set source repository path
+             *  Define target snapshot path
              */
-            if ($this->sourceRepo->getPackageType() == 'rpm') {
-                $sourceDir = REPOS_DIR . '/' . $this->sourceRepo->getDateFormatted() . '_' . $this->sourceRepo->getName();
+            if ($this->repo->getPackageType() == 'rpm') {
+                $parentDir = REPOS_DIR . '/rpm/' . $this->repo->getName() . '/' . $this->repo->getReleasever();
+                $targetSnapshotPath = REPOS_DIR . '/rpm/' . $this->repo->getName() . '/' . $this->repo->getReleasever() . '/'. $this->repo->getDate();
             }
-            if ($this->sourceRepo->getPackageType() == 'deb') {
-                $sourceDir = REPOS_DIR . '/' . $this->sourceRepo->getName() . '/' . $this->sourceRepo->getDist() . '/' . $this->sourceRepo->getDateFormatted() . '_' . $this->sourceRepo->getSection();
+            if ($this->repo->getPackageType() == 'deb') {
+                $parentDir = REPOS_DIR . '/deb/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection();
+                $targetSnapshotPath = REPOS_DIR . '/deb/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '/' . $this->repo->getDate();
+            }
+
+            /**
+             *  Create parent directory if it does not already exists
+             */
+            if (!is_dir($parentDir)) {
+                if (!mkdir($parentDir, 0770, true)) {
+                    throw new Exception('Cannot create directory ' . $parentDir);
+                }
             }
 
             /**
@@ -165,8 +167,8 @@ class Duplicate
             /**
              *  Get all files and directories in the source repository
              */
-            $dirs  = \Controllers\Filesystem\File::recursiveScan($sourceDir, 'dir', true);
-            $files = \Controllers\Filesystem\File::recursiveScan($sourceDir, 'file', true);
+            $dirs  = \Controllers\Filesystem\File::recursiveScan($sourceSnapshotPath, 'dir', true);
+            $files = \Controllers\Filesystem\File::recursiveScan($sourceSnapshotPath, 'file', true);
 
             /**
              *  Create all directories in the temporary directory
@@ -198,7 +200,7 @@ class Duplicate
                 /**
                  *  Show progress
                  */
-                $this->taskLogSubStepController->new('copying-file-' . $fileCounter, 'COPYING FILE (' . $fileCounter . '/' . $totalFiles . ')', 'From ' . $sourceDir . '/' . $file . '<br>To ' . $tempDir . '/' . $file);
+                $this->taskLogSubStepController->new('copying-file-' . $fileCounter, 'COPYING FILE (' . $fileCounter . '/' . $totalFiles . ')', 'From ' . $sourceSnapshotPath . '/' . $file . '<br>To ' . $tempDir . '/' . $file);
 
                 /**
                  *  Ignore file if it was already copied (completed file exists)
@@ -221,8 +223,8 @@ class Duplicate
                 /**
                  *  Copy the file
                  */
-                if (!copy($sourceDir . '/' . $file, $tempDir . '/' . $file)) {
-                    throw new Exception('Cannot copy file ' . $sourceDir . '/' . $file . ' to ' . $tempDir . '/' . $file);
+                if (!copy($sourceSnapshotPath . '/' . $file, $tempDir . '/' . $file)) {
+                    throw new Exception('Cannot copy file ' . $sourceSnapshotPath . '/' . $file . ' to ' . $tempDir . '/' . $file);
                 }
 
                 /**
@@ -240,16 +242,18 @@ class Duplicate
             /**
              *  Rename the temporary directory to the target directory
              */
-            if (!rename($tempDir, $targetDir)) {
-                throw new Exception('Cannot rename temporary directory ' . $tempDir . ' to ' . $targetDir);
+            $this->taskLogSubStepController->new('moving-temp-dir', 'MOVING TEMPORARY DIRECTORY');
+            if (!rename($tempDir, $targetSnapshotPath)) {
+                throw new Exception('Cannot rename temporary directory ' . $tempDir . ' to ' . $targetSnapshotPath);
             }
+            $this->taskLogSubStepController->completed();
 
             try {
                 /**
                  *  Cleaning completed files now that the temporary directory has been renamed
                  *  Search for all file with '.completed' extension and remove them
                  */
-                $files = \Controllers\Filesystem\File::findRecursive($targetDir, ['completed'], true);
+                $files = \Controllers\Filesystem\File::findRecursive($targetSnapshotPath, ['completed'], true);
 
                 foreach ($files as $file) {
                     if (!unlink($file)) {
@@ -279,12 +283,10 @@ class Duplicate
                         $this->taskLogSubStepController->new('pointing-environment', 'POINTING ENVIRONMENT');
 
                         if ($this->repo->getPackageType() == 'rpm') {
-                            $targetFile = $this->repo->getDateFormatted() . '_' . $this->repo->getName();
-                            $link = REPOS_DIR . '/' . $this->repo->getName() . '_' . $env;
+                            $link = REPOS_DIR . '/rpm/' . $this->repo->getName() . '/' . $this->repo->getReleasever() . '/' . $env;
                         }
                         if ($this->repo->getPackageType() == 'deb') {
-                            $targetFile = $this->repo->getDateFormatted() . '_' . $this->repo->getSection();
-                            $link = REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '_' . $env;
+                            $link = REPOS_DIR . '/deb/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '/' . $env;
                         }
 
                         /**
@@ -299,13 +301,13 @@ class Duplicate
                         /**
                          *  Create symlink
                          */
-                        if (!symlink($targetFile, $link)) {
+                        if (!symlink($this->repo->getDate(), $link)) {
                             throw new Exception('Could not point environment to the repository');
                         }
 
                         $this->taskLogSubStepController->completed();
 
-                        unset($targetFile, $link);
+                        unset($link);
                     }
                 }
 
@@ -366,9 +368,9 @@ class Duplicate
              *  If an error occurred after the temporary directory was renamed, clean the target directory
              */
             } catch (Exception $e) {
-                if (file_exists($targetDir)) {
-                    if (!\Controllers\Filesystem\Directory::deleteRecursive($targetDir)) {
-                        throw new Exception('An error occurred while finalizing the task, and the target directory ' . $targetDir . ' could not be cleaned');
+                if (file_exists($targetSnapshotPath)) {
+                    if (!\Controllers\Filesystem\Directory::deleteRecursive($targetSnapshotPath)) {
+                        throw new Exception('An error occurred while finalizing the task, and the target directory ' . $targetSnapshotPath . ' could not be cleaned');
                     }
                 }
 

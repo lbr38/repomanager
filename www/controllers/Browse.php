@@ -40,7 +40,7 @@ class Browse
                      *  If it is a file then we add it to the queue array which contains the list of all files in the current directory or sub-directory
                      *  Index the file name $file and its path $path/$file by removing the beginning of the full path so it is not visible in the source code
                      */
-                    $queue[$file] = str_replace(REPOS_DIR . '/', '', "$path/$file");
+                    $queue[$file] = str_replace(REPOS_DIR . '/', '', $path . '/' . $file);
                 }
             }
 

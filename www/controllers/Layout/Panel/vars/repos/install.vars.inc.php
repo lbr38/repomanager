@@ -74,7 +74,7 @@ foreach ($repos as $repo) {
         <span class="label-pkg-<?= $packageType ?>"><?= strtoupper($packageType) ?></span>
     </div>
 
-    <pre class="repository-install-commands codeblock margin-top-10 margin-bottom-10 copy" url="<?= WWW_REPOS_DIR_URL ?>" hostname="<?= WWW_HOSTNAME ?>" prefix="<?= REPO_CONF_FILES_PREFIX ?>" package-type="<?= $packageType ?>" name="<?= $repoController->getName() ?>" dist="<?= $repoController->getDist() ?>" component="<?= $repoController->getSection() ?>"></pre>
+    <pre class="repository-install-commands codeblock margin-top-10 margin-bottom-10 copy" url="<?= WWW_REPOS_DIR_URL ?>" hostname="<?= WWW_HOSTNAME ?>" prefix="<?= REPO_CONF_FILES_PREFIX ?>" package-type="<?= $packageType ?>" name="<?= $repoController->getName() ?>" dist="<?= $repoController->getDist() ?>" component="<?= $repoController->getSection() ?>" releasever="<?= $repoController->getReleasever() ?>"></pre>
     <?php
 }
 

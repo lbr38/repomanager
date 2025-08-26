@@ -147,10 +147,10 @@ trait Finalize
                  */
                 if (empty($this->repo->getDescription())) {
                     if ($this->repo->getPackageType() == 'rpm') {
-                        $actualDescription = $this->repo->getDescriptionByName($this->repo->getName(), '', '', $env);
+                        $actualDescription = $this->rpmRepoController->getDescriptionByName($this->repo->getName(), $this->repo->getReleasever(), $env);
                     }
                     if ($this->repo->getPackageType() == 'deb') {
-                        $actualDescription = $this->repo->getDescriptionByName($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection(), $env);
+                        $actualDescription = $this->debRepoController->getDescriptionByName($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection(), $env);
                     }
 
                     /**
@@ -166,14 +166,19 @@ trait Finalize
                 /**
                  *  Retrieve the Id of the environment currently in place (if there is one)
                  */
-                $actualEnvIds = $this->repo->getEnvIdFromRepoName($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection(), $env);
+                if ($this->repo->getPackageType() == 'rpm') {
+                    $actualEnvIds = $this->rpmRepoController->getEnvIdFromRepoName($this->repo->getName(), $this->repo->getReleasever(), $env);
+                }
+                if ($this->repo->getPackageType() == 'deb') {
+                    $actualEnvIds = $this->debRepoController->getEnvIdFromRepoName($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection(), $env);
+                }
 
                 /**
                  *  Delete the possible environment of the same name pointing to a snapshot of this repo (if there is one)
                  */
                 if (!empty($actualEnvIds)) {
                     foreach ($actualEnvIds as $actualEnvId) {
-                        $this->repoEnvController->remove($actualEnvId['Id']);
+                        $this->repoEnvController->remove($actualEnvId);
                     }
                 }
 
@@ -192,14 +197,14 @@ trait Finalize
         $this->taskLogSubStepController->new('applying-permissions', 'APPLYING PERMISSIONS');
 
         if ($this->repo->getPackageType() == 'rpm') {
-            \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName(), 'file', 660);
-            \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName(), 'dir', 770);
-            \Controllers\Filesystem\File::recursiveChown(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName(), WWW_USER, 'repomanager');
+            \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/rpm/' . $this->repo->getName() . '/' . $this->repo->getReleasever() . '/' . $this->repo->getDate(), 'file', 660);
+            \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/rpm/' . $this->repo->getName() . '/' . $this->repo->getReleasever() . '/' . $this->repo->getDate(), 'dir', 770);
+            \Controllers\Filesystem\File::recursiveChown(REPOS_DIR . '/rpm/' . $this->repo->getName() . '/' . $this->repo->getReleasever() . '/' . $this->repo->getDate(), WWW_USER, 'repomanager');
         }
         if ($this->repo->getPackageType() == 'deb') {
-            \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection(), 'file', 660);
-            \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection(), 'dir', 770);
-            \Controllers\Filesystem\File::recursiveChown(REPOS_DIR . '/' . $this->repo->getName(), WWW_USER, 'repomanager');
+            \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/deb/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '/' . $this->repo->getDate(), 'file', 660);
+            \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/deb/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '/' . $this->repo->getDate(), 'dir', 770);
+            \Controllers\Filesystem\File::recursiveChown(REPOS_DIR . '/deb/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '/' . $this->repo->getDate(), WWW_USER, 'repomanager');
         }
 
         $this->taskLogSubStepController->completed();

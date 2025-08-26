@@ -100,6 +100,7 @@ if (!empty($groupsList)) {
                             $rebuild        = $repo['Reconstruct'];
                             $status         = $repo['Status'];
                             $packageType    = $repo['Package_type'];
+                            $date           = $repo['Date'];
                             $dateFormatted  = DateTime::createFromFormat('Y-m-d', $repo['Date'])->format('d-m-Y');
                             $time           = $repo['Time'];
                             $type           = $repo['Type'];
@@ -147,6 +148,10 @@ if (!empty($groupsList)) {
                                 }
                                 if ($name == $previousName and $releaseVersion == $previousReleaseVersion) {
                                     $printReleaseVersion = false;
+                                }
+                                if ($name == $previousName and $releaseVersion != $previousReleaseVersion) {
+                                    $printDoubleEmptyLine = true;
+                                    $envCounter = 1;
                                 }
 
                                 /**
@@ -241,12 +246,12 @@ if (!empty($groupsList)) {
                                      *  Print a warning icon if repo directory does not exist on the server
                                      */
                                     if ($packageType == 'rpm') {
-                                        if (!is_dir(REPOS_DIR . '/' . $dateFormatted . '_' . $name)) {
+                                        if (!is_dir(REPOS_DIR . '/rpm/' . $name . '/' . $releaseVersion . '/' . $date)) {
                                             echo '<img class="icon" src="/assets/icons/warning.svg" title="This snapshot directory is missing on the server." />';
                                         }
                                     }
                                     if ($packageType == 'deb') {
-                                        if (!is_dir(REPOS_DIR . '/' . $name . '/' . $dist . '/' . $dateFormatted . '_' . $section)) {
+                                        if (!is_dir(REPOS_DIR . '/deb/' . $name . '/' . $dist . '/' . $section . '/' . $date)) {
                                             echo '<img class="icon" src="/assets/icons/warning.svg" title="This snapshot directory is missing on the server." />';
                                         }
                                     }
@@ -274,11 +279,11 @@ if (!empty($groupsList)) {
                              *  Generate repo relative path
                              */
                             if ($packageType == 'rpm') {
-                                $repoRelativePath = $dateFormatted . '_' . $name;
+                                $repoRelativePath = 'rpm/' .$name . '/' . $releaseVersion . '/' . $date;
                             }
 
                             if ($packageType == 'deb') {
-                                $repoRelativePath = $name . '/' . $dist . '/' . $dateFormatted . '_' . $section;
+                                $repoRelativePath = 'deb/' . $name . '/' . $dist . '/' . $section . '/' . $date;
                             } ?>
 
                             <div class="item-snapshot">

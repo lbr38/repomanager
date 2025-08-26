@@ -38,6 +38,9 @@ RUN if [ "$env" = "devel" ]; then \
        cd /tmp/repomanager && git checkout devel; \
     fi
 
+# TODO debug 5.0.0
+RUN cd /tmp/repomanager && git checkout 5.0.0
+
 # SERVICES CONFIG
 
 # Configure Nginx

@@ -23,6 +23,17 @@ class Cli
         echo $message . "\033[0m" . PHP_EOL;
     }
 
+    public static function warning(string $message, string $title = null)
+    {
+        if (!is_null($title)) {
+            echo self::date() . "\033[33m " . $title . ':' . PHP_EOL;
+            echo $message . "\033[0m" . PHP_EOL;
+        } else {
+            echo self::date() . "\033[33m " . $message . "\033[0m" . PHP_EOL;
+            return;
+        }
+    }
+
     /**
      *  Returns current date and time
      */
