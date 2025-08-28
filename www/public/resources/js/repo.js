@@ -32,7 +32,6 @@ function searchRepo()
         /**
          *  Retrieve all repos lines
          */
-        // $('.repos-list-group-flex-div').each(function () {
         $('.item-repo').each(function () {
             var name = $(this).attr('name');
             var dist = $(this).attr('dist');
@@ -229,16 +228,22 @@ $(document).on('click','.hideGroup',function () {
 });
 
 /**
- *  Event: print env delete and install buttons
+ *  Event: print environment checkbox
  */
-$(document).on('mouseenter','.item-env, .item-env-info',function () {
-    var envId = $(this).attr('env-id');
-    $('#repos-list-container').find('.item-env-info[env-id="' + envId + '"]').css('visibility', 'visible');
-});
+// $(document).on('mouseenter','.item-env, .item-env-info',function () {
+//     var envId = $(this).attr('env-id');
+//     $('#repos-list-container').find('.item-env-info[env-id="' + envId + '"]').find('input[type="checkbox"]').css('visibility', 'visible');
+// });
 
-/**
- *  Event: hide env delete and install buttons
- */
-$(document).on('mouseleave','.item-env, .item-env-info',function () {
-    $('#repos-list-container').find('.item-env-info').css('visibility', 'hidden');
-});
+// /**
+//  *  Event: hide environment checkbox
+//  */
+// $(document).on('mouseleave','.item-env, .item-env-info',function () {
+//     var envId = $(this).attr('env-id');
+//     var checkbox = $('#repos-list-container').find('.item-env-info[env-id="' + envId + '"]').find('input[type="checkbox"]');
+
+//     // Only hide the checkbox if not checked
+//     // if (!checkbox.is(':checked')) {
+//     //     checkbox.css('visibility', 'hidden');
+//     // }
+// });

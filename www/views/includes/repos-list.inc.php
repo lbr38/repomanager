@@ -363,21 +363,18 @@ if (!empty($groupsList)) {
 
                             <div class="item-env-info" env-id="<?= $envId ?>">
                                 <?php
-                                /**
-                                 *  Remove env icon
-                                 */
+                                // Environment checkbox
                                 if (!empty($env)) {
                                     // If the user is an admin or is a regular user with the 'removeEnv' permission
-                                    if (IS_ADMIN or in_array('removeEnv', USER_PERMISSIONS['repositories']['allowed-actions']['repos'])) {
-                                        echo '<img src="/assets/icons/delete.svg" class="delete-env-btn icon-lowopacity" title="Remove ' . $env . ' environment" repo-id="' . $repoId . '" snap-id="' . $snapId . '" env-id="' . $envId . '" env="' . $env . '" />';
+                                    if (IS_ADMIN or in_array('removeEnv', USER_PERMISSIONS['repositories']['allowed-actions']['repos'])) { ?>
+                                        <input type="checkbox" cid="<?= $repoId . $snapId . $envId ?>" class="select-env-checkbox icon-lowopacity" name="env-checkbox" repo-id="<?= $repoId ?>" snap-id="<?= $snapId ?>" env-id="<?= $envId ?>" env="<?= $env ?>" title="Select environment">
+                                        <?php
                                     }
                                 } ?>
                             </div>
 
                             <?php
-                            /**
-                             *  Description input
-                             */
+                            // Description input
                             echo '<div class="item-desc">';
                             if (!empty($env)) {
                                 echo '<input type="text" class="repo-description-input" env-id="' . $envId . '" placeholder="🖉 add a description" value=\'' . htmlspecialchars_decode($description) . '\' />';

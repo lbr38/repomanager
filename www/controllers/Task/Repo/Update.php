@@ -233,10 +233,10 @@ class Update
              *  Define snapshot directory path
              */
             if ($this->repo->getPackageType() == 'rpm') {
-                $snapshotPath = REPOS_DIR . '/rpm/' . $this->repo->getName() . '/' . $this->repo->getReleasever() . '/' . DATE_DMY;
+                $snapshotPath = REPOS_DIR . '/rpm/' . $this->repo->getName() . '/' . $this->repo->getReleasever() . '/' . DATE_YMD;
             }
             if ($this->repo->getPackageType() == 'deb') {
-                $snapshotPath = REPOS_DIR . '/deb/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '/' . DATE_DMY;
+                $snapshotPath = REPOS_DIR . '/deb/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '/' . DATE_YMD;
             }
 
             /**

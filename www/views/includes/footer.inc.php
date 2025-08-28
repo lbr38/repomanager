@@ -93,6 +93,7 @@ if (__ACTUAL_URI__[1] == '') {
         'events/repo/source/distribution',
         'events/repo/source/releasever',
         'events/repo/source/source',
+        'events/repo/env',
         'events/repo/edit',
         'events/repo/install',
         'events/task/stop'

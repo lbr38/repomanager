@@ -323,7 +323,7 @@ article {
     position: inherit !important;
 }
 
-.item-info img, .item-env-info img {
+.item-info img {
     height: 19px;
     margin-left: 4px !important;
     margin-right: 4px !important;
@@ -335,13 +335,14 @@ article {
 }
 
 .item-env-info {
-    visibility: hidden;
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    align-content: flex-start;
-    column-gap: 2px;
-    padding-left: 4px !important;
+    justify-content: center;
+}
+
+.item-env-info input[type=checkbox] {
+    height: 20px;
+    width: 20px;
+    visibility: hidden;
 }
 
 .item-desc {
