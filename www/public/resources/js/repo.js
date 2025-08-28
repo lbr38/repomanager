@@ -226,24 +226,3 @@ $(document).on('click','.hideGroup',function () {
 
     slide('.repo-list-group-container[group-id="' + id + '"]');
 });
-
-/**
- *  Event: print environment checkbox
- */
-// $(document).on('mouseenter','.item-env, .item-env-info',function () {
-//     var envId = $(this).attr('env-id');
-//     $('#repos-list-container').find('.item-env-info[env-id="' + envId + '"]').find('input[type="checkbox"]').css('visibility', 'visible');
-// });
-
-// /**
-//  *  Event: hide environment checkbox
-//  */
-// $(document).on('mouseleave','.item-env, .item-env-info',function () {
-//     var envId = $(this).attr('env-id');
-//     var checkbox = $('#repos-list-container').find('.item-env-info[env-id="' + envId + '"]').find('input[type="checkbox"]');
-
-//     // Only hide the checkbox if not checked
-//     // if (!checkbox.is(':checked')) {
-//     //     checkbox.css('visibility', 'hidden');
-//     // }
-// });
