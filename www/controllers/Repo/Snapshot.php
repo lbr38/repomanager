@@ -145,7 +145,7 @@ class Snapshot
                  *  Case where the snapshot has been successfully deleted
                  */
                 if ($packageType == 'rpm') {
-                    $removedSnaps[] = '<span class="label-white">' . $repoName . '</span>⸺<span class="label-black">' . $snapDateFormatted . '</span> snapshot has been deleted';
+                    $removedSnaps[] = '<span class="label-white">' . $repoName . ' ❯ ' . $repoReleasever . '</span>⸺<span class="label-black">' . $snapDateFormatted . '</span> snapshot has been deleted';
                 }
                 if ($packageType == 'deb') {
                     $removedSnaps[] = '<span class="label-white">' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</span>⸺<span class="label-black">' . $snapDateFormatted . '</span> snapshot has been deleted';

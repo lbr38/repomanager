@@ -473,9 +473,9 @@ class Task
     public function executeId(int $id) : void
     {
         // TODO debug
-        // $myprocess = new \Controllers\Process('/usr/bin/php ' . ROOT . '/tasks/execute.php --id="' . $id . '" >/dev/null 2>/dev/null &');
-        // $myprocess->execute();
-        // $myprocess->close();
+        $myprocess = new \Controllers\Process('/usr/bin/php ' . ROOT . '/tasks/execute.php --id="' . $id . '" >/dev/null 2>/dev/null &');
+        $myprocess->execute();
+        $myprocess->close();
     }
 
     /**
