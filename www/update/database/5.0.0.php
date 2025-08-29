@@ -28,6 +28,7 @@ try {
 
     // Quit if there is no repository
     if (empty($repos)) {
+        CliLog::warning('No existing repository found, nothing to migrate. End of migration.');
         return;
     }
 

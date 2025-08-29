@@ -13,7 +13,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        env: devel
+        branch: devel
     restart: always
     volumes:
       - /etc/localtime:/etc/localtime:ro

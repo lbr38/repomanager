@@ -12,7 +12,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        env: prod
+        branch: main
     restart: always
     volumes:
       - /etc/localtime:/etc/localtime:ro
