@@ -64,7 +64,7 @@ foreach ($repos as $repo) {
                 echo '<p class="label-white">' . $repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection() . '</p>⸺';
             }
             if ($packageType == 'rpm') {
-                echo '<p class="label-white">' . $repoController->getName() . '</p>⸺';
+                echo '<p class="label-white">' . $repoController->getName() . ' ❯ ' . $repoController->getReleasever() . '</p>⸺';
             } ?>
 
             <p class="label-black"><?= $repoController->getDateFormatted() ?></p>
