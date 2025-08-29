@@ -63,7 +63,7 @@ $(document).on('click','.select-env-checkbox',function (e) {
                             );
                         }
                     }
-                }
+            }
             ]
         }
     );
