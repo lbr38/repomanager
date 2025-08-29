@@ -13,7 +13,7 @@ services:
       dockerfile: Dockerfile
       args:
         branch: main
-    restart: always
+    restart: unless-stopped
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/lib/docker/volumes/repomanager-data:/var/lib/repomanager
