@@ -182,7 +182,7 @@ article {
 
 .repos-list-group-flex-div {
     display: grid;
-    grid-template-columns: 300px 55px auto auto auto 40px 1fr;
+    grid-template-columns: 300px 55px auto auto auto 55px 1fr;
     row-gap: 25px;
     margin-bottom: 12px;
     background-color: #22384F;
@@ -335,8 +335,12 @@ article {
 }
 
 .item-env-info {
-    display: flex;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    column-gap: 5px;
+    margin-left: 10px;
 }
 
 .item-env-info input[type=checkbox] {
