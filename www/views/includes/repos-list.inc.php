@@ -138,10 +138,10 @@ if (!empty($groupsList)) {
                                     $printEmptyLine = true;
                                     $envCounter = 1;
                                 }
-                                if ($name == $previousName and $releaseVersion == $previousReleaseVersion) {
+                                if ($name == $previousName and $releaseVersion === $previousReleaseVersion) {
                                     $printReleaseVersion = false;
                                 }
-                                if ($name == $previousName and $releaseVersion != $previousReleaseVersion) {
+                                if ($name == $previousName and $releaseVersion !== $previousReleaseVersion) {
                                     $printDoubleEmptyLine = true;
                                     $envCounter = 1;
                                 }

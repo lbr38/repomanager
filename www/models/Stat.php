@@ -58,7 +58,7 @@ class Stat extends Model
     /**
      *  Add rpm repository access log to database
      */
-    public function addRpmAccess(string $date, string $time, string $name, float $releasever, string $env, string $sourceHost, string $sourceIp, string $request, string $result) : void
+    public function addRpmAccess(string $date, string $time, string $name, string $releasever, string $env, string $sourceHost, string $sourceIp, string $request, string $result) : void
     {
         try {
             $stmt = $this->db->prepare("INSERT INTO access_rpm (Date, Time, Name, Releasever, Env, Source, IP, Request, Request_result) VALUES (:date, :time, :name, :releasever, :env, :sourceHost, :sourceIp, :request, :result)");
@@ -257,7 +257,7 @@ class Stat extends Model
      *  It is possible to count the number of requests
      *  It is possible to add an offset to the request
      */
-    public function getRpmAccess(string $name, float $releasever, string $env, bool $count = false, bool $withOffset = false, int $offset = 0) : array|int
+    public function getRpmAccess(string $name, string $releasever, string $env, bool $count = false, bool $withOffset = false, int $offset = 0) : array|int
     {
         $data = [];
 
@@ -289,7 +289,7 @@ class Stat extends Model
             // Prepare query
             $stmt = $this->db->prepare($query);
             $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':releasever', $releasever, SQLITE3_INTEGER);
+            $stmt->bindValue(':releasever', $releasever);
             $stmt->bindValue(':env', $env);
             $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
             $result = $stmt->execute();

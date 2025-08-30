@@ -14,14 +14,14 @@ class Rpm extends \Models\Model
     /**
      *  Return the Id of a repository by its name and release version
      */
-    public function getIdByNameReleasever(string $name, int $releaseVersion) : int|null
+    public function getIdByNameReleasever(string $name, string $releaseVersion) : int|null
     {
         $id = null;
 
         try {
             $stmt = $this->db->prepare("SELECT Id FROM repos WHERE Name = :name AND Releasever = :releaseVersion");
             $stmt->bindValue(':name', $name, SQLITE3_TEXT);
-            $stmt->bindValue(':releaseVersion', $releaseVersion, SQLITE3_INTEGER);
+            $stmt->bindValue(':releaseVersion', $releaseVersion);
             $result = $stmt->execute();
         } catch (Exception $e) {
             $this->db->logError($e);
@@ -37,7 +37,7 @@ class Rpm extends \Models\Model
     /**
      *  Return repository environment description
      */
-    public function getDescriptionByName(string $name, int $releaseVersion, string $env) : string|null
+    public function getDescriptionByName(string $name, string $releaseVersion, string $env) : string|null
     {
         $description = null;
 
@@ -52,7 +52,7 @@ class Rpm extends \Models\Model
             AND repos_env.Env = :env
             AND repos_snap.Status = 'active'");
             $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':releaseVersion', $releaseVersion, SQLITE3_INTEGER);
+            $stmt->bindValue(':releaseVersion', $releaseVersion);
             $stmt->bindValue(':env', $env);
             $result = $stmt->execute();
         } catch (Exception $e) {
@@ -69,7 +69,7 @@ class Rpm extends \Models\Model
     /**
      *  Return environment Id from repo name
      */
-    public function getEnvIdFromRepoName(string $name, int $releaseVersion, string $env) : array
+    public function getEnvIdFromRepoName(string $name, string $releaseVersion, string $env) : array
     {
         $data = [];
 
@@ -84,7 +84,7 @@ class Rpm extends \Models\Model
             AND repos.Releasever = :releaseVersion
             AND repos_env.Env = :env");
             $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':releaseVersion', $releaseVersion, SQLITE3_INTEGER);
+            $stmt->bindValue(':releaseVersion', $releaseVersion);
             $stmt->bindValue(':env', $env);
             $result = $stmt->execute();
         } catch (Exception $e) {
@@ -101,12 +101,12 @@ class Rpm extends \Models\Model
     /**
      *  Return true if a repository with the specified name and release version exists
      */
-    public function exists(string $name, int $releaseVersion) : bool
+    public function exists(string $name, string $releaseVersion) : bool
     {
         try {
             $stmt = $this->db->prepare("SELECT Id FROM repos WHERE Name = :name AND Releasever = :releaseVersion");
             $stmt->bindValue(':name', $name, SQLITE3_TEXT);
-            $stmt->bindValue(':releaseVersion', $releaseVersion, SQLITE3_INTEGER);
+            $stmt->bindValue(':releaseVersion', $releaseVersion);
             $result = $stmt->execute();
         } catch (Exception $e) {
             $this->db->logError($e);
@@ -122,7 +122,7 @@ class Rpm extends \Models\Model
     /**
      *  Return true if a snapshot exists at a specific date in database, from the repository name, version and date
      */
-    public function existsSnapDate(string $name, int $releaseVersion, string $date) : bool
+    public function existsSnapDate(string $name, string $releaseVersion, string $date) : bool
     {
         try {
             $stmt = $this->db->prepare("SELECT repos_snap.Id FROM repos
@@ -133,7 +133,7 @@ class Rpm extends \Models\Model
             AND repos_snap.Date = :date
             AND repos_snap.Status = 'active'");
             $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':releaseVersion', $releaseVersion, SQLITE3_INTEGER);
+            $stmt->bindValue(':releaseVersion', $releaseVersion);
             $stmt->bindValue(':date', $date);
             $result = $stmt->execute();
         } catch (Exception $e) {
@@ -150,7 +150,7 @@ class Rpm extends \Models\Model
     /**
      *  Return true if a repository environment exists, based on its name and the repository name it points to
      */
-    public function existsEnv(string $name, int $releaseVersion, string $env) : bool
+    public function existsEnv(string $name, string $releaseVersion, string $env) : bool
     {
         try {
             $stmt = $this->db->prepare("SELECT repos.Id FROM repos
@@ -163,7 +163,7 @@ class Rpm extends \Models\Model
             AND repos_env.Env = :env
             AND repos_snap.Status = 'active'");
             $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':releaseVersion', $releaseVersion, SQLITE3_INTEGER);
+            $stmt->bindValue(':releaseVersion', $releaseVersion);
             $stmt->bindValue(':env', $env);
             $result = $stmt->execute();
         } catch (Exception $e) {
@@ -180,12 +180,12 @@ class Rpm extends \Models\Model
     /**
      *  Add a new RPM repository
      */
-    public function add(string $name, int $releaseVersion, string $source = '') : void
+    public function add(string $name, string $releaseVersion, string $source = '') : void
     {
         try {
             $stmt = $this->db->prepare("INSERT INTO repos ('Name', 'Releasever', 'Source', 'Package_type') VALUES (:name, :releaseVersion, :source, 'rpm')");
             $stmt->bindValue(':name', $name, SQLITE3_TEXT);
-            $stmt->bindValue(':releaseVersion', $releaseVersion, SQLITE3_TEXT);
+            $stmt->bindValue(':releaseVersion', $releaseVersion);
             $stmt->bindValue(':source', $source, SQLITE3_TEXT);
             $stmt->execute();
         } catch (Exception $e) {
@@ -196,7 +196,7 @@ class Rpm extends \Models\Model
     /**
      *  Return true if the repository exists and is active (has snapshots)
      */
-    public function isActive(string $name, int $releaseVersion) : bool
+    public function isActive(string $name, string $releaseVersion) : bool
     {
         try {
             $stmt = $this->db->prepare("SELECT repos.Id FROM repos
@@ -206,7 +206,7 @@ class Rpm extends \Models\Model
             AND repos.Releasever = :releasever
             AND repos_snap.Status = 'active'");
             $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':releasever', $releaseVersion, SQLITE3_INTEGER);
+            $stmt->bindValue(':releasever', $releaseVersion);
             $result = $stmt->execute();
         } catch (Exception $e) {
             $this->db->logError($e);
