@@ -17,10 +17,10 @@ trait Create
         $this->taskLogStepController->new('create-repo-metadata', 'CREATING REPOSITORY');
 
         if ($this->repo->getPackageType() == 'rpm') {
-            $repoPath = REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName();
+            $snapshotPath = REPOS_DIR . '/rpm/' . $this->repo->getName() . '/' . $this->repo->getReleasever() . '/' . $this->repo->getDate();
         }
         if ($this->repo->getPackageType() == 'deb') {
-            $repoPath = REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection();
+            $snapshotPath = REPOS_DIR . '/deb/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '/' . $this->repo->getDate();
         }
 
         /**
@@ -29,13 +29,13 @@ trait Create
         try {
             if ($this->repo->getPackageType() == 'rpm') {
                 $mymetadata = new \Controllers\Task\Repo\Metadata\Rpm($this->task->getId());
-                $mymetadata->setRoot($repoPath);
+                $mymetadata->setRoot($snapshotPath);
                 $mymetadata->create();
             }
 
             if ($this->repo->getPackageType() == 'deb') {
                 $mymetadata = new \Controllers\Task\Repo\Metadata\Deb($this->task->getId());
-                $mymetadata->setRoot($repoPath);
+                $mymetadata->setRoot($snapshotPath);
                 $mymetadata->setRepo($this->repo->getName());
                 $mymetadata->setDist($this->repo->getDist());
                 $mymetadata->setSection($this->repo->getSection());
@@ -57,13 +57,13 @@ trait Create
              */
             if ($this->task->getAction() != 'rebuild') {
                 if ($this->repo->getPackageType() == 'rpm') {
-                    if (!\Controllers\Filesystem\Directory::deleteRecursive($repoPath)) {
-                        throw new Exception('Repository creation has failed and directory cannot be cleaned: ' . $repoPath);
+                    if (!\Controllers\Filesystem\Directory::deleteRecursive($snapshotPath)) {
+                        throw new Exception('Repository creation has failed and directory cannot be cleaned: ' . $snapshotPath);
                     }
                 }
                 if ($this->repo->getPackageType() == 'deb') {
-                    if (!\Controllers\Filesystem\Directory::deleteRecursive($repoPath)) {
-                        throw new Exception('Repository creation has failed and directory cannot be cleaned: ' . $repoPath);
+                    if (!\Controllers\Filesystem\Directory::deleteRecursive($snapshotPath)) {
+                        throw new Exception('Repository creation has failed and directory cannot be cleaned: ' . $snapshotPath);
                     }
                 }
             }
@@ -80,20 +80,22 @@ trait Create
             throw new Exception($msg);
         }
 
+        $this->taskLogSubStepController->completed();
+
+        $this->taskLogSubStepController->new('pointing-env', 'POINTING ENVIRONMENT(S)');
+
         /**
          *  Create symbolic link (environment)
          *  Only if user has specified to point an environment to the created snapshot
          */
-        if ($this->task->getAction() == "create" or $this->task->getAction() == "update") {
+        if ($this->task->getAction() == 'create' or $this->task->getAction() == 'update') {
             if (!empty($this->repo->getEnv())) {
                 foreach ($this->repo->getEnv() as $env) {
                     if ($this->repo->getPackageType() == 'rpm') {
-                        $targetFile = $this->repo->getDateFormatted() . '_' . $this->repo->getName();
-                        $link = REPOS_DIR . '/' . $this->repo->getName() . '_' . $env;
+                        $link = REPOS_DIR . '/rpm/' . $this->repo->getName() . '/' . $this->repo->getReleasever() . '/' . $env;
                     }
                     if ($this->repo->getPackageType() == 'deb') {
-                        $targetFile = $this->repo->getDateFormatted() . '_' . $this->repo->getSection();
-                        $link = REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '_' . $env;
+                        $link = REPOS_DIR . '/deb/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '/' . $env;
                     }
 
                     /**
@@ -108,14 +110,16 @@ trait Create
                     /**
                      *  Create symlink
                      */
-                    if (!symlink($targetFile, $link)) {
+                    if (!symlink($this->repo->getDate(), $link)) {
                         throw new Exception('Could not point environment to the repository');
                     }
 
-                    unset($targetFile, $link);
+                    unset($link);
                 }
             }
         }
+
+        $this->taskLogSubStepController->completed();
 
         $this->taskLogStepController->completed();
     }

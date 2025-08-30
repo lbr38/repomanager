@@ -5,7 +5,7 @@
     <p class="label-white">
         <?php
         if ($myrepo->getPackageType() == 'rpm') {
-            echo $myrepo->getName();
+            echo $myrepo->getName() . ' ❯ ' . $myrepo->getReleasever();
         }
         if ($myrepo->getPackageType() == 'deb') {
             echo $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection();

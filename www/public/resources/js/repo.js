@@ -32,7 +32,6 @@ function searchRepo()
         /**
          *  Retrieve all repos lines
          */
-        // $('.repos-list-group-flex-div').each(function () {
         $('.item-repo').each(function () {
             var name = $(this).attr('name');
             var dist = $(this).attr('dist');
@@ -226,19 +225,4 @@ $(document).on('click','.hideGroup',function () {
     }
 
     slide('.repo-list-group-container[group-id="' + id + '"]');
-});
-
-/**
- *  Event: print env delete and install buttons
- */
-$(document).on('mouseenter','.item-env, .item-env-info',function () {
-    var envId = $(this).attr('env-id');
-    $('#repos-list-container').find('.item-env-info[env-id="' + envId + '"]').css('visibility', 'visible');
-});
-
-/**
- *  Event: hide env delete and install buttons
- */
-$(document).on('mouseleave','.item-env, .item-env-info',function () {
-    $('#repos-list-container').find('.item-env-info').css('visibility', 'hidden');
 });

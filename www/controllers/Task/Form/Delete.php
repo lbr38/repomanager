@@ -43,5 +43,7 @@ class Delete
         if ($myrepo->getPackageType() == 'deb') {
             $myhistory->set('Running task: delete repository snapshot <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span>', 'success');
         }
+
+        unset($myrepo, $myhistory);
     }
 }

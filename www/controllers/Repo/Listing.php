@@ -15,7 +15,6 @@ class Listing
 
     /**
      *  Return the list of repos, their snapshots and their environments
-     *  Does not display repos that have no active environments
      */
     public function list() : array
     {

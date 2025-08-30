@@ -66,19 +66,12 @@ class Snapshot
          *  For each repository, get the list of unused snapshots (snapshots that have no active environment attached) and process them if there are any
          */
         foreach ($repos as $repo) {
-            $repoId      = $repo['Id'];
-            $repoName    = $repo['Name'];
-            $repoDist    = '';
-            $repoSection = '';
-            $packageType = $repo['Package_type'];
-
-            /**
-             *  Get the distribution and section if deb
-             */
-            if ($packageType == 'deb') {
-                $repoDist = $repo['Dist'];
-                $repoSection = $repo['Section'];
-            }
+            $repoId         = $repo['Id'];
+            $repoName       = $repo['Name'];
+            $repoReleasever = $repo['Releasever'];
+            $repoDist       = $repo['Dist'];
+            $repoSection    = $repo['Section'];
+            $packageType    = $repo['Package_type'];
 
             /**
              *  Get the list of unused snapshots for this repository
@@ -95,24 +88,39 @@ class Snapshot
                 $successful        = false;
 
                 if ($packageType == 'rpm') {
-                    if (is_dir(REPOS_DIR . '/' . $snapDateFormatted . '_' . $repoName)) {
-                        $successful = \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/' . $snapDateFormatted . '_' . $repoName);
-                    }
-                }
-                if ($packageType == 'deb') {
-                    if (is_dir(REPOS_DIR . '/' . $repoName . '/' . $repoDist . '/' . $snapDateFormatted . '_' . $repoSection)) {
-                        $successful = \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/' . $repoName . '/' . $repoDist . '/' . $snapDateFormatted . '_' . $repoSection);
+                    if (is_dir(REPOS_DIR . '/rpm/' . $repoName . '/' . $repoReleasever . '/' . $snapDate)) {
+                        $successful = \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/rpm/' . $repoName . '/' . $repoReleasever . '/' . $snapDate);
                     }
 
                     /**
                      *  Delete the parent directories if they are empty
                      */
-                    if (\Controllers\Filesystem\Directory::isEmpty(REPOS_DIR . '/' . $repoName . '/' . $repoDist)) {
-                        \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/' . $repoName . '/' . $repoDist);
+                    if (\Controllers\Filesystem\Directory::isEmpty(REPOS_DIR . '/rpm/' . $repoName . '/' . $repoReleasever)) {
+                        \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/rpm/' . $repoName . '/' . $repoReleasever);
                     }
 
-                    if (\Controllers\Filesystem\Directory::isEmpty(REPOS_DIR . '/' . $repoName)) {
-                        \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/' . $repoName);
+                    if (\Controllers\Filesystem\Directory::isEmpty(REPOS_DIR . '/rpm/' . $repoName)) {
+                        \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/rpm/' . $repoName);
+                    }
+                }
+                if ($packageType == 'deb') {
+                    if (is_dir(REPOS_DIR . '/deb/' . $repoName . '/' . $repoDist . '/' . $repoSection . '/' . $snapDate)) {
+                        $successful = \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/deb/' . $repoName . '/' . $repoDist . '/' . $repoSection . '/' . $snapDate);
+                    }
+
+                    /**
+                     *  Delete the parent directories if they are empty
+                     */
+                    if (\Controllers\Filesystem\Directory::isEmpty(REPOS_DIR . '/deb/' . $repoName . '/' . $repoDist . '/' . $repoSection)) {
+                        \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/deb/' . $repoName . '/' . $repoDist . '/' . $repoSection);
+                    }
+
+                    if (\Controllers\Filesystem\Directory::isEmpty(REPOS_DIR . '/deb/' . $repoName . '/' . $repoDist)) {
+                        \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/deb/' . $repoName . '/' . $repoDist);
+                    }
+
+                    if (\Controllers\Filesystem\Directory::isEmpty(REPOS_DIR . '/deb/' . $repoName)) {
+                        \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/deb/' . $repoName);
                     }
                 }
 
@@ -137,7 +145,7 @@ class Snapshot
                  *  Case where the snapshot has been successfully deleted
                  */
                 if ($packageType == 'rpm') {
-                    $removedSnaps[] = '<span class="label-white">' . $repoName . '</span>⸺<span class="label-black">' . $snapDateFormatted . '</span> snapshot has been deleted';
+                    $removedSnaps[] = '<span class="label-white">' . $repoName . ' ❯ ' . $repoReleasever . '</span>⸺<span class="label-black">' . $snapDateFormatted . '</span> snapshot has been deleted';
                 }
                 if ($packageType == 'deb') {
                     $removedSnaps[] = '<span class="label-white">' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</span>⸺<span class="label-black">' . $snapDateFormatted . '</span> snapshot has been deleted';

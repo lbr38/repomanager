@@ -51,5 +51,7 @@ class Env
         if ($myrepo->getPackageType() == 'deb') {
             $myhistory->set('Running task: point environment(s) <span>' . trim($content) . '</span> to repository <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span>', 'success');
         }
+
+        unset($myrepo, $myhistory);
     }
 }

@@ -210,30 +210,40 @@ class Create
              *  Check if a repo/section with the same name is already active with snapshots
              */
             if ($this->repo->getPackageType() == 'rpm') {
-                if ($this->repo->isActive($this->repo->getName())) {
-                    throw new Exception('<span class="label-white">' . $this->repo->getName() . '</span> repository already exists');
+                if ($this->rpmRepoController->isActive($this->repo->getName(), $this->repo->getReleasever())) {
+                    throw new Exception('<span class="label-white">' . $this->repo->getName() . ' (release ver. ' . $this->repo->getReleasever() . ')</span> repository already exists');
                 }
             }
             if ($this->repo->getPackageType() == 'deb') {
-                if ($this->repo->isActive($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection())) {
+                if ($this->debRepoController->isActive($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection())) {
                     throw new Exception('<span class="label-white">' . $this->repo->getName() . ' ❯ ' . $this->repo->getDist() . ' ❯ ' . $this->repo->getSection() . '</span> repository already exists');
                 }
             }
 
             /**
-             *  Create repo directory and subdirectories
+             *  Define snapshot directory path
              */
             if ($this->repo->getPackageType() == 'rpm') {
-                if (!is_dir(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName() . '/packages')) {
-                    if (!mkdir(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName() . '/packages', 0770, true)) {
-                        throw new Exception('Could not create directory ' . REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName() . '/packages');
+                $snapshotPath = REPOS_DIR . '/rpm/' . $this->repo->getName() . '/' . $this->repo->getReleasever() . '/' . $this->repo->getDate();
+            }
+            if ($this->repo->getPackageType() == 'deb') {
+                $snapshotPath = REPOS_DIR . '/deb/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '/' . $this->repo->getDate();
+            }
+
+            /**
+             *  Create snapshot directory and subdirectories
+             */
+            if ($this->repo->getPackageType() == 'rpm') {
+                if (!is_dir($snapshotPath . '/packages')) {
+                    if (!mkdir($snapshotPath . '/packages', 0770, true)) {
+                        throw new Exception('Could not create directory ' . $snapshotPath . '/packages');
                     }
                 }
             }
             if ($this->repo->getPackageType() == 'deb') {
-                if (!is_dir(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection() . '/pool/' . $this->repo->getSection())) {
-                    if (!mkdir(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection() . '/pool/' . $this->repo->getSection(), 0770, true)) {
-                        throw new Exception('Could not create directory ' . REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection() . '/pool/' . $this->repo->getSection());
+                if (!is_dir($snapshotPath . '/pool/' . $this->repo->getSection())) {
+                    if (!mkdir($snapshotPath . '/pool/' . $this->repo->getSection(), 0770, true)) {
+                        throw new Exception('Could not create directory ' . $snapshotPath . '/pool/' . $this->repo->getSection());
                     }
                 }
             }
@@ -244,12 +254,10 @@ class Create
             if (!empty($this->repo->getEnv())) {
                 foreach ($this->repo->getEnv() as $env) {
                     if ($this->repo->getPackageType() == 'rpm') {
-                        $targetFile = $this->repo->getDateFormatted() . '_' . $this->repo->getName();
-                        $link = REPOS_DIR . '/' . $this->repo->getName() . '_' . $env;
+                        $link = REPOS_DIR . '/rpm/' . $this->repo->getName() . '/' . $this->repo->getReleasever() . '/' . $env;
                     }
                     if ($this->repo->getPackageType() == 'deb') {
-                        $targetFile = $this->repo->getDateFormatted() . '_' . $this->repo->getSection();
-                        $link = REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '_' . $env;
+                        $link = REPOS_DIR . '/deb/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '/' . $env;
                     }
 
                     /**
@@ -264,11 +272,11 @@ class Create
                     /**
                      *  Create symlink
                      */
-                    if (!symlink($targetFile, $link)) {
+                    if (!symlink($this->repo->getDate(), $link)) {
                         throw new Exception('Could not point environment to the repository');
                     }
 
-                    unset($targetFile, $link);
+                    unset($link);
                 }
             }
 
@@ -358,16 +366,9 @@ class Create
             /**
              *  Apply permissions on the new repo
              */
-            if ($this->repo->getPackageType() == 'rpm') {
-                \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName(), 'dir', 770);
-                \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName(), 'file', 660);
-                \Controllers\Filesystem\File::recursiveChown(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName(), WWW_USER, 'repomanager');
-            }
-            if ($this->repo->getPackageType() == 'deb') {
-                \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getName(), 'dir', 770);
-                \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getName(), 'file', 660);
-                \Controllers\Filesystem\File::recursiveChown(REPOS_DIR . '/' . $this->repo->getName(), WWW_USER, 'repomanager');
-            }
+            \Controllers\Filesystem\File::recursiveChmod($snapshotPath, 'dir', 770);
+            \Controllers\Filesystem\File::recursiveChmod($snapshotPath, 'file', 660);
+            \Controllers\Filesystem\File::recursiveChown($snapshotPath, WWW_USER, 'repomanager');
 
             $this->taskLogSubStepController->completed();
 

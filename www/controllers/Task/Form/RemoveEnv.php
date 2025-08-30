@@ -30,5 +30,7 @@ class RemoveEnv
         if ($myrepo->getPackageType() == 'deb') {
             $myhistory->set('Running task: remove ' . $myrepo->getEnv() . ' environment from <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span>', 'success');
         }
+
+        unset($myrepo, $myhistory);
     }
 }

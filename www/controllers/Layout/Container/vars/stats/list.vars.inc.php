@@ -1,6 +1,9 @@
 <?php
 $myrepo = new \Controllers\Repo\Repo();
 $mystats = new \Controllers\Stat();
+$chartFilter = '1week';
+$repoAccessChartDates = '';
+$repoAccessChartData = '';
 
 if (empty(__ACTUAL_URI__[2])) {
     die('Error: no snapshot env ID specified.');
@@ -25,31 +28,21 @@ $myrepo->getAllById('', '', $envId);
  *  If a filter has been selected for the main chart, the page is reloaded in the background by jquery and retrieves the chart data from the selected filter
  */
 if (!empty($_GET['chartFilter'])) {
-    if (\Controllers\Common::validateData($_GET['chartFilter']) == "1week") {
-        $chartFilter = "1week";
+    if (!in_array($_GET['chartFilter'], ['1week', '1month', '3months', '6months', '1year'])) {
+        throw new Exception('Error: invalid chart filter.');
     }
-    if (\Controllers\Common::validateData($_GET['chartFilter']) == "1month") {
-        $chartFilter = "1month";
-    }
-    if (\Controllers\Common::validateData($_GET['chartFilter']) == "3months") {
-        $chartFilter = "3months";
-    }
-    if (\Controllers\Common::validateData($_GET['chartFilter']) == "6months") {
-        $chartFilter = "6months";
-    }
-    if (\Controllers\Common::validateData($_GET['chartFilter']) == "1year") {
-        $chartFilter = "1year";
-    }
+
+    $chartFilter = $_GET['chartFilter'];
 }
 
 /**
  *  Retrieve last access logs from database
  */
 if ($myrepo->getPackageType() == 'rpm') {
-    $lastAccess = $mystats->getAccess('rpm', $myrepo->getName(), '', '', $myrepo->getEnv(), false, true, 0);
+    $lastAccess = $mystats->getRpmAccess($myrepo->getName(), $myrepo->getReleasever(), $myrepo->getEnv(), false, true, 0);
 }
 if ($myrepo->getPackageType() == 'deb') {
-    $lastAccess = $mystats->getAccess('deb', $myrepo->getName(), $myrepo->getDist(), $myrepo->getSection(), $myrepo->getEnv(), false, true, 0);
+    $lastAccess = $mystats->getDebAccess($myrepo->getName(), $myrepo->getDist(), $myrepo->getSection(), $myrepo->getEnv(), false, true, 0);
 }
 
 /**
@@ -63,25 +56,20 @@ if (!empty($lastAccess)) {
  *  Count repo size and packages count
  */
 if ($myrepo->getPackageType() == 'rpm') {
-    $repoSize = \Controllers\Filesystem\Directory::getSize(REPOS_DIR . '/' . $myrepo->getDateFormatted() . '_' . $myrepo->getName());
-    $packagesCount = count(\Controllers\Filesystem\File::findRecursive(REPOS_DIR . '/' . $myrepo->getDateFormatted() . '_' . $myrepo->getName(), ['rpm']));
+    $snapshotPath = REPOS_DIR . '/rpm/' . $myrepo->getName() . '/' . $myrepo->getReleasever() . '/' . $myrepo->getDate();
+    $repoSize = \Controllers\Filesystem\Directory::getSize($snapshotPath);
+    $packagesCount = count(\Controllers\Filesystem\File::findRecursive($snapshotPath, ['rpm']));
 }
 if ($myrepo->getPackageType() == 'deb') {
-    $repoSize = \Controllers\Filesystem\Directory::getSize(REPOS_DIR . '/' . $myrepo->getName() . '/' . $myrepo->getDist() . '/' . $myrepo->getDateFormatted() . '_' . $myrepo->getSection());
-    $packagesCount = count(\Controllers\Filesystem\File::findRecursive(REPOS_DIR . '/' . $myrepo->getName() . '/' . $myrepo->getDist() . '/' . $myrepo->getDateFormatted() . '_' . $myrepo->getSection(), ['deb']));
+    $snapshotPath = REPOS_DIR . '/deb/' . $myrepo->getName() . '/' . $myrepo->getDist() . '/' . $myrepo->getSection() . '/' . $myrepo->getDate();
+    $repoSize = \Controllers\Filesystem\Directory::getSize($snapshotPath);
+    $packagesCount = count(\Controllers\Filesystem\File::findRecursive($snapshotPath, ['deb']));
 }
 
 /**
  *  Convert repo size in the most suitable byte format
  */
 $repoSize = \Controllers\Common::sizeFormat($repoSize);
-
-/**
- *  If no filter has been selected by the user then we set it to 1 week by default
- */
-if (empty($chartFilter)) {
-    $chartFilter = "1week";
-}
 
 /**
  *  Initialize the starting date of the chart, according to the selected filter
@@ -106,9 +94,6 @@ if ($chartFilter == "1year") {
     // the beginning of the counter starts at the current date -1 year.
     $dateCounter = date('Y-m-d', strtotime('-1 year', strtotime(DATE_YMD)));
 }
-
-$repoAccessChartDates = '';
-$repoAccessChartData = '';
 
 /**
  *  Process all dates until the current date (which is also processed)
@@ -204,3 +189,5 @@ if (!empty($pkgCountStats)) {
     $countDateLabels = rtrim($countDateLabels, ', ');
     $countData  = rtrim($countData, ', ');
 }
+
+unset($mystats, $snapshotPath);

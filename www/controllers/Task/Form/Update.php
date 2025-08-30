@@ -73,5 +73,7 @@ class Update
         if ($myrepo->getPackageType() == 'deb') {
             $myhistory->set('Running task: update ' . $myrepo->getType() . ' repository <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>', 'success');
         }
+
+        unset($myrepo, $myhistory);
     }
 }

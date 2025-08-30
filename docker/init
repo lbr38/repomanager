@@ -57,17 +57,26 @@ fi
 # Apply permissions
 /bin/bash $WWW_DIR/bin/repomanager -p
 
+if [ $? -ne 0 ];then
+    exit 1
+fi
+
 # Start services
 /usr/sbin/service php8.3-fpm start
 /usr/sbin/service nginx start
 /usr/sbin/service postfix start
 
-# Initialize and update database (if needed)
-/bin/su -s /bin/bash -c "/usr/bin/php $WWW_DIR/tools/database/initialize.php" www-data &&
+# Initialize database
+/bin/su -s /bin/bash -c "/usr/bin/php $WWW_DIR/tools/database/initialize.php" www-data
+
+if [ $? -ne 0 ];then
+    exit 1
+fi
+
+# Update database (if needed)
 /bin/su -s /bin/bash -c "/usr/bin/php $WWW_DIR/tools/database/update.php" www-data
 
 if [ $? -ne 0 ];then
-    echo "Database initialization failed"
     exit 1
 fi
 

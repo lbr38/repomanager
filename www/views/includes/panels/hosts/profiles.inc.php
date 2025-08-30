@@ -76,14 +76,14 @@ if (!empty($profiles)) :
                         foreach ($reposList as $repo) :
                             if (in_array($repo['Id'], $profileReposMembersIds)) {
                                 if ($repo['Package_type'] == 'rpm') {
-                                    echo '<option value="' . $repo['Id'] . '" selected>' . $repo['Name'] . '</option>';
+                                    echo '<option value="' . $repo['Id'] . '" selected>' . $repo['Name'] . ' ❯ ' . $repo['Releasever'] . '</option>';
                                 }
                                 if ($repo['Package_type'] == 'deb') {
                                     echo '<option value="' . $repo['Id'] . '" selected>' . $repo['Name'] . ' ❯ ' . $repo['Dist'] . ' ❯ ' . $repo['Section'] . '</option>';
                                 }
                             } else {
                                 if ($repo['Package_type'] == 'rpm') {
-                                    echo '<option value="' . $repo['Id'] . '">' . $repo['Name'] . '</option>';
+                                    echo '<option value="' . $repo['Id'] . '">' . $repo['Name'] . ' ❯ ' . $repo['Releasever'] . '</option>';
                                 }
                                 if ($repo['Package_type'] == 'deb') {
                                     echo '<option value="' . $repo['Id'] . '">' . $repo['Name'] . ' ❯ ' . $repo['Dist'] . ' ❯ ' . $repo['Section'] . '</option>';

@@ -13,8 +13,8 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        env: devel
-    restart: always
+        branch: devel
+    restart: unless-stopped
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/lib/docker/volumes/repomanager-dev-logs:/var/log/nginx

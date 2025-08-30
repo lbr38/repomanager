@@ -98,59 +98,6 @@ $(document).on('change','select.task-param[param-name="schedule-frequency"]',fun
 }).trigger('change');
 
 /**
- *  Event: click on the delete environment button
- */
-$(document).on('click','.delete-env-btn',function () {
-    var envName = $(this).attr('env');
-
-    /**
-     *  Retrieve the repo id, snap id and env id
-     */
-    taskParams = [{
-        'action': 'removeEnv',
-        'repo-id': $(this).attr('repo-id'),
-        'snap-id': $(this).attr('snap-id'),
-        'env-id': $(this).attr('env-id'),
-        'env': envName,
-        'schedule': {
-            'scheduled': false
-        }
-    }];
-
-    var taskParamsJson = JSON.stringify(taskParams);
-
-    myconfirmbox.print(
-        {
-            'title': 'Remove environment',
-            'message': 'Remove <b>' + envName + '</b> environment?',
-            'buttons': [
-            {
-                'text': 'Remove',
-                'color': 'red',
-                'callback': function () {
-                    ajaxRequest(
-                        // Controller:
-                        'task',
-                        // Action:
-                        'validateForm',
-                        // Data:
-                        {
-                            taskParams: taskParamsJson,
-                        },
-                        // Print success alert:
-                        true,
-                        // Print error alert:
-                        true,
-                        // Reload container:
-                        [],
-                    )
-                }
-            }]
-        }
-    );
-});
-
-/**
  *  Event: when a checkbox is checked/unchecked
  */
 $(document).on('click',"input[name=checkbox-repo]",function () {

@@ -33,36 +33,46 @@ class Stat extends Model
     }
 
     /**
-     *  Add new repo access log to database
+     *  Add deb repository access log to database
      */
-    public function addAccess(string $date, string $time, string $type, string $repoName, string|null $repoDist, string|null $repoSection, string $repoEnv, string $sourceHost, string $sourceIp, string $request, string $result)
+    public function addDebAccess(string $date, string $time, string $name, string $dist, string $component, string $env, string $sourceHost, string $sourceIp, string $request, string $result) : void
     {
         try {
-            /**
-             *  If type is deb then add line to the access_deb table
-             */
-            if ($type == 'deb' and !empty($repoDist) and !empty($repoSection)) {
-                $stmt = $this->db->prepare("INSERT INTO access_deb (Date, Time, Name, Dist, Section, Env, Source, IP, Request, Request_result) VALUES (:date, :time, :repoName, :repoDist, :repoSection, :repoEnv, :sourceHost, :sourceIp, :request, :result)");
-                $stmt->bindValue(':repoDist', $repoDist);
-                $stmt->bindValue(':repoSection', $repoSection);
-            }
-
-            /**
-             *  If type is rpm then add line to the access_rpm table
-             */
-            if ($type == 'rpm') {
-                $stmt = $this->db->prepare("INSERT INTO access_rpm (Date, Time, Name, Env, Source, IP, Request, Request_result) VALUES (:date, :time, :repoName, :repoEnv, :sourceHost, :sourceIp, :request, :result)");
-            }
+            $stmt = $this->db->prepare("INSERT INTO access_deb (Date, Time, Name, Dist, Section, Env, Source, IP, Request, Request_result) VALUES (:date, :time, :name, :dist, :component, :env, :sourceHost, :sourceIp, :request, :result)");
             $stmt->bindValue(':date', $date);
             $stmt->bindValue(':time', $time);
-            $stmt->bindValue(':repoName', $repoName);
-            $stmt->bindValue(':repoEnv', $repoEnv);
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':dist', $dist);
+            $stmt->bindValue(':component', $component);
+            $stmt->bindValue(':env', $env);
             $stmt->bindValue(':sourceHost', $sourceHost);
             $stmt->bindValue(':sourceIp', $sourceIp);
             $stmt->bindValue(':request', $request);
             $stmt->bindValue(':result', $result);
             $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
+            $this->db->logError($e);
+        }
+    }
+
+    /**
+     *  Add rpm repository access log to database
+     */
+    public function addRpmAccess(string $date, string $time, string $name, string $releasever, string $env, string $sourceHost, string $sourceIp, string $request, string $result) : void
+    {
+        try {
+            $stmt = $this->db->prepare("INSERT INTO access_rpm (Date, Time, Name, Releasever, Env, Source, IP, Request, Request_result) VALUES (:date, :time, :name, :releasever, :env, :sourceHost, :sourceIp, :request, :result)");
+            $stmt->bindValue(':date', $date);
+            $stmt->bindValue(':time', $time);
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':releasever', $releasever);
+            $stmt->bindValue(':env', $env);
+            $stmt->bindValue(':sourceHost', $sourceHost);
+            $stmt->bindValue(':sourceIp', $sourceIp);
+            $stmt->bindValue(':request', $request);
+            $stmt->bindValue(':result', $result);
+            $stmt->execute();
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
@@ -185,34 +195,24 @@ class Stat extends Model
     }
 
     /**
-     *  Return access request of the specified repo/section
+     *  Return access request of the specified deb repository
      *  It is possible to count the number of requests
      *  It is possible to add an offset to the request
      */
-    public function getAccess(string $type, string $name, string|null $dist, string|null $section, string $env, bool $count, bool $withOffset, int $offset)
+    public function getDebAccess(string $name, string $dist, string $component, string $env, bool $count = false, bool $withOffset = false, int $offset = 0) : array|int
     {
-        $data = array();
+        $data = [];
 
         try {
-            /**
-             *  Case count is enabled
-             */
+            // Case count is enabled
             if ($count) {
                 $select = "SELECT COUNT(*) as count";
             } else {
                 $select = "SELECT *";
             }
 
-            /**
-             *  Build query
-             */
-            if ($type == 'deb') {
-                $query = $select . " FROM access_deb WHERE Name = :name AND Dist = :dist AND Section = :section AND Env = :env";
-            }
-
-            if ($type == 'rpm') {
-                $query = $select . " FROM access_rpm WHERE Name = :name AND Env = :env";
-            }
+            // Build query
+            $query = $select . " FROM access_deb WHERE Name = :name AND Dist = :dist AND Section = :component AND Env = :env";
 
             /**
              *  Invert the order of the query to get the last access logs first
@@ -223,34 +223,82 @@ class Stat extends Model
                 $query .= " ORDER BY Id DESC";
             }
 
-            /**
-             *  If offset is specified
-             */
+            // If offset is specified
             if ($withOffset) {
                 $query .= " LIMIT 10 OFFSET :offset";
             }
 
-            /**
-             *  Prepare query
-             */
+            // Prepare query
             $stmt = $this->db->prepare($query);
-
-            if ($type == 'deb') {
-                $stmt->bindValue(':dist', $dist);
-                $stmt->bindValue(':section', $section);
-            }
             $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':dist', $dist);
+            $stmt->bindValue(':component', $component);
             $stmt->bindValue(':env', $env);
             $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            // Case count is enabled, return only the count
+            if ($count) {
+                return $row['count'];
+            }
+
+            $data[] = $row;
+        }
+
+        return $data;
+    }
+
+    /**
+     *  Return access request of the specified rpm repository
+     *  It is possible to count the number of requests
+     *  It is possible to add an offset to the request
+     */
+    public function getRpmAccess(string $name, string $releasever, string $env, bool $count = false, bool $withOffset = false, int $offset = 0) : array|int
+    {
+        $data = [];
+
+        try {
+            // Case count is enabled
+            if ($count) {
+                $select = "SELECT COUNT(*) as count";
+            } else {
+                $select = "SELECT *";
+            }
+
+            // Build query
+            $query = $select . " FROM access_rpm WHERE Name = :name AND Releasever = :releasever AND Env = :env";
+
             /**
-             *  Case count is enabled, return only the count
+             *  Invert the order of the query to get the last access logs first
+             *  Order by Id DESC and not by 'Date DESC / TIME DESC' because it kills the performance
+             *  Also Id DESC is accurate because it is the order of the insertion in the database (so it's like doing 'ORDER BY Date DESC / TIME DESC')
              */
+            if (!$count) {
+                $query .= " ORDER BY Id DESC";
+            }
+
+            // If offset is specified
+            if ($withOffset) {
+                $query .= " LIMIT 10 OFFSET :offset";
+            }
+
+            // Prepare query
+            $stmt = $this->db->prepare($query);
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':releasever', $releasever);
+            $stmt->bindValue(':env', $env);
+            $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            $this->db->logError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            // Case count is enabled, return only the count
             if ($count) {
                 return $row['count'];
             }

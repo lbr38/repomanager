@@ -292,6 +292,7 @@ class Profile extends Model
             $stmt = $this->db->prepare("SELECT DISTINCT
             repos.Id,
             repos.Name,
+            repos.Releasever,
             repos.Dist,
             repos.Section,
             repos.Package_type

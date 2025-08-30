@@ -11,7 +11,7 @@ ARG WWW_DIR="/var/www/repomanager"
 ARG DATA_DIR="/var/lib/repomanager"
 ARG REPOS_DIR="/home/repo"
 ARG DEBIAN_FRONTEND=noninteractive
-ARG env
+ARG branch=main
 
 # PACKAGES INSTALL
 
@@ -33,10 +33,7 @@ RUN apt-get install nginx php8.3-fpm php8.3-cli php8.3-sqlite3 php8.3-xml php8.3
 
 # Clone project in the container
 RUN git clone https://github.com/lbr38/repomanager.git /tmp/repomanager
-# For tests only
-RUN if [ "$env" = "devel" ]; then \
-       cd /tmp/repomanager && git checkout devel; \
-    fi
+RUN cd /tmp/repomanager && git checkout $branch
 
 # SERVICES CONFIG
 

@@ -54,30 +54,30 @@ class Statistic extends Service
                     }
 
                     if ($repo['Package_type'] == 'rpm') {
-                        if (file_exists(REPOS_DIR . '/' . $repo['Name'] . '_' . $repo['Env'])) {
+                        if (file_exists(REPOS_DIR . '/rpm/' . $repo['Name'] . '/' . $repo['Releasever'] . '/' . $repo['Env'])) {
                             /**
                              *  Calculate repo size in bytes
                              */
-                            $repoSize = \Controllers\Filesystem\Directory::getSize(REPOS_DIR . '/' . $repo['Name'] . '_' . $repo['Env'] . '/');
+                            $repoSize = \Controllers\Filesystem\Directory::getSize(REPOS_DIR . '/rpm/' . $repo['Name'] . '/' . $repo['Releasever'] . '/' . $repo['Env']);
 
                             /**
                              *  Calculate number of packages in the repo
                              */
-                            $packagesCount = count(\Controllers\Filesystem\File::findRecursive(REPOS_DIR . '/' . $repo['Name'] . '_' . $repo['Env'] . '/', ['rpm']));
+                            $packagesCount = count(\Controllers\Filesystem\File::findRecursive(REPOS_DIR . '/rpm/' . $repo['Name'] . '/' . $repo['Releasever'] . '/' . $repo['Env'], ['rpm']));
                         }
                     }
 
                     if ($repo['Package_type'] == 'deb') {
-                        if (file_exists(REPOS_DIR . '/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '_' . $repo['Env'])) {
+                        if (file_exists(REPOS_DIR . '/deb/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '/' . $repo['Env'])) {
                             /**
                              *  Calculate repo size in bytes
                              */
-                            $repoSize = \Controllers\Filesystem\Directory::getSize(REPOS_DIR . '/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '_' . $repo['Env'] . '/');
+                            $repoSize = \Controllers\Filesystem\Directory::getSize(REPOS_DIR . '/deb/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '/' . $repo['Env']);
 
                             /**
                              *  Calculate number of packages in the repo
                              */
-                            $packagesCount = count(\Controllers\Filesystem\File::findRecursive(REPOS_DIR . '/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '_' . $repo['Env'] . '/', ['deb']));
+                            $packagesCount = count(\Controllers\Filesystem\File::findRecursive(REPOS_DIR . '/deb/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '/' . $repo['Env'], ['deb']));
                         }
                     }
 
@@ -362,6 +362,7 @@ class Statistic extends Service
                      *  Loop through repos list until the repo called in the request is found
                      */
                     foreach ($reposList as $repo) {
+                        $releasever = '';
                         $dist = '';
                         $section = '';
 
@@ -380,24 +381,28 @@ class Statistic extends Service
                          *  Case the repo is a deb repo
                          */
                         if ($repo['Package_type'] == 'deb') {
-                            $repoUri = '/repo/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '_' . $repo['Env'];
+                            $repoUri = '/repo/deb/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '/' . $repo['Env'];
                         }
 
                         /**
                          *  Case the repo is a rpm repo
                          */
                         if ($repo['Package_type'] == 'rpm') {
-                            $repoUri = '/repo/' . $repo['Name'] . '_' . $repo['Env'];
+                            $repoUri = '/repo/rpm/' . $repo['Name'] . '/' . $repo['Releasever'] . '/' . $repo['Env'];
                         }
 
                         /**
                          *  Now if the repo URI is found in the request, it means that the request is made for this repo
                          */
                         if (preg_match('#' . $repoUri . '#', $fullRequest)) {
-                            $type = $repo['Package_type'];
                             $name = $repo['Name'];
                             $env = $repo['Env'];
-                            if (!empty($repo['Dist']) and !empty($repo['Section'])) {
+
+                            if ($repo['Package_type'] == 'rpm') {
+                                $releasever = $repo['Releasever'];
+                            }
+
+                            if ($repo['Package_type'] == 'deb') {
                                 $dist = $repo['Dist'];
                                 $section = $repo['Section'];
                             }
@@ -410,7 +415,7 @@ class Statistic extends Service
                             // echo 'Request: ' . $fullRequest . PHP_EOL;
                             // echo 'Request result: ' . $requestResult . PHP_EOL;
                             // echo 'Request grabber: ' . $requestGrabber . PHP_EOL;
-                            // echo 'Type: ' . $type . PHP_EOL;
+                            // echo 'Type: ' . $repo['Package_type'] . PHP_EOL;
                             // echo 'Name: ' . $name . PHP_EOL;
                             // if (!empty($dist) and !empty($section)) {
                             //     echo 'Dist: ' . $dist . PHP_EOL;
@@ -418,12 +423,20 @@ class Statistic extends Service
                             // }
                             // echo 'Env: ' . $env . PHP_EOL . PHP_EOL;
 
-
                             /**
                              *  Add repo access log to database
                              */
-                            if (!empty($date) and !empty($time) and !empty($type) and !empty($name) and isset($dist) and isset($section) and !empty($env) and !empty($sourceHost) and !empty($sourceIp) and !empty($fullRequest) and !empty($requestResult)) {
-                                $this->statController->addAccess($date, $time, $type, $name, $dist, $section, $env, $sourceHost, $sourceIp, $fullRequest, $requestResult);
+
+                            if ($repo['Package_type'] == 'rpm') {
+                                if (!empty($date) and !empty($time) and !empty($name) and !empty($releasever) and !empty($env) and !empty($sourceHost) and !empty($sourceIp) and !empty($fullRequest) and !empty($requestResult)) {
+                                    $this->statController->addRpmAccess($date, $time, $name, $releasever, $env, $sourceHost, $sourceIp, $fullRequest, $requestResult);
+                                }
+                            }
+
+                            if ($repo['Package_type'] == 'deb') {
+                                if (!empty($date) and !empty($time) and !empty($name) and !empty($dist) and !empty($section) and !empty($env) and !empty($sourceHost) and !empty($sourceIp) and !empty($fullRequest) and !empty($requestResult)) {
+                                    $this->statController->addDebAccess($date, $time, $name, $dist, $section, $env, $sourceHost, $sourceIp, $fullRequest, $requestResult);
+                                }
                             }
 
                             /**

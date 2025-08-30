@@ -24,12 +24,12 @@ trait Sync
              */
             if ($this->task->getAction() == 'create') {
                 if ($this->repo->getPackageType() == 'rpm') {
-                    if ($this->repo->isActive($this->repo->getName())) {
-                        throw new Exception('<span class="label-white">' . $this->repo->getName() . '</span> repository already exists');
+                    if ($this->rpmRepoController->isActive($this->repo->getName(), $this->repo->getReleasever())) {
+                        throw new Exception('<span class="label-white">' . $this->repo->getName() . ' (release ver. ' . $this->repo->getReleasever() . ')</span> repository already exists');
                     }
                 }
                 if ($this->repo->getPackageType() == 'deb') {
-                    if ($this->repo->isActive($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection())) {
+                    if ($this->debRepoController->isActive($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection())) {
                         throw new Exception('<span class="label-white">' . $this->repo->getName() . ' ❯ ' . $this->repo->getDist() . ' ❯ ' . $this->repo->getSection() . '</span> repository already exists');
                     }
                 }
@@ -54,12 +54,12 @@ trait Sync
                  */
                 if ($this->repo->getSnapDateById($this->repo->getSnapId()) != $this->repo->getDate()) {
                     if ($this->repo->getPackageType() == 'rpm') {
-                        if ($this->repo->existsRepoSnapDate($this->repo->getDate(), $this->repo->getName()) === true) {
+                        if ($this->rpmRepoController->existsSnapDate($this->repo->getName(), $this->repo->getReleasever(), $this->repo->getDate())) {
                             throw new Exception('A snapshot already exists on the <span class="label-black">' . $this->repo->getDateFormatted() . '</span>');
                         }
                     }
                     if ($this->repo->getPackageType() == 'deb') {
-                        if ($this->repo->existsRepoSnapDate($this->repo->getDate(), $this->repo->getName(), $this->repo->getDist(), $this->repo->getSection()) === true) {
+                        if ($this->debRepoController->existsSnapDate($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection(), $this->repo->getDate())) {
                             throw new Exception('A snapshot already exists on the <span class="label-black">' . $this->repo->getDateFormatted() . '</span>');
                         }
                     }
@@ -79,24 +79,29 @@ trait Sync
             $workingDir = REPOS_DIR . '/temporary-task-' . $this->task->getId();
 
             /**
-             *  Define final repo/section directory path
+             *  Define snapshot parent directory
              */
             if ($this->repo->getPackageType() == 'rpm') {
-                $repoPath = REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName();
+                $parentDir = REPOS_DIR . '/rpm/' . $this->repo->getName() . '/' . $this->repo->getReleasever();
             }
             if ($this->repo->getPackageType() == 'deb') {
-                $repoPath = REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection();
+                $parentDir = REPOS_DIR . '/deb/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection();
             }
+
+            /**
+             *  Define snapshot path
+             */
+            $snapshotPath = $parentDir . '/' . $this->repo->getDate();
 
             /**
              *  If the task is an update, retrieve previous snapshot directory path
              */
             if ($this->task->getAction() == 'update') {
                 if ($this->sourceRepo->getPackageType() == 'rpm') {
-                    $previousSnapshotDir = REPOS_DIR . '/' . $this->sourceRepo->getDateFormatted() . '_' . $this->sourceRepo->getName();
+                    $previousSnapshotDir = REPOS_DIR . '/rpm/' . $this->sourceRepo->getName() . '/' . $this->sourceRepo->getReleasever() . '/' . $this->sourceRepo->getDate();
                 }
                 if ($this->sourceRepo->getPackageType() == 'deb') {
-                    $previousSnapshotDir = REPOS_DIR . '/' . $this->sourceRepo->getName() . '/' . $this->sourceRepo->getDist() . '/' . $this->sourceRepo->getDateFormatted() . '_' . $this->sourceRepo->getSection();
+                    $previousSnapshotDir = REPOS_DIR . '/deb/' . $this->sourceRepo->getName() . '/' . $this->sourceRepo->getDist() . '/' . $this->sourceRepo->getSection() . '/' . $this->sourceRepo->getDate();
                 }
 
                 /**
@@ -267,33 +272,30 @@ trait Sync
                 }
             }
 
-            if ($this->repo->getPackageType() == 'deb') {
-                /**
-                 *  Create repo and dist directories if not exist
-                 */
-                if (!is_dir(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist())) {
-                    if (!mkdir(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist(), 0770, true)) {
-                        throw new Exception('Could not create directory: ' . REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist());
-                    }
-                }
-            }
-
             unset($mymirror);
 
             /**
-             *  Renaming working dir name to final name
-             *  First delete the target directory if it already exists
+             *  Delete the target snapshot directory if it already exists
              */
-            if (is_dir($repoPath)) {
-                if (!\Controllers\Filesystem\Directory::deleteRecursive($repoPath)) {
-                    throw new Exception('Cannot delete existing directory: ' . $repoPath);
+            if (is_dir($snapshotPath)) {
+                if (!\Controllers\Filesystem\Directory::deleteRecursive($snapshotPath)) {
+                    throw new Exception('Cannot delete existing directory: ' . $snapshotPath);
                 }
             }
 
             /**
-             *  Then rename
+             *  Create parent directory if not exists
              */
-            if (!rename($workingDir, $repoPath)) {
+            if (!is_dir($parentDir)) {
+                if (!mkdir($parentDir, 0770, true)) {
+                    throw new Exception('Could not create directory: ' . $parentDir);
+                }
+            }
+
+            /**
+             *  Rename temporary working directory to the final snapshot path
+             */
+            if (!rename($workingDir, $snapshotPath)) {
                 throw new Exception('Could not rename working directory ' . $workingDir);
             }
         } catch (Exception $e) {

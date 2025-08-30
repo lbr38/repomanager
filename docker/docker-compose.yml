@@ -12,8 +12,8 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        env: prod
-    restart: always
+        branch: main
+    restart: unless-stopped
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/lib/docker/volumes/repomanager-data:/var/lib/repomanager

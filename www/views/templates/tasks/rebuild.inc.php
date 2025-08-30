@@ -19,7 +19,7 @@
                     if (!empty($repoController->getDist()) and !empty($repoController->getSection())) {
                         echo $repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection();
                     } else {
-                        echo $repoController->getName();
+                        echo $repoController->getName() . ' ❯ ' . $repoController->getReleasever();
                     } ?>
                 </span>
             </p>
@@ -32,17 +32,6 @@
             </p>
         </div>
     </div>
-
-    <?php
-    if ($repoController->getPackageType() == 'rpm' and !empty($repoController->getReleasever())) : ?>
-        <div class="grid grid-2 row-gap-10 column-gap-20">
-            <div>
-                <h6>RELEASE VERSION</h6>
-                <p><?= $repoController->getReleasever() ?></p>
-            </div>
-        </div>
-        <?php
-    endif ?>
 
     <div class="grid grid-2 row-gap-10 column-gap-20">
         <?php
@@ -58,9 +47,7 @@
             </div>
             <?php
         endif ?>
-    </div>
 
-    <div class="grid grid-2 row-gap-10 column-gap-20">
         <?php
         if (!empty($rawParams['gpg-sign'])) : ?>
             <div>

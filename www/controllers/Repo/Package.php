@@ -32,20 +32,20 @@ class Package
         $currentArchs = $myrepo->getArch($snapId);
 
         /**
-         *  Retrieve repo path
+         *  Define snapshot path
          */
         if ($myrepo->getPackageType() == 'rpm') {
-            $repoPath = REPOS_DIR .'/'. $myrepo->getDateFormatted() . '_' . $myrepo->getName();
+            $snapshotPath = REPOS_DIR .'/rpm/'. $myrepo->getName() . '/' . $myrepo->getReleasever() . '/' . $myrepo->getDate();
         }
         if ($myrepo->getPackageType() == 'deb') {
-            $repoPath = REPOS_DIR .'/'. $myrepo->getName() .'/'. $myrepo->getDist() .'/'. $myrepo->getDateFormatted() . '_' . $myrepo->getSection();
+            $snapshotPath = REPOS_DIR .'/deb/'. $myrepo->getName() . '/'. $myrepo->getDist() . '/' . $myrepo->getSection() . '/' . $myrepo->getDate();
         }
 
         /**
          *  If the path does not exist on the server then we quit
          */
-        if (!is_dir($repoPath)) {
-            throw new Exception('Repository directory ' . $repoPath . ' does not exist');
+        if (!is_dir($snapshotPath)) {
+            throw new Exception('Repository directory ' . $snapshotPath . ' does not exist');
         }
 
         /**
@@ -112,7 +112,7 @@ class Package
              *  For DEB, package will be uploaded to the pool/<section> directory
              */
             if ($myrepo->getPackageType() == 'deb') {
-                $targetDir = $repoPath . '/pool/' . $myrepo->getSection();
+                $targetDir = $snapshotPath . '/pool/' . $myrepo->getSection();
             }
 
             /**
@@ -122,7 +122,7 @@ class Package
             if ($myrepo->getPackageType() == 'rpm') {
                 foreach (RPM_ARCHS as $arch) {
                     if (preg_match("#\.$arch\.#", $packageName)) {
-                        $targetDir = $repoPath . '/packages/' . $arch;
+                        $targetDir = $snapshotPath . '/packages/' . $arch;
 
                         /**
                          *  If the architecture is not already in the list of architectures then we add it
@@ -139,7 +139,7 @@ class Package
                  *  If the package is a source package then move it to the SRPMS subfolder
                  */
                 if (preg_match("#\.src\.#", $packageName)) {
-                    $targetDir = $repoPath . '/packages/SRPMS';
+                    $targetDir = $snapshotPath . '/packages/SRPMS';
 
                     /**
                      *  If the architecture is not already in the list of architectures then we add it
@@ -153,7 +153,7 @@ class Package
                  *  If no architecture has been found then we set it to 'noarch'
                  */
                 if (empty($targetDir)) {
-                    $targetDir = $repoPath . '/packages/noarch';
+                    $targetDir = $snapshotPath . '/packages/noarch';
 
                     /**
                      *  If the architecture is not already in the list of architectures then we add it
@@ -274,20 +274,20 @@ class Package
         $repoDetails = $myrepo->getAllById('', $snapId, '');
 
         /**
-         *  Retrieve repo path
+         *  Define snapshot path
          */
         if ($myrepo->getPackageType() == 'rpm') {
-            $repoPath = REPOS_DIR .'/'. $myrepo->getDateFormatted() . '_' . $myrepo->getName();
+            $snapshotPath = REPOS_DIR .'/rpm/'. $myrepo->getName() . '/' . $myrepo->getReleasever() . '/' . $myrepo->getDate();
         }
         if ($myrepo->getPackageType() == 'deb') {
-            $repoPath = REPOS_DIR .'/'. $myrepo->getName() .'/'. $myrepo->getDist() .'/'. $myrepo->getDateFormatted() . '_' . $myrepo->getSection();
+            $snapshotPath = REPOS_DIR .'/deb/'. $myrepo->getName() . '/'. $myrepo->getDist() . '/' . $myrepo->getSection() . '/' . $myrepo->getDate();
         }
 
         /**
          *  If the path does not exist on the server then we quit
          */
-        if (!is_dir($repoPath)) {
-            throw new Exception('Repo directory ' . $repoPath . ' does not exist.');
+        if (!is_dir($snapshotPath)) {
+            throw new Exception('Repo directory ' . $snapshotPath . ' does not exist.');
         }
 
         foreach ($packages as $package) {
@@ -332,7 +332,7 @@ class Package
                 throw new Exception('Unable to delete package ' . $path);
             }
 
-            $deletedPackages[] = str_replace($repoPath . '/', '', $path);
+            $deletedPackages[] = str_replace($snapshotPath . '/', '', $path);
 
             /**
              *  Set repo rebuild status to 'needed'
