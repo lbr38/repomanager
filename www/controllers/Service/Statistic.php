@@ -395,7 +395,6 @@ class Statistic extends Service
                          *  Now if the repo URI is found in the request, it means that the request is made for this repo
                          */
                         if (preg_match('#' . $repoUri . '#', $fullRequest)) {
-                            $type = $repo['Package_type'];
                             $name = $repo['Name'];
                             $env = $repo['Env'];
 
@@ -416,7 +415,7 @@ class Statistic extends Service
                             // echo 'Request: ' . $fullRequest . PHP_EOL;
                             // echo 'Request result: ' . $requestResult . PHP_EOL;
                             // echo 'Request grabber: ' . $requestGrabber . PHP_EOL;
-                            // echo 'Type: ' . $type . PHP_EOL;
+                            // echo 'Type: ' . $repo['Package_type'] . PHP_EOL;
                             // echo 'Name: ' . $name . PHP_EOL;
                             // if (!empty($dist) and !empty($section)) {
                             //     echo 'Dist: ' . $dist . PHP_EOL;
@@ -424,12 +423,20 @@ class Statistic extends Service
                             // }
                             // echo 'Env: ' . $env . PHP_EOL . PHP_EOL;
 
-
                             /**
                              *  Add repo access log to database
                              */
-                            if (!empty($date) and !empty($time) and !empty($type) and !empty($name) and isset($dist) and isset($section) and !empty($env) and !empty($sourceHost) and !empty($sourceIp) and !empty($fullRequest) and !empty($requestResult)) {
-                                $this->statController->addAccess($date, $time, $type, $name, $dist, $section, $env, $sourceHost, $sourceIp, $fullRequest, $requestResult);
+
+                            if ($repo['Package_type'] == 'rpm') {
+                                if (!empty($date) and !empty($time) and !empty($name) and !empty($releasever) and !empty($env) and !empty($sourceHost) and !empty($sourceIp) and !empty($fullRequest) and !empty($requestResult)) {
+                                    $this->statController->addRpmAccess($date, $time, $name, $releasever, $env, $sourceHost, $sourceIp, $fullRequest, $requestResult);
+                                }
+                            }
+
+                            if ($repo['Package_type'] == 'deb') {
+                                if (!empty($date) and !empty($time) and !empty($name) and !empty($dist) and !empty($section) and !empty($env) and !empty($sourceHost) and !empty($sourceIp) and !empty($fullRequest) and !empty($requestResult)) {
+                                    $this->statController->addDebAccess($date, $time, $name, $dist, $section, $env, $sourceHost, $sourceIp, $fullRequest, $requestResult);
+                                }
                             }
 
                             /**

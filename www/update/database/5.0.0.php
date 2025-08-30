@@ -26,7 +26,7 @@ if (!$statsDb->columnExist('access_rpm', 'Releasever')) {
             if ($repo['Package_type'] == 'deb') {
                 continue;
             }
-                
+
             $name = $repo['Name'];
             $releasever = $repo['Releasever'];
             $env = $repo['Env'];
