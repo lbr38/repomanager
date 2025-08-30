@@ -199,7 +199,7 @@ class Stat extends Model
      *  It is possible to count the number of requests
      *  It is possible to add an offset to the request
      */
-    public function getDebAccess(string $name, string $dist, string $component, string $env, bool $count = false, bool $withOffset = false, int $offset = 0) : array
+    public function getDebAccess(string $name, string $dist, string $component, string $env, bool $count = false, bool $withOffset = false, int $offset = 0) : array|int
     {
         $data = [];
 
@@ -257,7 +257,7 @@ class Stat extends Model
      *  It is possible to count the number of requests
      *  It is possible to add an offset to the request
      */
-    public function getRpmAccess(string $name, int $releasever, string $env, bool $count = false, bool $withOffset = false, int $offset = 0) : array
+    public function getRpmAccess(string $name, int $releasever, string $env, bool $count = false, bool $withOffset = false, int $offset = 0) : array|int
     {
         $data = [];
 

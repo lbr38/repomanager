@@ -11,7 +11,38 @@ use \Controllers\Log\Cli as CliLog;
  *  Add a 'Releasever' column to the access_rpm table
  */
 if (!$statsDb->columnExist('access_rpm', 'Releasever')) {
-    $statsDb->exec("ALTER TABLE access_rpm ADD COLUMN Releasever VARCHAR(255) DEFAULT '' NOT NULL");
+    try {
+        CliLog::warning('5.0.0 stats database migration started');
+
+        $statsDb->exec("ALTER TABLE access_rpm ADD COLUMN Releasever VARCHAR(255) DEFAULT '' NOT NULL");
+
+        /**
+         *  Update existing entries with the releasever from the repo table
+         *  Get all existing repositories
+         */
+        $repos = $repoListingController->list();
+
+        foreach ($repos as $repo) {
+            if ($repo['Package_type'] == 'deb') {
+                continue;
+            }
+                
+            $name = $repo['Name'];
+            $releasever = $repo['Releasever'];
+            $env = $repo['Env'];
+
+            // Update all matching entries in the access_rpm table
+            $stmt = $statsDb->prepare("UPDATE access_rpm SET Releasever = :releasever WHERE Name = :name AND Env = :env");
+            $stmt->bindValue(':releasever', $releasever);
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':env', $env);
+            $stmt->execute();
+        }
+
+        CliLog::warning('5.0.0 stats database migration completed.');
+    } catch (Exception $e) {
+        throw new Exception('error while updating stats database: ' . $e->getMessage());
+    }
 }
 
 /**
