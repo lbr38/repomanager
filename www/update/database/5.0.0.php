@@ -4,8 +4,27 @@
  */
 $repoController = new \Controllers\Repo\Repo();
 $repoListingController = new \Controllers\Repo\Listing();
+$statsDb = new \Models\Connection('stats');
 use \Controllers\Log\Cli as CliLog;
 
+/**
+ *  Add a 'Releasever' column to the access_rpm table
+ */
+if (!$statsDb->columnExist('access_rpm', 'Releasever')) {
+    $statsDb->exec("ALTER TABLE access_rpm ADD COLUMN Releasever VARCHAR(255) DEFAULT '' NOT NULL");
+}
+
+/**
+ *  Recreate index on access_rpm table
+ */
+$statsDb->exec("DROP INDEX access_rpm_index");
+$statsDb->exec("DROP INDEX access_rpm_name_env_index");
+$statsDb->exec("CREATE INDEX IF NOT EXISTS access_rpm_index ON access_rpm (Date, Time, Name, Releasever, Env, Source, IP, Request, Request_result)");
+$statsDb->exec("CREATE INDEX IF NOT EXISTS access_rpm_name_env_index ON access_rpm (Name, Releasever, Env)");
+
+/**
+ *  Migrate existing repositories to the new structure
+ */
 CliLog::warning('5.0.0 migration started');
 
 try {

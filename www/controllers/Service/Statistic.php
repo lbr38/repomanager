@@ -362,6 +362,7 @@ class Statistic extends Service
                      *  Loop through repos list until the repo called in the request is found
                      */
                     foreach ($reposList as $repo) {
+                        $releasever = '';
                         $dist = '';
                         $section = '';
 
@@ -397,7 +398,12 @@ class Statistic extends Service
                             $type = $repo['Package_type'];
                             $name = $repo['Name'];
                             $env = $repo['Env'];
-                            if (!empty($repo['Dist']) and !empty($repo['Section'])) {
+
+                            if ($repo['Package_type'] == 'rpm') {
+                                $releasever = $repo['Releasever'];
+                            }
+
+                            if ($repo['Package_type'] == 'deb') {
                                 $dist = $repo['Dist'];
                                 $section = $repo['Section'];
                             }

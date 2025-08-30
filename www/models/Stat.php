@@ -33,36 +33,46 @@ class Stat extends Model
     }
 
     /**
-     *  Add new repo access log to database
+     *  Add deb repository access log to database
      */
-    public function addAccess(string $date, string $time, string $type, string $repoName, string|null $repoDist, string|null $repoSection, string $repoEnv, string $sourceHost, string $sourceIp, string $request, string $result)
+    public function addDebAccess(string $date, string $time, string $name, string $dist, string $component, string $env, string $sourceHost, string $sourceIp, string $request, string $result) : void
     {
         try {
-            /**
-             *  If type is deb then add line to the access_deb table
-             */
-            if ($type == 'deb' and !empty($repoDist) and !empty($repoSection)) {
-                $stmt = $this->db->prepare("INSERT INTO access_deb (Date, Time, Name, Dist, Section, Env, Source, IP, Request, Request_result) VALUES (:date, :time, :repoName, :repoDist, :repoSection, :repoEnv, :sourceHost, :sourceIp, :request, :result)");
-                $stmt->bindValue(':repoDist', $repoDist);
-                $stmt->bindValue(':repoSection', $repoSection);
-            }
-
-            /**
-             *  If type is rpm then add line to the access_rpm table
-             */
-            if ($type == 'rpm') {
-                $stmt = $this->db->prepare("INSERT INTO access_rpm (Date, Time, Name, Env, Source, IP, Request, Request_result) VALUES (:date, :time, :repoName, :repoEnv, :sourceHost, :sourceIp, :request, :result)");
-            }
+            $stmt = $this->db->prepare("INSERT INTO access_deb (Date, Time, Name, Dist, Section, Env, Source, IP, Request, Request_result) VALUES (:date, :time, :name, :dist, :component, :env, :sourceHost, :sourceIp, :request, :result)");
             $stmt->bindValue(':date', $date);
             $stmt->bindValue(':time', $time);
-            $stmt->bindValue(':repoName', $repoName);
-            $stmt->bindValue(':repoEnv', $repoEnv);
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':dist', $dist);
+            $stmt->bindValue(':component', $component);
+            $stmt->bindValue(':env', $env);
             $stmt->bindValue(':sourceHost', $sourceHost);
             $stmt->bindValue(':sourceIp', $sourceIp);
             $stmt->bindValue(':request', $request);
             $stmt->bindValue(':result', $result);
             $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
+            $this->db->logError($e);
+        }
+    }
+
+    /**
+     *  Add rpm repository access log to database
+     */
+    public function addRpmAccess(string $date, string $time, string $name, int $releasever, string $env, string $sourceHost, string $sourceIp, string $request, string $result) : void
+    {
+        try {
+            $stmt = $this->db->prepare("INSERT INTO access_rpm (Date, Time, Name, Releasever, Env, Source, IP, Request, Request_result) VALUES (:date, :time, :name, :releasever, :env, :sourceHost, :sourceIp, :request, :result)");
+            $stmt->bindValue(':date', $date);
+            $stmt->bindValue(':time', $time);
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':releasever', $releasever);
+            $stmt->bindValue(':env', $env);
+            $stmt->bindValue(':sourceHost', $sourceHost);
+            $stmt->bindValue(':sourceIp', $sourceIp);
+            $stmt->bindValue(':request', $request);
+            $stmt->bindValue(':result', $result);
+            $stmt->execute();
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
@@ -211,7 +221,7 @@ class Stat extends Model
             }
 
             if ($type == 'rpm') {
-                $query = $select . " FROM access_rpm WHERE Name = :name AND Env = :env";
+                $query = $select . " FROM access_rpm WHERE Name = :name AND Releasever = :releasever AND Env = :env";
             }
 
             /**

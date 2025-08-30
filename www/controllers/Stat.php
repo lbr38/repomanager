@@ -73,11 +73,19 @@ class Stat
     }
 
     /**
-     *  Add new repo access log to database
+     *  Add deb repository access log to database
      */
-    public function addAccess(string $date, string $time, string $type, string $repoName, string|null $repoDist = null, string|null $repoSection = null, string $repoEnv, string $sourceHost, string $sourceIp, string $request, string $result)
+    public function addDebAccess(string $date, string $time, string $name, string $dist, string $component, string $env, string $sourceHost, string $sourceIp, string $request, string $result) : void
     {
-        $this->model->addAccess($date, $time, $type, $repoName, $repoDist, $repoSection, $repoEnv, $sourceHost, $sourceIp, $request, $result);
+        $this->model->addDebAccess($date, $time, $name, $dist, $component, $env, $sourceHost, $sourceIp, $request, $result);
+    }
+
+    /**
+     *  Add rpm repository access log to database
+     */
+    public function addRpmAccess(string $date, string $time, string $name, int $releasever, string $env, string $sourceHost, string $sourceIp, string $request, string $result) : void
+    {
+        $this->model->addRpmAccess($date, $time, $name, $releasever, $env, $sourceHost, $sourceIp, $request, $result);
     }
 
     /**
