@@ -38,13 +38,23 @@ class Stat
     }
 
     /**
-     *  Return access request of the specified repo/section
+     *  Return access request of the specified deb repository
      *  It is possible to count the number of requests
      *  It is possible to add an offset to the request
      */
-    public function getAccess(string $type, string $name, string $dist = null, string $section = null, string $env, bool $count = false, bool $withOffset = false, int $offset = 0)
+    public function getDebAccess(string $name, string $dist, string $component, string $env, bool $count = false, bool $withOffset = false, int $offset = 0) : array
     {
-        return $this->model->getAccess($type, $name, $dist, $section, $env, $count, $withOffset, $offset);
+        return $this->model->getDebAccess($name, $dist, $component, $env, $count, $withOffset, $offset);
+    }
+
+    /**
+     *  Return access request of the specified rpm repository
+     *  It is possible to count the number of requests
+     *  It is possible to add an offset to the request
+     */
+    public function getRpmAccess(string $name, int $releasever, string $env, bool $count = false, bool $withOffset = false, int $offset = 0) : array
+    {
+        return $this->model->getRpmAccess($name, $releasever, $env, $count, $withOffset, $offset);
     }
 
     /**
