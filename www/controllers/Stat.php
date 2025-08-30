@@ -93,7 +93,7 @@ class Stat
     /**
      *  Add rpm repository access log to database
      */
-    public function addRpmAccess(string $date, string $time, string $name, int $releasever, string $env, string $sourceHost, string $sourceIp, string $request, string $result) : void
+    public function addRpmAccess(string $date, string $time, string $name, float $releasever, string $env, string $sourceHost, string $sourceIp, string $request, string $result) : void
     {
         $this->model->addRpmAccess($date, $time, $name, $releasever, $env, $sourceHost, $sourceIp, $request, $result);
     }

@@ -58,7 +58,7 @@ class Stat extends Model
     /**
      *  Add rpm repository access log to database
      */
-    public function addRpmAccess(string $date, string $time, string $name, int $releasever, string $env, string $sourceHost, string $sourceIp, string $request, string $result) : void
+    public function addRpmAccess(string $date, string $time, string $name, float $releasever, string $env, string $sourceHost, string $sourceIp, string $request, string $result) : void
     {
         try {
             $stmt = $this->db->prepare("INSERT INTO access_rpm (Date, Time, Name, Releasever, Env, Source, IP, Request, Request_result) VALUES (:date, :time, :name, :releasever, :env, :sourceHost, :sourceIp, :request, :result)");
