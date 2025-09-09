@@ -911,6 +911,7 @@ class Connection extends SQLite3
         Date DATE NOT NULL,
         Time TIME NOT NULL,
         Name VARCHAR(255) NOT NULL,
+        Releasever VARCHAR(255) NOT NULL,
         Env VARCHAR(255) NOT NULL,
         Source VARCHAR(255) NOT NULL,
         IP VARCHAR(16) NOT NULL,
@@ -931,8 +932,8 @@ class Connection extends SQLite3
         $this->exec("CREATE INDEX IF NOT EXISTS access_deb_index ON access_deb (Date, Time, Name, Dist, Section, Env, Source, IP, Request, Request_result)");
         $this->exec("CREATE INDEX IF NOT EXISTS access_deb_name_env_index ON access_deb (Name, Dist, Section, Env)"); // To optimize SELECT COUNT(*)
         // Indexes for access_rpm:
-        $this->exec("CREATE INDEX IF NOT EXISTS access_rpm_index ON access_rpm (Date, Time, Name, Env, Source, IP, Request, Request_result)");
-        $this->exec("CREATE INDEX IF NOT EXISTS access_rpm_name_env_index ON access_rpm (Name, Env)"); // To optimize SELECT COUNT(*)
+        $this->exec("CREATE INDEX IF NOT EXISTS access_rpm_index ON access_rpm (Date, Time, Name, Releasever, Env, Source, IP, Request, Request_result)");
+        $this->exec("CREATE INDEX IF NOT EXISTS access_rpm_name_env_index ON access_rpm (Name, Releasever, Env)"); // To optimize SELECT COUNT(*)
         // Index for stats:
         $this->exec("CREATE INDEX IF NOT EXISTS stats_index ON stats (Date, Time, Size, Packages_count, Id_env)");
     }

@@ -8,6 +8,7 @@ define('ROOT', '/var/www/repomanager');
 require_once(ROOT . '/controllers/Autoloader.php');
 new \Controllers\Autoloader();
 new \Controllers\App\Main('minimal');
+use \Controllers\Log\Cli as CliLog;
 
 try {
     $databases = array('main', 'stats', 'hosts', 'ws');
@@ -18,10 +19,11 @@ try {
     foreach ($databases as $database) {
         $myconn = new \Models\Connection($database, null, false);
     }
-} catch (\Exception $e) {
-    echo '[' . date('D M j H:i:s') . '] There was an error while initializing ' . $database . ' database: ' . $e->getMessage() . PHP_EOL;
+} catch (Exception $e) {
+    CliLog::error('There was an error while initializing ' . $database . ' database', $e->getMessage());
     exit(1);
 }
 
-echo '[' . date('D M j H:i:s') . '] Databases check and initialization successful' . PHP_EOL;
+CliLog::log('Databases check and initialization successful');
+
 exit(0);

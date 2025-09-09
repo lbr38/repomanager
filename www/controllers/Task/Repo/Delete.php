@@ -68,6 +68,7 @@ class Delete
 
         try {
             $this->taskLogStepController->new('deleting', 'DELETING');
+            $this->taskLogSubStepController->new('deleting', 'DELETING REPOSITORY SNAPSHOT');
 
             /**
              *  Check that repository snapshot still exists
@@ -77,27 +78,39 @@ class Delete
             }
 
             /**
+             *  Define snapshot directory
+             */
+            if ($this->repo->getPackageType() == 'rpm') {
+                $snapshotPath = REPOS_DIR . '/rpm/' . $this->repo->getName() . '/' . $this->repo->getReleasever() . '/' . $this->repo->getDate();
+            }
+
+            if ($this->repo->getPackageType() == 'deb') {
+                $snapshotPath = REPOS_DIR . '/deb/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '/' . $this->repo->getDate();
+            }
+
+            /**
              *  Delete snapshot directory
              */
-            if ($this->repo->getPackageType() == "rpm") {
-                if (is_dir(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName())) {
-                    $deleteResult = \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName());
-                }
-            }
-            if ($this->repo->getPackageType() == "deb") {
-                if (is_dir(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection())) {
-                    $deleteResult = \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection());
-                }
+            if (is_dir($snapshotPath)) {
+                $deleteResult = \Controllers\Filesystem\Directory::deleteRecursive($snapshotPath);
             }
 
             if (!$deleteResult) {
                 throw new Exception('Cannot delete <span class="label-black">' . $this->repo->getDateFormatted() . ' snapshot</span>');
             }
 
+            $this->taskLogSubStepController->completed();
+
+            $this->taskLogSubStepController->new('updating-database', 'UPDATING DATABASE');
+
             /**
              *  Set snapshot status to 'deleted' in database
              */
             $this->repoSnapshotController->updateStatus($this->repo->getSnapId(), 'deleted');
+
+            $this->taskLogSubStepController->completed();
+
+            $this->taskLogSubStepController->new('cleaning', 'CLEANING');
 
             /**
              *  Retrieve env Ids pointing to this snapshot
@@ -115,23 +128,25 @@ class Delete
                     $myrepo = new \Controllers\Repo\Repo();
                     $myrepo->getAllById('', '', $envId);
 
+                    if ($myrepo->getPackageType() == 'rpm') {
+                        $link = REPOS_DIR . '/rpm/' . $myrepo->getName() . '/' . $myrepo->getReleasever() . '/' . $myrepo->getEnv();
+                    }
+
+                    if ($myrepo->getPackageType() == 'deb') {
+                        $link = REPOS_DIR . '/deb/' . $myrepo->getName() . '/' . $myrepo->getDist() . '/' . $myrepo->getSection() . '/' . $myrepo->getEnv();
+                    }
+
                     /**
                      *  If a symbolic link of this environment pointed to the deleted snapshot then we can delete the symbolic link.
                      */
-                    if ($myrepo->getPackageType() == 'rpm') {
-                        if (is_link(REPOS_DIR . '/' . $myrepo->getName() . '_' . $myrepo->getEnv())) {
-                            if (readlink(REPOS_DIR . '/' . $myrepo->getName() . '_' . $myrepo->getEnv()) == $myrepo->getDateFormatted() . '_' . $myrepo->getName()) {
-                                unlink(REPOS_DIR . '/' . $myrepo->getName() . '_' . $myrepo->getEnv());
+                    if (is_link($link)) {
+                        if (readlink($link) == $myrepo->getDate()) {
+                            if (!unlink($link)) {
+                                throw new Exception('Could not remove existing symlink ' . $link);
                             }
                         }
                     }
-                    if ($myrepo->getPackageType() == 'deb') {
-                        if (is_link(REPOS_DIR . '/' . $myrepo->getName() . '/' . $myrepo->getDist() . '/' . $myrepo->getSection() . '_' . $myrepo->getEnv())) {
-                            if (readlink(REPOS_DIR . '/' . $myrepo->getName() . '/' . $myrepo->getDist() . '/' . $myrepo->getSection() . '_' . $myrepo->getEnv()) == $myrepo->getDateFormatted() . '_' . $myrepo->getSection()) {
-                                unlink(REPOS_DIR . '/' . $myrepo->getName() . '/' . $myrepo->getDist() . '/' . $myrepo->getSection() . '_' . $myrepo->getEnv());
-                            }
-                        }
-                    }
+
                     unset($myrepo);
                 }
             }
@@ -142,18 +157,33 @@ class Delete
             $this->repo->cleanGroups();
 
             /**
-             *  Delete the parent directories if they are empty (deb only)
+             *  Delete the parent directories if they are empty
              */
-            if ($this->repo->getPackageType() == 'deb') {
-                if (\Controllers\Filesystem\Directory::isEmpty(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist())) {
-                    \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist());
+            if ($this->repo->getPackageType() == 'rpm') {
+                if (\Controllers\Filesystem\Directory::isEmpty(REPOS_DIR . '/rpm/' . $this->repo->getName() . '/' . $this->repo->getReleasever())) {
+                    \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/rpm/' . $this->repo->getName() . '/' . $this->repo->getReleasever());
                 }
 
-                if (\Controllers\Filesystem\Directory::isEmpty(REPOS_DIR . '/' . $this->repo->getName())) {
-                    \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/' . $this->repo->getName());
+                if (\Controllers\Filesystem\Directory::isEmpty(REPOS_DIR . '/rpm/' . $this->repo->getName())) {
+                    \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/rpm/' . $this->repo->getName());
                 }
             }
 
+            if ($this->repo->getPackageType() == 'deb') {
+                if (\Controllers\Filesystem\Directory::isEmpty(REPOS_DIR . '/deb/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection())) {
+                    \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/deb/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection());
+                }
+
+                if (\Controllers\Filesystem\Directory::isEmpty(REPOS_DIR . '/deb/' . $this->repo->getName() . '/' . $this->repo->getDist())) {
+                    \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/deb/' . $this->repo->getName() . '/' . $this->repo->getDist());
+                }
+
+                if (\Controllers\Filesystem\Directory::isEmpty(REPOS_DIR . '/deb/' . $this->repo->getName())) {
+                    \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/deb/' . $this->repo->getName());
+                }
+            }
+
+            $this->taskLogSubStepController->completed();
             $this->taskLogStepController->completed();
 
             /**

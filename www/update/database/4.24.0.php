@@ -1,5 +1,9 @@
 <?php
 /**
+ *  4.24.0 update
+ */
+
+/**
  *  Add 'REPO_DEDUPLICATION' column to settings table
  */
 if (!$this->db->columnExist('settings', 'REPO_DEDUPLICATION')) {

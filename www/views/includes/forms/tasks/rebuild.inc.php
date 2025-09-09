@@ -1,12 +1,19 @@
 <h6>REBUILD METADATA</h6>
 <p class="note">The repository snapshot to rebuild metadata for.</p>
-<?php
-if ($myrepo->getPackageType() == 'rpm') {
-    echo '<span class="label-white">' . $myrepo->getName() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span>';
-}
-if ($myrepo->getPackageType() == 'deb') {
-    echo '<span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span>';
-} ?>
+
+<div class="flex align-item-center">
+    <p class="label-white">
+        <?php
+        if ($myrepo->getPackageType() == 'rpm') {
+            echo $myrepo->getName() . ' ❯ ' . $myrepo->getReleasever();
+        }
+        if ($myrepo->getPackageType() == 'deb') {
+            echo $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection();
+        } ?>
+    </p>
+
+    <p>⸺<span class="label-black"><?= $myrepo->getDateFormatted() ?></span></p>
+</div>
 
 <h6>SIGN WITH GPG</h6>
 <p class="note">Sign repository / packages with GPG.</p>

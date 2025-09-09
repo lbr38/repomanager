@@ -10,6 +10,8 @@ on:
 jobs:
   run-deb-tasks:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     container:
       image: lbr38/repomanager:latest
     steps:
@@ -58,7 +60,7 @@ jobs:
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='1'" www-data
 
       - name: Print mirrored deb repo content
-        run: ls -l /home/repo/debian/bookworm/contrib_pprd/pool/contrib/
+        run: ls -l /home/repo/deb/debian/bookworm/contrib/pprd/pool/contrib/
 
       - name: Run job - Update deb repo
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='2'" www-data
@@ -67,7 +69,7 @@ jobs:
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='3'" www-data
 
       - name: Print duplicated deb repo content
-        run: ls -l /home/repo/debian-copy/bookworm/contrib_pprd/pool/contrib/*.deb
+        run: ls -l /home/repo/deb/debian-copy/bookworm/contrib/pprd/pool/contrib/*.deb
 
       - name: Run job - Point environment to deb repo
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='4'" www-data
@@ -131,7 +133,7 @@ jobs:
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='1'" www-data
 
       - name: Print mirrored rpm repo content
-        run: ls -l /home/repo/
+        run: ls -l /home/repo/rpm/centos9-extras-common/9/pprd/packages/*/*.rpm
 
       - name: Run job - Update rpm repo
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='2'" www-data
@@ -140,7 +142,7 @@ jobs:
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='3'" www-data
 
       - name: Print duplicated rpm repo content
-        run: ls -l /home/repo/centos9-extras-common-copy_pprd/packages/*/*.rpm
+        run: ls -l /home/repo/rpm/centos9-extras-common-copy/9/pprd/packages/*/*.rpm
 
       - name: Run job - Point environment to rpm repo
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='4'" www-data

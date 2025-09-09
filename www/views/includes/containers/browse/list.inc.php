@@ -3,7 +3,7 @@
 
     <?php
     if ($myrepo->getPackageType() == 'rpm') {
-        $repo = $myrepo->getName();
+        $repo = $myrepo->getName() . ' ❯ ' . $myrepo->getReleasever();
     }
     if ($myrepo->getPackageType() == 'deb') {
         $repo = $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection();
@@ -48,7 +48,7 @@
                 /**
                  *  Print packages list
                  */
-                \Controllers\Browse::tree($repoPath); ?>
+                \Controllers\Browse::tree($snapshotPath); ?>
             </form>
         </div>
     </div>

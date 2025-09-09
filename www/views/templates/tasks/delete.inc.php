@@ -19,7 +19,7 @@
                     if (!empty($repoController->getDist()) and !empty($repoController->getSection())) {
                         echo $repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection();
                     } else {
-                        echo $repoController->getName();
+                        echo $repoController->getName() . ' ❯ ' . $repoController->getReleasever();
                     } ?>
                 </span>
             </p>

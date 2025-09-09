@@ -15,6 +15,8 @@ class Update
     private $sourceRepo;
     private $repo;
     private $task;
+    private $rpmRepoController;
+    private $debRepoController;
     private $repoSnapshotController;
     private $repoEnvController;
     private $taskLogStepController;
@@ -26,6 +28,8 @@ class Update
         $this->sourceRepo = new \Controllers\Repo\Repo();
         $this->repo = new \Controllers\Repo\Repo();
         $this->task = new \Controllers\Task\Task();
+        $this->rpmRepoController = new \Controllers\Repo\Rpm();
+        $this->debRepoController = new \Controllers\Repo\Deb();
         $this->repoSnapshotController = new \Controllers\Repo\Snapshot();
         $this->repoEnvController = new \Controllers\Repo\Environment();
         $this->taskLogStepController = new \Controllers\Task\Log\Step($taskId);
@@ -208,12 +212,12 @@ class Update
              *  We cannot update a snapshot in the same day
              */
             if ($this->repo->getPackageType() == 'rpm') {
-                if ($this->repo->existsRepoSnapDate($this->repo->getDate(), $this->repo->getName()) === true) {
+                if ($this->rpmRepoController->existsSnapDate($this->repo->getName(), $this->repo->getReleasever(), $this->repo->getDate())) {
                     throw new Exception('A snapshot already exists on the <span class="label-black">' . $this->repo->getDateFormatted() . '</span>');
                 }
             }
             if ($this->repo->getPackageType() == 'deb') {
-                if ($this->repo->existsRepoSnapDate($this->repo->getDate(), $this->repo->getName(), $this->repo->getDist(), $this->repo->getSection()) === true) {
+                if ($this->debRepoController->existsSnapDate($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection(), $this->repo->getDate())) {
                     throw new Exception('A snapshot already exists on the <span class="label-black">' . $this->repo->getDateFormatted() . '</span>');
                 }
             }
@@ -226,30 +230,23 @@ class Update
             }
 
             /**
-             *  Define final repo/section directory path
+             *  Define snapshot directory path
              */
             if ($this->repo->getPackageType() == 'rpm') {
-                $repoPath = REPOS_DIR . '/' . DATE_DMY . '_' . $this->repo->getName();
+                $snapshotPath = REPOS_DIR . '/rpm/' . $this->repo->getName() . '/' . $this->repo->getReleasever() . '/' . DATE_YMD;
             }
             if ($this->repo->getPackageType() == 'deb') {
-                $repoPath = REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . DATE_DMY . '_' . $this->repo->getSection();
+                $snapshotPath = REPOS_DIR . '/deb/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '/' . DATE_YMD;
             }
 
             /**
-             *  Retrieve previous snapshot directory path
+             *  Define previous snapshot directory path
              */
             if ($this->sourceRepo->getPackageType() == 'rpm') {
-                $previousSnapshotDir = REPOS_DIR . '/' . $this->sourceRepo->getDateFormatted() . '_' . $this->sourceRepo->getName();
+                $previousSnapshotDir = REPOS_DIR . '/rpm/' . $this->sourceRepo->getName() . '/' . $this->sourceRepo->getReleasever() . '/' . $this->sourceRepo->getDate();
             }
             if ($this->sourceRepo->getPackageType() == 'deb') {
-                $previousSnapshotDir = REPOS_DIR . '/' . $this->sourceRepo->getName() . '/' . $this->sourceRepo->getDist() . '/' . $this->sourceRepo->getDateFormatted() . '_' . $this->sourceRepo->getSection();
-            }
-
-            /**
-             *  Check that previous snapshot directory has been retrieved
-             */
-            if (empty($previousSnapshotDir)) {
-                throw new Exception('Could not retrieve previous snapshot directory');
+                $previousSnapshotDir = REPOS_DIR . '/deb/' . $this->sourceRepo->getName() . '/' . $this->sourceRepo->getDist() . '/' . $this->sourceRepo->getSection() . '/' . $this->sourceRepo->getDate();
             }
 
             /**
@@ -262,9 +259,9 @@ class Update
             /**
              *  If target directory already exists, delete it
              */
-            if (is_dir($repoPath)) {
-                if (!\Controllers\Filesystem\Directory::deleteRecursive($repoPath)) {
-                    throw new Exception('Cannot delete existing directory: ' . $repoPath);
+            if (is_dir($snapshotPath)) {
+                if (!\Controllers\Filesystem\Directory::deleteRecursive($snapshotPath)) {
+                    throw new Exception('Cannot delete existing directory: ' . $snapshotPath);
                 }
             }
 
@@ -299,14 +296,14 @@ class Update
              */
             if ($this->repo->getPackageType() == 'deb') {
                 // Create pool directory
-                if (!mkdir($repoPath . '/pool/' . $this->repo->getSection(), 0770, true)) {
-                    throw new Exception('Cannot create directory: ' . $repoPath . '/pool/' . $this->repo->getSection());
+                if (!mkdir($snapshotPath . '/pool/' . $this->repo->getSection(), 0770, true)) {
+                    throw new Exception('Cannot create directory: ' . $snapshotPath . '/pool/' . $this->repo->getSection());
                 }
             }
             if ($this->repo->getPackageType() == 'rpm') {
                 // Create packages directory. As it is a local repository, we don't need to create arch subdirectories as all packages are in the same directory
-                if (!mkdir($repoPath . '/packages', 0770, true)) {
-                    throw new Exception('Cannot create directory: ' . $repoPath . '/packages');
+                if (!mkdir($snapshotPath . '/packages', 0770, true)) {
+                    throw new Exception('Cannot create directory: ' . $snapshotPath . '/packages');
                 }
             }
 
@@ -328,12 +325,12 @@ class Update
                     $this->taskLogSubStepController->new('hardlink-package-' . $packageCounter, 'LINKING PACKAGE TO PREVIOUS SNAPSHOT (' . $packageCounter . '/' . $totalPackages . ')', $packagePath);
 
                     if ($this->repo->getPackageType() == 'deb') {
-                        if (!link($packagePath, $repoPath . '/pool/' . $this->repo->getSection() . '/' . $name)) {
+                        if (!link($packagePath, $snapshotPath . '/pool/' . $this->repo->getSection() . '/' . $name)) {
                             throw new Exception('Cannot create hard link to package: ' . $packagePath);
                         }
                     }
                     if ($this->repo->getPackageType() == 'rpm') {
-                        if (!link($packagePath, $repoPath . '/packages/' . $name)) {
+                        if (!link($packagePath, $snapshotPath . '/packages/' . $name)) {
                             throw new Exception('Cannot create hard link to package: ' . $packagePath);
                         }
                     }
@@ -347,12 +344,12 @@ class Update
                     $this->taskLogSubStepController->new('copy-package-' . $packageCounter, 'COPYING PACKAGE TO NEW SNAPSHOT (' . $packageCounter . '/' . $totalPackages . ')', $packagePath);
 
                     if ($this->repo->getPackageType() == 'deb') {
-                        if (!copy($packagePath, $repoPath . '/pool/' . $this->repo->getSection() . '/' . $name)) {
+                        if (!copy($packagePath, $snapshotPath . '/pool/' . $this->repo->getSection() . '/' . $name)) {
                             throw new Exception('Cannot copy package: ' . $packagePath);
                         }
                     }
                     if ($this->repo->getPackageType() == 'rpm') {
-                        if (!copy($packagePath, $repoPath . '/packages/' . $name)) {
+                        if (!copy($packagePath, $snapshotPath . '/packages/' . $name)) {
                             throw new Exception('Cannot copy package: ' . $packagePath);
                         }
                     }

@@ -100,6 +100,7 @@ if (!empty($groupsList)) {
                             $rebuild        = $repo['Reconstruct'];
                             $status         = $repo['Status'];
                             $packageType    = $repo['Package_type'];
+                            $date           = $repo['Date'];
                             $dateFormatted  = DateTime::createFromFormat('Y-m-d', $repo['Date'])->format('d-m-Y');
                             $time           = $repo['Time'];
                             $type           = $repo['Type'];
@@ -121,32 +122,28 @@ if (!empty($groupsList)) {
                             $printEmptyLine       = false;
                             $printDoubleEmptyLine = false;
 
-                            if ($packageType != $previousPackageType) {
-                                $printRepoName       = true;
-                                $printRepoDist       = true;
-                                $printRepoSection    = true;
-                                $printReleaseVersion = true;
-                                $envCounter          = 1;
+                            if ($name == $previousName) {
+                                $printRepoName = false;
                             }
 
-                            if ($name != $previousName) {
-                                $printRepoName       = true;
-                                $printRepoDist       = true;
-                                $printRepoSection    = true;
-                                $printReleaseVersion = true;
-                                $envCounter          = 1;
+                            if ($packageType != $previousPackageType) {
+                                $printRepoName = true;
+                                $envCounter    = 1;
                             }
 
                             if ($packageType == 'rpm') {
-                                if ($name == $previousName) {
-                                    $printRepoName = false;
-                                }
+                                $snapshotPath = REPOS_DIR . '/rpm/' . $name . '/' . $releaseVersion . '/' . $date;
+
                                 if ($name == $previousName and $snapId != $previousSnapId) {
                                     $printEmptyLine = true;
                                     $envCounter = 1;
                                 }
-                                if ($name == $previousName and $releaseVersion == $previousReleaseVersion) {
+                                if ($name == $previousName and $releaseVersion === $previousReleaseVersion) {
                                     $printReleaseVersion = false;
+                                }
+                                if ($name == $previousName and $releaseVersion !== $previousReleaseVersion) {
+                                    $printDoubleEmptyLine = true;
+                                    $envCounter = 1;
                                 }
 
                                 /**
@@ -157,6 +154,8 @@ if (!empty($groupsList)) {
                             }
 
                             if ($packageType == 'deb') {
+                                $snapshotPath = REPOS_DIR . '/deb/' . $name . '/' . $dist . '/' . $section . '/' . $date;
+
                                 if ($name == $previousName and $dist == $previousDist and $section == $previousSection) {
                                     $printRepoName    = false;
                                     $printRepoDist    = false;
@@ -226,28 +225,28 @@ if (!empty($groupsList)) {
                                      */
                                     if (!empty($rebuild)) {
                                         if ($rebuild == 'needed') {
-                                            echo '<img class="icon" src="/assets/icons/warning.svg" title="Repository snapshot content has been modified. You have to rebuild metadata." />';
+                                            echo '<img class="icon-np" src="/assets/icons/warning.svg" title="Repository snapshot content has been modified. You have to rebuild metadata." />';
                                         }
 
                                         /**
                                          *  Print a failed icon if repo snapshot rebuild has failed
                                          */
                                         if ($rebuild == 'failed') {
-                                            echo '<img class="icon" src="/assets/icons/error.svg" title="Metadata building has failed." />';
+                                            echo '<img class="icon-np" src="/assets/icons/error.svg" title="Metadata building has failed." />';
                                         }
                                     }
 
                                     /**
-                                     *  Print a warning icon if repo directory does not exist on the server
+                                     *  Print a warning icon if snapshot directory does not exist on the server
                                      */
                                     if ($packageType == 'rpm') {
-                                        if (!is_dir(REPOS_DIR . '/' . $dateFormatted . '_' . $name)) {
-                                            echo '<img class="icon" src="/assets/icons/warning.svg" title="This snapshot directory is missing on the server." />';
+                                        if (!is_dir($snapshotPath)) {
+                                            echo '<img class="icon-np" src="/assets/icons/warning.svg" title="This snapshot directory is missing on the server." />';
                                         }
                                     }
                                     if ($packageType == 'deb') {
-                                        if (!is_dir(REPOS_DIR . '/' . $name . '/' . $dist . '/' . $dateFormatted . '_' . $section)) {
-                                            echo '<img class="icon" src="/assets/icons/warning.svg" title="This snapshot directory is missing on the server." />';
+                                        if (!is_dir($snapshotPath)) {
+                                            echo '<img class="icon-np" src="/assets/icons/warning.svg" title="This snapshot directory is missing on the server." />';
                                         }
                                     }
                                 }
@@ -274,11 +273,11 @@ if (!empty($groupsList)) {
                              *  Generate repo relative path
                              */
                             if ($packageType == 'rpm') {
-                                $repoRelativePath = $dateFormatted . '_' . $name;
+                                $repoRelativePath = 'rpm/' .$name . '/' . $releaseVersion . '/' . $date;
                             }
 
                             if ($packageType == 'deb') {
-                                $repoRelativePath = $name . '/' . $dist . '/' . $dateFormatted . '_' . $section;
+                                $repoRelativePath = 'deb/' . $name . '/' . $dist . '/' . $section . '/' . $date;
                             } ?>
 
                             <div class="item-snapshot">
@@ -358,21 +357,31 @@ if (!empty($groupsList)) {
 
                             <div class="item-env-info" env-id="<?= $envId ?>">
                                 <?php
-                                /**
-                                 *  Remove env icon
-                                 */
+                                // Environment checkbox
                                 if (!empty($env)) {
+                                    // Print a warning icon if the env link is broken (target environment link does not exist)
+                                    if ($packageType == 'rpm') {
+                                        if (!is_link(REPOS_DIR . '/rpm/' . $name . '/' . $releaseVersion . '/' . $env)) {
+                                            echo '<img class="icon-np" src="/assets/icons/warning.svg" title="This environment link is broken." />';
+                                        }
+                                    }
+
+                                    if ($packageType == 'deb') {
+                                        if (!is_link(REPOS_DIR . '/deb/' . $name . '/' . $dist . '/' . $section . '/' . $env)) {
+                                            echo '<img class="icon-np" src="/assets/icons/warning.svg" title="This environment link is broken." />';
+                                        }
+                                    }
+
                                     // If the user is an admin or is a regular user with the 'removeEnv' permission
-                                    if (IS_ADMIN or in_array('removeEnv', USER_PERMISSIONS['repositories']['allowed-actions']['repos'])) {
-                                        echo '<img src="/assets/icons/delete.svg" class="delete-env-btn icon-lowopacity" title="Remove ' . $env . ' environment" repo-id="' . $repoId . '" snap-id="' . $snapId . '" env-id="' . $envId . '" env="' . $env . '" />';
+                                    if (IS_ADMIN or in_array('removeEnv', USER_PERMISSIONS['repositories']['allowed-actions']['repos'])) { ?>
+                                        <input type="checkbox" cid="<?= $repoId . $snapId . $envId ?>" class="select-env-checkbox icon-lowopacity" name="env-checkbox" repo-id="<?= $repoId ?>" snap-id="<?= $snapId ?>" env-id="<?= $envId ?>" env="<?= $env ?>" title="Select environment">
+                                        <?php
                                     }
                                 } ?>
                             </div>
 
                             <?php
-                            /**
-                             *  Description input
-                             */
+                            // Description input
                             echo '<div class="item-desc">';
                             if (!empty($env)) {
                                 echo '<input type="text" class="repo-description-input" env-id="' . $envId . '" placeholder="🖉 add a description" value=\'' . htmlspecialchars_decode($description) . '\' />';

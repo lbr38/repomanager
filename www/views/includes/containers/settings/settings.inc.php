@@ -68,7 +68,7 @@
             if (TASK_QUEUING == 'true') : ?>
                 <h6>MAXIMUM NUMBER OF SIMULTANEOUS TASKS</h6>
                 <p class="note">Maximum number of tasks that can run simultaneously. The other tasks will be queued.</p>
-                <input class="settings-param" param-name="task-queuing-max-simultaneous" type="number" min="1" value="<?= TASK_QUEUING_MAX_SIMULTANEOUS ?>" placeholder="Default is 2">
+                <input class="settings-param" param-name="task-queuing-max-simultaneous" type="number" min="1" value="<?= TASK_QUEUING_MAX_SIMULTANEOUS ?>" placeholder="Default is 3">
                 <?php
             endif ?>
 
@@ -114,8 +114,20 @@
             } ?>
 
             <h6>REPOSITORY CONFIGURATION FILE NAME PREFIX</h6>
-            <p class="note">Prefix added to repository configuration files when installing on client hosts (e.g., 'myprefix-debian.list' or 'myprefix-nginx.repo'). Leave empty if you want no prefix.</p>
+            <p class="note">Prefix added to repository configuration files when installing on client hosts. Leave empty if you want no prefix.</p>
             <input class="settings-param" param-name="repoConfFilesPrefix" type="text" value="<?= REPO_CONF_FILES_PREFIX ?>">
+
+            <div class="flex column-gap-15 margin-top-5">
+                <p class="note">e.g.</p>
+                <div class="flex align-item-center column-gap-5">
+                    <span class="label-pkg-rpm" title="This repository contains deb packages">RPM</span>
+                    <code><?= REPO_CONF_FILES_PREFIX ?>almalinux-baseos.repo</code>
+                </div>
+                <div class="flex align-item-center column-gap-5">
+                    <span class="label-pkg-deb" title="This repository contains deb packages">DEB</span>
+                    <code><?= REPO_CONF_FILES_PREFIX ?>ubuntu-noble-main.list</code>
+                </div>
+            </div>
 
             <hr class="margin-top-20 margin-bottom-20">
 

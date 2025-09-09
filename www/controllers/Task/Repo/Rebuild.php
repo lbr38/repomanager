@@ -89,7 +89,6 @@ class Rebuild
             $this->createMetadata();
 
             /**
-             *  Etape 4 : on modifie l'état de la signature du repo en BDD
              *  Set repo signature state in database
              *  As we have rebuilt the repo files, it is possible that we have switched from a signed repo to an unsigned repo, or vice versa, we must therefore modify the state in the database
              */

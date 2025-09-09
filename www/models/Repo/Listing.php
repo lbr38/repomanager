@@ -13,7 +13,6 @@ class Listing extends \Models\Model
 
     /**
      *  Return the list of repos, their snapshots and their environments
-     *  Does not display repos that have no active environments
      */
     public function list() : array
     {
@@ -44,7 +43,7 @@ class Listing extends \Models\Model
             LEFT JOIN repos_env 
                 ON repos_snap.Id = repos_env.Id_snap
             WHERE repos_snap.Status = 'active'
-            ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC, repos_env.Env ASC");
+            ORDER BY repos.Name ASC, repos.Releasever ASC, repos.Dist ASC, repos.Section ASC, repos_snap.Date DESC");
         } catch (Exception $e) {
             $this->db->logError($e);
         }
@@ -92,7 +91,7 @@ class Listing extends \Models\Model
                 LEFT JOIN repos_env 
                     ON repos_env.Id_snap = repos_snap.Id
                 WHERE repos_snap.Status = 'active' AND repos.Id NOT IN (SELECT Id_repo FROM group_members)
-                ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC, repos_snap.Date DESC");
+                ORDER BY repos.Name ASC, repos.Releasever ASC, repos.Dist ASC, repos.Section ASC, repos_snap.Date DESC");
             } else {
                 $stmt = $this->db->prepare("SELECT DISTINCT
                 repos.Id AS repoId,
@@ -125,7 +124,7 @@ class Listing extends \Models\Model
                     ON groups.Id = group_members.Id_group
                 WHERE groups.Name = :groupname
                 AND repos_snap.Status = 'active'
-                ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC, repos_snap.Date DESC");
+                ORDER BY repos.Name ASC, repos.Releasever ASC, repos.Dist ASC, repos.Section ASC, repos_snap.Date DESC");
                 $stmt->bindValue(':groupname', $groupName);
                 $result = $stmt->execute();
             }

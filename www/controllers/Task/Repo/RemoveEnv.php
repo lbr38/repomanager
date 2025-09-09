@@ -68,28 +68,38 @@ class RemoveEnv
     {
         try {
             $this->taskLogStepController->new('removing', 'REMOVING');
+            $this->taskLogSubStepController->new('delete-symlink', 'DELETE SYMLINK');
+
+            /**
+             *  Define environment symlink
+             */
+            if ($this->repo->getPackageType() == 'rpm') {
+                $symlink = REPOS_DIR . '/rpm/' . $this->repo->getName() . '/' . $this->repo->getReleasever() . '/' . $this->repo->getEnv();
+            }
+
+            if ($this->repo->getPackageType() == 'deb') {
+                $symlink = REPOS_DIR . '/deb/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '/' . $this->repo->getEnv();
+            }
 
             /**
              *  Delete environment symlink
              */
-            if ($this->repo->getPackageType() == 'rpm') {
-                if (file_exists(REPOS_DIR . '/' . $this->repo->getName() . '_' . $this->repo->getEnv())) {
-                    unlink(REPOS_DIR . '/' . $this->repo->getName() . '_' . $this->repo->getEnv());
+            if (file_exists($symlink)) {
+                if (!unlink($symlink)) {
+                    throw new Exception('Failed to delete symlink: ' . $symlink);
                 }
             }
-            if ($this->repo->getPackageType() == 'deb') {
-                if (file_exists(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '_' . $this->repo->getEnv())) {
-                    unlink(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '_' . $this->repo->getEnv());
-                }
-            }
+
+            $this->taskLogSubStepController->completed();
 
             /**
              *  Delete environment from database
              */
+            $this->taskLogSubStepController->new('update-database', 'UPDATE DATABASE');
             $this->repoEnvController->remove($this->repo->getEnvId());
+            $this->taskLogSubStepController->completed();
 
             $this->taskLogStepController->completed();
-
             $this->taskLogStepController->new('cleaning', 'CLEANING');
 
             /**
