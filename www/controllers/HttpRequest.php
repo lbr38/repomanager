@@ -54,6 +54,12 @@ class HttpRequest
                 curl_setopt($this->ch, CURLOPT_HTTPHEADER, $params['headers']);
             }
 
+            // Use compression if supported
+            curl_setopt($this->ch, CURLOPT_ENCODING, '');
+
+            // Follow redirects
+            curl_setopt($this->ch, CURLOPT_FOLLOWLOCATION, true);
+
             // Return the result as a string instead of outputting it directly
             curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, true);
 

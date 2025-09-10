@@ -17,15 +17,15 @@ ARG branch=main
 
 # Install dependencies
 RUN apt-get update -y
-RUN apt-get install findutils iputils-ping git gnupg2 rpm librpmsign9 createrepo-c apt-utils curl ca-certificates apt-transport-https dnsutils xz-utils bzip2 zstd vim -y
+RUN apt-get install findutils iputils-ping git gnupg2 rpm librpmsign9 createrepo-c apt-utils curl ca-certificates apt-transport-https dnsutils xz-utils bzip2 zstd vim python3-psutil -y
 
 # Install postfix
 RUN apt-get install postfix -y
 
 # Add nginx and PHP 8.3 repositories
 RUN curl -sS https://packages.repomanager.net/repo/gpgkeys/packages.repomanager.net.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/packages.repomanager.net.gpg
-RUN echo "deb https://packages.repomanager.net/repo/repomanager-nginx/bookworm/nginx_prod bookworm nginx" > /etc/apt/sources.list.d/nginx.list
-RUN echo "deb https://packages.repomanager.net/repo/repomanager-php/bookworm/main_prod bookworm main" > /etc/apt/sources.list.d/php.list
+RUN echo "deb https://packages.repomanager.net/repo/deb/repomanager-nginx/bookworm/nginx/prod bookworm nginx" > /etc/apt/sources.list.d/nginx.list
+RUN echo "deb https://packages.repomanager.net/repo/deb/repomanager-php/bookworm/main/prod bookworm main" > /etc/apt/sources.list.d/php.list
 RUN apt-get update -y
 
 # Install nginx and PHP 8.3

@@ -62,9 +62,13 @@ if [ $? -ne 0 ];then
 fi
 
 # Start services
-/usr/sbin/service php8.3-fpm start
-/usr/sbin/service nginx start
-/usr/sbin/service postfix start
+/usr/sbin/service php8.3-fpm start > /dev/null &&
+/usr/sbin/service nginx start > /dev/null &&
+/usr/sbin/service postfix start > /dev/null &&
+
+if [ $? -ne 0 ];then
+    exit 1
+fi
 
 # Initialize database
 /bin/su -s /bin/bash -c "/usr/bin/php $WWW_DIR/tools/database/initialize.php" www-data

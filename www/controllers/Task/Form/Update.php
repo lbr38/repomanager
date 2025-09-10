@@ -3,13 +3,13 @@
 namespace Controllers\Task\Form;
 
 use Exception;
+use \Controllers\History\Save as History;
 
 class Update
 {
     public function validate(array $formParams)
     {
         $myrepo = new \Controllers\Repo\Repo();
-        $myhistory = new \Controllers\History();
 
         /**
          *  Check that the snapshot id is valid
@@ -68,12 +68,12 @@ class Update
          *  Add history
          */
         if ($myrepo->getPackageType() == 'rpm') {
-            $myhistory->set('Running task: update ' . $myrepo->getType() . ' repository <span class="label-white">' . $myrepo->getName() . '</span>', 'success');
+            History::set('Running task: update ' . $myrepo->getType() . ' repository <span class="label-white">' . $myrepo->getName() . '</span>');
         }
         if ($myrepo->getPackageType() == 'deb') {
-            $myhistory->set('Running task: update ' . $myrepo->getType() . ' repository <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>', 'success');
+            History::set('Running task: update ' . $myrepo->getType() . ' repository <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>');
         }
 
-        unset($myrepo, $myhistory);
+        unset($myrepo);
     }
 }

@@ -2,6 +2,7 @@
 namespace Controllers\User;
 
 use Exception;
+use \Controllers\History\Save as History;
 
 class Edit extends User
 {
@@ -55,7 +56,7 @@ class Edit extends User
         $_SESSION['last_name']  = $lastName;
         $_SESSION['email']      = $email;
 
-        $this->historyController->set('Personal informations modification', 'success');
+        History::set('Personal informations modification');
     }
 
     /**
@@ -129,7 +130,7 @@ class Edit extends User
          */
         $this->updatePassword($id, $newPasswordHashed);
 
-        $this->historyController->set('Password modification', 'success');
+        History::set('Password modification');
     }
 
     /**
@@ -194,7 +195,7 @@ class Edit extends User
          */
         $this->updatePassword($id, $hashedPassword);
 
-        $this->historyController->set('Reseted password of user ' . $username, 'success');
+        History::set('Reseted password of user <code>' . $username . '</code>');
 
         /**
          *  Return new password

@@ -50,7 +50,7 @@ function permissions
         exit 1
     fi
 
-    echo "["$(date +"%a %b %d %H:%M:%S")"] Setting permissions... "
+    echo "["$(date +"%a %b %d %H:%M:%S")"][INF] Setting permissions... "
  
     # Permissions on repos directory
     chmod 770 "$REPOS_DIR"

@@ -3,6 +3,7 @@
 namespace Controllers\Repo\Edit;
 
 use Exception;
+use \Controllers\History\Save as History;
 
 class Form
 {
@@ -134,7 +135,6 @@ class Form
      */
     public function edit(array $params) : void
     {
-        $historyController = new \Controllers\History();
         $layoutContainerReloadController = new \Controllers\Layout\ContainerReload();
 
         foreach ($params as $param) {
@@ -163,10 +163,10 @@ class Form
              *  Add history
              */
             if ($repoController->getPackageType() == 'rpm') {
-                $historyController->set('Editing <span class="label-white">' . $repoController->getName() . '</span> repository properties (' . $repoController->getType() . ')', 'success');
+                History::set('Editing <span class="label-white">' . $repoController->getName() . '</span> repository properties (' . $repoController->getType() . ')');
             }
             if ($repoController->getPackageType() == 'deb') {
-                $historyController->set('Editing <span class="label-white">' . $repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection() . '</span> repository properties (' . $repoController->getType() . ')', 'success');
+                History::set('Editing <span class="label-white">' . $repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection() . '</span> repository properties (' . $repoController->getType() . ')');
             }
 
             /**

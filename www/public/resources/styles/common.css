@@ -186,7 +186,9 @@ pre.codeblock {
 .grid-fr-6 {grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr !important}
 .grid-40p-45p-10p{grid-template-columns: 40% 45% 10% !important}
 /* For responsive */
-.grid-rfr-1-2{grid-template-columns: 1fr !important}
+.grid-rfr-1-2{grid-template-columns:1fr !important}
+.grid-rfr-1-4{grid-template-columns:1fr !important}
+.grid-rfr-2-4{grid-template-columns:repeat(2, 1fr) !important}
 .justify-center {justify-content: center}
 .justify-space-between {justify-content: space-between}
 .justify-space-around{justify-content: space-around}
@@ -204,7 +206,7 @@ pre.codeblock {
 .align-self-end{align-self: flex-end}
 .column-gap-1{column-gap:1px!important}.column-gap-2{column-gap:2px!important}.column-gap-4{column-gap:4px!important}.column-gap-5{column-gap:5px!important}.column-gap-6{column-gap:6px!important}.column-gap-7{column-gap:7px!important}.column-gap-8{column-gap:8px!important}.column-gap-9{column-gap:9px!important}.column-gap-10{column-gap:10px!important}.column-gap-15{column-gap:15px!important}
 .column-gap-20{column-gap:20px!important}.column-gap-30{column-gap:30px!important}.column-gap-40{column-gap:40px!important}.column-gap-45{column-gap:45px!important}.column-gap-50{column-gap:50px!important}.column-gap-60{column-gap:60px!important}.column-gap-70{column-gap:70px!important}.column-gap-80{column-gap:80px!important}.column-gap-90{column-gap:90px!important}.column-gap-100{column-gap:100px!important}
-.row-gap-1 {row-gap: 1px}.row-gap-2 {row-gap: 2px}.row-gap-4 {row-gap: 4px}.row-gap-5 {row-gap: 5px}.row-gap-6 {row-gap: 6px}.row-gap-7 {row-gap: 7px}.row-gap-8 {row-gap: 8px}.row-gap-9{row-gap: 9px}.row-gap-10{row-gap: 10px}.row-gap-15{row-gap: 15px}.row-gap-20{row-gap: 20px}
+.row-gap-1 {row-gap: 1px}.row-gap-2 {row-gap: 2px}.row-gap-4 {row-gap: 4px}.row-gap-5 {row-gap: 5px}.row-gap-6 {row-gap: 6px}.row-gap-7 {row-gap: 7px}.row-gap-8 {row-gap: 8px}.row-gap-9{row-gap: 9px}.row-gap-10{row-gap: 10px}.row-gap-15{row-gap: 15px}.row-gap-20{row-gap: 20px}.row-gap-30{row-gap: 30px}.row-gap-40{row-gap: 40px}.row-gap-50{row-gap: 50px}.row-gap-60{row-gap: 60px}.row-gap-70{row-gap: 70px}.row-gap-80{row-gap: 80px}.row-gap-90{row-gap: 90px}.row-gap-100{row-gap: 100px}
 .padding-10{padding:10px !important}.padding-15{padding:15px !important}.padding-20{padding:20px !important}.padding-30{padding:30px !important}.padding-40{padding:40px !important}
 .padding-top-10{padding-top:10px !important}.padding-top-15{padding-top:15px !important}.padding-top-20{padding-top:20px !important}.padding-top-30{padding-top:30px !important}.padding-top-40{padding-top:40px !important}
 .padding-bottom-10{padding-bottom:10px !important}.padding-bottom-15{padding-bottom:15px !important}.padding-bottom-20{padding-bottom:20px !important}.padding-bottom-30{padding-bottom:30px !important}.padding-bottom-40{padding-bottom:40px !important}
@@ -431,7 +433,9 @@ td {
 
 /* Desktop configuration */
 @media (min-width:1025px) {
-    .grid-rfr-1-2{grid-template-columns: 1fr 1fr !important}
+    .grid-rfr-1-2{grid-template-columns:repeat(2, 1fr) !important}
+    .grid-rfr-1-4{grid-template-columns:repeat(4, 1fr) !important}
+    .grid-rfr-2-4{grid-template-columns:repeat(4, 1fr) !important}
 
     .slide-panel {
         width: 30%;

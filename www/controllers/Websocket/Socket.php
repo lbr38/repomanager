@@ -36,7 +36,7 @@ class Socket extends WebsocketServer implements MessageComponentInterface
         try {
             $this->cleanWsConnections();
         } catch (Exception $e) {
-            $this->log('Error while cleaning database from old connections: ' . $e->getMessage());
+            $this->logError('Error while cleaning database from old connections: ' . $e->getMessage());
         }
     }
 
@@ -62,7 +62,7 @@ class Socket extends WebsocketServer implements MessageComponentInterface
         try {
             $this->newWsConnection($conn->resourceId);
         } catch (Exception $e) {
-            $this->log('[connection #' . $conn->resourceId . '] Error while adding connection to database: ' . $e->getMessage());
+            $this->logError('[connection #' . $conn->resourceId . '] Error while adding connection to database: ' . $e->getMessage());
 
             /**
              *  Send a message to the host to inform that the connection is not allowed, and close it
@@ -84,7 +84,7 @@ class Socket extends WebsocketServer implements MessageComponentInterface
         try {
             $message = json_decode($message, true);
         } catch (Exception $e) {
-            $this->log('[connection #' . $conn->resourceId . '] Error while decoding message: ' . $e->getMessage());
+            $this->logError('[connection #' . $conn->resourceId . '] Error while decoding message: ' . $e->getMessage());
             return;
         }
 
@@ -94,7 +94,7 @@ class Socket extends WebsocketServer implements MessageComponentInterface
         if (!empty($message['connection-type'])) {
             // Connection type must be either 'host' or 'browser-client'
             if (!in_array($message['connection-type'], array('host', 'browser-client'))) {
-                $this->log('[connection #' . $conn->resourceId . '] Invalid connection type: ' . $message['connection-type']);
+                $this->logError('[connection #' . $conn->resourceId . '] Invalid connection type: ' . $message['connection-type']);
 
                 // Close connection
                 $conn->close();
@@ -136,10 +136,10 @@ class Socket extends WebsocketServer implements MessageComponentInterface
                  *  Print, send an error message to the host and close connection
                  */
                 if (isset($message['response-to-request']['request'])) {
-                    $this->log('[connection #' . $conn->resourceId . '] Error while processing host\'s response to request "' . $message['response-to-request']['request'] . '": ' . $e->getMessage());
+                    $this->logError('[connection #' . $conn->resourceId . '] Error while processing host\'s response to request "' . $message['response-to-request']['request'] . '": ' . $e->getMessage());
                     $conn->send(json_encode(array('error' => 'error while processing response to request "' . $message['response-to-request']['request'] . '"')));
                 } else if (isset($message['response-to-request']['request-id'])) {
-                    $this->log('[connection #' . $conn->resourceId . '] Error while processing host\'s response to request #' . $message['response-to-request']['request-id'] . ': ' . $e->getMessage());
+                    $this->logError('[connection #' . $conn->resourceId . '] Error while processing host\'s response to request #' . $message['response-to-request']['request-id'] . ': ' . $e->getMessage());
                     $conn->send(json_encode(array('error' => 'error while processing response to request #' . $message['response-to-request']['request-id'])));
                 }
 
@@ -163,7 +163,7 @@ class Socket extends WebsocketServer implements MessageComponentInterface
         try {
             $this->deleteWsConnection($conn->resourceId);
         } catch (Exception $e) {
-            $this->log('[connection #' . $conn->resourceId . '] Error while removing connection from database: ' . $e->getMessage());
+            $this->logError('[connection #' . $conn->resourceId . '] Error while removing connection from database: ' . $e->getMessage());
         }
     }
 
@@ -172,7 +172,7 @@ class Socket extends WebsocketServer implements MessageComponentInterface
      */
     public function onError(ConnectionInterface $conn, \Exception $e)
     {
-        $this->log('[connection #' . $conn->resourceId . '] An error occurred with connection: ' . $e->getMessage());
+        $this->logError('[connection #' . $conn->resourceId . '] An error occurred with connection: ' . $e->getMessage());
         $conn->close();
     }
 }

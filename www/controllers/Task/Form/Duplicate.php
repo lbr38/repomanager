@@ -3,6 +3,7 @@
 namespace Controllers\Task\Form;
 
 use Exception;
+use \Controllers\History\Save as History;
 
 class Duplicate
 {
@@ -11,7 +12,6 @@ class Duplicate
         $myrepo = new \Controllers\Repo\Repo();
         $rpmRepoController = new \Controllers\Repo\Rpm();
         $debRepoController = new \Controllers\Repo\Deb();
-        $myhistory = new \Controllers\History();
 
         /**
          *  Check that the snapshot id is valid
@@ -73,12 +73,12 @@ class Duplicate
          *  Add history
          */
         if ($myrepo->getPackageType() == 'rpm') {
-            $myhistory->set('Running task: duplicate repository <span class="label-white">' . $myrepo->getName() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span> ➡ <span class="label-white">' . $formParams['name'] . '</span>', 'success');
+            History::set('Running task: duplicate repository <span class="label-white">' . $myrepo->getName() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span> ➡ <span class="label-white">' . $formParams['name'] . '</span>');
         }
         if ($myrepo->getPackageType() == 'deb') {
-            $myhistory->set('Running task: duplicate repository <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span> ➡ <span class="label-white">' . $formParams['name'] . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>', 'success');
+            History::set('Running task: duplicate repository <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span> ➡ <span class="label-white">' . $formParams['name'] . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>');
         }
 
-        unset($myrepo, $rpmRepoController, $debRepoController, $myhistory);
+        unset($myrepo, $rpmRepoController, $debRepoController);
     }
 }

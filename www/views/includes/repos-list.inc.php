@@ -72,12 +72,13 @@ if (!empty($groupsList)) {
                 /**
                  *  Declaration of variables used to compare values between two repos
                  */
-                $previousName = '';
-                $previousDist = '';
-                $previousSection = '';
-                $previousEnv = '';
-                $previousSnapId = '';
-                $previousPackageType = '';
+                $previousName = null;
+                $previousDist = null;
+                $previousSection = null;
+                $previousEnv = null;
+                $previousSnapId = null;
+                $previousPackageType = null;
+                $previousReleaseVersion = null;
 
                 /**
                  *  $envCounter will be used to count the number of env for the current repo

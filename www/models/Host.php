@@ -148,6 +148,36 @@ class Host extends Model
     }
 
     /**
+     *  Update CPU in database
+     */
+    public function updateCpu(string $id, string $cpu) : void
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE hosts SET Cpu = :cpu WHERE Id = :id");
+            $stmt->bindValue(':cpu', $cpu);
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+        } catch (Exception $e) {
+            $this->db->logError($e);
+        }
+    }
+
+    /**
+     *  Update RAM in database
+     */
+    public function updateRam(string $id, string $ram) : void
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE hosts SET Ram = :ram WHERE Id = :id");
+            $stmt->bindValue(':ram', $ram);
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+        } catch (Exception $e) {
+            $this->db->logError($e);
+        }
+    }
+
+    /**
      *  Update kernel version in database
      */
     public function updateKernel(string $id, string $kernel) : void
@@ -248,6 +278,21 @@ class Host extends Model
             $stmt = $this->db->prepare("UPDATE hosts SET Reboot_required = :reboot WHERE Id = :id");
             $stmt->bindValue(':reboot', $status);
             $stmt->bindValue(':id', $id);
+            $stmt->execute();
+        } catch (Exception $e) {
+            $this->db->logError($e);
+        }
+    }
+
+    /**
+     *  Update host's uptime in database
+     */
+    public function updateUptime(int $id, float $uptime) : void
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE hosts SET Uptime = :uptime WHERE Id = :id");
+            $stmt->bindValue(':id', $id);
+            $stmt->bindValue(':uptime', $uptime);
             $stmt->execute();
         } catch (Exception $e) {
             $this->db->logError($e);

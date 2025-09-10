@@ -4,6 +4,7 @@ namespace Controllers;
 
 use Exception;
 use Datetime;
+use \Controllers\History\Save as History;
 
 class Profile
 {
@@ -255,8 +256,7 @@ class Profile
 
         $this->model->add($name);
 
-        $myhistory = new \Controllers\History();
-        $myhistory->set("Create a new profile: $name", 'success');
+        History::set('Create <code>' . $name . '</code> host profile');
     }
 
     /**
@@ -327,8 +327,7 @@ class Profile
             $this->model->addRepoToProfile($newProfileId, $repoMemberId);
         }
 
-        $myhistory = new \Controllers\History();
-        $myhistory->set("Duplicate profile <b>$name</b> to <b>$newName</b>", 'success');
+        History::set('Duplicate host profile <code>' . $name . '</code> to <code>' . $newName . '</code>');
     }
 
     /**
@@ -348,17 +347,16 @@ class Profile
         }
 
         /**
-         *  Delete
-         */
-        $this->model->delete($id);
-
-        /**
          *  Retrieve profile name
          */
         $name = $this->model->getNameById($id);
 
-        $myhistory = new \Controllers\History();
-        $myhistory->set("Delete <b>$name</b> profile", 'success');
+        /**
+         *  Delete
+         */
+        $this->model->delete($id);
+
+        History::set('Delete <code>' . $name . '</code> host profile');
     }
 
     /**
@@ -370,7 +368,6 @@ class Profile
             throw new Exception('You are not allowed to perform this action');
         }
 
-        $myhistory = new \Controllers\History();
         $myHost = new \Controllers\Host();
         $myHostRequest = new \Controllers\Host\Request();
         $error = 0;
@@ -542,7 +539,7 @@ class Profile
             $myHostRequest->new($host['Id'], 'update-profile');
         }
 
-        $myhistory->set("Modification of <b>$name</b> profile configuration", 'success');
+        History::set('<code>' . $name . '</code> host profile configuration edited');
     }
 
     /**

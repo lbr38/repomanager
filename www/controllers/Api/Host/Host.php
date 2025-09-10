@@ -179,6 +179,30 @@ class Host extends \Controllers\Api\Controller
                     }
 
                     /**
+                     *  If CPU has been specified then update it in database
+                     */
+                    if (!empty($this->data->cpu)) {
+                        try {
+                            $myhost->updateCpu($this->data->cpu);
+                            $message[] = 'CPU updated successfully.';
+                        } catch (Exception $e) {
+                            throw new Exception('CPU update has failed.');
+                        }
+                    }
+
+                    /**
+                     *  If RAM has been specified then update it in database
+                     */
+                    if (!empty($this->data->ram)) {
+                        try {
+                            $myhost->updateRam($this->data->ram);
+                            $message[] = 'RAM updated successfully.';
+                        } catch (Exception $e) {
+                            throw new Exception('RAM update has failed.');
+                        }
+                    }
+
+                    /**
                      *  If kernel has been specified then update it in database
                      */
                     if (!empty($this->data->kernel)) {
@@ -259,6 +283,18 @@ class Host extends \Controllers\Api\Controller
                             $message[] = "Reboot status updated successfully.";
                         } catch (Exception $e) {
                             throw new Exception('Reboot status update has failed.');
+                        }
+                    }
+
+                    /**
+                     *  If uptime has been specified then update it in database
+                     */
+                    if (!empty($this->data->uptime)) {
+                        try {
+                            $myhost->updateUptime($this->data->uptime);
+                            $message[] = "Uptime updated successfully.";
+                        } catch (Exception $e) {
+                            throw new Exception('Uptime update has failed.');
                         }
                     }
 

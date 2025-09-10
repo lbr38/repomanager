@@ -2,6 +2,7 @@
 namespace Controllers\User;
 
 use Exception;
+use \Controllers\History\Save as History;
 
 class Delete extends User
 {
@@ -55,6 +56,6 @@ class Delete extends User
          */
         $this->model->delete($id);
 
-        $this->historyController->set('Delete user ' . $username, 'success');
+        History::set('Deleted user <code>' . $username . '</code>');
     }
 }

@@ -1,20 +1,18 @@
 <?php
 
-namespace Controllers\Service;
+namespace Controllers\Service\Unit;
 
 use Exception;
-use Datetime;
-use Controllers\Log\Cli as CliLog;
 
-class ScheduledTask extends Service
+class ScheduledTask extends \Controllers\Service\Service
 {
-    protected $logController;
     private $taskController;
     private $taskNotifyController;
 
-    public function __construct()
+    public function __construct(string $unit)
     {
-        $this->logController = new \Controllers\Log\Log();
+        parent::__construct($unit);
+
         $this->taskController = new \Controllers\Task\Task();
         $this->taskNotifyController = new \Controllers\Task\Notify();
     }
@@ -24,7 +22,7 @@ class ScheduledTask extends Service
      */
     public function execute()
     {
-        CliLog::log('Executing scheduled tasks if any...');
+        parent::log('Executing scheduled tasks if any...');
 
         /**
          *  Quit if there was an error while loading general settings
@@ -144,14 +142,14 @@ class ScheduledTask extends Service
          */
         if (!empty($taskToExec)) {
             foreach ($taskToExec as $taskId) {
-                CliLog::log('Launching scheduled task #' . $taskId . '...');
+                parent::log('Launching scheduled task #' . $taskId . '...');
 
                 try {
                     // Add the scheduled task to the queue and execute it
                     $this->taskController->updateStatus($taskId, 'queued');
                     $this->taskController->executeId($taskId);
                 } catch (Exception $e) {
-                    $this->logController->log('error', 'Service', 'Error while launching scheduled task: ' . $e->getMessage());
+                    throw new Exception('Error while executing scheduled task #' . $taskId . ': ' . $e->getMessage());
                 }
 
                 // Let some time between each task, to make sure the queue system works properly
@@ -172,7 +170,7 @@ class ScheduledTask extends Service
             return;
         }
 
-        CliLog::log('Sending scheduled tasks reminder if any...');
+        parent::log('Sending scheduled tasks reminder if any...');
 
         /**
          *  Quit if there was an error while loading general settings
@@ -239,17 +237,12 @@ class ScheduledTask extends Service
             }
         }
 
-        /**
-         *  Send reminders
-         */
-
-        /**
-         *  Quit if there is no task to remind
-         */
+        // Quit if there is no task to remind
         if (empty($tasksToReminder)) {
             return;
         }
 
+        // Send reminders
         $this->taskNotifyController->reminder($tasksToReminder);
     }
 }

@@ -136,12 +136,4 @@ class Stat
 
         $this->model->clean($dateStart, $dateEnd);
     }
-
-    /**
-     *  Fermeture de la connexion à la base de données
-     */
-    public function closeConnection()
-    {
-        $this->model->closeConnection();
-    }
 }

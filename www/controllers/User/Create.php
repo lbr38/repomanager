@@ -3,6 +3,7 @@ namespace Controllers\User;
 
 use Exception;
 use \Controllers\Common;
+use \Controllers\History\Save as History;
 
 class Create extends User
 {
@@ -77,7 +78,7 @@ class Create extends User
         /**
          *  Add history
          */
-        $this->historyController->set("Created user: $username", 'success');
+        History::set('Created user <code>' . $username . '</code>');
 
         /**
          *  Return temporary generated password
@@ -119,7 +120,7 @@ class Create extends User
          *  You cannot create a SSO user with the same username as a local user
          */
         if ($this->exists($username, 'local') === true) {
-            throw new Exception('Username ' . $username . ' already exists');
+            throw new Exception('A local account with username ' . $username . ' already exists');
         }
 
         /**

@@ -144,66 +144,11 @@ class Connection extends SQLite3
      */
 
     /**
-     *  Count the number of tables in the main database
+     *  Count the number of tables in the database
      */
-    public function countMainTables()
+    public function countTables()
     {
-        $result = $this->query("SELECT name FROM sqlite_master WHERE type='table'
-        AND name='repos'
-        OR name='repos_env'
-        OR name='repos_snap'
-        OR name='env'
-        OR name='sources'
-        OR name='groups'
-        OR name='group_members'
-        OR name='tasks'
-        OR name='profile'
-        OR name='profile_settings'
-        OR name='profile_repo_members'
-        OR name='profile_package'
-        OR name='profile_service'
-        OR name='users'
-        OR name='user_role'
-        OR name='history'
-        OR name='notifications'
-        OR name='logs'
-        OR name='settings'
-        OR name='layout_container_state'
-        OR name='cve'
-        OR name='cve_cpe'
-        OR name='cve_reference'
-        OR name='cve_affected_hosts'
-        OR name='cve_import'
-        OR name='cve_affected_hosts_import'");
-
-        return $this->count($result);
-    }
-
-    /**
-     *  Count the number of tables in the stats database
-     */
-    public function countStatsTables()
-    {
-        $result = $this->query("SELECT name FROM sqlite_master WHERE type='table'
-        and name='stats'
-        OR name='access_deb'
-        OR name='access_rpm'
-        OR name='access_queue'");
-
-        return $this->count($result);
-    }
-
-    /**
-     *  Count the number of tables in the hosts database
-     */
-    public function countHostsTables()
-    {
-        $result = $this->query("SELECT name FROM sqlite_master WHERE type='table'
-        and name='requests'
-        OR name='hosts'
-        OR name='groups'
-        OR name='group_members'
-        OR name='settings'");
+        $result = $this->query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'");
 
         return $this->count($result);
     }
@@ -213,18 +158,18 @@ class Connection extends SQLite3
      */
     public function checkMainTables()
     {
-        $required = 26;
+        $required = 28;
 
         /**
          *  If the number of tables != $required then we try to regenerate the tables
          */
-        if ($this->countMainTables() != $required) {
+        if ($this->countTables() != $required) {
             $this->generateMainTables();
 
             /**
              *  Count again the number of tables after the regeneration attempt, return false if it's still not good
              */
-            if ($this->countMainTables() != $required) {
+            if ($this->countTables() != $required) {
                 return false;
             }
         }
@@ -242,13 +187,13 @@ class Connection extends SQLite3
         /**
          *  If the number of tables != $required then we try to regenerate the tables
          */
-        if ($this->countStatsTables() != $required) {
+        if ($this->countTables() != $required) {
             $this->generateStatsTables();
 
             /**
              *  Count again the number of tables after the regeneration attempt, return false if it's still not good
              */
-            if ($this->countStatsTables() != $required) {
+            if ($this->countTables() != $required) {
                 return false;
             }
         }
@@ -266,13 +211,37 @@ class Connection extends SQLite3
         /**
          *  If the number of tables != $required then we try to regenerate the tables
          */
-        if ($this->countHostsTables() != $required) {
+        if ($this->countTables() != $required) {
             $this->generateHostsTables();
 
             /**
              *  Count again the number of tables after the regeneration attempt, return false if it's still not good
              */
-            if ($this->countHostsTables() != $required) {
+            if ($this->countTables() != $required) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     *  Check if all tables are present in a ws database
+     */
+    public function checkWsTables()
+    {
+        $required = 1;
+
+        /**
+         *  If the number of tables != $required then we try to regenerate the tables
+         */
+        if ($this->countTables() != $required) {
+            $this->generateWsTables();
+
+            /**
+             *  Count again the number of tables after the regeneration attempt, return false if it's still not good
+             */
+            if ($this->countTables() != $required) {
                 return false;
             }
         }
@@ -557,6 +526,21 @@ class Connection extends SQLite3
         if ($this->isempty($result) === true) {
             $this->exec("INSERT INTO profile_service (Name) VALUES ('apache'), ('httpd'), ('php-fpm'), ('mysqld'), ('fail2ban'), ('nrpe'), ('munin-node'), ('nginx'), ('haproxy'), ('netdata'), ('nfsd'), ('redis'), ('varnish'), ('mongod'), ('clamd')");
         }
+
+        /**
+         *  Create system_monitoring table
+         */
+        $this->exec("CREATE TABLE IF NOT EXISTS system_monitoring (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Timestamp VARCHAR(255) NOT NULL,
+        Cpu_usage REAL,
+        Memory_usage REAL,
+        Disk_usage REAL)");
+
+        /**
+         *  Create indexes on system_monitoring table
+         */
+        $this->exec("CREATE INDEX IF NOT EXISTS system_monitoring_index ON system_monitoring (Timestamp, Cpu_usage, Memory_usage, Disk_usage)");
 
         /**
          *  notifications table
@@ -969,6 +953,8 @@ class Connection extends SQLite3
         Os VARCHAR(255),
         Os_version VARCHAR(255),
         Os_family VARCHAR(255),
+        Cpu VARCHAR(255),
+        Ram VARCHAR(255),
         Kernel VARCHAR(255),
         Arch CHAR(10),
         Type VARCHAR(255),
@@ -980,6 +966,7 @@ class Connection extends SQLite3
         Online_status_date DATE,
         Online_status_time TIME,
         Reboot_required CHAR(5),
+        Uptime VARCHAR(255),
         Linupdate_version VARCHAR(255))"); /* active / disabled / deleted */
 
         /**

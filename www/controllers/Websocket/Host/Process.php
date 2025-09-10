@@ -56,8 +56,7 @@ class Process extends \Controllers\Websocket\WebsocketServer
              */
             $this->updateWsConnection($conn->resourceId, $hostId, 'true');
         } catch (Exception $e) {
-            $this->log('conn #' . $conn->resourceId . '] Error while finishing authentication: ' . $e->getMessage());
-            throw new Exception('Error while finishing authentication');
+            throw new Exception('Error while finishing authentication: ' . $e->getMessage());
         }
 
         /**
@@ -107,7 +106,7 @@ class Process extends \Controllers\Websocket\WebsocketServer
          */
         if (!empty($message['response-to-request']['log'])) {
             if (!file_put_contents(WS_REQUESTS_LOGS_DIR . '/request-' . $requestId . '.log', $message['response-to-request']['log'])) {
-                $this->log('[conn #' . $conn->resourceId . '] Error while writing request #' . $requestId . ' log to file ' . WS_REQUESTS_LOGS_DIR . '/request-' . $requestId . '.log');
+                $this->logError('[conn #' . $conn->resourceId . '] Error while writing request #' . $requestId . ' log to file ' . WS_REQUESTS_LOGS_DIR . '/request-' . $requestId . '.log');
             }
         }
 
@@ -225,7 +224,7 @@ class Process extends \Controllers\Websocket\WebsocketServer
                         $nextRetry = strtotime('+10 minutes');
                     }
 
-                    $this->log('[server] Request #' . $request['Id'] . ' for host ' . $hostname . ' #' . $request['Id_host']. ' cannot be processed: host is not connected or not authenticated (retry ' . $request['Retry'] . '/3 - next retry ~' . date('H:i:s', $nextRetry) . ')');
+                    $this->logError('[server] Request #' . $request['Id'] . ' for host ' . $hostname . ' #' . $request['Id_host']. ' cannot be processed: host is not connected or not authenticated (retry ' . $request['Retry'] . '/3 - next retry ~' . date('H:i:s', $nextRetry) . ')');
 
                     /**
                      *  Set new retry date in database and add an info message
@@ -236,7 +235,7 @@ class Process extends \Controllers\Websocket\WebsocketServer
                     continue;
                 }
 
-                $this->log('[server] Request #' . $request['Id'] . ' for host ' . $hostname . ' #' . $request['Id_host']. ' cannot be processed: host is not connected or not authenticated (retry 3/3 - failed, will not retry)');
+                $this->logError('[server] Request #' . $request['Id'] . ' for host ' . $hostname . ' #' . $request['Id_host']. ' cannot be processed: host is not connected or not authenticated (retry 3/3 - failed, will not retry)');
 
                 /**
                  *  If all retries failed, update request status to 'failed' in database

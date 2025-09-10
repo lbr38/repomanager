@@ -3,180 +3,70 @@
 namespace Controllers\Service;
 
 use Exception;
-use Datetime;
 use Controllers\Log\Cli as CliLog;
+use Controllers\Log\File as FileLog;
 
 class Service
 {
-    protected $logController;
-    private $serviceStatisticController;
-    private $serviceFileController;
-    private $curlHandle;
-    private $currentTime;
-    private $root = '/var/www/repomanager';
-    private $scheduledTasksRemindersEnabled;
-    private $cveImportEnabled;
-    private $cveImportTime;
-    private $manageHostsEnabled;
-    protected $statsEnabled;
-    protected $statsLogPath = '/var/log/nginx/repomanager_access.log';
+    protected $unit;
+    private $logDir;
+    private $log;
+    private $logController;
+    private $fatalErrorHandler;
 
-    /**
-     *  Get some global settings for the service to run
-     */
-    protected function getSettings()
+    public function __construct(string $unit)
     {
-        $mysettings = new \Controllers\Settings();
+        $this->fatalErrorHandler = new \Controllers\FatalErrorHandler();
+        $this->logController     = new \Controllers\Log\Log();
 
-        /**
-         *  Get all settings
-         */
-        $settings = $mysettings->get();
+        // Load service units configuration
+        include(ROOT . '/config/service-units.php');
 
-        /**
-         *  Hosts related settings
-         */
-        if (!empty($settings['MANAGE_HOSTS'])) {
-            $this->manageHostsEnabled = $settings['MANAGE_HOSTS'];
-        } else {
-            $this->logController->log('error', 'Service', "Could not retrieve 'Manage hosts' setting.");
-            // Disable hosts management
-            $this->manageHostsEnabled = 'false';
-        }
+        // Set the unit name
+        $this->unit   = $unit;
 
-        /**
-         *  Statistics related settings
-         */
-        if (!empty($settings['STATS_ENABLED'])) {
-            $this->statsEnabled = $settings['STATS_ENABLED'];
-        } else {
-            $this->logController->log('error', 'Service', "Could not retrieve 'Enable repositories statistics' setting.");
-            // Disable statistics
-            $this->statsEnabled = 'false';
-        }
+        // If a custom log dir is defined for the unit, use it, else use the unit name
+        $this->logDir = $units[$unit]['log-dir'] ?? $unit;
 
-        if ($this->statsEnabled == 'true') {
-            /**
-             *  Check if the log file is readable
-             */
-            if (!is_readable($this->statsLogPath)) {
-                $this->logController->log('error', 'Service', "Access log file to scan for statistics <b>" . $this->statsLogPath . "</b> is not readable.");
-                // Disable statistics
-                $this->statsEnabled = 'false';
+        // Set the log file path
+        $this->log    = $this->getLogFile();
+
+        // Create parent dir if not exists
+        if (!is_dir(SERVICE_LOGS_DIR . '/' . $this->logDir)) {
+            if (!mkdir(SERVICE_LOGS_DIR . '/' . $this->logDir, 0770, true)) {
+                $this->logController->log('error', 'Service', 'Could not create service unit log dir: ' . SERVICE_LOGS_DIR . '/' . $this->logDir);
             }
-
-            /**
-             *  Check if the statistics database exists
-             */
-            if (!is_file(STATS_DB)) {
-                $this->logController->log('error', 'Service', "Statistics database is not initialized.");
-                // Disable statistics
-                $this->statsEnabled = 'false';
-            }
-        }
-
-        /**
-         *  Scheduled tasks related settings
-         */
-        if (!empty($settings['SCHEDULED_TASKS_REMINDERS'])) {
-            $this->scheduledTasksRemindersEnabled = $settings['SCHEDULED_TASKS_REMINDERS'];
-        } else {
-            $this->logController->log('error', 'Service', "Could not retrieve 'Enable scheduled tasks reminders' setting.");
-            // Disable scheduled tasks reminders
-            $this->scheduledTasksRemindersEnabled = 'false';
-        }
-
-
-        /**
-         *  CVE related settings
-         */
-        if (!empty($settings['CVE_IMPORT'])) {
-            $this->cveImportEnabled = $settings['CVE_IMPORT'];
-        } else {
-            $this->logController->log('error', 'Service', "Could not retrieve 'Import CVEs' setting.");
-            // Disable cve import
-            $this->cveImportEnabled = 'false';
-        }
-
-        if ($this->cveImportEnabled == 'true') {
-            if (!empty($settings['CVE_IMPORT_TIME'])) {
-                $this->cveImportTime = $settings['CVE_IMPORT_TIME'];
-            } else {
-                $this->logController->log('error', 'Service', "Could not retrieve 'Import scheduled time' setting.");
-            }
-        }
-
-        sleep(5);
-    }
-
-    /**
-     *  Get notifications
-     */
-    private function getNotifications()
-    {
-        CliLog::log('Getting notifications...');
-
-        try {
-            $mynotification = new \Controllers\Notification();
-            $mynotification->retrieve();
-        } catch (Exception $e) {
-            $this->logController->log('error', 'Service', 'Error while retrieving notifications: ' . $e->getMessage());
         }
     }
 
     /**
-     *  Check if a new version is available on Github
+     *  Return repomanager settings
+     *  A specific setting can be requested by passing its name as argument
      */
-    private function checkVersion()
+    public static function getSettings(string $setting = null) : array|string
     {
-        CliLog::log('Checking for a new version on github...');
+        $settingsController = new \Controllers\Settings();
 
-        $httpRequestController = new \Controllers\HttpRequest();
+        $settings = $settingsController->get();
 
-        try {
-            $httpRequestController->get([
-                'url'        => 'https://raw.githubusercontent.com/lbr38/repomanager/main/www/version',
-                'outputFile' => DATA_DIR . '/version.available',
-                'timeout'    => 30,
-                'proxy'      => PROXY ?? null,
-            ]);
-        } catch (Exception $e) {
-            $this->logController->log('error', 'Service', 'Error while checking for new version from Github: ' . $e->getMessage());
+        if (!empty($setting)) {
+            if (!array_key_exists($setting, $settings)) {
+                throw new Exception('Unable to retrieve setting ' . $setting);
+            }
+
+            return $settings[$setting];
         }
 
-        // Also get all releases list from github (parse json and only get the tag names)
-        try {
-            $httpRequestController->get(
-                [
-                    'url'        => 'https://api.github.com/repos/lbr38/repomanager/releases',
-                    'outputFile' => DATA_DIR . '/releases.available',
-                    'timeout'    => 30,
-                    'proxy'      => PROXY ?? null,
-                    'headers'    => [
-                        'User-Agent: repomanager',
-                        'Accept: application/vnd.github.v3+json',
-                    ]
-                ],
-                // Parse the JSON
-                true,
-                // And extract only the name of the releases
-                'name'
-            );
-        } catch (Exception $e) {
-            $this->logController->log('error', 'Service', 'Error while retrieving releases from Github: ' . $e->getMessage());
-        }
-
-        unset($httpRequestController);
+        return $settings;
     }
 
     /**
      *  Return repomanager service status
      */
-    public static function isRunning()
+    public static function isRunning(string $unit = 'main') : bool
     {
-        $myprocess = new \Controllers\Process('ps aux | grep "tools/service.php" | grep -v grep');
+        $myprocess = new \Controllers\Process('/usr/bin/ps -eo command  | grep "^repomanager.' . $unit . '" | grep -v grep');
         $myprocess->execute();
-        $content = $myprocess->getOutput();
         $myprocess->close();
 
         if ($myprocess->getExitCode() != 0) {
@@ -187,166 +77,42 @@ class Service
     }
 
     /**
-     *  Main function
+     *  Log message to console and to log file
      */
-    public function run()
+    public function log(string $message) : void
     {
-        $this->serviceStatisticController = new \Controllers\Service\Statistic();
-        $this->serviceFileController = new \Controllers\Service\File();
-        $this->taskController = new \Controllers\Task\Task();
-        $this->logController = new \Controllers\Log\Log();
-        $this->curlHandle = curl_init();
-        $this->lastScheduledTaskRunning = '';
-        $this->lastStatsRunning = '';
-
-        $counter = 0;
-
-        while (true) {
-            $this->currentTime = date('H:i');
-
-            /**
-             *  Get settings
-             */
-            $this->getSettings();
-
-            /**
-             *  Execute actions on service start (counter = 0) and then every hour (counter = 720)
-             *  3600 / 5sec (sleep 5) = 720
-             */
-            if ($counter == 0 || $counter == 720) {
-                /**
-                 *  Check version
-                 */
-                $this->checkVersion();
-
-                /**
-                 *  Get notifications
-                 */
-                $this->getNotifications();
-
-                /**
-                 *  Cleanup files
-                 */
-                $this->serviceFileController->cleanUp();
-
-                /**
-                 *  Reset counter
-                 */
-                $counter = 0;
-            }
-
-            /**
-             *  Execute scheduled tasks
-             */
-            if ($this->currentTime != $this->lastScheduledTaskRunning) {
-                $this->lastScheduledTaskRunning = date('H:i');
-
-                /**
-                 *  Execute scheduled task
-                 */
-                $this->runService('scheduled tasks', 'scheduled-task-exec', true);
-
-                /**
-                 *  Send scheduled tasks reminders
-                 */
-                if ($this->scheduledTasksRemindersEnabled == 'true' and $this->currentTime == '00:00') {
-                    $this->runService('scheduled tasks reminder', 'scheduled-task-reminder');
-                }
-            }
-
-            /**
-             *  Start websocket server
-             */
-            $this->runService('websocket server', 'wss');
-
-            /**
-             *  Parse access logs to generate stats (if enabled)
-             */
-            if ($this->statsEnabled == 'true') {
-                if ($this->currentTime != $this->lastStatsRunning) {
-                    $this->lastStatsRunning = date('H:i');
-
-                    /**
-                     *  Clean old statistics and generate repo size statistics at midnight
-                     */
-                    if ($this->currentTime == '00:00') {
-                        /**
-                         *  Clean old statistics
-                         */
-                        CliLog::log('Cleaning old statistics...');
-                        $this->serviceStatisticController->statsClean();
-
-                        /**
-                         *  Generate repo size statistics
-                         */
-                        CliLog::log('Generating statistics...');
-                        $this->serviceStatisticController->statsGenerate();
-
-                        /**
-                         *  Clean old tasks
-                         */
-                        CliLog::log('Cleaning old tasks...');
-                        $this->taskController->clean();
-                    }
-
-                    /**
-                     *  Parse access logs to generate repo access statistics
-                     */
-                    $this->runService('stats parsing', 'stats-parse');
-                    $this->runService('stats processing', 'stats-process');
-                }
-            }
-
-            /**
-             *  Import CVEs
-             */
-            if ($this->cveImportEnabled == 'true' && $this->currentTime == $this->cveImportTime) {
-                $this->runService('cve import', 'cve-import');
-            }
-
-            pcntl_signal_dispatch();
-            sleep(5);
-
-            $counter++;
-        }
+        CliLog::log($message);
+        FileLog::log($this->getLogFile(), $message);
     }
 
     /**
-     *  Run this service with the specified parameter
+     *  Log error message to console and to log file
      */
-    private function runService(string $name, string $parameter, bool $force = false)
+    public function logError(string $message) : void
     {
-        try {
-            /**
-             *  Check if the service with specified parameter is already running to avoid running it twice
-             *  A php process must be running
-             *
-             *  If force != false, then the service will be run even if it is already running (e.g: for running multiple scheduled tasks at the same time)
-             */
-            if ($force === false) {
-                $myprocess = new \Controllers\Process('/usr/bin/ps aux | grep "repomanager.' . $parameter . '" | grep -v grep');
-                $myprocess->execute();
-                $content = $myprocess->getOutput();
-                $myprocess->close();
+        CliLog::error('Service', $message);
+        FileLog::error($this->getLogFile(), $message);
+    }
 
-                /**
-                 *  Quit if there is already a process running
-                 */
-                if ($myprocess->getExitCode() == 0) {
-                    return;
-                }
-            }
-
-            /**
-             *  Else, run the service with the specified parameter
-             */
-            CliLog::log('Running ' . $name . '...');
-
-            $myprocess = new \Controllers\Process("/usr/bin/php " . ROOT . "/tools/service.php '" . $parameter . "' >/dev/null 2>/dev/null &");
-            $myprocess->execute();
-            $myprocess->close();
-        } catch (Exception $e) {
-            $this->logController->log('error', 'Service', 'Error while launching service with parameter '. $parameter . ': ' . $e->getMessage());
+    /**
+     *  Log debug message to console and to log file if DEBUG_MODE is enabled
+     */
+    public function logDebug(string $message) : void
+    {
+        if (!DEBUG_MODE) {
+            return;
         }
+
+        CliLog::debug($message);
+        FileLog::debug($this->getLogFile(), $message);
+    }
+
+    /**
+     *  Return the log file path for this service unit
+     *  This is useful to always get the correct log file path even if the date changed
+     */
+    private function getLogFile() : string
+    {
+        return SERVICE_LOGS_DIR . '/' . $this->logDir . '/' . date('Y-m-d') . '-' . $this->unit . '.log';
     }
 }

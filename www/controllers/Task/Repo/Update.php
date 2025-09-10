@@ -317,6 +317,42 @@ class Update
                 // Increment counter
                 $packageCounter++;
 
+                // Define parent dir and target path
+                if ($this->repo->getPackageType() == 'rpm') {
+                    $targetPath = $snapshotPath . '/packages/' . $name;
+
+                    foreach (RPM_ARCHS as $arch) {
+                        if (preg_match("#\.$arch\.#", $name)) {
+                            $parentDir  = $snapshotPath . '/packages/' . $arch;
+                            break;
+                        }
+                    }
+
+                    // If the package is a source package then move it to the SRPMS subfolder
+                    if (preg_match("#\.src\.#", $name)) {
+                        $parentDir  = $snapshotPath . '/packages/SRPMS';
+                    }
+
+                    // If no architecture has been found then we set it to 'noarch'
+                    if (empty($parentDir)) {
+                        $parentDir = $snapshotPath . '/packages/noarch';
+                    }
+
+                    $targetPath = $parentDir . '/' . $name;
+                }
+
+                if ($this->repo->getPackageType() == 'deb') {
+                    $parentDir  = $snapshotPath . '/pool/' . $this->repo->getSection();
+                    $targetPath = $snapshotPath . '/pool/' . $this->repo->getSection() . '/' . $name;
+                }
+
+                // Create parent dir if not exists
+                if (!is_dir($parentDir)) {
+                    if (!mkdir($parentDir, 0770, true)) {
+                        throw new Exception('Cannot create directory: ' . $parentDir);
+                    }
+                }
+
                 /**
                  *  Deduplication
                  *  Create hardlink to the previous snapshot package
@@ -325,12 +361,12 @@ class Update
                     $this->taskLogSubStepController->new('hardlink-package-' . $packageCounter, 'LINKING PACKAGE TO PREVIOUS SNAPSHOT (' . $packageCounter . '/' . $totalPackages . ')', $packagePath);
 
                     if ($this->repo->getPackageType() == 'deb') {
-                        if (!link($packagePath, $snapshotPath . '/pool/' . $this->repo->getSection() . '/' . $name)) {
+                        if (!link($packagePath, $targetPath)) {
                             throw new Exception('Cannot create hard link to package: ' . $packagePath);
                         }
                     }
                     if ($this->repo->getPackageType() == 'rpm') {
-                        if (!link($packagePath, $snapshotPath . '/packages/' . $name)) {
+                        if (!link($packagePath, $targetPath)) {
                             throw new Exception('Cannot create hard link to package: ' . $packagePath);
                         }
                     }
@@ -344,13 +380,13 @@ class Update
                     $this->taskLogSubStepController->new('copy-package-' . $packageCounter, 'COPYING PACKAGE TO NEW SNAPSHOT (' . $packageCounter . '/' . $totalPackages . ')', $packagePath);
 
                     if ($this->repo->getPackageType() == 'deb') {
-                        if (!copy($packagePath, $snapshotPath . '/pool/' . $this->repo->getSection() . '/' . $name)) {
-                            throw new Exception('Cannot copy package: ' . $packagePath);
+                        if (!copy($packagePath, $targetPath)) {
+                            throw new Exception('Cannot copy package: ' . $packagePath . ' to ' . $targetPath);
                         }
                     }
                     if ($this->repo->getPackageType() == 'rpm') {
-                        if (!copy($packagePath, $snapshotPath . '/packages/' . $name)) {
-                            throw new Exception('Cannot copy package: ' . $packagePath);
+                        if (!copy($packagePath, $targetPath)) {
+                            throw new Exception('Cannot copy package: ' . $packagePath . ' to ' . $targetPath);
                         }
                     }
                 }
