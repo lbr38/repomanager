@@ -1,4 +1,4 @@
-<section class="section-main">
+<section id="health" class="section-main reloadable-container" container="settings/health">
     <h3>DATABASES HEALTH</h3>
 
     <div class="div-generic-blue">

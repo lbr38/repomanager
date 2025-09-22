@@ -14,6 +14,6 @@ class Status
 
         \Controllers\Layout\Container\Render::render('status/health');
         \Controllers\Layout\Container\Render::render('status/service');
-        \Controllers\Layout\Container\Render::render('status/overview');
+        \Controllers\Layout\Container\Render::render('status/monitoring');
     }
 }

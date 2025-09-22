@@ -1,4 +1,4 @@
-<section id="system-monitoring" class="section-main">
+<section id="system-monitoring" class="section-main reloadable-container" container="status/monitoring">
     <h3 class="margin-bottom-5">SYSTEM MONITORING</h3>
     <p class="note margin-bottom-15">Overview of system resource usage (last hour).</p>
 

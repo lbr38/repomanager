@@ -1,8 +1,5 @@
 <article class="reloadable-container" container="header/debug-mode">
     <?php
-    /**
-     *  Debug mode
-     */
     if (DEBUG_MODE) : ?>
         <section class="section-main">
             <div class="div-generic-blue">
@@ -13,7 +10,7 @@
 
                 <?php
                 if (!empty($_POST)) {
-                    echo '<br>POST data:</h6>';
+                    echo '<h6>POST data</h6>';
                     echo '<pre class="codeblock copy">';
                     print_r($_POST);
                     echo '</pre>';
