@@ -17,7 +17,6 @@ class User
     public function __construct()
     {
         $this->model = new \Models\User\User();
-        $this->historyController = new \Controllers\History();
     }
 
     /**
@@ -39,9 +38,9 @@ class User
     /**
      *  Get all users email from database
      */
-    public function getEmails()
+    public function getEmails() : array
     {
-        return $this->model->getEmails();
+        return array_unique($this->model->getEmails());
     }
 
     /**

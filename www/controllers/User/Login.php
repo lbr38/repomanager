@@ -8,6 +8,7 @@ require ROOT . '/libs/vendor/autoload.php';
 
 use Exception;
 use Jumbojett\OpenIDConnectClient;
+use \Controllers\History\Save as History;
 
 class Login extends User
 {
@@ -60,7 +61,7 @@ class Login extends User
             /**
              *  Add history
              */
-            $this->historyController->set('Authentication (local account)', 'success');
+            History::set('Authentication (local account)');
 
             /**
              *  If an 'origin' cookie exists then redirect the user to the specified URI
@@ -82,8 +83,7 @@ class Login extends User
             /**
              *  Add history
              */
-            $this->historyController->setUsername($username);
-            $this->historyController->set('Authentication failed for ' . $username . ' (local account): ' . $e->getMessage(), 'error');
+            History::set('Authentication failed for <code>' . $username . '</code> (local account): ' . $e->getMessage(), 'error', $username);
 
             /**
              *  Throw back an exception with generic message to display on login page
@@ -194,14 +194,8 @@ class Login extends User
             }
 
             /**
-             *  Create user in database
-             */
-            $userCreateController->createSSO($username, $firstName, $lastName, $email, $role);
-
-            /**
              *  Saving user informations in session variable
              */
-            $_SESSION['id']         = $this->getIdByUsername($username, 'sso');
             $_SESSION['username']   = $username;
             $_SESSION['role']       = $role;
             $_SESSION['first_name'] = $firstName;
@@ -210,9 +204,19 @@ class Login extends User
             $_SESSION['type']       = 'sso';
 
             /**
+             *  Create user in database
+             */
+            $userCreateController->createSSO($username, $firstName, $lastName, $email, $role);
+
+            /**
+             *  Also save user Id in session variable now that the user exists in database
+             */
+            $_SESSION['id'] = $this->getIdByUsername($username, 'sso');
+
+            /**
              *  Add history
              */
-            $this->historyController->set('Authentication (SSO account)', 'success');
+            History::set('Authentication (SSO account)');
 
             /**
              *  If an 'origin' cookie exists then redirect the user to the specified URI
@@ -235,10 +239,7 @@ class Login extends User
              *  Add history
              *  Specify the username if it has been found
              */
-            if (!empty($username)) {
-                $this->historyController->setUsername($username);
-            }
-            $this->historyController->set('Authentication failed (SSO account): ' . $e->getMessage(), 'error');
+            History::set('Authentication failed (SSO account): ' . $e->getMessage(), 'error', $username ?? 'unknown');
 
             /**
              *  If debug mode is enabled, display error message and try to get verified claims and user info for debugging

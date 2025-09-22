@@ -302,18 +302,36 @@
                         <h6>DUPLICATE TO</h6>
                         <p><?= $taskRawParams['name'] ?></p>
                         <?php
-                    endif;
-
-                    if (!empty($taskRawParams['arch'])) : ?>
-                        <h6>ARCHITECTURE</h6>
-                        <div class="flex row-gap-5 column-gap-5">
-                            <?php
-                            foreach ($taskRawParams['arch'] as $architecture) {
-                                echo '<span class="label-black">' . $architecture . '</span>';
-                            } ?>
-                        </div>
-                        <?php
                     endif ?>
+
+                    <div class="grid grid-2">
+                        <?php
+                        if (!empty($taskRawParams['arch'])) : ?>
+                            <div>
+                                <h6>ARCHITECTURE</h6>
+                                <div class="flex row-gap-5 column-gap-5">
+                                    <?php
+                                    foreach ($taskRawParams['arch'] as $architecture) {
+                                        echo '<span class="label-black">' . $architecture . '</span>';
+                                    } ?>
+                                </div>
+                            </div>
+                            <?php
+                        endif;
+
+                        if (!empty($taskRawParams['env'])) : ?>
+                            <div>
+                                <h6>ENVIRONMENT</h6>
+                                <div class="flex row-gap-5 column-gap-5">
+                                    <?php
+                                    foreach ($taskRawParams['env'] as $env) {
+                                        echo \Controllers\Common::envtag($env);
+                                    } ?>
+                                </div>
+                            </div>
+                            <?php
+                        endif ?>
+                    </div>
 
                     <div class="grid grid-2">
                         <?php
@@ -382,33 +400,39 @@
                         </div>
                     </div>
 
-                    <h6>SEND A REMINDER</h6>
-                    <p>
-                        <?php
-                        if (empty($taskRawParams['schedule']['schedule-reminder'])) {
-                            echo 'None';
-                        } else {
-                            foreach ($taskRawParams['schedule']['schedule-reminder'] as $reminder) {
-                                if ($reminder == 1) {
-                                    echo '1 day before<br>';
+                    <div class="grid grid-2">
+                        <div>
+                            <h6>SEND A REMINDER</h6>
+                            <p>
+                                <?php
+                                if (empty($taskRawParams['schedule']['schedule-reminder'])) {
+                                    echo 'None';
                                 } else {
-                                    echo $reminder . ' days before<br>';
-                                }
-                            }
-                        } ?>
-                    </p>
+                                    foreach ($taskRawParams['schedule']['schedule-reminder'] as $reminder) {
+                                        if ($reminder == 1) {
+                                            echo '1 day before<br>';
+                                        } else {
+                                            echo $reminder . ' days before<br>';
+                                        }
+                                    }
+                                } ?>
+                            </p>
+                        </div>
 
-                    <h6>CONTACT</h6>
-                    <p>
-                        <?php
-                        if (empty($taskRawParams['schedule']['schedule-recipient'])) {
-                            echo 'None';
-                        } else {
-                            foreach ($taskRawParams['schedule']['schedule-recipient'] as $recipient) {
-                                echo $recipient . '<br>';
-                            }
-                        } ?>
-                    </p>
+                        <div>
+                            <h6>CONTACT</h6>
+                            <p>
+                                <?php
+                                if (empty($taskRawParams['schedule']['schedule-recipient'])) {
+                                    echo 'None';
+                                } else {
+                                    foreach ($taskRawParams['schedule']['schedule-recipient'] as $recipient) {
+                                        echo $recipient . '<br>';
+                                    }
+                                } ?>
+                            </p>
+                        </div>
+                    </div>
                 </div>
                 <?php
             endif;

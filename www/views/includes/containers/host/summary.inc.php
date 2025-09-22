@@ -54,10 +54,8 @@
                         echo 'Unknown';
                     } ?>
                 </p>
-            </div>
 
-            <div>
-                <h6 class="margin-top-0">ENVIRONMENT</h6>
+                <h6>ENVIRONMENT</h6>
                 <p class="copy">
                     <?php
                     if (!empty($env)) {
@@ -76,6 +74,28 @@
                         echo 'Unknown';
                     } ?>
                 </p>
+            </div>
+
+            <div>
+                <h6 class="margin-top-0">CPU</h6>
+                <p class="mediumopacity-cst copy">
+                    <?php
+                    if (!empty($cpu)) {
+                        echo $cpu;
+                    } else {
+                        echo 'Unknown';
+                    } ?>
+                </p>
+
+                <h6>RAM</h6>
+                <p class="mediumopacity-cst copy">
+                    <?php
+                    if (!empty($ram)) {
+                        echo $ram;
+                    } else {
+                        echo 'Unknown';
+                    } ?>
+                </p>
 
                 <h6>ARCHITECTURE</h6>
                 <p class="mediumopacity-cst copy">
@@ -86,16 +106,36 @@
                         echo 'Unknown';
                     } ?>
                 </p>
-            </div>
 
-            <div>
-                <h6 class="margin-top-0">KERNEL</h6>
+                <h6>KERNEL</h6>
                 <p class="mediumopacity-cst copy">
                     <?php
                     if (!empty($kernel)) {
                         echo $kernel;
                     } else {
                         echo 'Unknown';
+                    } ?>
+                </p>
+            </div>
+
+            <div>
+                <h6 class="margin-top-0">UPTIME</h6>
+                <p class="mediumopacity-cst copy">
+                    <?php
+                    if (!empty($uptime)) {
+                        echo $uptime;
+                    } else {
+                        echo 'Unknown';
+                    } ?>
+                </p>
+
+                <h6>REBOOT REQUIRED</h6>
+                <p class="mediumopacity-cst copy">
+                    <?php
+                    if ($rebootRequired == 'true') {
+                        echo 'Yes';
+                    } else {
+                        echo 'No';
                     } ?>
                 </p>
 
@@ -144,10 +184,8 @@
             </div>
         </div>
 
-        <div>
-            <div class="host-line-chart-container">
-                <canvas id="packages-status-chart"></canvas>
-            </div>
+        <div class="host-line-chart-container">
+            <canvas id="packages-status-chart"></canvas>
         </div>
 
         <script>

@@ -482,6 +482,22 @@ class Host
     }
 
     /**
+     *  Update CPU in database
+     */
+    public function updateCpu(string $cpu) : void
+    {
+        $this->model->updateCpu($this->id, \Controllers\Common::validateData($cpu));
+    }
+
+    /**
+     *  Update RAM in database
+     */
+    public function updateRam(string $ram) : void
+    {
+        $this->model->updateRam($this->id, \Controllers\Common::validateData($ram));
+    }
+
+    /**
      *  Update kernel version in database
      */
     public function updateKernel(string $kernel) : void
@@ -543,6 +559,18 @@ class Host
         }
 
         $this->model->updateRebootRequired($this->id, $status);
+    }
+
+    /**
+     *  Update host's uptime in database
+     */
+    public function updateUptime(float $uptime) : void
+    {
+        if (!is_numeric($uptime)) {
+            throw new Exception('Uptime must be a timestamp');
+        }
+
+        $this->model->updateUptime($this->id, $uptime);
     }
 
     /**

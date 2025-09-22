@@ -23,11 +23,22 @@ $osVersion        = $hostProperties['Os_version'];
 $type             = $hostProperties['Type'];
 $kernel           = $hostProperties['Kernel'];
 $arch             = $hostProperties['Arch'];
+$cpu              = $hostProperties['Cpu'];
+$ram              = $hostProperties['Ram'];
 $profile          = $hostProperties['Profile'];
 $env              = $hostProperties['Env'];
 $agentStatus      = $hostProperties['Online_status'];
 $agentVersion     = $hostProperties['Linupdate_version'];
 $rebootRequired   = $hostProperties['Reboot_required'];
+$uptime           = $hostProperties['Uptime'];
+
+// Uptime value is in timestamp format, convert it to a more readable format if it's in seconds
+if (is_numeric($uptime)) {
+    $boot = new DateTime('@' . $uptime); // @ tells PHP that $uptime is a timestamp value
+    $now  = new DateTime('now');
+    $interval = $boot->diff($now);
+    $uptime = $interval->format('%a days, %h hours, %i minutes');
+}
 
 /**
  *  Last known agent state message

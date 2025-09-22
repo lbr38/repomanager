@@ -1,6 +1,7 @@
 <?php
 
 namespace Controllers\Websocket;
+use Controllers\Log\File as FileLog;
 
 /**
  *  Composer autoload
@@ -63,7 +64,7 @@ class WebsocketServer
             $hostProcessController->requests($this->socket);
         });
 
-        $this->log('[server] Server started on port ' . $port);
+        $this->log('Server successfully started on port ' . $port);
         $server->run();
     }
 
@@ -153,35 +154,25 @@ class WebsocketServer
             $key = array_search($socketConnection->resourceId, array_column($connections, 'Connection_id'));
 
             if ($key !== false) {
-                $this->log('[server] Sending message to connection #' . $socketConnection->resourceId);
+                $this->log('[server] Message sent to connection #' . $socketConnection->resourceId);
                 $socketConnection->send(json_encode($message));
             }
         }
     }
 
     /**
-     *  Log a message to the log file and to the console
+     *  Log a message to the service unit log file
      */
     protected function log($message)
     {
-        /**
-         *  Always recalculate the log file name, in case the date changes
-         */
-        $this->logFile = WS_LOGS_DIR . '/' . DATE_YMD . '_websocketserver.log';
+        FileLog::log(SERVICE_LOGS_DIR . '/wss/' . DATE_YMD . '-wss.log', $message);
+    }
 
-        /**
-         *  Define the message with a timestamp
-         */
-        $message = '[' . date('D M j H:i:s') . '] ' . $message . PHP_EOL;
-
-        /**
-         *  Write the message to the log file
-         */
-        file_put_contents($this->logFile, $message, FILE_APPEND);
-
-        /**
-         *  Print the message to the console
-         */
-        echo $message;
+    /**
+     *  Log an error message to the service unit log file
+     */
+    protected function logError($message)
+    {
+        FileLog::error(SERVICE_LOGS_DIR . '/wss/' . DATE_YMD . '-wss.log', $message);
     }
 }

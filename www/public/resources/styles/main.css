@@ -426,7 +426,7 @@ footer {
     height: 300px;
     flex-grow: 1;
     margin-top: 200px;
-    padding: 30px 15px 50px 15px;
+    padding: 40px 25px 50px 25px;
     box-shadow:
      0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
      0px 2px 2px 0px rgba(109, 109, 109, 0.2);
@@ -571,6 +571,10 @@ footer #github img { width: 25px; }
 
 .hide, .tr-hide, .td-hide {
     display: none;
+}
+
+#monitoring-stats-container div {
+    height: 250px !important;
 }
 
 /* Desktop configuration */

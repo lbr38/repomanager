@@ -350,14 +350,14 @@
                                                             </div>
 
                                                             <div>
-                                                                <h6 class="margin-top-0">REBOOT</h6>
+                                                                <h6 class="margin-top-0">REBOOT REQUIRED</h6>
                                                                 <p class="flex align-item-center column-gap-5">
                                                                     <?php
                                                                     if ($rebootRequired == 'true') {
                                                                         echo '<img src="/assets/icons/warning.svg" class="icon-np" />';
-                                                                        echo '<span>Required</span>';
+                                                                        echo '<span>Yes</span>';
                                                                     } else {
-                                                                        echo '<span class="mediumopacity-cst">Not required</span>';
+                                                                        echo '<span class="mediumopacity-cst">No</span>';
                                                                     } ?>
                                                                 </p>
                                                             </div>

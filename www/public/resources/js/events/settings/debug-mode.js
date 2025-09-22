@@ -20,8 +20,6 @@ $(document).on('click','#debug-mode-btn',function () {
         // Print success alert:
         true,
         // Print error alert:
-        true,
-        // Reload container:
-        ['settings/health']
+        true
     );
 });

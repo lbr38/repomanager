@@ -1,109 +1,18 @@
 <?php
-cli_set_process_title('repomanager.service');
-
 define('ROOT', '/var/www/repomanager');
 require_once(ROOT . '/controllers/Autoloader.php');
 new \Controllers\Autoloader();
 new \Controllers\App\Main('minimal');
-
-use Controllers\Log\Cli as CliLog;
-
-$myFatalErrorHandler = new \Controllers\FatalErrorHandler();
-$mySignalHandler = new \Controllers\SignalHandler();
-$myService = new \Controllers\Service\Service();
-$myStatService = new \Controllers\Service\Statistic();
-$myScheduledTaskService = new \Controllers\Service\ScheduledTask();
-$myCveController = new \Controllers\Cve\Tools\Import();
-$myLogController = new \Controllers\Log\Log();
+use \Controllers\Log\Cli as CliLog;
 
 try {
-    /**
-     *  Define a file to create on interrupt
-     *  This file is used to stop stats parsing
-     */
-    $mySignalHandler->touchFileOnInterrupt(DATA_DIR . '/.service-parsing-stop');
+    $logController = new \Controllers\Log\Log();
 
-    /**
-     *  Run websocket server
-     */
-    if (!empty($argv[1]) && $argv[1] == 'wss') {
-        $port = 8081; // Default port is 8081
-
-        cli_set_process_title('repomanager.wss');
-
-        /**
-         *  If a .wss file exists, read the port from it
-         */
-        if (file_exists(ROOT . '/.wss')) {
-            $content = trim(file_get_contents(ROOT . '/.wss'));
-
-            if (!empty($content) && is_numeric($content)) {
-                $port = $content;
-            }
-
-            unset($content);
-        }
-
-        /**
-         *  Start websocket server
-         */
-        $websockerServer = new \Controllers\Websocket\WebsocketServer();
-        $websockerServer->run($port);
-        exit;
-    }
-
-    /**
-     *  Run stats access log parsing task
-     */
-    if (!empty($argv[1]) && $argv[1] == 'stats-parse') {
-        cli_set_process_title('repomanager.stats-parse');
-        $myStatService->parseAccessLog();
-        exit;
-    }
-
-    /**
-     *  Run stats access log processing task
-     */
-    if (!empty($argv[1]) && $argv[1] == 'stats-process') {
-        cli_set_process_title('repomanager.stats-process');
-        $myStatService->processAccessLog();
-        exit;
-    }
-
-    /**
-     *  Run scheduled tasks
-     */
-    if (!empty($argv[1]) && $argv[1] == 'scheduled-task-exec') {
-        cli_set_process_title('repomanager.scheduled-task-exec');
-        $myScheduledTaskService->execute();
-        exit;
-    }
-
-    /**
-     *  Run scheduled tasks reminder
-     */
-    if (!empty($argv[1]) && $argv[1] == 'scheduled-task-reminder') {
-        cli_set_process_title('repomanager.scheduled-task-reminder');
-        $myScheduledTaskService->sendReminders();
-        exit;
-    }
-
-    /**
-     *  Run CVE import task
-     */
-    if (!empty($argv[1]) && $argv[1] == 'cve-import') {
-        cli_set_process_title('repomanager.cve-import');
-        $myCveController->import();
-        exit;
-    }
-
-    /**
-     *  Run main service
-     */
-    $myService->run();
+    // Execute service unit, or main service if no unit provided
+    new \Controllers\Service\Execute($argv[1] ?? 'main');
 } catch (Exception | Error $e) {
-    CliLog::error('Service general error', $e->getMessage() . PHP_EOL . $e->getTraceAsString() . PHP_EOL);
-    $myLogController->log('error', 'Service', "General error: " . $e->getMessage(), $e->getTraceAsString());
+    CliLog::error('Background service general error', $e->getMessage() . PHP_EOL . $e->getTraceAsString() . PHP_EOL);
+    $logController->log('error', 'Background service', 'General error: ' . $e->getMessage(), $e->getTraceAsString());
     exit(1);
 }
 

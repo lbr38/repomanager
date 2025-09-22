@@ -1,6 +1,6 @@
 <?php
 $userController = new \Controllers\User\User();
-$myhistory = new \Controllers\History();
+$historyController = new \Controllers\History\History();
 $reloadableTableOffset = 0;
 $userId = null;
 
@@ -27,18 +27,18 @@ if (!empty($_COOKIE['tables/history/list/offset']) and is_numeric($_COOKIE['tabl
  *  Retrieve history, with offset
  */
 if (!empty($userId)) {
-    $reloadableTableContent = $myhistory->getByUserId($userId, true, $reloadableTableOffset);
+    $reloadableTableContent = $historyController->getByUserId($userId, true, $reloadableTableOffset);
 } else {
-    $reloadableTableContent = $myhistory->getAll(true, $reloadableTableOffset);
+    $reloadableTableContent = $historyController->getAll(true, $reloadableTableOffset);
 }
 
 /**
  *  Retrieve history, without offset, for the total count
  */
 if (!empty($userId)) {
-    $reloadableTableTotalItems = count($myhistory->getByUserId($userId));
+    $reloadableTableTotalItems = count($historyController->getByUserId($userId));
 } else {
-    $reloadableTableTotalItems = count($myhistory->getAll());
+    $reloadableTableTotalItems = count($historyController->getAll());
 }
 
 /**
@@ -51,4 +51,4 @@ $reloadableTableTotalPages = ceil($reloadableTableTotalItems / 10);
  */
 $reloadableTableCurrentPage = ceil($reloadableTableOffset / 10) + 1;
 
-unset($userController, $myhistory);
+unset($userController, $historyController);

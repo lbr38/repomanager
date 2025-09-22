@@ -416,7 +416,7 @@
         </form>
     </div>
 
-    <h3>CVE</h3>
+    <!-- <h3>CVE</h3>
 
     <div class="div-generic-blue">
         <form class="settings-form" autocomplete="off">
@@ -461,7 +461,7 @@
 
             <button class="hide" type="submit"></button>
         </form>
-    </div>
+    </div> -->
 
     <?php
     if (IS_ADMIN) : ?>

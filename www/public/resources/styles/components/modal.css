@@ -33,14 +33,13 @@
 }
 
 .modal-window-content {
-    height: 100%;
     text-wrap: wrap;
     word-break: break-word;
-    overflow-y: auto;
+    overflow-y: hidden;
 }
 
 .modal-window-content pre {
-    min-height: 200px;
+    max-height: 85%;
     padding: 20px;
     margin-top: 20px;
     text-wrap: wrap;

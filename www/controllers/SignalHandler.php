@@ -4,7 +4,7 @@ namespace Controllers;
 
 class SignalHandler
 {
-    private $filepath;
+    private $files = [];
 
     public function __construct()
     {
@@ -19,31 +19,37 @@ class SignalHandler
     {
         switch ($signal) {
             case SIGTERM:
-                print "Caught SIGTERM\n";
-                if (!empty($this->filepath) and !file_exists($this->filepath)) {
-                    touch($this->filepath);
-                }
+                echo 'Caught SIGTERM' . PHP_EOL;
+                $this->createFiles();
                 exit;
             case SIGKILL:
-                print "Caught SIGKILL\n";
-                if (!empty($this->filepath) and !file_exists($this->filepath)) {
-                    touch($this->filepath);
-                }
+                echo 'Caught SIGKILL' . PHP_EOL;
+                $this->createFiles();
                 exit;
             case SIGINT:
-                print "Caught SIGINT\n";
-                if (!empty($this->filepath) and !file_exists($this->filepath)) {
-                    touch($this->filepath);
-                }
+                echo 'Caught SIGINT' . PHP_EOL;
+                $this->createFiles();
                 exit;
         }
     }
 
     /**
-     *  Create a file on interrupt
+     *  Create file(s) on interrupt
      */
-    public function touchFileOnInterrupt(string $filepath)
+    public function touchFileOnInterrupt(array $files)
     {
-        $this->filepath = $filepath;
+        $this->files = $files;
+    }
+
+    /**
+     *  Create the files on interrupt
+     */
+    public function createFiles()
+    {
+        foreach ($this->files as $file) {
+            if (!file_exists($file)) {
+                touch($file);
+            }
+        }
     }
 }

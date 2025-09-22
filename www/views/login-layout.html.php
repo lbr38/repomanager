@@ -5,7 +5,6 @@ include_once(ROOT . '/views/includes/head.inc.php');
 
 try {
     $userLoginController = new \Controllers\User\Login();
-    $historyController = new \Controllers\History();
 
     if (!empty($_POST['authType']) and $_POST['authType'] == 'local' and SSO_OIDC_ONLY == 'true') {
         throw new Exception('Local account login is disabled');

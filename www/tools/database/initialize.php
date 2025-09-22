@@ -18,6 +18,7 @@ try {
      */
     foreach ($databases as $database) {
         $myconn = new \Models\Connection($database, null, false);
+        $myconn->close();
     }
 } catch (Exception $e) {
     CliLog::error('There was an error while initializing ' . $database . ' database', $e->getMessage());

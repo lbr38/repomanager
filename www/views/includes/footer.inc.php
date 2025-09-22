@@ -1,28 +1,38 @@
 <footer>
-    <div>
-        <h5>HELP</h5>
-        <a target="_blank" rel="noopener noreferrer" href="https://github.com/lbr38/repomanager/wiki">
-            <span class="lowopacity">Documentation <img src="/assets/icons/external-link.svg" class="icon-small" /></span>
-        </a>
-        
-        <br><br>
-        
-        <a href="mailto:repomanager@protonmail.com">
-             <span class="lowopacity">Contact</span>
-        </a>
-    </div>
+    <div class="flex flex-direction-column row-gap-10">
+        <div class="flex align-item-center column-gap-5 mediumopacity">
+            <img src="/assets/icons/file.svg" class="icon-np" />
+            <a target="_blank" rel="noopener noreferrer" href="https://github.com/lbr38/repomanager/wiki">
+                <p>Documentation</p>
+            </a>
+        </div>
 
-    <div>
-        <h5>GITHUB</h5>
-        <span class="lowopacity">
-            <a target="_blank" rel="noopener noreferrer" href="https://github.com/lbr38/repomanager" id="github"><img src="/assets/images/github.png" /></a>
-        </span>
-    </div>    
+        <div class="flex align-item-center column-gap-5 mediumopacity">
+            <img src="/assets/icons/chatbubble.svg" class="icon-np" />
+            <a target="_blank" rel="noopener noreferrer" href="https://discord.gg/34yeNsMmkQ">
+                <p>Discord</p>
+            </a>
+        </div>
 
-    <div class="text-center margin-auto">
-        <p class="lowopacity-cst">Repomanager - release version <?= VERSION ?></p>
-        <br>
-        <p class="lowopacity-cst">Repomanager is a free and open source software, licensed under the <a target="_blank" rel="noopener noreferrer" href="https://www.gnu.org/licenses/gpl-3.0.en.html">GPLv3</a> license.</p>
+        <div class="flex align-item-center column-gap-5 mediumopacity">
+            <img src="/assets/icons/at-circle.svg" class="icon-np" />
+            <a href="mailto:repomanager@protonmail.com">
+                <p>Contact</p>
+            </a>
+        </div>
+
+        <div class="flex align-item-center column-gap-5 mediumopacity">
+            <img src="/assets/icons/github.svg" class="icon-np" />
+            <a target="_blank" rel="noopener noreferrer" href="https://github.com/lbr38/repomanager">
+                <p>GitHub</p>
+            </a>
+        </div>
+    </div> 
+
+    <div class="flex flex-direction-column align-item-center row-gap-10 mediumopacity-cst">
+        <img src="/assets/official-logo/repomanager-white.svg" class="icon-np" />
+        <p>Repomanager - release version <?= VERSION ?></p>
+        <p>Repomanager is a free and open source software, licensed under the <a target="_blank" rel="noopener noreferrer" href="https://www.gnu.org/licenses/gpl-3.0.en.html">GPLv3</a> license.</p>
     </div>
 </footer>
 
@@ -31,6 +41,7 @@
 <script src="/resources/js/user.js?<?= VERSION ?>"></script>
 <script src="/resources/js/notification.js?<?= VERSION ?>"></script>
 <script src="/resources/js/events/checkbox.js?<?= VERSION ?>"></script>
+<script src="/resources/js/events/tooltip.js?<?= VERSION ?>"></script>
 
 <!-- Import some classes -->
 <script src="/resources/js/classes/Layout.js?<?= VERSION ?>"></script>
@@ -44,6 +55,8 @@
 <script src="/resources/js/classes/Tooltip.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/Select2.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/SessionStorage.js?<?= VERSION ?>"></script>
+<script src="/resources/js/classes/AsyncChart.js?<?= VERSION ?>"></script>
+<script src="/resources/js/classes/System.js?<?= VERSION ?>"></script>
 
 <script>
     const mylayout = new Layout();
@@ -57,6 +70,7 @@
     const mytooltip = new Tooltip();
     const myselect2 = new Select2();
     const mysessionstorage = new SessionStorage();
+    const mysystem = new System();
 </script>
 
 <script>
@@ -152,6 +166,12 @@ if (__ACTUAL_URI__[1] == 'cves') {
     $jsFiles = [
         'cve',
         'events/task/stop'
+    ];
+}
+
+if (__ACTUAL_URI__[1] == 'status') {
+    $jsFiles = [
+        'events/status/service',
     ];
 }
 

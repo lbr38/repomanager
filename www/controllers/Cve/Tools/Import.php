@@ -14,15 +14,18 @@ class Import
     private $importId;
     private $hostImportId;
     private $feeds = array(
-        'https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-2022.json.gz',
-        'https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-2023.json.gz',
-        'https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-modified.json.gz'
+        'https://nvd.nist.gov/feeds/json/cve/2.0/nvdcve-2.0-2022.json.gz',
+        'https://nvd.nist.gov/feeds/json/cve/2.0/nvdcve-2.0-2023.json.gz',
+        'https://nvd.nist.gov/feeds/json/cve/2.0/nvdcve-2.0-2024.json.gz',
+        'https://nvd.nist.gov/feeds/json/cve/2.0/nvdcve-2.0-2025.json.gz',
+        'https://nvd.nist.gov/feeds/json/cve/2.0/nvdcve-2.0-modified.json.gz'
     );
 
     public function __construct()
     {
         $this->model = new \Models\Cve\Tools\Import();
         $this->cveController = new \Controllers\Cve\Cve();
+        $this->httpRequestController = new \Controllers\HttpRequest();
     }
 
     /**
@@ -79,89 +82,41 @@ class Import
      */
     public function import()
     {
-        $timeStart = microtime(true);
-
-        /**
-         *  Add a new import in database
-         */
-        $this->importId = $this->setStartImport();
-
         try {
+            $timeStart = microtime(true);
+
+            /**
+             *  Add a new import in database
+             */
+            $this->importId = $this->setStartImport();
+
             /**
              *  Clear database
              */
             $this->clearDatabase();
 
             foreach ($this->feeds as $feedUrl) {
-                /**
-                 *  Check if the URL is reachable
-                 */
+                // Check if the URL is reachable
                 try {
-                    \Controllers\Common::urlReachable($feedUrl, 5);
+                    \Controllers\Common::urlReachable($feedUrl, 10);
                 } catch (Exception $e) {
-                    throw new Exception('Feed error: ' . $e->getMessage());
+                    throw new Exception('Feed ' . $feedUrl . ' is unreachable: ' . $e->getMessage());
                 }
 
-                /**
-                 *  Define target local file
-                 */
+                // Define target local file
                 $savePath = DATA_DIR . '/cve-feed.gz';
-                $gzippedFeed = fopen($savePath, "w");
 
-                /**
-                 *  Init curl
-                 */
-                $ch = curl_init();
-
-                /**
-                 *  Download and unzip JSON feed
-                 */
-                curl_setopt($ch, CURLOPT_URL, $feedUrl);
-                curl_setopt($ch, CURLOPT_FILE, $gzippedFeed);   // set output file
-                curl_setopt($ch, CURLOPT_TIMEOUT, 120);         // set timeout
-                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // follow redirect
-                curl_setopt($ch, CURLOPT_ENCODING, '');         // use compression if any
-
-                /**
-                 *  If a proxy has been specified
-                 */
-                if (!empty(PROXY)) {
-                    curl_setopt($ch, CURLOPT_PROXY, PROXY);
+                // Download feed file
+                try {
+                    $this->httpRequestController->get([
+                        'url'        => $feedUrl,
+                        'outputFile' => DATA_DIR . '/cve-feed.gz',
+                        'timeout'    => 30,
+                        'proxy'      => PROXY ?? null,
+                    ]);
+                } catch (Exception $e) {
+                    throw new Exception('error while downloading feed ' . $feedUrl . ': ' . $e->getMessage());
                 }
-
-                if (curl_exec($ch) === false) {
-                    /**
-                     *  If curl has failed (meaning a curl param might be invalid)
-                     */
-                    throw new Exception('Curl error: ' . curl_error($ch));
-
-                    curl_close($ch);
-                    fclose($gzippedFeed);
-                }
-
-                /**
-                 *  Check that the http return code is 200 (the file has been downloaded)
-                 */
-                $status = curl_getinfo($ch);
-
-                if ($status["http_code"] != 200) {
-                    /**
-                     *  If return code is 404
-                     */
-                    if ($status["http_code"] == '404') {
-                        throw new Exception('File not found');
-                    } else {
-                        throw new Exception('File could not be downloaded (http return code is: ' . $status["http_code"] . ')');
-                    }
-
-                    curl_close($ch);
-                    fclose($gzippedFeed);
-
-                    return false;
-                }
-
-                fclose($gzippedFeed);
-                curl_close($ch);
 
                 /**
                  *  Gunzip feed file
@@ -169,17 +124,17 @@ class Import
                 try {
                     \Controllers\Common::gunzip($savePath);
                 } catch (Exception $e) {
-                    throw new Exception('Error while uncompressing feed file: ' . $e->getMessage());
+                    throw new Exception('Error while uncompressing ' . $savePath . ' feed file: ' . $e->getMessage());
                 }
 
                 $jsonFile = str_replace('.gz', '', $savePath);
 
                 if (!file_exists($jsonFile)) {
-                    throw new Exception('JSON file does not exist');
+                    throw new Exception('JSON file ' . $jsonFile . ' does not exist');
                 }
 
                 if (!is_readable($jsonFile)) {
-                    throw new Exception('JSON file is not readable');
+                    throw new Exception('JSON file ' . $jsonFile . ' is not readable');
                 }
 
                 /**
@@ -366,6 +321,12 @@ class Import
 
                 unset($id, $date, $time, $updatedDate, $updatedTime, $cpe23UriRaw, $cpe23UriRawStr, $cpe23UriGlobal, $description, $references, $cvss2Score, $cvss3Score, $cveList);
             }
+
+            /**
+             *  Set import status to done
+             */
+            $this->setImportStatus($this->importId, 'done');
+            $this->setEndImport($this->importId, microtime(true) - $timeStart);
         } catch (Exception $e) {
             /**
              *  Set import status to error
@@ -373,21 +334,8 @@ class Import
             $this->setImportStatus($this->importId, 'error');
             $this->setEndImport($this->importId, microtime(true) - $timeStart);
 
-            /**
-             *  Add error to log file
-             */
-            file_put_contents(CVE_LOG_DIR . '/cve-import-' . $this->importId . '.error', 'Error while importing CVEs (import Id ' . $this->importId . '): '. $e->getMessage() . PHP_EOL, FILE_APPEND);
-
-            return false;
+            throw new Exception('import #' . $this->importId . ' failed: ' . $e->getMessage());
         }
-
-        /**
-         *  Set import status to done
-         */
-        $this->setImportStatus($this->importId, 'done');
-        $this->setEndImport($this->importId, microtime(true) - $timeStart);
-
-        return true;
     }
 
     /**
@@ -490,6 +438,12 @@ class Import
              *  Send a mail with affected hosts
              */
             $this->cveController->sendMailWithAffectedHosts();
+
+            /**
+             *  Set import status to done
+             */
+            $this->setHostImportStatus($this->hostImportId, 'done');
+            $this->setEndHostImport($this->hostImportId, microtime(true) - $timeStart);
         } catch (Exception $e) {
             /**
              *  Set import status to error
@@ -497,21 +451,8 @@ class Import
             $this->setHostImportStatus($this->hostImportId, 'error');
             $this->setEndHostImport($this->hostImportId, microtime(true) - $timeStart);
 
-            /**
-             *  Add error to log file
-             */
-            file_put_contents(CVE_LOG_DIR . '/hosts-import-' . $this->hostImportId . '.error', 'Error while importing CVE affected hosts (import Id ' . $this->hostImportId . '): '. $e->getMessage() . PHP_EOL, FILE_APPEND);
-
-            return false;
+            throw new Exception('import affected hosts #' . $this->hostImportId . ' failed: ' . $e->getMessage());
         }
-
-        /**
-         *  Set import status to done
-         */
-        $this->setHostImportStatus($this->hostImportId, 'done');
-        $this->setEndHostImport($this->hostImportId, microtime(true) - $timeStart);
-
-        return true;
     }
 
     /**

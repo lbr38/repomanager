@@ -3,6 +3,7 @@
 namespace Controllers\Task\Form;
 
 use Exception;
+use \Controllers\History\Save as History;
 
 class Create
 {
@@ -10,7 +11,6 @@ class Create
     {
         $rpmRepoController = new \Controllers\Repo\Rpm();
         $debRepoController = new \Controllers\Repo\Deb();
-        $myhistory = new \Controllers\History();
 
         /**
          *  Check package type
@@ -155,17 +155,17 @@ class Create
          *  Add history
          */
         if ($formParams['package-type'] == 'rpm') {
-            $myhistory->set('Running task: New repository <span class="label-white">' . $targetName . '</span> (' . $formParams['repo-type'] . ')', 'success');
+            History::set('Running task: New repository <span class="label-white">' . $targetName . '</span> (' . $formParams['repo-type'] . ')');
         }
 
         if ($formParams['package-type'] == 'deb') {
             foreach ($formParams['dist'] as $distribution) {
                 foreach ($formParams['section'] as $section) {
-                    $myhistory->set('Running task: New repository <span class="label-white">' . $targetName . ' ❯ ' . $distribution . ' ❯ ' . $section . '</span> (' . $formParams['repo-type'] . ')', 'success');
+                    History::set('Running task: New repository <span class="label-white">' . $targetName . ' ❯ ' . $distribution . ' ❯ ' . $section . '</span> (' . $formParams['repo-type'] . ')');
                 }
             }
         }
 
-        unset($rpmRepoController, $debRepoController, $myhistory);
+        unset($rpmRepoController, $debRepoController);
     }
 }

@@ -3,13 +3,13 @@
 namespace Controllers\Task\Form;
 
 use Exception;
+use \Controllers\History\Save as History;
 
 class Env
 {
     public function validate(array $formParams)
     {
         $myrepo = new \Controllers\Repo\Repo();
-        $myhistory = new \Controllers\History();
 
         /**
          *  Check that the snapshot id is valid
@@ -46,12 +46,12 @@ class Env
         }
 
         if ($myrepo->getPackageType() == 'rpm') {
-            $myhistory->set('Running task: point environment(s) <span>' . trim($content) . '</span> to repository <span class="label-white">' . $myrepo->getName() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span>', 'success');
+            History::set('Running task: point environment(s) <span>' . trim($content) . '</span> to repository <span class="label-white">' . $myrepo->getName() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span>');
         }
         if ($myrepo->getPackageType() == 'deb') {
-            $myhistory->set('Running task: point environment(s) <span>' . trim($content) . '</span> to repository <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span>', 'success');
+            History::set('Running task: point environment(s) <span>' . trim($content) . '</span> to repository <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span>');
         }
 
-        unset($myrepo, $myhistory);
+        unset($myrepo);
     }
 }

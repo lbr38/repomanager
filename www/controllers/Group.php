@@ -3,6 +3,7 @@
 namespace Controllers;
 
 use Exception;
+use \Controllers\History\Save as History;
 
 class Group
 {
@@ -138,8 +139,13 @@ class Group
          */
         $this->model->add($name);
 
-        $myhistory = new \Controllers\History();
-        $myhistory->set('Create a new group <span class="label-white">' . $name . '</span> (type: ' . $this->type . ')', 'success');
+        if ($this->type == 'repo') {
+            History::set('Create <code>' . $name . '</code> repository group ');
+        }
+
+        if ($this->type == 'host') {
+            History::set('Create <code>' . $name . '</code> host group');
+        }
     }
 
     /**
@@ -190,8 +196,12 @@ class Group
             $myhost->addHostsIdToGroup($data, $id);
         }
 
-        $myhistory = new \Controllers\History();
-        $myhistory->set('Group <span class="label-white">' . $name . '</span> (type: ' . $this->type . ') edited', 'success');
+        if ($this->type == 'repo') {
+            History::set('Repository group <code>' . $name . '</code> edited');
+        }
+        if ($this->type == 'host') {
+            History::set('Host group <code>' . $name . '</code> edited');
+        }
     }
 
     /**
@@ -221,8 +231,13 @@ class Group
          */
         $this->model->delete($id);
 
-        $myhistory = new \Controllers\History();
-        $myhistory->set('Delete group <span class="label-white">' . $name . '</span> (type: '. $this->type . ')', 'success');
+        if ($this->type == 'repo') {
+            History::set('Delete repository group <code>' . $name . '</code>');
+        }
+
+        if ($this->type == 'host') {
+            History::set('Delete host group <code>' . $name . '</code>');
+        }
     }
 
     /**

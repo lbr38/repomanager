@@ -94,28 +94,3 @@ $(document).on('submit','.settings-form',function () {
 
     return false;
 });
-
-/**
- *  Event: select and view websocket server log file
- */
-$(document).on('click','#websocket-log-btn',function () {
-    // Retrieve log file name
-    var logfile = $('select#websocket-log-select').val();
-
-    ajaxRequest(
-        // Controller:
-        'settings',
-        // Action:
-        'get-wss-log',
-        // Data:
-        {
-            logfile: logfile
-        },
-        // Print success alert:
-        false,
-        // Print error alert:
-        true
-    ).then(function () {
-        mymodal.print(jsonValue.message, logfile, true, false);
-    });
-});
