@@ -158,7 +158,7 @@ class Main extends \Controllers\Service\Service
                 throw new Exception($output);
             }
         } catch (Exception $e) {
-            parent::logError('Error while launching ' . $title . ' (service unit ' . $parameter . '): ' . $e->getMessage());
+            parent::logError('Error while launching ' . $title . ' (service unit ' . $unit . '): ' . $e->getMessage());
         }
     }
 }
