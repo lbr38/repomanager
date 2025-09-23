@@ -15,6 +15,6 @@ class Settings
         }
 
         \Controllers\Layout\Container\Render::render('settings/settings');
-        \Controllers\Layout\Container\Render::render('settings/users');
+        \Controllers\Layout\Container\Render::render('settings/right-section');
     }
 }

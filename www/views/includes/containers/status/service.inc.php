@@ -1,4 +1,4 @@
-<section class="section-main">
+<section id="service-units" class="section-main reloadable-container" container="status/service">
     <h3>SERVICE UNITS</h3>
 
     <div class="div-generic-blue grid grid-rfr-1-4 row-gap-30 column-gap-20">

@@ -45,9 +45,8 @@ jobs:
       #
       - name: Download test packages
         run: |
-          wget -O ${HOSTNAME}_nginx-1.26.0-1.el7.ngx.x86_64.rpm https://packages.repomanager.net/repo/rpm/ci-test/7/prod/packages/x86_64/nginx-1.26.0-1.el7.ngx.x86_64.rpm
+          wget -O ${HOSTNAME}_nginx-1.26.0-1.el7.ngx.x86_64.rpm https://packages.repomanager.net/repo/rpm/ci-test/8/prod/packages/x86_64/nginx-1.26.0-1.el7.ngx.x86_64.rpm
           wget -O ${HOSTNAME}_nginx_1.26.0-1~bookworm_amd64.deb https://packages.repomanager.net/repo/deb/ci-test/bookworm/main/prod/pool/main/nginx_1.26.0-1~bookworm_amd64.deb
-
 
       #
       # Run tests as admin user

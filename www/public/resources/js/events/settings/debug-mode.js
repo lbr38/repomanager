@@ -21,5 +21,7 @@ $(document).on('click','#debug-mode-btn',function () {
         true,
         // Print error alert:
         true
-    );
+    ).then(function () {
+        mycontainer.reload('header/debug-mode');
+    });
 });
