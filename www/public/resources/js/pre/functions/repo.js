@@ -19,9 +19,9 @@ function getReposSize()
          */
         ajaxRequest(
             // Controller:
-            'repo',
+            'repo/get',
             // Action:
-            'getRepoSize',
+            'size',
             // Data:
             {
                 path: path
@@ -29,17 +29,48 @@ function getReposSize()
             // Print success alert:
             false,
             // Print error alert:
+            false
+        ).then(function () {
+            $("#repos-list-container").find('.item-size[repo-id="' + repoId + '"][snap-id="' + snapId + '"]').html(jsonValue.message);
+        }).catch(function () {
+            $("#repos-list-container").find('.item-size[repo-id="' + repoId + '"][snap-id="' + snapId + '"]').replaceWith('<img src="/assets/icons/warning.svg" class="icon" title="' + jsonValue.message + '"/>');
+        });
+    });
+}
+
+/**
+ *  Get repos tasks status
+ */
+function getTaskStatus()
+{
+    /**
+     *  Loop through all repos and get their size
+     */
+    $('#repos-list-container').find('.item-size').each(function () {
+        /**
+         *  Get repo Id, snap Id
+         */
+        var repoId = $(this).attr('repo-id');
+        var snapId = $(this).attr('snap-id');
+
+
+        /**
+         *  Get repo tasks status
+         */
+        ajaxRequest(
+            // Controller:
+            'repo/get',
+            // Action:
+            'taskStatus',
+            // Data:
+            {
+                repoId: repoId,
+                snapId: snapId
+            },
+            // Print success alert:
             false,
-            // Reload container:
-            [],
-            // Execute functions on success:
-            [
-                '$("#repos-list-container").find(\'.item-size[repo-id="' + repoId + '"][snap-id="' + snapId + '"]\').html(jsonValue.message);'
-            ],
-            // Execute functions on fail:
-            [
-                '$("#repos-list-container").find(\'.item-size[repo-id="' + repoId + '"][snap-id="' + snapId + '"]\').replaceWith(\'<img src="/assets/icons/warning.svg" class="icon" title="\' + jsonValue.message + \'"/>\');',
-            ]
+            // Print error alert:
+            false
         );
     });
 }

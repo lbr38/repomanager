@@ -31,6 +31,9 @@ RUN apt-get update -y
 # Install nginx and PHP 8.3
 RUN apt-get install nginx php8.3-fpm php8.3-cli php8.3-sqlite3 php8.3-xml php8.3-curl php8.3-yaml php8.3-opcache sqlite3 -y
 
+# Install xdebug if branch is devel
+RUN if [ "$branch" = "devel" ]; then apt-get install php8.3-xdebug -y; fi
+
 # Clone project in the container
 RUN git clone https://github.com/lbr38/repomanager.git /tmp/repomanager
 RUN cd /tmp/repomanager && git checkout $branch
@@ -47,6 +50,7 @@ RUN rm -rf /etc/nginx/sites-enabled/default /etc/nginx/conf.d/default.conf /var/
 RUN cp /tmp/repomanager/docker/config/php/php.ini /etc/php/8.3/fpm/php.ini
 RUN cp /tmp/repomanager/docker/config/php/www.conf /etc/php/8.3/fpm/pool.d/www.conf
 RUN cp /tmp/repomanager/docker/config/php/opcache.ini /etc/php/8.3/mods-available/opcache.ini
+RUN if [ "$branch" = "devel" ]; then cp /tmp/repomanager/docker/config/php/xdebug.ini /etc/php/8.3/mods-available/xdebug.ini; fi
 
 # Configure SQLite
 RUN echo ".headers on" > /root/.sqliterc

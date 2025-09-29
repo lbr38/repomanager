@@ -3,7 +3,6 @@
 namespace Models;
 
 use Exception;
-use Datetime;
 
 class Host extends Model
 {
@@ -73,233 +72,6 @@ class Host extends Model
     }
 
     /**
-     *  Update hostname in database
-     */
-    public function updateHostname(string $id, string $hostname) : void
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Hostname = :hostname WHERE Id = :id");
-            $stmt->bindValue(':hostname', $hostname);
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Update OS in database
-     */
-    public function updateOS(string $id, string $os) : void
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Os = :os WHERE Id = :id");
-            $stmt->bindValue(':os', $os);
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Update OS version in database
-     */
-    public function updateOsVersion(string $id, string $osVersion) : void
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Os_version = :os_version WHERE Id = :id");
-            $stmt->bindValue(':os_version', $osVersion);
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Update OS family in database
-     */
-    public function updateOsFamily(string $id, string $osFamily) : void
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Os_family = :os_family WHERE Id = :id");
-            $stmt->bindValue(':os_family', $osFamily);
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Update virtualization type in database
-     */
-    public function updateType(string $id, string $type) : void
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Type = :type WHERE Id = :id");
-            $stmt->bindValue(':type', $type);
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Update CPU in database
-     */
-    public function updateCpu(string $id, string $cpu) : void
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Cpu = :cpu WHERE Id = :id");
-            $stmt->bindValue(':cpu', $cpu);
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Update RAM in database
-     */
-    public function updateRam(string $id, string $ram) : void
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Ram = :ram WHERE Id = :id");
-            $stmt->bindValue(':ram', $ram);
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Update kernel version in database
-     */
-    public function updateKernel(string $id, string $kernel) : void
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Kernel = :kernel WHERE Id = :id");
-            $stmt->bindValue(':kernel', $kernel);
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Update arch in database
-     */
-    public function updateArch(string $id, string $arch) : void
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Arch = :arch WHERE Id = :id");
-            $stmt->bindValue(':arch', $arch);
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Update profile in database
-     */
-    public function updateProfile(string $id, string $profile) : void
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Profile = :profile WHERE Id = :id");
-            $stmt->bindValue(':profile', $profile);
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Update environment in database
-     */
-    public function updateEnv(string $id, string $env) : void
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Env = :env WHERE Id = :id");
-            $stmt->bindValue(':env', $env);
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Update agent status in database
-     */
-    public function updateAgentStatus(string $id, string $status) : void
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Online_status = :onlineStatus, Online_status_date = :onlineStatusDate, Online_status_time = :OnlineStatusTime WHERE Id = :id");
-            $stmt->bindValue(':onlineStatus', $status);
-            $stmt->bindValue(':onlineStatusDate', date('Y-m-d'));
-            $stmt->bindValue(':OnlineStatusTime', date('H:i:s'));
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Update linupdate version in database
-     */
-    public function updateLinupdateVersion(string $id, string $version) : void
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Linupdate_version = :version WHERE Id = :id");
-            $stmt->bindValue(':version', $version);
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Update host's reboot required status in database
-     */
-    public function updateRebootRequired(string $id, string $status) : void
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Reboot_required = :reboot WHERE Id = :id");
-            $stmt->bindValue(':reboot', $status);
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-        } catch (Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Update host's uptime in database
-     */
-    public function updateUptime(int $id, float $uptime) : void
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Uptime = :uptime WHERE Id = :id");
-            $stmt->bindValue(':id', $id);
-            $stmt->bindValue(':uptime', $uptime);
-            $stmt->execute();
-        } catch (Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
      *  Return the host Id from its authId
      */
     public function getIdByAuth(string $authId) : int|null
@@ -309,6 +81,28 @@ class Host extends Model
         try {
             $stmt = $this->db->prepare("SELECT Id FROM hosts WHERE AuthId = :authId");
             $stmt->bindValue(':authId', $authId);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            $this->db->logError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $id = $row['Id'];
+        }
+
+        return $id;
+    }
+
+    /**
+     *  Return the host Id from its hostname
+     */
+    public function getIdByHostname(string $hostname) : int|null
+    {
+        $id = null;
+
+        try {
+            $stmt = $this->db->prepare("SELECT Id FROM hosts WHERE Hostname = :hostname");
+            $stmt->bindValue(':hostname', $hostname);
             $result = $stmt->execute();
         } catch (Exception $e) {
             $this->db->logError($e);

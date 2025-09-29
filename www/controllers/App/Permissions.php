@@ -68,7 +68,7 @@ class Permissions
                     setcookie('user_permissions', json_encode(USER_PERMISSIONS), [
                         'expires' => time() + 86400, // 1 day
                         'path' => '/',
-                        'secure' => true,
+                        'secure' => (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')
                     ]);
                 } catch (Exception $e) {
                     throw new Exception('Error getting user #' . $id . ' permissions: ' . $e->getMessage());

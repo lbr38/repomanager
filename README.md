@@ -1,4 +1,12 @@
-<h1>REPOMANAGER</h1>
+<div align="center">
+    <img src="https://raw.githubusercontent.com/lbr38/repomanager/refs/heads/devel/images/readme/github-readme-black.png#gh-light-mode-only" align="top">
+</div>
+
+<div align="center">
+    <img src="https://raw.githubusercontent.com/lbr38/repomanager/refs/heads/devel/images/readme/github-readme-white.png#gh-dark-mode-only" align="top" width=70%>
+</div>
+
+<br><br>
 
 **Repomanager** is a web mirroring tool for ``rpm`` and ``deb`` packages repositories.
 
@@ -11,11 +19,11 @@
 - Manage hosts packages updates
 - Schedule tasks
 
-![alt text](https://github.com/user-attachments/assets/5a7c2bc5-72c7-45ad-8b67-0be9aaccd8f6)
-![alt text](https://github.com/user-attachments/assets/0a48aa80-1821-45a0-a236-1376365361ce)
-![alt text](https://github.com/user-attachments/assets/e285657e-5b3e-49db-a3ea-ed3a3ae2ffb7)
-![alt text](https://github.com/user-attachments/assets/3d2e1339-5cdc-4c23-ac4a-ea1f63e42f9f)
-![alt text](https://github.com/user-attachments/assets/2080d964-c3f9-4865-b6fe-a3fceaf76c84)
+![alt text](https://raw.githubusercontent.com/lbr38/repomanager/refs/heads/devel/images/readme/demo.gif)
+![alt text](https://raw.githubusercontent.com/lbr38/repomanager/refs/heads/devel/images/readme/screenshot01.png)
+![alt text](https://raw.githubusercontent.com/lbr38/repomanager/refs/heads/devel/images/readme/screenshot02.png)
+![alt text](https://raw.githubusercontent.com/lbr38/repomanager/refs/heads/devel/images/readme/screenshot03.png)
+![alt text](https://raw.githubusercontent.com/lbr38/repomanager/refs/heads/devel/images/readme/screenshot04.png)
 
 <h2>Requirements</h2>
 

@@ -2,8 +2,6 @@
 
 namespace Controllers\Database;
 
-use Exception;
-
 class Maintenance
 {
     private $model;
@@ -16,7 +14,7 @@ class Maintenance
     /**
      *  Perform a database VACUUM operation to clean and optimize the database
      */
-    public function vacuum()
+    public function vacuum() : void
     {
         $this->model->vacuum();
     }
@@ -24,9 +22,17 @@ class Maintenance
     /**
      *  Perform a database ANALYZE operation to update the database statistics
      */
-    public function analyze()
+    public function analyze() : void
     {
         $this->model->analyze();
+    }
+
+    /**
+     *  Perform a database integrity check on the database
+     */
+    public function integrityCheck(): void
+    {
+        $this->model->integrityCheck();
     }
 
     public function __destruct()

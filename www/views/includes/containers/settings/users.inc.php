@@ -41,12 +41,19 @@
                         if ($user['Role_name'] == 'usage') {
                             $role = 'Standard user';
                             $roleIcon = 'user';
+                        }
+
+                        // Display full name if available, else display username
+                        if (!empty($user['First_name'])) {
+                            $username = $user['First_name'] . ' ' . $user['Last_name'];
+                        } else {
+                            $username = $user['Username'];
                         } ?>
 
                         <div class="table-container grid-2 bck-blue-alt">
                             <div>
                                 <div class="flex align-item-center column-gap-8">
-                                    <p class="wordbreakall"><?= $user['Username'] ?></p>
+                                    <p class="wordbreakall"><?= $username ?></p>
                                     <code class="font-size-9" title="Account type"><?= $user['Type'] ?></code>
                                 </div>
                                 <div class="flex align-item-center lowopacity-cst column-gap-5">

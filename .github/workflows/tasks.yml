@@ -85,6 +85,8 @@ jobs:
 
   run-rpm-tasks:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     container:
       image: lbr38/repomanager:latest
     steps:

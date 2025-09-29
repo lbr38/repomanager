@@ -8,6 +8,7 @@ push.sh
 jsconfig.json
 WIP
 ARCHIVES
+./xdebug*
 
 
 # Compiled source #

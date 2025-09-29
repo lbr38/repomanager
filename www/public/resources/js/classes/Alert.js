@@ -9,6 +9,7 @@ class Alert
     print(message, type = null, timeout = 3000)
     {
         const random = Math.floor(Math.random() * (100000 - 100 + 1) + 100)
+        var pclass = '';
 
         if (type == null) {
             var classes = 'alert ' + random;
@@ -26,7 +27,8 @@ class Alert
             var classes = 'alert-error ' + random;
             var selector = '.alert-error.' + random;
             var icon = 'error';
-            timeout = 4000;
+            var pclass = 'copy';
+            timeout = 5000;
         }
 
         // Remove any existing alert
@@ -37,7 +39,7 @@ class Alert
             <div class="flex align-item-center column-gap-8 padding-left-15 padding-right-15"> \
                 <img src="/assets/icons/' + icon + '.svg" class="icon-np" /> \
                 <div> \
-                    <p>' + message + '</p> \
+                    <p class="' + pclass + '">' + message + '</p> \
                 </div> \
             </div> \
         </div>');

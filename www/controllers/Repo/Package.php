@@ -23,7 +23,7 @@ class Package
         /**
          *  Retrieve repo infos from DB
          */
-        $repoDetails = $myrepo->getAllById('', $snapId, '');
+        $myrepo->getAllById('', $snapId, '');
 
         /**
          *  Retrieve current repo architectures
@@ -271,7 +271,7 @@ class Package
         /**
          *  Retrieve repo infos from DB
          */
-        $repoDetails = $myrepo->getAllById('', $snapId, '');
+        $myrepo->getAllById('', $snapId, '');
 
         /**
          *  Define snapshot path

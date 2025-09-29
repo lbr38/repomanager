@@ -44,21 +44,15 @@ class Layout
 
     /**
      *  Logout
+     *  Destroy current session and redirect to login page
      */
     private function logout()
     {
-        /**
-         *  Destruction de la session en cours et redirection vers la page de login
-         */
-
-        /**
-         *  On démarre la session
-         */
+        // Start the session
         session_start();
 
-        // Réinitialisation du tableau de session
-        // On le vide intégralement
-        $_SESSION = array();
+        // Reinitialize the session array, empty it
+        $_SESSION = [];
 
         // If it's desired to kill the session, also delete the session cookie.
         // Note: This will destroy the session, and not just the session data!
@@ -67,15 +61,13 @@ class Layout
             setcookie(session_name(), '', time() - 42000, $params["path"], $params["domain"], $params["secure"], $params["httponly"]);
         }
 
-        // Destruction de la session
+        // Destroy the session
         session_destroy();
 
-        // Destruction du tableau de session
+        // Destroy the session array
         unset($_SESSION);
 
-        /**
-         *  On redirige vers login
-         */
+        // Redirect to login
         header('Location: /login');
 
         exit();
