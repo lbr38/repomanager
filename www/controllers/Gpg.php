@@ -10,6 +10,12 @@ class Gpg
     private $name = 'Repomanager';
     private $description = 'Repomanager GPG signing key';
     private $passphrase = '';
+    private $httpRequestController;
+
+    public function __construct()
+    {
+        $this->httpRequestController = new \Controllers\HttpRequest();
+    }
 
     /**
      *  Proceed full GPG configuration
@@ -408,7 +414,7 @@ class Gpg
              *  Delete temp file
              */
             if (!unlink($gpgTempFile)) {
-                throw new Exception('cannot delete temporary file: ' . $tempFile);
+                throw new Exception('cannot delete temporary file: ' . $gpgTempFile);
             }
         }
     }
@@ -443,72 +449,36 @@ class Gpg
             throw new Exception('Invalid URL');
         }
 
-        /**
-         *  Check if the URL is reachable
-         */
-        \Controllers\Common::urlReachable($url, 5);
-
-        /**
-         *  Init curl
-         */
-        $ch = curl_init();
-
-        /**
-         *  Download GPG key from URL
-         */
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5);           // set timeout
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // follow redirect
-        curl_setopt($ch, CURLOPT_ENCODING, '');         // use compression if any
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // output content to return
-
-        /**
-         *  If a proxy has been specified
-         */
-        if (!empty(PROXY)) {
-            curl_setopt($ch, CURLOPT_PROXY, PROXY);
+        // Check if the URL is reachable
+        try {
+            $this->httpRequestController->get([
+                'url' => $url,
+                'connectTimeout' => 5
+            ]);
+        } catch (Exception $e) {
+            throw new Exception('URL ' . $url . ' is not reachable: ' . $e->getMessage());
         }
 
-        $result = curl_exec($ch);
-
+        // Download GPG key
         try {
-            if ($result === false) {
-                /**
-                 *  If curl has failed (meaning a curl param might be invalid)
-                 */
-                throw new Exception('curl error: ' . curl_error($ch));
-            }
+            $output = $this->httpRequestController->get([
+                'url'            => $url,
+                'connectTimeout' => 5,
+                'timeout'        => 10,
+                'proxy'          => PROXY ?? null,
+            ]);
 
-            if (empty($result)) {
-                /**
-                 *  If key is empty, meaning bad key
-                 */
+            if (empty($output)) {
                 throw new Exception('empty gpg key response (downloaded file is empty)');
             }
-
-            /**
-             *  Check that the http return code is 200 (the file has been downloaded)
-             */
-            $status = curl_getinfo($ch);
-
-            if ($status["http_code"] != 200) {
-                /**
-                 *  If return code is 404
-                 */
-                if ($status["http_code"] == '404') {
-                    throw new Exception('404 file not found');
-                } else {
-                    throw new Exception('file could not be downloaded (http return code is: ' . $status["http_code"] . ')');
-                }
-            }
-        } finally {
-            curl_close($ch);
+        } catch (Exception $e) {
+            throw new Exception('error while downloading GPG key: ' . $e->getMessage());
         }
 
         /**
          *  Import GPG key
          */
-        return $this->importRawContent($result);
+        return $this->importRawContent($output);
     }
 
     /**

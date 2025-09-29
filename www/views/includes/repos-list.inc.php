@@ -177,6 +177,9 @@ if (!empty($groupsList)) {
                                 if ($previousPackageType == 'deb' and $packageType == 'deb' and $name == $previousName) {
                                     $printRepoName = false;
                                 }
+
+                                // Reset previous release version value to avoid some display bugs with rpm repos having the same name as deb repos
+                                $previousReleaseVersion = '';
                             }
 
                             /**
@@ -387,8 +390,16 @@ if (!empty($groupsList)) {
                             if (!empty($env)) {
                                 echo '<input type="text" class="repo-description-input" env-id="' . $envId . '" placeholder="🖉 add a description" value=\'' . htmlspecialchars_decode($description) . '\' />';
                             }
-                            echo '</div>';
+                            echo '</div>'; ?>
 
+                            <!-- TODO -->
+                            <!-- <div class="item-task-status" repo-id="<?= $repoId ?>" snap-id="<?= $snapId ?>">
+                                <img src="/assets/icons/check.svg" class="icon-mediumopacity" />
+                                <img src="/assets/icons/check.svg" class="icon-mediumopacity" />
+                                <img src="/assets/icons/error.svg" class="icon-mediumopacity" />
+                            </div> -->
+
+                            <?php
                             $previousName = $name;
 
                             if (!empty($dist)) {

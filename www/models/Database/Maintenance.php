@@ -3,7 +3,6 @@
 namespace Models\Database;
 
 use Exception;
-use SQLite3;
 
 class Maintenance extends \Models\Model
 {
@@ -22,24 +21,46 @@ class Maintenance extends \Models\Model
     /**
      *  Perform a database VACUUM operation to clean and optimize the database
      */
-    public function vacuum()
+    public function vacuum() : void
     {
         try {
+            // Use disk for temporary storage during VACUUM, this is to avoid using too much memory for large databases
+            $this->db->exec('PRAGMA temp_store = FILE');
+
+            // Set /tmp as the directory for temporary files
+            $this->db->exec("PRAGMA temp_store_directory = '/tmp'");
+
+            // Perform the VACUUM operation
             $this->db->exec('VACUUM');
         } catch (Exception $e) {
             throw new Exception('Error while performing VACUUM on database ' . $this->database . ': ' . $e->getMessage());
+        } finally {
+            // Set temp_store back to default
+            $this->db->exec('PRAGMA temp_store = DEFAULT');
         }
     }
 
     /**
      *  Perform a database ANALYZE operation to update the database statistics
      */
-    public function analyze()
+    public function analyze() : void
     {
         try {
             $this->db->exec('ANALYZE');
         } catch (Exception $e) {
             throw new Exception('Error while performing ANALYZE on database ' . $this->database . ': ' . $e->getMessage());
+        }
+    }
+
+    /**
+     *  Perform a database integrity check on the database
+     */
+    public function integrityCheck(): void
+    {
+        try {
+            $this->db->exec('PRAGMA integrity_check');
+        } catch (Exception $e) {
+            throw new Exception('Error while performing integrity check on database ' . $this->database . ': ' . $e->getMessage());
         }
     }
 }

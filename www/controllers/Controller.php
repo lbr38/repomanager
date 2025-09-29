@@ -5,6 +5,7 @@ namespace Controllers;
 require_once('Autoloader.php');
 
 use Exception;
+use Error;
 
 class Controller
 {

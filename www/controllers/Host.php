@@ -3,113 +3,18 @@
 namespace Controllers;
 
 use Exception;
-use Datetime;
 
 class Host
 {
+    private $id;
     protected $dedicatedDb;
     protected $model;
     protected $layoutContainerReloadController;
-    private $id;
-    private $idArray = array();
-    private $ip;
-    private $hostname;
-    private $os;
-    private $os_version;
-    private $os_family;
-    private $type;
-    private $kernel;
-    private $arch;
-    private $profile;
-    private $env;
-    private $authId;
-    private $token;
-    private $onlineStatus;
 
     public function __construct()
     {
         $this->model = new \Models\Host();
         $this->layoutContainerReloadController = new \Controllers\Layout\ContainerReload();
-    }
-
-    public function setId(string $id)
-    {
-        $this->id = \Controllers\Common::validateData($id);
-    }
-
-    public function setIp(string $ip)
-    {
-        $this->ip = \Controllers\Common::validateData($ip);
-    }
-
-    public function setHostname(string $hostname)
-    {
-        $this->hostname = \Controllers\Common::validateData($hostname);
-    }
-
-    public function setOS(string $os)
-    {
-        $this->os = \Controllers\Common::validateData($os);
-    }
-
-    public function setOsVersion(string $os_version)
-    {
-        $this->os_version = \Controllers\Common::validateData($os_version);
-    }
-
-    public function setOsFamily(string $os_family)
-    {
-        $this->os_family = \Controllers\Common::validateData($os_family);
-    }
-
-    public function setType(string $type)
-    {
-        $this->type = \Controllers\Common::validateData($type);
-    }
-
-    public function setKernel(string $kernel)
-    {
-        $this->kernel = \Controllers\Common::validateData($kernel);
-    }
-
-    public function setArch(string $arch)
-    {
-        $this->arch = \Controllers\Common::validateData($arch);
-    }
-
-    public function setProfile(string $profile)
-    {
-        $this->profile = \Controllers\Common::validateData($profile);
-    }
-
-    public function setEnv(string $env)
-    {
-        $this->env = \Controllers\Common::validateData($env);
-    }
-
-    public function setAuthId(string $authId)
-    {
-        $this->authId = \Controllers\Common::validateData($authId);
-    }
-
-    public function setToken(string $token)
-    {
-        $this->token = \Controllers\Common::validateData($token);
-    }
-
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    public function getAuthId()
-    {
-        return $this->authId;
-    }
-
-    public function getToken()
-    {
-        return $this->token;
     }
 
     /**
@@ -129,6 +34,20 @@ class Host
 
         if (empty($id)) {
             throw new Exception("No host Id has been found from this authId identifier");
+        }
+
+        return $id;
+    }
+
+    /**
+     *  Return the host Id from its hostname
+     */
+    private function getIdByHostname(string $hostname) : int
+    {
+        $id = $this->model->getIdByHostname($hostname);
+
+        if (empty($id)) {
+            throw new Exception('No Id has been found from this hostname');
         }
 
         return $id;
@@ -312,20 +231,20 @@ class Host
     /**
      *  Register a new host in the database
      */
-    public function register() : void
+    public function register(string $ip, string $hostname) : array
     {
         /**
          *  Quit if no IP or hostname is provided
          */
-        if (empty($this->ip) or empty($this->hostname)) {
+        if (empty($ip) or empty($hostname)) {
             throw new Exception('You must provide IP address and hostname.');
         }
 
         /**
          *  Check if the hostname already exists in the database
          */
-        if ($this->model->hostnameExists($this->hostname) === true) {
-            throw new Exception('Host ' . $this->hostname . ' is already registered.');
+        if ($this->model->hostnameExists($hostname) === true) {
+            throw new Exception('Host ' . $hostname . ' is already registered.');
         }
 
         /**
@@ -333,42 +252,39 @@ class Host
          *  This authId will be used to authenticate the host when it will try to connect to the API
          *  It must be unique so loop until we find a unique authId
          */
-        $this->authId = 'id_' . bin2hex(openssl_random_pseudo_bytes(16));
+        $authId = 'id_' . bin2hex(openssl_random_pseudo_bytes(16));
 
         /**
          *  It must be unique so loop until we find a unique authId
          *  We check if an host exist with the same authId
          */
-        while (!empty($this->model->getIdByAuth($this->authId))) {
-            $this->authId = 'id_' . bin2hex(openssl_random_pseudo_bytes(16));
+        while (!empty($this->model->getIdByAuth($authId))) {
+            $authId = 'id_' . bin2hex(openssl_random_pseudo_bytes(16));
         }
 
         /**
          *  Generate a new token for this host
          */
-        $this->token = bin2hex(openssl_random_pseudo_bytes(16));
-
-        /**
-         *  The agent status is set to 'unknown' when we register a new host for the first time
-         */
-        $this->onlineStatus = 'unknown';
+        $token = bin2hex(openssl_random_pseudo_bytes(16));
 
         /**
          *  Add the host in database
          */
-        $this->model->add($this->ip, $this->hostname, $this->authId, $this->token, $this->onlineStatus, date('Y-m-d'), date('H:i:s'));
+        $this->model->add($ip, $hostname, $authId, $token, 'unknown', date('Y-m-d'), date('H:i:s'));
 
         /**
          *  Retrieve the Id of the host added in the database
          */
-        $this->id = $this->model->getLastInsertRowID();
+        $id = $this->model->getLastInsertRowID();
 
         /**
          *  Create a dedicated directory for this host, based on its ID
          */
-        if (!mkdir(HOSTS_DIR . '/' . $this->id, 0770, true)) {
+        if (!mkdir(HOSTS_DIR . '/' . $id, 0770, true)) {
             throw new Exception('The server could not finalize registering.');
         }
+
+        return array('authId' => $authId, 'token' => $token);
     }
 
     /**
@@ -380,9 +296,24 @@ class Host
     }
 
     /**
+     *  Delete a host from the database by its hostname
+     */
+    public function deleteByHostname(string $hostname) : void
+    {
+        $id = $this->model->getIdByHostname($hostname);
+
+        if (empty($id)) {
+            throw new Exception('Unknown hostname ' . $hostname);
+        }
+
+        // Get host Id from its hostname, then delete it
+        $this->deleteById($id);
+    }
+
+    /**
      *  Delete a host from the database
      */
-    public function delete(int $id) : void
+    public function deleteById(int $id) : void
     {
         $hostRequestController = new \Controllers\Host\Request();
 
@@ -439,138 +370,6 @@ class Host
         unset($hostPackageController);
 
         return $results;
-    }
-
-    /**
-     *  Update hostname in database
-     */
-    public function updateHostname(string $hostname) : void
-    {
-        $this->model->updateHostname($this->id, \Controllers\Common::validateData($hostname));
-    }
-
-    /**
-     *  Update OS in database
-     */
-    public function updateOS(string $os) : void
-    {
-        $this->model->updateOS($this->id, \Controllers\Common::validateData($os));
-    }
-
-    /**
-     *  Update OS version in database
-     */
-    public function updateOsVersion(string $osVersion) : void
-    {
-        $this->model->updateOsVersion($this->id, \Controllers\Common::validateData($osVersion));
-    }
-
-    /**
-     *  Update OS family in database
-     */
-    public function updateOsFamily(string $osFamily) : void
-    {
-        $this->model->updateOsFamily($this->id, \Controllers\Common::validateData($osFamily));
-    }
-
-    /**
-     *  Update virtualization type in database
-     */
-    public function updateType(string $virtType) : void
-    {
-        $this->model->updateType($this->id, \Controllers\Common::validateData($virtType));
-    }
-
-    /**
-     *  Update CPU in database
-     */
-    public function updateCpu(string $cpu) : void
-    {
-        $this->model->updateCpu($this->id, \Controllers\Common::validateData($cpu));
-    }
-
-    /**
-     *  Update RAM in database
-     */
-    public function updateRam(string $ram) : void
-    {
-        $this->model->updateRam($this->id, \Controllers\Common::validateData($ram));
-    }
-
-    /**
-     *  Update kernel version in database
-     */
-    public function updateKernel(string $kernel) : void
-    {
-        $this->model->updateKernel($this->id, \Controllers\Common::validateData($kernel));
-    }
-
-    /**
-     *  Update arch in database
-     */
-    public function updateArch(string $arch) : void
-    {
-        $this->model->updateArch($this->id, \Controllers\Common::validateData($arch));
-    }
-
-    /**
-     *  Update profile in database
-     */
-    public function updateProfile(string $profile) : void
-    {
-        $this->model->updateProfile($this->id, \Controllers\Common::validateData($profile));
-    }
-
-    /**
-     *  Update environment in database
-     */
-    public function updateEnv(string $env) : void
-    {
-        $this->model->updateEnv($this->id, \Controllers\Common::validateData($env));
-    }
-
-    /**
-     *  Update agent status in database
-     */
-    public function updateAgentStatus(string $status) : void
-    {
-        if ($status != 'running' and $status != 'stopped' and $status != 'disabled') {
-            throw new Exception('Agent status is invalid');
-        }
-
-        $this->model->updateAgentStatus($this->id, $status);
-    }
-
-    /**
-     *  Update host's linupdate version in database
-     */
-    public function updateLinupdateVersion(string $version) : void
-    {
-        $this->model->updateLinupdateVersion($this->id, \Controllers\Common::validateData($version));
-    }
-
-    /**
-     *  Update host's reboot required status in database
-     */
-    public function updateRebootRequired(string $status) : void
-    {
-        if ($status != 'true' and $status != 'false') {
-            throw new Exception('Reboot status is invalid');
-        }
-
-        $this->model->updateRebootRequired($this->id, $status);
-    }
-
-    /**
-     *  Update host's uptime in database
-     */
-    public function updateUptime(float $uptime) : void
-    {
-        if (!is_numeric($uptime)) {
-            throw new Exception('Uptime must be a timestamp');
-        }
-
-        $this->model->updateUptime($this->id, $uptime);
     }
 
     /**

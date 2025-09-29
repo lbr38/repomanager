@@ -92,16 +92,16 @@ $units = [
         'time' => '00:00',
         'log-dir' => 'cleanup/stats'
     ],
-    // This performs a database VACUUM/ANALYZE on the repositories access statistics database every monday at 1am
-    'cleanup-stats-db' => [
-        'title' => 'Stats database cleanup',
-        'description' => 'Performs a VACUUM/ANALYZE on the repositories statistics database to optimize it',
-        'controller' => 'Service\Unit\Statistic',
-        'method' => 'vacuum',
+    // This performs a VACUUM/ANALYZE and integrity check on the databases every sunday at 1am
+    'db-maintenance' => [
+        'title' => 'Databases maintenance',
+        'description' => 'Performs a VACUUM/ANALYZE and integrity check on the databases',
+        'controller' => 'Service\Unit\Database',
+        'method' => 'maintenance',
         'interval' => 'every-week',
-        'day' => 'monday',
+        'day' => 'sunday',
         'time' => '01:00',
-        'log-dir' => 'cleanup/stats/db/vacuum'
+        'log-dir' => 'db/maintenance'
     ],
     // This executes scheduled tasks every minute
     'scheduled-tasks-exec' => [

@@ -55,8 +55,6 @@ class Edit extends User
         $_SESSION['first_name'] = $firstName;
         $_SESSION['last_name']  = $lastName;
         $_SESSION['email']      = $email;
-
-        History::set('Personal informations modification');
     }
 
     /**

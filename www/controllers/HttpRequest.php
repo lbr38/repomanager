@@ -54,6 +54,21 @@ class HttpRequest
                 curl_setopt($this->ch, CURLOPT_HTTPHEADER, $params['headers']);
             }
 
+            // If a custom SSL certificate path is specified
+            if (!empty($params['sslCertificatePath'])) {
+                curl_setopt($this->ch, CURLOPT_SSLCERT, $params['sslCertificatePath']);
+            }
+
+            // If a custom SSL private key path is specified
+            if (!empty($params['sslPrivateKeyPath'])) {
+                curl_setopt($this->ch, CURLOPT_SSLKEY, $params['sslPrivateKeyPath']);
+            }
+
+            // If a custom CA certificate path is specified
+            if (!empty($params['sslCaCertificatePath'])) {
+                curl_setopt($this->ch, CURLOPT_CAINFO, $params['sslCaCertificatePath']);
+            }
+
             // Use compression if supported
             curl_setopt($this->ch, CURLOPT_ENCODING, '');
 

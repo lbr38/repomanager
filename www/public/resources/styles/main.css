@@ -364,6 +364,14 @@ article {
 .item-desc [type=text]:hover::placeholder {
     visibility: visible;
 }
+.item-task-status {
+    margin-left: 15px;
+    margin-right: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    column-gap: 10px;
+}
 
 input::placeholder {
     color: #ffffff9e;

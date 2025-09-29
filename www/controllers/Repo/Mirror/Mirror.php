@@ -17,13 +17,13 @@ class Mirror
     protected $gpgKeyUrl;
     protected $primaryLocation;
     protected $primaryChecksum;
-    protected $packagesIndicesLocation = array();
-    protected $sourcesIndicesLocation = array();
-    protected $translationsLocation = array();
-    protected $debPackagesLocation = array();
-    protected $sourcesPackagesLocation = array();
-    protected $rpmPackagesLocation = array();
-    protected $packagesToSign = array();
+    protected $packagesIndicesLocation = [];
+    protected $sourcesIndicesLocation = [];
+    protected $translationsLocation = [];
+    protected $debPackagesLocation = [];
+    protected $sourcesPackagesLocation = [];
+    protected $rpmPackagesLocation = [];
+    protected $packagesToSign = [];
     protected $workingDir;
     protected $outputFile;
     protected $sslCustomCertificate;
@@ -36,12 +36,14 @@ class Mirror
 
     protected $taskLogStepController;
     protected $taskLogSubStepController;
+    protected $httpRequestController;
 
     public function __construct(int $taskId)
     {
         $this->taskId = $taskId;
         $this->taskLogStepController = new \Controllers\Task\Log\Step($taskId);
         $this->taskLogSubStepController = new \Controllers\Task\Log\SubStep($taskId);
+        $this->httpRequestController = new \Controllers\HttpRequest();
     }
 
     public function setTaskId(string $taskId)
