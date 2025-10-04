@@ -2,7 +2,7 @@
 /**
  *  Get repo size
  */
-if ($_POST['action'] == 'getRepoSize' and !empty($_POST['path'])) {
+if ($_POST['action'] == 'size' and !empty($_POST['path'])) {
     try {
         /**
          *  Check if specified repo path exists
@@ -21,6 +21,19 @@ if ($_POST['action'] == 'getRepoSize' and !empty($_POST['path'])) {
     }
 
     response(HTTP_OK, $size);
+}
+
+/**
+ *  Get latest tasks status
+ */
+if ($_POST['action'] == 'getTaskStatus' and !empty($_POST['repoId']) and !empty($_POST['snapId'])) {
+    try {
+        // TODO
+    } catch (Exception $e) {
+        response(HTTP_BAD_REQUEST, 'Could not retrieve tasks status: ' . $e->getMessage());
+    }
+
+    response(HTTP_OK, $tasks);
 }
 
 response(HTTP_BAD_REQUEST, 'Invalid action');

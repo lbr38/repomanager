@@ -1091,7 +1091,14 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          */
         foreach ($this->archUrls as $url) {
             try {
-                \Controllers\Common::urlReachable($url . '/repodata/repomd.xml', 30, $this->sslCustomCertificate, $this->sslCustomPrivateKey, $this->sslCustomCaCertificate);
+                $this->httpRequestController->get([
+                    'url' => $url . '/repodata/repomd.xml',
+                    'connectTimeout' => 30,
+                    'timeout' => 30,
+                    'sslCertificatePath' => $this->sslCustomCertificate,
+                    'sslPrivateKeyPath' => $this->sslCustomPrivateKey,
+                    'sslCaCertificatePath' => $this->sslCustomCaCertificate
+                ]);
             } catch (Exception $e) {
                 /**
                  *  If the URL is not reachable, add it to the errorUrls array

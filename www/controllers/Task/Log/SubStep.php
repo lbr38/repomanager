@@ -8,6 +8,7 @@ use JsonException;
 class SubStep extends Log
 {
     private $stepController;
+    private $logController;
 
     public function __construct(int $taskId)
     {
@@ -17,6 +18,7 @@ class SubStep extends Log
         $this->model = new \Models\Task\Log\SubStep($taskId);
 
         $this->stepController = new Step($taskId);
+        $this->logController = new \Controllers\Log\Log();
     }
 
     /**

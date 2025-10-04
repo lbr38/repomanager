@@ -15,7 +15,10 @@ class Session
          *  Start session
          */
         if (!isset($_SESSION)) {
-            session_start();
+            session_start([
+                'cookie_secure'   => (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on'),
+                'cookie_httponly' => true,
+            ]);
         }
 
         /**

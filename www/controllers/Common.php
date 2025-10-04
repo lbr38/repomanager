@@ -13,24 +13,6 @@ class Common
     private $validColors;
 
     /**
-     *  Get content between two patterns strings
-     */
-    public static function getContentBetween(string $content, string $start, string $end)
-    {
-        $n = explode($start, $content);
-        $result = array();
-
-        foreach ($n as $val) {
-            $pos = strpos($val, $end);
-            if ($pos !== false) {
-                $result[] = substr($val, 0, $pos);
-            }
-        }
-
-        return $result;
-    }
-
-    /**
      *  Fonction de vérification / conversion des données envoyées par formulaire
      */
     public static function validateData($data)
@@ -157,14 +139,6 @@ class Common
         }
 
         return '<span class="' . $class . '" style="background-color: ' . $backgroundColor . '; color: ' . $color . '">' . $name . '</span>';
-    }
-
-    /**
-     *  Génère un nombre aléatoire en 10000 et 99999
-     */
-    public static function generateRandom()
-    {
-        return mt_rand(10000, 99999);
     }
 
     /**
@@ -467,85 +441,6 @@ class Common
         }
 
         unset($myprocess, $content);
-    }
-
-    /**
-     *  Return true if distant URL is reachable
-     *  The target URL can be a file or a directory
-     */
-    public static function urlReachable(string $url, int $timeout = 3, string $sslCertificatePath = null, string $sslPrivateKeyPath = null, string $sslCustomCaCertificate = null)
-    {
-        try {
-            $ch = curl_init($url);
-
-            curl_setopt($ch, CURLOPT_NOBODY, true);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-            curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
-
-            /**
-             *  If a proxy has been specified
-             */
-            if (!empty(PROXY)) {
-                curl_setopt($ch, CURLOPT_PROXY, PROXY);
-            }
-
-            /**
-             *  If a custom SSL certificate / private key / ca certificate have been specified
-             */
-            if (!empty($sslCertificatePath)) {
-                curl_setopt($ch, CURLOPT_SSLCERT, $sslCertificatePath);
-            }
-            if (!empty($sslPrivateKeyPath)) {
-                curl_setopt($ch, CURLOPT_SSLKEY, $sslPrivateKeyPath);
-            }
-            if (!empty($sslCustomCaCertificate)) {
-                curl_setopt($ch, CURLOPT_CAINFO, $sslCustomCaCertificate);
-            }
-
-            /**
-             *  If curl fails with an error, try to retrieve the error message and error number and throw an exception
-             */
-            if (curl_exec($ch) === false) {
-                $exception = 'curl error';
-                $errorNumber = curl_errno($ch);
-                $error = curl_error($ch);
-
-                // Add curl error number
-                if (!empty($errorNumber)) {
-                    $exception .= ' (' . $errorNumber . ')';
-                }
-
-                // Add curl error message
-                if (!empty($error)) {
-                    $exception .= ': ' . $error;
-                }
-
-                throw new Exception($exception);
-            }
-
-            /**
-             *  If curl execution succeeded, retrieve the HTTP response code
-             */
-            $responseCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-
-            if (empty($responseCode)) {
-                throw new Exception('could not retrieve HTTP response code');
-            }
-
-            /**
-             *  If the response code is different from 200, then return the response code
-             */
-            if ($responseCode != 200) {
-                throw new Exception('HTTP response code: ' . $responseCode);
-            }
-        } catch (Exception $e) {
-            throw new Exception('URL reachability check failed: ' . $e->getMessage());
-        } finally {
-            curl_close($ch);
-        }
-
-        return true;
     }
 
     /**

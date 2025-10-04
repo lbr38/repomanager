@@ -50,27 +50,25 @@ function permissions
         exit 1
     fi
 
-    echo "["$(date +"%a %b %d %H:%M:%S")"][INF] Setting permissions... "
+    echo "["$(date +"%a %b %-d %H:%M:%S")"][INF] Setting permissions... "
  
     # Permissions on repos directory
     chmod 770 "$REPOS_DIR"
-    chown -R www-data:repomanager "$REPOS_DIR" > /dev/null 2>&1
+    chown -R www-data:repomanager "$REPOS_DIR" > /dev/null 2>&1 &
     if [ -d "$REPOS_DIR/gpgkeys" ];then
-        chown www-data:repomanager $REPOS_DIR/gpgkeys/*
         chmod 660 $REPOS_DIR/gpgkeys/*
     fi
 
     # Permissions on web directory
     chmod 750 "$WWW_DIR"
-    chown -R www-data:repomanager "$WWW_DIR"
+    chown -R www-data:repomanager "$WWW_DIR" > /dev/null 2>&1 &
 
     # Permissions on data directory
     chmod 770 "$DATA_DIR"
-    chown -R www-data:repomanager "$DATA_DIR"
+    chown -R www-data:repomanager "$DATA_DIR" > /dev/null 2>&1 &
 
     # Permissions on .gnupg directory
     if [ -d "$GPGHOME" ];then
-        chown -R www-data:repomanager $GPGHOME
         chmod 700 $GPGHOME
 
         # Permissions on passphrase
@@ -80,12 +78,12 @@ function permissions
     fi
 
     # Permissions on web directory
-    find "$WWW_DIR" -type d -exec chmod 0750 {} \; &
-    find "$WWW_DIR" -type f -exec chmod 0640 {} \; &
+    find "$WWW_DIR" -type d -exec chmod 0750 {} \; > /dev/null 2>&1 &
+    find "$WWW_DIR" -type f -exec chmod 0640 {} \; > /dev/null 2>&1 &
 
     # Permissions on data directory (except .gnupg directory)
-    find "$DATA_DIR" ! -path "$GPGHOME" -type d -exec chmod 0770 {} \; &
-    find "$DATA_DIR" -type f -exec chmod 0660 {} \; &
+    find "$DATA_DIR" ! -path "$GPGHOME" -type d -exec chmod 0770 {} \; > /dev/null 2>&1 &
+    find "$DATA_DIR" -type f -exec chmod 0660 {} \; > /dev/null 2>&1 &
 
     # Permissions on repos directory
     find "$REPOS_DIR" -type d -exec chmod 0770 {} \; > /dev/null 2>&1 &

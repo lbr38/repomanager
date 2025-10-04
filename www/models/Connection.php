@@ -2,7 +2,6 @@
 
 namespace Models;
 
-use Controllers\Common;
 use SQLite3;
 use Exception;
 
@@ -116,8 +115,8 @@ class Connection extends SQLite3
             } else {
                 throw new Exception("unknown database: $database");
             }
-        } catch (\Exception $e) {
-            die('Error while opening database: ' . $e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception('Error while opening ' . $database . ' database: ' . $e->getMessage());
         }
     }
 

@@ -1,27 +1,27 @@
 <footer>
     <div class="flex flex-direction-column row-gap-10">
-        <div class="flex align-item-center column-gap-5 mediumopacity">
+        <div class="flex align-item-center column-gap-5 max-width-fit mediumopacity">
             <img src="/assets/icons/file.svg" class="icon-np" />
             <a target="_blank" rel="noopener noreferrer" href="https://github.com/lbr38/repomanager/wiki">
                 <p>Documentation</p>
             </a>
         </div>
 
-        <div class="flex align-item-center column-gap-5 mediumopacity">
+        <div class="flex align-item-center column-gap-5 max-width-fit mediumopacity">
             <img src="/assets/icons/chatbubble.svg" class="icon-np" />
             <a target="_blank" rel="noopener noreferrer" href="https://discord.gg/34yeNsMmkQ">
                 <p>Discord</p>
             </a>
         </div>
 
-        <div class="flex align-item-center column-gap-5 mediumopacity">
+        <div class="flex align-item-center column-gap-5 max-width-fit mediumopacity">
             <img src="/assets/icons/at-circle.svg" class="icon-np" />
             <a href="mailto:repomanager@protonmail.com">
                 <p>Contact</p>
             </a>
         </div>
 
-        <div class="flex align-item-center column-gap-5 mediumopacity">
+        <div class="flex align-item-center column-gap-5 max-width-fit mediumopacity">
             <img src="/assets/icons/github.svg" class="icon-np" />
             <a target="_blank" rel="noopener noreferrer" href="https://github.com/lbr38/repomanager">
                 <p>GitHub</p>

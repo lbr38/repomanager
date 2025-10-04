@@ -23,7 +23,7 @@ class Version extends \Controllers\Service\Service
 
             try {
                 $httpRequestController->get([
-                    'url'        => 'https://raw.githubusercontent.com/lbr38/repomanager/main/www/version',
+                    'url'        => VERSION_FILE_URL,
                     'outputFile' => DATA_DIR . '/version.available',
                     'timeout'    => 30,
                     'proxy'      => PROXY ?? null,
@@ -36,7 +36,7 @@ class Version extends \Controllers\Service\Service
             try {
                 $httpRequestController->get(
                     [
-                        'url'        => 'https://api.github.com/repos/lbr38/repomanager/releases',
+                        'url'        => RELEASES_URL,
                         'outputFile' => DATA_DIR . '/releases.available',
                         'timeout'    => 30,
                         'proxy'      => PROXY ?? null,

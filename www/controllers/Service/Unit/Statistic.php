@@ -455,20 +455,4 @@ class Statistic extends \Controllers\Service\Service
             sleep(5);
         }
     }
-
-    /**
-     *  Perform a database VACUUM and ANALYZE operation to clean and optimize the statistics database
-     */
-    public function vacuum() : void
-    {
-        parent::log('Starting statistics database vacuuming task...');
-
-        $databaseMaintenanceController = new \Controllers\Database\Maintenance('stats');
-        $databaseMaintenanceController->vacuum();
-        $databaseMaintenanceController->analyze();
-
-        unset($databaseMaintenanceController);
-
-        parent::log('Statistics database vacuuming task completed');
-    }
 }
