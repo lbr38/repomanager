@@ -23,7 +23,14 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  Check if the URL is reachable
              */
             try {
-                \Controllers\Common::urlReachable($this->url . '/dists/' . $this->dist . '/' . $releaseFile, 30, $this->sslCustomCertificate, $this->sslCustomPrivateKey, $this->sslCustomCaCertificate);
+                $this->httpRequestController->get([
+                    'url' => $this->url . '/dists/' . $this->dist . '/' . $releaseFile,
+                    'connectTimeout' => 30,
+                    'timeout' => 30,
+                    'sslCertificatePath' => $this->sslCustomCertificate,
+                    'sslPrivateKeyPath' => $this->sslCustomPrivateKey,
+                    'sslCaCertificatePath' => $this->sslCustomCaCertificate
+                ]);
             } catch (Exception $e) {
                 // If the URL is not reachable, then continue to the next possible Release file
                 continue;
@@ -113,7 +120,14 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                          *  Include this Packages.xx/Sources.xx file only if it does really exist on the remote server (sometimes it can be declared in Release but not exists...)
                          */
                         try {
-                            \Controllers\Common::urlReachable($this->url . '/dists/' . $this->dist . '/' . $location, 30, $this->sslCustomCertificate, $this->sslCustomPrivateKey, $this->sslCustomCaCertificate);
+                            $this->httpRequestController->get([
+                                'url' => $this->url . '/dists/' . $this->dist . '/' . $location,
+                                'connectTimeout' => 30,
+                                'timeout' => 30,
+                                'sslCertificatePath' => $this->sslCustomCertificate,
+                                'sslPrivateKeyPath' => $this->sslCustomPrivateKey,
+                                'sslCaCertificatePath' => $this->sslCustomCaCertificate
+                            ]);
                         } catch (Exception $e) {
                             // If the URL is not reachable, then try to find another Packages/Sources file
                             continue;
@@ -163,46 +177,46 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
         /**
          *  Process research of Translation files for each requested translation language
          */
-        if (!empty($this->translation)) {
-            $this->taskLogSubStepController->new('searching-translation', 'SEARCHING FOR TRANSLATION FILE LOCATION');
+        // if (!empty($this->translation)) {
+        //     $this->taskLogSubStepController->new('searching-translation', 'SEARCHING FOR TRANSLATION FILE LOCATION');
 
-            foreach ($this->translation as $translation) {
-                /**
-                 *  Translation pattern to search in the Release file
-                 *  e.g: main/i18n/Translation-fr.bz2
-                 */
-                $regex = $this->section . '/i18n/Translation-' . $translation . '.bz2';
+        //     foreach ($this->translation as $translation) {
+        //         /**
+        //          *  Translation pattern to search in the Release file
+        //          *  e.g: main/i18n/Translation-fr.bz2
+        //          */
+        //         $regex = $this->section . '/i18n/Translation-' . $translation . '.bz2';
 
-                /**
-                 *  Parse the whole file, searching for the desired lines
-                 */
-                foreach ($content as $line) {
-                    if (preg_match("#$regex$#", $line)) {
-                        /**
-                         *  Explode the line to separate hashes and location
-                         */
-                        $splittedLine = explode(' ', trim($line));
+        //         /**
+        //          *  Parse the whole file, searching for the desired lines
+        //          */
+        //         foreach ($content as $line) {
+        //             if (preg_match("#$regex$#", $line)) {
+        //                 /**
+        //                  *  Explode the line to separate hashes and location
+        //                  */
+        //                 $splittedLine = explode(' ', trim($line));
 
-                        /**
-                         *  We only need the location with its md5sum (32 characters long)
-                         *  e.g: 35e89f49cdfaa179e552aee1d67c5cdb  2478327 main/i18n/Translation-fr.bz2
-                         */
-                        if (strlen($splittedLine[0]) == '32') {
-                            $this->translationsLocation[] = array('location' => end($splittedLine), 'md5sum' => $splittedLine[0]);
-                        }
-                    }
-                }
-            }
+        //                 /**
+        //                  *  We only need the location with its md5sum (32 characters long)
+        //                  *  e.g: 35e89f49cdfaa179e552aee1d67c5cdb  2478327 main/i18n/Translation-fr.bz2
+        //                  */
+        //                 if (strlen($splittedLine[0]) == '32') {
+        //                     $this->translationsLocation[] = array('location' => end($splittedLine), 'md5sum' => $splittedLine[0]);
+        //                 }
+        //             }
+        //         }
+        //     }
 
-            /**
-             *  Throw an error if no Translation file location has been found
-             */
-            if (empty($this->translationsLocation)) {
-                throw new Exception('No <code>Translation</code> file location has been found. There may have no translation available for this repository.');
-            }
+        //     /**
+        //      *  Throw an error if no Translation file location has been found
+        //      */
+        //     if (empty($this->translationsLocation)) {
+        //         throw new Exception('No <code>Translation</code> file location has been found. There may have no translation available for this repository.');
+        //     }
 
-            $this->taskLogSubStepController->completed();
-        }
+        //     $this->taskLogSubStepController->completed();
+        // }
 
         unset($content);
     }
@@ -348,7 +362,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  Then check that the Sources.xx file's checksum matches the one that what specified in Release file
              */
             if (!$this->checksum($this->workingDir . '/' . $sourcesIndicesName, $sourcesIndexChecksum)) {
-                throw new Exception('<code>' . $sourcesIndicesName . '</code> indices file\'s checksum does not match the checksum specified in the <code>Release</code> file ' . $packageIndicesChecksum);
+                throw new Exception('<code>' . $sourcesIndicesName . '</code> indices file\'s checksum does not match the checksum specified in the <code>Release</code> file ' . $sourcesIndexChecksum);
             }
 
             /**

@@ -2,8 +2,6 @@
 
 namespace Controllers\System\Monitoring;
 
-use Exception;
-
 class Disk
 {
     /**
@@ -11,8 +9,8 @@ class Disk
      */
     public static function getUsage(string $path) : string
     {
-        $diskTotalSpace = disk_total_space(REPOS_DIR);
-        $diskFreeSpace  = disk_free_space(REPOS_DIR);
+        $diskTotalSpace = disk_total_space($path);
+        $diskFreeSpace  = disk_free_space($path);
         $diskUsedSpace  = $diskTotalSpace - $diskFreeSpace;
         // $diskUsedSpaceHuman = \Controllers\Common::sizeFormat($diskUsedSpace);
         $diskUsedSpacePercent = round(($diskUsedSpace / $diskTotalSpace) * 100);

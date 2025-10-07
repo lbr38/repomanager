@@ -35,7 +35,7 @@ class Login extends User
             /**
              *  Checking in database that username/password couple is matching
              */
-            $this->checkUsernamePwd($id, $_POST['password']);
+            $this->checkUsernamePwd($id, $password);
 
             /**
              *  Getting all user informations in datbase
@@ -45,7 +45,10 @@ class Login extends User
             /**
              *  Starting session
              */
-            session_start();
+            session_start([
+                'cookie_secure'   => (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on'),
+                'cookie_httponly' => true,
+            ]);
 
             /**
              *  Saving user informations in session variables

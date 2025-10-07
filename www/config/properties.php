@@ -6,6 +6,8 @@ $config = array(
     'project_git_repo' => 'https://github.com/lbr38/repomanager',
     'project_git_repo_raw' => 'https://raw.githubusercontent.com/lbr38/repomanager/main',
     'project_update_doc_url' => 'https://github.com/lbr38/repomanager/wiki/01.-Installation-and-update#update-repomanager',
+    'releases_url' => 'https://api.github.com/repos/lbr38/repomanager/releases',
+    'version_file_url' => 'https://raw.githubusercontent.com/lbr38/repomanager/main/www/version',
 
     // RPM release versions default values
     'rpm_releasevers' => array('9' => 'RHEL 9 and derivatives', '8' => 'RHEL 8 and derivatives', '7' => 'RHEL 7 and derivatives'),
