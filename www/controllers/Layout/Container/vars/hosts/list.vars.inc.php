@@ -1,5 +1,5 @@
 <?php
-$mygroup = new \Controllers\Group('host');
+$mygroup = new \Controllers\Group\Host();
 $myhost = new \Controllers\Host();
 $hostRequestController = new \Controllers\Host\Request();
 $compactView = true;

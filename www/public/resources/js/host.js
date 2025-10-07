@@ -204,12 +204,8 @@ $(document).on('mouseenter',".hosts-charts-list-label[chart-type=profile]",funct
 /**
  *  Event: Create new group
  */
-$(document).on('submit','#newGroupForm',function () {
-    event.preventDefault();
-    /**
-     *  Retrieve group name from input
-     */
-    var name = $("#newGroupInput").val();
+$(document).on('submit','#newGroupForm',function (e) {
+    e.preventDefault();
 
     ajaxRequest(
         // Controller:
@@ -218,16 +214,16 @@ $(document).on('submit','#newGroupForm',function () {
         'new',
         // Data:
         {
-            name: name,
+            name: $("#newGroupInput").val(),
             type: 'host'
         },
         // Print success alert:
         true,
         // Print error alert:
-        true,
-        // Reload container:
-        ['hosts/list']
+        true
     ).then(function () {
+        // Reload hosts list
+        mycontainer.reload('hosts/list');
         // Reload group panel
         mypanel.reload('hosts/groups/list');
     });
@@ -236,46 +232,67 @@ $(document).on('submit','#newGroupForm',function () {
 });
 
 /**
- *  Event: Delete group
+ *  Event: select groups for deletion
  */
-$(document).on('click','.delete-group-btn',function (e) {
+$(document).on('click','.delete-group-checkbox',function (e) {
     // Prevent parent to be triggered
     e.stopPropagation();
 
-    var id = $(this).attr('group-id');
-    var name = $(this).attr('group-name');
+    var id = [];
+
+    // If the checkbox is checked, make it visible, else remove any custom visibility so it returns to default
+    if ($(this).is(':checked')) {
+        $(this).css('opacity', '1');
+    } else {
+        $(this).css('opacity', '');
+    }
+
+    // Get all checked checkboxes
+    const checked = $('.slide-panel-reloadable-div[slide-panel="hosts/groups/list"]').find('input[type="checkbox"].delete-group-checkbox:checked');
+
+    if (checked.length == 0) {
+        myconfirmbox.close();
+        return;
+    }
+
+    // For each checked checkbox, get the group id
+    checked.each(function () {
+        id.push($(this).attr('group-id'));
+    });
 
     myconfirmbox.print(
         {
             'title': 'Delete group',
-            'message': 'Are you sure you want to delete group <b>' + name + '</b>?',
+            'message': checked.length + ' group' + (checked.length > 1 ? 's' : '') + ' selected',
+            'id': 'repo-group-select-confirm-box',
             'buttons': [
-            {
-                'text': 'Delete',
-                'color': 'red',
-                'callback': function () {
-                    ajaxRequest(
-                        // Controller:
-                        'group',
-                        // Action:
-                        'delete',
-                        // Data:
-                        {
-                            id: id,
-                            type: 'host'
-                        },
-                        // Print success alert:
-                        true,
-                        // Print error alert:
-                        true,
-                        // Reload container:
-                        ['hosts/list']
-                    ).then(function () {
-                        // Reload group panel
-                        mypanel.reload('hosts/groups/list');
-                    });
+                {
+                    'text': 'Delete',
+                    'color': 'red',
+                    'callback': function () {
+                        ajaxRequest(
+                            // Controller:
+                            'group',
+                            // Action:
+                            'delete',
+                            // Data:
+                            {
+                                id: id,
+                                type: 'host'
+                            },
+                            // Print success alert:
+                            true,
+                            // Print error alert:
+                            true
+                        ).then(function () {
+                            // Reload hosts list
+                            mycontainer.reload('hosts/list');
+                            // Reload group panel
+                            mypanel.reload('hosts/groups/list')
+                        });
+                    }
                 }
-            }]
+            ]
         }
     );
 });
@@ -292,8 +309,8 @@ $(document).on('click','.group-config-btn',function () {
 /**
  *  Event: Edit group
  */
-$(document).on('submit','.group-form',function () {
-    event.preventDefault();
+$(document).on('submit','.group-form',function (e) {
+    e.preventDefault();
 
     /**
      *  Retrieve group name (from <form>) and hosts list (from <select>)
@@ -317,10 +334,11 @@ $(document).on('submit','.group-form',function () {
         // Print success alert:
         true,
         // Print error alert:
-        true,
-        // Reload container:
-        ['hosts/list']
+        true
     ).then(function () {
+        // Reload hosts list
+        mycontainer.reload('hosts/list');
+        // Reload group panel
         mypanel.reload('hosts/groups/list');
     });
 

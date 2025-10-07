@@ -9,6 +9,11 @@ repositories:
     description: Red Hat BaseOS
     url: https://cdn.redhat.com/content/dist/rhel$releasever/$releasever/$basearch/baseos/os
     releasever:
+      - name: 10
+        description: Red Hat 10
+        gpgkeys:
+          - fingerprint: 567E347AD0044ADE55BA8A5F199E2F91FD431D51
+
       - name: 9
         description: Red Hat 9
         gpgkeys:
@@ -18,6 +23,7 @@ repositories:
         description: Red Hat 8
         gpgkeys:
           - fingerprint: 567E347AD0044ADE55BA8A5F199E2F91FD431D51
+
     # This repository requires SSL authentication
     # ssl-authentication:
     #   certificate: |
@@ -33,6 +39,11 @@ repositories:
     description: Red Hat AppStream
     url: https://cdn.redhat.com/content/dist/rhel$releasever/$releasever/$basearch/appstream/os
     releasever:
+      - name: 10
+        description: Red Hat 10
+        gpgkeys:
+          - fingerprint: 567E347AD0044ADE55BA8A5F199E2F91FD431D51
+
       - name: 9
         description: Red Hat 9
         gpgkeys:
@@ -42,6 +53,7 @@ repositories:
         description: Red Hat 8
         gpgkeys:
           - fingerprint: 567E347AD0044ADE55BA8A5F199E2F91FD431D51
+
     # This repository requires SSL authentication
     # ssl-authentication:
     #   certificate: |
