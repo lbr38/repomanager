@@ -1,6 +1,6 @@
 <?php
 $permissionController = new \Controllers\User\Permission();
-$groupController = new \Controllers\Group('repo');
+$groupController = new \Controllers\Group\Repo();
 
 if (!IS_ADMIN) {
     throw new Exception('You are not allowed to access this panel.');

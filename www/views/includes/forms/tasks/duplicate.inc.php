@@ -42,7 +42,7 @@
 /**
  *  Print group list
  */
-$group = new \Controllers\Group('repo');
+$group = new \Controllers\Group\Repo();
 $groupList = $group->listAll();
 
 if (!empty($groupList)) : ?>

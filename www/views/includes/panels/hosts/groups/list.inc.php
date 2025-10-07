@@ -36,7 +36,7 @@ if (!empty($hostGroupsList)) : ?>
             </div>
 
             <div class="flex justify-end">
-                <img src="/assets/icons/delete.svg" class="delete-group-btn icon-lowopacity" group-id="<?= $group['Id'] ?>" group-name="<?= $group['Name'] ?>" title="Delete <?= $group['Name'] ?> group" />
+                <input type="checkbox" class="delete-group-checkbox lowopacity" group-id="<?= $group['Id'] ?>" title="Select group" />
             </div>
         </div>
 

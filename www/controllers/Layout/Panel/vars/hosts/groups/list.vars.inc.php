@@ -4,7 +4,7 @@ if (!IS_ADMIN) {
 }
 
 $myhost = new \Controllers\Host();
-$mygroup = new \Controllers\Group('host');
+$mygroup = new \Controllers\Group\Host();
 
 /**
  *  Get hosts groups list
