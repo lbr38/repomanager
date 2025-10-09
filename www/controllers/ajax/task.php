@@ -11,7 +11,7 @@ if ($_POST['action'] == 'validateForm' and !empty($_POST['taskParams'])) {
     try {
         $myTaskForm->validate($taskRawParams);
         $myTask->execute($taskRawParams);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -28,7 +28,7 @@ if ($_POST['action'] == 'validateForm' and !empty($_POST['taskParams'])) {
 if ($_POST['action'] == 'disableTask' and !empty($_POST['taskId'])) {
     try {
         $myTask->disable($_POST['taskId']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -41,7 +41,7 @@ if ($_POST['action'] == 'disableTask' and !empty($_POST['taskId'])) {
 if ($_POST['action'] == 'enableTask' and !empty($_POST['taskId'])) {
     try {
         $myTask->enable($_POST['taskId']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -51,10 +51,10 @@ if ($_POST['action'] == 'enableTask' and !empty($_POST['taskId'])) {
 /**
  *  Delete a scheduled task
  */
-if ($_POST['action'] == 'deleteTask' and !empty($_POST['taskId'])) {
+if ($_POST['action'] == 'deleteTask' and !empty($_POST['id'])) {
     try {
-        $myTask->delete($_POST['taskId']);
-    } catch (\Exception $e) {
+        $myTask->delete($_POST['id']);
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -67,7 +67,7 @@ if ($_POST['action'] == 'deleteTask' and !empty($_POST['taskId'])) {
 if ($_POST['action'] == 'relaunchTask' and !empty($_POST['taskId'])) {
     try {
         $myTask->relaunch($_POST['taskId']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -80,7 +80,7 @@ if ($_POST['action'] == 'relaunchTask' and !empty($_POST['taskId'])) {
 if ($_POST['action'] == 'stopTask' and !empty($_POST['taskId'])) {
     try {
         $myTask->kill($_POST['taskId']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -94,7 +94,7 @@ if ($_POST['action'] == 'get-steps' and !empty($_POST['taskId'])) {
     try {
         $taskStepController = new \Controllers\Task\Step($_POST['taskId']);
         $content = $taskStepController->getSteps();
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -108,7 +108,7 @@ if ($_POST['action'] == 'get-step-content' and !empty($_POST['taskId']) and !emp
     try {
         $taskStepController = new \Controllers\Task\Step($_POST['taskId']);
         $content = $taskStepController->getStepContent($_POST['stepIdentifier'], $_POST['autoscroll']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -122,7 +122,7 @@ if ($_POST['action'] == 'get-log-lines' and !empty($_POST['taskId']) and !empty(
     try {
         $taskStepController = new \Controllers\Task\Step($_POST['taskId']);
         $content = $taskStepController->getLogLines($_POST['step'], $_POST['direction'], $_POST['key']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -133,7 +133,7 @@ if ($_POST['action'] == 'get-task-status'  and !empty($_POST['taskId'])) {
     try {
         $task = $myTask->getById($_POST['taskId']);
         $status = $task['Status'];
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 

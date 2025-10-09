@@ -36,7 +36,7 @@ if (!empty($hostGroupsList)) : ?>
             </div>
 
             <div class="flex justify-end">
-                <input type="checkbox" class="delete-group-checkbox lowopacity" group-id="<?= $group['Id'] ?>" title="Select group" />
+                <input type="checkbox" class="child-checkbox lowopacity" checkbox-id="host-group" checkbox-data-attribute="group-id" group-id="<?= $group['Id'] ?>" title="Select group" />
             </div>
         </div>
 

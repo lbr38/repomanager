@@ -174,10 +174,11 @@ try {
 
     /**
      *  Instantiate controller and execute action
-    */
-    echo 'Running task #' . $taskId . PHP_EOL;
+     */
+    echo 'Task #' . $taskId . ' is running...' . PHP_EOL;
     $controller = new $controllerPath($taskId);
     $controller->execute();
+    echo 'Task #' . $taskId . ' completed successfully.' . PHP_EOL;
 
 /**
  *  Catch exceptions

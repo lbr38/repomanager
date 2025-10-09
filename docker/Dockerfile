@@ -72,6 +72,7 @@ RUN chown -R www-data:repomanager $WWW_DIR $DATA_DIR $REPOS_DIR
 
 # Some basic configurations
 RUN sed -i 's/# alias ll=/alias ll=/g' /root/.bashrc
+RUN echo "su -s /bin/bash -c '/usr/bin/php /var/www/repomanager/tasks/execute.php' www-data" >> /root/.bashrc
 RUN echo "set ic" > /root/.vimrc
 RUN echo "set mouse-=a" >> /root/.vimrc
 RUN echo "syntax on" >> /root/.vimrc

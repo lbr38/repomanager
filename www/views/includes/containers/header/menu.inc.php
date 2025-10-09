@@ -101,9 +101,7 @@
 
                                         <?php
                                         if (IS_ADMIN or in_array('stop', USER_PERMISSIONS['tasks']['allowed-actions'])) : ?>
-                                            <span title="Stop task" class="stop-task-btn" task-id="<?= $task['Id'] ?>">
-                                                <img src="/assets/icons/delete.svg" class="icon">
-                                            </span>
+                                                <img src="/assets/icons/stop.svg" class="icon-large stop-task-btn" task-id="<?= $task['Id'] ?>" title="Stop task">
                                             <?php
                                         endif ?>
                                     </div>

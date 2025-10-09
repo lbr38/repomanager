@@ -1,12 +1,19 @@
 <div class="reloadable-table" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
     <?php
-    if (!empty($reloadableTableContent)) :
-        if (!empty($taskTableTitle)) {
-            echo '<h6 class="margin-top-0 margin-bottom-5">' . $taskTableTitle . '</h6>';
-        }
+    if (!empty($reloadableTableContent)) : ?>
+        <h6 class="margin-top-0 margin-bottom-5"><?= strtoupper($taskTableType) ?></h6>
+
+        <?php
+        if (in_array($taskTableType, ['scheduled', 'queued'])) : ?>
+            <div class="flex justify-end margin-bottom-10 margin-right-15">
+                <input type="checkbox" class="select-all-checkbox lowopacity" checkbox-id="<?= $taskTableType . '-task' ?>" title="Select all" />
+            </div>
+            <?php
+        endif;
 
         foreach ($reloadableTableContent as $item) :
             $headerColor = '';
+            $actionBtn = 'show-task-btn';
 
             /**
              *  Retrieve task parameters
@@ -16,13 +23,14 @@
             /**
              *  If the current task item was made in a scheduled task, we display the scheduled task header
              */
-            if ($item['Status'] == 'scheduled' or $item['Status'] == 'queued') {
+            if (in_array($item['Status'], ['scheduled', 'queued'])) {
                 $headerColor = 'header-blue-min';
+                $actionBtn = 'show-scheduled-task-info-btn';
             }
 
-            $tableClass = 'table-container grid-40p-45p-10p column-gap-10 justify-space-between pointer show-task-btn ' . $headerColor; ?>
+            $tableClass = 'table-container grid-40p-45p-10p column-gap-10 justify-space-between pointer ' . $actionBtn . ' ' . $headerColor; ?>
 
-            <div class="<?= $tableClass ?>" task-id="<?= $item['Id'] ?>" title="View task log">
+            <div class="<?= $tableClass ?>" task-id="<?= $item['Id'] ?>" title="View task details">
                 <div class="flex align-item-center column-gap-15">
                     <div>
                         <?php
@@ -161,23 +169,9 @@
                 <div class="flex align-item-center justify-end column-gap-10 row-gap-10 flex-wrap">
                     <?php
                     /**
-                     *  Delete task button, only for scheduled and queued tasks
-                     */
-                    if ($item['Status'] == 'scheduled' or $item['Status'] == 'queued') {
-                        if (IS_ADMIN or in_array('delete', USER_PERMISSIONS['tasks']['allowed-actions'])) {
-                            echo '<img class="icon-lowopacity cancel-task-btn" src="/assets/icons/delete.svg" task-id="' . $item['Id'] . '" title="Cancel and delete scheduled task" />';
-                        }
-                    }
-
-                    /**
                      *  If task is a scheduled task
                      */
                     if ($item['Type'] == 'scheduled') {
-                        /**
-                         *  Scheduled task info button
-                         */
-                        echo '<img class="icon-lowopacity show-scheduled-task-info-btn" src="/assets/icons/info.svg" task-id="' . $item['Id'] . '" title="Scheduled task info" />';
-
                         /**
                          *  If task is a recurring task, add the possibility to disable/enable it
                          */
@@ -214,13 +208,13 @@
                         }
                     }
 
-                    if ($item['Status'] == 'scheduled' or $item['Status'] == 'queued') {
+                    if ($item['Status'] == 'queued') {
                         echo '<img class="icon-np" src="/assets/icons/pending.svg" title="Task is pending" />';
                     }
 
                     if ($item['Status'] == 'running') {
                         if (IS_ADMIN or in_array('stop', USER_PERMISSIONS['tasks']['allowed-actions'])) {
-                            echo '<span title="Stop task" class="stop-task-btn" task-id="' . $item['Id'] . '"><img src="/assets/icons/delete.svg" class="icon-lowopacity"></span>';
+                            echo '<span title="Stop task" class="stop-task-btn" task-id="' . $item['Id'] . '"><img src="/assets/icons/stop.svg" class="icon-lowopacity"></span>';
                         }
                         echo '<img src="/assets/icons/loading.svg" class="icon-np" title="Task running" />';
                     }
@@ -235,6 +229,15 @@
 
                     if ($item['Status'] == 'stopped') {
                         echo '<img class="icon-np" src="/assets/icons/warning-red.svg" title="Task stopped by the user" />';
+                    }
+
+                    /**
+                     *  Delete task button, only for scheduled and queued tasks
+                     */
+                    if (in_array($item['Status'], ['scheduled', 'queued'])) {
+                        if (IS_ADMIN or in_array('delete', USER_PERMISSIONS['tasks']['allowed-actions'])) {
+                            echo '<input type="checkbox" class="child-checkbox lowopacity" checkbox-id="' . $taskTableType . '-task" checkbox-data-attribute="task-id" task-id="' . $item['Id'] . '" title="Cancel and delete scheduled task" />';
+                        }
                     } ?>
                 </div>
             </div>
@@ -445,5 +448,7 @@
         <br><br>
 
         <?php
-    endif ?>
+    endif;
+
+    unset($checkboxId, $tableClass, $headerColor, $actionBtn, $taskRawParams, $item); ?>
 </div>

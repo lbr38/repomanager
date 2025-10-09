@@ -7,24 +7,12 @@
 
             <h3>SOURCE REPOSITORIES</h3>
 
-            <h6>CURRENT SOURCE REPOSITORIES</h6>
-            <p class="note">Source repositories to be mirrored.</p>
-
-            <div class="flex column-gap-10 margin-top-10 margin-bottom-15">
-                <button type="button" class="btn-medium-blue get-panel-btn" panel="repos/sources/new">Manually add</button>
-                <button type="button" class="btn-medium-blue get-panel-btn" panel="repos/sources/import">Import</button>
-            </div>
-
             <?php
             /**
              *  Print current sources repositories
              */
-            \Controllers\Layout\Table\Render::render('repos/sources/list'); ?>
+            \Controllers\Layout\Table\Render::render('repos/sources/list');
 
-            <h6>CURRENT GPG SIGNING KEYS</h6>
-            <p class="note">All keys imported in Repomanager keyring.</p>
-
-            <?php
             /**
              *  Print imported GPG signing keys
              */
