@@ -89,7 +89,7 @@ class Execute extends \Controllers\Host
              *  Case where the requested action is a delete
              */
             if ($action == 'delete') {
-                $this->delete($hostId);
+                $this->deleteById($hostId);
             }
 
             /**

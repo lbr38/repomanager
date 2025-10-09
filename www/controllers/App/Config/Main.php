@@ -119,13 +119,22 @@ class Main
         /**
          *  Check if a repomanager update is running
          */
-        if (file_exists(DATA_DIR . "/update-running")) {
-            if (!defined('UPDATE_RUNNING')) {
+        if (!defined('UPDATE_RUNNING')) {
+            if (file_exists(DATA_DIR . '/update-running')) {
                 define('UPDATE_RUNNING', true);
-            }
-        } else {
-            if (!defined('UPDATE_RUNNING')) {
+            } else {
                 define('UPDATE_RUNNING', false);
+            }
+        }
+
+        /**
+         *  Check if app is under maintenance
+         */
+        if (!defined('MAINTENANCE')) {
+            if (file_exists(DATA_DIR . '/maintenance')) {
+                define('MAINTENANCE', true);
+            } else {
+                define('MAINTENANCE', false);
             }
         }
 
@@ -163,6 +172,14 @@ class Main
 
         if (!defined('APP_YAML')) {
             define('APP_YAML', DATA_DIR . '/app.yaml');
+        }
+
+        if (!defined('DEVEL')) {
+            if (file_exists(ROOT . '/.devel')) {
+                define('DEVEL', true);
+            } else {
+                define('DEVEL', false);
+            }
         }
 
         /**

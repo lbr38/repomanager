@@ -51,6 +51,7 @@
 <script src="/resources/js/classes/Cookie.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/Alert.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/ConfirmBox.js?<?= VERSION ?>"></script>
+<script src="/resources/js/classes/Checkbox.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/Modal.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/Tooltip.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/Select2.js?<?= VERSION ?>"></script>
@@ -66,6 +67,7 @@
     const mycookie = new Cookie();
     const myalert = new Alert();
     const myconfirmbox = new ConfirmBox();
+    const mycheckbox = new Checkbox();
     const mymodal = new Modal();
     const mytooltip = new Tooltip();
     const myselect2 = new Select2();

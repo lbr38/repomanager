@@ -59,7 +59,7 @@ class Api
              */
             if (__LOAD_GENERAL_ERROR != 0) {
                 http_response_code(503);
-                echo json_encode(["return" => "503", "message_error" => array('Reposerver configuration error. Please contact the administrator.')]);
+                echo json_encode(["return" => "503", "message_error" => ['Reposerver configuration error. Please contact the administrator.']]);
                 exit;
             }
 
@@ -68,7 +68,16 @@ class Api
              */
             if (UPDATE_RUNNING === true) {
                 http_response_code(403);
-                echo json_encode(["return" => "403", "message_error" => array('Reposerver is actually being updated. Please try again later.')]);
+                echo json_encode(["return" => "403", "message_error" => ['Reposerver is actually being updated. Please try again later.']]);
+                exit;
+            }
+
+            /**
+             *  Return 403 if app is in maintenance
+             */
+            if (MAINTENANCE === true) {
+                http_response_code(403);
+                echo json_encode(["return" => "403", "message_error" => ['Reposerver is under maintenance. Please try again later.']]);
                 exit;
             }
 

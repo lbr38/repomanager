@@ -3,6 +3,7 @@
 namespace Controllers\Task\Repo\Package;
 
 use Exception;
+use JsonException;
 
 trait Sync
 {
@@ -138,7 +139,8 @@ trait Sync
             try {
                 $sourceDefinition = json_decode($sourceDefinition, true);
                 $sourceUrl = $sourceDefinition['url'];
-            } catch (ValueError $e) {
+                $nonCompliantSource = $sourceDefinition['non-compliant'] ?? 'false';
+            } catch (JsonException $e) {
                 throw new Exception('Could not extract source repository definition: ' . $e->getMessage());
             }
 
@@ -155,6 +157,7 @@ trait Sync
             }
             if ($this->repo->getPackageType() == 'deb') {
                 $mymirror = new \Controllers\Repo\Mirror\Deb($this->task->getId());
+                $mymirror->setNonCompliantSource($nonCompliantSource);
                 $mymirror->setDist($this->repo->getDist());
                 $mymirror->setSection($this->repo->getSection());
             }

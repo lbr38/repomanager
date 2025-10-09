@@ -53,19 +53,20 @@ class Container {
                     if (useMorphdom) {
                         // Replace with new content using morphdom
                         morphdom($('.reloadable-container[container="' + container + '"]')[0], jsonValue.message, {
-                            // Avoid some elements to be updated if they are currently used (e.g. video playing)
+                            // Avoid some elements to be updated
                             onBeforeElUpdated: function (fromEl, toEl) {
-                                /**
-                                 *  Case the element is a video and it is currently playing, do not update it
-                                 */
+                                // Case the element is a video and it is currently playing, do not update it
                                 if (fromEl.tagName === 'VIDEO' && !fromEl.paused) {
                                     return false;
                                 }
 
-                                /**
-                                 *  Case the element is a checkbox and it is currently checked, do not update it
-                                 */
+                                // Case the element is a checkbox and it is currently checked, do not update it
                                 if (fromEl.tagName === 'INPUT' && fromEl.type === 'checkbox' && fromEl.checked) {
+                                    return false;
+                                }
+
+                                // Case the element is a canvas (e.g. ChartJS), do not update it
+                                if (fromEl.tagName === 'CANVAS') {
                                     return false;
                                 }
 

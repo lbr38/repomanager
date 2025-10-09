@@ -55,7 +55,7 @@ if (!empty($profiles)) :
 
                 <div class="flex column-gap-15 justify-end">
                     <img src="/assets/icons/duplicate.svg" class="profile-duplicate-btn icon-lowopacity" profile-id="<?= $profile['Id'] ?>" title="Duplicate <?= $profile['Name'] ?> profile configuration" />
-                    <img src="/assets/icons/delete.svg" class="profile-delete-btn icon-lowopacity" profile-id="<?= $profile['Id'] ?>" profile-name="<?= $profile['Name'] ?>" title="Delete <?= $profile['Name'] ?> profile" />
+                    <input type="checkbox" class="child-checkbox lowopacity" checkbox-id="profile" checkbox-data-attribute="profile-id" profile-id="<?= $profile['Id'] ?>" title="Select profile" />
                 </div>
             </div>
 

@@ -333,30 +333,26 @@ class Profile
     /**
      *  Delete a profile
      */
-    public function delete(int $id)
+    public function delete(array $profilesId) : void
     {
         if (!IS_ADMIN) {
             throw new Exception('You are not allowed to perform this action');
         }
 
-        /**
-         *  Check that profile Id exists in database
-         */
-        if ($this->existsId($id) === false) {
-            throw new Exception('Profile does not exist');
+        foreach ($profilesId as $id) {
+            // Check that profile Id exists in database
+            if (!$this->existsId($id)) {
+                throw new Exception('Profile with id #' . $id . ' does not exist');
+            }
+
+            // Retrieve profile name for history
+            $name = $this->model->getNameById($id);
+
+            // Delete
+            $this->model->delete($id);
+
+            History::set('Delete <code>' . $name . '</code> host profile');
         }
-
-        /**
-         *  Retrieve profile name
-         */
-        $name = $this->model->getNameById($id);
-
-        /**
-         *  Delete
-         */
-        $this->model->delete($id);
-
-        History::set('Delete <code>' . $name . '</code> host profile');
     }
 
     /**

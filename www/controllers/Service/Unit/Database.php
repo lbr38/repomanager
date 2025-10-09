@@ -2,6 +2,7 @@
 
 namespace Controllers\Service\Unit;
 
+use \Controllers\App\Maintenance;
 use Exception;
 
 class Database extends \Controllers\Service\Service
@@ -22,6 +23,10 @@ class Database extends \Controllers\Service\Service
     {
         // TODO : add all hosts databases with a glob()
         $databases = ['main', 'stats', 'hosts', 'ws'];
+
+        // Enable maintenance page, this will avoid any write operation during the maintenance
+        parent::log('Enabling maintenance page');
+        Maintenance::set('on');
 
         foreach ($databases as $database) {
             try {
@@ -44,5 +49,9 @@ class Database extends \Controllers\Service\Service
                 parent::logError('Error during database ' . $database . ' maintenance: ' . $e->getMessage());
             }
         }
+
+        // Disable maintenance page
+        parent::log('Disabling maintenance page');
+        Maintenance::set('off');
     }
 }

@@ -3,6 +3,7 @@
 namespace Controllers\Repo\Source;
 
 use Exception;
+use JsonException;
 
 class Source
 {
@@ -50,7 +51,6 @@ class Source
      */
     public function new(string $method, array $params)
     {
-        $validTypes = ['deb', 'rpm'];
         $gpgController = new \Controllers\Gpg();
 
         if (empty($params['name'])) {
@@ -78,7 +78,7 @@ class Source
         /**
          *  Check that type is valid
          */
-        if (!in_array($type, $validTypes)) {
+        if (!in_array($type, ['deb', 'rpm'])) {
             throw new Exception('Invalid source repository type');
         }
 
@@ -243,7 +243,6 @@ class Source
      */
     public function edit(int $id, array $params)
     {
-        $validTypes = ['deb', 'rpm'];
         $description = '';
         $sslCertificate = '';
         $sslPrivateKey = '';
@@ -252,7 +251,7 @@ class Source
         /**
          *  Check that source repo exists
          */
-        if (!$this->model->existsId($id)) {
+        if (!$this->existsId($id)) {
             throw new Exception('Source repository does not exist');
         }
 
@@ -274,7 +273,7 @@ class Source
             throw new Exception('Source repository type is empty');
         }
 
-        if (!in_array($params['type'], $validTypes)) {
+        if (!in_array($params['type'], ['deb', 'rpm'])) {
             throw new Exception('Invalid source repository type');
         }
 
@@ -320,6 +319,13 @@ class Source
             throw new Exception('specified URL must start with <b>http(s)://</b>');
         }
 
+        /**
+         *  Check that non-compliant is valid
+         */
+        if (!empty($params['non-compliant']) and !in_array($params['non-compliant'], ['true', 'false'])) {
+            throw new Exception('invalid non-compliant value');
+        }
+
         if (!empty($params['description'])) {
             $description = \Controllers\Common::validateData($params['description']);
         }
@@ -348,7 +354,11 @@ class Source
         /**
          *  Get current source repo params
          */
-        $currentParams = json_decode($this->getDefinition($id), true);
+        try {
+            $currentParams = json_decode($this->getDefinition($id), true);
+        } catch (JsonException $e) {
+            throw new Exception('Could not decode source repository definition: ' . $e->getMessage());
+        }
 
         /**
          *  Modify current params with new ones
@@ -360,6 +370,10 @@ class Source
         $currentParams['ssl-authentication']['certificate'] = $sslCertificate;
         $currentParams['ssl-authentication']['private-key'] = $sslPrivateKey;
         $currentParams['ssl-authentication']['ca-certificate'] = $sslCaCertificate;
+        // Additional param for deb source repos
+        if ($params['type'] == 'deb') {
+            $currentParams['non-compliant'] = $params['non-compliant'];
+        }
 
         /**
          *  Edit source repo in database
@@ -370,9 +384,17 @@ class Source
     /**
      *  Delete a source repository
      */
-    public function delete(int $id)
+    public function delete(array $sourcesId) : void
     {
-        $this->model->delete($id);
+        foreach ($sourcesId as $id) {
+            // Check that source repo exists
+            if (!$this->existsId($id)) {
+                throw new Exception('Source repository with Id ' . $id . ' does not exist');
+            }
+
+            // Delete
+            $this->model->delete($id);
+        }
     }
 
     /**
@@ -488,7 +510,7 @@ class Source
                 /**
                  *  Delete the existing source repository
                  */
-                $this->delete($id);
+                $this->delete([$id]);
             }
 
             /**
@@ -503,9 +525,6 @@ class Source
      */
     public function import(array $lists)
     {
-        $debSource = new \Controllers\Repo\Source\Deb();
-        $rpmSource = new \Controllers\Repo\Source\Rpm();
-
         try {
             foreach ($lists as $sourceList) {
                 $listFile = \Controllers\Common::validateData($sourceList);
@@ -589,6 +608,7 @@ class Source
                 'name' => '',
                 'type' => 'deb',
                 'url' => '',
+                'non-compliant' => 'false',
                 'description' => '',
                 'distributions' => [],
                 'architectures' => [],

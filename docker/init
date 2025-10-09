@@ -16,6 +16,11 @@ if [ -z "$FQDN" ];then
     exit 1
 fi
 
+# If no branch is set in environment, use main
+if [ -z "$BRANCH" ];then
+    BRANCH="main"
+fi
+
 # Set FQDN
 # Postfix/mail configuration
 postconf -e "myhostname = $FQDN"
@@ -54,6 +59,17 @@ if [ ! -f "$DATA_DIR/app.yaml" ];then
     cp "$WWW_DIR/templates/app.yaml" "$DATA_DIR/app.yaml"
 fi
 
+# If branch is devel
+if [ "$BRANCH" == "devel" ];then
+    # Create directory for XDebug
+    mkdir -p /tmp/xdebug
+    chown www-data:www-data /tmp/xdebug
+    chmod 770 /tmp/xdebug
+
+    # Create .devel file
+    touch "$WWW_DIR/.devel"
+fi
+
 # Apply permissions
 /bin/bash $WWW_DIR/bin/repomanager -p
 
@@ -88,4 +104,4 @@ fi
 /bin/bash "$WWW_DIR/bin/service" &
 
 # Start repomanager service
-exec setpriv --reuid www-data --regid www-data --keep-groups /usr/bin/php "$WWW_DIR/tools/service.php"
+exec setpriv --reuid www-data --regid www-data --groups www-data,repomanager /usr/bin/php "$WWW_DIR/tools/service.php"

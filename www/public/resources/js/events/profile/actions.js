@@ -31,47 +31,6 @@ $(document).on('submit','#create-new-profile-form',function () {
 });
 
 /**
- *  Event: Delete profile
- */
-$(document).on('click','.profile-delete-btn',function (e) {
-    // Prevent parent to be triggered
-    e.stopPropagation();
-
-    var id = $(this).attr('profile-id');
-    var name = $(this).attr('profile-name');
-
-    myconfirmbox.print(
-        {
-            'title': 'Delete profile',
-            'message': 'Are you sure you want to delete profile <b>' + name + '</b>?',
-            'buttons': [
-            {
-                'text': 'Delete',
-                'color': 'red',
-                'callback': function () {
-                    ajaxRequest(
-                        // Controller:
-                        'profile',
-                        // Action:
-                        'delete',
-                        // Data:
-                        {
-                            id: id
-                        },
-                        // Print success alert:
-                        true,
-                        // Print error alert:
-                        true
-                    ).then(function () {
-                        mypanel.reload('hosts/profiles');
-                    });
-                }
-            }]
-        }
-    );
-});
-
-/**
  *  Event: Duplicate profile
  */
 $(document).on('click','.profile-duplicate-btn',function (e) {

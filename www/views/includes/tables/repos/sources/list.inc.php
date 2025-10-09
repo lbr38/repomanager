@@ -1,6 +1,24 @@
 <div class="reloadable-table" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">   
+    <h6>CURRENT SOURCE REPOSITORIES</h6>
+    <p class="note">Source repositories to be mirrored.</p>
+
     <?php
-    if (!empty($reloadableTableContent)) :
+    if (empty($reloadableTableContent)) {
+        echo '<p class="note">Nothing for now!</p>';
+    } ?>
+
+    <div class="flex column-gap-10 margin-top-10 margin-bottom-15">
+        <button type="button" class="btn-medium-blue get-panel-btn" panel="repos/sources/new">Manually add</button>
+        <button type="button" class="btn-medium-blue get-panel-btn" panel="repos/sources/import">Import</button>
+    </div>
+
+    <?php
+    if (!empty($reloadableTableContent)) : ?>
+        <div class="flex justify-end margin-bottom-10 margin-right-15">
+            <input type="checkbox" class="select-all-checkbox lowopacity" checkbox-id="source-repo" title="Select all source repositories" />
+        </div>
+
+        <?php
         foreach ($reloadableTableContent as $item) :
             $distAndComponent = null;
             $releasevers = null;
@@ -9,7 +27,13 @@
             $sslCaCertificate = '';
 
             // Decode JSON definition
-            $definition = json_decode($item['Definition'], true);
+            try {
+                $definition = json_decode($item['Definition'], true);
+            } catch (Exception $e) {
+                echo '<p>Error: could not decode JSON definition for source repository #' . $item['Id'] . '</p>';
+                continue;
+            }
+
             $name = $definition['name'];
             $url  = $definition['url'];
             $type = $definition['type'];
@@ -74,7 +98,7 @@
                             echo '<img src="/assets/icons/user.svg" class="icon-np" title="Imported from user custom list (via API)" />';
                         }  ?>
 
-                        <img src="/assets/icons/delete.svg" class="source-repo-delete-btn icon-lowopacity" source-id="<?= $item['Id'] ?>" source-name="<?= $name ?>" title="Delete <?= $name ?> source repository" />
+                        <input type="checkbox" class="child-checkbox lowopacity" checkbox-id="source-repo" checkbox-data-attribute="source-id" source-id="<?= $item['Id'] ?>" title="Select source repository" />
                     </div>
                 </div>
             </div>
@@ -88,6 +112,17 @@
 
                     <h6 class="required">URL</h6>
                     <input type="text" class="source-param" param-name="url" value="<?= $url ?>" />
+
+                    <?php
+                    if ($type == 'deb') : ?>
+                        <h6 class="required">NON-COMPLIANT REPOSITORY</h6>
+                        <p class="note">The repository does not follow the standard Debian repository structure. <b><a href="https://github.com/lbr38/repomanager/wiki/05.-Manage-sources-repositories#non-compliant-deb-source-repositories" target="_blank" rel="noopener noreferrer" class="font-size-13">Learn more.</a></b></p>
+                        <label class="onoff-switch-label">
+                            <input type="checkbox" class="onoff-switch-input source-param" value="true" param-name="non-compliant" <?= isset($definition['non-compliant']) && $definition['non-compliant'] == 'true' ? 'checked' : '' ?> />
+                            <span class="onoff-switch-slider"></span>
+                        </label>
+                        <?php
+                    endif ?>
 
                     <h6>DESCRIPTION</h6>
                     <input type="text" class="source-param" param-name="description" value="<?= $description ?>" />
