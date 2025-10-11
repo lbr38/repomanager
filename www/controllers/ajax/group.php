@@ -1,55 +1,51 @@
 <?php
+if (empty($_POST['type'])) {
+    response(HTTP_BAD_REQUEST, 'Group type is required');
+}
+
+if (!in_array($_POST['type'], ['host', 'repo'])) {
+    response(HTTP_BAD_REQUEST, 'Invalid group type');
+}
+
+if ($_POST['type'] == 'repo') {
+    $groupController = new \Controllers\Group\Repo();
+}
+
+if ($_POST['type'] == 'host') {
+    $groupController = new \Controllers\Group\Host();
+}
 
 /**
  *  Create a new group
  */
-if ($action == "new" and !empty($_POST['name']) and !empty($_POST['type'])) {
-    $mygroup = new \Controllers\Group($_POST['type']);
-
+if ($action == 'new' and !empty($_POST['name'])) {
     try {
-        $mygroup->new($_POST['name']);
-    } catch (\Exception $e) {
+        $groupController->new($_POST['name']);
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, "Group <b>" . $_POST['name'] . "</b> has been created");
-}
-
-/**
- *  Rename a group
- */
-if ($action == "rename" and !empty($_POST['name']) and !empty($_POST['newname']) and !empty($_POST['type'])) {
-    $mygroup = new \Controllers\Group($_POST['type']);
-
-    try {
-        $mygroup->rename($_POST['name'], $_POST['newname']);
-    } catch (\Exception $e) {
-        response(HTTP_BAD_REQUEST, $e->getMessage());
-    }
-
-    response(HTTP_OK, "Group <b>" . $_POST['name'] . "</b> has been renamed to <b>" . $_POST['newname'] . "</b>");
+    response(HTTP_OK, 'Group ' . $_POST['name'] . ' has been created');
 }
 
 /**
  *  Delete a group
  */
-if ($action == "delete" and !empty($_POST['id']) and !empty($_POST['type'])) {
-    $mygroup = new \Controllers\Group($_POST['type']);
-
+if ($action == 'delete' and !empty($_POST['id'])) {
     try {
-        $mygroup->delete($_POST['id']);
-    } catch (\Exception $e) {
+        $groupController->delete($_POST['id']);
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, 'Group deleted');
+    response(HTTP_OK, 'Group' . (count($_POST['id']) > 1 ? 's' : '') . ' deleted');
 }
 
 /**
  *  Edit group
  */
-if ($action == "edit" and !empty($_POST['id']) and !empty($_POST['name']) and !empty($_POST['type'])) {
-    $data = array();
+if ($action == 'edit' and !empty($_POST['id']) and !empty($_POST['name'])) {
+    $data = [];
 
     /**
      *  If no data (repo or host) have been specified then it means that the user wants to clean the group, so set $data as an empty array
@@ -58,15 +54,13 @@ if ($action == "edit" and !empty($_POST['id']) and !empty($_POST['name']) and !e
         $data = $_POST['data'];
     }
 
-    $mygroup = new \Controllers\Group($_POST['type']);
-
     try {
-        $mygroup->edit($_POST['id'], $_POST['name'], $data);
-    } catch (\Exception $e) {
+        $groupController->edit($_POST['id'], $_POST['name'], $data);
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, "Group <b>" . $_POST['name'] . "</b> has been edited");
+    response(HTTP_OK, 'Group ' . $_POST['name'] . ' has been edited');
 }
 
 response(HTTP_BAD_REQUEST, 'Invalid action');

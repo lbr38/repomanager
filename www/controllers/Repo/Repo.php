@@ -426,7 +426,7 @@ class Repo
      */
     public function addReposIdToGroup(array $reposId = null, int $groupId)
     {
-        $mygroup = new \Controllers\Group('repo');
+        $mygroup = new \Controllers\Group\Repo();
 
         if (!empty($reposId)) {
             foreach ($reposId as $repoId) {
@@ -473,10 +473,7 @@ class Repo
      */
     public function addRepoIdToGroup(string $repoId, string $groupName)
     {
-        /**
-         *  On aura besoin d'un objet Group()
-         */
-        $mygroup = new \Controllers\Group('repo');
+        $mygroup = new \Controllers\Group\Repo();
         $groupId = $mygroup->getIdByName($groupName);
 
         $this->model->addToGroup($repoId, $groupId);

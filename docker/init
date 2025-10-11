@@ -88,6 +88,4 @@ fi
 /bin/bash "$WWW_DIR/bin/service" &
 
 # Start repomanager service
-/bin/su -s /bin/bash -c "/usr/bin/php $WWW_DIR/tools/service.php" www-data
-
-/bin/bash
+exec setpriv --reuid www-data --regid www-data --keep-groups /usr/bin/php "$WWW_DIR/tools/service.php"

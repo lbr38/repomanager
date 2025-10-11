@@ -477,7 +477,7 @@ class Task
      */
     public function executeId(int $id) : void
     {
-        $myprocess = new \Controllers\Process('/usr/bin/php ' . ROOT . '/tasks/execute.php --id="' . $id . '" >/dev/null 2>/dev/null &');
+        $myprocess = new \Controllers\Process('/usr/bin/php ' . ROOT . '/tasks/execute.php --id="' . $id . '" > ' . MAIN_LOGS_DIR . '/repomanager-task-' . $id . '-log.process 2>&1 &');
         $myprocess->execute();
         $myprocess->close();
     }
@@ -846,15 +846,23 @@ class Task
     }
 
     /**
-     *  Delete a task
+     *  Delete one or more tasks
      */
-    public function delete(int $id) : void
+    public function delete(array $tasksId) : void
     {
         if (!IS_ADMIN and !in_array('delete', USER_PERMISSIONS['tasks']['allowed-actions'])) {
             throw new Exception('You are not allowed to delete a task.');
         }
 
-        $this->model->delete($id);
+        foreach ($tasksId as $id) {
+            // Check if task exists
+            if (!$this->exists($id)) {
+                throw new Exception('Task #' . $id . ' does not exist.');
+            }
+
+            // Delete task
+            $this->model->delete($id);
+        }
     }
 
     /**
@@ -1087,7 +1095,8 @@ class Task
             $files = [
                 MAIN_LOGS_DIR . '/repomanager-task-' . $task['Id'] . '-log.db',
                 MAIN_LOGS_DIR . '/repomanager-task-' . $task['Id'] . '-log.db-shm',
-                MAIN_LOGS_DIR . '/repomanager-task-' . $task['Id'] . '-log.db-wal'
+                MAIN_LOGS_DIR . '/repomanager-task-' . $task['Id'] . '-log.db-wal',
+                MAIN_LOGS_DIR . '/repomanager-task-' . $task['Id'] . '-log.process'
             ];
 
             foreach ($files as $file) {

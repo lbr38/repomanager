@@ -8,10 +8,16 @@ repositories:
     description: Alma Linux BaseOS
     url: https://repo.almalinux.org/almalinux/$releasever/BaseOS/$basearch/os
     releasever:
+      - name: 10
+        description: Alma Linux 10
+        gpgkeys:
+          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-10
+
       - name: 9
         description: Alma Linux 9
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
+
       - name: 8
         description: Alma Linux 8
         gpgkeys:
@@ -23,10 +29,16 @@ repositories:
     description: Alma Linux AppStream
     url: https://repo.almalinux.org/almalinux/$releasever/AppStream/$basearch/os
     releasever:
+      - name: 10
+        description: Alma Linux 10
+        gpgkeys:
+          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-10
+
       - name: 9
         description: Alma Linux 9
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
+
       - name: 8
         description: Alma Linux 8
         gpgkeys:
@@ -38,10 +50,16 @@ repositories:
     description: Alma Linux Extras
     url: https://repo.almalinux.org/almalinux/$releasever/extras/$basearch/os
     releasever:
+      - name: 10
+        description: Alma Linux 10
+        gpgkeys:
+          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-10
+
       - name: 9
         description: Alma Linux 9
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
+
       - name: 8
         description: Alma Linux 8
         gpgkeys:
@@ -53,10 +71,16 @@ repositories:
     description: Alma Linux Plus
     url: https://repo.almalinux.org/almalinux/$releasever/plus/$basearch/os
     releasever:
+      - name: 10
+        description: Alma Linux 10
+        gpgkeys:
+          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-10
+
       - name: 9
         description: Alma Linux 9
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
+
       - name: 8
         description: Alma Linux 8
         gpgkeys:
@@ -68,10 +92,16 @@ repositories:
     description: Alma Linux Devel
     url: https://repo.almalinux.org/almalinux/$releasever/devel/$basearch/os
     releasever:
+      - name: 10
+        description: Alma Linux 10
+        gpgkeys:
+          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-10
+
       - name: 9
         description: Alma Linux 9
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
+
       - name: 8
         description: Alma Linux 8
         gpgkeys:
@@ -87,13 +117,18 @@ repositories:
         description: Alma Linux 8
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
-  
+
   # Alma Linux CRB
   - name: almalinux-crb
     type: rpm
     description: Alma Linux CRB
     url: https://repo.almalinux.org/almalinux/$releasever/CRB/$basearch/os
     releasever:
+      - name: 10
+        description: Alma Linux 10
+        gpgkeys:
+          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-10
+
       - name: 9
         description: Alma Linux 9
         gpgkeys:

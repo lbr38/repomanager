@@ -7,6 +7,14 @@ repositories:
     description: Ondrej Sury's PHP packages repository for Debian
     url: https://packages.sury.org/php
     distributions:
+      # Debian 13
+      - name: trixie
+        description: Debian 13
+        components:
+          - name: main
+        gpgkeys:
+          - fingerprint: 15058500A0235D97F5D10063B188E2B695BD4743
+
       # Debian 12
       - name: bookworm
         description: Debian 12

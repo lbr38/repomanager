@@ -1,6 +1,6 @@
 <?php
 
-namespace Controllers;
+namespace Controllers\Group;
 
 use Exception;
 use \Controllers\History\Save as History;
@@ -14,20 +14,8 @@ class Group
 
     public function __construct(string $type)
     {
-        /**
-         *  This class allows to manipulate repos or hosts groups.
-         *  Depending on what we want to manipulate, the database is not the same.
-         *  If we have specified a database when instantiating a Group object then we use this database
-         *  Else we use the main database
-         */
-
-        if ($type != 'repo' and $type != 'host') {
-            throw new Exception("Group type is invalid");
-        }
-
         $this->type = $type;
-
-        $this->model = new \Models\Group($type);
+        $this->model = new \Models\Group\Group($type);
     }
 
     public function setId(string $id)
@@ -103,9 +91,8 @@ class Group
 
     /**
      *  Create a new group
-     *  @param name
      */
-    public function new(string $name)
+    public function new(string $name) : void
     {
         if (!IS_ADMIN) {
             throw new Exception('You are not allowed to perform this action');
@@ -151,7 +138,7 @@ class Group
     /**
      *  Edit a group
      */
-    public function edit(int $id, string $name, array $data)
+    public function edit(int $id, string $name, array $data) : void
     {
         if (!IS_ADMIN) {
             throw new Exception('You are not allowed to perform this action');
@@ -205,38 +192,33 @@ class Group
     }
 
     /**
-     *  Delete a group
-     *  @param id
+     *  Delete one or more groups
      */
-    public function delete(int $id)
+    public function delete(array $groups) : void
     {
         if (!IS_ADMIN) {
             throw new Exception('You are not allowed to perform this action');
         }
 
-        /**
-         *  Check if group exists
-         */
-        if (!$this->existsId($id)) {
-            throw new Exception('Group does not exist');
-        }
+        foreach ($groups as $id) {
+            // Check if group exists
+            if (!$this->existsId($id)) {
+                throw new Exception('Group with id #' . $id . ' does not exist');
+            }
 
-        /**
-         *  Retrieve name, for history
-         */
-        $name = $this->getNameById($id);
+            // Retrieve group name, for history
+            $name = $this->getNameById($id);
 
-        /**
-         *  Delete group in database
-         */
-        $this->model->delete($id);
+            // Delete group in database
+            $this->model->delete($id);
 
-        if ($this->type == 'repo') {
-            History::set('Delete repository group <code>' . $name . '</code>');
-        }
+            if ($this->type == 'repo') {
+                History::set('Delete repository group <code>' . $name . '</code>');
+            }
 
-        if ($this->type == 'host') {
-            History::set('Delete host group <code>' . $name . '</code>');
+            if ($this->type == 'host') {
+                History::set('Delete host group <code>' . $name . '</code>');
+            }
         }
     }
 

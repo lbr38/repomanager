@@ -7,7 +7,7 @@ if (!IS_ADMIN and !in_array('create', USER_PERMISSIONS['repositories']['allowed-
 }
 
 $myrepo = new \Controllers\Repo\Repo();
-$mygroup = new \Controllers\Group('repo');
+$mygroup = new \Controllers\Group\Repo();
 $mysource = new \Controllers\Repo\Source\Source();
 $userController = new \Controllers\User\User();
 

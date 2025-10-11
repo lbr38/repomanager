@@ -7,6 +7,12 @@ repositories:
     description: Docker stable repository
     url: https://download.docker.com/linux/rhel/$releasever/$basearch/stable
     releasever:
+      # Redhat 10
+      - name: 10
+        description: Redhat 10
+        gpgkeys:
+          - link: https://download.docker.com/linux/rhel/gpg
+
       # Redhat 9
       - name: 9
         description: Redhat 9

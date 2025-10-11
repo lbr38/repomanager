@@ -272,46 +272,6 @@ $(document).on('click','.enable-scheduled-task-btn',function (e) {
 });
 
 /**
- *  Event: cancel unlaunched task
- */
-$(document).on('click','.cancel-task-btn',function (e) {
-    // Prevent parent to be triggered
-    e.stopPropagation();
-
-    var taskId = $(this).attr('task-id');
-
-    myconfirmbox.print(
-        {
-            'title': 'Cancel task',
-            'message': 'Are you sure you want to cancel and delete this task?',
-            'buttons': [
-            {
-                'text': 'Delete',
-                'color': 'red',
-                'callback': function () {
-                    ajaxRequest(
-                        // Controller:
-                        'task',
-                        // Action:
-                        'deleteTask',
-                        // Data:
-                        {
-                            taskId: taskId,
-                        },
-                        // Print success alert:
-                        true,
-                        // Print error alert:
-                        true,
-                        // Reload containers:
-                        ['tasks/list']
-                    )
-                }
-            }]
-        }
-    );
-});
-
-/**
  *  Event: relaunch task
  */
 $(document).on('click','.relaunch-task-btn',function (e) {

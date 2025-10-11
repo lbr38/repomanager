@@ -4,7 +4,7 @@ if (!IS_ADMIN) {
 }
 
 $myrepo = new \Controllers\Repo\Repo();
-$mygroup = new \Controllers\Group('repo');
+$mygroup = new \Controllers\Group\Repo();
 
 /**
  *  Get repos groups list

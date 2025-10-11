@@ -5,7 +5,7 @@ $mytask = new \Controllers\Task\Task();
 /**
  *  Get total repos count
  */
-$totalRepos = $myrepo->count('active');
+$totalRepos = $myrepo->count();
 
 /**
  *  Get used and free disk space in bytes, and also in percent

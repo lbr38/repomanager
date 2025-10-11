@@ -29,7 +29,7 @@ if (!empty($repoGroupsList)) : ?>
             </div>
 
             <div class="flex justify-end">
-                <img src="/assets/icons/delete.svg" class="delete-group-btn icon-lowopacity" group-id="<?= $group['Id'] ?>" group-name="<?= $group['Name'] ?>" title="Delete <?= $group['Name'] ?> group" />
+                <input type="checkbox" class="child-checkbox lowopacity" checkbox-id="repo-group" checkbox-data-attribute="group-id" group-id="<?= $group['Id'] ?>" title="Select group" />
             </div>
         </div>
 

@@ -5,12 +5,8 @@
 /**
  *  Event: Create new group
  */
-$(document).on('submit','#newGroupForm',function () {
-    event.preventDefault();
-    /**
-     *  Retrieve group name from input
-     */
-    var name = $("#newGroupInput").val();
+$(document).on('submit','#newGroupForm',function (e) {
+    e.preventDefault();
 
     ajaxRequest(
         // Controller:
@@ -19,16 +15,16 @@ $(document).on('submit','#newGroupForm',function () {
         'new',
         // Data:
         {
-            name: name,
+            name: $("#newGroupInput").val(),
             type: 'repo'
         },
         // Print success alert:
         true,
         // Print error alert:
-        true,
-        // Reload container:
-        ['repos/list']
+        true
     ).then(function () {
+        // Reload repos list
+        mycontainer.reload('repos/list');
         // Reload group panel
         mypanel.reload('repos/groups/list');
         // Reload create repo div
@@ -39,57 +35,10 @@ $(document).on('submit','#newGroupForm',function () {
 });
 
 /**
- *  Event: Delete group
- */
-$(document).on('click','.delete-group-btn',function (e) {
-    // Prevent parent to be triggered
-    e.stopPropagation();
-
-    var id = $(this).attr('group-id');
-    var name = $(this).attr('group-name');
-
-    myconfirmbox.print(
-        {
-            'title': 'Delete group',
-            'message': 'Are you sure you want to delete group <b>' + name + '</b>?',
-            'buttons': [
-            {
-                'text': 'Delete',
-                'color': 'red',
-                'callback': function () {
-                    ajaxRequest(
-                        // Controller:
-                        'group',
-                        // Action:
-                        'delete',
-                        // Data:
-                        {
-                            id: id,
-                            type: 'repo'
-                        },
-                        // Print success alert:
-                        true,
-                        // Print error alert:
-                        true,
-                        // Reload container:
-                        ['repos/list']
-                    ).then(function () {
-                        // Reload group panel
-                        mypanel.reload('repos/groups/list');
-                        // Reload create repo div
-                        mypanel.reload('repos/new');
-                    });
-                }
-            }]
-        }
-    );
-});
-
-/**
  *  Event: Edit group
  */
-$(document).on('submit','.group-form',function () {
-    event.preventDefault();
+$(document).on('submit','.group-form',function (e) {
+    e.preventDefault();
 
     /**
      *  Retrieve group name (from <form>) and repos list (from <select>)

@@ -5,11 +5,11 @@
 $rawParams['action'] = 'create';
 $rawParams['package-type'] = 'rpm';
 $rawParams['repo-type'] = 'mirror';
-$rawParams['source'] = 'centos9-extras-common';
-$rawParams['alias'] = 'centos9-extras-common';
+$rawParams['source'] = 'centos-extras-common';
+$rawParams['alias'] = 'centos-extras-common';
 $rawParams['releasever'] = '9';
 $rawParams['env'] = ['pprd'];
-$rawParams['description'] = 'CI - create centos9-extras-common repo';
+$rawParams['description'] = 'CI - create centos-extras-common repo';
 $rawParams['group'] = '';
 $rawParams['gpg-check'] = 'false';
 $rawParams['gpg-sign'] = 'true';

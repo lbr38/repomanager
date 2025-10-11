@@ -2,34 +2,49 @@
 description: CentOS official repositories
 type: rpm
 repositories:
-  # CentOS 9 BaseOS
-  - name: centos9-baseos
+  # CentOS BaseOS
+  - name: centos-baseos
     type: rpm
     description: CentOS 9 Stream BaseOS
-    url: https://mirror.stream.centos.org/9-stream/BaseOS/$basearch/os
+    url: https://mirror.stream.centos.org/$releasever-stream/BaseOS/$basearch/os
     releasever:
+      - name: 10
+        description: CentOS 10 Stream
+        gpgkeys:
+          - fingerprint: 99DB70FAE1D7CE227FB6488205B555B38483C65D
+
       - name: 9
         description: CentOS 9 Stream
         gpgkeys:
           - fingerprint: 99DB70FAE1D7CE227FB6488205B555B38483C65D
 
-  # CentOS 9 AppStream
-  - name: centos9-appstream
+  # CentOS AppStream
+  - name: centos-appstream
     type: rpm
     description: CentOS 9 Stream AppStream
-    url: https://mirror.stream.centos.org/9-stream/AppStream/$basearch/os
+    url: https://mirror.stream.centos.org/$releasever-stream/AppStream/$basearch/os
     releasever:
+      - name: 10
+        description: CentOS 10 Stream
+        gpgkeys:
+          - fingerprint: 99DB70FAE1D7CE227FB6488205B555B38483C65D
+
       - name: 9
         description: CentOS 9 Stream
         gpgkeys:
           - fingerprint: 99DB70FAE1D7CE227FB6488205B555B38483C65D
   
-  # CentOS 9 Extras Common
-  - name: centos9-extras-common
+  # CentOS Extras Common
+  - name: centos-extras-common
     type: rpm
     description: CentOS 9 Stream Extras Common
-    url: https://mirror.stream.centos.org/SIGs/9-stream/extras/$basearch/extras-common
+    url: https://mirror.stream.centos.org/SIGs/$releasever-stream/extras/$basearch/extras-common
     releasever:
+      - name: 10
+        description: CentOS 10 Stream
+        gpgkeys:
+          - fingerprint: 99DB70FAE1D7CE227FB6488205B555B38483C65D
+
       - name: 9
         description: CentOS 9 Stream
         gpgkeys:

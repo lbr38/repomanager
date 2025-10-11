@@ -94,6 +94,7 @@ header {
     justify-content: space-between;
     min-width: max-content;
     margin-bottom: 3px;
+    padding: 8px;
     text-align: left !important;
     align-items: center;
 }

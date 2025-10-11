@@ -1,6 +1,20 @@
 <div class="reloadable-table" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
+    <h6>CURRENT GPG SIGNING KEYS</h6>
+
+    <p class="note">All keys imported in Repomanager keyring.</p>
+
     <?php
-    if (!empty($reloadableTableContent)) :
+    if (empty($reloadableTableContent)) : ?>
+        <p class="note">Nothing for now!</p>
+        <?php
+    endif;
+
+    if (!empty($reloadableTableContent)) : ?>
+        <div class="flex justify-end margin-bottom-10 margin-right-15">
+            <input type="checkbox" class="select-all-checkbox lowopacity" checkbox-id="gpg-key" title="Select all GPG keys" />
+        </div>
+
+        <?php
         foreach ($reloadableTableContent as $item) : ?>
             <div class="table-container grid-fr-4-1 bck-blue-alt">
                 <div>
@@ -9,7 +23,7 @@
                 </div>
 
                 <div class="flex justify-end">
-                    <img src="/assets/icons/delete.svg" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey-id="<?= $item['id'] ?>" gpgkey-name="<?= $item['name'] ?>" title="Delete GPG key <?= $item['name'] ?>" />
+                    <input type="checkbox" class="child-checkbox lowopacity" checkbox-id="gpg-key" checkbox-data-attribute="gpg-key-id" gpg-key-id="<?= $item['id'] ?>" title="Select GPG key <?= $item['name'] ?>" />
                 </div>
             </div>
             <?php
