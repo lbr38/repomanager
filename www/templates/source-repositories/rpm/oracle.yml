@@ -1,0 +1,47 @@
+---
+description: Oracle Linux official repositories
+type: rpm
+repositories:
+  # Oracle Linux BaseOS
+  - name: oraclelinux-baseos
+    type: rpm
+    description: Oracle Linux BaseOS
+    url: https://yum.oracle.com/repo/OracleLinux/OL$releasever/baseos/latest/$basearch
+    releasever:
+      - name: 10
+        description: Oracle Linux 10
+        gpgkeys:
+          # Looks like they use the same as OL9 for OL10
+          - link: https://yum.oracle.com/RPM-GPG-KEY-oracle-ol9
+
+      - name: 9
+        description: Oracle Linux 9
+        gpgkeys:
+          - link: https://yum.oracle.com/RPM-GPG-KEY-oracle-ol9
+
+      - name: 8
+        description: Oracle Linux 8
+        gpgkeys:
+          - link: https://yum.oracle.com/RPM-GPG-KEY-oracle-ol8
+
+  # Oracle Linux AppStream
+  - name: oraclelinux-appstream
+    type: rpm
+    description: Oracle Linux AppStream
+    url: https://yum.oracle.com/repo/OracleLinux/OL$releasever/appstream/$basearch
+    releasever:
+      - name: 10
+        description: Oracle Linux 10
+        gpgkeys:
+          # Looks like they use the same as OL9 for OL10
+          - link: https://yum.oracle.com/RPM-GPG-KEY-oracle-ol9
+
+      - name: 9
+        description: Oracle Linux 9
+        gpgkeys:
+          - link: https://yum.oracle.com/RPM-GPG-KEY-oracle-ol9
+
+      - name: 8
+        description: Oracle Linux 8
+        gpgkeys:
+          - link: https://yum.oracle.com/RPM-GPG-KEY-oracle-ol8

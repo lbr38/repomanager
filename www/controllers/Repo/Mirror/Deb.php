@@ -9,9 +9,9 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
     /**
      *  Download Release file
      */
-    private function downloadReleaseFile()
+    private function downloadReleaseFile(string $url)
     {
-        $this->taskLogSubStepController->new('getting-release', 'GETTING INRELEASE / RELEASE FILE', 'From ' . $this->url . '/dists/' . $this->dist . '/');
+        $this->taskLogSubStepController->new('getting-release', 'GETTING INRELEASE / RELEASE FILE', 'From ' . $url . '/');
 
         /**
          *  Check that Release.xx file exists before downloading it to prevent error message displaying for nothing
@@ -24,7 +24,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              */
             try {
                 $this->httpRequestController->get([
-                    'url' => $this->url . '/dists/' . $this->dist . '/' . $releaseFile,
+                    'url' => $url . '/' . $releaseFile,
                     'connectTimeout' => 30,
                     'timeout' => 30,
                     'sslCertificatePath' => $this->sslCustomCertificate,
@@ -39,14 +39,14 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             /**
              *  Download the Release file
              */
-            $this->download($this->url . '/dists/' . $this->dist . '/' . $releaseFile, $this->workingDir . '/' . $releaseFile);
+            $this->download($url . '/' . $releaseFile, $this->workingDir . '/' . $releaseFile);
         }
 
         /**
          *  Print an error and quit if no Release file has been found
          */
         if (!file_exists($this->workingDir . '/InRelease') and !file_exists($this->workingDir . '/Release') and !file_exists($this->workingDir . '/Release.gpg')) {
-            throw new Exception('No <code>InRelease</code> or <code>Release</code> file has been found in the source repository <code>' . $this->url . '/dists/' . $this->dist . '/</code> (looked for <code>InRelease</code>, <code>Release</code> and <code>Release.gpg</code>). Is the URL of the repository correct?');
+            throw new Exception('No <code>InRelease</code> or <code>Release</code> file has been found in the source repository <code>' . $url . '/</code> (looked for <code>InRelease</code>, <code>Release</code> and <code>Release.gpg</code>). Is the URL of the repository correct?');
         }
 
         $this->taskLogSubStepController->completed();
@@ -58,7 +58,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
      *   - Sources packages file location  (Sources / Sources.gz)
      *   - Translation file location       (Translation-en / Translation-en.bz2)
      */
-    private function parseReleaseFile()
+    private function parseReleaseFile(string $url)
     {
         /**
          *  Get valid InRelease / Release file content
@@ -77,9 +77,9 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
 
                 /**
                  *  Sources pattern to search in the Release file
-                 *  e.g: main/source/Sources.xx
+                 *  e.g: main/source/Sources.xx or only Sources.xx
                  */
-                $regex = $this->section . '/source/Sources';
+                $regex = '(?:' . $this->section . '/source/)?Sources(?:\.(?:gz|bz2|xz))?$';
             }
 
             /**
@@ -90,9 +90,9 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
 
                 /**
                  *  Packages pattern to search in the Release file
-                 *  e.g: main/binary-amd64/Packages.xx
+                 *  e.g: main/binary-amd64/Packages.xx or only Packages.xx
                  */
-                $regex = $this->section . '/binary-' . $arch . '/Packages($|.gz$|.xz$)';
+                $regex = '(?:' . $this->section . '/binary-' . $arch . '/)?Packages(?:\.(?:gz|bz2|xz))?$';
             }
 
             /**
@@ -102,7 +102,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                 // Clean line
                 $line = trim($line);
 
-                if (preg_match("#$regex#", $line)) {
+                if (preg_match("#$regex#m", $line)) {
                     /**
                      *  Explode the line to separate hashes and location
                      */
@@ -121,7 +121,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                          */
                         try {
                             $this->httpRequestController->get([
-                                'url' => $this->url . '/dists/' . $this->dist . '/' . $location,
+                                'url' => $url . '/' . $location,
                                 'connectTimeout' => 30,
                                 'timeout' => 30,
                                 'sslCertificatePath' => $this->sslCustomCertificate,
@@ -224,7 +224,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
     /**
      *  Parse Packages indices file to find .deb packages location
      */
-    private function parsePackagesIndiceFile()
+    private function parsePackagesIndiceFile(string $url)
     {
         $this->taskLogSubStepController->new('retrieving-deb-packages-list', 'RETRIEVING DEB PACKAGES LIST');
 
@@ -240,7 +240,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             /**
              *  Download Packages.xx file using its location
              */
-            if (!$this->download($this->url . '/dists/' . $this->dist . '/' . $packageIndicesLocation, $this->workingDir . '/' . $packageIndicesName)) {
+            if (!$this->download($url . '/' . $packageIndicesLocation, $this->workingDir . '/' . $packageIndicesName)) {
                 throw new Exception('Error while downloading <code>' . $packageIndicesName . '</code> indices file: <code>' . $this->url . '/' . $packageIndicesLocation . '</code>');
             }
 
@@ -296,6 +296,9 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                      *  If location and checksum have been parsed, had them to the global deb packages list array
                      */
                     if (!empty($packageLocation) and !empty($packageChecksum)) {
+                        // If package location starts with './' then remove it
+                        $packageLocation = preg_replace('/^\.\//', '', $packageLocation);
+
                         $this->debPackagesLocation[] = array('location' => $packageLocation, 'checksum' => $packageChecksum);
 
                         unset($packageLocation, $packageChecksum);
@@ -331,7 +334,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
     /**
      *  Parse Sources indices file to find .dsc/tar.gz/tar.xz sources packages location
      */
-    private function parseSourcesIndiceFile()
+    private function parseSourcesIndiceFile(string $url)
     {
         /**
          *  Ignore this function if no 'src' arch has been specified
@@ -354,8 +357,8 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             /**
              *  Download Sources file using its location
              */
-            if (!$this->download($this->url . '/dists/' . $this->dist . '/' . $sourcesIndicesLocation, $this->workingDir . '/' . $sourcesIndicesName)) {
-                throw new Exception('Error while downloading <code>' . $sourcesIndicesName . '</code> indices file: <code>' . $this->url . '/dists/' . $this->dist . '/' . $sourcesIndicesLocation . '</code>');
+            if (!$this->download($url . '/' . $sourcesIndicesLocation, $this->workingDir . '/' . $sourcesIndicesName)) {
+                throw new Exception('Error while downloading <code>' . $sourcesIndicesName . '</code> indices file: <code>' . $url . '/' . $sourcesIndicesLocation . '</code>');
             }
 
             /**
@@ -961,54 +964,54 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
     /**
      *  Download translation packages
      */
-    private function downloadTranslation()
-    {
-        if (empty($this->translationsLocation)) {
-            return;
-        }
+    // private function downloadTranslation()
+    // {
+    //     if (empty($this->translationsLocation)) {
+    //         return;
+    //     }
 
-        /**
-         *  Create directory in which packages will be downloaded
-         */
-        mkdir($this->workingDir . '/translations', 0770, true);
+    //     /**
+    //      *  Create directory in which packages will be downloaded
+    //      */
+    //     mkdir($this->workingDir . '/translations', 0770, true);
 
-        /**
-         *  Download each package and check its md5
-         */
-        foreach ($this->translationsLocation as $translation) {
-            $translationLocation = $translation['location'];
-            $translationMd5 = $translation['md5sum'];
-            $translationName = preg_split('#/#', $translationLocation);
-            $translationName = end($translationName);
-            $translationUrl = $this->url . '/dists/' . $this->dist . '/' . $translationLocation;
+    //     /**
+    //      *  Download each package and check its md5
+    //      */
+    //     foreach ($this->translationsLocation as $translation) {
+    //         $translationLocation = $translation['location'];
+    //         $translationMd5 = $translation['md5sum'];
+    //         $translationName = preg_split('#/#', $translationLocation);
+    //         $translationName = end($translationName);
+    //         $translationUrl = $url . '/' . $translationLocation;
 
-            /**
-             *  Output package to download to log file
-             */
-            $this->taskLogSubStepController->new('downloading-translation', 'DOWNLOADING TRANSLATION', $translationUrl);
+    //         /**
+    //          *  Output package to download to log file
+    //          */
+    //         $this->taskLogSubStepController->new('downloading-translation', 'DOWNLOADING TRANSLATION', $translationUrl);
 
-            /**
-             *  Download
-             */
-            if (!$this->download($translationUrl, $this->workingDir . '/translations/' . $translationName)) {
-                throw new Exception('Error while downloading translation');
-            }
+    //         /**
+    //          *  Download
+    //          */
+    //         if (!$this->download($translationUrl, $this->workingDir . '/translations/' . $translationName)) {
+    //             throw new Exception('Error while downloading translation');
+    //         }
 
-            /**
-             *  Check that downloaded deb package's md5 matches the md5sum specified by the Release file
-             */
-            if (md5_file($this->workingDir . '/translations/' . $translationName) != $translationMd5) {
-                throw new Exception('Checksum of the file does not match ' . $translationMd5);
-            }
+    //         /**
+    //          *  Check that downloaded deb package's md5 matches the md5sum specified by the Release file
+    //          */
+    //         if (md5_file($this->workingDir . '/translations/' . $translationName) != $translationMd5) {
+    //             throw new Exception('Checksum of the file does not match ' . $translationMd5);
+    //         }
 
-            /**
-             *  Print OK if package has been downloaded and verified successfully
-             */
-            $this->taskLogSubStepController->completed();
-        }
+    //         /**
+    //          *  Print OK if package has been downloaded and verified successfully
+    //          */
+    //         $this->taskLogSubStepController->completed();
+    //     }
 
-        unset($this->translationsLocation);
-    }
+    //     unset($this->translationsLocation);
+    // }
 
     /**
      *  Mirror a deb repository
@@ -1017,10 +1020,18 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
     {
         $this->initialize();
 
+        // Default URL to download files from is the base URL followed by /dists/<distribution>
+        $url = $this->url . '/dists/' . $this->dist;
+
+        // If the source repository is a non-compliant deb repository, then the URL is just the base URL
+        if ($this->nonCompliantSource == 'true') {
+            $url = $this->url;
+        }
+
         /**
          *  Try to download distant Release / InRelease file
          */
-        $this->downloadReleaseFile();
+        $this->downloadReleaseFile($url);
 
         /**
          *  Check Release GPG signature if enabled
@@ -1030,17 +1041,17 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
         /**
          *  Parse Release file to find Packages source files location
          */
-        $this->parseReleaseFile();
+        $this->parseReleaseFile($url);
 
         /**
          *  Parse Packages indices file to find packages location
          */
-        $this->parsePackagesIndiceFile();
+        $this->parsePackagesIndiceFile($url);
 
         /**
          *  Parse Sources indices file to find sources packages location
          */
-        $this->parseSourcesIndiceFile();
+        $this->parseSourcesIndiceFile($url);
 
         /**
          *  Download deb packages
@@ -1055,7 +1066,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
         /**
          *  Download translations
          */
-        $this->downloadTranslation();
+        // $this->downloadTranslation();
 
         /**
          *  Clean remaining files

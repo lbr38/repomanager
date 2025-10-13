@@ -52,6 +52,11 @@
     <script src="/resources/js/libs/select2.js?<?= VERSION ?>"></script>
     <!-- ChartJS -->
     <script src="/resources/js/libs/chartjs-4.4.8.umd.js?<?= VERSION ?>"></script>
+    <!-- Morhpdom -->
+    <script src="/resources/js/libs/morphdom-umd.min.js?<?= VERSION ?>"></script>
+    <!-- App config files -->
+     <script src="/resources/js/app/container.config.js?<?= VERSION ?>"></script>
+    <script src="/resources/js/app/checkbox.config.js?<?= VERSION ?>"></script>
 
     <?php
     $title = 'Repomanager';

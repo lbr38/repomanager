@@ -34,6 +34,7 @@ header {
 }
 
 #title {
+    position: relative;
     margin-left: 20px;
     margin-top: 0px;
     margin-bottom: 0px;
@@ -43,6 +44,14 @@ header {
 #title span {
     font-family: 'ethnocentric';
     font-size: 18px;
+}
+#devel {
+    font-size: 8px !important;
+    position: absolute;
+    right: 10px;
+    padding: 3px;
+    background-color: #15bf7f;
+    border-radius: 60px;
 }
 [class^="menu-sub-container"] {
     height: 99%;
@@ -94,6 +103,7 @@ header {
     justify-content: space-between;
     min-width: max-content;
     margin-bottom: 3px;
+    padding: 8px;
     text-align: left !important;
     align-items: center;
 }

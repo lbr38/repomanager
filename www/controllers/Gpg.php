@@ -484,20 +484,24 @@ class Gpg
     /**
      *  Delete a GPG key
      */
-    public function delete(string $gpgKeyId)
+    public function delete(array $gpgKeysIds) : void
     {
-        $gpgKeyId = \Controllers\Common::validateData($gpgKeyId);
+        $idErrors = [];
 
-        /**
-         *  Deleting key from the keyring, using its ID
-         */
-        $myprocess = new \Controllers\Process('/usr/bin/gpg --no-default-keyring --homedir ' . GPGHOME . ' --keyring ' . GPGHOME . '/trustedkeys.gpg --no-greeting --delete-key --batch --yes ' . $gpgKeyId);
-        $myprocess->execute();
+        foreach ($gpgKeysIds as $id) {
+            // Deleting key from the keyring, using its ID
+            $myprocess = new \Controllers\Process('/usr/bin/gpg --no-default-keyring --homedir ' . GPGHOME . ' --keyring ' . GPGHOME . '/trustedkeys.gpg --no-greeting --delete-key --batch --yes ' . \Controllers\Common::validateData($id));
+            $myprocess->execute();
 
-        if ($myprocess->getExitCode() != 0) {
-            throw new Exception('Error while deleting GPG key: <br>' . $myprocess->getOutput());
+            if ($myprocess->getExitCode() != 0) {
+                $idErrors[] = $id;
+            }
+
+            $myprocess->close();
         }
 
-        $myprocess->close();
+        if (!empty($idErrors)) {
+            throw new Exception('Error while deleting GPG key(s): ' . implode(', ', $idErrors));
+        }
     }
 }

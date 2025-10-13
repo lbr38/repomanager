@@ -5,7 +5,7 @@
 $rawParams['action'] = 'duplicate';
 $rawParams['snap-id'] = '1';
 $rawParams['env-id'] = '';
-$rawParams['name'] = 'centos9-extras-common-copy';
+$rawParams['name'] = 'centos-extras-common-copy';
 $rawParams['env'] = ['pprd'];
 $rawParams['description'] = 'CI - duplicate repo';
 $rawParams['group'] = '';

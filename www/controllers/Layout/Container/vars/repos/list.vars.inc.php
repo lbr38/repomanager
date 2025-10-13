@@ -1,6 +1,6 @@
 <?php
 $repoSnapshotController = new \Controllers\Repo\Snapshot();
-$mygroup = new \Controllers\Group('repo');
+$mygroup = new \Controllers\Group\Repo();
 $myrepoListing = new \Controllers\Repo\Listing();
 
 /**

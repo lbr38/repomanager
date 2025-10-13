@@ -1,10 +1,10 @@
 <?php
 
-namespace Models;
+namespace Models\Group;
 
 use Exception;
 
-class Group extends Model
+class Group extends \Models\Model
 {
     public function __construct(string $type)
     {
@@ -25,7 +25,7 @@ class Group extends Model
             $stmt = $this->db->prepare("INSERT INTO groups (Name) VALUES (:name)");
             $stmt->bindValue(':name', $name);
             $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
@@ -44,7 +44,7 @@ class Group extends Model
             $stmt = $this->db->prepare("DELETE FROM group_members WHERE Id_group = :id");
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
 
@@ -55,7 +55,7 @@ class Group extends Model
             $stmt = $this->db->prepare("DELETE FROM groups WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
@@ -77,7 +77,7 @@ class Group extends Model
             $stmt = $this->db->prepare("SELECT Id FROM groups WHERE Name = :name");
             $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
 
@@ -97,7 +97,7 @@ class Group extends Model
             $stmt = $this->db->prepare("SELECT Name from groups WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
 
@@ -136,7 +136,7 @@ class Group extends Model
             $stmt = $this->db->prepare("SELECT * FROM groups WHERE Id=:id");
             $stmt->bindValue(':id', $groupId);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
 
@@ -156,7 +156,7 @@ class Group extends Model
             $stmt = $this->db->prepare("SELECT * FROM groups WHERE Name=:name");
             $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
 
@@ -177,7 +177,7 @@ class Group extends Model
             $stmt->bindValue(':name', $name);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
     }
@@ -207,7 +207,7 @@ class Group extends Model
             AND Id_group = :id");
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
 
@@ -265,7 +265,7 @@ class Group extends Model
             WHERE Id_group = :id");
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
 
@@ -290,7 +290,7 @@ class Group extends Model
             hosts.Ip
             FROM hosts
             WHERE hosts.Id NOT IN (SELECT Id_host FROM group_members)");
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->db->logError($e);
         }
 

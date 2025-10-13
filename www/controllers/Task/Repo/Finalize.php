@@ -197,13 +197,13 @@ trait Finalize
         $this->taskLogSubStepController->new('applying-permissions', 'APPLYING PERMISSIONS');
 
         if ($this->repo->getPackageType() == 'rpm') {
-            \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/rpm/' . $this->repo->getName() . '/' . $this->repo->getReleasever() . '/' . $this->repo->getDate(), 'file', 660);
             \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/rpm/' . $this->repo->getName() . '/' . $this->repo->getReleasever() . '/' . $this->repo->getDate(), 'dir', 770);
+            \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/rpm/' . $this->repo->getName() . '/' . $this->repo->getReleasever() . '/' . $this->repo->getDate(), 'file', 660);
             \Controllers\Filesystem\File::recursiveChown(REPOS_DIR . '/rpm/' . $this->repo->getName() . '/' . $this->repo->getReleasever() . '/' . $this->repo->getDate(), WWW_USER, 'repomanager');
         }
         if ($this->repo->getPackageType() == 'deb') {
-            \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/deb/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '/' . $this->repo->getDate(), 'file', 660);
             \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/deb/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '/' . $this->repo->getDate(), 'dir', 770);
+            \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/deb/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '/' . $this->repo->getDate(), 'file', 660);
             \Controllers\Filesystem\File::recursiveChown(REPOS_DIR . '/deb/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '/' . $this->repo->getDate(), WWW_USER, 'repomanager');
         }
 

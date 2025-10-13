@@ -300,7 +300,7 @@ class Host
      */
     public function deleteByHostname(string $hostname) : void
     {
-        $id = $this->model->getIdByHostname($hostname);
+        $id = $this->getIdByHostname($hostname);
 
         if (empty($id)) {
             throw new Exception('Unknown hostname ' . $hostname);
@@ -377,7 +377,7 @@ class Host
      */
     public function addHostsIdToGroup(array $hostsId = null, int $groupId) : void
     {
-        $mygroup = new \Controllers\Group('host');
+        $mygroup = new \Controllers\Group\Host();
 
         if (!empty($hostsId)) {
             foreach ($hostsId as $hostId) {

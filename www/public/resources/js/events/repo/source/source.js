@@ -91,7 +91,17 @@ $(document).on('click','.source-repo-form-submit-btn',function () {
      */
     $('form.source-repo-form[source-id="' + id + '"]').find('.source-param').each(function () {
         var name = $(this).attr('param-name');
-        var value = $(this).val();
+
+        // If input is a checkbox and it is checked then its value is 'true', else its value is 'false'
+        if ($(this).attr('type') == 'checkbox') {
+            if ($(this).is(":checked")) {
+                var value = 'true';
+            } else {
+                var value = 'false';
+            }
+        } else {
+            var value = $(this).val();
+        }
 
         params[name] = value;
     });
@@ -125,84 +135,4 @@ $(document).on('click','.source-repo-edit-param-btn',function () {
     var sourceId = $(this).attr('source-id');
 
     slide('.source-repo-param-div[source-id="' + sourceId + '"]');
-});
-
-/**
- *  Event: Delete a source repo
- */
-$(document).on('click','.source-repo-delete-btn',function (e) {
-    // Prevent parent to be triggered
-    e.stopPropagation();
-
-    var sourceId = $(this).attr('source-id');
-    var name = $(this).attr('source-name');
-
-    myconfirmbox.print(
-        {
-            'title': 'Delete source repository',
-            'message': 'Are you sure you want to delete <b>' + name + '</b> source repository?',
-            'buttons': [
-            {
-                'text': 'Delete',
-                'color': 'red',
-                'callback': function () {
-                    ajaxRequest(
-                        // Controller:
-                        'repo/source/source',
-                        // Action:
-                        'delete',
-                        // Data:
-                        {
-                            sourceId: sourceId
-                        },
-                        // Print success alert:
-                        true,
-                        // Print error alert:
-                        true
-                    ).then(function () {
-                        mypanel.reload('repos/sources/list');
-                        mypanel.reload('repos/new');
-                    });
-                }
-            }]
-        }
-    );
-});
-
-/**
- *  Event: delete a GPG key
- */
-$(document).on('click','.gpgKeyDeleteBtn',function () {
-    var gpgKeyId = $(this).attr('gpgkey-id');
-    var gpgkeyName = $(this).attr('gpgkey-name');
-
-    myconfirmbox.print(
-        {
-            'title': 'Delete GPG key',
-            'message': 'Are you sure you want to delete <b>' + gpgkeyName + '</b> GPG key?',
-            'buttons': [
-            {
-                'text': 'Delete',
-                'color': 'red',
-                'callback': function () {
-                    ajaxRequest(
-                        // Controller:
-                        'repo/source/source',
-                        // Action:
-                        'delete-gpgkey',
-                        // Data:
-                        {
-                            gpgKeyId: gpgKeyId
-                        },
-                        // Print success alert:
-                        true,
-                        // Print error alert:
-                        true
-                    ).then(function () {
-                        mypanel.reload('repos/sources/list');
-                    });
-                }
-            }]
-        }
-    );
 });

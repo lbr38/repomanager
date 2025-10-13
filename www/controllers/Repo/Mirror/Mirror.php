@@ -8,6 +8,7 @@ class Mirror
 {
     protected $taskId;
     protected $url;
+    protected $nonCompliantSource = 'false';
     protected $dist;
     protected $section;
     protected $releasever;
@@ -46,82 +47,87 @@ class Mirror
         $this->httpRequestController = new \Controllers\HttpRequest();
     }
 
-    public function setTaskId(string $taskId)
+    public function setTaskId(string $taskId) : void
     {
         $this->taskId = $taskId;
     }
 
-    public function setUrl(string $url)
+    public function setUrl(string $url) : void
     {
         $this->url = $url;
     }
 
-    public function setDist(string $dist)
+    public function setNonCompliantSource(string $nonCompliantSource) : void
+    {
+        $this->nonCompliantSource = $nonCompliantSource;
+    }
+
+    public function setDist(string $dist) : void
     {
         $this->dist = $dist;
     }
 
-    public function setSection(string $section)
+    public function setSection(string $section) : void
     {
         $this->section = $section;
     }
 
-    public function setReleasever(string $releasever)
+    public function setReleasever(string $releasever) : void
     {
         $this->releasever = $releasever;
     }
 
-    public function setArch(array $arch)
+    public function setArch(array $arch) : void
     {
         $this->arch = $arch;
     }
 
-    public function setCheckSignature(string $checkSignature)
+    public function setCheckSignature(string $checkSignature) : void
     {
         $this->checkSignature = $checkSignature;
     }
 
-    public function setGpgKeyUrl(string $url)
+    public function setGpgKeyUrl(string $url) : void
     {
         $this->gpgKeyUrl = $url;
     }
 
-    public function setTranslation(array $translation)
+    public function setTranslation(array $translation) : void
     {
         $this->translation = $translation;
     }
 
-    public function setWorkingDir(string $dir)
+    public function setWorkingDir(string $dir) : void
     {
         $this->workingDir = $dir;
     }
 
-    public function setSslCustomCertificate(string $path)
+    public function setSslCustomCertificate(string $path) : void
     {
         $this->sslCustomCertificate = $path;
     }
 
-    public function setSslCustomPrivateKey(string $path)
+    public function setSslCustomPrivateKey(string $path) : void
     {
         $this->sslCustomPrivateKey = $path;
     }
 
-    public function setSslCustomCaCertificate(string $path)
+    public function setSslCustomCaCertificate(string $path) : void
     {
         $this->sslCustomCaCertificate = $path;
     }
 
-    public function setPreviousSnapshotDirPath(string $path)
+    public function setPreviousSnapshotDirPath(string $path) : void
     {
         $this->previousSnapshotDirPath = $path;
     }
 
-    public function setPackagesToInclude(array $packages)
+    public function setPackagesToInclude(array $packages) : void
     {
         $this->packagesToInclude = $packages;
     }
 
-    public function setPackagesToExclude(array $packages)
+    public function setPackagesToExclude(array $packages) : void
     {
         $this->packagesToExclude = $packages;
     }
