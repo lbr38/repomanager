@@ -60,38 +60,6 @@ class Common
     }
 
     /**
-     *  Génère une chaine de caractères aléatoires
-     */
-    public static function randomString(int $length)
-    {
-        $characters = 'abcdefghijklmnopqrstuvwxyz';
-        $randomString = '';
-
-        for ($i = 0; $i < $length; $i++) {
-            $index = rand(0, strlen($characters) - 1);
-            $randomString .= $characters[$index];
-        }
-
-        return $randomString;
-    }
-
-    /**
-     *  Generate random strong string
-     */
-    public static function randomStrongString(int $length)
-    {
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*%-_{}()';
-        $randomString = '';
-
-        for ($i = 0; $i < $length; $i++) {
-            $index = rand(0, strlen($characters) - 1);
-            $randomString .= $characters[$index];
-        }
-
-        return $randomString;
-    }
-
-    /**
      *  Get a random color from a valid hex colors list
      */
     public function randomColor()
@@ -162,88 +130,6 @@ class Common
         }
 
         return $result;
-    }
-
-    /**
-     *  Return an array with the list of founded directories in specified directory path
-     *  Directory name can be filtered with a regex
-     */
-    public static function findDirRecursive(string $directoryPath, string $directoryNameRegex = null, bool $returnFullPath = true)
-    {
-        $foundedDirs = array();
-
-        $iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator(
-                $directoryPath,
-                \FilesystemIterator::SKIP_DOTS
-            ),
-            \RecursiveIteratorIterator::SELF_FIRST,
-            \RecursiveIteratorIterator::CATCH_GET_CHILD // Ignore "Permission denied"
-        );
-
-        /**
-         *  Find directories
-         */
-        if (!empty($iterator)) {
-            foreach ($iterator as $file) {
-                if (is_file($file->getPathname())) {
-                    continue;
-                }
-
-                /**
-                 *  Skip '.' and '..' files
-                 */
-                if ($file->getFilename() == '.' || $file->getFilename() == '..') {
-                    continue;
-                }
-
-                /**
-                 *  Skip if the current file is not a directory
-                 */
-                if (!$file->isDir()) {
-                    continue;
-                }
-
-                /**
-                 *  Skip if the current file is a symlink
-                 */
-                if ($file->isLink()) {
-                    continue;
-                }
-
-                /**
-                 *  Skip if the dir name does not match the specified regex
-                 */
-                if (!empty($directoryNameRegex)) {
-                    if (!preg_match("/$directoryNameRegex/i", $file->getFilename())) {
-                        continue;
-                    }
-                }
-
-                /**
-                 *  By default, return file's fullpath
-                 */
-                if ($returnFullPath === true) {
-                    // trim last '..' and '.' characters
-                    $foundedDir = rtrim($file->getPathname(), '.');
-                /**
-                 *  Else only return filename
-                 */
-                } else {
-                    // trim last '..' and '.' characters
-                    $foundedDir = rtrim($file->getFilename(), '.');
-                }
-
-                /**
-                 *  Add founded directory to the array if not already in
-                 */
-                if (!in_array($foundedDir, $foundedDirs)) {
-                    $foundedDirs[] = $foundedDir;
-                }
-            }
-        }
-
-        return $foundedDirs;
     }
 
     /**
@@ -496,14 +382,6 @@ class Common
         } else {
             return '<img src="/assets/icons/package.svg" class="icon-np" />';
         }
-    }
-
-    /**
-     *  Returns true if string is a valid md5 hash
-     */
-    public static function isMd5(string $md5)
-    {
-        return preg_match('/^[a-f0-9]{32}$/', $md5);
     }
 
     /**

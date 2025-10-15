@@ -3,6 +3,7 @@
 namespace Controllers\Repo\Mirror;
 
 use Exception;
+use \Controllers\Utils\Validate;
 
 class Deb extends \Controllers\Repo\Mirror\Mirror
 {
@@ -436,7 +437,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                             /**
                              *  If the first part of the line is not empty and is a md5sum, then it is the md5sum of the package
                              */
-                            if (!empty($packageLine[1]) and \Controllers\Common::isMd5($packageLine[1])) {
+                            if (!empty($packageLine[1]) and Validate::md5($packageLine[1])) {
                                 $packageMd5 = trim($packageLine[1]);
                             }
 

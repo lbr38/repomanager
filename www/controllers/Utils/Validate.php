@@ -64,4 +64,19 @@ class Validate
 
         return false;
     }
+
+    /**
+     *  Returns true if string is a valid md5 hash
+     */
+    public static function md5(string $md5) : bool
+    {
+        $result = preg_match('/^[a-f0-9]{32}$/', $md5);
+
+        // preg_match returns 1 if the pattern matches given subject, 0 if it does not, or FALSE if an error occurred.
+        if ($result === 1) {
+            return true;
+        }
+
+        return false;
+    }
 }

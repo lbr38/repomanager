@@ -174,7 +174,7 @@ class Gpg
         /**
          *  Generate random passphrase
          */
-        $this->passphrase = \Controllers\Common::randomStrongString(64);
+        $this->passphrase = \Controllers\Utils\Random::strongString(64);
 
         /**
          *  Generate template
