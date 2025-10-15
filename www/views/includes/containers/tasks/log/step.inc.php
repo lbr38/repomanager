@@ -67,10 +67,10 @@ if ($step['status'] == 'completed') {
         <!-- Step duration -->
         <div class="flex flex-direction-column row-gap-5 align-item-right justify-end">
             <?php
-            echo '<p class="font-size-13">' . \Controllers\Common::microtimeToTime($step['start']) . '</p>';
+            echo '<p class="font-size-13">' . \Controllers\Utils\Convert::microtimeToTime($step['start']) . '</p>';
 
             if (!empty($step['duration'])) {
-                echo '<p class="font-size-13">' . \Controllers\Common::convertMicrotime($step['duration']) . '</p>';
+                echo '<p class="font-size-13">' . \Controllers\Utils\Convert::microtimeToHuman($step['duration']) . '</p>';
             } ?>
         </div>
     </div>

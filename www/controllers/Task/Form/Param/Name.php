@@ -13,7 +13,7 @@ class Name
             throw new Exception('Repository name must be specified');
         }
 
-        if (!Validate::alphaNumeric($name, ['-', '_'])) {
+        if (!Validate::alphaNumericHyphen($name)) {
             throw new Exception('Repository name contains invalid characters');
         }
     }

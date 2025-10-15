@@ -14,7 +14,7 @@ class Section
         }
 
         foreach ($sections as $section) {
-            if (!Validate::alphaNumeric($section, ['-', '_', '.'])) {
+            if (!Validate::alphaNumericHyphen($section, ['.'])) {
                 throw new Exception('Component name cannot contain special characters except hyphen');
             }
         }

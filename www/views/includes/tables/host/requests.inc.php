@@ -45,22 +45,22 @@
             if (!empty($requestData['update-params'])) {
                 // Retrieve dry-run value
                 if (!empty($requestData['update-params']['dry-run'])) {
-                    $dryRun = \Controllers\Common::toBool($requestData['update-params']['dry-run']);
+                    $dryRun = \Controllers\Utils\Convert::toBool($requestData['update-params']['dry-run']);
                 }
 
                 // Retrieve ignore-exclusions value
                 if (!empty($requestData['update-params']['ignore-exclusions'])) {
-                    $ignoreExclusions = \Controllers\Common::toBool($requestData['update-params']['ignore-exclusions']);
+                    $ignoreExclusions = \Controllers\Utils\Convert::toBool($requestData['update-params']['ignore-exclusions']);
                 }
 
                 // Retrieve full-upgrade value
                 if (!empty($requestData['update-params']['full-upgrade'])) {
-                    $fullUpgrade = \Controllers\Common::toBool($requestData['update-params']['full-upgrade']);
+                    $fullUpgrade = \Controllers\Utils\Convert::toBool($requestData['update-params']['full-upgrade']);
                 }
 
                 // Retrieve keep-config-files value
                 if (!empty($requestData['update-params']['keep-config-files'])) {
-                    $keepConfigFiles = \Controllers\Common::toBool($requestData['update-params']['keep-config-files']);
+                    $keepConfigFiles = \Controllers\Utils\Convert::toBool($requestData['update-params']['keep-config-files']);
                 }
             }
 

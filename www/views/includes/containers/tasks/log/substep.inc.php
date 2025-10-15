@@ -64,12 +64,12 @@
 
             // Calculate duration
             if (!empty($substepDuration)) {
-                $substepDuration = \Controllers\Common::convertMicrotime($substepDuration);
+                $substepDuration = \Controllers\Utils\Convert::microtimeToHuman($substepDuration);
             }
 
             // Calculate start time
             if (!empty($substepStart)) {
-                $substepStartTime = \Controllers\Common::microtimeToTime($substepStart);
+                $substepStartTime = \Controllers\Utils\Convert::microtimeToTime($substepStart);
             }
 
             echo '<p class="lowopacity-cst font-size-12">';

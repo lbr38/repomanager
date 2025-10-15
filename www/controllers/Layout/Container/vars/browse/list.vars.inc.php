@@ -57,6 +57,6 @@ if ($myrepo->getPackageType() == 'deb') {
 /**
  *  Convert repo size in the most suitable byte format
  */
-$repoSize = \Controllers\Common::sizeFormat($repoSize);
+$repoSize = \Controllers\Utils\Convert::sizeToHuman($repoSize);
 
 unset($repoSnapshotController);
