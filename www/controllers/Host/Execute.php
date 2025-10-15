@@ -3,6 +3,7 @@
 namespace Controllers\Host;
 
 use Exception;
+use \Controllers\Utils\Validate;
 
 class Execute extends \Controllers\Host
 {
@@ -51,7 +52,7 @@ class Execute extends \Controllers\Host
         }
 
         foreach ($hosts as $hostId) {
-            $hostId = \Controllers\Common::validateData($hostId);
+            $hostId = Validate::string($hostId);
 
             /**
              *  Retrieve the IP and hostname of the host to be processed

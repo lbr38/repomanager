@@ -3,6 +3,7 @@ namespace Controllers\User;
 
 use Exception;
 use \Controllers\History\Save as History;
+use \Controllers\Utils\Validate;
 
 class Edit extends User
 {
@@ -17,9 +18,9 @@ class Edit extends User
      */
     public function edit(int $id, string $type, string $firstName = '', string $lastName = '', string $email = '') : void
     {
-        $firstName = \Controllers\Common::validateData($firstName);
-        $lastName  = \Controllers\Common::validateData($lastName);
-        $email     = \Controllers\Common::validateData($email);
+        $firstName = Validate::string($firstName);
+        $lastName  = Validate::string($lastName);
+        $email     = Validate::string($email);
 
         /**
          *  Check that user type is valid
@@ -32,7 +33,7 @@ class Edit extends User
          *  Check that email is a valid email address
          */
         if (!empty($email)) {
-            if (\Controllers\Common::validateMail($email) === false) {
+            if (Validate::email($email) === false) {
                 throw new Exception('Invalid email address format');
             }
         }

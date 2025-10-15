@@ -3,6 +3,7 @@
 namespace Controllers\Task\Form\Param;
 
 use Exception;
+use \Controllers\Utils\Validate;
 
 class TranslationInc
 {
@@ -13,7 +14,7 @@ class TranslationInc
         }
 
         foreach ($packageTranslation as $translation) {
-            if (!\Controllers\Common::isAlphanum($translation)) {
+            if (!Validate::alphaNumeric($translation)) {
                 throw new Exception('Translation name contains invalid characters');
             }
         }

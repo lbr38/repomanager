@@ -3,7 +3,7 @@
 namespace Controllers\Host\Package;
 
 use Exception;
-use DateTime;
+use \Controllers\Utils\Validate;
 
 class Package
 {
@@ -277,7 +277,7 @@ class Package
         /**
          *  The packages are transmitted as a string, separated by a comma. We explode this string into an array and remove empty entries
          */
-        $packagesList = array_filter(explode(",", \Controllers\Common::validateData($packagesInventory)));
+        $packagesList = array_filter(explode(",", Validate::string($packagesInventory)));
 
         if (empty($packagesList)) {
             throw new Exception('No package to process');
@@ -366,7 +366,7 @@ class Package
             /**
              *  The packages are transmitted as a string, separated by a comma. We explode this string into an array and remove empty entries
              */
-            $packagesList = array_filter(explode(",", \Controllers\Common::validateData($packagesAvailable)));
+            $packagesList = array_filter(explode(",", Validate::string($packagesAvailable)));
         }
 
         if (empty($packagesList)) {

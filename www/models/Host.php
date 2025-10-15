@@ -371,7 +371,7 @@ class Host extends Model
     {
         try {
             $stmt = $this->db->prepare("SELECT Ip FROM hosts WHERE Ip = :ip");
-            $stmt->bindValue(':ip', \Controllers\Common::validateData($ip));
+            $stmt->bindValue(':ip', $ip);
             $result = $stmt->execute();
         } catch (Exception $e) {
             $this->db->logError($e);
@@ -391,7 +391,7 @@ class Host extends Model
     {
         try {
             $stmt = $this->db->prepare("SELECT Hostname FROM hosts WHERE Hostname = :hostname");
-            $stmt->bindValue(':hostname', \Controllers\Common::validateData($hostname));
+            $stmt->bindValue(':hostname', $hostname);
             $result = $stmt->execute();
         } catch (Exception $e) {
             $this->db->logError($e);
@@ -639,8 +639,6 @@ class Host extends Model
      */
     public function countByProfile(string $profile) : int
     {
-        $hosts = 0;
-
         try {
             $stmt = $this->db->prepare("SELECT COUNT(Id) as count FROM hosts WHERE Profile = :profile");
             $stmt->bindValue(':profile', $profile);

@@ -3,6 +3,7 @@
 namespace Controllers;
 
 use Exception;
+use \Controllers\Utils\Validate;
 
 class Gpg
 {
@@ -287,9 +288,9 @@ class Gpg
      */
     public function import(string $gpgKeyUrl, string $gpgKeyFingerprint, string $gpgKeyPlainText)
     {
-        $gpgKeyUrl = \Controllers\Common::validateData($gpgKeyUrl);
-        $gpgKeyFingerprint = \Controllers\Common::validateData($gpgKeyFingerprint);
-        $gpgKeyPlainText = \Controllers\Common::validateData($gpgKeyPlainText);
+        $gpgKeyUrl = Validate::string($gpgKeyUrl);
+        $gpgKeyFingerprint = Validate::string($gpgKeyFingerprint);
+        $gpgKeyPlainText = Validate::string($gpgKeyPlainText);
 
         /**
          *  If more than one parameter is specified, quit
@@ -424,12 +425,12 @@ class Gpg
      */
     public function importPlainText(string $gpgKey) : array
     {
-        $gpgKey = \Controllers\Common::validateData($gpgKey);
+        $gpgKey = Validate::string($gpgKey);
 
         /**
          *  Check if the ASCII text contains invalid characters
          */
-        if (!\Controllers\Common::isAlphanum($gpgKey, array('-', '=', '+', '/', ' ', ':', '.', '(', ')', "\n", "\r"))) {
+        if (!Validate::alphaNumeric($gpgKey, ['-', '=', '+', '/', ' ', ':', '.', '(', ')', "\n", "\r"])) {
             throw new Exception('ASCII GPG key contains invalid characters');
         }
 
@@ -490,7 +491,7 @@ class Gpg
 
         foreach ($gpgKeysIds as $id) {
             // Deleting key from the keyring, using its ID
-            $myprocess = new \Controllers\Process('/usr/bin/gpg --no-default-keyring --homedir ' . GPGHOME . ' --keyring ' . GPGHOME . '/trustedkeys.gpg --no-greeting --delete-key --batch --yes ' . \Controllers\Common::validateData($id));
+            $myprocess = new \Controllers\Process('/usr/bin/gpg --no-default-keyring --homedir ' . GPGHOME . ' --keyring ' . GPGHOME . '/trustedkeys.gpg --no-greeting --delete-key --batch --yes ' . Validate::string($id));
             $myprocess->execute();
 
             if ($myprocess->getExitCode() != 0) {

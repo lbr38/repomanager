@@ -3,6 +3,7 @@
 namespace Controllers\Task\Form\Param;
 
 use Exception;
+use \Controllers\Utils\Validate;
 
 class Arch
 {
@@ -13,7 +14,7 @@ class Arch
         }
 
         foreach ($archs as $arch) {
-            if (!\Controllers\Common::isAlphanumdash($arch)) {
+            if (!Validate::alphaNumericHyphen($arch)) {
                 throw new Exception('Architecture contains invalid characters');
             }
         }

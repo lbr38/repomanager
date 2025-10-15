@@ -3,6 +3,7 @@
 namespace Controllers\Task\Form\Param;
 
 use Exception;
+use \Controllers\Utils\Validate;
 
 class Dist
 {
@@ -13,7 +14,7 @@ class Dist
         }
 
         foreach ($dists as $dist) {
-            if (!\Controllers\Common::isAlphanum($dist, array('-', '_', '.', '/'))) {
+            if (!Validate::alphaNumeric($dist, ['-', '_', '.', '/'])) {
                 throw new Exception('Distribution name cannot contain special characters except hyphen');
             }
         }

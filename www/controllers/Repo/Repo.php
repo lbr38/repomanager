@@ -4,6 +4,7 @@ namespace Controllers\Repo;
 
 use Exception;
 use Datetime;
+use \Controllers\Utils\Validate;
 
 class Repo
 {
@@ -43,17 +44,17 @@ class Repo
 
     public function setRepoId(string $id)
     {
-        $this->repoId = \Controllers\Common::validateData($id);
+        $this->repoId = Validate::string($id);
     }
 
     public function setSnapId(string $id)
     {
-        $this->snapId = \Controllers\Common::validateData($id);
+        $this->snapId = Validate::string($id);
     }
 
     public function setEnvId(string $id)
     {
-        $this->envId = \Controllers\Common::validateData($id);
+        $this->envId = Validate::string($id);
     }
 
     public function setName(string $name)
@@ -113,7 +114,7 @@ class Repo
             $description = '';
         }
 
-        $this->description = \Controllers\Common::validateData($description);
+        $this->description = Validate::string($description);
     }
 
     public function setSource(string $source)

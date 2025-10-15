@@ -5,6 +5,7 @@ namespace Controllers;
 use Exception;
 use Datetime;
 use \Controllers\History\Save as History;
+use \Controllers\Utils\Validate;
 
 class Profile
 {
@@ -238,12 +239,12 @@ class Profile
             throw new Exception('You are not allowed to perform this action');
         }
 
-        $name = \Controllers\Common::validateData($name);
+        $name = Validate::string($name);
 
         /**
          *  Check that profile name does not contain forbidden characters
          */
-        if (\Controllers\Common::isAlphanumDash($name) === false) {
+        if (!Validate::alphaNumericHyphen($name)) {
             throw new Exception("<b>$name</b> profile contains invalid characters");
         }
 
@@ -366,13 +367,12 @@ class Profile
 
         $myHost = new \Controllers\Host();
         $myHostRequest = new \Controllers\Host\Request();
-        $error = 0;
-        $name = \Controllers\Common::validateData($name);
+        $name = Validate::string($name);
 
         /**
          *  Check that profile name does not contain forbidden characters
          */
-        if (\Controllers\Common::isAlphanumDash($name) === false) {
+        if (!Validate::alphaNumericHyphen($name)) {
             throw new Exception($name . ' profile name contains invalid characters');
         }
 
@@ -427,9 +427,9 @@ class Profile
          */
         if (!empty($packagesMajorExcluded)) {
             foreach ($packagesMajorExcluded as $packageName) {
-                $packageName = \Controllers\Common::validateData($packageName);
+                $packageName = Validate::string($packageName);
 
-                if (!\Controllers\Common::isAlphanumDash($packageName, array('.*'))) {
+                if (!Validate::alphaNumericHyphen($packageName, ['.*'])) {
                     throw new Exception('Package ' . $packageName . ' contains invalid characters');
                 }
 
@@ -455,9 +455,9 @@ class Profile
          */
         if (!empty($packagesExcluded)) {
             foreach ($packagesExcluded as $packageName) {
-                $packageName = \Controllers\Common::validateData($packageName);
+                $packageName = Validate::string($packageName);
 
-                if (!\Controllers\Common::isAlphanumDash($packageName, array('.*'))) {
+                if (!Validate::alphaNumericHyphen($packageName, ['.*'])) {
                     throw new Exception('Package ' . $packageName . ' contains invalid characters');
                 }
 
@@ -483,12 +483,12 @@ class Profile
          */
         if (!empty($serviceNeedRestart)) {
             foreach ($serviceNeedRestart as $serviceName) {
-                $serviceName = \Controllers\Common::validateData($serviceName);
+                $serviceName = Validate::string($serviceName);
 
                 /**
                  *  On vérifie que le nom du service ne contient pas de caractères interdits
                  */
-                if (!\Controllers\Common::isAlphanumDash($serviceName, array('@', ':', '.*'))) {
+                if (!Validate::alphaNumericHyphen($serviceName, ['@', ':', '.*'])) {
                     throw new Exception('Service ' . $serviceName . ' contains invalid characters');
                 }
 
@@ -515,7 +515,7 @@ class Profile
          *  Check notes
          */
         if (!empty($notes)) {
-            $notes = \Controllers\Common::validateData($notes);
+            $notes = Validate::string($notes);
         }
 
         /**

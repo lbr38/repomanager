@@ -3,6 +3,7 @@
 namespace Controllers;
 
 use Exception;
+use \Controllers\Utils\Validate;
 
 class Host
 {
@@ -355,7 +356,7 @@ class Host
         /**
          *  Check if the package name is valid
          */
-        if (!\Controllers\Common::isAlphanumDash($name, array('*'))) {
+        if (!Validate::alphaNumericHyphen($name, ['*'])) {
             throw new Exception('Package name contains invalid characters');
         }
 

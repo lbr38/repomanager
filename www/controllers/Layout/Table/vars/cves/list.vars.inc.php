@@ -26,7 +26,7 @@ if (!empty($_GET['vendor']) or !empty(__GET_PARAMETERS__['vendor'])) {
         $vendor = $_GET['vendor'];
     }
 
-    $filter = 'WHERE Vendor = "' . \Controllers\Common::validateData($vendor) . '"';
+    $filter = 'WHERE Vendor = "' . \Controllers\Utils\Validate::string($vendor) . '"';
 }
 
 /**
@@ -47,7 +47,7 @@ if (!empty($_GET['product']) or !empty(__GET_PARAMETERS__['product'])) {
         $product = $_GET['product'];
     }
 
-    $filter = 'WHERE Product = "' . \Controllers\Common::validateData($product) . '"';
+    $filter = 'WHERE Product = "' . \Controllers\Utils\Validate::string($product) . '"';
 }
 
 /**
@@ -68,7 +68,7 @@ if (!empty($_GET['search']) or !empty(__GET_PARAMETERS__['search'])) {
         $search = $_GET['search'];
     }
 
-    $search = \Controllers\Common::validateData($search);
+    $search = \Controllers\Utils\Validate::string($search);
     $filter = 'WHERE Name = "' . $search . '" OR Vendor = "' . $search . '" OR Product = "' . $search . '" OR Description = "' . $search . '"';
 }
 

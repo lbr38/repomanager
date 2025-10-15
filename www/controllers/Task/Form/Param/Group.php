@@ -3,6 +3,7 @@
 namespace Controllers\Task\Form\Param;
 
 use Exception;
+use \Controllers\Utils\Validate;
 
 class Group
 {
@@ -12,7 +13,7 @@ class Group
             return;
         }
 
-        if (!\Controllers\Common::isAlphanumDash($group, array('-'))) {
+        if (!Validate::alphaNumericHyphen($group)) {
             throw new Exception('Group contains invalid characters');
         }
     }

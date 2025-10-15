@@ -449,7 +449,7 @@ class Package extends \Models\Model
     {
         try {
             $stmt = $this->dedicatedDb->prepare("SELECT * FROM packages WHERE Name = :name");
-            $stmt->bindValue(':name', \Controllers\Common::validateData($name));
+            $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
         } catch (Exception $e) {
             $this->dedicatedDb->logError($e);

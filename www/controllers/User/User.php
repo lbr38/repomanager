@@ -5,6 +5,7 @@ namespace Controllers\User;
 require_once ROOT . '/libs/vendor/autoload.php';
 
 use Exception;
+use \Controllers\Utils\Validate;
 
 class User
 {
@@ -240,7 +241,7 @@ class User
      */
     public function updateApiKey(string $username, string $type, string $apiKey)
     {
-        $username = \Controllers\Common::validateData($username);
+        $username = Validate::string($username);
 
         if (!in_array($type, $this->validTypes)) {
             throw new Exception('Invalid user type');

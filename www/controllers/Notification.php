@@ -3,6 +3,7 @@
 namespace Controllers;
 
 use Exception;
+use \Controllers\Utils\Validate;
 
 class Notification
 {
@@ -28,8 +29,8 @@ class Notification
 
         if (!empty($notifications)) {
             foreach ($notifications as $id => $notification) {
-                $title = Common::validateData($notification['title']);
-                $message = Common::validateData($notification['message']);
+                $title = Validate::string($notification['title']);
+                $message = Validate::string($notification['message']);
 
                 /**
                  *  Insert notficiation in database if not already exists

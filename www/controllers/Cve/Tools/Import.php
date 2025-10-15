@@ -3,7 +3,7 @@
 namespace Controllers\Cve\Tools;
 
 use \Exception;
-use \Controllers\Common;
+use \Controllers\Utils\Validate;
 
 class Import
 {
@@ -171,7 +171,7 @@ class Import
                         continue;
                     }
 
-                    $id = \Controllers\Common::validateData($cveItems->cve->CVE_data_meta->ID);
+                    $id = Validate::string($cveItems->cve->CVE_data_meta->ID);
 
                     /**
                      *  Description
@@ -179,7 +179,7 @@ class Import
                     if (!empty($cveItems->cve->description->description_data)) {
                         foreach ($cveItems->cve->description->description_data as $description) {
                             if ($description->lang == 'en') {
-                                $description = \Controllers\Common::validateData($description->value);
+                                $description = Validate::string($description->value);
                             }
                         }
                     }
@@ -188,7 +188,7 @@ class Import
                      *  Date
                      */
                     if (!empty($cveItems->publishedDate)) {
-                        $publishedDate = \Controllers\Common::validateData($cveItems->publishedDate);
+                        $publishedDate = Validate::string($cveItems->publishedDate);
 
                         /**
                          *  Parse date and time from retrieved data
@@ -202,7 +202,7 @@ class Import
                      *  Updated date
                      */
                     if (!empty($cveItems->lastModifiedDate)) {
-                        $lastModifiedDate = \Controllers\Common::validateData($cveItems->lastModifiedDate);
+                        $lastModifiedDate = Validate::string($cveItems->lastModifiedDate);
 
                         /**
                          *  Parse date and time from retrieved data
@@ -216,14 +216,14 @@ class Import
                      *  cvss2Score
                      */
                     if (!empty($cveItems->impact->baseMetricV2->cvssV2->baseScore)) {
-                        $cvss2Score = \Controllers\Common::validateData($cveItems->impact->baseMetricV2->cvssV2->baseScore);
+                        $cvss2Score = Validate::string($cveItems->impact->baseMetricV2->cvssV2->baseScore);
                     }
 
                     /**
                      *  cvss3Score
                      */
                     if (!empty($cveItems->impact->baseMetricV3->cvssV3->baseScore)) {
-                        $cvss3Score = \Controllers\Common::validateData($cveItems->impact->baseMetricV3->cvssV3->baseScore);
+                        $cvss3Score = Validate::string($cveItems->impact->baseMetricV3->cvssV3->baseScore);
                     }
 
                     /**
@@ -241,18 +241,18 @@ class Import
                                     // e.g. of cpe23Uri:
                                     // cpe:2.3:o:linux:linux_kernel:*:*:*:*:*:*:*:*
 
-                                    $cpe23UriRaw[] = \Controllers\Common::validateData($cpe->cpe23Uri);
+                                    $cpe23UriRaw[] = Validate::string($cpe->cpe23Uri);
 
                                     $uriExplode = explode(':', $cpe->cpe23Uri);
 
                                     /**
                                      *  Retrieve all fields
                                      */
-                                    $part = \Controllers\Common::validateData($uriExplode[2]);
-                                    $vendor = ucfirst(str_replace('_', ' ', \Controllers\Common::validateData($uriExplode[3])));
-                                    $product = ucfirst(str_replace('_', ' ', \Controllers\Common::validateData($uriExplode[4])));
-                                    $version = \Controllers\Common::validateData($uriExplode[5]);
-                                    $subVersion = \Controllers\Common::validateData($uriExplode[6]);
+                                    $part = Validate::string($uriExplode[2]);
+                                    $vendor = ucfirst(str_replace('_', ' ', Validate::string($uriExplode[3])));
+                                    $product = ucfirst(str_replace('_', ' ', Validate::string($uriExplode[4])));
+                                    $version = Validate::string($uriExplode[5]);
+                                    $subVersion = Validate::string($uriExplode[6]);
                                     // $update = $uriExplode[6];
                                     // $edition = $uriExplode[7];
                                     // $language = $uriExplode[8];
@@ -281,13 +281,13 @@ class Import
                             $tagsStr = '';
 
                             if (!empty($reference->name)) {
-                                $name = \Controllers\Common::validateData($reference->name);
+                                $name = Validate::string($reference->name);
                             }
                             if (!empty($reference->url)) {
-                                $url = \Controllers\Common::validateData($reference->url);
+                                $url = Validate::string($reference->url);
                             }
                             if (!empty($reference->refsource)) {
-                                $source = \Controllers\Common::validateData($reference->refsource);
+                                $source = Validate::string($reference->refsource);
                             }
                             if (!empty($reference->tags)) {
                                 foreach ($reference->tags as $tag) {

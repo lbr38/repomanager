@@ -3,6 +3,7 @@
 namespace Controllers\Repo\Source;
 
 use Exception;
+use \Controllers\Utils\Validate;
 
 class Deb extends \Controllers\Repo\Source\Source
 {
@@ -11,7 +12,7 @@ class Deb extends \Controllers\Repo\Source\Source
      */
     public function addDistribution(int $id, string $name)
     {
-        $name = \Controllers\Common::validateData($name);
+        $name = Validate::string($name);
 
         /**
          *  Check that the source repository exists
@@ -141,7 +142,7 @@ class Deb extends \Controllers\Repo\Source\Source
      */
     public function addSection(int $sourceId, int $distributionId, string $section)
     {
-        $section = \Controllers\Common::validateData($section);
+        $section = Validate::string($section);
 
         /**
          *  Check that the source repository exists
@@ -327,7 +328,7 @@ class Deb extends \Controllers\Repo\Source\Source
         $data = [];
         $predefinedDistributions = [];
         $possibleDistributions = [];
-        $source = \Controllers\Common::validateData($source);
+        $source = Validate::string($source);
 
         /**
          *  Check if source is valid
@@ -432,7 +433,7 @@ class Deb extends \Controllers\Repo\Source\Source
         $data = [];
         $predefinedComponents = [];
         $possibleComponents = [];
-        $source = \Controllers\Common::validateData($source);
+        $source = Validate::string($source);
 
         /**
          *  Check if source is valid
@@ -449,7 +450,7 @@ class Deb extends \Controllers\Repo\Source\Source
          *  Check that distributions are valid
          */
         foreach ($distributions as $distribution) {
-            if (!\Controllers\Common::isAlphanumDash($distribution, array('-', '_', '.', '/'))) {
+            if (!Validate::alphaNumericHyphen($distribution, ['.', '/'])) {
                 throw new Exception('Distribution ' . $distribution . ' contains invalid characters');
             }
         }
