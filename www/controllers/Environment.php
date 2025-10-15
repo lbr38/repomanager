@@ -3,6 +3,7 @@
 namespace Controllers;
 
 use Exception;
+use \Controllers\Utils\Validate;
 
 class Environment
 {
@@ -39,10 +40,10 @@ class Environment
             throw new Exception('You are not allowed to perform this action');
         }
 
-        $name = \Controllers\Common::validateData($name);
-        $color = \Controllers\Common::validateData($color);
+        $name = Validate::string($name);
+        $color = Validate::string($color);
 
-        if (!\Controllers\Common::isAlphanumDash($name)) {
+        if (!Validate::alphaNumericHyphen($name)) {
             throw new Exception('Environment name contains invalid characters');
         }
 
@@ -106,8 +107,8 @@ class Environment
          *  Check if all specified envs are valid then add them to $envsToInsert array
          */
         foreach ($envs as $env) {
-            $name = \Controllers\Common::validateData($env['name']);
-            $color = \Controllers\Common::validateData($env['color']);
+            $name = Validate::string($env['name']);
+            $color = Validate::string($env['color']);
 
             if (empty($name)) {
                 throw new Exception('Environment name is empty');
@@ -117,7 +118,7 @@ class Environment
                 throw new Exception('Environment color is empty');
             }
 
-            if (!\Controllers\Common::isAlphanumDash($name)) {
+            if (!Validate::alphaNumericHyphen($name)) {
                 throw new Exception('Environment <b>' . $name . '</b> contains invalid characters');
             }
 

@@ -3,6 +3,7 @@
 namespace Controllers\Repo\Source;
 
 use Exception;
+use \Controllers\Utils\Validate;
 
 class Rpm extends \Controllers\Repo\Source\Source
 {
@@ -11,7 +12,7 @@ class Rpm extends \Controllers\Repo\Source\Source
      */
     public function addReleasever(int $id, string $name)
     {
-        $name = \Controllers\Common::validateData($name);
+        $name = Validate::string($name);
 
         /**
          *  Check that the source repository exists
@@ -245,7 +246,7 @@ class Rpm extends \Controllers\Repo\Source\Source
         $data = [];
         $predefinedReleaseVersions = [];
         $possibleReleaseVersions = [];
-        $source = \Controllers\Common::validateData($source);
+        $source = Validate::string($source);
 
         /**
          *  Check if source is valid

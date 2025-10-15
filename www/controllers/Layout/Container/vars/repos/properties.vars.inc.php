@@ -13,8 +13,8 @@ $totalRepos = $myrepo->count();
 $diskTotalSpace = disk_total_space(REPOS_DIR);
 $diskFreeSpace  = disk_free_space(REPOS_DIR);
 $diskUsedSpace  = $diskTotalSpace - $diskFreeSpace;
-$diskFreeSpaceHuman = \Controllers\Common::sizeFormat($diskFreeSpace);
-$diskUsedSpaceHuman = \Controllers\Common::sizeFormat($diskUsedSpace);
+$diskFreeSpaceHuman = \Controllers\Utils\Convert::sizeToHuman($diskFreeSpace);
+$diskUsedSpaceHuman = \Controllers\Utils\Convert::sizeToHuman($diskUsedSpace);
 $diskUsedSpacePercent = round(($diskUsedSpace / $diskTotalSpace) * 100);
 $diskFreeSpacePercent = round(($diskFreeSpace / $diskTotalSpace) * 100);
 

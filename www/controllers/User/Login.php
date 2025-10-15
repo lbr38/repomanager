@@ -9,6 +9,7 @@ require ROOT . '/libs/vendor/autoload.php';
 use Exception;
 use Jumbojett\OpenIDConnectClient;
 use \Controllers\History\Save as History;
+use \Controllers\Utils\Validate;
 
 class Login extends User
 {
@@ -18,7 +19,7 @@ class Login extends User
     public function login(string $username, string $password) : void
     {
         try {
-            $username = \Controllers\Common::validateData($username);
+            $username = Validate::string($username);
 
             /**
              *  Get user Id from username

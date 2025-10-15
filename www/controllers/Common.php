@@ -13,88 +13,6 @@ class Common
     private $validColors;
 
     /**
-     *  Fonction de vérification / conversion des données envoyées par formulaire
-     */
-    public static function validateData($data)
-    {
-        $data = trim($data);
-        $data = stripslashes($data);
-        $data = htmlspecialchars($data);
-        return $data;
-    }
-
-    /**
-     *  Fonction de vérification du format d'une adresse email
-     */
-    public static function validateMail(string $mail)
-    {
-        $mail = trim($mail);
-
-        if (filter_var($mail, FILTER_VALIDATE_EMAIL)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     *  Vérifie que la chaine passée ne contient que des chiffres ou des lettres
-     */
-    public static function isAlphanum(string $data, array $additionnalValidCaracters = [])
-    {
-        /**
-         *  Si on a passé en argument des caractères supplémentaires à autoriser alors on les ignore dans le test en les remplacant temporairement par du vide
-         */
-        if (!empty($additionnalValidCaracters)) {
-            if (!ctype_alnum(str_replace($additionnalValidCaracters, '', $data))) {
-                return false;
-            }
-
-        /**
-         *  Si on n'a pas passé de caractères supplémentaires alors on teste simplement la chaine avec ctype_alnum
-         */
-        } else {
-            if (!ctype_alnum($data)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     *  Vérifie que la chaine passée ne contient que des chiffres ou des lettres, un underscore ou un tiret
-     *  Retire temporairement les tirets et underscore de la chaine passée afin qu'elle soit ensuite testée par la fonction PHP ctype_alnum
-     */
-    public static function isAlphanumDash(string $data, array $additionnalValidCaracters = [])
-    {
-        /**
-         *  Si une chaine vide a été transmise alors c'est valide
-         */
-        if (empty($data)) {
-            return true;
-        }
-
-        /**
-         *  array contenant quelques exceptions de caractères valides
-         */
-        $validCaracters = array('-', '_');
-
-        /**
-         *  Si on a passé en argument des caractères supplémentaires à autoriser alors on les ajoute à l'array $validCaracters
-         */
-        if (!empty($additionnalValidCaracters)) {
-            $validCaracters = array_merge($validCaracters, $additionnalValidCaracters);
-        }
-
-        if (!ctype_alnum(str_replace($validCaracters, '', $data))) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      *  Get the best contrasting text color for a given background color
      */
     public static function getContrastingTextColor($backgroundColor)
@@ -142,38 +60,6 @@ class Common
     }
 
     /**
-     *  Génère une chaine de caractères aléatoires
-     */
-    public static function randomString(int $length)
-    {
-        $characters = 'abcdefghijklmnopqrstuvwxyz';
-        $randomString = '';
-
-        for ($i = 0; $i < $length; $i++) {
-            $index = rand(0, strlen($characters) - 1);
-            $randomString .= $characters[$index];
-        }
-
-        return $randomString;
-    }
-
-    /**
-     *  Generate random strong string
-     */
-    public static function randomStrongString(int $length)
-    {
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*%-_{}()';
-        $randomString = '';
-
-        for ($i = 0; $i < $length; $i++) {
-            $index = rand(0, strlen($characters) - 1);
-            $randomString .= $characters[$index];
-        }
-
-        return $randomString;
-    }
-
-    /**
      *  Get a random color from a valid hex colors list
      */
     public function randomColor()
@@ -190,42 +76,6 @@ class Common
         unset($this->validColors[$randomColorId]);
 
         return $randomColor;
-    }
-
-    /**
-     *  Converts a microtime duration to a time format HHhMMmSSs
-     */
-    public static function convertMicrotime(string $duration)
-    {
-        $hours = (int)($duration/60/60);
-        $minutes = (int)($duration/60)-$hours*60;
-        $seconds = (int)$duration-$hours*60*60-$minutes*60;
-
-        $time = '';
-
-        if (!empty($hours)) {
-            $time = strval($hours) . 'h';
-        }
-        if (!empty($minutes)) {
-            $time .= strval($minutes) . 'm';
-        }
-        if (!empty($seconds)) {
-            $time .= $seconds . 's';
-        }
-
-        if (empty($time)) {
-            $time = '0s';
-        }
-
-        return $time;
-    }
-
-    /**
-     *  Converts a microtime to a time format
-     */
-    public static function microtimeToTime(string $microtime)
-    {
-        return date('H:i:s', $microtime);
     }
 
     /**
@@ -247,88 +97,6 @@ class Common
     }
 
     /**
-     *  Return an array with the list of founded directories in specified directory path
-     *  Directory name can be filtered with a regex
-     */
-    public static function findDirRecursive(string $directoryPath, string $directoryNameRegex = null, bool $returnFullPath = true)
-    {
-        $foundedDirs = array();
-
-        $iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator(
-                $directoryPath,
-                \FilesystemIterator::SKIP_DOTS
-            ),
-            \RecursiveIteratorIterator::SELF_FIRST,
-            \RecursiveIteratorIterator::CATCH_GET_CHILD // Ignore "Permission denied"
-        );
-
-        /**
-         *  Find directories
-         */
-        if (!empty($iterator)) {
-            foreach ($iterator as $file) {
-                if (is_file($file->getPathname())) {
-                    continue;
-                }
-
-                /**
-                 *  Skip '.' and '..' files
-                 */
-                if ($file->getFilename() == '.' || $file->getFilename() == '..') {
-                    continue;
-                }
-
-                /**
-                 *  Skip if the current file is not a directory
-                 */
-                if (!$file->isDir()) {
-                    continue;
-                }
-
-                /**
-                 *  Skip if the current file is a symlink
-                 */
-                if ($file->isLink()) {
-                    continue;
-                }
-
-                /**
-                 *  Skip if the dir name does not match the specified regex
-                 */
-                if (!empty($directoryNameRegex)) {
-                    if (!preg_match("/$directoryNameRegex/i", $file->getFilename())) {
-                        continue;
-                    }
-                }
-
-                /**
-                 *  By default, return file's fullpath
-                 */
-                if ($returnFullPath === true) {
-                    // trim last '..' and '.' characters
-                    $foundedDir = rtrim($file->getPathname(), '.');
-                /**
-                 *  Else only return filename
-                 */
-                } else {
-                    // trim last '..' and '.' characters
-                    $foundedDir = rtrim($file->getFilename(), '.');
-                }
-
-                /**
-                 *  Add founded directory to the array if not already in
-                 */
-                if (!in_array($foundedDir, $foundedDirs)) {
-                    $foundedDirs[] = $foundedDir;
-                }
-            }
-        }
-
-        return $foundedDirs;
-    }
-
-    /**
      *  Uncompress bzip2 file
      */
     public static function bunzip2(string $filename, string $outputFilename = null)
@@ -343,7 +111,7 @@ class Common
         }
 
         $myprocess->execute();
-        $content = $myprocess->getOutput();
+        $content = trim($myprocess->getOutput());
         $myprocess->close();
 
         if ($myprocess->getExitCode() != 0) {
@@ -444,59 +212,6 @@ class Common
     }
 
     /**
-     *  Convert bytes size to the most suitable human format (B, MB, GB...)
-     */
-    public static function sizeFormat($bytes, $returnFormat = true)
-    {
-        $kb = 1024;
-        $mb = $kb * 1024;
-        $gb = $mb * 1024;
-        $tb = $gb * 1024;
-
-        if (($bytes >= 0) && ($bytes < $kb)) {
-            $value = $bytes;
-            $format = 'B';
-        } elseif (($bytes >= $kb) && ($bytes < $mb)) {
-            $value = ceil($bytes / $kb);
-            $format = 'K';
-        } elseif (($bytes >= $mb) && ($bytes < $gb)) {
-            $value = ceil($bytes / $mb);
-            $format = 'M';
-        } elseif (($bytes >= $gb) && ($bytes < $tb)) {
-            $value = ceil($bytes / $gb);
-            $format = 'G';
-        } elseif ($bytes >= $tb) {
-            $value = ceil($bytes / $tb);
-            $format = 'T';
-        } else {
-            $value = $bytes;
-            $format = 'B';
-        }
-
-        if ($value >= 1000 and $value <= 1024) {
-            $value = 1;
-
-            if ($format == 'B') {
-                $format = 'K';
-            } elseif ($format == 'K') {
-                $format = 'M';
-            } elseif ($format == 'M') {
-                $format = 'G';
-            } elseif ($format == 'G') {
-                $format = 'T';
-            } elseif ($format == 'T') {
-                $format = 'P';
-            }
-        }
-
-        if ($returnFormat === true) {
-            return $value . $format;
-        }
-
-        return $value;
-    }
-
-    /**
      *  Print OS icon image
      */
     public static function printOsIcon(string $os)
@@ -578,25 +293,5 @@ class Common
         } else {
             return '<img src="/assets/icons/package.svg" class="icon-np" />';
         }
-    }
-
-    /**
-     *  Returns true if string is a valid md5 hash
-     */
-    public static function isMd5(string $md5)
-    {
-        return preg_match('/^[a-f0-9]{32}$/', $md5);
-    }
-
-    /**
-     *  Convert a string to a boolean
-     *  Possible return values:
-     *   Returns TRUE for "1", "true", "on" and "yes"
-     *   Returns FALSE for "0", "false", "off" and "no"
-     *   Returns NULL on failure if FILTER_NULL_ON_FAILURE is set
-     */
-    public static function toBool(string $string)
-    {
-        return filter_var($string, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
     }
 }

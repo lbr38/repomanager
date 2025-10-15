@@ -3,6 +3,7 @@
 namespace Controllers\Task\Form\Param;
 
 use Exception;
+use \Controllers\Utils\Validate;
 
 class Section
 {
@@ -13,7 +14,7 @@ class Section
         }
 
         foreach ($sections as $section) {
-            if (!\Controllers\Common::isAlphanum($section, array('-', '_', '.'))) {
+            if (!Validate::alphaNumericHyphen($section, ['.'])) {
                 throw new Exception('Component name cannot contain special characters except hyphen');
             }
         }

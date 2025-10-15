@@ -23,7 +23,7 @@ class File extends \Controllers\Service\Service
          */
         if (is_dir(DATA_DIR . '/.temp')) {
             $files = \Controllers\Filesystem\File::findRecursive(DATA_DIR . '/.temp');
-            $dirs = \Controllers\Common::findDirRecursive(DATA_DIR . '/.temp');
+            $dirs = \Controllers\Filesystem\Directory::findRecursive(DATA_DIR . '/.temp');
 
             if (!empty($files)) {
                 foreach ($files as $file) {
@@ -73,7 +73,7 @@ class File extends \Controllers\Service\Service
          *  Clean temp mirror directories older than 3 days
          */
         if (is_dir(REPOS_DIR)) {
-            $dirs = \Controllers\Common::findDirRecursive(REPOS_DIR, 'temporary-task-.*');
+            $dirs = \Controllers\Filesystem\Directory::findRecursive(REPOS_DIR, 'temporary-task-.*');
 
             if (!empty($dirs)) {
                 foreach ($dirs as $dir) {

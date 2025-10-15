@@ -4,6 +4,7 @@ namespace Controllers\Group;
 
 use Exception;
 use \Controllers\History\Save as History;
+use \Controllers\Utils\Validate;
 
 class Group
 {
@@ -98,12 +99,12 @@ class Group
             throw new Exception('You are not allowed to perform this action');
         }
 
-        $name = \Controllers\Common::validateData($name);
+        $name = Validate::string($name);
 
         /**
          *  Check that group name does not contain invalid characters
          */
-        if (\Controllers\Common::isAlphanumDash($name) === false) {
+        if (!Validate::alphaNumericHyphen($name)) {
             throw new Exception("Group <b>$name</b> contains invalid characters");
         }
 
@@ -154,7 +155,7 @@ class Group
         /**
          *  Check if group name is valid
          */
-        if (\Controllers\Common::isAlphanumDash($name) === false) {
+        if (!Validate::alphaNumericHyphen($name)) {
             throw new Exception("Group name <b>$name</b> contains invalid characters");
         }
 

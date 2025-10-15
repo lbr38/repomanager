@@ -3,6 +3,7 @@
 namespace Controllers\Repo\Mirror;
 
 use Exception;
+use \Controllers\Utils\Validate;
 
 class Deb extends \Controllers\Repo\Mirror\Mirror
 {
@@ -79,7 +80,12 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                  *  Sources pattern to search in the Release file
                  *  e.g: main/source/Sources.xx or only Sources.xx
                  */
-                $regex = '(?:' . $this->section . '/source/)?Sources(?:\.(?:gz|bz2|xz))?$';
+                $regex = $this->section . '/source/Sources';
+
+                // If non-compliant source repository, then search for Sources file in the root of the section (without /source/)
+                if ($this->nonCompliantSource == 'true') {
+                    $regex = $this->section . '/Sources(?:\.(?:gz|bz2|xz))?$';
+                }
             }
 
             /**
@@ -92,7 +98,12 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                  *  Packages pattern to search in the Release file
                  *  e.g: main/binary-amd64/Packages.xx or only Packages.xx
                  */
-                $regex = '(?:' . $this->section . '/binary-' . $arch . '/)?Packages(?:\.(?:gz|bz2|xz))?$';
+                $regex = $this->section . '/binary-' . $arch . '/Packages(?:\.(?:gz|bz2|xz))?$';
+
+                // If non-compliant source repository, then search for Packages file in the root of the section (without /binary-ARCH/)
+                if ($this->nonCompliantSource == 'true') {
+                    $regex = $this->section . '/Packages(?:\.(?:gz|bz2|xz))?$';
+                }
             }
 
             /**
@@ -252,21 +263,30 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             }
 
             /**
-             *  Uncompress Packages.xx if it is compressed (.gz or .xz)
+             *  Get the file extension of the Packages.xx file (.gz, .bz2 or .xz)
              */
-            if (preg_match('/.gz$/i', $packageIndicesName)) {
-                try {
-                    \Controllers\Common::gunzip($this->workingDir . '/' . $packageIndicesName);
-                } catch (Exception $e) {
-                    throw new Exception('Error while uncompressing <code>' . $packageIndicesName . '</code><br><pre class="codeblock copy">' . $e->getMessage() . '</pre>');
-                }
+            $packagesIndicesFileExtension = pathinfo($this->workingDir . '/' . $packageIndicesName, PATHINFO_EXTENSION);
+
+            /**
+             *  Quit if the file extension is not supported (.gz, .bz2 or .xz)
+             */
+            if (!in_array($packagesIndicesFileExtension, ['', 'gz', 'bz2', 'xz'])) {
+                throw new Exception('Unsupported file extension ' . $packagesIndicesFileExtension . ' for <code>Packages</code> indices file. Please contact the developer to add support for this file extension.');
             }
-            if (preg_match('/.xz$/i', $packageIndicesName)) {
-                try {
+
+            /**
+             *  Uncompress Packages.xx if it is compressed (.gz, .xz or .bz2)
+             */
+            try {
+                if ($packagesIndicesFileExtension == 'gz') {
+                    \Controllers\Common::gunzip($this->workingDir . '/' . $packageIndicesName);
+                } else if ($packagesIndicesFileExtension == 'xz') {
                     \Controllers\Common::xzUncompress($this->workingDir . '/' . $packageIndicesName);
-                } catch (Exception $e) {
-                    throw new Exception('Error while uncompressing <code>' . $packageIndicesName . '</code><br><pre class="codeblock copy">' . $e->getMessage() . '</pre>');
+                } else if ($packagesIndicesFileExtension == 'bz2') {
+                    \Controllers\Common::bunzip2($this->workingDir . '/' . $packageIndicesName, $this->workingDir . '/Packages');
                 }
+            } catch (Exception $e) {
+                throw new Exception('Error while uncompressing <code>' . $packageIndicesName . '</code><br><pre class="codeblock copy">' . $e->getMessage() . '</pre>');
             }
 
             /**
@@ -436,7 +456,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                             /**
                              *  If the first part of the line is not empty and is a md5sum, then it is the md5sum of the package
                              */
-                            if (!empty($packageLine[1]) and \Controllers\Common::isMd5($packageLine[1])) {
+                            if (!empty($packageLine[1]) and Validate::md5($packageLine[1])) {
                                 $packageMd5 = trim($packageLine[1]);
                             }
 

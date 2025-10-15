@@ -138,7 +138,7 @@ class Notify
                  *  Send email
                  */
                 $mailSubject = '[ Reminder ] Scheduled task #' . $taskId . ' to come on ' . WWW_HOSTNAME;
-                new \Controllers\Mail(implode(',', $taskRawParams['schedule']['schedule-recipient']), $mailSubject, $message, 'https://' . WWW_HOSTNAME . '/run', 'Tasks');
+                new \Controllers\Mail(implode(',', $taskRawParams['schedule']['schedule-recipient']), $mailSubject, $message, __SERVER_PROTOCOL__ . '://' . WWW_HOSTNAME . '/run', 'Tasks');
             }
         } catch (Exception $e) {
             $this->logController->log('error', 'Service', 'Error while sending scheduled tasks reminder: ' . $e->getMessage());

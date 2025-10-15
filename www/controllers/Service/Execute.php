@@ -3,6 +3,7 @@
 namespace Controllers\Service;
 
 use Exception;
+use Error;
 
 class Execute extends Service
 {
@@ -48,5 +49,7 @@ class Execute extends Service
             $this->logError($e->getMessage());
             exit(1);
         }
+
+        exit(0);
     }
 }

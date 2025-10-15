@@ -3,7 +3,7 @@
 namespace Controllers\Host;
 
 use Exception;
-use \Controllers\Common;
+use \Controllers\Utils\Validate;
 
 class Update
 {
@@ -19,7 +19,7 @@ class Update
      */
     public function updateHostname(int $id, string $hostname) : void
     {
-        $this->model->updateHostname($id, Common::validateData($hostname));
+        $this->model->updateHostname($id, Validate::string($hostname));
     }
 
     /**
@@ -27,7 +27,7 @@ class Update
      */
     public function updateOS(int $id, string $os) : void
     {
-        $this->model->updateOS($id, Common::validateData($os));
+        $this->model->updateOS($id, Validate::string($os));
     }
 
     /**
@@ -35,7 +35,7 @@ class Update
      */
     public function updateOsVersion(int $id, string $osVersion) : void
     {
-        $this->model->updateOsVersion($id, Common::validateData($osVersion));
+        $this->model->updateOsVersion($id, Validate::string($osVersion));
     }
 
     /**
@@ -43,7 +43,7 @@ class Update
      */
     public function updateOsFamily(int $id, string $osFamily) : void
     {
-        $this->model->updateOsFamily($id, Common::validateData($osFamily));
+        $this->model->updateOsFamily($id, Validate::string($osFamily));
     }
 
     /**
@@ -51,7 +51,7 @@ class Update
      */
     public function updateType(int $id, string $virtType) : void
     {
-        $this->model->updateType($id, Common::validateData($virtType));
+        $this->model->updateType($id, Validate::string($virtType));
     }
 
     /**
@@ -59,7 +59,7 @@ class Update
      */
     public function updateCpu(int $id, string $cpu) : void
     {
-        $this->model->updateCpu($id, Common::validateData($cpu));
+        $this->model->updateCpu($id, Validate::string($cpu));
     }
 
     /**
@@ -67,7 +67,7 @@ class Update
      */
     public function updateRam(int $id, string $ram) : void
     {
-        $this->model->updateRam($id, Common::validateData($ram));
+        $this->model->updateRam($id, Validate::string($ram));
     }
 
     /**
@@ -75,7 +75,7 @@ class Update
      */
     public function updateKernel(int $id, string $kernel) : void
     {
-        $this->model->updateKernel($id, Common::validateData($kernel));
+        $this->model->updateKernel($id, Validate::string($kernel));
     }
 
     /**
@@ -83,7 +83,7 @@ class Update
      */
     public function updateArch(int $id, string $arch) : void
     {
-        $this->model->updateArch($id, Common::validateData($arch));
+        $this->model->updateArch($id, Validate::string($arch));
     }
 
     /**
@@ -91,7 +91,7 @@ class Update
      */
     public function updateProfile(int $id, string $profile) : void
     {
-        $this->model->updateProfile($id, Common::validateData($profile));
+        $this->model->updateProfile($id, Validate::string($profile));
     }
 
     /**
@@ -99,7 +99,7 @@ class Update
      */
     public function updateEnv(int $id, string $env) : void
     {
-        $this->model->updateEnv($id, Common::validateData($env));
+        $this->model->updateEnv($id, Validate::string($env));
     }
 
     /**
@@ -119,7 +119,7 @@ class Update
      */
     public function updateLinupdateVersion(int $id, string $version) : void
     {
-        $this->model->updateLinupdateVersion($id, Common::validateData($version));
+        $this->model->updateLinupdateVersion($id, Validate::string($version));
     }
 
     /**

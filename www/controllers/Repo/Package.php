@@ -3,6 +3,7 @@
 namespace Controllers\Repo;
 
 use Exception;
+use \Controllers\Utils\Validate;
 
 class Package
 {
@@ -75,7 +76,7 @@ class Package
              *  Package name must not contain special characters
              *  Only allow dashes and underscores and one more character: the dot (because package names contain dots)
              */
-            if (!\Controllers\Common::isAlphanumDash($packageName, array('.', '+', '~'))) {
+            if (!Validate::alphaNumericHyphen($packageName, ['.', '+', '~'])) {
                 $uploadError++;
                 $packageInvalidName[] = $packageName;
                 continue;
@@ -291,7 +292,7 @@ class Package
         }
 
         foreach ($packages as $package) {
-            $name = \Controllers\Common::validateData($package);
+            $name = Validate::string($package);
             $path = REPOS_DIR . '/' . $name;
 
             /**
@@ -299,7 +300,7 @@ class Package
              *  Only allow dashes and underscores and one more character: the dot (because package names contain dots)
              *  Also allow slash because the path of the file also contains the subfolders to the package from the root of the repo
              */
-            if (!\Controllers\Common::isAlphanumDash($name, array('.', '/', '+', '~'))) {
+            if (!Validate::alphaNumericHyphen($name, ['.', '/', '+', '~'])) {
                 continue;
             }
 

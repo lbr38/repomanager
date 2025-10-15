@@ -25,8 +25,8 @@ class Event extends \Models\Model
             UNION
             SELECT Name, Version FROM packages_history
             WHERE Id_event = :id_event and State = :state");
-            $stmt->bindValue(':id_event', \Controllers\Common::validateData($eventId));
-            $stmt->bindValue(':state', \Controllers\Common::validateData($packageState));
+            $stmt->bindValue(':id_event', $eventId);
+            $stmt->bindValue(':state', $packageState);
             $result = $stmt->execute();
         } catch (Exception $e) {
             $this->dedicatedDb->logError($e);

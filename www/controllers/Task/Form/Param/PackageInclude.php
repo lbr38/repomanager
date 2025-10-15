@@ -3,6 +3,7 @@
 namespace Controllers\Task\Form\Param;
 
 use Exception;
+use \Controllers\Utils\Validate;
 
 class PackageInclude
 {
@@ -13,7 +14,7 @@ class PackageInclude
         }
 
         foreach ($packages as $package) {
-            if (!\Controllers\Common::isAlphanumdash($package, array('.*', '.'))) {
+            if (!Validate::alphaNumericHyphen($package, ['.*', '.'])) {
                 throw new Exception('List of packages to include contains invalid characters');
             }
         }
