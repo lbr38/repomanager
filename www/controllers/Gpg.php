@@ -453,7 +453,8 @@ class Gpg
         try {
             $this->httpRequestController->get([
                 'url' => $url,
-                'connectTimeout' => 5
+                'connectTimeout' => 5,
+                'proxy' => PROXY ?? null,
             ]);
         } catch (Exception $e) {
             throw new Exception('URL ' . $url . ' is not reachable: ' . $e->getMessage());
