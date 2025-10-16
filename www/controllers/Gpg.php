@@ -90,13 +90,13 @@ class Gpg
     /**
      *  Return an array with all editors GPG pub keys that were imported into repomanager keyring
      */
-    public function getTrustedKeys()
+    public static function getTrustedKeys()
     {
-        $knownGpgKeys = array();
+        $knownGpgKeys = [];
 
         $myprocess = new Process("/usr/bin/gpg --homedir " . GPGHOME . " --no-default-keyring --keyring " . GPGHOME . "/trustedkeys.gpg --list-key --fixed-list-mode --with-colons --with-fingerprint | sed 's/^pub/\\npub/g' | grep -v '^tru:'");
         $myprocess->execute();
-        $content = $myprocess->getOutput();
+        $content = trim($myprocess->getOutput());
         $myprocess->close();
 
         /**

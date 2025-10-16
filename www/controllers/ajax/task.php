@@ -129,7 +129,7 @@ if ($_POST['action'] == 'get-log-lines' and !empty($_POST['taskId']) and !empty(
     response(HTTP_OK, $content);
 }
 
-if ($_POST['action'] == 'get-task-status'  and !empty($_POST['taskId'])) {
+if ($_POST['action'] == 'get-task-status' and !empty($_POST['taskId'])) {
     try {
         $task = $myTask->getById($_POST['taskId']);
         $status = $task['Status'];
@@ -138,6 +138,36 @@ if ($_POST['action'] == 'get-task-status'  and !empty($_POST['taskId'])) {
     }
 
     response(HTTP_OK, $status);
+}
+
+/**
+ *  Get and return the content of a task process log file (for debugging purpose)
+ */
+if ($action == 'get-task-process-log' and !empty($_POST['id'])) {
+    try {
+        if (!is_numeric($_POST['id'])) {
+            throw new Exception('Invalid task id');
+        }
+
+        $logfile = MAIN_LOGS_DIR . '/repomanager-task-' . $_POST['id'] . '-log.process';
+
+        // Check if the process log file exists
+        if (!file_exists($logfile)) {
+            throw new Exception('Log file not found');
+        }
+
+        // Get the log content
+        $content = file_get_contents($logfile);
+
+        // Check if the log content was read successfully
+        if ($content === false) {
+            response(HTTP_BAD_REQUEST, 'Unable to read log file');
+        }
+    } catch (Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, $content);
 }
 
 response(HTTP_BAD_REQUEST, 'Invalid action');

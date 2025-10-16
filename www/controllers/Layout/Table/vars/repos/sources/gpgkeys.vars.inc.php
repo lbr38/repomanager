@@ -1,5 +1,4 @@
 <?php
-$mygpg = new \Controllers\Gpg();
 $reloadableTableOffset = 0;
 
 /**
@@ -12,7 +11,7 @@ if (!empty($_COOKIE['tables/repos/sources/gpgkeys/offset']) and is_numeric($_COO
 /**
  *  Get ALL imported GPG signing keys
  */
-$knownPublicKeys = $mygpg->getTrustedKeys();
+$knownPublicKeys = \Controllers\Gpg::getTrustedKeys();
 
 /**
  *  Use array_slice to get only 10 items
@@ -33,5 +32,3 @@ $reloadableTableTotalPages = ceil($reloadableTableTotalItems / 10);
  *  Calculate current page number
  */
 $reloadableTableCurrentPage = ceil($reloadableTableOffset / 10) + 1;
-
-unset($mygpg);

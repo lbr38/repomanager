@@ -17,7 +17,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
         /**
          *  Check that Release.xx file exists before downloading it to prevent error message displaying for nothing
          */
-        $releasePossibleNames = array('InRelease', 'Release', 'Release.gpg');
+        $releasePossibleNames = ['InRelease', 'Release', 'Release.gpg'];
 
         foreach ($releasePossibleNames as $releaseFile) {
             /**
@@ -63,11 +63,6 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
     private function parseReleaseFile(string $url)
     {
         /**
-         *  Get valid InRelease / Release file content
-         */
-        $content = file($this->workingDir . '/' . $this->validReleaseFile);
-
-        /**
          *  Process research of Packages indices for each arch
          */
         foreach ($this->arch as $arch) {
@@ -77,16 +72,16 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             if ($arch == 'src') {
                 $this->taskLogSubStepController->new('searching-source-indices', 'SEARCHING FOR SOURCES INDICES FILE LOCATION');
 
-                /**
-                 *  Sources pattern to search in the Release file
-                 *  e.g: main/source/Sources.xx or only Sources.xx
-                 */
-                $regex = $this->section . '/source/Sources';
-
-                // If non-compliant source repository, then search for Sources file in the root of the section (without /source/)
-                if ($this->nonCompliantSource == 'true') {
-                    $regex = $this->section . '/Sources(?:\.(?:gz|bz2|xz))?$';
-                }
+                $validPackageLocations = [
+                    $this->section . '/source/Sources',
+                    $this->section . '/source/Sources.gz',
+                    $this->section . '/source/Sources.bz2',
+                    $this->section . '/source/Sources.xz',
+                    'Sources',
+                    'Sources.gz',
+                    'Sources.bz2',
+                    'Sources.xz'
+                ];
             }
 
             /**
@@ -95,17 +90,22 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             if ($arch != 'src') {
                 $this->taskLogSubStepController->new('searching-packages-indices-' . $arch, 'SEARCHING FOR PACKAGES INDICES FILE FOR ARCH ' . strtoupper($arch));
 
-                /**
-                 *  Packages pattern to search in the Release file
-                 *  e.g: main/binary-amd64/Packages.xx or only Packages.xx
-                 */
-                $regex = $this->section . '/binary-' . $arch . '/Packages(?:\.(?:gz|bz2|xz))?$';
-
-                // If non-compliant source repository, then search for Packages file in the root of the section (without /binary-ARCH/)
-                if ($this->nonCompliantSource == 'true') {
-                    $regex = $this->section . '/Packages(?:\.(?:gz|bz2|xz))?$';
-                }
+                $validPackageLocations = [
+                    $this->section . '/binary-' . $arch . '/Packages',
+                    $this->section . '/binary-' . $arch . '/Packages.gz',
+                    $this->section . '/binary-' . $arch . '/Packages.bz2',
+                    $this->section . '/binary-' . $arch . '/Packages.xz',
+                    'Packages',
+                    'Packages.gz',
+                    'Packages.bz2',
+                    'Packages.xz'
+                ];
             }
+
+            /**
+             *  Get InRelease / Release file content
+             */
+            $content = file($this->workingDir . '/' . $this->validReleaseFile);
 
             /**
              *  Parse the whole file, searching for the desired lines
@@ -114,55 +114,61 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                 // Clean line
                 $line = trim($line);
 
-                if (preg_match("#$regex#m", $line)) {
-                    /**
-                     *  Explode the line to separate hashes and location
-                     */
-                    $splittedLine = explode(' ', $line);
+                if (empty($line)) {
+                    continue;
+                }
 
-                    /**
-                     *  We only need the location with its SHA256 (64 characters long)
-                     *  e.g: bd29d2ec28c10fec66a139d8e9a88ca01ff0f2533ca3fab8dc33c13b533059c1  1279885 main/binary-amd64/Packages
-                     */
-                    if (strlen($splittedLine[0]) == '64') {
-                        $location = end($splittedLine);
-                        $checksum = $splittedLine[0];
+                // Split line
+                $splittedLine = explode(' ', $line);
 
-                        /**
-                         *  Include this Packages.xx/Sources.xx file only if it does really exist on the remote server (sometimes it can be declared in Release but not exists...)
-                         */
-                        try {
-                            $this->httpRequestController->get([
-                                'url' => $url . '/' . $location,
-                                'connectTimeout' => 30,
-                                'timeout' => 30,
-                                'sslCertificatePath' => $this->sslCustomCertificate,
-                                'sslPrivateKeyPath' => $this->sslCustomPrivateKey,
-                                'sslCaCertificatePath' => $this->sslCustomCaCertificate,
-                                'proxy' => PROXY ?? null,
-                            ]);
-                        } catch (Exception $e) {
-                            // If the URL is not reachable, then try to find another Packages/Sources file
-                            continue;
-                        }
-
-                        /**
-                         *  If URL is reachable, then add the Packages/Sources file location to the global array
-                         */
-                        if ($arch == 'src') {
-                            $this->sourcesIndicesLocation[] = array('location' => $location, 'checksum' => $checksum);
-                        }
-                        if ($arch != 'src') {
-                            $this->packagesIndicesLocation[] = array('location' => $location, 'checksum' => $checksum);
-                        }
-
-                        $this->taskLogSubStepController->completed();
-
-                        /**
-                         *  Then ignore all next Packages.xx/Sources.xx indices file from the same arch as at least one has been found
-                         */
-                        continue 2;
+                if (!in_array(end($splittedLine), $validPackageLocations)) {
+                    if (DEBUG_MODE) {
+                        echo 'Ignoring line: ' . $line . PHP_EOL;
                     }
+
+                    continue;
+                }
+
+                if (strlen($splittedLine[0]) == '64') {
+                    $location = end($splittedLine);
+                    $checksum = $splittedLine[0];
+
+                    /**
+                     *  Include this Packages.xx/Sources.xx file only if it does really exist on the remote server (sometimes it can be declared in Release but not exists...)
+                     */
+                    try {
+                        $this->httpRequestController->get([
+                            'url' => $url . '/' . $location,
+                            'connectTimeout' => 30,
+                            'timeout' => 30,
+                            'sslCertificatePath' => $this->sslCustomCertificate,
+                            'sslPrivateKeyPath' => $this->sslCustomPrivateKey,
+                            'sslCaCertificatePath' => $this->sslCustomCaCertificate,
+                            'proxy' => PROXY ?? null,
+                        ]);
+                    } catch (Exception $e) {
+                        if (DEBUG_MODE) {
+                            echo $url . '/' . $location . ' is not reachable' . PHP_EOL;
+                        }
+
+                        // If the URL is not reachable, then try to find another Packages/Sources file
+                        continue;
+                    }
+
+                    /**
+                     *  If URL is reachable, then add the Packages/Sources file location to the global array
+                     */
+                    if ($arch == 'src') {
+                        $this->sourcesIndicesLocation[] = ['location' => $location, 'checksum' => $checksum];
+                    }
+                    if ($arch != 'src') {
+                        $this->packagesIndicesLocation[] = ['location' => $location, 'checksum' => $checksum];
+                    }
+
+                    $this->taskLogSubStepController->completed();
+
+                    // Then ignore all next Packages.xx/Sources.xx indices file from the same arch as at least one has been found
+                    continue 2;
                 }
             }
 
@@ -215,7 +221,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
         //                  *  e.g: 35e89f49cdfaa179e552aee1d67c5cdb  2478327 main/i18n/Translation-fr.bz2
         //                  */
         //                 if (strlen($splittedLine[0]) == '32') {
-        //                     $this->translationsLocation[] = array('location' => end($splittedLine), 'md5sum' => $splittedLine[0]);
+        //                     $this->translationsLocation[] = ['location' => end($splittedLine), 'md5sum' => $splittedLine[0]];
         //                 }
         //             }
         //         }
@@ -273,7 +279,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  Quit if the file extension is not supported (.gz, .bz2 or .xz)
              */
             if (!in_array($packagesIndicesFileExtension, ['', 'gz', 'bz2', 'xz'])) {
-                throw new Exception('Unsupported file extension ' . $packagesIndicesFileExtension . ' for <code>Packages</code> indices file. Please contact the developer to add support for this file extension.');
+                throw new Exception('Unsupported file extension <code>' . $packagesIndicesFileExtension . '</code> for <code>Packages</code> indices file. Please contact the developer to add support for this file extension.');
             }
 
             /**
@@ -321,7 +327,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                         // If package location starts with './' then remove it
                         $packageLocation = preg_replace('/^\.\//', '', $packageLocation);
 
-                        $this->debPackagesLocation[] = array('location' => $packageLocation, 'checksum' => $packageChecksum);
+                        $this->debPackagesLocation[] = ['location' => $packageLocation, 'checksum' => $packageChecksum];
 
                         unset($packageLocation, $packageChecksum);
                     }
@@ -473,7 +479,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                              *  Add founded packages location and md5sum to a global 'packages' array
                              */
                             if (!empty($packageLocation) and !empty($packageMd5)) {
-                                $packages[] = array('location' => $packageLocation, 'md5sum' => $packageMd5);
+                                $packages[] = ['location' => $packageLocation, 'md5sum' => $packageMd5];
                             }
                         }
 
@@ -485,7 +491,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                      */
                     if (!empty($directory) and !empty($packages)) {
                         foreach ($packages as $package) {
-                            $this->sourcesPackagesLocation[] = array('location' => $directory . '/' . $package['location'], 'md5sum' => $package['md5sum']);
+                            $this->sourcesPackagesLocation[] = ['location' => $directory . '/' . $package['location'], 'md5sum' => $package['md5sum']];
                         }
 
                         /**
@@ -524,17 +530,16 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
         /**
          *  List of possible Release files to check
          */
-        $releaseFiles = array(
-            array(
+        $releaseFiles = [
+            [
                 'name' => 'InRelease',
                 'signature' => ''
-            ),
-
-            array(
+            ],
+            [
                 'name' => 'Release',
                 'signature' => 'Release.gpg'
-            )
-        );
+            ]
+        ];
 
         /**
          *  If signature check is disabled, then just set a valid Release file

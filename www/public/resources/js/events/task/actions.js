@@ -42,6 +42,32 @@ $(document).on('click','.show-task-btn',function () {
 });
 
 /**
+ *  Event: view task process log (debug log)
+ */
+$(document).on('click','.view-task-process-log',function () {
+    var id = $(this).attr('task-id');
+
+    mymodal.loading();
+
+    ajaxRequest(
+        // Controller:
+        'task',
+        // Action:
+        'get-task-process-log',
+        // Data:
+        {
+            id: id
+        },
+        // Print success alert:
+        false,
+        // Print error alert:
+        true
+    ).then(function () {
+        mymodal.print(jsonValue.message, 'Task #' + id + ' process log', true, false);
+    });
+});
+
+/**
  *  Event: enable / disable automatic scroll on log
  */
 $(document).on('click','#autoscroll-btn',function () {

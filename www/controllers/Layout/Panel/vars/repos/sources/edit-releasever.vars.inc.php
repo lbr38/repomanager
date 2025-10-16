@@ -1,6 +1,5 @@
 <?php
 $mysourceRepo = new \Controllers\Repo\Source\Source();
-$myGpg = new \Controllers\Gpg();
 $description = '';
 $gpgKeys = [];
 
@@ -47,4 +46,4 @@ if (!empty($sourceDefinition['releasever'][$releaseverId]['gpgkeys'])) {
 /**
  *  Retrieve all trusted GPG keys from keyring
  */
-$trustedGpgKeys = $myGpg->getTrustedKeys();
+$trustedGpgKeys = \Controllers\Gpg::getTrustedKeys();

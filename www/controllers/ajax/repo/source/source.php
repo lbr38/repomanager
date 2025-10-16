@@ -71,7 +71,7 @@ if ($_POST['action'] == 'delete-gpgkey' and !empty($_POST['id'])) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, "GPG key <b>" . $_POST['gpgKeyId'] . "</b> has been deleted");
+    response(HTTP_OK, 'GPG key(s) deleted');
 }
 
 /**

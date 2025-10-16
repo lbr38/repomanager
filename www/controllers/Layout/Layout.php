@@ -2,9 +2,6 @@
 
 namespace Controllers\Layout;
 
-use Exception;
-use Datetime;
-
 class Layout
 {
     public function render(string $tab)

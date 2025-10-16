@@ -4,10 +4,11 @@ namespace Controllers\Repo\Mirror;
 
 use Exception;
 use SimpleXMLElement;
+use \Controllers\Gpg;
 
 class Rpm extends \Controllers\Repo\Mirror\Mirror
 {
-    private $archUrls = array();
+    private $archUrls = [];
 
     /**
      *  Download repomd.xml file
@@ -88,27 +89,25 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
 
         /**
          *  Get modules file extension
+         */
+        $modulesFileExtension = pathinfo($this->modulesLocation, PATHINFO_EXTENSION);
+
+        /**
+         *  Quit if the file extension is not supported (.gz, .bz2 or .xz)
+         */
+        if (!in_array($modulesFileExtension, ['gz', 'bz2', 'xz', 'zst', 'yaml'])) {
+            throw new Exception('Unsupported file extension <code>' . $modulesFileExtension . '</code> for <code>modules</code> file. Please contact the developer to add support for this file extension.');
+        }
+
+        /**
          *  We'll give this modules file a temporary name, to avoid it being included automatically by createrepo_c (it fails every time with modules.yaml file)
          *  It will be renamed and imported by modifyrepo_c later
          */
-        if (pathinfo($this->modulesLocation, PATHINFO_EXTENSION) == 'gz') {
-            $modulesFileExtension = 'gz';
-            $modulesFileTargetName = 'modules-temp.yaml.gz';
-        } else if (pathinfo($this->modulesLocation, PATHINFO_EXTENSION) == 'bz2') {
-            $modulesFileExtension = 'bz2';
-            $modulesFileTargetName = 'modules-temp.yaml.bz2';
-        } else if (pathinfo($this->modulesLocation, PATHINFO_EXTENSION) == 'xz') {
-            $modulesFileExtension = 'xz';
-            $modulesFileTargetName = 'modules-temp.yaml.xz';
-        } else if (pathinfo($this->modulesLocation, PATHINFO_EXTENSION) == 'yaml') {
-            $modulesFileExtension = 'yaml';
-            $modulesFileTargetName = 'modules-temp.yaml';
-        } else if (pathinfo($this->modulesLocation, PATHINFO_EXTENSION) == 'zst') {
-            $modulesFileExtension = 'zst';
-            $modulesFileTargetName = 'modules-temp.yaml.zst';
-        } else {
-            throw new Exception('Unsupported file extension ' . pathinfo($this->modulesLocation, PATHINFO_EXTENSION) . ' for <code>modules</code> file. Please contact the developer to add support for this file extension.');
-        }
+        $modulesFileExtension == 'gz' ? $modulesFileTargetName = 'modules-temp.yaml.gz' : null;
+        $modulesFileExtension == 'bz2' ? $modulesFileTargetName = 'modules-temp.yaml.bz2' : null;
+        $modulesFileExtension == 'xz' ? $modulesFileTargetName = 'modules-temp.yaml.xz' : null;
+        $modulesFileExtension == 'zst' ? $modulesFileTargetName = 'modules-temp.yaml.zst' : null;
+        $modulesFileExtension == 'yaml' ? $modulesFileTargetName = 'modules-temp.yaml' : null;
 
         /**
          *  Download modules file
@@ -127,64 +126,29 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         /**
          *  If modules file has been downloaded as a .gz file, uncompress it (otherwise it will fail to be included to the metadata)
          */
-        if ($modulesFileExtension == 'gz') {
-            try {
+        try {
+            if ($modulesFileExtension == 'gz') {
                 \Controllers\Common::gunzip($this->workingDir . '/' . $modulesFileTargetName);
-            } catch (Exception $e) {
-                throw new Exception('Error while uncompressing <code>' . $modulesFileTargetName . '</code><br><pre class="codeblock">' . $e->getMessage() . '</pre>');
             }
 
-            /**
-             *  Delete original .gz file
-             */
-            if (!unlink($this->workingDir . '/' . $modulesFileTargetName)) {
-                throw new Exception('Could not delete <code>' . $modulesFileTargetName . '</code> file');
-            }
-        }
-
-        if ($modulesFileExtension == 'bz2') {
-            try {
+            if ($modulesFileExtension == 'bz2') {
                 \Controllers\Common::bunzip2($this->workingDir . '/' . $modulesFileTargetName, $this->workingDir . '/modules.yaml');
-            } catch (Exception $e) {
-                throw new Exception('Error while uncompressing <code>' . $modulesFileTargetName . '</code><br><pre class="codeblock">' . $e->getMessage() . '</pre>');
             }
 
-            /**
-             *  Delete original .bz2 file
-             */
-            if (!unlink($this->workingDir . '/' . $modulesFileTargetName)) {
-                throw new Exception('Could not delete <code>' . $modulesFileTargetName . '</code> file');
-            }
-        }
-
-        if ($modulesFileExtension == 'xz') {
-            try {
+            if ($modulesFileExtension == 'xz') {
                 \Controllers\Common::xzUncompress($this->workingDir . '/' . $modulesFileTargetName, $this->workingDir . '/modules.yaml');
-            } catch (Exception $e) {
-                throw new Exception('Error while uncompressing <code>' . $modulesFileTargetName . '</code><br><pre class="codeblock">' . $e->getMessage() . '</pre>');
             }
 
-            /**
-             *  Delete original .xz file
-             */
-            if (!unlink($this->workingDir . '/' . $modulesFileTargetName)) {
-                throw new Exception('Could not delete <code>' . $modulesFileTargetName . '</code> file');
+            if ($modulesFileExtension == 'zst') {
+                \Controllers\Common::zstdUncompress($this->workingDir . '/' . $modulesFileTargetName);
             }
+        } catch (Exception $e) {
+            throw new Exception('Error while uncompressing <code>' . $modulesFileTargetName . '</code><br><pre class="codeblock">' . $e->getMessage() . '</pre>');
         }
 
-        if ($modulesFileExtension == 'zst') {
-            try {
-                \Controllers\Common::zstdUncompress($this->workingDir . '/' . $modulesFileTargetName);
-            } catch (Exception $e) {
-                throw new Exception('Error while uncompressing <code>' . $modulesFileTargetName . '</code><br><pre class="codeblock">' . $e->getMessage() . '</pre>');
-            }
-
-            /**
-             *  Delete original .zst file
-             */
-            if (!unlink($this->workingDir . '/' . $modulesFileTargetName)) {
-                throw new Exception('Could not delete <code>' . $modulesFileTargetName . '</code> file');
-            }
+        // Delete original (uncompressed) file
+        if (!unlink($this->workingDir . '/' . $modulesFileTargetName)) {
+            throw new Exception('Could not delete <code>' . $this->workingDir . '/' . $modulesFileTargetName . '</code>');
         }
 
         $this->taskLogSubStepController->completed();
@@ -204,25 +168,30 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
 
         $this->taskLogSubStepController->new('getting-updateinfo', 'GETTING UPDATEINFO.XML.GZ', 'From ' . $url . '/' . $this->updateInfoLocation);
 
-        if (pathinfo($this->updateInfoLocation, PATHINFO_EXTENSION) == 'gz') {
-            $updateInfoFileExtension = 'gz';
-            $updateInfoFileTargetName = 'updateinfo.xml.gz';
-        } else if (pathinfo($this->updateInfoLocation, PATHINFO_EXTENSION) == 'bz2') {
-            $updateInfoFileExtension = 'bz2';
-            $updateInfoFileTargetName = 'updateinfo.xml.bz2';
-        } else if (pathinfo($this->updateInfoLocation, PATHINFO_EXTENSION) == 'xz') {
-            $updateInfoFileExtension = 'xz';
-            $updateInfoFileTargetName = 'updateinfo.xml.xz';
-        } else if (pathinfo($this->updateInfoLocation, PATHINFO_EXTENSION) == 'xml') {
-            $updateInfoFileExtension = 'xml';
-            $updateInfoFileTargetName = 'updateinfo.xml';
-        } else if (pathinfo($this->updateInfoLocation, PATHINFO_EXTENSION) == 'zst') {
-            $updateInfoFileExtension = 'zst';
-            $updateInfoFileTargetName = 'updateinfo.xml.zst';
-        } else {
-            throw new Exception('Unsupported file extension ' . pathinfo($this->updateInfoLocation, PATHINFO_EXTENSION) . ' for <code>updateinfo</code> file. Please contact the developer to add support for this file extension.');
+        /**
+         *  Get updateinfo file extension
+         */
+        $updateInfoFileExtension = pathinfo($this->updateInfoLocation, PATHINFO_EXTENSION);
+
+        /**
+         *  Quit if the file extension is not supported (.gz, .bz2, .xz, .xml or .zst)
+         */
+        if (!in_array($updateInfoFileExtension, ['gz', 'bz2', 'xz', 'xml', 'zst'])) {
+            throw new Exception('Unsupported file extension <code>' . $updateInfoFileExtension . '</code> for <code>updateinfo</code> file. Please contact the developer to add support for this file extension.');
         }
 
+        /**
+         *  We'll give this updateinfo file a target name according to its file extension
+         */
+        $updateInfoFileExtension == 'gz' ? $updateInfoFileTargetName = 'updateinfo.xml.gz' : null;
+        $updateInfoFileExtension == 'bz2' ? $updateInfoFileTargetName = 'updateinfo.xml.bz2' : null;
+        $updateInfoFileExtension == 'xz' ? $updateInfoFileTargetName = 'updateinfo.xml.xz' : null;
+        $updateInfoFileExtension == 'xml' ? $updateInfoFileTargetName = 'updateinfo.xml' : null;
+        $updateInfoFileExtension == 'zst' ? $updateInfoFileTargetName = 'updateinfo.xml.zst' : null;
+
+        /**
+         *  Download updateinfo file
+         */
         if (!$this->download($url . '/' . $this->updateInfoLocation, $this->workingDir . '/' . $updateInfoFileTargetName)) {
             throw new Exception('Could not download <code>updateinfo.xml.gz</code>');
         }
@@ -237,64 +206,29 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         /**
          *  If updateinfo file has been downloaded as a .gz file, uncompress it
          */
-        if ($updateInfoFileExtension == 'gz') {
-            try {
+        try {
+            if ($updateInfoFileExtension == 'gz') {
                 \Controllers\Common::gunzip($this->workingDir . '/' . $updateInfoFileTargetName);
-            } catch (Exception $e) {
-                throw new Exception('Could not uncompress <code>' . $updateInfoFileTargetName . '</code><br><pre class="codeblock">' . $e->getMessage() . '</pre>');
             }
 
-            /**
-             *  Delete original .gz file
-             */
-            if (!unlink($this->workingDir . '/' . $updateInfoFileTargetName)) {
-                throw new Exception('Could not delete <code>' . $updateInfoFileTargetName . '</code> file');
-            }
-        }
-
-        if ($updateInfoFileExtension == 'bz2') {
-            try {
+            if ($updateInfoFileExtension == 'bz2') {
                 \Controllers\Common::bunzip2($this->workingDir . '/' . $updateInfoFileTargetName, $this->workingDir . '/updateinfo.xml');
-            } catch (Exception $e) {
-                throw new Exception('Could not uncompress <code>' . $updateInfoFileTargetName . '</code><br><pre class="codeblock">' . $e->getMessage() . '</pre>');
             }
 
-            /**
-             *  Delete original .bz2 file
-             */
-            if (!unlink($this->workingDir . '/' . $updateInfoFileTargetName)) {
-                throw new Exception('Could not delete <code>' . $updateInfoFileTargetName . '</code> file');
-            }
-        }
-
-        if ($updateInfoFileExtension == 'xz') {
-            try {
+            if ($updateInfoFileExtension == 'xz') {
                 \Controllers\Common::xzUncompress($this->workingDir . '/' . $updateInfoFileTargetName, $this->workingDir . '/updateinfo.xml');
-            } catch (Exception $e) {
-                throw new Exception('Error while uncompressing <code>' . $updateInfoFileTargetName . '</code><br><pre class="codeblock">' . $e->getMessage() . '</pre>');
             }
 
-            /**
-             *  Delete original .xz file
-             */
-            if (!unlink($this->workingDir . '/' . $updateInfoFileTargetName)) {
-                throw new Exception('Could not delete <code>' . $updateInfoFileTargetName . '</code> file');
+            if ($updateInfoFileExtension == 'zst') {
+                \Controllers\Common::zstdUncompress($this->workingDir . '/' . $updateInfoFileTargetName);
             }
+        } catch (Exception $e) {
+            throw new Exception('Error while uncompressing <code>' . $updateInfoFileTargetName . '</code><br><pre class="codeblock">' . $e->getMessage() . '</pre>');
         }
 
-        if ($updateInfoFileExtension == 'zst') {
-            try {
-                \Controllers\Common::zstdUncompress($this->workingDir . '/' . $updateInfoFileTargetName);
-            } catch (Exception $e) {
-                throw new Exception('Error while uncompressing <code>' . $updateInfoFileTargetName . '</code><br><pre class="codeblock">' . $e->getMessage() . '</pre>');
-            }
-
-            /**
-             *  Delete original .zst file
-             */
-            if (!unlink($this->workingDir . '/' . $updateInfoFileTargetName)) {
-                throw new Exception('Could not delete <code>' . $updateInfoFileTargetName . '</code> file');
-            }
+        // Delete original (uncompressed) file
+        if (!unlink($this->workingDir . '/' . $updateInfoFileTargetName)) {
+            throw new Exception('Could not delete <code>' . $this->workingDir . '/' . $updateInfoFileTargetName . '</code>');
         }
 
         $this->taskLogSubStepController->completed();
@@ -457,7 +391,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
     private function parsePrimaryPackagesList(string $primaryFile)
     {
         $error = 0;
-        $this->rpmPackagesLocation = array();
+        $this->rpmPackagesLocation = [];
 
         $this->taskLogSubStepController->new('parsing-primary', 'PARSING PACKAGES LIST', 'From ' . $primaryFile);
 
@@ -555,14 +489,13 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                  */
                 if (empty($jsonArray['package']['checksum'])) {
                     throw new Exception('Could not find checksum value for package ' . $packageLocation);
-                    $error++;
                 } else {
                     $packageChecksum = $jsonArray['package']['checksum'];
 
                     /**
                      *  If path and checksum have been parsed, had them to the global rpm packages list array
                      */
-                    $this->rpmPackagesLocation[] = array('location' => $packageLocation, 'checksum' => $packageChecksum);
+                    $this->rpmPackagesLocation[] = ['location' => $packageLocation, 'checksum' => $packageChecksum];
                 }
             }
         }
@@ -606,7 +539,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                     /**
                      *  If path, arch and checksum have been parsed, had them to the global rpm packages list array
                      */
-                    $this->rpmPackagesLocation[] = array('location' => $packageLocation, 'arch' => $packageArch, 'checksum' => $packageChecksum);
+                    $this->rpmPackagesLocation[] = ['location' => $packageLocation, 'arch' => $packageArch, 'checksum' => $packageChecksum];
                 }
             }
         }
@@ -639,19 +572,15 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          *  If GPG signature check is enabled, either use a distant http:// GPG key or use the repomanager keyring
          */
         if ($this->checkSignature == 'true') {
-            $mygpg = new \Controllers\GPG();
-
             /**
              *  Get all known editors GPG public keys imported into repomanager keyring
              */
-            $knownPublicKeys = $mygpg->getTrustedKeys();
+            $knownPublicKeys = Gpg::getTrustedKeys();
 
             /**
              *  Filter to retrieve key Id column only
              */
             $knownPublicKeys = array_column($knownPublicKeys, 'id');
-
-            unset($mygpg, $myprocess);
         }
 
         /**
@@ -1104,7 +1033,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                 /**
                  *  If the URL is not reachable, add it to the errorUrls array
                  */
-                $errorUrls[] = array('url' => $url, 'error' => $e->getMessage());
+                $errorUrls[] = ['url' => $url, 'error' => $e->getMessage()];
 
                 /**
                  *  Remove the unreachable URL from possible URLs array, others URLs will be tested
