@@ -80,11 +80,22 @@ fi
 /usr/sbin/service postfix start
 
 # Initialize database
-/bin/su -s /bin/bash -c "/usr/bin/php $WWW_DIR/tools/database/initialize.php" www-data
+setpriv --reuid www-data --regid www-data --groups www-data,repomanager /usr/bin/php "$WWW_DIR/tools/database/initialize.php"
 
 # Update database (if needed)
-/bin/su -s /bin/bash -c "/usr/bin/php $WWW_DIR/tools/database/update.php" www-data
+setpriv --reuid www-data --regid www-data --groups www-data,repomanager /usr/bin/php "$WWW_DIR/tools/database/update.php"
 
 # Start repomanager service
-# exec setpriv --reuid www-data --regid www-data --groups www-data,repomanager /usr/bin/php "$WWW_DIR/tools/service.php"
-/bin/su -s /bin/bash -c "/usr/bin/php $WWW_DIR/tools/service.php" www-data
+setpriv --reuid www-data --regid www-data --groups www-data,repomanager /usr/bin/php "$WWW_DIR/tools/service.php" &
+main_pid=$!
+
+terminate() {
+    kill -s SIGTERM $main_pid
+    /usr/sbin/service postfix stop
+    /usr/sbin/service nginx stop
+    /usr/sbin/service php8.3-fpm stop
+    exit
+}
+
+trap terminate TERM
+wait
