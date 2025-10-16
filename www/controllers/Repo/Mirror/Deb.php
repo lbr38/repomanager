@@ -30,7 +30,8 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                     'timeout' => 30,
                     'sslCertificatePath' => $this->sslCustomCertificate,
                     'sslPrivateKeyPath' => $this->sslCustomPrivateKey,
-                    'sslCaCertificatePath' => $this->sslCustomCaCertificate
+                    'sslCaCertificatePath' => $this->sslCustomCaCertificate,
+                    'proxy' => PROXY ?? null,
                 ]);
             } catch (Exception $e) {
                 // If the URL is not reachable, then continue to the next possible Release file
@@ -137,7 +138,8 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                                 'timeout' => 30,
                                 'sslCertificatePath' => $this->sslCustomCertificate,
                                 'sslPrivateKeyPath' => $this->sslCustomPrivateKey,
-                                'sslCaCertificatePath' => $this->sslCustomCaCertificate
+                                'sslCaCertificatePath' => $this->sslCustomCaCertificate,
+                                'proxy' => PROXY ?? null,
                             ]);
                         } catch (Exception $e) {
                             // If the URL is not reachable, then try to find another Packages/Sources file

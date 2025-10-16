@@ -1097,7 +1097,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                     'timeout' => 30,
                     'sslCertificatePath' => $this->sslCustomCertificate,
                     'sslPrivateKeyPath' => $this->sslCustomPrivateKey,
-                    'sslCaCertificatePath' => $this->sslCustomCaCertificate
+                    'sslCaCertificatePath' => $this->sslCustomCaCertificate,
+                    'proxy' => PROXY ?? null,
                 ]);
             } catch (Exception $e) {
                 /**
