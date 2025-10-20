@@ -4,7 +4,13 @@
 
         <div class="text-right">
             <p title="Task execution date"><?= DateTime::createFromFormat('Y-m-d', $taskInfo['Date'])->format('d-m-Y') . ' ' . $taskInfo['Time'] ?></p>
-            <p title="Task Id">Task #<?= $taskId ?></p>
+            <div class="flex align-item-center column-gap-5 justify-end">
+                <p title="Task Id">Task #<?= $taskId ?></p>
+                <?php
+                if (DEVEL and file_exists(MAIN_LOGS_DIR . '/repomanager-task-' . $taskId . '-log.process')) {
+                    echo '<img src="/assets/icons/file.svg" class="icon view-task-process-log" task-id="' . $taskId . '" title="Debug log" />';
+                } ?>
+            </div>
         </div>
     </div>
 </div>

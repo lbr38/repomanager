@@ -15,7 +15,7 @@ if ($_POST['action'] == 'size' and !empty($_POST['path'])) {
          *  Calculate repo size
          */
         $size = \Controllers\Filesystem\Directory::getSize(REPOS_DIR . '/' . $_POST['path']);
-        $size = \Controllers\Common::sizeFormat($size);
+        $size = \Controllers\Utils\Convert::sizeToHuman($size);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, 'Could not retrieve size of repository ' . $_POST['path'] . ': ' . $e->getMessage());
     }

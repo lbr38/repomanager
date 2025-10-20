@@ -2,7 +2,7 @@
 
 namespace Controllers\App\Config;
 
-use \Controllers\Common;
+use \Controllers\Utils\Validate;
 
 class Settings
 {
@@ -597,67 +597,67 @@ class Settings
         }
 
         if (!defined('OIDC_PROVIDER_URL') and isset($appYaml['oidc']['provider_url'])) {
-            define('OIDC_PROVIDER_URL', Common::validateData($appYaml['oidc']['provider_url']));
+            define('OIDC_PROVIDER_URL', Validate::string($appYaml['oidc']['provider_url']));
         }
 
         if (!defined('OIDC_AUTHORIZATION_ENDPOINT') and isset($appYaml['oidc']['authorization_endpoint'])) {
-            define('OIDC_AUTHORIZATION_ENDPOINT', Common::validateData($appYaml['oidc']['authorization_endpoint']));
+            define('OIDC_AUTHORIZATION_ENDPOINT', Validate::string($appYaml['oidc']['authorization_endpoint']));
         }
 
         if (!defined('OIDC_TOKEN_ENDPOINT') and isset($appYaml['oidc']['token_endpoint'])) {
-            define('OIDC_TOKEN_ENDPOINT', Common::validateData($appYaml['oidc']['token_endpoint']));
+            define('OIDC_TOKEN_ENDPOINT', Validate::string($appYaml['oidc']['token_endpoint']));
         }
 
         if (!defined('OIDC_USERINFO_ENDPOINT') and isset($appYaml['oidc']['userinfo_endpoint'])) {
-            define('OIDC_USERINFO_ENDPOINT', Common::validateData($appYaml['oidc']['userinfo_endpoint']));
+            define('OIDC_USERINFO_ENDPOINT', Validate::string($appYaml['oidc']['userinfo_endpoint']));
         }
 
         if (!defined('OIDC_SCOPES') and isset($appYaml['oidc']['scopes'])) {
-            define('OIDC_SCOPES', Common::validateData($appYaml['oidc']['scopes']));
+            define('OIDC_SCOPES', Validate::string($appYaml['oidc']['scopes']));
         }
 
         if (!defined('OIDC_CLIENT_ID') and isset($appYaml['oidc']['client_id'])) {
-            define('OIDC_CLIENT_ID', Common::validateData($appYaml['oidc']['client_id']));
+            define('OIDC_CLIENT_ID', Validate::string($appYaml['oidc']['client_id']));
         }
 
         if (!defined('OIDC_CLIENT_SECRET') and isset($appYaml['oidc']['client_secret'])) {
-            define('OIDC_CLIENT_SECRET', Common::validateData($appYaml['oidc']['client_secret']));
+            define('OIDC_CLIENT_SECRET', Validate::string($appYaml['oidc']['client_secret']));
         }
 
         if (!defined('OIDC_USERNAME') and isset($appYaml['oidc']['username'])) {
-            define('OIDC_USERNAME', Common::validateData($appYaml['oidc']['username']));
+            define('OIDC_USERNAME', Validate::string($appYaml['oidc']['username']));
         }
 
         if (!defined('OIDC_FIRST_NAME') and isset($appYaml['oidc']['first_name'])) {
-            define('OIDC_FIRST_NAME', Common::validateData($appYaml['oidc']['first_name']));
+            define('OIDC_FIRST_NAME', Validate::string($appYaml['oidc']['first_name']));
         }
 
         if (!defined('OIDC_LAST_NAME') and isset($appYaml['oidc']['last_name'])) {
-            define('OIDC_LAST_NAME', Common::validateData($appYaml['oidc']['last_name']));
+            define('OIDC_LAST_NAME', Validate::string($appYaml['oidc']['last_name']));
         }
 
         if (!defined('OIDC_EMAIL') and isset($appYaml['oidc']['email'])) {
-            define('OIDC_EMAIL', Common::validateData($appYaml['oidc']['email']));
+            define('OIDC_EMAIL', Validate::string($appYaml['oidc']['email']));
         }
 
         if (!defined('OIDC_GROUPS') and isset($appYaml['oidc']['groups'])) {
-            define('OIDC_GROUPS', Common::validateData($appYaml['oidc']['groups']));
+            define('OIDC_GROUPS', Validate::string($appYaml['oidc']['groups']));
         }
 
         if (!defined('OIDC_GROUP_ADMINISTRATOR') and isset($appYaml['oidc']['group_administrator'])) {
-            define('OIDC_GROUP_ADMINISTRATOR', Common::validateData($appYaml['oidc']['group_administrator']));
+            define('OIDC_GROUP_ADMINISTRATOR', Validate::string($appYaml['oidc']['group_administrator']));
         }
 
         if (!defined('OIDC_GROUP_SUPER_ADMINISTRATOR') and isset($appYaml['oidc']['group_super_administrator'])) {
-            define('OIDC_GROUP_SUPER_ADMINISTRATOR', Common::validateData($appYaml['oidc']['group_super_administrator']));
+            define('OIDC_GROUP_SUPER_ADMINISTRATOR', Validate::string($appYaml['oidc']['group_super_administrator']));
         }
 
         if (!defined('OIDC_HTTP_PROXY') and isset($appYaml['oidc']['http_proxy'])) {
-            define('OIDC_HTTP_PROXY', Common::validateData($appYaml['oidc']['http_proxy']));
+            define('OIDC_HTTP_PROXY', Validate::string($appYaml['oidc']['http_proxy']));
         }
 
         if (!defined('OIDC_CERT_PATH') and isset($appYaml['oidc']['cert_path'])) {
-            define('OIDC_CERT_PATH', Common::validateData($appYaml['oidc']['cert_path']));
+            define('OIDC_CERT_PATH', Validate::string($appYaml['oidc']['cert_path']));
         }
 
         if (!defined('__LOAD_SETTINGS_YAML_ERROR')) {

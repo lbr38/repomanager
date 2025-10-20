@@ -3,7 +3,7 @@
 namespace Controllers\Repo;
 
 use Exception;
-use DateTime;
+use \Controllers\Utils\Validate;
 
 class Environment
 {
@@ -40,6 +40,6 @@ class Environment
             throw new Exception('Description contains invalid characters');
         }
 
-        $this->model->updateDescription($id, \Controllers\Common::validateData($description));
+        $this->model->updateDescription($id, Validate::string($description));
     }
 }

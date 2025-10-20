@@ -15,7 +15,7 @@
         /**
          *  Generate a random string to make radio Id unique and avoid conflicts with other forms
          */
-        $randomId = \Controllers\Common::randomString(32);
+        $randomId = \Controllers\Utils\Random::string(32);
 
         if (in_array('unique', $scheduleForm['type']) and in_array('recurring', $scheduleForm['type'])) : ?>
             <div class="switch-field">

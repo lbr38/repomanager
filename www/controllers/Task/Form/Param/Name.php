@@ -3,6 +3,7 @@
 namespace Controllers\Task\Form\Param;
 
 use Exception;
+use \Controllers\Utils\Validate;
 
 class Name
 {
@@ -12,7 +13,7 @@ class Name
             throw new Exception('Repository name must be specified');
         }
 
-        if (!\Controllers\Common::isAlphanum($name, array('-', '_'))) {
+        if (!Validate::alphaNumericHyphen($name)) {
             throw new Exception('Repository name contains invalid characters');
         }
     }

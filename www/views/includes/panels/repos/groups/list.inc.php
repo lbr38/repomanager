@@ -47,7 +47,7 @@ if (!empty($repoGroupsList)) : ?>
                     if (!empty($reposIn)) {
                         foreach ($reposIn as $repo) {
                             if ($repo['Package_type'] == 'rpm') {
-                                echo '<option value="' . $repo['repoId'] . '" selected>' . $repo['Name'] . '</option>';
+                                echo '<option value="' . $repo['repoId'] . '" selected>' . $repo['Name'] . ' ❯ ' . $repo['Releasever'] . '</option>';
                             }
                             if ($repo['Package_type'] == 'deb') {
                                 echo '<option value="' . $repo['repoId'] . '" selected>' . $repo['Name'] . ' ❯ ' . $repo['Dist'] . ' ❯ ' . $repo['Section'] . '</option>';
@@ -61,7 +61,7 @@ if (!empty($repoGroupsList)) : ?>
                     if (!empty($reposNotIn)) {
                         foreach ($reposNotIn as $repo) {
                             if ($repo['Package_type'] == 'rpm') {
-                                echo '<option value="' . $repo['repoId'] . '">' . $repo['Name'] . '</option>';
+                                echo '<option value="' . $repo['repoId'] . '">' . $repo['Name'] . ' ❯ ' . $repo['Releasever'] . '</option>';
                             }
                             if ($repo['Package_type'] == 'deb') {
                                 echo '<option value="' . $repo['repoId'] . '">' . $repo['Name'] . ' ❯ ' . $repo['Dist'] . ' ❯ ' . $repo['Section'] . '</option>';

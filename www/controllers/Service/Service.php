@@ -3,6 +3,7 @@
 namespace Controllers\Service;
 
 use Exception;
+use Controllers\Utils\Convert;
 use Controllers\Log\Cli as CliLog;
 use Controllers\Log\File as FileLog;
 
@@ -99,7 +100,7 @@ class Service
      */
     public function logDebug(string $message) : void
     {
-        if (!DEBUG_MODE) {
+        if (!Convert::toBool(self::getSettings('DEBUG_MODE'))) {
             return;
         }
 

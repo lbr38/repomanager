@@ -3,6 +3,7 @@
 namespace Controllers;
 
 use Exception;
+use \Controllers\Utils\Validate;
 
 class Gpg
 {
@@ -89,13 +90,13 @@ class Gpg
     /**
      *  Return an array with all editors GPG pub keys that were imported into repomanager keyring
      */
-    public function getTrustedKeys()
+    public static function getTrustedKeys()
     {
-        $knownGpgKeys = array();
+        $knownGpgKeys = [];
 
         $myprocess = new Process("/usr/bin/gpg --homedir " . GPGHOME . " --no-default-keyring --keyring " . GPGHOME . "/trustedkeys.gpg --list-key --fixed-list-mode --with-colons --with-fingerprint | sed 's/^pub/\\npub/g' | grep -v '^tru:'");
         $myprocess->execute();
-        $content = $myprocess->getOutput();
+        $content = trim($myprocess->getOutput());
         $myprocess->close();
 
         /**
@@ -173,7 +174,7 @@ class Gpg
         /**
          *  Generate random passphrase
          */
-        $this->passphrase = \Controllers\Common::randomStrongString(64);
+        $this->passphrase = \Controllers\Utils\Random::strongString(64);
 
         /**
          *  Generate template
@@ -287,9 +288,9 @@ class Gpg
      */
     public function import(string $gpgKeyUrl, string $gpgKeyFingerprint, string $gpgKeyPlainText)
     {
-        $gpgKeyUrl = \Controllers\Common::validateData($gpgKeyUrl);
-        $gpgKeyFingerprint = \Controllers\Common::validateData($gpgKeyFingerprint);
-        $gpgKeyPlainText = \Controllers\Common::validateData($gpgKeyPlainText);
+        $gpgKeyUrl = Validate::string($gpgKeyUrl);
+        $gpgKeyFingerprint = Validate::string($gpgKeyFingerprint);
+        $gpgKeyPlainText = Validate::string($gpgKeyPlainText);
 
         /**
          *  If more than one parameter is specified, quit
@@ -424,12 +425,12 @@ class Gpg
      */
     public function importPlainText(string $gpgKey) : array
     {
-        $gpgKey = \Controllers\Common::validateData($gpgKey);
+        $gpgKey = Validate::string($gpgKey);
 
         /**
          *  Check if the ASCII text contains invalid characters
          */
-        if (!\Controllers\Common::isAlphanum($gpgKey, array('-', '=', '+', '/', ' ', ':', '.', '(', ')', "\n", "\r"))) {
+        if (!Validate::alphaNumeric($gpgKey, ['-', '=', '+', '/', ' ', ':', '.', '(', ')', "\n", "\r"])) {
             throw new Exception('ASCII GPG key contains invalid characters');
         }
 
@@ -453,7 +454,8 @@ class Gpg
         try {
             $this->httpRequestController->get([
                 'url' => $url,
-                'connectTimeout' => 5
+                'connectTimeout' => 5,
+                'proxy' => PROXY ?? null,
             ]);
         } catch (Exception $e) {
             throw new Exception('URL ' . $url . ' is not reachable: ' . $e->getMessage());
@@ -490,7 +492,7 @@ class Gpg
 
         foreach ($gpgKeysIds as $id) {
             // Deleting key from the keyring, using its ID
-            $myprocess = new \Controllers\Process('/usr/bin/gpg --no-default-keyring --homedir ' . GPGHOME . ' --keyring ' . GPGHOME . '/trustedkeys.gpg --no-greeting --delete-key --batch --yes ' . \Controllers\Common::validateData($id));
+            $myprocess = new \Controllers\Process('/usr/bin/gpg --no-default-keyring --homedir ' . GPGHOME . ' --keyring ' . GPGHOME . '/trustedkeys.gpg --no-greeting --delete-key --batch --yes ' . Validate::string($id));
             $myprocess->execute();
 
             if ($myprocess->getExitCode() != 0) {

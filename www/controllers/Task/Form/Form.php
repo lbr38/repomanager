@@ -3,10 +3,11 @@
 namespace Controllers\Task\Form;
 
 use Exception;
+use \Controllers\Utils\Validate;
 
 class Form
 {
-    private $validActions = array('create', 'update', 'env', 'duplicate', 'delete', 'removeEnv', 'rebuild');
+    private $validActions = ['create', 'update', 'env', 'duplicate', 'delete', 'removeEnv', 'rebuild'];
 
     /**
      *  Return the task form to the user according to his selection
@@ -20,15 +21,15 @@ class Form
 
         foreach ($repos as $repo) {
             $myrepo = new \Controllers\Repo\Repo();
-            $repoId = \Controllers\Common::validateData($repo['repo-id']);
-            $snapId = \Controllers\Common::validateData($repo['snap-id']);
+            $repoId = Validate::string($repo['repo-id']);
+            $snapId = Validate::string($repo['snap-id']);
             $envId  = null;
 
             /**
              *  If an environment points to the snapshot (snapId), retrieve the envId from the repo array
              */
             if (!empty($repo['envId'])) {
-                $envId = \Controllers\Common::validateData($repo['env-id']);
+                $envId = Validate::string($repo['env-id']);
             }
 
             /**

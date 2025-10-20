@@ -169,9 +169,10 @@ class Statistic extends \Controllers\Service\Service
             }
 
             /**
-             *  Wait if a repomanager update process is running
+             *  Wait if a repomanager update or maintenance is running
              */
-            while (file_exists(DATA_DIR . '/update-running')) {
+            while (UPDATE_RUNNING or MAINTENANCE) {
+                parent::logDebug('An update or maintenance is in progress, pausing access log parsing task');
                 sleep(2);
                 continue;
             }
@@ -257,10 +258,11 @@ class Statistic extends \Controllers\Service\Service
             }
 
             /**
-             *  Wait if a repomanager update process is running
+             *  Wait if a repomanager update or maintenance is running
              */
-            while (file_exists(DATA_DIR . '/update-running')) {
-                sleep(2);
+            while (UPDATE_RUNNING or MAINTENANCE) {
+                parent::logDebug('An update or maintenance is in progress, pausing access logs processing task');
+                sleep(5);
                 continue;
             }
 

@@ -3,6 +3,7 @@
 namespace Controllers\Host\Package;
 
 use Exception;
+use \Controllers\Utils\Validate;
 
 class Event
 {
@@ -21,7 +22,7 @@ class Event
      */
     public function getDetails(string $eventId, string $packageState) : string
     {
-        $packageState = \Controllers\Common::validateData($packageState);
+        $packageState = Validate::string($packageState);
 
         /**
          *  Retrieve the details of the event

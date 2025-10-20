@@ -52,22 +52,17 @@ function permissions
 
     echo "["$(date +"%a %b %-d %H:%M:%S")"][INF] Setting permissions... "
  
-    # Permissions on repos directory
-    chmod 770 "$REPOS_DIR"
+    # Make sure owner and group and permissions are correct on parent directories
+    chown www-data:repomanager "$WWW_DIR" "$DATA_DIR" "$REPOS_DIR"
+    chmod 770 "$WWW_DIR" "$DATA_DIR" "$REPOS_DIR"
+
+    # Now go deeper and set permissions recursively
+    chown -R www-data:repomanager "$WWW_DIR" > /dev/null 2>&1
+    chown -R www-data:repomanager "$DATA_DIR" > /dev/null 2>&1
+    # For repositories, run in background to avoid long wait
     chown -R www-data:repomanager "$REPOS_DIR" > /dev/null 2>&1 &
-    if [ -d "$REPOS_DIR/gpgkeys" ];then
-        chmod 660 $REPOS_DIR/gpgkeys/*
-    fi
 
-    # Permissions on web directory
-    chmod 750 "$WWW_DIR"
-    chown -R www-data:repomanager "$WWW_DIR" > /dev/null 2>&1 &
-
-    # Permissions on data directory
-    chmod 770 "$DATA_DIR"
-    chown -R www-data:repomanager "$DATA_DIR" > /dev/null 2>&1 &
-
-    # Permissions on .gnupg directory
+    # Permissions on /.gnupg directory
     if [ -d "$GPGHOME" ];then
         chmod 700 $GPGHOME
 
@@ -81,7 +76,7 @@ function permissions
     find "$WWW_DIR" -type d -exec chmod 0750 {} \; > /dev/null 2>&1 &
     find "$WWW_DIR" -type f -exec chmod 0640 {} \; > /dev/null 2>&1 &
 
-    # Permissions on data directory (except .gnupg directory)
+    # Permissions on data directory (except /.gnupg directory)
     find "$DATA_DIR" ! -path "$GPGHOME" -type d -exec chmod 0770 {} \; > /dev/null 2>&1 &
     find "$DATA_DIR" -type f -exec chmod 0660 {} \; > /dev/null 2>&1 &
 

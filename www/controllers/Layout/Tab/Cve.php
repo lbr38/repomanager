@@ -2,6 +2,8 @@
 
 namespace Controllers\Layout\Tab;
 
+use \Controllers\Utils\Validate;
+
 class Cve
 {
     public static function render()
@@ -19,7 +21,7 @@ class Cve
         /**
          *  Retrieve name Id from URL
          */
-        $nameId = \Controllers\Common::validateData($_GET['nameid']);
+        $nameId = Validate::string($_GET['nameid']);
 
         if (!$mycve->nameExists($nameId)) {
             die('CVE not found');

@@ -4,6 +4,7 @@ namespace Controllers\Repo\Edit;
 
 use Exception;
 use \Controllers\History\Save as History;
+use \Controllers\Utils\Validate;
 
 class Form
 {
@@ -25,8 +26,8 @@ class Form
 
         foreach ($repos as $repo) {
             $repoController = new \Controllers\Repo\Repo();
-            $repoId = \Controllers\Common::validateData($repo['repo-id']);
-            $snapId = \Controllers\Common::validateData($repo['snap-id']);
+            $repoId = Validate::string($repo['repo-id']);
+            $snapId = Validate::string($repo['snap-id']);
 
             /**
              *  Check that the Ids are numeric
@@ -126,7 +127,7 @@ class Form
             // if (str_contains($param['description'], "'") || str_contains($param['description'], "\\")) {
             //     throw new Exception('Description contains invalid characters');
             // }
-            // $description = \Controllers\Common::validateData($param['description']);
+            // $description = Validate::string($param['description']);
         }
     }
 

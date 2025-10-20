@@ -127,7 +127,7 @@ if ($action == "getEventDetails" and !empty($_POST['hostId']) and !empty($_POST[
     $hostPackageEventController = new \Controllers\Host\Package\Event($_POST['hostId']);
 
     try {
-        $content = $hostPackageEventController->getDetails($_POST['eventId'], $_POST['packageState']);
+        $content = $hostPackageEventController->getDetails(\Controllers\Utils\Validate::string($_POST['eventId']), \Controllers\Utils\Validate::string($_POST['packageState']));
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }

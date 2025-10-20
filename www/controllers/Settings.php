@@ -3,6 +3,7 @@
 namespace Controllers;
 
 use Exception;
+use \Controllers\Utils\Validate;
 
 class Settings
 {
@@ -36,9 +37,9 @@ class Settings
          *  Main configuration / Global settings
          */
         if (!empty($sendSettings['timezone'])) {
-            $timezone = Common::validateData($sendSettings['timezone']);
+            $timezone = Validate::string($sendSettings['timezone']);
 
-            if (!Common::isAlphanumDash($timezone, array('/'))) {
+            if (!Validate::alphaNumericHyphen($timezone, ['/'])) {
                 throw new Exception('Invalid timezone value for ' . $timezone);
             }
 
@@ -47,12 +48,12 @@ class Settings
 
         if (!empty($sendSettings['emailRecipient'])) {
             foreach ($sendSettings['emailRecipient'] as $email) {
-                $emailRecipient = Common::validateData($email);
+                $emailRecipient = Validate::string($email);
 
-                if (!Common::isAlphanumDash($emailRecipient, array('@', '.'))) {
+                if (!Validate::alphaNumericHyphen($emailRecipient, ['@', '.'])) {
                     throw new Exception('Invalid email address format for ' . $emailRecipient);
                 }
-                if (!Common::validateMail($emailRecipient)) {
+                if (!Validate::email($emailRecipient)) {
                     throw new Exception('Invalid email address format for ' . $emailRecipient);
                 }
             }
@@ -76,7 +77,7 @@ class Settings
                 throw new Exception('Proxy URL must start with http(s)://');
             }
 
-            $settingsToApply['PROXY'] = \Controllers\Common::validateData($sendSettings['proxy']);
+            $settingsToApply['PROXY'] = Validate::string($sendSettings['proxy']);
         } else {
             $settingsToApply['PROXY'] = '';
         }
@@ -90,15 +91,15 @@ class Settings
         }
 
         if (!empty($sendSettings['task-queuing-max-simultaneous']) and is_numeric($sendSettings['task-queuing-max-simultaneous']) and $sendSettings['task-queuing-max-simultaneous'] > 0) {
-            $settingsToApply['TASK_QUEUING_MAX_SIMULTANEOUS'] = \Controllers\Common::validateData($sendSettings['task-queuing-max-simultaneous']);
+            $settingsToApply['TASK_QUEUING_MAX_SIMULTANEOUS'] = Validate::string($sendSettings['task-queuing-max-simultaneous']);
         }
 
         if (!empty($sendSettings['task-execution-memory-limit']) and is_numeric($sendSettings['task-execution-memory-limit']) and $sendSettings['task-execution-memory-limit'] > 2) {
-            $settingsToApply['TASK_EXECUTION_MEMORY_LIMIT'] = \Controllers\Common::validateData($sendSettings['task-execution-memory-limit']);
+            $settingsToApply['TASK_EXECUTION_MEMORY_LIMIT'] = Validate::string($sendSettings['task-execution-memory-limit']);
         }
 
         if (!empty($sendSettings['task-clean-older-than']) and is_numeric($sendSettings['task-clean-older-than']) and $sendSettings['task-clean-older-than'] >= 1) {
-            $settingsToApply['TASK_CLEAN_OLDER_THAN'] = \Controllers\Common::validateData($sendSettings['task-clean-older-than']);
+            $settingsToApply['TASK_CLEAN_OLDER_THAN'] = Validate::string($sendSettings['task-clean-older-than']);
         }
 
         /**
@@ -109,7 +110,7 @@ class Settings
         }
 
         if (isset($sendSettings['retention'])) {
-            $retention = Common::validateData($sendSettings['retention']);
+            $retention = Validate::string($sendSettings['retention']);
 
             if (!is_numeric($retention) or $retention < 0) {
                 throw new Exception('Invalid retention value');
@@ -119,9 +120,9 @@ class Settings
         }
 
         if (isset($sendSettings['repoConfFilesPrefix'])) {
-            $repoConfFilesPrefix = Common::validateData($sendSettings['repoConfFilesPrefix']);
+            $repoConfFilesPrefix = Validate::string($sendSettings['repoConfFilesPrefix']);
 
-            if (!Common::isAlphanumDash($repoConfFilesPrefix, array('-'))) {
+            if (!Validate::alphaNumericHyphen($repoConfFilesPrefix)) {
                 throw new Exception('Invalid prefix value for ' . $repoConfFilesPrefix);
             }
 
@@ -169,9 +170,9 @@ class Settings
             /**
              *  Convert array to a string with values separated by a comma
              */
-            $rpmDefaultArch = Common::validateData(implode(',', $sendSettings['rpmDefaultArch']));
+            $rpmDefaultArch = Validate::string(implode(',', $sendSettings['rpmDefaultArch']));
 
-            if (!Common::isAlphanumDash($rpmDefaultArch, array(','))) {
+            if (!Validate::alphaNumericHyphen($rpmDefaultArch, [','])) {
                 throw new Exception('Invalid architecture value for ' . $rpmDefaultArch);
             }
 
@@ -225,9 +226,9 @@ class Settings
             /**
              *  Convert array to a string with values separated by a comma
              */
-            $debDefaultArch = Common::validateData(implode(',', $sendSettings['debDefaultArch']));
+            $debDefaultArch = Validate::string(implode(',', $sendSettings['debDefaultArch']));
 
-            if (!Common::isAlphanumDash($debDefaultArch, array(','))) {
+            if (!Validate::alphaNumericHyphen($debDefaultArch, [','])) {
                 throw new Exception('Invalid architecture value for ' . $debDefaultArch);
             }
 
@@ -238,9 +239,9 @@ class Settings
             /**
              *  Convert array to a string with values separated by a comma
              */
-            $debDefaultTranslation = Common::validateData(implode(',', $sendSettings['debDefaultTranslation']));
+            $debDefaultTranslation = Validate::string(implode(',', $sendSettings['debDefaultTranslation']));
 
-            if (!Common::isAlphanum($debDefaultTranslation, array(','))) {
+            if (!Validate::alphaNumeric($debDefaultTranslation, [','])) {
                 throw new Exception('Invalid translation value for ' . $debDefaultTranslation);
             }
 
@@ -267,9 +268,9 @@ class Settings
          *  Repositories / GPG signing key
          */
         if (!empty($sendSettings['gpgKeyID'])) {
-            $gpgKeyID = Common::validateData($sendSettings['gpgKeyID']);
+            $gpgKeyID = Validate::string($sendSettings['gpgKeyID']);
 
-            if (!Common::isAlphanumDash($gpgKeyID, array('@', '.'))) {
+            if (!Validate::alphaNumericHyphen($gpgKeyID, ['@', '.'])) {
                 throw new Exception('Invalid GPG key ID value for ' . $gpgKeyID);
             }
 
@@ -321,7 +322,7 @@ class Settings
         }
 
         if (!empty($sendSettings['cveImportTime'])) {
-            $cveImportTime = Common::validateData($sendSettings['cveImportTime']);
+            $cveImportTime = Validate::string($sendSettings['cveImportTime']);
 
             if (preg_match('/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/', $cveImportTime)) {
                 $settingsToApply['CVE_IMPORT_TIME'] = $cveImportTime;
@@ -356,77 +357,77 @@ class Settings
         }
 
         if (isset($sendSettings['oidcProviderUrl'])) {
-            $ssoOidcOnly = Common::validateData($sendSettings['oidcProviderUrl']);
+            $ssoOidcOnly = Validate::string($sendSettings['oidcProviderUrl']);
             $settingsToApply['OIDC_PROVIDER_URL'] = $ssoOidcOnly;
         }
 
         if (isset($sendSettings['oidcAuthorizationEndpoint'])) {
-            $oidcAuthorizationEndpoint = Common::validateData($sendSettings['oidcAuthorizationEndpoint']);
+            $oidcAuthorizationEndpoint = Validate::string($sendSettings['oidcAuthorizationEndpoint']);
             $settingsToApply['OIDC_AUTHORIZATION_ENDPOINT'] = $oidcAuthorizationEndpoint;
         }
 
         if (isset($sendSettings['oidcTokenEndpoint'])) {
-            $oidcTokenEndpoint = Common::validateData($sendSettings['oidcTokenEndpoint']);
+            $oidcTokenEndpoint = Validate::string($sendSettings['oidcTokenEndpoint']);
             $settingsToApply['OIDC_TOKEN_ENDPOINT'] = $oidcTokenEndpoint;
         }
 
         if (isset($sendSettings['oidcUserinfoEndpoint'])) {
-            $oidcUserinfoEndpoint = Common::validateData($sendSettings['oidcUserinfoEndpoint']);
+            $oidcUserinfoEndpoint = Validate::string($sendSettings['oidcUserinfoEndpoint']);
             $settingsToApply['OIDC_USERINFO_ENDPOINT'] = $oidcUserinfoEndpoint;
         }
 
         if (isset($sendSettings['oidcScopes'])) {
-            $oidcScopes = Common::validateData($sendSettings['oidcScopes']);
+            $oidcScopes = Validate::string($sendSettings['oidcScopes']);
             $settingsToApply['OIDC_SCOPES'] = $oidcScopes;
         }
 
         if (isset($sendSettings['oidcClientId'])) {
-            $oidcClientId = Common::validateData($sendSettings['oidcClientId']);
+            $oidcClientId = Validate::string($sendSettings['oidcClientId']);
             $settingsToApply['OIDC_CLIENT_ID'] = $oidcClientId;
         }
 
         if (isset($sendSettings['oidcClientSecret'])) {
-            $oidcClientSecret = Common::validateData($sendSettings['oidcClientSecret']);
+            $oidcClientSecret = Validate::string($sendSettings['oidcClientSecret']);
             $settingsToApply['OIDC_CLIENT_SECRET'] = $oidcClientSecret;
         }
 
         if (!empty($sendSettings['oidcUsername'])) {
-            $oidcUsername = Common::validateData($sendSettings['oidcUsername']);
+            $oidcUsername = Validate::string($sendSettings['oidcUsername']);
             $settingsToApply['OIDC_USERNAME'] = $oidcUsername;
         }
 
         if (!empty($sendSettings['oidcFirstName'])) {
-            $oidcFirstName = Common::validateData($sendSettings['oidcFirstName']);
+            $oidcFirstName = Validate::string($sendSettings['oidcFirstName']);
             $settingsToApply['OIDC_FIRST_NAME'] = $oidcFirstName;
         }
 
         if (!empty($sendSettings['oidcLastName'])) {
-            $oidcLastName = Common::validateData($sendSettings['oidcLastName']);
+            $oidcLastName = Validate::string($sendSettings['oidcLastName']);
             $settingsToApply['OIDC_LAST_NAME'] = $oidcLastName;
         }
 
         if (!empty($sendSettings['oidcEmail'])) {
-            $oidcEmail = Common::validateData($sendSettings['oidcEmail']);
+            $oidcEmail = Validate::string($sendSettings['oidcEmail']);
             $settingsToApply['OIDC_EMAIL'] = $oidcEmail;
         }
 
         if (!empty($sendSettings['oidcGroups'])) {
-            $oidcGroups = Common::validateData($sendSettings['oidcGroups']);
+            $oidcGroups = Validate::string($sendSettings['oidcGroups']);
             $settingsToApply['OIDC_GROUPS'] = $oidcGroups;
         }
 
         if (!empty($sendSettings['oidcGroupAdministrator'])) {
-            $oidcGroupAdministrator = Common::validateData($sendSettings['oidcGroupAdministrator']);
+            $oidcGroupAdministrator = Validate::string($sendSettings['oidcGroupAdministrator']);
             $settingsToApply['OIDC_GROUP_ADMINISTRATOR'] = $oidcGroupAdministrator;
         }
 
         if (!empty($sendSettings['oidcGroupSuperAdministrator'])) {
-            $oidcGroupSuperAdministrator = Common::validateData($sendSettings['oidcGroupSuperAdministrator']);
+            $oidcGroupSuperAdministrator = Validate::string($sendSettings['oidcGroupSuperAdministrator']);
             $settingsToApply['OIDC_GROUP_SUPER_ADMINISTRATOR'] = $oidcGroupSuperAdministrator;
         }
 
         if (!empty($sendSettings['oidcHttpProxy'])) {
-            $oidcHttpProxy = Common::validateData($sendSettings['oidcHttpProxy']);
+            $oidcHttpProxy = Validate::string($sendSettings['oidcHttpProxy']);
 
             if (!preg_match('#^https?://#', $oidcHttpProxy)) {
                 throw new Exception('OIDC HTTP proxy URL must start with http(s)://');
@@ -438,7 +439,7 @@ class Settings
         }
 
         if (!empty($sendSettings['oidcCertPath'])) {
-            $oidcCertPath = realpath(Common::validateData($sendSettings['oidcCertPath']));
+            $oidcCertPath = realpath(Validate::string($sendSettings['oidcCertPath']));
 
             if (!file_exists($oidcCertPath)) {
                 throw new Exception('OIDC certificate file does not exist');

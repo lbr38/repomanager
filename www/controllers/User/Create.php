@@ -2,8 +2,8 @@
 namespace Controllers\User;
 
 use Exception;
-use \Controllers\Common;
 use \Controllers\History\Save as History;
+use \Controllers\Utils\Validate;
 
 class Create extends User
 {
@@ -23,13 +23,13 @@ class Create extends User
             throw new Exception('You are not allowed to execute this action.');
         }
 
-        $username = strtolower(Common::validateData($username));
-        $role = strtolower(Common::validateData($role));
+        $username = strtolower(Validate::string($username));
+        $role = strtolower(Validate::string($role));
 
         /**
          *  Check that username does not contain invalid characters
          */
-        if (Common::isAlphanumDash($username) === false) {
+        if (Validate::alphaNumericHyphen($username) === false) {
             throw new Exception('Username cannot contain special characters except hyphen and underscore');
         }
 
@@ -92,10 +92,10 @@ class Create extends User
     public function createSSO(string $username, ?string $firstName, ?string $lastName, ?string $email, string $role): void
     {
         $userEditController = new \Controllers\User\Edit();
-        $username  = Common::validateData($username);
-        $firstName = Common::validateData($firstName);
-        $lastName  = Common::validateData($lastName);
-        $email     = Common::validateData($email);
+        $username  = Validate::string($username);
+        $firstName = Validate::string($firstName);
+        $lastName  = Validate::string($lastName);
+        $email     = Validate::string($email);
 
         if ($firstName == null) {
             $firstName = $username;
@@ -104,14 +104,14 @@ class Create extends User
         /**
          *  Check that email is a valid email address
          */
-        if (Common::validateMail($email) === false) {
+        if (Validate::email($email) === false) {
             $email = null;
         }
 
         /**
          *  Check that username does not contain invalid characters
          */
-        if (Common::isAlphanumDash($username, ['@', '.']) === false) {
+        if (Validate::alphaNumericHyphen($username, ['@', '.']) === false) {
             throw new Exception('Username cannot contain special characters except hyphen, underscore, @ symbol and dot');
         }
 

@@ -181,7 +181,7 @@ class Create
         /**
          *  Get total duration
          */
-        $duration = \Controllers\Common::convertMicrotime($this->task->getDuration());
+        $duration = \Controllers\Utils\Convert::microtimeToHuman($this->task->getDuration());
 
         /**
          *  End task
@@ -410,7 +410,7 @@ class Create
         /**
          *  Get total duration
          */
-        $duration = \Controllers\Common::convertMicrotime($this->task->getDuration());
+        $duration = \Controllers\Utils\Convert::microtimeToHuman($this->task->getDuration());
 
         /**
          *  End task

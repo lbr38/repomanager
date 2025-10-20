@@ -4,6 +4,7 @@ namespace Controllers\Repo\Source;
 
 use Exception;
 use JsonException;
+use \Controllers\Utils\Validate;
 
 class Source
 {
@@ -63,15 +64,15 @@ class Source
             throw new Exception('Source repository type is empty');
         }
 
-        $name = \Controllers\Common::validateData($params['name']);
-        $type = \Controllers\Common::validateData($params['type']);
+        $name = Validate::string($params['name']);
+        $type = Validate::string($params['type']);
         $url = trim($params['url']);
         $url = stripslashes($url);
 
         /**
          *  Check that source repo name is valid
          */
-        if (!\Controllers\Common::isAlphanumDash($name)) {
+        if (!Validate::alphaNumericHyphen($name)) {
             throw new Exception('Source repository name cannot contain special characters except hyphen and underscore');
         }
 
@@ -92,7 +93,7 @@ class Source
         /**
          *  Check that URL is valid
          */
-        if (!\Controllers\Common::isAlphanumDash($url, array('http://', 'https://', '/', '.', '?', '&', '$', '@', ':'))) {
+        if (!Validate::alphaNumericHyphen($url, ['http://', 'https://', '/', '.', '?', '&', '$', '@', ':'])) {
             throw new Exception('Specified URL contains invalid characters');
         }
 
@@ -262,7 +263,7 @@ class Source
             throw new Exception('Source repository name is empty');
         }
 
-        if (!\Controllers\Common::isAlphanumDash($params['name'])) {
+        if (!Validate::alphaNumericHyphen($params['name'])) {
             throw new Exception('Source repository name cannot contain special characters except hyphen and underscore');
         }
 
@@ -308,7 +309,7 @@ class Source
          *  Allow $ character for variables (e.g $releasever)
          *  Allow @ and : character for basic authentification (e.g http://user:password@url)
          */
-        if (!\Controllers\Common::isAlphanumDash($url, array('http://', 'https://', '/', '.', '?', '&', '$', '@', ':'))) {
+        if (!Validate::alphaNumericHyphen($url, ['http://', 'https://', '/', '.', '?', '&', '$', '@', ':'])) {
             throw new Exception('specified URL contains invalid characters');
         }
 
@@ -327,28 +328,28 @@ class Source
         }
 
         if (!empty($params['description'])) {
-            $description = \Controllers\Common::validateData($params['description']);
+            $description = Validate::string($params['description']);
         }
 
         /**
          *  SSL certificate file must be a file that exist and is readable
          */
         if (!empty($params['ssl-certificate'])) {
-            $sslCertificate = \Controllers\Common::validateData($params['ssl-certificate']);
+            $sslCertificate = Validate::string($params['ssl-certificate']);
         }
 
         /**
          *  SSL private key file must be a file that exists and is readable
          */
         if (!empty($params['ssl-private-key'])) {
-            $sslPrivateKey = \Controllers\Common::validateData($params['ssl-private-key']);
+            $sslPrivateKey = Validate::string($params['ssl-private-key']);
         }
 
         /**
          *  SSL CA certificate file must be a file that exists and is readable
          */
         if (!empty($params['ssl-ca-certificate'])) {
-            $sslCaCertificate = \Controllers\Common::validateData($params['ssl-ca-certificate']);
+            $sslCaCertificate = Validate::string($params['ssl-ca-certificate']);
         }
 
         /**
@@ -527,7 +528,7 @@ class Source
     {
         try {
             foreach ($lists as $sourceList) {
-                $listFile = \Controllers\Common::validateData($sourceList);
+                $listFile = Validate::string($sourceList);
 
                 /**
                  *  If 'github/' string is found in the list name, then it is a default list
