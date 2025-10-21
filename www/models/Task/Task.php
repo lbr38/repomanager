@@ -3,14 +3,12 @@
 namespace Models\Task;
 
 use Exception;
+use \Controllers\Database\Log as DbLog;
 
 class Task extends \Models\Model
 {
     public function __construct()
     {
-        /**
-         *  Open database
-         */
         $this->getConnection('main');
     }
 
@@ -21,14 +19,14 @@ class Task extends \Models\Model
      */
     public function getById(int $id) : array
     {
-        $data = array();
+        $data = [];
 
         try {
             $stmt = $this->db->prepare("SELECT * FROM tasks WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -48,8 +46,8 @@ class Task extends \Models\Model
             $stmt->bindValue(':date', $date);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -63,8 +61,8 @@ class Task extends \Models\Model
             $stmt->bindValue(':time', $time);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -78,8 +76,8 @@ class Task extends \Models\Model
             $stmt->bindValue(':rawParams', $rawParams);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -93,8 +91,8 @@ class Task extends \Models\Model
             $stmt->bindValue(':status', $status);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -108,8 +106,8 @@ class Task extends \Models\Model
             $stmt->bindValue(':duration', $duration);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -118,12 +116,12 @@ class Task extends \Models\Model
      */
     public function somethingRunning()
     {
-        $data = array();
+        $data = [];
 
         try {
             $result = $this->db->query("SELECT Id FROM tasks WHERE Status = 'running'");
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -143,7 +141,7 @@ class Task extends \Models\Model
      */
     public function listQueued(string $type, bool $withOffset, int $offset)
     {
-        $data = array();
+        $data = [];
 
         try {
             /**
@@ -180,7 +178,7 @@ class Task extends \Models\Model
             $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -197,7 +195,7 @@ class Task extends \Models\Model
      */
     public function listRunning(string $type, bool $withOffset, int $offset)
     {
-        $data = array();
+        $data = [];
 
         /**
          *  Case where we want all types
@@ -232,8 +230,8 @@ class Task extends \Models\Model
             $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
 
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -249,7 +247,7 @@ class Task extends \Models\Model
      */
     public function listScheduled(bool $withOffset, int $offset)
     {
-        $data = array();
+        $data = [];
 
         try {
             $query = "SELECT * FROM tasks
@@ -271,8 +269,8 @@ class Task extends \Models\Model
             $stmt = $this->db->prepare($query);
             $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -289,7 +287,7 @@ class Task extends \Models\Model
      */
     public function listDone(string $type, bool $withOffset, int $offset)
     {
-        $data = array();
+        $data = [];
 
         try {
             /**
@@ -329,8 +327,8 @@ class Task extends \Models\Model
             $stmt->bindValue(':type', $type);
             $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -367,7 +365,7 @@ class Task extends \Models\Model
             $stmt->bindValue(':status', $status, SQLITE3_TEXT);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -382,7 +380,7 @@ class Task extends \Models\Model
      */
     public function getLastScheduledTask()
     {
-        $data = array();
+        $data = [];
 
         try {
             $stmt = $this->db->prepare("SELECT * FROM tasks
@@ -393,8 +391,8 @@ class Task extends \Models\Model
 
             $stmt->bindValue(':date', date('Y-m-d', strtotime('-7 days')));
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -409,12 +407,12 @@ class Task extends \Models\Model
      */
     public function getNextScheduledTask()
     {
-        $data = array();
+        $data = [];
 
         try {
             $result = $this->db->query("SELECT * FROM tasks WHERE Type = 'scheduled' AND Status = 'queued'");
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -429,14 +427,14 @@ class Task extends \Models\Model
      */
     public function getOlderThan(string $date) : array
     {
-        $data = array();
+        $data = [];
 
         try {
             $stmt = $this->db->prepare("SELECT * FROM tasks WHERE Date < :date AND Status != 'running' AND Status != 'queued' AND Status != 'scheduled' AND Status != 'disabled'");
             $stmt->bindValue(':date', $date, SQLITE3_TEXT);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -456,7 +454,7 @@ class Task extends \Models\Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result)) {
@@ -477,8 +475,8 @@ class Task extends \Models\Model
             $stmt->bindValue(':rawParams', $rawParams);
             $stmt->bindValue(':status', $status);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         /**
@@ -496,8 +494,8 @@ class Task extends \Models\Model
             $stmt = $this->db->prepare("INSERT INTO tasks (Type, Raw_params, Status) SELECT Type, Raw_params, 'queued' FROM tasks WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         /**
@@ -517,8 +515,8 @@ class Task extends \Models\Model
             $stmt->bindValue(':duration', $duration);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -531,8 +529,8 @@ class Task extends \Models\Model
             $stmt = $this->db->prepare("UPDATE tasks SET Status = 'scheduled' WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -545,8 +543,8 @@ class Task extends \Models\Model
             $stmt = $this->db->prepare("UPDATE tasks SET Status = 'disabled' WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -559,8 +557,8 @@ class Task extends \Models\Model
             $stmt = $this->db->prepare("DELETE FROM tasks WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 }

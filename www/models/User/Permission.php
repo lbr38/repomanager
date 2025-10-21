@@ -3,6 +3,7 @@
 namespace Models\User;
 
 use Exception;
+use \Controllers\Database\Log as DbLog;
 
 class Permission extends \Models\Model
 {
@@ -23,7 +24,7 @@ class Permission extends \Models\Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e->getMessage());
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -48,7 +49,7 @@ class Permission extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e->getMessage());
+            DbLog::error($e);
         }
     }
 
@@ -62,7 +63,7 @@ class Permission extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e->getMessage());
+            DbLog::error($e);
         }
     }
 }

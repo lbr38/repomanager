@@ -25,7 +25,7 @@ jobs:
       # Start from release index which is 4.0.0
       # Pull images starting from release 4.0.0
       # Then pull the next image of the index, etc..
-      - name: Test all releases update from lbr38/repomanager
+      - name: Test all release updates from lbr38/repomanager
         run: |
           RELEASES=$(curl -s https://api.github.com/repos/lbr38/repomanager/releases?per_page=10000 | jq -r '.[].name' | tac)
 
@@ -69,13 +69,8 @@ jobs:
               while true; do
                   OUTPUT=$(docker logs repomanager -n10000)
 
-                  # Check if the logs contains failed message
-                  if echo "$OUTPUT" | grep -q -i "failed"; then
-                      echo "Database update seems to have failed: $OUTPUT"
-                      exit 1
-                  fi
-
-                  if echo "$OUTPUT" | grep -q -i "error"; then
+                  # Check if the logs contains failed or error message
+                  if echo "$OUTPUT" | grep -q -i -E "failed|error"; then
                       echo "Database update seems to have failed: $OUTPUT"
                       exit 1
                   fi
@@ -90,17 +85,17 @@ jobs:
           done
 
       # Finally, test the devel image
-      - name: Test devel image from lbr38/repomanager
+      - name: Build and test devel image
         run: |
           docker rm -f repomanager
           docker system prune -a -f
 
-          echo -e "\Build devel image\n"
+          echo -e "\nBuild devel image\n"
 
-          cd ${GITHUB_WORKSPACE}/docker
+          cd ${GITHUB_WORKSPACE}
 
-          sed -i 's/env:.*/env: devel/g' docker-compose.yml
-          sed -i 's/fqdn:.*/fqdn: repomanager.test.com/g' docker-compose.yml
+          sed -i 's/branch:.*/branch: devel/g' docker-compose.yml
+          sed -i 's/FQDN:.*/FQDN: repomanager.test.com/g' docker-compose.yml
 
           docker-compose -f docker-compose.yml up -d
 
@@ -113,14 +108,8 @@ jobs:
           while true; do
               OUTPUT=$(docker logs repomanager -n10000)
 
-              # Check if the logs contains failed message
-              if echo "$OUTPUT" | grep -q -i "failed"; then
-                  echo "Database update seems to have failed: $OUTPUT"
-                  exit 1
-              fi
-
-              # Check if the logs contains error message
-              if echo "$OUTPUT" | grep -q -i "error"; then
+              # Check if the logs contains failed or error message
+              if echo "$OUTPUT" | grep -q -i -E "failed|error"; then
                   echo "Database update seems to have failed: $OUTPUT"
                   exit 1
               fi

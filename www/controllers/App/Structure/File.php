@@ -10,7 +10,7 @@ class File
     public static function create()
     {
         $__CREATE_FILES_ERROR = 0;
-        $__CREATE_FILES_MESSAGES = array();
+        $__CREATE_FILES_MESSAGES = [];
 
         /**
          *  Generate GPG key and configuration if not exists

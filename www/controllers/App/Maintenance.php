@@ -29,4 +29,16 @@ class Maintenance
             }
         }
     }
+
+    /**
+     *  Return true if maintenance is running
+     */
+    public static function running() : bool
+    {
+        if (file_exists(DATA_DIR . '/maintenance')) {
+            return true;
+        }
+
+        return false;
+    }
 }

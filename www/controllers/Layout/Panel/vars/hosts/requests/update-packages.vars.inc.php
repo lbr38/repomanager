@@ -5,7 +5,7 @@ if (!IS_ADMIN) {
 
 $myhostController = new \Controllers\Host();
 
-$hosts = array();
+$hosts = [];
 
 /**
  *  Build the list of hosts with their id and hostname

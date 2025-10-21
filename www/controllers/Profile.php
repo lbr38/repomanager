@@ -84,7 +84,7 @@ class Profile
      */
     public function getProfileConfiguration(string $profile)
     {
-        $configuration = array();
+        $configuration = [];
 
         /**
          *  Get profile full configuration
@@ -105,7 +105,7 @@ class Profile
      */
     public function getProfilePackagesConfiguration(string $profile)
     {
-        $configuration = array();
+        $configuration = [];
 
         /**
          *  Get profile full configuration
@@ -148,11 +148,11 @@ class Profile
         /**
          *  Format repos members configuration files (.repo or .list) before sending to JSON format
          */
-        $globalArray = array();
+        $globalArray = [];
 
         foreach ($repos as $repo) {
             if ($repo['Package_type'] == 'rpm') {
-                $repoArray = array(
+                $repoArray = [
                     // Legacy content
                     'filename' => REPO_CONF_FILES_PREFIX . $repo['Name'] . '.repo',
                     'description' => $repo['Name'] . ' repo on ' . __SERVER_URL__,
@@ -164,11 +164,11 @@ class Profile
                     'repo_url' => __SERVER_URL__ . '/repo/rpm/' . $repo['Name'] . '/' . $repo['Releasever'] . '/__ENV__',
                     'gpgkey_url' => __SERVER_URL__ . '/repo/gpgkeys/' . WWW_HOSTNAME . '.pub',
                     'filename_prefix' => REPO_CONF_FILES_PREFIX
-                );
+                ];
             }
 
             if ($repo['Package_type'] == 'deb') {
-                $repoArray = array(
+                $repoArray = [
                     // Legacy content
                     'filename' => REPO_CONF_FILES_PREFIX . $repo['Name'] . '.list',
                     'description' => $repo['Name'] . ' repo on ' . __SERVER_URL__,
@@ -181,7 +181,7 @@ class Profile
                     'repo_url' => __SERVER_URL__ . '/repo/deb/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '/__ENV__',
                     'gpgkey_url' => __SERVER_URL__ . '/repo/gpgkeys/' . WWW_HOSTNAME . '.pub',
                     'filename_prefix' => REPO_CONF_FILES_PREFIX
-                );
+                ];
             }
 
             $globalArray[] = $repoArray;

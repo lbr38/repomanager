@@ -2,6 +2,7 @@
 
 namespace Models\Group;
 
+use \Controllers\Database\Log as DbLog;
 use Exception;
 
 class Group extends \Models\Model
@@ -26,14 +27,13 @@ class Group extends \Models\Model
             $stmt->bindValue(':name', $name);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
     /**
      *  Delete a group
      *  Also delete group_members entries
-     *  @param id
      */
     public function delete(string $id)
     {
@@ -43,9 +43,9 @@ class Group extends \Models\Model
         try {
             $stmt = $this->db->prepare("DELETE FROM group_members WHERE Id_group = :id");
             $stmt->bindValue(':id', $id);
-            $result = $stmt->execute();
+            $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         /**
@@ -56,7 +56,7 @@ class Group extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -78,7 +78,7 @@ class Group extends \Models\Model
             $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -98,7 +98,7 @@ class Group extends \Models\Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -116,7 +116,7 @@ class Group extends \Models\Model
     {
         $result = $this->db->query("SELECT * FROM groups ORDER BY Name ASC");
 
-        $group = array();
+        $group = [];
 
         while ($datas = $result->fetchArray(SQLITE3_ASSOC)) {
             $group[] = $datas;
@@ -137,7 +137,7 @@ class Group extends \Models\Model
             $stmt->bindValue(':id', $groupId);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -157,7 +157,7 @@ class Group extends \Models\Model
             $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -178,7 +178,7 @@ class Group extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -187,7 +187,7 @@ class Group extends \Models\Model
      */
     public function getReposMembers(int $id)
     {
-        $data = array();
+        $data = [];
 
         try {
             $stmt = $this->db->prepare("SELECT DISTINCT
@@ -208,7 +208,7 @@ class Group extends \Models\Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -223,7 +223,7 @@ class Group extends \Models\Model
      */
     public function getReposNotMembers()
     {
-        $data = array();
+        $data = [];
 
         $result = $this->db->query("SELECT DISTINCT
         repos.Id AS repoId,
@@ -250,7 +250,7 @@ class Group extends \Models\Model
      */
     public function getHostsMembers(int $id)
     {
-        $data = array();
+        $data = [];
 
         try {
             $stmt = $this->db->prepare("SELECT
@@ -266,7 +266,7 @@ class Group extends \Models\Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -281,7 +281,7 @@ class Group extends \Models\Model
      */
     public function getHostsNotMembers()
     {
-        $data = array();
+        $data = [];
 
         try {
             $result = $this->db->query("SELECT
@@ -291,7 +291,7 @@ class Group extends \Models\Model
             FROM hosts
             WHERE hosts.Id NOT IN (SELECT Id_host FROM group_members)");
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {

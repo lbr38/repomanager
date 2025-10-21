@@ -2,6 +2,7 @@
 
 namespace Models\Host;
 
+use \Controllers\Database\Log as DbLog;
 use Exception;
 
 class Request extends \Models\Model
@@ -25,9 +26,9 @@ class Request extends \Models\Model
             $stmt->bindValue(':time', date('H:i:s'));
             $stmt->bindValue(':request', $request);
             $stmt->bindValue(':hostId', $hostId);
-            $result = $stmt->execute();
+            $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -36,7 +37,7 @@ class Request extends \Models\Model
      */
     public function get(string|null $status) : array
     {
-        $requests = array();
+        $requests = [];
 
         try {
             /**
@@ -50,7 +51,7 @@ class Request extends \Models\Model
             }
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -66,7 +67,7 @@ class Request extends \Models\Model
      */
     public function getByHostId(int $id, bool $withOffset, int $offset)
     {
-        $data = array();
+        $data = [];
 
         try {
             $query = "SELECT * FROM requests WHERE Id_host = :id ORDER BY Date DESC, Time DESC";
@@ -84,10 +85,9 @@ class Request extends \Models\Model
             $stmt = $this->db->prepare($query);
             $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
             $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
-
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -102,14 +102,14 @@ class Request extends \Models\Model
      */
     public function getLastPendingRequest(int $id)
     {
-        $data = array();
+        $data = [];
 
         try {
             $stmt = $this->db->prepare("SELECT * from requests WHERE Id_host = :id ORDER BY DATE DESC, TIME DESC LIMIT 1");
             $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -130,9 +130,9 @@ class Request extends \Models\Model
             $stmt->bindValue(':info', $info);
             $stmt->bindValue(':responseJson', $responseJson);
             $stmt->bindValue(':id', $id);
-            $result = $stmt->execute();
+            $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -145,9 +145,9 @@ class Request extends \Models\Model
             $stmt = $this->db->prepare("UPDATE requests SET Status = :status WHERE Id = :id");
             $stmt->bindValue(':status', $status);
             $stmt->bindValue(':id', $id);
-            $result = $stmt->execute();
+            $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -160,9 +160,9 @@ class Request extends \Models\Model
             $stmt = $this->db->prepare("UPDATE requests SET Info = :info WHERE Id = :id");
             $stmt->bindValue(':info', $info);
             $stmt->bindValue(':id', $id);
-            $result = $stmt->execute();
+            $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -175,9 +175,9 @@ class Request extends \Models\Model
             $stmt = $this->db->prepare("UPDATE requests SET Retry = :retry WHERE Id = :id");
             $stmt->bindValue(':retry', $retry);
             $stmt->bindValue(':id', $id);
-            $result = $stmt->execute();
+            $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -190,9 +190,9 @@ class Request extends \Models\Model
             $stmt = $this->db->prepare("UPDATE requests SET Next_retry = :nextRetry WHERE Id = :id");
             $stmt->bindValue(':nextRetry', $nextRetry);
             $stmt->bindValue(':id', $id);
-            $result = $stmt->execute();
+            $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -204,9 +204,9 @@ class Request extends \Models\Model
         try {
             $stmt = $this->db->prepare("UPDATE requests SET Status = 'canceled', Info = Info || ' (canceled)' WHERE Id = :id");
             $stmt->bindValue(':id', $id);
-            $result = $stmt->execute();
+            $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -220,7 +220,7 @@ class Request extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -259,7 +259,7 @@ class Request extends \Models\Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -282,7 +282,7 @@ class Request extends \Models\Model
             $stmt->bindValue(':hostId', $hostId);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result)) {

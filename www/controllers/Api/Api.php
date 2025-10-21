@@ -3,6 +3,8 @@
 namespace Controllers\Api;
 
 use Exception;
+use \Controllers\App\Maintenance;
+use \Controllers\Update;
 
 class Api
 {
@@ -66,7 +68,7 @@ class Api
             /**
              *  Return 403 if an update is running
              */
-            if (UPDATE_RUNNING === true) {
+            if (Update::running()) {
                 http_response_code(403);
                 echo json_encode(["return" => "403", "message_error" => ['Reposerver is actually being updated. Please try again later.']]);
                 exit;
@@ -75,7 +77,7 @@ class Api
             /**
              *  Return 403 if app is in maintenance
              */
-            if (MAINTENANCE === true) {
+            if (Maintenance::running()) {
                 http_response_code(403);
                 echo json_encode(["return" => "403", "message_error" => ['Reposerver is under maintenance. Please try again later.']]);
                 exit;

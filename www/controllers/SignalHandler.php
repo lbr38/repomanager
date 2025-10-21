@@ -2,14 +2,17 @@
 
 namespace Controllers;
 
+use \Controllers\Log\Cli as LogCli;
+
 class SignalHandler
 {
-    private $files = [];
+    public $shutdown = false;
 
     public function __construct()
     {
-        pcntl_signal(SIGTERM, array($this, 'signalHandler'));
-        pcntl_signal(SIGINT, array($this, 'signalHandler'));
+        pcntl_signal(SIGTERM, [$this, 'signalHandler']);
+        pcntl_signal(SIGINT, [$this, 'signalHandler']);
+        pcntl_signal(SIGCHLD, [$this, 'signalHandler']);
     }
 
     /**
@@ -19,37 +22,34 @@ class SignalHandler
     {
         switch ($signal) {
             case SIGTERM:
-                echo 'Caught SIGTERM' . PHP_EOL;
-                $this->createFiles();
-                exit;
-            case SIGKILL:
-                echo 'Caught SIGKILL' . PHP_EOL;
-                $this->createFiles();
-                exit;
+                LogCli::debug('Caught SIGTERM');
+
+                // Set shutdown flag to true for services to stop gracefully when possible
+                $this->shutdown = true;
+
+                break;
             case SIGINT:
-                echo 'Caught SIGINT' . PHP_EOL;
-                $this->createFiles();
-                exit;
-        }
-    }
+                LogCli::debug('Caught SIGINT');
 
-    /**
-     *  Create file(s) on interrupt
-     */
-    public function touchFileOnInterrupt(array $files)
-    {
-        $this->files = $files;
-    }
+                // Set shutdown flag to true for services to stop gracefully when possible
+                $this->shutdown = true;
 
-    /**
-     *  Create the files on interrupt
-     */
-    public function createFiles()
-    {
-        foreach ($this->files as $file) {
-            if (!file_exists($file)) {
-                touch($file);
-            }
+                break;
+            case SIGCHLD:
+                LogCli::debug('Caught SIGCHLD');
+                // Reap ALL terminated children, non-blocking
+                // WNOHANG = return immediately if no child has exited
+                while (($pid = pcntl_waitpid(-1, $status, WNOHANG)) > 0) {
+                    LogCli::debug('Child PID ' . $pid . ' terminated');
+
+                    // Log how it terminated
+                    if (pcntl_wifexited($status)) {
+                        LogCli::debug('  → Exit code: ' . pcntl_wexitstatus($status));
+                    } elseif (pcntl_wifsignaled($status)) {
+                        LogCli::debug('  → Killed by signal: ' . pcntl_wtermsig($status));
+                    }
+                }
+                break;
         }
     }
 }

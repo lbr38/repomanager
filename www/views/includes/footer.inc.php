@@ -84,7 +84,7 @@ if (!empty(ENVS)) {
     foreach (ENVS as $env) {
         $name = $env['Name'];
         $background = $env['Color'];
-        $color = \Controllers\Common::getContrastingTextColor($background); ?>
+        $color = \Controllers\Utils\Generate\Html\Color::contrastingText($background); ?>
 
         localStorage.setItem("env/<?= $name ?>", "{\"background\":\"<?= $background ?>\",\"color\":\"<?= $color ?>\"}");
         <?php

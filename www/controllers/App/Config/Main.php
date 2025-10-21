@@ -56,6 +56,10 @@ class Main
         if (!defined('MAIN_LOGS_DIR')) {
             define('MAIN_LOGS_DIR', LOGS_DIR . '/main');
         }
+        // Database logs dir
+        if (!defined('DB_LOGS_DIR')) {
+            define('DB_LOGS_DIR', LOGS_DIR . '/database');
+        }
         // Service logs dir
         if (!defined('SERVICE_LOGS_DIR')) {
             define('SERVICE_LOGS_DIR', LOGS_DIR . '/service');
@@ -117,28 +121,6 @@ class Main
         }
 
         /**
-         *  Check if a repomanager update is running
-         */
-        if (!defined('UPDATE_RUNNING')) {
-            if (file_exists(DATA_DIR . '/update-running')) {
-                define('UPDATE_RUNNING', true);
-            } else {
-                define('UPDATE_RUNNING', false);
-            }
-        }
-
-        /**
-         *  Check if app is under maintenance
-         */
-        if (!defined('MAINTENANCE')) {
-            if (file_exists(DATA_DIR . '/maintenance')) {
-                define('MAINTENANCE', true);
-            } else {
-                define('MAINTENANCE', false);
-            }
-        }
-
-        /**
          *  Date and time
          */
         if (!defined('DATE_DMY')) {
@@ -149,13 +131,6 @@ class Main
         }
         if (!defined('TIME')) {
             define('TIME', date('H-i'));
-        }
-
-        /**
-         *  Repomanager service status
-         */
-        if (!defined('SERVICE_RUNNING')) {
-            define('SERVICE_RUNNING', \Controllers\Service\Service::isRunning());
         }
 
         /**

@@ -8,7 +8,7 @@
                 <p class="note">Debug mode will display additional information on the interface.</p>
 
                 <label class="onoff-switch-label">
-                    <input id="debug-mode-btn" class="onoff-switch-input" type="checkbox" value="true" <?php echo DEBUG_MODE === true ? 'checked' : ''; ?>>
+                    <input id="debug-mode-btn" class="onoff-switch-input" type="checkbox" value="true" <?php echo \Controllers\App\DebugMode::enabled() === true ? 'checked' : ''; ?>>
                     <span class="onoff-switch-slider"></span>
                 </label>
             </div>

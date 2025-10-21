@@ -33,7 +33,7 @@ if ($action == 'rebuild' and !empty($_POST['snapId']) and !empty($_POST['gpgSign
         /**
          *  Create a json file that defines the task to execute
          */
-        $params = array();
+        $params = [];
         $params['action'] = 'rebuild';
         $params['snap-id'] = $_POST['snapId'];
         $params['gpg-sign'] = $_POST['gpgSign'];

@@ -3,6 +3,7 @@
 namespace Models\User;
 
 use Exception;
+use \Controllers\Database\Log as DbLog;
 
 class User extends \Models\Model
 {
@@ -25,7 +26,7 @@ class User extends \Models\Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e->getMessage());
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -40,12 +41,12 @@ class User extends \Models\Model
      */
     public function getUsers() : array
     {
-        $users = array();
+        $users = [];
 
         try {
             $result = $this->db->query("SELECT users.Id, users.Username, users.Api_key, users.First_name, users.Last_name, users.Email, users.Type, user_role.Name as Role_name FROM users JOIN user_role ON users.Role = user_role.Id ORDER BY Username ASC");
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -60,12 +61,12 @@ class User extends \Models\Model
      */
     public function getEmails() : array
     {
-        $emails = array();
+        $emails = [];
 
         try {
             $result = $this->db->query("SELECT Email FROM users");
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -95,7 +96,7 @@ class User extends \Models\Model
             $stmt->bindValue(':type', $type);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e->getMessage());
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -116,8 +117,8 @@ class User extends \Models\Model
             $stmt = $this->db->prepare("SELECT Username FROM users WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -139,7 +140,7 @@ class User extends \Models\Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -161,7 +162,7 @@ class User extends \Models\Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e->getMessage());
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -191,7 +192,7 @@ class User extends \Models\Model
             }
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -211,7 +212,7 @@ class User extends \Models\Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e->getMessage());
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result)) {
@@ -232,7 +233,7 @@ class User extends \Models\Model
             $stmt->bindValue(':apikey', $apiKey);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -247,7 +248,7 @@ class User extends \Models\Model
             $stmt->bindValue(':password', $hashedPassword);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e->getMessage());
+            DbLog::error($e);
         }
     }
 }

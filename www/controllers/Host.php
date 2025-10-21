@@ -343,7 +343,7 @@ class Host
      */
     public function getHostsWithPackage(array $hosts, string $name, string|null $version, bool $strictName, bool $strictVersion) : array
     {
-        $results = array();
+        $results = [];
 
         if (empty($hosts)) {
             throw new Exception('No host specified');
@@ -399,7 +399,7 @@ class Host
         /**
          *  From this list we only get the Id of the currently member hosts
          */
-        $actualHostsId = array();
+        $actualHostsId = [];
 
         foreach ($actualHostsMembers as $actualHostsMember) {
             $actualHostsId[] = $actualHostsMember['Id'];

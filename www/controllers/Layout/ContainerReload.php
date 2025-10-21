@@ -2,9 +2,6 @@
 
 namespace Controllers\Layout;
 
-use Exception;
-use Datetime;
-
 class ContainerReload
 {
     private $model;

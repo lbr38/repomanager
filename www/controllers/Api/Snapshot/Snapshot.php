@@ -88,7 +88,7 @@ class Snapshot extends \Controllers\Api\Controller
                     /**
                      *  Create a json file that defines the task to execute
                      */
-                    $params = array();
+                    $params = [];
                     $params['action'] = 'rebuild';
                     $params['snap-id'] = $this->snapId;
                     $params['gpg-sign'] = $this->data->gpgSign;

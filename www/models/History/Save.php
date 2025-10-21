@@ -2,6 +2,7 @@
 
 namespace Models\History;
 
+use \Controllers\Database\Log as DbLog;
 use Exception;
 
 class Save extends \Models\Model
@@ -29,7 +30,7 @@ class Save extends \Models\Model
             $stmt->bindValue(':state', $state);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 }

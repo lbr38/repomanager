@@ -3,6 +3,7 @@
 namespace Models\System\Monitoring;
 
 use Exception;
+use \Controllers\Database\Log as DbLog;
 
 class Monitoring extends \Models\Model
 {
@@ -24,7 +25,7 @@ class Monitoring extends \Models\Model
             $stmt->bindValue(':timestampEnd', $timestampEnd);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e->getMessage());
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -47,7 +48,7 @@ class Monitoring extends \Models\Model
             $stmt->bindValue(':diskUsage', $diskUsage);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e->getMessage());
+            DbLog::error($e);
         }
     }
 
@@ -61,7 +62,7 @@ class Monitoring extends \Models\Model
             $stmt->bindValue(':timestamp', $timestamp);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e->getMessage());
+            DbLog::error($e);
         }
     }
 }

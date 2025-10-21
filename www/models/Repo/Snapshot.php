@@ -3,6 +3,7 @@
 namespace Models\Repo;
 
 use Exception;
+use \Controllers\Database\Log as DbLog;
 
 class Snapshot extends \Models\Model
 {
@@ -35,7 +36,7 @@ class Snapshot extends \Models\Model
             $stmt->bindValue(':retention', $retention);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -64,7 +65,7 @@ class Snapshot extends \Models\Model
             $stmt->bindValue(':repoId', $repoId);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -79,7 +80,7 @@ class Snapshot extends \Models\Model
             $stmt->bindValue(':snapId', $snapId);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -93,7 +94,7 @@ class Snapshot extends \Models\Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -115,7 +116,7 @@ class Snapshot extends \Models\Model
             $stmt->bindValue(':snapId', strval($snapId));
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result) === true) {

@@ -94,15 +94,6 @@ try {
         }
 
         /**
-         *  If debug mode is enabled, wait
-         */
-        // if ($settings['DEBUG_MODE'] == 'true') {
-        //     echo 'Debug mode is enabled, task is paused. Disable debug mode to run the task.' . PHP_EOL;
-        //     sleep(5);
-        //     continue;
-        // }
-
-        /**
          *  If task queuing is disabled, run the task immediately
          */
         if ($settings['TASK_QUEUING'] == 'false') {

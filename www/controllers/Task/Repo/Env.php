@@ -3,6 +3,7 @@
 namespace Controllers\Task\Repo;
 
 use Exception;
+use \Controllers\Utils\Generate\Html\Label;
 
 class Env
 {
@@ -91,7 +92,7 @@ class Env
                     $snapshotPath = REPOS_DIR . '/deb/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '/' . $this->repo->getDate();
                 }
 
-                $this->taskLogStepController->new('point-env-' . $env, 'POINT ENVIRONMENT ' . \Controllers\Common::envtag($env));
+                $this->taskLogStepController->new('point-env-' . $env, 'POINT ENVIRONMENT ' . Label::envtag($env));
                 $this->taskLogSubStepController->new('checking-' . $env, 'CHECKING');
 
                 /**
@@ -106,11 +107,11 @@ class Env
                  */
                 if ($this->repo->existsSnapIdEnv($this->repo->getSnapId(), $env) === true) {
                     if ($this->repo->getPackageType() == 'rpm') {
-                        throw new Exception(\Controllers\Common::envtag($env) . ' environment already exists on <span class="label-white">' . $this->repo->getName() . '</span>⸺<span class="label-black">' . $this->repo->getDateFormatted() . '</span>');
+                        throw new Exception(Label::envtag($env) . ' environment already exists on <span class="label-white">' . $this->repo->getName() . '</span>⸺<span class="label-black">' . $this->repo->getDateFormatted() . '</span>');
                     }
 
                     if ($this->repo->getPackageType() == 'deb') {
-                        throw new Exception(\Controllers\Common::envtag($env) . ' environment already exists on <span class="label-white">' . $this->repo->getName() . ' ❯ ' . $this->repo->getDist() . ' ❯ ' . $this->repo->getSection() . '</span>⸺<span class="label-black">' . $this->repo->getDateFormatted() . '</span>');
+                        throw new Exception(Label::envtag($env) . ' environment already exists on <span class="label-white">' . $this->repo->getName() . ' ❯ ' . $this->repo->getDist() . ' ❯ ' . $this->repo->getSection() . '</span>⸺<span class="label-black">' . $this->repo->getDateFormatted() . '</span>');
                     }
                 }
 

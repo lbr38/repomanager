@@ -22,7 +22,7 @@ class Schedule
     {
         $dateNow = date('Y-m-d');
         $timeNow = date('H:i');
-        $toExecute[] = array();
+        $toExecute[] = [];
 
         /**
          *  Get scheduled tasks

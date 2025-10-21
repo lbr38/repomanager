@@ -1,11 +1,11 @@
 <?php
-if (UPDATE_RUNNING or MAINTENANCE) :
-    if (UPDATE_RUNNING) {
+if (\Controllers\Update::running() or \Controllers\App\Maintenance::running()) :
+    if (\Controllers\Update::running()) {
         $title = 'UPDATE RUNNING';
         $message = 'Reposerver is actually being updated. Please try again later.';
     }
 
-    if (MAINTENANCE) {
+    if (\Controllers\App\Maintenance::running()) {
         $title = 'MAINTENANCE';
         $message = 'Reposerver is under maintenance. Please try again later.';
     }

@@ -10,7 +10,7 @@
 
             <div class="flex align-item-center column-gap-5">
                 <?php
-                if (SERVICE_RUNNING) {
+                if (\Controllers\Service\Service::isRunning()) {
                     echo '<img src="/assets/icons/check.svg" class="icon-np" />';
                     echo '<p>Running</p>';
                 } else {
@@ -25,7 +25,7 @@
             <div>
                 <div class="flex align-item-center column-gap-5">
                     <h6 class="margin-top-0"><?= strtoupper($properties['title']) ?></h6>
-                    <img src="/assets/icons/info.svg" class="icon-lowopacity icon-small icon-np unit-tooltip" unit="<?= $name ?>" description="<?= $properties['description'] ?>" />
+                    <img src="/assets/icons/info.svg" class="icon-lowopacity icon-small icon-np unit-tooltip" unit="<?= $name ?>" description="<?= $properties['description'] ?>" frequency="<?= $properties['frequency'] ?>" day="<?= $properties['day'] ?? '' ?>" time="<?= $properties['time'] ?? '' ?>" />
                 </div>
 
                 <div class="flex align-item-center column-gap-5">

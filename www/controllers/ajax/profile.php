@@ -49,11 +49,11 @@ if ($_POST['action'] == 'duplicate' and !empty($_POST['id'])) {
  *  Configure a profile
  */
 if ($_POST['action'] == 'configure' and !empty($_POST['id']) and !empty($_POST['name'])) {
-    $reposList = array();
-    $exclude = array();
-    $excludeMajor = array();
-    $serviceReload = array();
-    $serviceRestart = array();
+    $reposList = [];
+    $exclude = [];
+    $excludeMajor = [];
+    $serviceReload = [];
+    $serviceRestart = [];
     $notes = '';
 
     /**

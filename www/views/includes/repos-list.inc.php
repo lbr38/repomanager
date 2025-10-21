@@ -67,7 +67,7 @@ if (!empty($groupsList)) {
                 /**
                  *  Grouping repos by name
                  */
-                $reposList = \Controllers\Common::groupBy("Name", $reposList);
+                $reposList = \Controllers\Utils\Array\Sort::byKey('Name', $reposList);
 
                 /**
                  *  Declaration of variables used to compare values between two repos
@@ -349,10 +349,10 @@ if (!empty($groupsList)) {
                                      */
                                     if (STATS_ENABLED == "true" and (IS_ADMIN or in_array('view-stats', USER_PERMISSIONS['repositories']['allowed-actions']['repos']))) {
                                         echo '<a href="/stats/' . $envId . '" title="Visualize stats and metrics">';
-                                        echo \Controllers\Common::envtag($env, 'fit');
+                                        echo \Controllers\Utils\Generate\Html\Label::envtag($env, 'fit');
                                         echo '</a>';
                                     } else {
-                                        echo \Controllers\Common::envtag($env, 'fit');
+                                        echo \Controllers\Utils\Generate\Html\Label::envtag($env, 'fit');
                                     }
 
                                     $envCounter++;

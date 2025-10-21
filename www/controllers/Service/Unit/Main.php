@@ -3,10 +3,12 @@
 namespace Controllers\Service\Unit;
 
 use Exception;
+use Controllers\App\DebugMode;
 
 class Main extends \Controllers\Service\Service
 {
     private $taskController;
+    private $signalHandler;
 
     public function __construct(string $unit)
     {
@@ -29,20 +31,22 @@ class Main extends \Controllers\Service\Service
         // Load service units configuration
         include(ROOT . '/config/service-units.php');
 
-        /**
-         *  As this service is the main service, if it stops, all other services must stop too
-         *  Define stop files to create on interrupt, those files are used to make unit services stop on interrupt
-         */
-        $this->signalHandler->touchFileOnInterrupt([
-            DATA_DIR . '/.service.stats-parse.stop',
-            DATA_DIR . '/.service.stats-process.stop',
-        ]);
-
         // Main loop, every minute
         while (true) {
             $launchedUnits = [];
             $currentTime   = date('H:i');
             $minutesNow    = date('i');
+
+            // Check signals and shutdown
+            pcntl_signal_dispatch();
+
+            // If signal handler received a shutdown signal (either SIGTERM or SIGINT), then stop main service
+            if ($this->signalHandler->shutdown) {
+                parent::logDebug('Shutting down main service');
+                // This could be used to gracefully shutdown child processes in the future
+                // $this->signalHandler->gracefulShutdown(30);
+                exit(0);
+            }
 
             /**
              *  If current minute is 0 (beginning of the hour) or if we are at startup, run hourly tasks
@@ -50,7 +54,7 @@ class Main extends \Controllers\Service\Service
             if ($minutesNow == '00' || $startup === true) {
                 // Run hourly unit tasks
                 foreach ($units as $unitName => $unit) {
-                    if (isset($unit['interval']) && $unit['interval'] == 'every-hour') {
+                    if ($unit['frequency'] == 'every-hour') {
                         // Check if the unit has not already been launched
                         if (!in_array($unitName, $launchedUnits)) {
                             $this->runUnit($unit['title'], $unitName, isset($unit['force']) ? $unit['force'] : false);
@@ -66,7 +70,7 @@ class Main extends \Controllers\Service\Service
              *  Run tasks scheduled to run every days at a specific time
              */
             foreach ($units as $unitName => $unit) {
-                if (isset($unit['interval']) && $unit['interval'] == 'every-day' && $unit['time'] == $currentTime) {
+                if ($unit['frequency'] == 'every-day' && $unit['time'] == $currentTime) {
                     // Check if the unit has not already been launched
                     if (!in_array($unitName, $launchedUnits)) {
                         $this->runUnit($unit['title'], $unitName, isset($unit['force']) ? $unit['force'] : false);
@@ -81,7 +85,7 @@ class Main extends \Controllers\Service\Service
              *  Run tasks scheduled to run every weeks on a specific day at a specific time
              */
             foreach ($units as $unitName => $unit) {
-                if (isset($unit['interval']) && $unit['interval'] == 'every-week' && isset($unit['day']) && $unit['day'] == strtolower(date('l')) && isset($unit['time']) && $unit['time'] == $currentTime) {
+                if ($unit['frequency'] == 'every-week' && isset($unit['day']) && $unit['day'] == strtolower(date('l')) && isset($unit['time']) && $unit['time'] == $currentTime) {
                     // Check if the unit has not already been launched
                     if (!in_array($unitName, $launchedUnits)) {
                         $this->runUnit($unit['title'], $unitName, isset($unit['force']) ? $unit['force'] : false);
@@ -96,7 +100,7 @@ class Main extends \Controllers\Service\Service
              *  Finally, run tasks scheduled to run every minutes
              */
             foreach ($units as $unitName => $unit) {
-                if (isset($unit['interval']) && $unit['interval'] == 'every-minute') {
+                if ($unit['frequency'] == 'every-minute' or $unit['frequency'] == 'forever') {
                     // Check if the unit has not already been launched
                     if (!in_array($unitName, $launchedUnits)) {
                         $this->runUnit($unit['title'], $unitName, isset($unit['force']) ? $unit['force'] : false);
@@ -107,10 +111,11 @@ class Main extends \Controllers\Service\Service
                 }
             }
 
-            pcntl_signal_dispatch();
-
             // This is not the first loop anymore, set startup to false
             $startup = false;
+
+            // Check signals and shutdown
+            pcntl_signal_dispatch();
 
             // Calculate sleep time to wake up at the beginning of the next minute
             sleep(60 - (date('s')));
@@ -134,9 +139,7 @@ class Main extends \Controllers\Service\Service
                 $myprocess->execute();
                 $myprocess->close();
 
-                /**
-                 *  Quit if there is already a process running
-                 */
+                // Quit if there is already a process running
                 if ($myprocess->getExitCode() == 0) {
                     return;
                 }
@@ -145,9 +148,7 @@ class Main extends \Controllers\Service\Service
             /**
              *  Else, run the service with the specified unit name
              */
-            if (DEBUG_MODE) {
-                parent::logDebug('Running: ' . $title . '...');
-            }
+            parent::logDebug('Running: ' . $title . '...');
 
             $myprocess = new \Controllers\Process("/usr/bin/php " . ROOT . "/tools/service.php '" . $unit . "' >/dev/null 2>/dev/null &");
             $myprocess->execute();

@@ -7,11 +7,21 @@ use \Controllers\Utils\Validate;
 
 class Package
 {
+    private $hostId;
     private $model;
 
     public function __construct(int $hostId)
     {
+        $this->hostId = $hostId;
         $this->model = new \Models\Host\Package\Package($hostId);
+    }
+
+    /**
+     *  Get packages by date and state
+     */
+    public function getByDate(string $date, string|null $state = null) : array
+    {
+        return $this->model->getByDate($date, $state);
     }
 
     /**
@@ -72,14 +82,32 @@ class Package
     }
 
     /**
+     *  Generate the package details of an event (installed packages, updated packages...) by date and package state
+     */
+    public function generateDetails(string $date) : string
+    {
+        // Check that the date is valid
+        Validate::date($date, 'Y-m-d');
+
+        // Get all packages for the specified date and state
+        $packages = $this->getByDate($date);
+
+        ob_start();
+
+        include_once(ROOT . '/views/includes/host/package/event-packages-details.inc.php');
+
+        return ob_get_clean();
+    }
+
+    /**
      *  Retrieve the complete history of a package (its installation, its updates, etc...)
      */
-    public function getTimeline(string $packageName) : string
+    public function generateTimeline(string $packageName) : string
     {
         /**
          *  Retrieve the events of the package
          */
-        $events = $this->model->getTimeline($packageName);
+        $events = $this->model->generateTimeline($packageName);
 
         ob_start();
 

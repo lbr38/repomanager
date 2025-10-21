@@ -450,7 +450,7 @@ $(document).on('click','.request-show-log-btn',function (e) {
         true
     ).then(function () {
         // Print the modal window with the log
-        mymodal.print(jsonValue.message, 'LOG', true, false);
+        mymodal.print(jsonValue.message, 'LOG', true);
     });
 });
 
@@ -481,7 +481,7 @@ $(document).on('click','.request-show-package-log-btn',function (e) {
         // Print error alert:
         true
     ).then(function () {
-        mymodal.print(jsonValue.message, 'LOG', true, false);
+        mymodal.print(jsonValue.message, 'LOG', true);
     });
 });
 
@@ -527,12 +527,11 @@ $(document).on('click','.cancel-request-btn',function () {
  *  Event: print package history
  */
 $(document).on('click','.get-package-timeline',function () {
-    /**
-     *  Retrieve id of the host and the package name
-     */
     var hostid = $(this).attr('hostid');
     var packageName = $(this).attr('packagename');
     var title = packageName.toUpperCase() + ' HISTORY';
+
+    mymodal.loading();
 
     ajaxRequest(
         // Controller:
@@ -549,44 +548,64 @@ $(document).on('click','.get-package-timeline',function () {
         // Print error alert:
         true
     ).then(function () {
-        mymodal.print(jsonValue.message, title, false, false)
+        mymodal.print(jsonValue.message, title, false)
     });
 });
 
 /**
- *  Event: Print the event details when mouse is over: list of installed or updated packages, etc...
+ *  Event: get the event packages details
  */
-$(document).on('mouseenter', '.event-packages-btn', function (e) {
-    /**
-     *  Retrieve host id
-     */
-    var hostId = $(this).attr('host-id');
+$(document).on('click', '.event-packages-btn', function (e) {
+    const hostId = $(this).attr('host-id');
+    const date = $(this).attr('event-date');
 
-    /**
-     *  Retrieve the event id and the package state (installed, updated, removed)
-     */
-    var eventId = $(this).attr('event-id');
-    var packageState = $(this).attr('package-state');
-
-    mytooltip.loading(e);
+    mymodal.loading();
 
     ajaxRequest(
         // Controller:
-        'host',
+        'host/event',
         // Action:
-        'getEventDetails',
+        'get-packages-details',
         // Data:
         {
             hostId: hostId,
-            eventId: eventId,
-            packageState: packageState
+            date: date
         },
         // Print success alert:
         false,
         // Print error alert:
         true
     ).then(() => {
-        // Print the tooltip with the content
-        mytooltip.print(jsonValue.message, e);
+        // Print the modal with the content
+        mymodal.print(jsonValue.message, 'Package events of ' + date, false);
+    });
+});
+
+/**
+ *  Event: get the event details
+ */
+$(document).on('click', '.event-btn', function (e) {
+    const hostId = $(this).attr('host-id');
+    const id = $(this).attr('event-id');
+
+    mymodal.loading();
+
+    ajaxRequest(
+        // Controller:
+        'host/event',
+        // Action:
+        'get-details',
+        // Data:
+        {
+            hostId: hostId,
+            id: id
+        },
+        // Print success alert:
+        false,
+        // Print error alert:
+        true
+    ).then(() => {
+        // Print the modal with the content
+        mymodal.print(jsonValue.message, 'Event #' + id, false);
     });
 });

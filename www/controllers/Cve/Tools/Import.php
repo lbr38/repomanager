@@ -4,6 +4,7 @@ namespace Controllers\Cve\Tools;
 
 use \Exception;
 use \Controllers\Utils\Validate;
+use \Controllers\Utils\Compress\Gzip;
 
 class Import
 {
@@ -122,7 +123,7 @@ class Import
                  *  Gunzip feed file
                  */
                 try {
-                    \Controllers\Common::gunzip($savePath);
+                    Gzip::uncompress($savePath);
                 } catch (Exception $e) {
                     throw new Exception('Error while uncompressing ' . $savePath . ' feed file: ' . $e->getMessage());
                 }
@@ -154,10 +155,10 @@ class Import
                 foreach ($cveList->CVE_Items as $cveItems) {
                     $date = '';
                     $time = '';
-                    $cpe23UriGlobal = array();
-                    $cpe23UriRaw = array();
+                    $cpe23UriGlobal = [];
+                    $cpe23UriRaw = [];
                     $cpe23UriRawStr = '';
-                    $references = array();
+                    $references = [];
                     $description = '';
                     $updatedDate = '';
                     $updatedTime = '';
@@ -277,7 +278,7 @@ class Import
                             $name = '';
                             $url = '';
                             $source = '';
-                            $tags = array();
+                            $tags = [];
                             $tagsStr = '';
 
                             if (!empty($reference->name)) {
@@ -384,7 +385,7 @@ class Import
             /**
              *  Export all installed packages on all active hosts into a file
              */
-            $hostsArray = array();
+            $hostsArray = [];
 
             foreach ($hosts as $host) {
                 /**
@@ -405,7 +406,7 @@ class Import
                  *  Get list of all installed packages on this host
                  */
                 $installedPackages = $hostPackageController->getInstalled();
-                $installedPackagesArray = array();
+                $installedPackagesArray = [];
 
                 foreach ($installedPackages as $package) {
                     $installedPackagesArray[] = array(

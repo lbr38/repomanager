@@ -2,6 +2,7 @@
 
 namespace Models\Cve\Tools;
 
+use \Controllers\Database\Log as DbLog;
 use Exception;
 
 class Import extends \Models\Model
@@ -25,8 +26,8 @@ class Import extends \Models\Model
             $stmt->bindValue(':time', date('H:i:s'));
             $stmt->bindValue(':status', 'running');
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         return $this->getLastInsertRowID();
@@ -42,8 +43,8 @@ class Import extends \Models\Model
             $stmt->bindValue(':id', $importId);
             $stmt->bindValue(':duration', $duration);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -57,8 +58,8 @@ class Import extends \Models\Model
             $stmt->bindValue(':id', $importId);
             $stmt->bindValue(':status', $status);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -73,8 +74,8 @@ class Import extends \Models\Model
             $stmt->bindValue(':time', date('H:i:s'));
             $stmt->bindValue(':status', 'running');
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         return $this->getLastInsertRowID();
@@ -90,8 +91,8 @@ class Import extends \Models\Model
             $stmt->bindValue(':id', $importId);
             $stmt->bindValue(':duration', $duration);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -105,8 +106,8 @@ class Import extends \Models\Model
             $stmt->bindValue(':id', $importId);
             $stmt->bindValue(':status', $status);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -122,8 +123,8 @@ class Import extends \Models\Model
             $this->db->query("DROP table IF EXISTS cve_affected_hosts");
             $this->db->query("VACUUM");
             $this->db->checkMainTables();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 }

@@ -1062,7 +1062,8 @@ class Connection extends SQLite3
          */
         $this->exec("CREATE TABLE IF NOT EXISTS packages_available (
         Name VARCHAR(255),
-        Version VARCHAR(255))");
+        Version VARCHAR(255),
+        Repository VARCHAR(255))");
 
         /**
          *  events table
@@ -1204,7 +1205,7 @@ class Connection extends SQLite3
      */
     public function columnExist(string $tableName, string $columnName)
     {
-        $columns = array();
+        $columns = [];
 
         $result = $this->query("PRAGMA table_info($tableName)");
 
@@ -1219,19 +1220,5 @@ class Connection extends SQLite3
         }
 
         return false;
-    }
-
-    /**
-     *  Log a database error in database
-     */
-    public function logError(string $exception = null)
-    {
-        $logController = new \Controllers\Log\Log();
-
-        if (!empty($exception)) {
-            $logController->log('error', 'Database', 'An error occurred while executing request in database.', $exception);
-        } else {
-            $logController->log('error', 'Database', 'An error occurred while executing request in database.');
-        }
     }
 }

@@ -29,7 +29,7 @@
                             <div class="hosts-charts-list-label flex justify-space-between align-item-center" chart-type="kernel" kernel="<?= $kernelName ?>">
                                 <div class="flex column-gap-5 align-item-center">
                                     <!-- square figure -->
-                                    <span style="background-color: <?= $mycolor->randomColor() ?>"></span>
+                                    <span style="background-color: <?= \Controllers\Utils\Generate\Html\Color::random() ?>"></span>
                                     <p class="font-size-14"><?= $kernelName ?></p>
                                 </div>
                                 <p class="font-size-14"><?= $kernel['Kernel_count'] ?></p>
@@ -56,7 +56,7 @@
                             <div class="hosts-charts-list-label flex justify-space-between align-item-center" chart-type="profile" profile="<?= $profileName ?>">
                                 <div class="flex column-gap-5 align-item-center">
                                     <!-- square figure -->
-                                    <span style="background-color: <?= $mycolor->randomColor() ?>"></span>
+                                    <span style="background-color: <?= \Controllers\Utils\Generate\Html\Color::random() ?>"></span>
                                     <p class="font-size-14"><?= $profileName ?></p>
                                 </div>
                                 <p class="font-size-14"><?= $profile['Profile_count'] ?></p>
@@ -138,7 +138,7 @@
                             foreach ($rebootRequiredList as $rebootRequiredHost) : ?>
                                 <div class="flex align-item-center column-gap-10 div-generic-blue margin-bottom-0">
                                     <div>
-                                        <?= \Controllers\Common::printOsIcon($rebootRequiredHost['Os']) ?>
+                                        <?= \Controllers\Utils\Generate\Html\Icon::os($rebootRequiredHost['Os']) ?>
                                     </div>
 
                                     <div class="flex flex-direction-column row-gap-4">
@@ -186,7 +186,7 @@
                     $osNameList .= "'" . ucfirst($os['Os']) . " " . $os['Os_version'] . "',";
                 }
                 $osCountList .= "'" . $os['Os_count'] . "',";
-                $osBackgroundColor .= "'" . $mycolor->randomColor() . "',";
+                $osBackgroundColor .= "'" . \Controllers\Utils\Generate\Html\Color::random() . "',";
             }
 
             $labels = rtrim($osNameList, ',');
@@ -213,7 +213,7 @@
                     $archNameList .= "'" . $arch['Arch'] . "',";
                 }
                 $archCountList .= "'" . $arch['Arch_count'] . "',";
-                $archBackgroundColor .= "'" . $mycolor->randomColor() . "',";
+                $archBackgroundColor .= "'" . \Controllers\Utils\Generate\Html\Color::random() . "',";
             }
 
             $labels = rtrim($archNameList, ',');
@@ -310,7 +310,7 @@
                     $agentNameList .= "'" . $agent['Linupdate_version'] . "',";
                 }
                 $agentCountList .= "'" . $agent['Linupdate_version_count'] . "',";
-                $agentBackgroundColor .= "'" . $mycolor->randomColor() . "',";
+                $agentBackgroundColor .= "'" . \Controllers\Utils\Generate\Html\Color::random() . "',";
             }
 
             $labels = rtrim($agentNameList, ',');

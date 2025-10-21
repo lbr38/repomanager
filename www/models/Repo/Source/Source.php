@@ -3,14 +3,12 @@
 namespace Models\Repo\Source;
 
 use Exception;
+use \Controllers\Database\Log as DbLog;
 
 class Source extends \Models\Model
 {
     public function __construct()
     {
-        /**
-         *  Open a new database connection
-         */
         $this->getConnection('main');
     }
 
@@ -19,7 +17,7 @@ class Source extends \Models\Model
      */
     public function get(string $sourceType, string $sourceName)
     {
-        $data = array();
+        $data = [];
 
         try {
             $stmt = $this->db->prepare("SELECT * FROM sources
@@ -28,8 +26,8 @@ class Source extends \Models\Model
             $stmt->bindValue(':type', $sourceType);
             $stmt->bindValue(':name', $sourceName);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -53,8 +51,8 @@ class Source extends \Models\Model
             $stmt->bindValue(':type', $type);
             $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -75,8 +73,8 @@ class Source extends \Models\Model
             $stmt = $this->db->prepare("SELECT Definition FROM sources WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -91,7 +89,7 @@ class Source extends \Models\Model
      */
     public function listAll(string|null $type, bool $withOffset, int $offset)
     {
-        $data = array();
+        $data = [];
 
         $query = "SELECT * FROM sources";
 
@@ -138,8 +136,8 @@ class Source extends \Models\Model
             $stmt->bindValue(':definition', $definition);
             $stmt->bindValue(':method', $method);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -153,8 +151,8 @@ class Source extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->bindValue(':definition', $definition);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -167,8 +165,8 @@ class Source extends \Models\Model
             $stmt = $this->db->prepare("DELETE FROM sources WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -185,8 +183,8 @@ class Source extends \Models\Model
             $stmt->bindValue(':type', $type);
             $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result)) {
@@ -205,8 +203,8 @@ class Source extends \Models\Model
             $stmt = $this->db->prepare("SELECT Id FROM sources WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result)) {
@@ -226,8 +224,8 @@ class Source extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->bindValue(':definition', $definition);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 }

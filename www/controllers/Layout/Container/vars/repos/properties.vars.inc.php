@@ -25,7 +25,7 @@ $lastScheduledTask = $mytask->getLastScheduledTask();
 $nextScheduledTasks = $mytask->getNextScheduledTask();
 
 if (!empty($nextScheduledTasks)) {
-    $nextScheduledTasksLeft = array();
+    $nextScheduledTasksLeft = [];
 
     foreach ($nextScheduledTasks as $task) {
         $nextScheduledTasksLeft[] = $mytask->getDayTimeLeft($task['Id']);

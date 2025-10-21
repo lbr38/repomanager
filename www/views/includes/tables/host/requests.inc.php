@@ -222,7 +222,7 @@
             } ?>
 
             <div class="<?= $class ?>" request-id="<?= $item['Id'] ?>">
-                <div>
+                <div class="text-center">
                     <?php
                     if (!empty($requestStatusIcon)) {
                         if (str_ends_with($requestStatusIcon, '.svg')) {
@@ -340,13 +340,13 @@
                     $title = count($successPackages) . ' packages updated';
                     include(ROOT . '/views/includes/labels/label-icon-tr.inc.php'); ?>
 
-                    <div class="grid grid-3 row-gap-5 justify-space-between margin-top-10">
+                    <div class="grid grid-3 row-gap-10 justify-space-between margin-top-10">
                         <?php
                         // Print each package with its version and log
                         foreach ($successPackages as $package => $details) : ?>
                             <div class="flex align-flex-start column-gap-5">
-                                <?= \Controllers\Common::printProductIcon($package) ?>
-                                <p class="wordbreakall copy"><?= $package ?></p>
+                                <?= \Controllers\Utils\Generate\Html\Icon::product($package) ?>
+                                <p class="get-package-timeline pointer wordbreakall copy" hostid="<?= $id ?>" packagename="<?= $package ?>" title="See package timeline"><?= $package ?></p>
                             </div>
 
                             <p class="wordbreakall copy"><?= $details['version'] ?></p>
@@ -372,13 +372,13 @@
                     $title = count($failedPackages) . ' packages failed';
                     include(ROOT . '/views/includes/labels/label-icon-tr.inc.php'); ?>
 
-                    <div class="grid grid-3 row-gap-5 justify-space-between margin-top-10">
+                    <div class="grid grid-3 row-gap-10 justify-space-between margin-top-10">
                         <?php
                         // Print each package with its version and log
                         foreach ($failedPackages as $package => $details) : ?>
                             <div class="flex align-flex-start column-gap-5">
-                                <?= \Controllers\Common::printProductIcon($package) ?>
-                                <p class="wordbreakall copy"><?= $package ?></p>
+                                <?= \Controllers\Utils\Generate\Html\Icon::product($package) ?>
+                                <p class="get-package-timeline pointer wordbreakall copy" hostid="<?= $id ?>" packagename="<?= $package ?>" title="See package timeline"><?= $package ?></p>
                             </div>
 
                             <p class="wordbreakall copy"><?= $details['version'] ?></p>
