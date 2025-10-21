@@ -7,11 +7,21 @@ use \Controllers\Utils\Validate;
 
 class Package
 {
+    private $hostId;
     private $model;
 
     public function __construct(int $hostId)
     {
+        $this->hostId = $hostId;
         $this->model = new \Models\Host\Package\Package($hostId);
+    }
+
+    /**
+     *  Get packages by date and state
+     */
+    public function getByDate(string $date, string $state) : array
+    {
+        return $this->model->getByDate($date, $state);
     }
 
     /**
@@ -72,14 +82,66 @@ class Package
     }
 
     /**
+     *  Generate the details of an event (installed packages, updated packages...) by date and package state
+     */
+    public function generateDetails(string $date, string $state) : string
+    {
+        // Check that the date is valid
+        Validate::date($date, 'Y-m-d');
+
+        // Check that the package state is valid
+        if (!in_array($state, ['installed', 'reinstalled', 'dep-installed', 'upgraded', 'downgraded', 'removed', 'purged'])) {
+            throw new Exception('Invalid package state');
+        }
+
+        // Get all packages for the specified date and state
+        $packages = $this->getByDate($date, $state);
+
+        if ($state == 'installed') {
+            $title = 'INSTALLED';
+            $icon = 'check.svg';
+        }
+        if ($state == 'reinstalled') {
+            $title = 'REINSTALLED';
+            $icon = 'check.svg';
+        }
+        if ($state == 'dep-installed') {
+            $title = 'DEPENDENCIES INSTALLED';
+            $icon = 'check.svg';
+        }
+        if ($state == 'upgraded') {
+            $title = 'UPDATED';
+            $icon = 'update-yellow.svg';
+        }
+        if ($state == 'removed') {
+            $title = 'UNINSTALLED';
+            $icon = 'error.svg';
+        }
+        if ($state == 'purged') {
+            $title = 'PURGED';
+            $icon = 'error.svg';
+        }
+        if ($state == 'downgraded') {
+            $title = 'DOWNGRADED';
+            $icon = 'rollback.svg';
+        }
+
+        ob_start();
+
+        include_once(ROOT . '/views/includes/host/package/event-packages-details.inc.php');
+
+        return ob_get_clean();
+    }
+
+    /**
      *  Retrieve the complete history of a package (its installation, its updates, etc...)
      */
-    public function getTimeline(string $packageName) : string
+    public function generateTimeline(string $packageName) : string
     {
         /**
          *  Retrieve the events of the package
          */
-        $events = $this->model->getTimeline($packageName);
+        $events = $this->model->generateTimeline($packageName);
 
         ob_start();
 

@@ -13,27 +13,29 @@ class Event extends \Models\Model
     }
 
     /**
-     *  Retrieves the details of an event for a specific type of packages (installed, updated, etc...)
+     *  Get list of all events date
      */
-    public function getDetails(string $eventId, string $packageState) : array
+    public function getDates(bool $withOffset, int $offset) : array
     {
-        $data = array();
+        $data = [];
 
         try {
-            $stmt = $this->dedicatedDb->prepare("SELECT Name, Version FROM packages
-            WHERE Id_event = :id_event and State = :state
-            UNION
-            SELECT Name, Version FROM packages_history
-            WHERE Id_event = :id_event and State = :state");
-            $stmt->bindValue(':id_event', $eventId);
-            $stmt->bindValue(':state', $packageState);
+            $query = "SELECT DISTINCT Date FROM events ORDER BY Date DESC";
+           
+            // Add offset if needed
+            if ($withOffset === true) {
+                $query .= " LIMIT 10 OFFSET :offset";
+            }
+
+            $stmt = $this->dedicatedDb->prepare($query);
+            $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
             $result = $stmt->execute();
         } catch (Exception $e) {
             $this->dedicatedDb->logError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $data[] = $row;
+            $data[] = $row['Date'];
         }
 
         return $data;
@@ -45,7 +47,7 @@ class Event extends \Models\Model
      */
     public function getHistory(bool $withOffset, int $offset) : array
     {
-        $data = array();
+        $data = [];
 
         try {
             $query = "SELECT * FROM events ORDER BY Date DESC, Time DESC";

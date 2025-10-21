@@ -13,6 +13,31 @@ class Package extends \Models\Model
     }
 
     /**
+     *  Get packages by date and state
+     */
+    public function getByDate(string $date, string $state) : array
+    {
+        $data = [];
+
+        try {
+            $stmt = $this->dedicatedDb->prepare("SELECT * from packages WHERE Date = :date AND State = :state
+            UNION
+            SELECT * from packages_history WHERE Date = :date AND State = :state");
+            $stmt->bindValue(':date', $date);
+            $stmt->bindValue(':state', $state);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            $this->dedicatedDb->logError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return $data;
+    }
+
+    /**
      *  Return package Id in database, based on its name and version
      */
     public function getIdByNameVersion(string $packageName, string|null $packageVersion) : int|bool
@@ -216,7 +241,7 @@ class Package extends \Models\Model
     /**
      *  Retrieve the complete history of a package (its installation, its updates, etc...)
      */
-    public function getTimeline(string $package) : array
+    public function generateTimeline(string $package) : array
     {
         $events = array();
 

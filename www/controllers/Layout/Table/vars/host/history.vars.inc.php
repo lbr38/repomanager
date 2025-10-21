@@ -1,5 +1,6 @@
 <?php
 $reloadableTableOffset = 0;
+$data = [];
 
 $id = __ACTUAL_URI__[2];
 
@@ -14,63 +15,29 @@ if (!empty($_COOKIE['tables/host/history/offset']) and is_numeric($_COOKIE['tabl
 }
 
 /**
- *  Get list of packages events history, with offset
+ *  Get list of all events date, with offset
  */
-$events = $hostPackageEventController->getHistory(true, $reloadableTableOffset);
+$dates = $hostPackageEventController->getDates(true, $reloadableTableOffset);
 
 /**
- *  For each event, get the installed, updated, downgraded and removed packages
+ *  For each date, get the packages installed, updated, downgraded, etc.
  */
-$eventsWithPackages = [];
-
-foreach ($events as $event) {
-    /**
-     *  Getting installed packages from this event
-     */
-    $event['PackagesInstalled'] = $hostPackageController->getEventPackagesList($event['Id'], 'installed');
-
-    /**
-     *  Getting reinstalled packages from this event
-     */
-    $event['PackagesReinstalled'] = $hostPackageController->getEventPackagesList($event['Id'], 'reinstalled');
-
-    /**
-     *  Getting isntalled dependencies packages from this event
-     */
-    $event['DependenciesInstalled'] = $hostPackageController->getEventPackagesList($event['Id'], 'dep-installed');
-
-    /**
-     *  Getting updated packages from this event
-     */
-    $event['PackagesUpdated'] = $hostPackageController->getEventPackagesList($event['Id'], 'upgraded');
-
-    /**
-     *  Getting downgraded packages from this event
-     */
-    $event['PackagesDowngraded'] = $hostPackageController->getEventPackagesList($event['Id'], 'downgraded');
-
-    /**
-     *  Getting removed packages from this event
-     */
-    $event['PackagesRemoved'] = $hostPackageController->getEventPackagesList($event['Id'], 'removed');
-
-    /**
-     *  Getting purged packages from this event
-     */
-    $event['PackagesPurged'] = $hostPackageController->getEventPackagesList($event['Id'], 'purged');
-
-    /**
-     *  Add this event to the list of events with packages
-     */
-    $eventsWithPackages[] = $event;
+foreach ($dates as $date) {
+    $data[$date]['installed'] = $hostPackageController->getByDate($date, 'installed');
+    $data[$date]['reinstalled'] = $hostPackageController->getByDate($date, 'reinstalled');
+    $data[$date]['dep-installed'] = $hostPackageController->getByDate($date, 'dep-installed');
+    $data[$date]['upgraded'] = $hostPackageController->getByDate($date, 'upgraded');
+    $data[$date]['downgraded'] = $hostPackageController->getByDate($date, 'downgraded');
+    $data[$date]['removed'] = $hostPackageController->getByDate($date, 'removed');
+    $data[$date]['purged'] = $hostPackageController->getByDate($date, 'purged');    
 }
 
-$reloadableTableContent = $eventsWithPackages;
+$reloadableTableContent = $data;
 
 /**
- *  Get list of ALL events, without offset, for the total count
+ *  Get list of ALL events dates, without offset, for the total count
  */
-$reloadableTableTotalItems = count($hostPackageEventController->getHistory());
+$reloadableTableTotalItems = count($hostPackageEventController->getDates());
 
 /**
  *  Count total pages for the pagination
@@ -82,4 +49,4 @@ $reloadableTableTotalPages = ceil($reloadableTableTotalItems / 10);
  */
 $reloadableTableCurrentPage = ceil($reloadableTableOffset / 10) + 1;
 
-unset($hostPackageController, $hostPackageEventController, $events, $eventsWithPackages);
+unset($hostPackageController, $hostPackageEventController, $events, $eventsWithPackages, $dates, $data);

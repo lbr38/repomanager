@@ -2,9 +2,6 @@
 
 namespace Controllers\Host\Package;
 
-use Exception;
-use \Controllers\Utils\Validate;
-
 class Event
 {
     private $hostId;
@@ -17,52 +14,12 @@ class Event
     }
 
     /**
-     *  Retrieves the details of an event for a specific type of packages (installed, updated, etc...)
-     *  This function is triggered when hovering over a line in the event history
+     *  Get list of all events date
+     *  It is possible to add an offset to the request
      */
-    public function getDetails(string $eventId, string $packageState) : string
+    public function getDates(bool $withOffset = false, int $offset = 0) : array
     {
-        $packageState = Validate::string($packageState);
-
-        /**
-         *  Retrieve the details of the event
-         */
-        $packages = $this->model->getDetails($eventId, $packageState);
-
-        if ($packageState == 'installed') {
-            $title = 'INSTALLED';
-            $icon = 'check.svg';
-        }
-        if ($packageState == 'reinstalled') {
-            $title = 'REINSTALLED';
-            $icon = 'check.svg';
-        }
-        if ($packageState == 'dep-installed') {
-            $title = 'DEPENDENCIES INSTALLED';
-            $icon = 'check.svg';
-        }
-        if ($packageState == 'upgraded') {
-            $title = 'UPDATED';
-            $icon = 'update-yellow.svg';
-        }
-        if ($packageState == 'removed') {
-            $title = 'UNINSTALLED';
-            $icon = 'error.svg';
-        }
-        if ($packageState == 'purged') {
-            $title = 'PURGED';
-            $icon = 'error.svg';
-        }
-        if ($packageState == 'downgraded') {
-            $title = 'DOWNGRADED';
-            $icon = 'rollback.svg';
-        }
-
-        ob_start();
-
-        include_once(ROOT . '/views/includes/host/package/event-details.inc.php');
-
-        return ob_get_clean();
+        return $this->model->getDates($withOffset, $offset);
     }
 
     /**

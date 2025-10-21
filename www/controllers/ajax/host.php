@@ -112,22 +112,7 @@ if ($action == "getPackageTimeline" and !empty($_POST['hostid']) and !empty($_PO
     $hostPackageController = new \Controllers\Host\Package\Package($_POST['hostid']);
 
     try {
-        $content = $hostPackageController->getTimeline($_POST['packagename']);
-    } catch (\Exception $e) {
-        response(HTTP_BAD_REQUEST, $e->getMessage());
-    }
-
-    response(HTTP_OK, $content);
-}
-
-/**
- *  Get event details (installed packages, updated packages...)
- */
-if ($action == "getEventDetails" and !empty($_POST['hostId']) and !empty($_POST['eventId']) and !empty($_POST['packageState'])) {
-    $hostPackageEventController = new \Controllers\Host\Package\Event($_POST['hostId']);
-
-    try {
-        $content = $hostPackageEventController->getDetails(\Controllers\Utils\Validate::string($_POST['eventId']), \Controllers\Utils\Validate::string($_POST['packageState']));
+        $content = $hostPackageController->generateTimeline($_POST['packagename']);
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }

@@ -151,7 +151,7 @@
     display: none;
 }
 
-.event-packages-details, #hosts-requiring-reboot-chart-list {
+#hosts-requiring-reboot-chart-list {
     display: none;
     position: absolute;
     left: 0;
@@ -173,6 +173,14 @@
     top: 100px;
     max-height: 500px;
     overflow: auto;
+}
+
+.event-packages-details {
+    min-width: 50vw;
+    max-width: 90vw;
+    grid-template-columns: 10% 30% 30% 5%;
+    column-gap: 10px;
+    row-gap: 6px;
 }
 
 /**

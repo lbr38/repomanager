@@ -557,29 +557,22 @@ $(document).on('click','.get-package-timeline',function () {
  *  Event: Print the event details when mouse is over: list of installed or updated packages, etc...
  */
 $(document).on('mouseenter', '.event-packages-btn', function (e) {
-    /**
-     *  Retrieve host id
-     */
-    var hostId = $(this).attr('host-id');
-
-    /**
-     *  Retrieve the event id and the package state (installed, updated, removed)
-     */
-    var eventId = $(this).attr('event-id');
-    var packageState = $(this).attr('package-state');
+    const hostId = $(this).attr('host-id');
+    const date = $(this).attr('event-date');
+    const state = $(this).attr('package-state');
 
     mytooltip.loading(e);
 
     ajaxRequest(
         // Controller:
-        'host',
+        'host/event',
         // Action:
-        'getEventDetails',
+        'get-packages-details',
         // Data:
         {
             hostId: hostId,
-            eventId: eventId,
-            packageState: packageState
+            date: date,
+            state: state
         },
         // Print success alert:
         false,
