@@ -7,7 +7,7 @@ if ($_POST['action'] == 'add' and !empty($_POST['id']) and !empty($_POST['name']
 
     try {
         $myRpmSource->addReleasever($_POST['id'], $_POST['name']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -22,7 +22,7 @@ if ($_POST['action'] == 'edit' and !empty($_POST['id']) and isset($_POST['releas
 
     try {
         $myRpmSource->editReleasever($_POST['id'], $_POST['releaseverId'], $_POST['params']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -37,7 +37,7 @@ if ($_POST['action'] == 'remove' and !empty($_POST['id']) and isset($_POST['rele
 
     try {
         $myRpmSource->removeReleasever($_POST['id'], $_POST['releaseverId']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -52,7 +52,7 @@ if ($_POST['action'] == 'add-gpgkey' and !empty($_POST['id']) and isset($_POST['
 
     try {
         $myRpmSource->addGpgKey($_POST['id'], $_POST['releaseverId'], $_POST['gpgKeyUrl'], $_POST['gpgKeyFingerprint'], $_POST['gpgKeyPlainText']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -67,7 +67,7 @@ if ($_POST['action'] == 'remove-gpgkey' and !empty($_POST['id']) and isset($_POS
 
     try {
         $myRpmSource->removeGpgKey($_POST['id'], $_POST['releaseverId'], $_POST['gpgkeyId']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -82,7 +82,7 @@ if ($_POST['action'] == 'get-predefined-releasevers' and !empty($_POST['source']
 
     try {
         $content = $myRpmSource->getPredefinedReleasever($_POST['source']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 

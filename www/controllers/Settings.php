@@ -31,7 +31,7 @@ class Settings
             throw new Exception('You are not allowed to perform this action');
         }
 
-        $settingsToApply = array();
+        $settingsToApply = [];
 
         /**
          *  Main configuration / Global settings
@@ -464,16 +464,25 @@ class Settings
     /**
      *  Enable or disable debug mode
      */
-    public function enableDebugMode(string $enable) : void
+    public function enableDebugMode(bool $enable) : void
     {
         if (!IS_ADMIN) {
             throw new Exception('You are not allowed to perform this action');
         }
 
-        if ($enable != 'true' and $enable != 'false') {
-            throw new Exception('Invalid value for debug mode');
+        // Create or remove the .debug file in the data directory to enable or disable debug mode
+        if ($enable) {
+            if (!file_exists(DATA_DIR . '/.debug')) {
+                if (!touch(DATA_DIR . '/.debug')) {
+                    throw new Exception('Failed to enable debug mode');
+                }
+            }
+        } else {
+            if (file_exists(DATA_DIR . '/.debug')) {
+                if (!unlink(DATA_DIR . '/.debug')) {
+                    throw new Exception('Failed to disable debug mode');
+                }
+            }
         }
-
-        $this->model->enableDebugMode($enable);
     }
 }

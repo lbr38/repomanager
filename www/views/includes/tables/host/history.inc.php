@@ -1,99 +1,69 @@
 <div class="reloadable-table" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
     <?php
     if (!empty($reloadableTableContent)) :
-        foreach ($reloadableTableContent as $item) : ?>
-            <div class="table-container grid-fr-6 column-gap-30 bck-blue-alt">
+        foreach ($reloadableTableContent as $date => $packageState) : ?>
+            <div class="table-container-3 row-gap-15 column-gap-30 bck-blue-alt event-packages-btn pointer" host-id="<?= $id ?>" event-date="<?= $date ?>">
                 <div>
-                    <p><b><?= DateTime::createFromFormat('Y-m-d', $item['Date'])->format('d-m-Y') ?></b></p>
-                    <p class="lowopacity-cst"><?= $item['Time']; ?>
+                    <p><b><?= DateTime::createFromFormat('Y-m-d', $date)->format('d-m-Y') ?></b></p>
                 </div>
 
-                <?php
-                if (!empty($item['PackagesInstalled'])) :
-                    $title = 'INSTALLED';
-                    $icon = 'check.svg';
-                    $count = count($item['PackagesInstalled']); ?>
-
-                    <div class="pointer event-packages-btn" host-id="<?= $id ?>" event-id="<?= $item['Id'] ?>" package-state="installed">
-                        <?php include(ROOT . '/views/includes/labels/label-icon-tr.inc.php'); ?>
-                    </div>
+                <div class="grid grid-rfr-1-3 row-gap-15 column-gap-30">
                     <?php
-                endif;
+                    foreach ($packageState as $state => $packages) :
+                        if (empty($packages)) {
+                            continue;
+                        }
 
-                if (!empty($item['PackagesReinstalled'])) :
-                    $title = 'REINSTALLED';
-                    $icon = 'check.svg';
-                    $count = count($item['PackagesReinstalled']); ?>
+                        if ($state == 'installed') {
+                            $title = 'INSTALLED';
+                            $icon = 'package-installed.svg';
+                        }
 
-                    <div class="pointer event-packages-btn" host-id="<?= $id ?>" event-id="<?= $item['Id'] ?>" package-state="reinstalled">
-                        <?php include(ROOT . '/views/includes/labels/label-icon-tr.inc.php'); ?>
-                    </div>
-                    <?php
-                endif;
+                        if ($state == 'reinstalled') {
+                            $title = 'REINSTALLED';
+                            $icon = 'package-installed.svg';
+                        }
 
-                if (!empty($item['DependenciesInstalled'])) :
-                    $title = 'DEP. INSTALLED';
-                    $icon = 'check.svg';
-                    $count = count($item['DependenciesInstalled']); ?>
+                        if ($state == 'dep-installed') {
+                            $title = 'DEP. INSTALLED';
+                            $icon = 'package-installed.svg';
+                        }
 
-                    <div class="pointer event-packages-btn" host-id="<?= $id ?>" event-id="<?= $item['Id'] ?>" package-state="dep-installed">
-                        <?php include(ROOT . '/views/includes/labels/label-icon-tr.inc.php'); ?>
-                    </div>
-                    <?php
-                endif;
+                        if ($state == 'upgraded') {
+                            $title = 'UPDATED';
+                            $icon = 'package-updated.svg';
+                        }
 
-                if (!empty($item['PackagesUpdated'])) :
-                    $title = 'UPDATED';
-                    $icon = 'update-yellow.svg';
-                    $count = count($item['PackagesUpdated']); ?>
+                        if ($state == 'downgraded') {
+                            $title = 'DOWNGRADED';
+                            $icon = 'package-updated.svg';
+                        }
 
-                    <div class="pointer event-packages-btn" host-id="<?= $id ?>" event-id="<?= $item['Id'] ?>" package-state="upgraded">
-                        <?php include(ROOT . '/views/includes/labels/label-icon-tr.inc.php'); ?>
-                    </div>
-                    <?php
-                endif;
+                        if ($state == 'removed') {
+                            $title = 'UNINSTALLED';
+                            $icon = 'package-removed.svg';
+                        }
 
-                if (!empty($item['PackagesDowngraded'])) :
-                    $title = 'DOWNGRADED';
-                    $icon = 'rollback.svg';
-                    $count = count($item['PackagesDowngraded']); ?>
+                        if ($state == 'purged') {
+                            $title = 'PURGED';
+                            $icon = 'package-removed.svg';
+                        }
 
-                    <div class="pointer event-packages-btn" host-id="<?= $id ?>" event-id="<?= $item['Id'] ?>" package-state="downgraded">
-                        <?php include(ROOT . '/views/includes/labels/label-icon-tr.inc.php'); ?>
-                    </div>
-                    <?php
-                endif;
+                        $count = count($packages);
 
-                if (!empty($item['PackagesRemoved'])) :
-                    $title = 'UNINSTALLED';
-                    $icon = 'error.svg';
-                    $count = count($item['PackagesRemoved']); ?>
-
-                    <div class="pointer event-packages-btn" host-id="<?= $id ?>" event-id="<?= $item['Id'] ?>" package-state="removed">
-                        <?php include(ROOT . '/views/includes/labels/label-icon-tr.inc.php'); ?>
-                    </div>
-                    <?php
-                endif;
-
-                if (!empty($item['PackagesPurged'])) :
-                    $title = 'PURGED';
-                    $icon = 'error.svg';
-                    $count = count($item['PackagesPurged']); ?>
-
-                    <div class="pointer event-packages-btn" host-id="<?= $id ?>" event-id="<?= $item['Id'] ?>" package-state="purged">
-                        <?php include(ROOT . '/views/includes/labels/label-icon-tr.inc.php'); ?>
-                    </div>
-                    <?php
-                endif ?>
+                        include(ROOT . '/views/includes/labels/label-icon-tr.inc.php');
+                    endforeach ?>
+                </div>
             </div>
+
             <?php
-            unset($title, $icon, $count);
-        endforeach; ?>
-        
+        endforeach;
+
+        unset($date, $packageState, $state, $packages, $title, $icon, $count); ?>
+
         <div class="flex justify-end margin-top-10">
             <?php \Controllers\Layout\Table\Render::paginationBtn($reloadableTableCurrentPage, $reloadableTableTotalPages); ?>
         </div>
-
         <?php
     endif ?>
 </div>

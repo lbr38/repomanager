@@ -99,7 +99,7 @@
 
             <h6 class="required">DEDUPLICATION</h6>
             <p class="note">Enable or disable deduplication of packages in snapshots. When enabled, identical packages in snapshots will be stored only once, saving disk space. Default: enabled.</p>
-            <p class="note">Note: deduplication is using hard links, disable it if your repositories are stored on a filesystem that does not support hard links (e.g., S3, NFS).</p>
+            <p class="note">Note: deduplication is using hard links, disable it if your repositories are stored on a filesystem that does not support hard links (e.g., S3 bucket).</p>
             <label class="onoff-switch-label">
                 <input class="settings-param onoff-switch-input" param-name="repo-deduplication" type="checkbox" value="true" <?php echo (REPO_DEDUPLICATION) ? 'checked' : ''; ?>>
                 <span class="onoff-switch-slider"></span>

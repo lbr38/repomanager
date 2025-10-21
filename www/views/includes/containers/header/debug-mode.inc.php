@@ -1,6 +1,6 @@
 <article class="reloadable-container" container="header/debug-mode">
     <?php
-    if (DEBUG_MODE) : ?>
+    if (\Controllers\App\DebugMode::enabled()) : ?>
         <section class="section-main">
             <div class="div-generic-blue">
                 <div class="flex align-item-center column-gap-5">

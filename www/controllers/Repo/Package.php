@@ -58,11 +58,11 @@ class Package
             }
         }
 
-        $packageExists = array();      // will contain the list of packages that already exist
-        $packagesError = array();      // will contain the list of packages uploaded with an error
-        $packageEmpty = array();       // will contain the list of empty packages
-        $packageInvalidName = array(); // will contain the list of packages whose name is invalid
-        $packageInvalid = array();     // will contain the list of packages whose format is invalid
+        $packageExists = [];      // will contain the list of packages that already exist
+        $packagesError = [];      // will contain the list of packages uploaded with an error
+        $packageEmpty = [];       // will contain the list of empty packages
+        $packageInvalidName = []; // will contain the list of packages whose name is invalid
+        $packageInvalid = [];     // will contain the list of packages whose format is invalid
 
         foreach ($packages as $package) {
             $uploadError    = 0;
@@ -267,7 +267,7 @@ class Package
         }
 
         $myrepo = new \Controllers\Repo\Repo();
-        $deletedPackages = array();
+        $deletedPackages = [];
 
         /**
          *  Retrieve repo infos from DB

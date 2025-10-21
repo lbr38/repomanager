@@ -156,11 +156,11 @@
                      */
                     if (in_array($taskRawParams['action'], ['env', 'removeEnv'])) {
                         if (is_string($taskRawParams['env'])) {
-                            echo \Controllers\Common::envtag($taskRawParams['env']);
+                            echo \Controllers\Utils\Generate\Html\Label::envtag($taskRawParams['env']);
                         }
                         if (is_array($taskRawParams['env'])) {
                             foreach ($taskRawParams['env'] as $env) {
-                                echo \Controllers\Common::envtag($env);
+                                echo \Controllers\Utils\Generate\Html\Label::envtag($env);
                             }
                         }
                     } ?>
@@ -328,7 +328,7 @@
                                 <div class="flex row-gap-5 column-gap-5">
                                     <?php
                                     foreach ($taskRawParams['env'] as $env) {
-                                        echo \Controllers\Common::envtag($env);
+                                        echo \Controllers\Utils\Generate\Html\Label::envtag($env);
                                     } ?>
                                 </div>
                             </div>

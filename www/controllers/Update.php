@@ -135,4 +135,16 @@ class Update
             $this->model->updateDB($this->sqlQueriesDir . '/_always-after.php');
         }
     }
+
+    /**
+     *  Return true if update is running
+     */
+    public static function running() : bool
+    {
+        if (file_exists(DATA_DIR . '/update-running')) {
+            return true;
+        }
+
+        return false;
+    }
 }

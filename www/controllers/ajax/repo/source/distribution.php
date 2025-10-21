@@ -7,7 +7,7 @@ if ($_POST['action'] == 'add' and !empty($_POST['id']) and !empty($_POST['name']
 
     try {
         $myDebSource->addDistribution($_POST['id'], $_POST['name']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -22,7 +22,7 @@ if ($_POST['action'] == 'edit' and !empty($_POST['id']) and isset($_POST['distri
 
     try {
         $myDebSource->editDistribution($_POST['id'], $_POST['distributionId'], $_POST['params']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -37,7 +37,7 @@ if ($_POST['action'] == 'remove' and !empty($_POST['id']) and isset($_POST['dist
 
     try {
         $myDebSource->removeDistribution($_POST['id'], $_POST['distributionId']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -52,7 +52,7 @@ if ($_POST['action'] == 'add-section' and !empty($_POST['id']) and isset($_POST[
 
     try {
         $myDebSource->addSection($_POST['id'], $_POST['distributionId'], $_POST['section']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -67,7 +67,7 @@ if ($_POST['action'] == 'remove-section' and !empty($_POST['id']) and isset($_PO
 
     try {
         $myDebSource->removeSection($_POST['id'], $_POST['distributionId'], $_POST['sectionId']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -82,7 +82,7 @@ if ($_POST['action'] == 'add-gpgkey' and !empty($_POST['id']) and isset($_POST['
 
     try {
         $myDebSource->addGpgKey($_POST['id'], $_POST['distributionId'], $_POST['gpgKeyUrl'], $_POST['gpgKeyFingerprint'], $_POST['gpgKeyPlainText']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -97,7 +97,7 @@ if ($_POST['action'] == 'remove-gpgkey' and !empty($_POST['id']) and isset($_POS
 
     try {
         $myDebSource->removeGpgKey($_POST['id'], $_POST['distributionId'], $_POST['gpgkeyId']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -112,7 +112,7 @@ if ($_POST['action'] == 'get-predefined-distributions' and !empty($_POST['source
 
     try {
         $content = $myDebSource->getPredefinedDistributions($_POST['source']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -127,7 +127,7 @@ if ($_POST['action'] == 'get-predefined-components' and !empty($_POST['source'])
 
     try {
         $content = $myDebSource->getPredefinedComponents($_POST['source'], $_POST['distribution']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 

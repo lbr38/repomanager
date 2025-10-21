@@ -5,7 +5,7 @@
 if ($action == 'get' && !empty($_POST['id'])) {
     try {
         $data = \Controllers\Layout\Chart\Chart::get($_POST['id']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 

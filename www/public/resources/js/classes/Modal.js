@@ -7,10 +7,7 @@ class Modal
     {
         mylayout.printLoading();
 
-        // Remove existing modal window if any
-        $('.modal-window-container').remove();
-
-        var html = '<div class="modal-window-container">'
+        var html = '<div class="modal-window-container modal-loading">'
             + '<div class="modal-window">'
             + '<div class="modal-window-title">'
             + '<h4 class="margin-0">Loading...</h4>'
@@ -35,15 +32,30 @@ class Modal
     {
         mylayout.printLoading();
 
-        // Remove existing modal window if any
-        $('.modal-window-container').remove();
+        // Generate random number id for the modal
+        const id = Math.random().toString(36).substring(2, 15);
+
+        // Remove existing modal loading window if any
+        $('.modal-window-container.modal-loading').remove();
+
+        // Parse content and if a line contains [ERR] or [WRN], color it accordingly
+        content = content.split('\n').map(function(line) {
+            if (line.includes('[ERR]')) {
+                return '<span class="redtext font-size-12">' + line + '</span>';
+            }
+            if (line.includes('[WRN]')) {
+                return '<span class="yellowtext font-size-12">' + line + '</span>';
+            }
+
+            return line;
+        }).join('\n');
 
         // Generate content
-        var html = '<div class="modal-window-container">'
+        var html = '<div class="modal-window-container" modal="' + id + '">'
             + '<div class="modal-window">'
             + '<div class="modal-window-title">'
             + '<h4 class="margin-0">' + title + '</h4>'
-            + '<span class="modal-window-close-btn"><img title="Close" class="close-btn lowopacity" src="/assets/icons/close.svg" /></span>'
+            + '<span class="modal-window-close-btn" modal="' + id + '"><img title="Close" class="close-btn lowopacity" src="/assets/icons/close.svg" /></span>'
             + '</div>'
             + '<div class="modal-window-content">';
 

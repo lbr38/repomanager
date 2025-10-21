@@ -2,6 +2,7 @@
 
 namespace Models\Task\Log;
 
+use Controllers\Database\Log as DbLog;
 use Exception;
 
 class Log extends \Models\Model
@@ -29,7 +30,7 @@ class Log extends \Models\Model
 
             return $data;
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
     }
 }

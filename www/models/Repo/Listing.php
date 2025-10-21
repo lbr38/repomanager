@@ -3,6 +3,7 @@
 namespace Models\Repo;
 
 use Exception;
+use \Controllers\Database\Log as DbLog;
 
 class Listing extends \Models\Model
 {
@@ -45,7 +46,7 @@ class Listing extends \Models\Model
             WHERE repos_snap.Status = 'active'
             ORDER BY repos.Name ASC, repos.Releasever ASC, repos.Dist ASC, repos.Section ASC, repos_snap.Date DESC");
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -129,7 +130,7 @@ class Listing extends \Models\Model
                 $result = $stmt->execute();
             }
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -172,7 +173,7 @@ class Listing extends \Models\Model
                 ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC");
             }
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -194,7 +195,7 @@ class Listing extends \Models\Model
             $stmt->bindValue(':repoId', $repoId);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {

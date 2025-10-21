@@ -3,6 +3,7 @@
 namespace Models\Repo;
 
 use Exception;
+use \Controllers\Database\Log as DbLog;
 
 class Environment extends \Models\Model
 {
@@ -23,7 +24,7 @@ class Environment extends \Models\Model
             $stmt->bindValue(':snapId', $snapId);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -37,7 +38,7 @@ class Environment extends \Models\Model
             $stmt->bindValue(':envId', $id);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -52,7 +53,7 @@ class Environment extends \Models\Model
             $stmt->bindValue(':envId', $id);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Models\Host;
 
+use \Controllers\Database\Log as DbLog;
 use Exception;
 
 class Update extends \Models\Model
@@ -22,7 +23,7 @@ class Update extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -37,7 +38,7 @@ class Update extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -52,7 +53,7 @@ class Update extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -67,7 +68,7 @@ class Update extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -82,7 +83,7 @@ class Update extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -97,7 +98,7 @@ class Update extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -112,7 +113,7 @@ class Update extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -127,7 +128,7 @@ class Update extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -142,7 +143,7 @@ class Update extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -157,7 +158,7 @@ class Update extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -172,7 +173,7 @@ class Update extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -189,7 +190,7 @@ class Update extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -204,7 +205,7 @@ class Update extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -219,7 +220,7 @@ class Update extends \Models\Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -234,7 +235,7 @@ class Update extends \Models\Model
             $stmt->bindValue(':uptime', $uptime);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 }

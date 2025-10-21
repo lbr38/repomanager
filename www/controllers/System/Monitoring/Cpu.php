@@ -12,7 +12,7 @@ class Cpu
      */
     public static function getUsage() : string
     {
-        $processController = new \Controllers\Process('python3 ' . ROOT . '/bin/get-cpu-usage.py');
+        $processController = new \Controllers\Process('/usr/bin/python3 ' . ROOT . '/bin/get-cpu-usage.py');
         $processController->execute();
         $output = trim($processController->getOutput());
         $processController->close();

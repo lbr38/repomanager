@@ -35,7 +35,7 @@
 .modal-window-content {
     text-wrap: wrap;
     word-break: break-word;
-    overflow-y: hidden;
+    overflow-y: auto;
 }
 
 .modal-window-content pre {

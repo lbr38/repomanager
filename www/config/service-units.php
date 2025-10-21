@@ -11,7 +11,7 @@ $units = [
         'description' => 'Ensures temporary files under Repomanager data directory are cleaned',
         'controller' => 'Service\Unit\Cleanup\File',
         'method' => 'run',
-        'interval' => 'every-day',
+        'frequency' => 'every-day',
         'time' => '00:00',
         'log-dir' => 'cleanup/temporary-files'
     ],
@@ -21,7 +21,7 @@ $units = [
         'description' => 'Ensures old history logs are cleaned (older than 1 year)',
         'controller' => 'Service\Unit\Cleanup\History',
         'method' => 'run',
-        'interval' => 'every-day',
+        'frequency' => 'every-day',
         'time' => '00:00',
         'log-dir' => 'cleanup/history'
     ],
@@ -31,7 +31,7 @@ $units = [
         'description' => 'Ensures old tasks logs are cleaned (older than the value defined in settings)',
         'controller' => 'Service\Unit\Cleanup\Task',
         'method' => 'run',
-        'interval' => 'every-day',
+        'frequency' => 'every-day',
         'time' => '00:00',
         'log-dir' => 'cleanup/tasks'
     ],
@@ -41,7 +41,7 @@ $units = [
         'description' => 'Retrieve new notifications from GitHub',
         'controller' => 'Service\Unit\Notification',
         'method' => 'get',
-        'interval' => 'every-hour'
+        'frequency' => 'every-hour'
     ],
     // This monitors CPU, memory and disk usage every minute
     'system-monitoring' => [
@@ -49,7 +49,7 @@ $units = [
         'description' => 'Monitors CPU, memory and disk usage every minute',
         'controller' => 'Service\Unit\Monitoring',
         'method' => 'monitor',
-        'interval' => 'every-minute',
+        'frequency' => 'every-minute',
         'log-dir' => 'system/monitoring'
     ],
     // This generates statistics of repositories (size, packages count) every day at midnight
@@ -58,7 +58,7 @@ $units = [
         'description' => 'Generates repositories statistics (size, packages count) every day at midnight',
         'controller' => 'Service\Unit\Statistic',
         'method' => 'generate',
-        'interval' => 'every-day',
+        'frequency' => 'every-day',
         'time' => '00:00',
         'log-dir' => 'stats/generate'
     ],
@@ -69,7 +69,7 @@ $units = [
         'controller' => 'Service\Unit\Statistic',
         'method' => 'parseLogs',
         // Make sure the stats parsing service is always running
-        'interval' => 'every-minute',
+        'frequency' => 'forever',
         'log-dir' => 'stats/parse'
     ],
     // This processes the repositories access statistics queue
@@ -79,7 +79,7 @@ $units = [
         'controller' => 'Service\Unit\Statistic',
         'method' => 'processQueue',
         // Make sure the stats processing service is always running
-        'interval' => 'every-minute',
+        'frequency' => 'every-minute',
         'log-dir' => 'stats/process'
     ],
     // This cleans old repositories statistics every day at midnight
@@ -88,7 +88,7 @@ $units = [
         'description' => 'Cleans old repositories statistics (older than 1 year)',
         'controller' => 'Service\Unit\Statistic',
         'method' => 'clean',
-        'interval' => 'every-day',
+        'frequency' => 'every-day',
         'time' => '00:00',
         'log-dir' => 'cleanup/stats'
     ],
@@ -98,7 +98,7 @@ $units = [
         'description' => 'Performs a VACUUM/ANALYZE and integrity check on the databases',
         'controller' => 'Service\Unit\Database',
         'method' => 'maintenance',
-        'interval' => 'every-week',
+        'frequency' => 'every-week',
         'day' => 'sunday',
         'time' => '01:00',
         'log-dir' => 'db/maintenance'
@@ -109,7 +109,7 @@ $units = [
         'description' => 'Scheduled tasks execution',
         'controller' => 'Service\Unit\ScheduledTask',
         'method' => 'execute',
-        'interval' => 'every-minute',
+        'frequency' => 'every-minute',
         // Force the execution of scheduled tasks every minute, even if another instance is already running
         // Because scheduled tasks can take more than a minute to execute, and we want to make sure that all tasks are executed at their scheduled time
         'force' => true,
@@ -122,7 +122,7 @@ $units = [
         'controller' => 'Service\Unit\ScheduledTask',
         'method' => 'sendReminders',
         // Task reminders are sent at midnight
-        'interval' => 'every-day',
+        'frequency' => 'every-day',
         'time' => '00:00',
         'log-dir' => 'scheduled-tasks/reminders'
     ],
@@ -132,7 +132,7 @@ $units = [
         'description' => 'Checks for new version of the application',
         'controller' => 'Service\Unit\Version',
         'method' => 'get',
-        'interval' => 'every-hour',
+        'frequency' => 'every-hour',
     ],
     // This runs the websocket server
     'wss' => [
@@ -141,7 +141,7 @@ $units = [
         'controller' => 'Service\Unit\WebsocketServer',
         'method' => 'run',
         // Make sure the websocket server is always running
-        'interval' => 'every-minute'
+        'frequency' => 'forever'
     ],
     // CVE disabled for now, I do not have time to maintain it
     // 'cve-import' => [

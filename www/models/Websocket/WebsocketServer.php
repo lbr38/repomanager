@@ -3,6 +3,7 @@
 namespace Models\Websocket;
 
 use Exception;
+use \Controllers\Database\Log as DbLog;
 
 class WebsocketServer extends \Models\Model
 {
@@ -21,9 +22,9 @@ class WebsocketServer extends \Models\Model
     {
         try {
             $stmt = $this->db->prepare("DELETE FROM ws_connections");
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -35,9 +36,9 @@ class WebsocketServer extends \Models\Model
         try {
             $stmt = $this->db->prepare("INSERT INTO ws_connections ('Connection_id', 'Authenticated') VALUES (:id, 'false')");
             $stmt->bindValue(':id', $connectionId);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -50,9 +51,9 @@ class WebsocketServer extends \Models\Model
             $stmt = $this->db->prepare("UPDATE ws_connections SET Type = :type WHERE Connection_id = :id");
             $stmt->bindValue(':id', $connectionId);
             $stmt->bindValue(':type', $type);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -66,9 +67,9 @@ class WebsocketServer extends \Models\Model
             $stmt->bindValue(':hostId', $hostId);
             $stmt->bindValue(':authenticated', $authenticated);
             $stmt->bindValue(':connectionId', $connectionId);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -77,13 +78,13 @@ class WebsocketServer extends \Models\Model
      */
     public function getAuthenticatedWsConnections()
     {
-        $connections = array();
+        $connections = [];
 
         try {
             $stmt = $this->db->prepare("SELECT * FROM ws_connections WHERE Authenticated = 'true'");
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -98,7 +99,7 @@ class WebsocketServer extends \Models\Model
      */
     public function getWsConnections(string|null $type = null)
     {
-        $connections = array();
+        $connections = [];
 
         try {
             // If a connection type is provided, return only connections of that type
@@ -110,8 +111,8 @@ class WebsocketServer extends \Models\Model
             }
 
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -132,8 +133,8 @@ class WebsocketServer extends \Models\Model
             $stmt = $this->db->prepare("SELECT Connection_id FROM ws_connections WHERE Id_host = :hostId");
             $stmt->bindValue(':hostId', $hostId);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         $connectionId = '';
@@ -153,9 +154,9 @@ class WebsocketServer extends \Models\Model
         try {
             $stmt = $this->db->prepare("DELETE FROM ws_connections WHERE Connection_id = :id");
             $stmt->bindValue(':id', $connectionId);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 }

@@ -3,6 +3,7 @@
 namespace Models;
 
 use Exception;
+use \Controllers\Database\Log as DbLog;
 
 class Profile extends Model
 {
@@ -22,8 +23,8 @@ class Profile extends Model
             $stmt = $this->db->prepare("SELECT Id FROM profile WHERE Name = :name");
             $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -44,8 +45,8 @@ class Profile extends Model
             $stmt = $this->db->prepare("SELECT Name FROM profile WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -60,12 +61,12 @@ class Profile extends Model
      */
     public function getPackages()
     {
-        $packages = array();
+        $packages = [];
 
         try {
             $result = $this->db->query("SELECT Name FROM profile_package ORDER BY Name ASC");
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($datas = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -80,12 +81,12 @@ class Profile extends Model
      */
     public function getServices()
     {
-        $data = array();
+        $data = [];
 
         try {
             $result = $this->db->query("SELECT Name FROM profile_service ORDER BY Name ASC");
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -100,7 +101,7 @@ class Profile extends Model
      */
     public function getProfileFullConfiguration(string $profileId)
     {
-        $profile = array();
+        $profile = [];
 
         try {
             $stmt = $this->db->prepare("SELECT
@@ -112,8 +113,8 @@ class Profile extends Model
             FROM profile WHERE Id = :profileId");
             $stmt->bindValue(':profileId', $profileId);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -130,8 +131,8 @@ class Profile extends Model
     {
         try {
             $result = $this->db->query("SELECT * FROM profile_settings");
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         /**
@@ -157,8 +158,8 @@ class Profile extends Model
             $stmt = $this->db->prepare("SELECT Id FROM profile WHERE Name = :name");
             $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         /**
@@ -180,8 +181,8 @@ class Profile extends Model
             $stmt = $this->db->prepare("SELECT Id FROM profile WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         /**
@@ -203,8 +204,8 @@ class Profile extends Model
             $stmt = $this->db->prepare("INSERT INTO profile (Name) VALUES (:name)");
             $stmt->bindValue(':name', $name);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -223,8 +224,8 @@ class Profile extends Model
             $stmt->bindValue(':serviceRestart', $serviceRestart);
             $stmt->bindValue(':notes', $notes);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -237,8 +238,8 @@ class Profile extends Model
             $stmt = $this->db->prepare("DELETE FROM profile WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -249,11 +250,11 @@ class Profile extends Model
     {
         try {
             $result = $this->db->query("SELECT Name FROM profile ORDER BY Name ASC");
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
-        $profiles = array();
+        $profiles = [];
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $profiles[] = $row;
@@ -269,11 +270,11 @@ class Profile extends Model
     {
         try {
             $result = $this->db->query("SELECT * FROM profile ORDER BY Name ASC");
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
-        $profiles = array();
+        $profiles = [];
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $profiles[] = $row;
@@ -305,11 +306,11 @@ class Profile extends Model
             AND repos_snap.Status == 'active'");
             $stmt->bindValue(':profileId', $profileId);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
-        $repos = array();
+        $repos = [];
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $repos[] = $row;
@@ -336,11 +337,11 @@ class Profile extends Model
             AND repos_snap.Status == 'active'");
             $stmt->bindValue(':profileId', $profileId);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
-        $repos = array();
+        $repos = [];
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             array_push($repos, $row['Id']);
@@ -364,8 +365,8 @@ class Profile extends Model
             $stmt = $this->db->prepare("SELECT Id FROM profile_package WHERE Name = :name");
             $stmt->bindValue(':name', $packageName);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         /**
@@ -382,8 +383,8 @@ class Profile extends Model
             $stmt = $this->db->prepare("INSERT INTO profile_package (Name) VALUES (:name)");
             $stmt->bindValue(':name', $packageName);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         return true;
@@ -401,8 +402,8 @@ class Profile extends Model
             $stmt = $this->db->prepare("SELECT Id FROM profile_service WHERE Name = :name");
             $stmt->bindValue(':name', $serviceName);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         /**
@@ -419,8 +420,8 @@ class Profile extends Model
             $stmt = $this->db->prepare("INSERT INTO profile_service (Name) VALUES (:name)");
             $stmt->bindValue(':name', $serviceName);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         return true;
@@ -435,8 +436,8 @@ class Profile extends Model
             $stmt = $this->db->prepare("DELETE FROM profile_repo_members WHERE Id_profile = :profileId");
             $stmt->bindValue(':profileId', $profileId);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -450,8 +451,8 @@ class Profile extends Model
             $stmt->bindValue(':profileId', $profileId);
             $stmt->bindValue(':repoId', $repoId);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -462,14 +463,14 @@ class Profile extends Model
     {
         $myhost = new \Controllers\Host();
 
-        $hosts = array();
+        $hosts = [];
 
         try {
             $stmt = $myhost->db->prepare("SELECT Id FROM hosts WHERE Profile = :profile");
             $stmt->bindValue(':profile', $profile);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -490,8 +491,8 @@ class Profile extends Model
             $stmt = $this->db->prepare("DELETE FROM profile_repo_members WHERE Id_repo = :id");
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 }

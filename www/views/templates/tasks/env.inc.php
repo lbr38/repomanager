@@ -46,7 +46,7 @@
             <div class="flex column-gap-5 row-gap-5 flex-wrap">
                 <?php
                 foreach ($rawParams['env'] as $env) {
-                    echo \Controllers\Common::envtag($env);
+                    echo \Controllers\Utils\Generate\Html\Label::envtag($env);
                 } ?>
             </div>
         </div>

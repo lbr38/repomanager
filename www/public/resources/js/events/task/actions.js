@@ -63,7 +63,7 @@ $(document).on('click','.view-task-process-log',function () {
         // Print error alert:
         true
     ).then(function () {
-        mymodal.print(jsonValue.message, 'Task #' + id + ' process log', true, false);
+        mymodal.print(jsonValue.message, 'Task #' + id + ' process log', true);
     });
 });
 

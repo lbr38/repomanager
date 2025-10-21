@@ -9,7 +9,7 @@ class Log
     public static function get()
     {
         $LOG = 0;
-        $LOG_MESSAGES = array();
+        $LOG_MESSAGES = [];
         $mylog = new \Controllers\Log\Log();
 
         /**

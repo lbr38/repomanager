@@ -8,7 +8,7 @@ if ($_POST['action'] == 'update-description' and !empty($_POST['envId']) and iss
 
     try {
         $repoEnvController->updateDescription($_POST['envId'], $_POST['description']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 

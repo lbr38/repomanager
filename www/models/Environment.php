@@ -3,6 +3,7 @@
 namespace Models;
 
 use Exception;
+use \Controllers\Database\Log as DbLog;
 
 class Environment extends Model
 {
@@ -24,8 +25,8 @@ class Environment extends Model
             $stmt->bindValue(':name', $name);
             $stmt->bindValue(':color', $color);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -38,8 +39,8 @@ class Environment extends Model
             $stmt = $this->db->prepare("DELETE FROM env WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -56,7 +57,7 @@ class Environment extends Model
      */
     public function listAll()
     {
-        $datas = array();
+        $datas = [];
 
         $result = $this->db->query("SELECT * FROM env");
 
@@ -108,8 +109,8 @@ class Environment extends Model
             $stmt = $this->db->prepare("SELECT Id FROM env WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result)) {
@@ -128,8 +129,8 @@ class Environment extends Model
             $stmt = $this->db->prepare("SELECT Id FROM env WHERE Name = :env");
             $stmt->bindValue(':env', $name);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result)) {

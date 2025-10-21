@@ -178,6 +178,7 @@ pre.codeblock {
 .grid-4 {grid-template-columns: repeat(4, 1fr) !important}
 .grid-5 {grid-template-columns: repeat(5, 1fr) !important}
 .grid-fr-1-2 {grid-template-columns: 1fr 2fr !important}
+.grid-fr-1-3 {grid-template-columns: 1fr 3fr !important}
 .grid-fr-2-1 {grid-template-columns: 2fr 1fr !important}
 .grid-fr-4-1 {grid-template-columns: 4fr 1fr !important}
 .grid-fr-auto-1-2 {grid-template-columns: auto 1fr 2fr !important}
@@ -186,8 +187,7 @@ pre.codeblock {
 .grid-fr-6 {grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr !important}
 .grid-40p-45p-10p{grid-template-columns: 40% 45% 10% !important}
 /* For responsive */
-.grid-rfr-1-2{grid-template-columns:1fr !important}
-.grid-rfr-1-4{grid-template-columns:1fr !important}
+.grid-rfr-1-2,.grid-rfr-1-3,.grid-rfr-1-4,.grid-rfr-1-6{grid-template-columns:1fr !important}
 .grid-rfr-2-4{grid-template-columns:repeat(2, 1fr) !important}
 .justify-center {justify-content: center}
 .justify-space-between {justify-content: space-between}
@@ -307,7 +307,7 @@ td {
 }
 
 .table-container-3 {
-    grid-template-columns: 5% auto 10%;
+    grid-template-columns: fit-content(33%) auto 10%;
 }
 
 [class*=' pagination-btn'],[class^='pagination-btn'] {
@@ -433,9 +433,12 @@ td {
 
 /* Desktop configuration */
 @media (min-width:1025px) {
-    .grid-rfr-1-2{grid-template-columns:repeat(2, 1fr) !important}
-    .grid-rfr-1-4{grid-template-columns:repeat(4, 1fr) !important}
-    .grid-rfr-2-4{grid-template-columns:repeat(4, 1fr) !important}
+    .grid-rfr-1-2{grid-template-columns:repeat(2, 1fr)!important}
+    .grid-rfr-1-3{grid-template-columns:repeat(3, 1fr)!important}
+    .grid-rfr-1-4{grid-template-columns:repeat(4, 1fr)!important}
+    .grid-rfr-1-6{grid-template-columns:repeat(6, 1fr)!important}
+    .grid-rfr-2-4{grid-template-columns:repeat(4, 1fr)!important}
+    .table-container-3{grid-template-columns: fit-content(10%) auto 10%!important}
 
     .slide-panel {
         width: 30%;

@@ -2,6 +2,7 @@
 
 namespace Models;
 
+use Controllers\Database\Log as DbLog;
 use SQLite3;
 use Exception;
 
@@ -405,8 +406,8 @@ class Connection extends SQLite3
                 $stmt = $this->prepare("INSERT INTO users ('Username', 'Password', 'First_name', 'Role', 'State', 'Type') VALUES ('admin', :password_hashed, 'Administrator', '1', 'active', 'local')");
                 $stmt->bindValue(':password_hashed', $password_hashed);
                 $stmt->execute();
-            } catch (\Exception $e) {
-                $this->logError($e);
+            } catch (Exception $e) {
+                DbLog::error($e);
             }
         }
 
@@ -1062,7 +1063,8 @@ class Connection extends SQLite3
          */
         $this->exec("CREATE TABLE IF NOT EXISTS packages_available (
         Name VARCHAR(255),
-        Version VARCHAR(255))");
+        Version VARCHAR(255),
+        Repository VARCHAR(255))");
 
         /**
          *  events table
@@ -1204,7 +1206,7 @@ class Connection extends SQLite3
      */
     public function columnExist(string $tableName, string $columnName)
     {
-        $columns = array();
+        $columns = [];
 
         $result = $this->query("PRAGMA table_info($tableName)");
 
@@ -1219,19 +1221,5 @@ class Connection extends SQLite3
         }
 
         return false;
-    }
-
-    /**
-     *  Log a database error in database
-     */
-    public function logError(string $exception = null)
-    {
-        $logController = new \Controllers\Log\Log();
-
-        if (!empty($exception)) {
-            $logController->log('error', 'Database', 'An error occurred while executing request in database.', $exception);
-        } else {
-            $logController->log('error', 'Database', 'An error occurred while executing request in database.');
-        }
     }
 }

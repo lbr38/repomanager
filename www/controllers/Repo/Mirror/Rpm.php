@@ -5,6 +5,11 @@ namespace Controllers\Repo\Mirror;
 use Exception;
 use SimpleXMLElement;
 use \Controllers\Gpg;
+use \Controllers\Process;
+use \Controllers\Utils\Compress\Bzip2;
+use \Controllers\Utils\Compress\Gzip;
+use \Controllers\Utils\Compress\Xz;
+use \Controllers\Utils\Compress\Zstd;
 
 class Rpm extends \Controllers\Repo\Mirror\Mirror
 {
@@ -128,19 +133,19 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          */
         try {
             if ($modulesFileExtension == 'gz') {
-                \Controllers\Common::gunzip($this->workingDir . '/' . $modulesFileTargetName);
+                Gzip::uncompress($this->workingDir . '/' . $modulesFileTargetName);
             }
 
             if ($modulesFileExtension == 'bz2') {
-                \Controllers\Common::bunzip2($this->workingDir . '/' . $modulesFileTargetName, $this->workingDir . '/modules.yaml');
+                Bzip2::uncompress($this->workingDir . '/' . $modulesFileTargetName, $this->workingDir . '/modules.yaml');
             }
 
             if ($modulesFileExtension == 'xz') {
-                \Controllers\Common::xzUncompress($this->workingDir . '/' . $modulesFileTargetName, $this->workingDir . '/modules.yaml');
+                Xz::uncompress($this->workingDir . '/' . $modulesFileTargetName, $this->workingDir . '/modules.yaml');
             }
 
             if ($modulesFileExtension == 'zst') {
-                \Controllers\Common::zstdUncompress($this->workingDir . '/' . $modulesFileTargetName);
+                Zstd::uncompress($this->workingDir . '/' . $modulesFileTargetName);
             }
         } catch (Exception $e) {
             throw new Exception('Error while uncompressing <code>' . $modulesFileTargetName . '</code><br><pre class="codeblock">' . $e->getMessage() . '</pre>');
@@ -208,19 +213,19 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          */
         try {
             if ($updateInfoFileExtension == 'gz') {
-                \Controllers\Common::gunzip($this->workingDir . '/' . $updateInfoFileTargetName);
+                Gzip::uncompress($this->workingDir . '/' . $updateInfoFileTargetName);
             }
 
             if ($updateInfoFileExtension == 'bz2') {
-                \Controllers\Common::bunzip2($this->workingDir . '/' . $updateInfoFileTargetName, $this->workingDir . '/updateinfo.xml');
+                Bzip2::uncompress($this->workingDir . '/' . $updateInfoFileTargetName, $this->workingDir . '/updateinfo.xml');
             }
 
             if ($updateInfoFileExtension == 'xz') {
-                \Controllers\Common::xzUncompress($this->workingDir . '/' . $updateInfoFileTargetName, $this->workingDir . '/updateinfo.xml');
+                Xz::uncompress($this->workingDir . '/' . $updateInfoFileTargetName, $this->workingDir . '/updateinfo.xml');
             }
 
             if ($updateInfoFileExtension == 'zst') {
-                \Controllers\Common::zstdUncompress($this->workingDir . '/' . $updateInfoFileTargetName);
+                Zstd::uncompress($this->workingDir . '/' . $updateInfoFileTargetName);
             }
         } catch (Exception $e) {
             throw new Exception('Error while uncompressing <code>' . $updateInfoFileTargetName . '</code><br><pre class="codeblock">' . $e->getMessage() . '</pre>');
@@ -410,22 +415,22 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              *  Uncompress to 'primary.xml'
              */
             if ($mime == 'application/x-bzip2') {
-                \Controllers\Common::bunzip2($primaryFile, $this->workingDir . '/primary.xml');
+                Bzip2::uncompress($primaryFile, $this->workingDir . '/primary.xml');
             /**
              *  Case mime type is application/x-xz (.xz file)
              */
             } elseif ($mime == 'application/x-xz') {
-                \Controllers\Common::xzUncompress($primaryFile, $this->workingDir . '/primary.xml');
+                Xz::uncompress($primaryFile, $this->workingDir . '/primary.xml');
             /**
              *  Case mime type is application/gzip (.gz file)
              */
             } elseif ($mime == 'application/gzip') {
-                \Controllers\Common::gunzip($primaryFile);
+                Gzip::uncompress($primaryFile);
             /**
              *  Case mime type is application/zstd (.gz file)
              */
             } elseif ($mime == 'application/zstd') {
-                \Controllers\Common::zstdUncompress($primaryFile);
+                Zstd::uncompress($primaryFile);
             /**
              *  Case it's another mime type, throw an error
              */
@@ -802,7 +807,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                 /**
                  *  Extract package header
                  */
-                $myprocess = new \Controllers\Process('/usr/bin/rpm -qp --qf "%|DSAHEADER?{%{DSAHEADER:pgpsig}}:{%|RSAHEADER?{%{RSAHEADER:pgpsig}}:{(none}|}| %{NVRA}\n" ' . $absoluteDir. '/' . $rpmPackageName);
+                $myprocess = new Process('/usr/bin/rpm -qp --qf "%|DSAHEADER?{%{DSAHEADER:pgpsig}}:{%|RSAHEADER?{%{RSAHEADER:pgpsig}}:{(none}|}| %{NVRA}\n" ' . $absoluteDir. '/' . $rpmPackageName);
                 $myprocess->execute();
                 $content = $myprocess->getOutput();
                 $myprocess->close();

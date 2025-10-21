@@ -3,6 +3,7 @@
 namespace Models;
 
 use Exception;
+use \Controllers\Database\Log as DbLog;
 
 class Settings extends Model
 {
@@ -16,12 +17,12 @@ class Settings extends Model
      */
     public function get() : array
     {
-        $settings = array();
+        $settings = [];
 
         try {
             $result = $this->db->query("SELECT * FROM settings");
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -55,22 +56,8 @@ class Settings extends Model
             }
 
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
-        }
-    }
-
-    /**
-     *  Enable or disable debug mode
-     */
-    public function enableDebugMode(string $enable) : void
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE settings SET DEBUG_MODE = :enable");
-            $stmt->bindValue(':enable', $enable);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 }

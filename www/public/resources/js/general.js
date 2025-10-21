@@ -54,7 +54,7 @@ $(document).on('click','.general-log-acquit-btn',function () {
  *  Event: close request log details
  */
 $(document).on('click','.modal-window-close-btn',function () {
-    $(".modal-window-container").remove();
+    $('.modal-window-container[modal="' + $(this).attr('modal') + '"]').remove();
 });
 
 /**

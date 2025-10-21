@@ -122,7 +122,7 @@ class Host extends \Controllers\Api\Controller
                  *  https://repomanager.mydomain.net/api/v2/host/status
                  */
                 if ($this->component == 'status' and $this->method == 'PUT') {
-                    $message = array();
+                    $message = [];
 
                     /**
                      *  If hostname has been specified then update it in database

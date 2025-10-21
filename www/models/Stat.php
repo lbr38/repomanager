@@ -3,19 +3,17 @@
 namespace Models;
 
 use Exception;
+use \Controllers\Database\Log as DbLog;
 
 class Stat extends Model
 {
     public function __construct()
     {
-        /**
-         *  Ouverture d'une connexion à la base de données
-         */
         $this->getConnection('stats');
     }
 
     /**
-     *  Ajoute de nouvelles statistiques à la table stats
+     *  Add new statistics
      */
     public function add(string $date, string $time, string $repoSize, string $packagesCount, string $envId)
     {
@@ -27,8 +25,8 @@ class Stat extends Model
             $stmt->bindValue(':packages_count', $packagesCount);
             $stmt->bindValue(':envId', $envId);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -51,7 +49,7 @@ class Stat extends Model
             $stmt->bindValue(':result', $result);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -73,7 +71,7 @@ class Stat extends Model
             $stmt->bindValue(':result', $result);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -86,8 +84,8 @@ class Stat extends Model
             $stmt = $this->db->prepare("INSERT INTO access_queue (Request) VALUES (:request)");
             $stmt->bindValue(':request', $request);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -96,13 +94,13 @@ class Stat extends Model
      */
     public function getAccessQueue()
     {
-        $datas = array();
+        $datas = [];
 
         try {
             $stmt = $this->db->prepare("SELECT * FROM access_queue LIMIT 100");
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -121,8 +119,8 @@ class Stat extends Model
             $stmt = $this->db->prepare("DELETE FROM access_queue WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -135,11 +133,11 @@ class Stat extends Model
             $stmt = $this->db->prepare("SELECT * FROM stats WHERE Id_env = :envId");
             $stmt->bindValue('envId', $envId);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
-        $datas = array();
+        $datas = [];
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $datas[] = $row;
@@ -158,11 +156,11 @@ class Stat extends Model
             $stmt->bindValue(':envId', $envId);
             $stmt->bindValue(':days', $days);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
-        $datas = array();
+        $datas = [];
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $datas[] = $row;
@@ -181,11 +179,11 @@ class Stat extends Model
             $stmt->bindValue(':envId', $envId);
             $stmt->bindValue(':days', $days);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
-        $datas = array();
+        $datas = [];
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $datas[] = $row;
@@ -237,7 +235,7 @@ class Stat extends Model
             $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -294,7 +292,7 @@ class Stat extends Model
             $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -332,8 +330,8 @@ class Stat extends Model
             $stmt->bindValue(':env', $env);
             $stmt->bindValue(':date', $date);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -376,8 +374,8 @@ class Stat extends Model
             $stmt->bindValue(':date', $date);
             $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -412,8 +410,8 @@ class Stat extends Model
 
             // Commit the transaction
             $this->db->exec("COMMIT");
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 

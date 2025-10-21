@@ -7,7 +7,7 @@ if ($action == 'add-env' and !empty($_POST['name']) and !empty($_POST['color']))
 
     try {
         $myenv->add($_POST['name'], $_POST['color']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -22,7 +22,7 @@ if ($action == 'delete-env' and !empty($_POST['id'])) {
 
     try {
         $myenv->delete($_POST['id']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -37,7 +37,7 @@ if ($action == 'edit-env' and !empty($_POST['envs'])) {
 
     try {
         $myenv->edit($_POST['envs']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 

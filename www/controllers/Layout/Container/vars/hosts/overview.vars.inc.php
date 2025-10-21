@@ -1,6 +1,5 @@
 <?php
 $myhost = new \Controllers\Host();
-$mycolor = new \Controllers\Common();
 $totalNotUptodate = 0;
 $totalUptodate = 0;
 

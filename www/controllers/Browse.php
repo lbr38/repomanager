@@ -18,7 +18,7 @@ class Browse
             /**
              *  Initialize array which will contain a list of the files inside the actual directory
              */
-            $queue = array();
+            $queue = [];
 
             /**
              *  Scan the specified directory then process each file found
@@ -137,7 +137,7 @@ class Browse
      */
     public static function reArrayFiles(&$file_post)
     {
-        $file_array = array();
+        $file_array = [];
         $file_count = count($file_post['name']);
         $file_keys = array_keys($file_post);
 

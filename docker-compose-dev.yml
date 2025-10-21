@@ -9,6 +9,7 @@ services:
     environment:
       FQDN: repomanager-dev.localhost
       MAX_UPLOAD_SIZE: 64M
+      NGINX_LISTEN_PORT: 8888
     build:
       context: .
       dockerfile: Dockerfile

@@ -2,7 +2,7 @@
 
 namespace Controllers\Log;
 
-use Exception;
+use Controllers\App\DebugMode;
 
 class File
 {
@@ -47,6 +47,10 @@ class File
      */
     public static function debug(string $file, string $message) : void
     {
+        if (!DebugMode::enabled()) {
+            return;
+        }
+
         file_put_contents($file, self::date() . '[DBG] ' . $message . PHP_EOL, FILE_APPEND);
     }
 

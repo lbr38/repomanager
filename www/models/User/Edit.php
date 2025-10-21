@@ -3,6 +3,7 @@
 namespace Models\User;
 
 use Exception;
+use \Controllers\Database\Log as DbLog;
 
 class Edit extends \Models\User\User
 {
@@ -19,7 +20,7 @@ class Edit extends \Models\User\User
             $stmt->bindValue(':email', $email);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -34,7 +35,7 @@ class Edit extends \Models\User\User
             $stmt->bindValue(':role', $role);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 }

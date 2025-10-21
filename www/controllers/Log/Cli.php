@@ -2,7 +2,7 @@
 
 namespace Controllers\Log;
 
-use Exception;
+use Controllers\App\DebugMode;
 
 class Cli
 {
@@ -41,6 +41,10 @@ class Cli
      */
     public static function debug(string $message) : void
     {
+        if (!DebugMode::enabled()) {
+            return;
+        }
+
         echo self::date() . '[DBG] ' . $message . PHP_EOL;
     }
 
