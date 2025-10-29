@@ -2,7 +2,7 @@
 if (\Controllers\Update::running() or \Controllers\App\Maintenance::running()) :
     if (\Controllers\Update::running()) {
         $title = 'UPDATE RUNNING';
-        $message = 'Reposerver is actually being updated. Please try again later.';
+        $message = 'Reposerver is currently being updated. Please try again later.';
     }
 
     if (\Controllers\App\Maintenance::running()) {

@@ -70,7 +70,7 @@ class Api
              */
             if (Update::running()) {
                 http_response_code(403);
-                echo json_encode(["return" => "403", "message_error" => ['Reposerver is actually being updated. Please try again later.']]);
+                echo json_encode(["return" => "403", "message_error" => ['Reposerver is currently being updated. Please try again later.']]);
                 exit;
             }
 
