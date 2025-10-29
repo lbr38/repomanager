@@ -63,7 +63,7 @@ COPY docker/config/postfix/master.cf /etc/postfix/master.cf
 RUN mkdir -p $WWW_DIR $DATA_DIR $REPOS_DIR && \
     # Create repomanager group and set repomanager as default group for www-data user
     groupadd repomanager && \
-    usermod -g repomanager -G www-data -a www-data
+    usermod -G repomanager -a www-data
 
 # Copy repomanager files
 COPY www/ $WWW_DIR/

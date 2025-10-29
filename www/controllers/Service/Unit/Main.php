@@ -3,7 +3,6 @@
 namespace Controllers\Service\Unit;
 
 use Exception;
-use Controllers\App\DebugMode;
 
 class Main extends \Controllers\Service\Service
 {

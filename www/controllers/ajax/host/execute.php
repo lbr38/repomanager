@@ -7,7 +7,7 @@ $hostExecuteController = new \Controllers\Host\Execute();
 if ($action == 'action' and !empty($_POST['exec']) and !empty($_POST['hosts'])) {
     try {
         $content = $hostExecuteController->execute($_POST['hosts'], $_POST['exec']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -20,7 +20,7 @@ if ($action == 'action' and !empty($_POST['exec']) and !empty($_POST['hosts'])) 
 if ($action == 'install-packages' and !empty($_POST['params'])) {
     try {
         $hostExecuteController->installPackages($_POST['params']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -33,7 +33,7 @@ if ($action == 'install-packages' and !empty($_POST['params'])) {
 if ($action == 'update-packages' and !empty($_POST['params'])) {
     try {
         $hostExecuteController->updatePackages($_POST['params']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -46,7 +46,7 @@ if ($action == 'update-packages' and !empty($_POST['params'])) {
 if ($action == 'update-selected-available-packages' and !empty($_POST['hostId']) and !empty($_POST['packages'])) {
     try {
         $hostExecuteController->updateSelectedAvailablePackages($_POST['hostId'], $_POST['packages']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 

@@ -8,7 +8,7 @@ if ($_POST['action'] == 'new' and !empty($_POST['name'])) {
 
     try {
         $myprofile->new($_POST['name']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -23,7 +23,7 @@ if ($_POST['action'] == 'delete' and !empty($_POST['id'])) {
 
     try {
         $myprofile->delete($_POST['id']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -38,7 +38,7 @@ if ($_POST['action'] == 'duplicate' and !empty($_POST['id'])) {
 
     try {
         $myprofile->duplicate($_POST['id']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -102,7 +102,7 @@ if ($_POST['action'] == 'configure' and !empty($_POST['id']) and !empty($_POST['
 
     try {
         $myprofile->configure($_POST['id'], $_POST['name'], $reposList, $exclude, $excludeMajor, $serviceReload, $serviceRestart, $notes);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 

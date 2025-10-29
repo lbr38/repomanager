@@ -2,6 +2,8 @@
 
 namespace Controllers\App\Structure;
 
+use Exception;
+
 class File
 {
     /**
@@ -18,7 +20,7 @@ class File
         try {
             $mygpg = new \Controllers\Gpg();
             $mygpg->init();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $__CREATE_FILES_ERROR++;
             $__CREATE_FILES_MESSAGES[] = $e->getMessage();
         }

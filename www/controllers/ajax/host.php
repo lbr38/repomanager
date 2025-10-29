@@ -8,7 +8,7 @@ if ($action == 'editSettings' and isset($_POST['packagesConsideredOutdated']) an
 
     try {
         $myhost->setSettings($_POST['packagesConsideredOutdated'], $_POST['packagesConsideredCritical']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -23,7 +23,7 @@ if ($action == "getHostWithKernel" and !empty($_POST['kernel'])) {
 
     try {
         $content = json_encode($myhost->getHostWithKernel($_POST['kernel']));
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -38,7 +38,7 @@ if ($action == "getHostWithProfile" and !empty($_POST['profile'])) {
 
     try {
         $content = json_encode($myhost->getHostWithProfile($_POST['profile']));
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -53,7 +53,7 @@ if ($action == "getHostsWithPackage" and !empty($_POST['hosts']) and !empty($_PO
 
     try {
         $result = $myhost->getHostsWithPackage($_POST['hosts'], $_POST['package'], $_POST['version'], $_POST['strictName'], $_POST['strictVersion']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -68,7 +68,7 @@ if ($action == "getRequestLog" and !empty($_POST['id'])) {
 
     try {
         $content = $hostRequestController->getRequestLog($_POST['id']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -83,7 +83,7 @@ if ($action == "getRequestPackageLog" and !empty($_POST['id']) and !empty($_POST
 
     try {
         $content = $hostRequestController->getRequestPackageLog($_POST['id'], $_POST['package'], $_POST['status']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -98,7 +98,7 @@ if ($action == "cancelRequest" and !empty($_POST['id'])) {
 
     try {
         $hostRequestController->cancel($_POST['id']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -113,7 +113,7 @@ if ($action == "getPackageTimeline" and !empty($_POST['hostid']) and !empty($_PO
 
     try {
         $content = $hostPackageController->generateTimeline($_POST['packagename']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 

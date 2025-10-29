@@ -2,6 +2,7 @@
 
 namespace Models;
 
+use Controllers\Database\Log as DbLog;
 use SQLite3;
 use Exception;
 
@@ -405,8 +406,8 @@ class Connection extends SQLite3
                 $stmt = $this->prepare("INSERT INTO users ('Username', 'Password', 'First_name', 'Role', 'State', 'Type') VALUES ('admin', :password_hashed, 'Administrator', '1', 'active', 'local')");
                 $stmt->bindValue(':password_hashed', $password_hashed);
                 $stmt->execute();
-            } catch (\Exception $e) {
-                $this->logError($e);
+            } catch (Exception $e) {
+                DbLog::error($e);
             }
         }
 

@@ -8,7 +8,7 @@ if ($action == "acquit" and !empty($_POST['id'])) {
 
     try {
         $mynotification->acquit($_POST['id']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 

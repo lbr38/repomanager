@@ -43,7 +43,7 @@ if [ ! -z "$PGID" ];then
         exit 1
     fi
 
-    groupmod -g "$PGID" repomanager
+    groupmod -g "$PGID" www-data
 fi
 
 # Set FQDN
