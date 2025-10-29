@@ -368,7 +368,6 @@ class Create
              */
             \Controllers\Filesystem\File::recursiveChmod($snapshotPath, 'dir', 770);
             \Controllers\Filesystem\File::recursiveChmod($snapshotPath, 'file', 660);
-            \Controllers\Filesystem\File::recursiveChown($snapshotPath, WWW_USER, 'repomanager');
 
             $this->taskLogSubStepController->completed();
 
