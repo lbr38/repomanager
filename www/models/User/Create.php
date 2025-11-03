@@ -3,6 +3,7 @@
 namespace Models\User;
 
 use Exception;
+use \Controllers\Database\Log as DbLog;
 
 class Create extends \Models\User\User
 {
@@ -35,7 +36,7 @@ class Create extends \Models\User\User
             $stmt->bindValue(':id', $this->db->lastInsertRowID());
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 }

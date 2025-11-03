@@ -12,7 +12,7 @@ class Settings
     public static function get()
     {
         $__LOAD_SETTINGS_ERROR = 0;
-        $__LOAD_SETTINGS_MESSAGES = array();
+        $__LOAD_SETTINGS_MESSAGES = [];
 
         $mysettings = new \Controllers\Settings();
         $myconn = new \Controllers\Connection();
@@ -81,14 +81,6 @@ class Settings
                 define('SESSION_TIMEOUT', $settings['SESSION_TIMEOUT']);
             } else {
                 define('SESSION_TIMEOUT', '3600');
-            }
-        }
-
-        if (!defined('DEBUG_MODE')) {
-            if (!empty($settings['DEBUG_MODE']) and $settings['DEBUG_MODE'] == 'true') {
-                define('DEBUG_MODE', true);
-            } else {
-                define('DEBUG_MODE', false);
             }
         }
 

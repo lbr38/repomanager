@@ -32,13 +32,13 @@
             $title = 'Select package'; ?>
 
             <div class="table-container-3 bck-blue-alt">
-                <div>
-                    <?= \Controllers\Common::printProductIcon($item['Name']) ?>
+                <div class="text-center">
+                    <?= \Controllers\Utils\Generate\Html\Icon::product($item['Name']) ?>
                 </div>
 
                 <div class="get-package-timeline pointer" hostid="<?= $id ?>" packagename="<?= $item['Name'] ?>" title="See package history">
                     <p class="copy"><?= $item['Name'] ?></p>
-                    <p class="lowopacity-cst copy"><?= $item['Version'] ?></p>
+                    <p class="lowopacity-cst wordbreakall copy"><?= $item['Version'] ?></p>
                 </div>
 
                 <div class="text-right margin-right-5">

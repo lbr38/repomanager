@@ -8,6 +8,7 @@ require ROOT . '/libs/vendor/autoload.php';
 
 use Exception;
 use Jumbojett\OpenIDConnectClient;
+use \Controllers\App\DebugMode;
 use \Controllers\History\Save as History;
 use \Controllers\Utils\Validate;
 
@@ -248,7 +249,7 @@ class Login extends User
             /**
              *  If debug mode is enabled, display error message and try to get verified claims and user info for debugging
              */
-            if (DEBUG_MODE) {
+            if (DebugMode::enabled()) {
                 $error = 'Could not connect through SSO: ' . $e->getMessage();
 
                 // Try to get verified claims and user info if defined

@@ -2,7 +2,7 @@
 
 namespace Controllers\Task\Form;
 
-use Exception;
+use \Controllers\Utils\Generate\Html\Label;
 use \Controllers\History\Save as History;
 
 class Env
@@ -42,7 +42,7 @@ class Env
          */
         $content = '';
         foreach ($formParams['env'] as $env) {
-            $content .= \Controllers\Common::envtag($env) . ' ';
+            $content .= Label::envtag($env) . ' ';
         }
 
         if ($myrepo->getPackageType() == 'rpm') {

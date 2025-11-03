@@ -453,7 +453,7 @@ class Repo
         /**
          *  4. Parmis cette liste on ne récupère que les Id des repos actuellement membres
          */
-        $actualReposId = array();
+        $actualReposId = [];
 
         foreach ($actualReposMembers as $actualRepoMember) {
             $actualReposId[] = $actualRepoMember['repoId'];

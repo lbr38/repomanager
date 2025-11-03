@@ -53,8 +53,8 @@
             if (!empty($packagesInventored)) :
                 foreach ($packagesInventored as $item) : ?>
                     <div class="table-container-3 bck-blue-alt pointer package-row get-package-timeline" hostid="<?= $id ?>" packagename="<?= $item['Name'] ?>" packageversion="<?= $item['Version'] ?>" title="See package history">
-                        <div>
-                            <?= \Controllers\Common::printProductIcon($item['Name']);?>
+                        <div class="text-center">
+                            <?= \Controllers\Utils\Generate\Html\Icon::product($item['Name']);?>
                         </div>
 
                         <div>

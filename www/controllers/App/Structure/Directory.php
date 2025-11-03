@@ -10,13 +10,14 @@ class Directory
     public static function create()
     {
         $__CREATE_DIRS_ERROR = 0;
-        $__CREATE_DIRS_MESSAGES = array();
+        $__CREATE_DIRS_MESSAGES = [];
 
         $dirs = array(
             DB_DIR,
             //GPGHOME, // perms must be 0700 on this directory
             LOGS_DIR,
             MAIN_LOGS_DIR,
+            DB_LOGS_DIR,
             SERVICE_LOGS_DIR,
             WS_REQUESTS_LOGS_DIR,
             PID_DIR,

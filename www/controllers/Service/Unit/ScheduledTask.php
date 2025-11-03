@@ -32,7 +32,7 @@ class ScheduledTask extends \Controllers\Service\Service
             return;
         }
 
-        $taskToExec = array();
+        $taskToExec = [];
         $dateNow = date('Y-m-d');
         $timeNow = date('H:i');
         $minutesNow = date('i');
@@ -180,7 +180,7 @@ class ScheduledTask extends \Controllers\Service\Service
             return;
         }
 
-        $tasksToReminder = array();
+        $tasksToReminder = [];
         $dateNow = date('Y-m-d');
         $reminderMessage = '';
 

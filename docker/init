@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 WWW_DIR="/var/www/repomanager"
 DATA_DIR="/var/lib/repomanager"
@@ -9,6 +10,8 @@ DATA_DIR="/var/lib/repomanager"
 #  - PHP_MEMORY_LIMIT=xxM
 #  - NGINX_LISTEN_PORT=xxxx
 #  - WEBSOCKET_LISTEN_PORT=xxxx
+#  - PUID=xxxx
+#  - PGID=xxxx
 
 # Quit if FQDN is not set
 if [ -z "$FQDN" ];then
@@ -19,6 +22,28 @@ fi
 # If no branch is set in environment, use main
 if [ -z "$BRANCH" ];then
     BRANCH="main"
+fi
+
+# If custom PUID is set
+if [ ! -z "$PUID" ];then
+    # PUID must be >= 1000
+    if [ "$PUID" -lt 1000 ];then
+        echo "PUID must be greater than or equal to 1000"
+        exit 1
+    fi
+
+    usermod -u "$PUID" www-data
+fi
+
+# If custom PGID is set
+if [ ! -z "$PGID" ];then
+    # PGID must be >= 1000
+    if [ "$PGID" -lt 1000 ];then
+        echo "PGID must be greater than or equal to 1000"
+        exit 1
+    fi
+
+    groupmod -g "$PGID" www-data
 fi
 
 # Set FQDN
@@ -73,36 +98,39 @@ fi
 # Apply permissions
 /bin/bash $WWW_DIR/bin/repomanager -p
 
-if [ $? -ne 0 ];then
-    exit 1
-fi
-
 # Start services
-/usr/sbin/service php8.3-fpm start > /dev/null &&
-/usr/sbin/service nginx start > /dev/null &&
+/usr/sbin/service php8.3-fpm start > /dev/null
+/usr/sbin/service nginx start > /dev/null
 /usr/sbin/service postfix start > /dev/null
 
-if [ $? -ne 0 ];then
-    exit 1
-fi
-
 # Initialize database
-/bin/su -s /bin/bash -c "/usr/bin/php $WWW_DIR/tools/database/initialize.php" www-data
-
-if [ $? -ne 0 ];then
-    exit 1
-fi
+setpriv --reuid www-data --regid www-data --groups www-data,repomanager /usr/bin/php "$WWW_DIR/tools/database/initialize.php"
 
 # Update database (if needed)
-/bin/su -s /bin/bash -c "/usr/bin/php $WWW_DIR/tools/database/update.php" www-data
-
-if [ $? -ne 0 ];then
-    exit 1
-fi
-
-# Start shell service in background
-/bin/bash "$WWW_DIR/bin/service" &
+setpriv --reuid www-data --regid www-data --groups www-data,repomanager /usr/bin/php "$WWW_DIR/tools/database/update.php"
 
 # Start repomanager service
-# exec setpriv --reuid www-data --regid www-data --groups www-data,repomanager /usr/bin/php "$WWW_DIR/tools/service.php"
-/bin/su -s /bin/bash -c "/usr/bin/php $WWW_DIR/tools/service.php" www-data
+setpriv --reuid www-data --regid www-data --groups www-data,repomanager /usr/bin/php "$WWW_DIR/tools/service.php" &
+
+# Retrieve service.php PID
+main_pid=$!
+
+terminate() {
+    # Stop repomanager service (service.php) by sending SIGTERM
+    echo "Stopping repomanager service..."
+    kill -s SIGTERM $main_pid
+
+    echo "Stopping postfix..."
+    /usr/sbin/service postfix stop > /dev/null
+
+    echo "Stopping nginx..."
+    /usr/sbin/service nginx stop > /dev/null
+
+    echo "Stopping php-fpm..."
+    /usr/sbin/service php8.3-fpm stop > /dev/null
+    exit
+}
+
+# Catch termination signals and execute terminate() function
+trap terminate TERM
+wait

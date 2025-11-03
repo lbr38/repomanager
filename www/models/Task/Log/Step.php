@@ -2,6 +2,7 @@
 
 namespace Models\Task\Log;
 
+use Controllers\Database\Log as DbLog;
 use Exception;
 
 class Step extends \Models\Model
@@ -24,7 +25,7 @@ class Step extends \Models\Model
             $stmt->bindValue(':taskId', $taskId);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -60,7 +61,7 @@ class Step extends \Models\Model
             $stmt->bindValue(':stepId', $stepId);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -82,7 +83,7 @@ class Step extends \Models\Model
 
             return $data;
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -104,7 +105,7 @@ class Step extends \Models\Model
 
             return $data;
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
     }
 }

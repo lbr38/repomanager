@@ -283,7 +283,7 @@
 
                                                             <div class="grid hosts-compact-view-subgrid column-gap-15 align-item-center">
                                                                 <div class="label-icon-tr max-width-fit" title="OS and type">
-                                                                    <?= \Controllers\Common::printOsIcon($os); ?>
+                                                                    <?= \Controllers\Utils\Generate\Html\Icon::os($os); ?>
 
                                                                     <div class="flex flex-direction-column row-gap-2 width-100">
                                                                         <p class="font-size-13" title="OS"><?= ucfirst($os) . ' ' . $osVersion ?></p>
@@ -366,7 +366,7 @@
                                                                 <h6 class="margin-top-0">OS</h6>
                                                                 <div class="flex align-item-center column-gap-5">
                                                                     <p class="mediumopacity-cst copy"><?= $os ?></p>
-                                                                    <span><?= \Controllers\Common::printOsIcon($os); ?></span>
+                                                                    <span><?= \Controllers\Utils\Generate\Html\Icon::os($os); ?></span>
                                                                 </div>
                                                             </div>
 
@@ -393,7 +393,7 @@
                                                             <div>
                                                                 <h6 class="margin-top-0">ENVIRONMENT</h6>
                                                                 <p class="copy">
-                                                                    <?= \Controllers\Common::envtag($env) ?>
+                                                                    <?= \Controllers\Utils\Generate\Html\Label::envtag($env) ?>
                                                                 </p>
                                                             </div>
 

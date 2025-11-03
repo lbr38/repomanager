@@ -3,6 +3,7 @@
 namespace Models\Log;
 
 use Exception;
+use \Controllers\Database\Log as DbLog;
 
 class Log extends \Models\Model
 {
@@ -16,7 +17,7 @@ class Log extends \Models\Model
      */
     public function getUnread(string $type = null, int $limit = 0)
     {
-        $logs = array();
+        $logs = [];
 
         try {
             if ($type == null) {
@@ -41,8 +42,8 @@ class Log extends \Models\Model
                 $stmt->bindValue(':limit', $limit);
             }
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -79,8 +80,8 @@ class Log extends \Models\Model
             $stmt = $this->db->prepare("UPDATE logs SET Status = 'acquitted' WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 }

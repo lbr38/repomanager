@@ -2,6 +2,7 @@
 
 namespace Models\Host\Package;
 
+use \Controllers\Database\Log as DbLog;
 use Exception;
 
 class Package extends \Models\Model
@@ -10,6 +11,32 @@ class Package extends \Models\Model
     {
         // Open database
         $this->getConnection('host', $hostId);
+    }
+
+    /**
+     *  Get packages by date and state
+     */
+    public function getByDate(string $date, string|null $state) : array
+    {
+        $data = [];
+
+        try {
+            $query = "SELECT * from packages WHERE Date = :date" . (!is_null($state) ? " AND State = :state" : "");
+            $query .= " UNION SELECT * from packages_history WHERE Date = :date" . (!is_null($state) ? " AND State = :state" : "");
+            $query .= " ORDER BY Time DESC";
+            $stmt = $this->dedicatedDb->prepare($query);
+            $stmt->bindValue(':date', $date);
+            $stmt->bindValue(':state', $state);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return $data;
     }
 
     /**
@@ -27,7 +54,7 @@ class Package extends \Models\Model
                 $stmt->bindValue(':version', $packageVersion);
                 $result = $stmt->execute();
             } catch (Exception $e) {
-                $this->dedicatedDb->logError($e);
+                DbLog::error($e);
             }
 
             while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -43,7 +70,7 @@ class Package extends \Models\Model
                 $stmt->bindValue(':name', $packageName);
                 $result = $stmt->execute();
             } catch (Exception $e) {
-                $this->dedicatedDb->logError($e);
+                DbLog::error($e);
             }
 
             while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -59,14 +86,14 @@ class Package extends \Models\Model
      */
     public function getPackageInfo(string $packageId) : array
     {
-        $data = array();
+        $data = [];
 
         try {
             $stmt = $this->dedicatedDb->prepare("SELECT * FROM packages WHERE Id = :packageId");
             $stmt->bindValue(':packageId', $packageId);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -99,7 +126,7 @@ class Package extends \Models\Model
             $stmt->bindValue(':name', $packageName);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -114,12 +141,12 @@ class Package extends \Models\Model
      */
     public function getInventory() : array
     {
-        $datas = array();
+        $datas = [];
 
         try {
             $result = $this->dedicatedDb->query("SELECT * FROM packages ORDER BY Name ASC");
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -134,12 +161,12 @@ class Package extends \Models\Model
      */
     public function getInstalled() : array
     {
-        $datas = array();
+        $datas = [];
 
         try {
             $result = $this->dedicatedDb->query("SELECT * FROM packages WHERE State = 'inventored' or State = 'installed' or State = 'dep-installed' or State = 'upgraded' or State = 'downgraded'");
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -155,7 +182,7 @@ class Package extends \Models\Model
      */
     public function getAvailable(bool $withOffset, int $offset) : array
     {
-        $data = array();
+        $data = [];
 
         try {
             $query = "SELECT * FROM packages_available";
@@ -175,7 +202,7 @@ class Package extends \Models\Model
 
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -191,7 +218,7 @@ class Package extends \Models\Model
      */
     public function getEventPackagesList(int $eventId, string $state) : array
     {
-        $data = array();
+        $data = [];
 
         try {
             $stmt = $this->dedicatedDb->prepare("SELECT * FROM packages
@@ -203,7 +230,7 @@ class Package extends \Models\Model
             $stmt->bindValue(':state', $state);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -216,9 +243,9 @@ class Package extends \Models\Model
     /**
      *  Retrieve the complete history of a package (its installation, its updates, etc...)
      */
-    public function getTimeline(string $package) : array
+    public function generateTimeline(string $package) : array
     {
-        $events = array();
+        $events = [];
 
         try {
             $stmt = $this->dedicatedDb->prepare("SELECT * FROM packages_history
@@ -229,7 +256,7 @@ class Package extends \Models\Model
             $stmt->bindValue(':package', $package);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -262,7 +289,7 @@ class Package extends \Models\Model
             $stmt->bindValue(':id_event', $id_event);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -282,7 +309,7 @@ class Package extends \Models\Model
             $stmt->bindValue(':id_event', $eventId);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -291,7 +318,7 @@ class Package extends \Models\Model
      */
     public function searchPackage(string $name, string|null $version, bool $strictName, bool $strictVersion) : array
     {
-        $packages = array();
+        $packages = [];
 
         try {
             // If strict mode is enabled, we search for the exact package name
@@ -335,7 +362,7 @@ class Package extends \Models\Model
 
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -367,7 +394,7 @@ class Package extends \Models\Model
             $stmt->bindValue(':time', $time);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -382,7 +409,7 @@ class Package extends \Models\Model
             $stmt->bindValue(':version', $version);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -397,7 +424,7 @@ class Package extends \Models\Model
             $stmt->bindValue(':version', $version);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -412,7 +439,7 @@ class Package extends \Models\Model
             $stmt->bindValue(':version', $packageVersion);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -438,7 +465,7 @@ class Package extends \Models\Model
             $stmt->bindValue(':time_end', $timeEnd);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -452,7 +479,7 @@ class Package extends \Models\Model
             $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
 
         if ($this->dedicatedDb->isempty($result) === true) {
@@ -473,7 +500,7 @@ class Package extends \Models\Model
             $stmt->bindValue(':time_start', $timeStart);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
 
         if ($this->dedicatedDb->isempty($result) === true) {
@@ -493,7 +520,7 @@ class Package extends \Models\Model
             $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
 
         if ($this->dedicatedDb->isempty($result) === true) {
@@ -514,7 +541,7 @@ class Package extends \Models\Model
             $stmt->bindValue(':version', $version);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
 
         if ($this->dedicatedDb->isempty($result) === true) {
@@ -529,7 +556,7 @@ class Package extends \Models\Model
      */
     public function countByStatusOverDays(string $status, string $dateStart, string $dateEnd) : array
     {
-        $array = array();
+        $array = [];
 
         try {
             $stmt = $this->dedicatedDb->prepare("SELECT Date, COUNT(*) as date_count FROM packages
@@ -544,7 +571,7 @@ class Package extends \Models\Model
             $stmt->bindValue(':dateEnd', $dateEnd);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {

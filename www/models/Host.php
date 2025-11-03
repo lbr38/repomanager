@@ -3,6 +3,7 @@
 namespace Models;
 
 use Exception;
+use \Controllers\Database\Log as DbLog;
 
 class Host extends Model
 {
@@ -16,7 +17,7 @@ class Host extends Model
      */
     public function listByGroup(string $groupName) : array
     {
-        $hostsIn = array();
+        $hostsIn = [];
 
         /**
          *  If the group name is 'Default' (fictitious group) then we display all hosts without a group
@@ -61,7 +62,7 @@ class Host extends Model
                 unset($stmt);
             }
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($datas = $hostsInGroup->fetchArray(SQLITE3_ASSOC)) {
@@ -83,7 +84,7 @@ class Host extends Model
             $stmt->bindValue(':authId', $authId);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -105,7 +106,7 @@ class Host extends Model
             $stmt->bindValue(':hostname', $hostname);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -120,14 +121,14 @@ class Host extends Model
      */
     public function getAll(string $id) : array
     {
-        $data = array();
+        $data = [];
 
         try {
             $stmt = $this->db->prepare("SELECT * from hosts WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -142,14 +143,14 @@ class Host extends Model
      */
     public function getHostWithKernel(string $kernel) : array
     {
-        $hosts = array();
+        $hosts = [];
 
         try {
             $stmt = $this->db->prepare("SELECT Id, Hostname, Ip, Os, Os_family FROM hosts WHERE Kernel = :kernel ORDER BY Hostname ASC");
             $stmt->bindValue(':kernel', $kernel);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -164,14 +165,14 @@ class Host extends Model
      */
     public function getHostWithProfile(string $profile) : array
     {
-        $hosts = array();
+        $hosts = [];
 
         try {
             $stmt = $this->db->prepare("SELECT Id, Hostname, Ip, Os, Os_family FROM hosts WHERE Profile = :profile ORDER BY Hostname ASC");
             $stmt->bindValue(':profile', $profile);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -192,7 +193,7 @@ class Host extends Model
             $stmt->bindValue(':token', $token);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result)) {
@@ -207,7 +208,7 @@ class Host extends Model
      */
     public function listAll() : array
     {
-        $datas = array();
+        $datas = [];
 
         $result = $this->db->query("SELECT * FROM hosts");
 
@@ -223,7 +224,7 @@ class Host extends Model
      */
     public function listCountOS() : array
     {
-        $os = array();
+        $os = [];
 
         $result = $this->db->query("SELECT Os, Os_version, COUNT(*) as Os_count FROM hosts GROUP BY Os, Os_version");
 
@@ -239,7 +240,7 @@ class Host extends Model
      */
     public function listCountKernel() : array
     {
-        $kernel = array();
+        $kernel = [];
 
         $result = $this->db->query("SELECT Kernel, COUNT(*) as Kernel_count FROM hosts GROUP BY Kernel");
 
@@ -255,7 +256,7 @@ class Host extends Model
      */
     public function listCountArch() : array
     {
-        $arch = array();
+        $arch = [];
 
         $result = $this->db->query("SELECT Arch, COUNT(*) as Arch_count FROM hosts GROUP BY Arch");
 
@@ -271,7 +272,7 @@ class Host extends Model
      */
     public function listCountEnv() : array
     {
-        $env = array();
+        $env = [];
 
         $result = $this->db->query("SELECT Env, COUNT(*) as Env_count FROM hosts GROUP BY Env");
 
@@ -287,7 +288,7 @@ class Host extends Model
      */
     public function listCountProfile() : array
     {
-        $profile = array();
+        $profile = [];
 
         $result = $this->db->query("SELECT Profile, COUNT(*) as Profile_count FROM hosts GROUP BY Profile");
 
@@ -303,7 +304,7 @@ class Host extends Model
      */
     public function listCountAgentStatus() : array
     {
-        $agentStatus = array();
+        $agentStatus = [];
 
         $stmt = $this->db->prepare("SELECT * FROM
         (SELECT COUNT(*) as Linupdate_agent_status_online_count
@@ -337,7 +338,7 @@ class Host extends Model
      */
     public function listCountAgentVersion() : array
     {
-        $agent = array();
+        $agent = [];
 
         $result = $this->db->query("SELECT Linupdate_version, COUNT(*) as Linupdate_version_count FROM hosts GROUP BY Linupdate_version");
 
@@ -353,7 +354,7 @@ class Host extends Model
      */
     public function listRebootRequired() : array
     {
-        $hosts = array();
+        $hosts = [];
 
         $result = $this->db->query("SELECT Id, Hostname, Ip, Os, Os_family FROM hosts WHERE Reboot_required = 'true' ORDER BY Hostname ASC");
 
@@ -374,7 +375,7 @@ class Host extends Model
             $stmt->bindValue(':ip', $ip);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -394,7 +395,7 @@ class Host extends Model
             $stmt->bindValue(':hostname', $hostname);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -409,12 +410,12 @@ class Host extends Model
      */
     public function getSettings() : array
     {
-        $settings = array();
+        $settings = [];
 
         try {
             $result = $this->db->query("SELECT * FROM settings");
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -435,7 +436,7 @@ class Host extends Model
             $stmt->bindValue(':packagesConsideredCritical', $packagesConsideredCritical);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -451,7 +452,7 @@ class Host extends Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -473,7 +474,7 @@ class Host extends Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -499,7 +500,7 @@ class Host extends Model
             $stmt->bindValue(':time', $time);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -513,7 +514,7 @@ class Host extends Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -555,7 +556,7 @@ class Host extends Model
             $stmt->bindValue(':id', $hostId);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -569,7 +570,7 @@ class Host extends Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -594,7 +595,7 @@ class Host extends Model
             $stmt->bindValue(':groupId', $groupId);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         /**
@@ -610,7 +611,7 @@ class Host extends Model
             $stmt->bindValue(':id_group', $groupId);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -630,7 +631,7 @@ class Host extends Model
             $stmt->bindValue(':hostId', $hostId);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -644,7 +645,7 @@ class Host extends Model
             $stmt->bindValue(':profile', $profile);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {

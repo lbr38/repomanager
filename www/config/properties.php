@@ -1,5 +1,5 @@
 <?php
-$config = array(
+$config = [
     'project_name' => 'Repomanager',
     'project_dir_name' => 'repomanager',
     'project_logo' => 'https://raw.githubusercontent.com/lbr38/repomanager/main/www/public/assets/official-logo/repomanager-gray-256.png',
@@ -23,4 +23,4 @@ $config = array(
 
     // RPM default values
     'rpm_archs' => array('noarch', 'i386', 'i586', 'i686', 'x86_64', 'armv6hl', 'armv7hl', 'aarch64', 'ppc64', 'ppc64le', 's390x', 'src'),
-);
+];

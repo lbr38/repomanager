@@ -3,6 +3,7 @@
 namespace Models\Repo;
 
 use Exception;
+use \Controllers\Database\Log as DbLog;
 
 class Rpm extends \Models\Model
 {
@@ -24,7 +25,7 @@ class Rpm extends \Models\Model
             $stmt->bindValue(':releaseVersion', $releaseVersion);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -56,7 +57,7 @@ class Rpm extends \Models\Model
             $stmt->bindValue(':env', $env);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -88,7 +89,7 @@ class Rpm extends \Models\Model
             $stmt->bindValue(':env', $env);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -109,7 +110,7 @@ class Rpm extends \Models\Model
             $stmt->bindValue(':releaseVersion', $releaseVersion);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -137,7 +138,7 @@ class Rpm extends \Models\Model
             $stmt->bindValue(':date', $date);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result)) {
@@ -167,7 +168,7 @@ class Rpm extends \Models\Model
             $stmt->bindValue(':env', $env);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result)) {
@@ -189,7 +190,7 @@ class Rpm extends \Models\Model
             $stmt->bindValue(':source', $source, SQLITE3_TEXT);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -209,7 +210,7 @@ class Rpm extends \Models\Model
             $stmt->bindValue(':releasever', $releaseVersion);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result)) {

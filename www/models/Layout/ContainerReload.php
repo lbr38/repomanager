@@ -2,6 +2,7 @@
 
 namespace Models\Layout;
 
+use \Controllers\Database\Log as DbLog;
 use Exception;
 
 class ContainerReload extends \Models\Model
@@ -16,12 +17,12 @@ class ContainerReload extends \Models\Model
      */
     public function get()
     {
-        $containers = array();
+        $containers = [];
 
         try {
             $result = $this->db->query("SELECT * FROM layout_container_state");
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -40,8 +41,8 @@ class ContainerReload extends \Models\Model
             $stmt = $this->db->prepare("INSERT INTO layout_container_state (Container) VALUES (:name)");
             $stmt->bindValue(':name', $name);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -54,8 +55,8 @@ class ContainerReload extends \Models\Model
             $stmt = $this->db->prepare("SELECT * FROM layout_container_state WHERE Container = :name");
             $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result)) {
@@ -72,8 +73,8 @@ class ContainerReload extends \Models\Model
     {
         try {
             $this->db->exec("DELETE FROM layout_container_state");
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 }

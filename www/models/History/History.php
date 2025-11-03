@@ -2,6 +2,7 @@
 
 namespace Models\History;
 
+use \Controllers\Database\Log as DbLog;
 use Exception;
 
 class History extends \Models\Model
@@ -17,7 +18,7 @@ class History extends \Models\Model
      */
     public function getAll(bool $withOffset = false, int $offset = 0) : array
     {
-        $data = array();
+        $data = [];
 
         try {
             $query = "SELECT * FROM history ORDER BY Date DESC, Time DESC";
@@ -33,7 +34,7 @@ class History extends \Models\Model
             $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -49,7 +50,7 @@ class History extends \Models\Model
      */
     public function getByUserId(int $id, bool $withOffset = false, int $offset = 0) : array
     {
-        $data = array();
+        $data = [];
 
         try {
             $query = "SELECT history.Id, history.Date, history.Time, history.Action, history.State, users.First_name, users.Last_name, users.Username
@@ -69,7 +70,7 @@ class History extends \Models\Model
             $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -89,7 +90,7 @@ class History extends \Models\Model
             $stmt->bindValue(':date', $date);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 }

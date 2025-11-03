@@ -7,7 +7,7 @@ $hostExportController = new \Controllers\Host\Export();
 if ($action == 'export' and !empty($_POST['hosts'])) {
     try {
         $content = $hostExportController->export($_POST['hosts']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 

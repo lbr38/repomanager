@@ -1,6 +1,8 @@
 <?php
 
 namespace Controllers\Utils;
+use Exception;
+use DateTime;
 
 class Validate
 {
@@ -63,6 +65,17 @@ class Validate
         }
 
         return false;
+    }
+
+    /**
+     *  Validate a date in specific format, otherwise throw an exception
+     */
+    public static function date(string $date, string $format = 'Y-m-d') : void
+    {
+        $d = DateTime::createFromFormat($format, $date);
+        if ($d === false || $d->format($format) !== $date) {
+            throw new Exception('Invalid date format, expected ' . $format);
+        }
     }
 
     /**

@@ -2,16 +2,13 @@
 
 namespace Models\Repo;
 
-use DateTime;
 use Exception;
+use \Controllers\Database\Log as DbLog;
 
 class Repo extends \Models\Model
 {
     public function __construct()
     {
-        /**
-         *  Open main database connection
-         */
         $this->getConnection('main');
     }
 
@@ -152,8 +149,8 @@ class Repo extends \Models\Model
                 $stmt->bindValue(':envId', $envId);
             }
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         // Throw an exception if no data found
@@ -179,8 +176,8 @@ class Repo extends \Models\Model
             $stmt = $this->db->prepare("SELECT Id FROM repos_snap WHERE Id_repo = :repoId AND Status = 'active' ORDER BY Date DESC LIMIT 1");
             $stmt->bindValue(':repoId', $repoId);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -192,15 +189,15 @@ class Repo extends \Models\Model
 
     public function getEnvIdBySnapId(string $snapId)
     {
+        $envId = [];
+
         try {
             $stmt = $this->db->prepare("SELECT Id FROM repos_env WHERE Id_snap = :snapId");
             $stmt->bindValue(':snapId', $snapId);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
-
-        $envId = array();
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $envId[] = $row['Id'];
@@ -214,13 +211,13 @@ class Repo extends \Models\Model
      */
     public function getAllRepoId()
     {
+        $id = [];
+
         try {
             $result = $this->db->query("SELECT Id FROM repos");
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
-
-        $id = array();
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $id[] = $row;
@@ -234,6 +231,8 @@ class Repo extends \Models\Model
      */
     public function getSnapByRepoId(string $repoId, string $status = null)
     {
+        $snapshots = [];
+
         try {
             /**
              *  Si un status a été spécifié
@@ -246,11 +245,9 @@ class Repo extends \Models\Model
             }
             $stmt->bindValue(':repoId', $repoId);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
-
-        $snapshots = array();
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $snapshots[] = $row;
@@ -268,8 +265,8 @@ class Repo extends \Models\Model
             $stmt = $this->db->prepare("SELECT Date FROM repos_snap WHERE Id = :snapId");
             $stmt->bindValue(':snapId', $snapId);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -302,8 +299,8 @@ class Repo extends \Models\Model
             ON repos_env.Id_snap = repos_snap.Id
             WHERE repos_snap.Status = 'active')");
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -323,8 +320,8 @@ class Repo extends \Models\Model
             $stmt->bindValue(':signed', $signed);
             $stmt->bindValue(':snapId', $snapId);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -338,8 +335,8 @@ class Repo extends \Models\Model
             $stmt->bindValue(':date', $date);
             $stmt->bindValue(':snapId', $snapId);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -353,8 +350,8 @@ class Repo extends \Models\Model
             $stmt->bindValue(':time', $time);
             $stmt->bindValue(':snapId', $snapId);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -368,8 +365,8 @@ class Repo extends \Models\Model
             $stmt->bindValue(':status', $status);
             $stmt->bindValue(':snapId', $snapId);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -383,8 +380,8 @@ class Repo extends \Models\Model
             $stmt->bindValue(':arch', $arch);
             $stmt->bindValue(':snapId', $snapId);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -398,8 +395,8 @@ class Repo extends \Models\Model
             $stmt->bindValue(':pkgIncluded', $packages);
             $stmt->bindValue(':snapId', $snapId);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -413,8 +410,8 @@ class Repo extends \Models\Model
             $stmt->bindValue(':pkgExcluded', $packages);
             $stmt->bindValue(':snapId', $snapId);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -427,8 +424,8 @@ class Repo extends \Models\Model
             $stmt = $this->db->prepare("SELECT Id FROM repos WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -447,8 +444,8 @@ class Repo extends \Models\Model
             $stmt = $this->db->prepare("SELECT Id FROM repos_snap WHERE Id = :id AND Status = 'active'");
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -467,8 +464,8 @@ class Repo extends \Models\Model
             $stmt = $this->db->prepare("SELECT Id FROM repos_env WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -493,8 +490,8 @@ class Repo extends \Models\Model
             $stmt->bindValue(':snapId', $snapId);
             $stmt->bindValue(':env', $env);
             $result = $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -519,8 +516,8 @@ class Repo extends \Models\Model
             LEFT JOIN repos_snap
                 ON repos.Id = repos_snap.Id_repo
             WHERE repos_snap.Status = 'active'");
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         return $this->db->count($result);
@@ -541,7 +538,7 @@ class Repo extends \Models\Model
             $stmt->bindValue(':groupId', $groupId);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         /**
@@ -557,7 +554,7 @@ class Repo extends \Models\Model
             $stmt->bindValue(':id_group', $groupId);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -578,8 +575,8 @@ class Repo extends \Models\Model
             }
             $stmt->bindValue(':repoId', $repoId);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
     }
 
@@ -593,8 +590,8 @@ class Repo extends \Models\Model
             $stmt->bindValue(':releasever', $releasever);
             $stmt->bindValue(':repoId', $repoId);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         unset($stmt);
@@ -610,8 +607,8 @@ class Repo extends \Models\Model
             $stmt->bindValue(':dist', $dist);
             $stmt->bindValue(':repoId', $repoId);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         unset($stmt);
@@ -627,8 +624,8 @@ class Repo extends \Models\Model
             $stmt->bindValue(':section', $section);
             $stmt->bindValue(':repoId', $repoId);
             $stmt->execute();
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         unset($stmt);
@@ -645,7 +642,7 @@ class Repo extends \Models\Model
             $stmt->bindValue(':repoId', $repoId);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         unset($stmt);

@@ -7,7 +7,7 @@ if ($action == 'deletePackage' and !empty($_POST['snapId']) and !empty($_POST['p
 
     try {
         $deletedPackages = $myrepoPackage->delete($_POST['snapId'], $_POST['packages']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -33,7 +33,7 @@ if ($action == 'rebuild' and !empty($_POST['snapId']) and !empty($_POST['gpgSign
         /**
          *  Create a json file that defines the task to execute
          */
-        $params = array();
+        $params = [];
         $params['action'] = 'rebuild';
         $params['snap-id'] = $_POST['snapId'];
         $params['gpg-sign'] = $_POST['gpgSign'];
@@ -43,7 +43,7 @@ if ($action == 'rebuild' and !empty($_POST['snapId']) and !empty($_POST['gpgSign
          *  Execute the task
          */
         $mytask->execute(array($params));
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 

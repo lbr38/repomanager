@@ -3,6 +3,7 @@
 namespace Models\Repo;
 
 use Exception;
+use \Controllers\Database\Log as DbLog;
 
 class Deb extends \Models\Model
 {
@@ -25,7 +26,7 @@ class Deb extends \Models\Model
             $stmt->bindValue(':component', $component, SQLITE3_TEXT);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -59,7 +60,7 @@ class Deb extends \Models\Model
             $stmt->bindValue(':env', $env);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -93,7 +94,7 @@ class Deb extends \Models\Model
             $stmt->bindValue(':env', $env);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -115,7 +116,7 @@ class Deb extends \Models\Model
             $stmt->bindValue(':component', $component, SQLITE3_TEXT);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -145,7 +146,7 @@ class Deb extends \Models\Model
             $stmt->bindValue(':date', $date);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result)) {
@@ -177,7 +178,7 @@ class Deb extends \Models\Model
             $stmt->bindValue(':env', $env);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result)) {
@@ -200,7 +201,7 @@ class Deb extends \Models\Model
             $stmt->bindValue(':source', $source, SQLITE3_TEXT);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -222,7 +223,7 @@ class Deb extends \Models\Model
             $stmt->bindValue(':component', $component);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            $this->db->logError($e);
+            DbLog::error($e);
         }
 
         if ($this->db->isempty($result)) {

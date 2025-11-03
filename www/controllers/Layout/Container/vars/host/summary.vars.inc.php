@@ -55,7 +55,7 @@ if ($hostProperties['Online_status_date'] != DATE_YMD or $hostProperties['Online
 /**
  *  First create a list of dates on a 15days period
  */
-$dates = array();
+$dates = [];
 $dateStart = date_create(date('Y-m-d'))->modify("-15 days")->format('Y-m-d');
 $dateEnd = date_create(date('Y-m-d'))->modify("+1 days")->format('Y-m-d');
 $period = new DatePeriod(

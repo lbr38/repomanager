@@ -2,6 +2,7 @@
 
 namespace Models\Task\Log;
 
+use Controllers\Database\Log as DbLog;
 use Exception;
 
 class SubStep extends \Models\Model
@@ -25,7 +26,7 @@ class SubStep extends \Models\Model
             $stmt->bindValue(':stepId', $stepId);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -60,7 +61,7 @@ class SubStep extends \Models\Model
             $stmt->bindValue(':subStepId', $subStepId);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -82,7 +83,7 @@ class SubStep extends \Models\Model
 
             return $data;
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -104,7 +105,7 @@ class SubStep extends \Models\Model
 
             return $data;
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -127,7 +128,7 @@ class SubStep extends \Models\Model
 
             return $data;
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -149,7 +150,7 @@ class SubStep extends \Models\Model
 
             return $data;
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
     }
 
@@ -164,7 +165,7 @@ class SubStep extends \Models\Model
             $stmt->bindValue(':substepId', $substepId);
             $stmt->execute();
         } catch (Exception $e) {
-            $this->dedicatedDb->logError($e);
+            DbLog::error($e);
         }
     }
 }

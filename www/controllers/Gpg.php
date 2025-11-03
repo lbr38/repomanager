@@ -131,7 +131,7 @@ class Gpg
                      *  If both name and Id have been found, had them to the global array
                      */
                     if (!empty($gpgKeyId) and !empty($gpgKeyName)) {
-                        $knownGpgKeys[] = array('id' => $gpgKeyId, 'name' => $gpgKeyName);
+                        $knownGpgKeys[] = ['id' => $gpgKeyId, 'name' => $gpgKeyName];
 
                         /**
                          *  Only reset Id because a key can have one name (uid) and multiple Id, so do not reset the name until the next key

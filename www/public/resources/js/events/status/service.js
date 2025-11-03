@@ -22,7 +22,7 @@ $(document).on('click', '.unit-log-view-btn', function(e) {
         // Print error alert:
         true
     ).then(function () {
-        mymodal.print(jsonValue.message, logfile, true, false);
+        mymodal.print(jsonValue.message, logfile, true);
     });
 });
 
@@ -32,14 +32,37 @@ $(document).on('click', '.unit-log-view-btn', function(e) {
 $(document).on('mouseenter', '.unit-tooltip', function (e) {
     const unit = $(this).attr('unit');
     const description = $(this).attr('description');
+    const frequency = $(this).attr('frequency');
+    const day = $(this).attr('day');
+    const time = $(this).attr('time');
+    let content = '';
+    let freq = '';
 
     mytooltip.loading(e);
 
-    content  = '<p>Unit</p>';
+    content  = '<p><b>Unit</b></p>';
     content += '<p class="copy"><code>' + unit + '</code></p>';
-
-    content += '<p class="margin-top-10">Description</p>';
+    content += '<p class="margin-top-10"><b>Description</b></p>';
     content += '<p>' + description + '</p>';
+    content += '<p class="margin-top-10"><b>Frequency</b></p>';
+
+    if (frequency === 'every-minute') {
+        freq += 'Every minute';
+    }
+    if (frequency === 'every-hour') {
+        freq += 'Every hour';
+    }
+    if (frequency === 'every-day') {
+        freq += 'Every day at ' + time;
+    }
+    if (frequency === 'every-week') {
+        freq += 'Every week on ' + day + ' at ' + time;
+    }
+    if (frequency === 'forever') {
+        freq += 'Constantly running';
+    }
+
+    content += '<p>' + freq + '</p>';
 
     // Print tooltip
     mytooltip.print(content, e);

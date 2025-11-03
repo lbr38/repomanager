@@ -33,7 +33,7 @@
 
         <div>
             <h6 class="margin-top-0">ENVIRONNEMENT</h6>
-            <p><?= \Controllers\Common::envtag($rawParams['env']) ?></p>
+            <p><?= \Controllers\Utils\Generate\Html\Label::envtag($rawParams['env']) ?></p>
         </div>
     </div>
 </div>

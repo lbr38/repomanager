@@ -2,10 +2,10 @@
  *  Event: enable or disable debug mode
  */
 $(document).on('click','#debug-mode-btn',function () {
+    var enable = false;
+
     if ($(this).is(':checked')) {
-        var enable = 'true';
-    } else {
-        var enable = 'false';
+        var enable = true;
     }
 
     ajaxRequest(

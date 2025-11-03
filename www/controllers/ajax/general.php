@@ -8,7 +8,7 @@ if ($action == "acquitLog" && !empty($_POST['id'])) {
 
     try {
         $mylog->acquit($_POST['id']);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -23,7 +23,7 @@ if ($action == "getContainer" && !empty($_POST['container'])) {
         ob_start();
         \Controllers\Layout\Container\Render::render($_POST['container']);
         $content = ob_get_clean();
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -38,7 +38,7 @@ if ($action == "getTable" && !empty($_POST['table']) && isset($_POST['offset']))
         ob_start();
         \Controllers\Layout\Table\Render::render($_POST['table'], $_POST['offset']);
         $content = ob_get_clean();
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -53,7 +53,7 @@ if ($action == "get-panel" && !empty($_POST['name']) && isset($_POST['params']))
         ob_start();
         \Controllers\Layout\Panel\Render::render($_POST['name'], $_POST['params']);
         $content = ob_get_clean();
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 

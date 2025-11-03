@@ -3,7 +3,12 @@
 namespace Controllers\Repo\Mirror;
 
 use Exception;
+use \Controllers\Process;
+use \Controllers\App\DebugMode;
 use \Controllers\Utils\Validate;
+use \Controllers\Utils\Compress\Bzip2;
+use \Controllers\Utils\Compress\Gzip;
+use \Controllers\Utils\Compress\Xz;
 
 class Deb extends \Controllers\Repo\Mirror\Mirror
 {
@@ -122,7 +127,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                 $splittedLine = explode(' ', $line);
 
                 if (!in_array(end($splittedLine), $validPackageLocations)) {
-                    if (DEBUG_MODE) {
+                    if (DebugMode::enabled()) {
                         echo 'Ignoring line: ' . $line . PHP_EOL;
                     }
 
@@ -147,7 +152,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                             'proxy' => PROXY ?? null,
                         ]);
                     } catch (Exception $e) {
-                        if (DEBUG_MODE) {
+                        if (DebugMode::enabled()) {
                             echo $url . '/' . $location . ' is not reachable' . PHP_EOL;
                         }
 
@@ -287,11 +292,11 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              */
             try {
                 if ($packagesIndicesFileExtension == 'gz') {
-                    \Controllers\Common::gunzip($this->workingDir . '/' . $packageIndicesName);
+                    Gzip::uncompress($this->workingDir . '/' . $packageIndicesName);
                 } else if ($packagesIndicesFileExtension == 'xz') {
-                    \Controllers\Common::xzUncompress($this->workingDir . '/' . $packageIndicesName);
+                    Xz::uncompress($this->workingDir . '/' . $packageIndicesName);
                 } else if ($packagesIndicesFileExtension == 'bz2') {
-                    \Controllers\Common::bunzip2($this->workingDir . '/' . $packageIndicesName, $this->workingDir . '/Packages');
+                    Bzip2::uncompress($this->workingDir . '/' . $packageIndicesName, $this->workingDir . '/Packages');
                 }
             } catch (Exception $e) {
                 throw new Exception('Error while uncompressing <code>' . $packageIndicesName . '</code><br><pre class="codeblock copy">' . $e->getMessage() . '</pre>');
@@ -401,14 +406,14 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              */
             if (preg_match('/.gz$/i', $sourcesIndicesName)) {
                 try {
-                    \Controllers\Common::gunzip($this->workingDir . '/' . $sourcesIndicesName);
+                    Gzip::uncompress($this->workingDir . '/' . $sourcesIndicesName);
                 } catch (Exception $e) {
                     throw new Exception('Error while uncompressing <code>' . $sourcesIndicesName . '</code><br><pre class="codeblock copy">' . $e->getMessage() . '</pre>');
                 }
             }
             if (preg_match('/.xz$/i', $sourcesIndicesName)) {
                 try {
-                    \Controllers\Common::xzUncompress($this->workingDir . '/' . $sourcesIndicesName);
+                    Xz::uncompress($this->workingDir . '/' . $sourcesIndicesName);
                 } catch (Exception $e) {
                     throw new Exception('Error while uncompressing <code>' . $sourcesIndicesName . '</code><br><pre class="codeblock copy">' . $e->getMessage() . '</pre>');
                 }
@@ -637,9 +642,9 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
          *  e.g. gpgv --homedir /var/lib/repomanager/.gnupg/ Release.gpg Release
          */
         if (!empty($clearFile)) {
-            $myprocess = new \Controllers\Process('/usr/bin/gpgv --homedir ' . GPGHOME . ' ' . $signedFile . ' ' . $clearFile);
+            $myprocess = new Process('/usr/bin/gpgv --homedir ' . GPGHOME . ' ' . $signedFile . ' ' . $clearFile);
         } else {
-            $myprocess = new \Controllers\Process('/usr/bin/gpgv --homedir ' . GPGHOME . ' ' . $signedFile);
+            $myprocess = new Process('/usr/bin/gpgv --homedir ' . GPGHOME . ' ' . $signedFile);
         }
 
         $myprocess->execute();

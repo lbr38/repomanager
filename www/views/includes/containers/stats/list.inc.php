@@ -25,7 +25,7 @@
 
         <div>
             <h6 class="margin-top-0">ENVIRONMENT</h6>
-            <p><?= \Controllers\Common::envtag($myrepo->getEnv()) ?></p>
+            <p><?= \Controllers\Utils\Generate\Html\Label::envtag($myrepo->getEnv()) ?></p>
         </div>
 
         <div>

@@ -4,6 +4,8 @@ namespace Controllers\Service\Unit;
 
 use Exception;
 use DateTime;
+use \Controllers\App\Maintenance;
+use \Controllers\Update;
 
 class Statistic extends \Controllers\Service\Service
 {
@@ -160,23 +162,15 @@ class Statistic extends \Controllers\Service\Service
             }
 
             /**
-             *  Stop parsing if the stop file exists
-             */
-            if (file_exists(DATA_DIR . '/.service.' . $this->unit . '.stop')) {
-                parent::log('Stop file found, quitting access log parsing task');
-                unlink(DATA_DIR . '/.service.' . $this->unit . '.stop');
-                break;
-            }
-
-            /**
              *  Wait if a repomanager update or maintenance is running
              */
-            while (UPDATE_RUNNING or MAINTENANCE) {
+            while (Update::running() or Maintenance::running()) {
                 parent::logDebug('An update or maintenance is in progress, pausing access log parsing task');
-                sleep(2);
+                sleep(5);
                 continue;
             }
 
+            // Clear file status cache to get the latest file info
             clearstatcache();
 
             if (!file_exists($path) || ($file = @fopen($path, 'r')) === false) {
@@ -249,24 +243,13 @@ class Statistic extends \Controllers\Service\Service
             }
 
             /**
-             *  Stop parsing if the stop file exists
-             */
-            if (file_exists(DATA_DIR . '/.service.' . $this->unit . '.stop')) {
-                parent::logDebug('Stop file found, quitting access queue processing task');
-                unlink(DATA_DIR . '/.service.' . $this->unit . '.stop');
-                break;
-            }
-
-            /**
              *  Wait if a repomanager update or maintenance is running
              */
-            while (UPDATE_RUNNING or MAINTENANCE) {
+            while (Update::running() or Maintenance::running()) {
                 parent::logDebug('An update or maintenance is in progress, pausing access logs processing task');
                 sleep(5);
                 continue;
             }
-
-            clearstatcache();
 
             /**
              *  Retrieve access log entries from the queue (100 entries max)

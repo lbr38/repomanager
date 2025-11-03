@@ -3,26 +3,23 @@
 namespace Models\Task\Schedule;
 
 use Exception;
-use Datetime;
+use \Controllers\Database\Log as DbLog;
 
 class Schedule extends \Models\Model
 {
     public function __construct()
     {
-        /**
-         *  Open a connection to the database
-         */
         $this->getConnection('main');
     }
 
     public function getScheduled()
     {
-        $data = array();
+        $data = [];
 
         try {
             $result = $this->db->query("SELECT * FROM tasks WHERE Status = 'queued'");
-        } catch (\Exception $e) {
-            $this->db->logError($e);
+        } catch (Exception $e) {
+            DbLog::error($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {

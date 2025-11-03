@@ -125,7 +125,7 @@ class Cve
 
     private function getGenericName(string $package)
     {
-        $genericNames = array();
+        $genericNames = [];
 
         // kernel
         if (preg_match('/linux-headers|kernel-headers/i', $package)) {
@@ -155,8 +155,8 @@ class Cve
          */
         $hosts = json_decode(file_get_contents(DATA_DIR . '/.temp/export-hosts.json'), true);
 
-        $affectedHosts = array();
-        $possibleAffectedHosts = array();
+        $affectedHosts = [];
+        $possibleAffectedHosts = [];
 
         foreach ($hosts as $hostId => $hostDetails) {
             foreach ($hostDetails['Installed_packages'] as $package) {
@@ -292,7 +292,7 @@ class Cve
      */
     public function sendMailWithAffectedHosts()
     {
-        $cveAffectedHostsArray = array();
+        $cveAffectedHostsArray = [];
 
         $cvesId = $this->getAllId();
         $mailMessage = '';
