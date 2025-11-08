@@ -45,7 +45,7 @@
  *  Define schedule form action and allowed type(s)
  */
 $scheduleForm['action'] = 'env';
-$scheduleForm['type'] = array('unique'); ?>
+$scheduleForm['type'] = ['unique']; ?>
 
 <script>
 $(document).ready(function() {

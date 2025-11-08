@@ -1,0 +1,18 @@
+---
+description: Linudpate official repositories
+type: rpm
+repositories:
+  - name: linupdate
+    type: rpm
+    description: Package updater tool - Repomanager client side agent
+    url: https://packages.repomanager.net/repo/rpm/linupdate3/$releasever/prod
+    releasever:
+      - name: 10
+        description: RHEL 10 and derivatives
+        gpgkeys:
+          - link: https://packages.repomanager.net/repo/gpgkeys/packages.repomanager.net.pub
+
+      - name: 9
+        description: RHEL 9 and derivatives
+        gpgkeys:
+          - link: https://packages.repomanager.net/repo/gpgkeys/packages.repomanager.net.pub

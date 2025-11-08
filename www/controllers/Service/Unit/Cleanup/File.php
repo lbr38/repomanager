@@ -2,6 +2,8 @@
 
 namespace Controllers\Service\Unit\Cleanup;
 
+use \Controllers\Filesystem\Directory;
+use \Controllers\Filesystem\File as FsFile;
 use Exception;
 
 class File extends \Controllers\Service\Service
@@ -22,8 +24,8 @@ class File extends \Controllers\Service\Service
          *  Clean temp files and directories older than 3 days
          */
         if (is_dir(DATA_DIR . '/.temp')) {
-            $files = \Controllers\Filesystem\File::findRecursive(DATA_DIR . '/.temp');
-            $dirs = \Controllers\Filesystem\Directory::findRecursive(DATA_DIR . '/.temp');
+            $files = FsFile::findRecursive(DATA_DIR . '/.temp');
+            $dirs = Directory::findRecursive(DATA_DIR . '/.temp');
 
             if (!empty($files)) {
                 foreach ($files as $file) {
@@ -39,7 +41,7 @@ class File extends \Controllers\Service\Service
 
             if (!empty($dirs)) {
                 foreach ($dirs as $dir) {
-                    if (\Controllers\Filesystem\Directory::isEmpty($dir)) {
+                    if (Directory::isEmpty($dir)) {
                         if (!rmdir($dir)) {
                             throw new Exception('Could not delete temporary directory ' . $dir);
                         }
@@ -54,7 +56,7 @@ class File extends \Controllers\Service\Service
          *  Clean pid files older than 7 days
          */
         if (is_dir(DATA_DIR . '/tasks/pid')) {
-            $files = \Controllers\Filesystem\File::findRecursive(DATA_DIR . '/tasks/pid', ['pid']);
+            $files = FsFile::findRecursive(DATA_DIR . '/tasks/pid', ['pid']);
 
             if (!empty($files)) {
                 foreach ($files as $file) {
@@ -73,12 +75,12 @@ class File extends \Controllers\Service\Service
          *  Clean temp mirror directories older than 3 days
          */
         if (is_dir(REPOS_DIR)) {
-            $dirs = \Controllers\Filesystem\Directory::findRecursive(REPOS_DIR, 'temporary-task-.*');
+            $dirs = Directory::findRecursive(REPOS_DIR, 'temporary-task-.*');
 
             if (!empty($dirs)) {
                 foreach ($dirs as $dir) {
                     if (filemtime($dir) < strtotime('-3 days')) {
-                        if (!\Controllers\Filesystem\Directory::deleteRecursive($dir)) {
+                        if (!Directory::deleteRecursive($dir)) {
                             throw new Exception('Could not delete temporary directory ' . $dir);
                         }
 
@@ -92,7 +94,7 @@ class File extends \Controllers\Service\Service
          *  Clean service units logs older than 15 days
          */
         if (is_dir(SERVICE_LOGS_DIR)) {
-            $files = \Controllers\Filesystem\File::findRecursive(SERVICE_LOGS_DIR, ['log']);
+            $files = FsFile::findRecursive(SERVICE_LOGS_DIR, ['log']);
 
             if (!empty($files)) {
                 foreach ($files as $file) {

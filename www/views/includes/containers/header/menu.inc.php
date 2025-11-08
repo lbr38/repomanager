@@ -156,14 +156,9 @@
                     <?php
                 endif ?>
 
-    
-                <div id="cpu-usage-container" class="flex column-gap-10 align-item-center">
-                    <a href="/status#system-monitoring">
-                        <img src="/assets/icons/cpu.svg" class="icon-lowopacity margin-right-0" title="Access monitoring" />
-                    </a>
-                    <img id="cpu-usage-loading" src="/assets/icons/loading.svg" class="mediumopacity-cst icon-medium" />
-                    <p id="cpu-usage" class="lowopacity-cst font-size-12" title="CPU usage"></p>
-                </div>
+                <a href="/status">
+                    <img src="/assets/icons/health.svg" class="icon-lowopacity margin-right-0" title="Access system health & monitoring" />
+                </a>
 
                 <div class="relative">
                     <img src="/assets/icons/alarm.svg" class="icon-lowopacity get-panel-btn" panel="general/notification" title="Show notifications" />
@@ -193,11 +188,5 @@
         <div id="menu-burger">
             <img src="/assets/icons/menu.svg" class="icon-large get-panel-btn" panel="header/menu-burger" title="Open menu" />
         </div>
-
-        <script>
-            $(document).ready(function () {
-                mysystem.getCpuUsage();
-            });
-        </script>
     </nav>
 </header>

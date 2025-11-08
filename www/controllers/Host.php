@@ -2,8 +2,9 @@
 
 namespace Controllers;
 
-use Exception;
+use \Controllers\Filesystem\Directory;
 use \Controllers\Utils\Validate;
+use Exception;
 
 class Host
 {
@@ -285,7 +286,7 @@ class Host
             throw new Exception('The server could not finalize registering.');
         }
 
-        return array('authId' => $authId, 'token' => $token);
+        return ['authId' => $authId, 'token' => $token];
     }
 
     /**
@@ -332,7 +333,7 @@ class Host
          *  Delete host's dedicated database
          */
         if (is_dir(HOSTS_DIR . '/' . $id)) {
-            \Controllers\Filesystem\Directory::deleteRecursive(HOSTS_DIR . '/' . $id);
+            Directory::deleteRecursive(HOSTS_DIR . '/' . $id);
         }
 
         unset($hostRequestController);

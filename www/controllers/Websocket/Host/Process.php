@@ -121,14 +121,15 @@ class Process extends \Controllers\Websocket\WebsocketServer
          *  Send a message to the client to inform that the response was received
          *  Tell the client what kind of data was received (summary, log...), to avoid it to send them again
          */
-        $confirmMessage = array(
+        $confirmMessage = [
             'info' => 'Request response received',
             'request-id' => $requestId,
             // Tell the client what kind of data was received
-            'data' => array(
+            'data' => [
                 'status'
-            )
-        );
+            ]
+        ];
+
         // If there was an info message, add it to the data array, to inform the client that it was received
         if (!empty($message['response-to-request']['info'])) {
             $confirmMessage['data'][] = 'info';

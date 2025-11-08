@@ -12,4 +12,4 @@ if ($myrepo->getPackageType() == 'deb') {
  *  Define schedule form action and allowed type(s)
  */
 $scheduleForm['action'] = 'delete';
-$scheduleForm['type'] = array('unique'); ?>
+$scheduleForm['type'] = ['unique']; ?>

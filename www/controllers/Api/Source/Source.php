@@ -46,7 +46,7 @@ class Source extends \Controllers\Api\Controller
          *  Print all source repositories
          */
         if (empty($this->type) and $this->method == 'GET') {
-            return array('results' => $mysource->listAll());
+            return ['results' => $mysource->listAll()];
         }
 
         /**
@@ -62,7 +62,7 @@ class Source extends \Controllers\Api\Controller
              *  If no source name or action is specified, then list all sources of the specified type
              */
             if (empty($this->nameOrAction) and $this->method == 'GET') {
-                return array('results' => $mysource->listAll($this->type));
+                return ['results' => $mysource->listAll($this->type)];
             }
 
             /**
@@ -96,7 +96,7 @@ class Source extends \Controllers\Api\Controller
                      */
                     $mysource->importYamlFromApi($this->postFiles['template']['tmp_name']);
 
-                    return array('results' => 'Source repositories imported successfully');
+                    return ['results' => 'Source repositories imported successfully'];
                 }
 
                 /**
@@ -104,7 +104,7 @@ class Source extends \Controllers\Api\Controller
                  */
                 if ($this->nameOrAction != 'import') {
                     if ($this->method == 'GET') {
-                        return array('results' => $mysource->get($this->type, $this->nameOrAction));
+                        return ['results' => $mysource->get($this->type, $this->nameOrAction)];
                     }
                 }
             }

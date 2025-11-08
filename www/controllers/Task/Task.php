@@ -48,11 +48,6 @@ class Task
         return $this->time;
     }
 
-    public function getAction()
-    {
-        return $this->action;
-    }
-
     public function getType()
     {
         return $this->type;
@@ -86,11 +81,6 @@ class Task
     public function setTime(string $time)
     {
         $this->time = $time;
-    }
-
-    public function setAction(string $action)
-    {
-        $this->action = $action;
     }
 
     public function setType(string $type)
@@ -199,7 +189,7 @@ class Task
      *  Return last done task Id
      *  Can return null if no task is found (e.g. brand new installation with no task)
      */
-    public function getLastTaskId(string $status = null) : int|null
+    public function getLastTaskId(string $status = '') : int|null
     {
         return $this->model->getLastTaskId($status);
     }
@@ -343,9 +333,9 @@ class Task
          *  If task is not scheduled, overwrite the schedule parameters to clear them and only keep the 'scheduled' field
          */
         if ($params['schedule']['scheduled'] == 'false') {
-            $params['schedule'] = array(
+            $params['schedule'] = [
                 'scheduled' => 'false'
-            );
+            ];
         }
 
         /**
@@ -491,127 +481,6 @@ class Task
     }
 
     /**
-     *  Start task
-     */
-    public function start() : void
-    {
-        /**
-         *  Generate time start
-         */
-        $this->timeStart = microtime(true);
-
-        /**
-         *  Set status as 'running' in database
-         */
-        $this->updateStatus($this->id, 'running');
-
-        /**
-         *  Update layout containers states
-         */
-        $this->layoutContainerReloadController->reload('header/menu');
-        $this->layoutContainerReloadController->reload('repos/list');
-        $this->layoutContainerReloadController->reload('tasks/list');
-        $this->layoutContainerReloadController->reload('browse/list');
-        $this->layoutContainerReloadController->reload('browse/actions');
-
-        /**
-         *  Add current PHP execution PID to the PID file to make sure it can be killed with the stop button
-         */
-        $this->addsubpid(getmypid());
-    }
-
-    /**
-     *  End task
-     */
-    public function end() : void
-    {
-        try {
-            /**
-             *  Get task details
-             */
-            $task = $this->getById($this->id);
-
-            try {
-                $taskRawParams = json_decode($task['Raw_params'], true, 512, JSON_THROW_ON_ERROR);
-            } catch (JsonException $e) {
-                throw new Exception('could not decode task parameters JSON: ' . $e->getMessage());
-            }
-
-            /**
-             *  Delete pid file
-             */
-            if (file_exists(PID_DIR . '/' . $this->id . '.pid')) {
-                if (!unlink(PID_DIR . '/' . $this->id . '.pid')) {
-                    throw new Exception('could not delete PID file ' . PID_DIR . '/' . $this->id . '.pid');
-                }
-            }
-
-            /**
-             *  Update duration
-             */
-            $this->updateDuration($this->id, $this->getDuration());
-
-            /**
-             *  If task was a scheduled task
-             */
-            if ($task['Type'] == 'scheduled') {
-                $myTaskNotify = new \Controllers\Task\Notify();
-
-                /**
-                 *  Send notifications if needed
-                 */
-
-                /**
-                 *  If the task has a notification on error, send it
-                 */
-                if ($taskRawParams['schedule']['schedule-notify-error'] == 'true' and $this->status == 'error') {
-                    $myTaskNotify->error($task, $this->error);
-                }
-
-                /**
-                 *  If the task has a notification on success, send it
-                 */
-                if ($taskRawParams['schedule']['schedule-notify-success'] == 'true' and $this->status == 'done') {
-                    $myTaskNotify->success($task);
-                }
-
-                /**
-                 *  If it is a recurring task, duplicate the task in database and reschedule it
-                 */
-                if ($taskRawParams['schedule']['schedule-type'] == 'recurring') {
-                    $newTaskId = $this->duplicate($this->id);
-
-                    /**
-                     *  Reset real execution date and time
-                     */
-                    $this->updateDate($newTaskId, '');
-                    $this->updateTime($newTaskId, '');
-                    $this->updateStatus($newTaskId, 'scheduled');
-                }
-
-                unset($myTaskNotify);
-            }
-
-            /**
-             *  Clean unused repos from profiles
-             */
-            $this->profileController->cleanProfiles();
-
-            /**
-             *  Update layout containers states
-             */
-            $this->layoutContainerReloadController->reload('header/menu');
-            $this->layoutContainerReloadController->reload('repos/list');
-            $this->layoutContainerReloadController->reload('repos/properties');
-            $this->layoutContainerReloadController->reload('tasks/list');
-            $this->layoutContainerReloadController->reload('browse/list');
-            $this->layoutContainerReloadController->reload('browse/actions');
-        } catch (Exception $e) {
-            throw new Exception('Error while ending task: ' . $e->getMessage());
-        }
-    }
-
-    /**
      *  Relaunch a task
      */
     public function relaunch(int $id) : void
@@ -646,7 +515,7 @@ class Task
     /**
      *  Duplicate a task in database from its Id and return the new task Id
      */
-    private function duplicate(int $id) : int
+    public function duplicate(int $id) : int
     {
         return $this->model->duplicate($id);
     }
@@ -745,42 +614,31 @@ class Task
      */
     public function addsubpid(int $pid) : void
     {
-        /**
-         *  Add specified PID to the main PID file
-         */
+        // Add specified PID to the main PID file
         if (!file_put_contents(PID_DIR . '/' . $this->id . '.pid', 'SUBPID="' . $pid . '"' . PHP_EOL, FILE_APPEND)) {
-            throw new Exception('Could not add sub PID to ' . PID_DIR . '/' . $this->id . '.pid file');
+            throw new Exception('could not add sub PID to ' . PID_DIR . '/' . $this->id . '.pid file');
         }
 
-        /**
-         *  Also add children PID to the main PID file
-         */
-        $childrenPid = $this->getChildrenPid($pid);
+        // Also add children PID to the main PID file
+        $childrenPid = self::getChildrenPid($pid);
 
-        /**
-         *  If no children PID, exit the loop
-         */
         if ($childrenPid !== false) {
-            /**
-             *  Add children PID to the main PID file
-             */
+            // Add children PID to the main PID file
             foreach ($childrenPid as $childPid) {
                 if (is_numeric($childPid)) {
                     if (!file_put_contents(PID_DIR . '/' . $this->id . '.pid', 'SUBPID="' . $childPid . '"' . PHP_EOL, FILE_APPEND)) {
-                        throw new Exception('Could not add sub PID to ' . PID_DIR . '/' . $this->id . '.pid file');
+                        throw new Exception('could not add sub PID to ' . PID_DIR . '/' . $this->id . '.pid file');
                     }
                 }
 
-                /**
-                 *  If the child PID has children PID, then add them too
-                 */
-                $grandChildrenPid = $this->getChildrenPid($childPid);
+                // If the child PID has children PID, then add them too
+                $grandChildrenPid = self::getChildrenPid($childPid);
 
                 if ($grandChildrenPid !== false) {
                     foreach ($grandChildrenPid as $grandChildPid) {
                         if (is_numeric($grandChildPid)) {
                             if (!file_put_contents(PID_DIR . '/' . $this->id . '.pid', 'SUBPID="' . $grandChildPid . '"' . PHP_EOL, FILE_APPEND)) {
-                                throw new Exception('Could not add sub PID to ' . PID_DIR . '/' . $this->id . '.pid file');
+                                throw new Exception('could not add sub PID to ' . PID_DIR . '/' . $this->id . '.pid file');
                             }
                         }
                     }
@@ -792,29 +650,21 @@ class Task
     /**
      *  Return an array with all children PID of the specified PID or false if no children PID
      */
-    public function getChildrenPid(int $pid) : array|bool
+    public static function getChildrenPid(int $pid) : array|bool
     {
-        /**
-         *  Specified PID could have children PID, we need to get them all
-         */
-        $myprocess = new \Controllers\Process('pgrep -P ' . $pid);
-        $myprocess->execute();
+        // Specified PID could have children PID, we need to get them all
+        $processController = new \Controllers\Process('/usr/bin/pgrep -P ' . $pid);
+        $processController->execute();
 
-        /**
-         *  If exit code is 0, then the PID has children
-         */
-        if ($myprocess->getExitCode() == 0) {
-            /**
-             *  Get children PID from output
-             */
-            $childrenPid = $myprocess->getOutput();
-            $myprocess->close();
+        // If exit code is 0, then the PID has children
+        if ($processController->getExitCode() == 0) {
+            // Get children PID from output
+            $childrenPid = $processController->getOutput();
+            $processController->close();
 
             $childrenPid = explode(PHP_EOL, $childrenPid);
 
-            /**
-             *  Return children PID
-             */
+            // Return children PID
             return $childrenPid;
         }
 
@@ -873,14 +723,14 @@ class Task
         $dateNow = new DateTime(DATE_YMD);
         $timeNow = new DateTime(date('H:i'));
 
-        $schedule = array(
+        $schedule = [
             'date' => '',
             'time' => '',
-            'left' => array(
+            'left' => [
                 'days' => '',
                 'time' => ''
-            ),
-        );
+            ],
+        ];
 
         /**
          *  Retrieve task details

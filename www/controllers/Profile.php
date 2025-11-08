@@ -51,9 +51,21 @@ class Profile
     /**
      *  Return server configuration for profiles management
      */
-    public function getServerConfiguration()
+    public function getServerConfiguration() : array
     {
-        return $this->model->getServerConfiguration();
+        // A part of the configuration concerns the server IP and URL that can be obtained from constants
+        $config = [
+            'Ip' => __SERVER_IP__,
+            'Url' => __SERVER_URL__
+        ];
+
+        // Get server configuration from database
+        $serverConfig = $this->model->getServerConfiguration();
+
+        // Merge both configurations
+        $config = array_merge($config, $serverConfig);
+
+        return $config;
     }
 
     /**

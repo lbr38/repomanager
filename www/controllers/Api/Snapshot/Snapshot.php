@@ -50,7 +50,7 @@ class Snapshot extends \Controllers\Api\Controller
                 if ($this->action == 'upload' and !empty($this->postFiles)) {
                     $mypackage->upload($this->snapId, $this->postFiles);
 
-                    return array('results' => 'Packages uploaded successfully');
+                    return ['results' => 'Packages uploaded successfully'];
                 }
             }
 
@@ -97,11 +97,11 @@ class Snapshot extends \Controllers\Api\Controller
                     /**
                      *  Execute the task
                      */
-                    $mytask->execute(array($params));
+                    $mytask->execute([$params]);
 
                     unset($mytask);
 
-                    return array('results' => 'Snapshot metadata rebuild started');
+                    return ['results' => 'Snapshot metadata rebuild started'];
                 }
             }
         }

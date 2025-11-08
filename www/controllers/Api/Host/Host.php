@@ -50,10 +50,11 @@ class Host extends \Controllers\Api\Controller
                 if ($this->method == 'GET') {
                     try {
                         $list = $myhost->listAll();
-                        return array('results' => $list);
                     } catch (Exception $e) {
                         throw new Exception('Hosts listing has failed.');
                     }
+
+                    return ['results' => $list];
                 }
             }
         }
@@ -76,7 +77,13 @@ class Host extends \Controllers\Api\Controller
                 /**
                  *  If register is successful, then return generated id and token
                  */
-                return array('message' => array('Host successfully registered.'), 'results' => array('id' => $result['authId'], 'token' => $result['token']));
+                return [
+                    'message' => ['Host successfully registered.'],
+                    'results' => [
+                        'id' => $result['authId'],
+                        'token' => $result['token']
+                    ]
+                ];
             }
 
             /**
@@ -89,6 +96,7 @@ class Host extends \Controllers\Api\Controller
 
                     // Package controller will be useful for packages operations
                     $hostPackageController = new \Controllers\Host\Package\Package($this->hostId);
+                    $hostEventController = new \Controllers\Host\Package\Event($this->hostId);
                 } catch (Exception $e) {
                     throw new Exception('Coult not retrieve host Id in database');
                 }
@@ -304,7 +312,7 @@ class Host extends \Controllers\Api\Controller
                         }
                     }
 
-                    return array('message' => $message);
+                    return ['message' => $message];
                 }
 
                 /**
@@ -317,16 +325,14 @@ class Host extends \Controllers\Api\Controller
                      *  https://repomanager.mydomain.net/api/v2/host/packages/installed
                      */
                     if ($this->action == 'installed' and $this->method == 'PUT') {
-                        /**
-                         *  If installed packages list has been specified then update it in database
-                         */
-                        if (!empty($this->data->installed_packages)) {
+                        if (isset($this->data->installed_packages)) {
                             try {
                                 $hostPackageController->setPackagesInventory($this->data->installed_packages);
-                                return array('message' => array('Installed packages updated successfully.'));
                             } catch (Exception $e) {
                                 throw new Exception('Installed packages update has failed: ' . $e->getMessage());
                             }
+
+                            return ['message' => ['Installed packages updated successfully.']];
                         }
                     }
 
@@ -335,17 +341,15 @@ class Host extends \Controllers\Api\Controller
                      *  https://repomanager.mydomain.net/api/v2/host/packages/available
                      */
                     if ($this->action == 'available' and $this->method == 'PUT') {
-                        /**
-                         *  If available packages list has been specified then update it in database
-                         */
-                        if (!empty($this->data->available_packages)) {
+                        if (isset($this->data->available_packages)) {
                             try {
                                 $hostPackageController->setPackagesAvailable($this->data->available_packages);
-                                return array('message' => array('Available packages updated successfully.'));
                             } catch (Exception $e) {
                                 throw new Exception('Available packages update has failed: ' . $e->getMessage());
                             }
                         }
+
+                        return ['message' => ['Available packages updated successfully.']];
                     }
 
                     /**
@@ -358,11 +362,12 @@ class Host extends \Controllers\Api\Controller
                          */
                         if (!empty($this->data->events)) {
                             try {
-                                $hostPackageController->setEventsFullHistory($this->data->events);
-                                return array('message' => array('Package events history updated successfully.'));
+                                $hostEventController->setHistory($this->data->events);
                             } catch (Exception $e) {
                                 throw new Exception('Package events history update has failed: ' . $e->getMessage());
                             }
+
+                            return ['message' => ['Package events history updated successfully.']];
                         }
                     }
                 }

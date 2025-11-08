@@ -160,7 +160,7 @@ class Api
      */
     private static function returnSuccess(array $results)
     {
-        $returnArray = array('return' => 201);
+        $returnArray = ['return' => 201];
         $returnArray = array_merge($returnArray, $results);
 
         http_response_code(201);

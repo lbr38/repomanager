@@ -16,6 +16,7 @@
     <link rel="stylesheet" type="text/css" href="/resources/styles/components/confirmbox.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/components/modal.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/components/tooltip.css?<?= VERSION ?>">
+    <link rel="stylesheet" type="text/css" href="/resources/styles/components/scrollbar.css?<?= VERSION ?>">
     <link rel="stylesheet" type='text/css' href="/resources/styles/select2.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/main.css?<?= VERSION ?>">
 
@@ -26,7 +27,7 @@
     /**
      *  Load additional CSS files depending on the current URI
      */
-    $additionalCss = array(
+    $additionalCss = [
         "run"      => "run.css",
         "browse"   => "browse.css",
         "stats"    => "stats-hosts.css",
@@ -35,7 +36,7 @@
         "settings" => "settings.css",
         "cves"     => "cve.css",
         "cve"      => "cve.css"
-    );
+    ];
 
     foreach ($additionalCss as $uri => $css) {
         if (__ACTUAL_URI__[1] == $uri) {

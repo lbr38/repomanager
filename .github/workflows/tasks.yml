@@ -34,9 +34,9 @@ jobs:
       # Entrypoint is not executed, so we need to run most of the commands manually
       - name: Execute entrypoint
         run: |
+          /bin/bash /var/www/repomanager/bin/repomanager -p
           /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/initialize.php" www-data
           /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php" www-data
-          /bin/bash /var/www/repomanager/bin/repomanager -p
 
       # Create deb tasks jobs in database
       - name: Create deb tasks jobs
@@ -109,9 +109,9 @@ jobs:
       # Entrypoint is not executed, so we need to run most of the commands manually
       - name: Execute entrypoint
         run: |
+          /bin/bash /var/www/repomanager/bin/repomanager -p
           /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/initialize.php" www-data
           /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php" www-data
-          /bin/bash /var/www/repomanager/bin/repomanager -p
 
       # Create rpm tasks jobs in database
       - name: Create rpm tasks jobs
