@@ -567,7 +567,7 @@ footer #github img { width: 25px; }
     right: 0;
     overflow: auto;
     background: #333333d3;
-    z-index: 1;
+    z-index: 500;
 }
 
 #maintenance {

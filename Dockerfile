@@ -66,10 +66,7 @@ COPY docker/config/postfix/main.cf /etc/postfix/main.cf
 # Copy master.cf with custom listening port 2525 (to avoid conflict with other mail services on the host) (when networking=host)
 COPY docker/config/postfix/master.cf /etc/postfix/master.cf
 
-RUN mkdir -p $WWW_DIR $DATA_DIR $REPOS_DIR && \
-    # Create repomanager group and set repomanager as default group for www-data user
-    groupadd repomanager && \
-    usermod -G repomanager -a www-data
+RUN mkdir -p $WWW_DIR $DATA_DIR $REPOS_DIR
 
 # Copy repomanager files
 COPY www/ $WWW_DIR/

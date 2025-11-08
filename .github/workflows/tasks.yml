@@ -29,7 +29,7 @@ jobs:
           cp -r $GITHUB_WORKSPACE/www/* /var/www/repomanager/
           cp $GITHUB_WORKSPACE/www/version /var/lib/repomanager/version.available
           echo "repomanager-ci.localhost" > /var/www/repomanager/.fqdn
-          chown -R www-data:repomanager /var/www/repomanager /var/lib/repomanager
+          chown -R www-data:www-data /var/www/repomanager /var/lib/repomanager
 
       # Entrypoint is not executed, so we need to run most of the commands manually
       - name: Execute entrypoint
@@ -104,7 +104,7 @@ jobs:
           cp -r $GITHUB_WORKSPACE/www/* /var/www/repomanager/
           cp $GITHUB_WORKSPACE/www/version /var/lib/repomanager/version.available
           echo "repomanager-ci.localhost" > /var/www/repomanager/.fqdn
-          chown -R www-data:repomanager /var/www/repomanager /var/lib/repomanager
+          chown -R www-data:www-data /var/www/repomanager /var/lib/repomanager
 
       # Entrypoint is not executed, so we need to run most of the commands manually
       - name: Execute entrypoint

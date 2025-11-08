@@ -46,7 +46,7 @@ body {
     height: 100vh;
     background-color: #0e1e2f;
     border-radius: 20px;
-    z-index: 90;
+    z-index: 400;
 }
 .body-veil img:first-child {
     width: 120px;

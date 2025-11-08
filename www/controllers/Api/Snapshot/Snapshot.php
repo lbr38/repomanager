@@ -3,12 +3,12 @@
 namespace Controllers\Api\Snapshot;
 
 use Exception;
-use Datetime;
 
 class Snapshot extends \Controllers\Api\Controller
 {
     private $snapId;
     private $postFiles;
+    private $action;
 
     public function execute()
     {

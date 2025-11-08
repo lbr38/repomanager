@@ -70,7 +70,7 @@ jobs:
                   OUTPUT=$(docker logs repomanager -n10000)
 
                   # Check if the logs contains failed or error message
-                  if echo "$OUTPUT" | grep -q -i -E "failed|error"; then
+                  if echo "$OUTPUT" | grep -q -i -E "error|failed|unknown|uncaught|warning"; then
                       echo "Database update seems to have failed: $OUTPUT"
                       exit 1
                   fi
@@ -109,7 +109,7 @@ jobs:
               OUTPUT=$(docker logs repomanager -n10000)
 
               # Check if the logs contains failed or error message
-              if echo "$OUTPUT" | grep -q -i -E "failed|error"; then
+              if echo "$OUTPUT" | grep -q -i -E "error|failed|unknown|uncaught|warning"; then
                   echo "Database update seems to have failed: $OUTPUT"
                   exit 1
               fi

@@ -53,14 +53,14 @@ function permissions
     echo "["$(date +"%a %b %-d %H:%M:%S")"][INF] Setting permissions... "
  
     # Make sure owner and group and permissions are correct on parent directories
-    chown www-data:repomanager "$WWW_DIR" "$DATA_DIR" "$REPOS_DIR"
+    chown www-data:www-data "$WWW_DIR" "$DATA_DIR" "$REPOS_DIR"
     chmod 770 "$WWW_DIR" "$DATA_DIR" "$REPOS_DIR"
 
     # Now go deeper and set permissions recursively
-    chown -R www-data:repomanager "$WWW_DIR" > /dev/null 2>&1
-    chown -R www-data:repomanager "$DATA_DIR" > /dev/null 2>&1
+    chown -R www-data:www-data "$WWW_DIR" > /dev/null 2>&1
+    chown -R www-data:www-data "$DATA_DIR" > /dev/null 2>&1
     # For repositories, run in background to avoid long wait
-    chown -R www-data:repomanager "$REPOS_DIR" > /dev/null 2>&1 &
+    chown -R www-data:www-data "$REPOS_DIR" > /dev/null 2>&1 &
 
     # Permissions on /.gnupg directory
     if [ -d "$GPGHOME" ];then

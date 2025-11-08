@@ -39,7 +39,7 @@ class Panel {
         }).promise().done(function () {
             $('.slide-panel-container[slide-panel="' + name + '"]').find('.slide-panel').animate({
                 right: '0'
-            })
+            }, window.innerWidth >= 1025 ? 200 : 100);
         });
 
         return new Promise((resolve, reject) => {
@@ -147,13 +147,13 @@ class Panel {
         if (name != null) {
             $('.slide-panel-container[slide-panel="' + name + '"]').find('.slide-panel').animate({
                 right: '-1000px',
-            }).promise().done(function () {
+            }, window.innerWidth >= 1025 ? 200 : 100).promise().done(function () {
                 $('.slide-panel-container[slide-panel="' + name + '"]').remove();
             })
         } else {
             $('.slide-panel').animate({
                 right: '-1000px',
-            }).promise().done(function () {
+            }, window.innerWidth >= 1025 ? 200 : 100).promise().done(function () {
                 $('.slide-panel-container').remove();
             })
         }

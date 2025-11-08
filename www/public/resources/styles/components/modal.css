@@ -8,7 +8,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 999;
+    z-index: 200;
     margin: auto;
     background-color: #1b1f2682;
 }

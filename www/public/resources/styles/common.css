@@ -367,7 +367,7 @@ td {
     position: fixed;
     top: 0;
     right: 0;
-    z-index: 99;
+    z-index: 100;
     visibility: hidden;
 }
 
@@ -406,7 +406,7 @@ td {
     display: none;
     align-items: center;
     column-gap: 8px ;
-    z-index: 1002;
+    z-index: 700;
 }
 
 #loading img {
@@ -428,7 +428,7 @@ td {
     height: 100%;
     background-color: #182b3e82;
     border-radius: 20px;
-    z-index: 998;
+    z-index: 10;
 }
 
 /* Desktop configuration */
