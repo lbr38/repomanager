@@ -76,13 +76,13 @@ class Deb extends Metadata
         /**
          *  Define directory to create for the repository
          */
-        $dirs = array(
+        $dirs = [
             'dists',
             'dists/' . $this->dist,
             'dists/' . $this->dist . '/' . $this->section,
             'pool',
             'cache'
-        );
+        ];
 
         /**
          *  Append binary arch directories to the list of directories to create

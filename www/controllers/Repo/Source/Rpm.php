@@ -40,10 +40,10 @@ class Rpm extends \Controllers\Repo\Source\Source
         /**
          *  Add the new release version
          */
-        $currentParams['releasever'][] = array(
+        $currentParams['releasever'][] = [
             'name' => $name,
             'description' => '',
-        );
+        ];
 
         /**
          *  Save the new source repository definition
@@ -184,9 +184,9 @@ class Rpm extends \Controllers\Repo\Source\Source
             }
 
             // Otherwise add the fingerprint
-            $currentParams['releasever'][$releaseverId]['gpgkeys'][] = array(
+            $currentParams['releasever'][$releaseverId]['gpgkeys'][] = [
                 'fingerprint' => $fingerprint
-            );
+            ];
         }
 
         /**
@@ -322,20 +322,20 @@ class Rpm extends \Controllers\Repo\Source\Source
          *  Add predefined release versions if any
          */
         if (!empty($predefinedReleaseVersions)) {
-            $data[] = array(
+            $data[] = [
                 "text" => "Suggested release versions",
                 "children" => $predefinedReleaseVersions
-            );
+            ];
         }
 
         /**
          *  Add possible release versions
          */
         if (!empty($possibleReleaseVersions)) {
-            $data[] = array(
+            $data[] = [
                 "text" => "Possible release versions",
                 "children" => $possibleReleaseVersions
-            );
+            ];
         }
 
         return $data;

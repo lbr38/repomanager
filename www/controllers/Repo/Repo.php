@@ -307,7 +307,7 @@ class Repo
     }
 
     /**
-     *  Function that parses and retrieves the results of the getAllBy* functions
+     *  Function that parses and retrieves the results of the getAllById function
      */
     private function getAllByParser(array $data) : void
     {
@@ -410,7 +410,7 @@ class Repo
     }
 
     /**
-     *  Retourne le nombre total de repos
+     *  Return the total number of repositories
      */
     public function count()
     {
@@ -418,45 +418,35 @@ class Repo
     }
 
     /**
-     *  Ajouter / supprimer des repos dans un groupe
+     *  Add / remove repositories to/from a group
      */
-    public function addReposIdToGroup(array $reposId = null, int $groupId)
+    public function addReposIdToGroup(array $reposId = [], int $groupId)
     {
         $mygroup = new \Controllers\Group\Repo();
 
         if (!empty($reposId)) {
             foreach ($reposId as $repoId) {
-                /**
-                 *  On vérifie que l'Id de repo spécifié existe en base de données
-                 */
+                // Check that the specified repository Id exists in database
                 if ($this->model->existsId($repoId) === false) {
                     throw new Exception("Specified repo Id $repoId does not exist");
                 }
 
-                /**
-                 *  Ajout du repo au groupe
-                 */
+                // Add repository to group
                 $this->model->addToGroup($repoId, $groupId);
             }
         }
 
-        /**
-         *  3. On récupère la liste des repos actuellement dans le groupe afin de supprimer ceux qui n'ont pas été sélectionnés
-         */
+        // Retrieve the list of repositories currently in the group in order to remove those that were not specified by the user
         $actualReposMembers = $mygroup->getReposMembers($groupId);
 
-        /**
-         *  4. Parmis cette liste on ne récupère que les Id des repos actuellement membres
-         */
+        // Among this list, only retrieve the Ids of the currently member repositories
         $actualReposId = [];
 
         foreach ($actualReposMembers as $actualRepoMember) {
             $actualReposId[] = $actualRepoMember['repoId'];
         }
 
-        /**
-         *  5. Enfin, on supprime tous les Id de repos actuellement membres qui n'ont pas été spécifiés par l'utilisateur
-         */
+        // Finally, remove all currently member repository Ids that were not specified by the user
         foreach ($actualReposId as $actualRepoId) {
             if (!in_array($actualRepoId, $reposId)) {
                 $this->model->removeFromGroup($actualRepoId, $groupId);
@@ -465,7 +455,7 @@ class Repo
     }
 
     /**
-     *  Ajouter un repo à un groupe par Id
+     *  Add a repository to a group
      */
     public function addRepoIdToGroup(string $repoId, string $groupName)
     {

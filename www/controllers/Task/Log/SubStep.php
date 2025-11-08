@@ -2,7 +2,6 @@
 
 namespace Controllers\Task\Log;
 
-use Exception;
 use JsonException;
 
 class SubStep extends Log
@@ -27,6 +26,11 @@ class SubStep extends Log
     public function new(string $identifier, string $title = '', string $note = '') : void
     {
         /**
+         *  First, close previous sub-step if any
+         */
+        $this->completed();
+
+        /**
          *  Get latest step Id
          */
         $stepId = $this->stepController->getLatestStepId($this->taskId);
@@ -48,6 +52,11 @@ class SubStep extends Log
          *  Get latest step Id
          */
         $stepId = $this->stepController->getLatestStepId($this->taskId);
+
+        // If there was no step, return
+        if (empty($stepId)) {
+            return;
+        }
 
         /**
          *  If no identifier is provided, get latest sub-step key name, otherwise use the provided identifier

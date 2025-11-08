@@ -119,7 +119,7 @@ endif;
  *  Define schedule form action and allowed type(s)
  */
 $scheduleForm['action'] = 'update';
-$scheduleForm['type'] = array('unique', 'recurring'); ?>
+$scheduleForm['type'] = ['unique', 'recurring']; ?>
 
 <script>
 $(document).ready(function(){

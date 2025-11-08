@@ -153,7 +153,7 @@ class Duplicate
             /**
              *  Set temporary dir path
              */
-            $tempDir = REPOS_DIR . '/temporary-task-' . $this->task->getId();
+            $tempDir = REPOS_DIR . '/temporary-task-' . $this->taskId;
 
             /**
              *  Create the temporary directory if it does not already exist (might exist if the task has been stopped and restarted)
@@ -363,7 +363,7 @@ class Duplicate
                  *  Set task status to done
                  */
                 $this->task->setStatus('done');
-                $this->task->updateStatus($this->task->getId(), 'done');
+                $this->task->updateStatus($this->taskId, 'done');
             /**
              *  If an error occurred after the temporary directory was renamed, clean the target directory
              */
@@ -386,7 +386,7 @@ class Duplicate
 
             // Set task status to error
             $this->task->setStatus('error');
-            $this->task->updateStatus($this->task->getId(), 'error');
+            $this->task->updateStatus($this->taskId, 'error');
             $this->task->setError('Failed');
         }
 

@@ -2,118 +2,45 @@
 
 namespace Controllers\Task\Repo;
 
+use \Controllers\Filesystem\File;
 use Exception;
 
-class Create
+class Create extends \Controllers\Task\Execution
 {
-    use \Controllers\Task\Param;
     use Package\Sync;
     use Package\Sign;
     use Metadata\Create;
     use Finalize;
 
-    private $repo;
     private $rpmRepoController;
     private $debRepoController;
-    private $task;
-    private $repoSnapshotController;
-    private $repoEnvController;
-    private $taskLogStepController;
-    private $taskLogSubStepController;
     private $type;
     private $packagesToSign = null;
 
     public function __construct(string $taskId)
     {
-        $this->repo = new \Controllers\Repo\Repo();
+        parent::__construct($taskId, 'create');
+
         $this->rpmRepoController = new \Controllers\Repo\Rpm();
         $this->debRepoController = new \Controllers\Repo\Deb();
-        $this->task = new \Controllers\Task\Task();
-        $this->repoSnapshotController = new \Controllers\Repo\Snapshot();
-        $this->repoEnvController = new \Controllers\Repo\Environment();
-        $this->taskLogStepController = new \Controllers\Task\Log\Step($taskId);
-        $this->taskLogSubStepController = new \Controllers\Task\Log\SubStep($taskId);
 
-        /**
-         *  Retrieve task params
-         */
-        $task = $this->task->getById($taskId);
-        $taskParams = json_decode($task['Raw_params'], true);
-
-        /**
-         *  Check and set task parameters
-         */
-        $requiredParams = array('package-type', 'repo-type', 'arch');
-        $optionalParams = array('env', 'group', 'description', 'package-include', 'package-exclude');
-
-        /**
-         *  Required parameters in case the repo type is 'rpm'
-         */
-        if ($taskParams['package-type'] == 'rpm') {
-            $requiredParams[] = 'releasever';
+        // Set parameters in case the task is a local repo
+        if ($this->params['repo-type'] == 'local') {
+            $this->repoController->setName($this->params['alias']);
         }
 
-        /**
-         *  Required parameters in case the repo type is 'deb'
-         */
-        if ($taskParams['package-type'] == 'deb') {
-            $requiredParams[] = 'dist';
-            $requiredParams[] = 'section';
-        }
-
-        /**
-         *  Required parameters in case the task is a mirror
-         */
-        if ($taskParams['repo-type'] == 'mirror') {
-            $requiredParams[] = 'source';
-            $requiredParams[] = 'gpg-check';
-            $requiredParams[] = 'gpg-sign';
-        }
-
-        /**
-         *  Required parameters in case the task is a local repo
-         */
-        if ($taskParams['repo-type'] == 'local') {
-            $this->repo->setName($taskParams['alias']);
-        }
-
-        $this->taskParamsCheck('Create repo', $taskParams, $requiredParams);
-        $this->taskParamsSet($taskParams, $requiredParams, $optionalParams);
-
-        if ($taskParams['repo-type'] == 'mirror') {
-            /**
-             *  Alias parameter can be empty, if it's the case, the value will be 'source'
-             */
-            if (!empty($taskParams['alias'])) {
-                $this->repo->setName($taskParams['alias']);
+        // Set parameters in case the task is a mirror repo
+        if ($this->params['repo-type'] == 'mirror') {
+            // Alias parameter can be empty, if it's the case, the value will be 'source'
+            if (!empty($this->params['alias'])) {
+                $this->repoController->setName($this->params['alias']);
             } else {
-                $this->repo->setName($this->repo->getSource());
+                $this->repoController->setName($this->repoController->getSource());
             }
         }
 
-        /**
-         *  Prepare task and task log
-         */
-
-        /**
-         *  Set task Id
-         */
-        $this->task->setId($taskId);
-        $this->task->setAction('create');
-
-        /**
-         *  Start task
-         */
-        $this->task->setDate(date('Y-m-d'));
-        $this->task->setTime(date('H:i:s'));
-        $this->task->updateDate($taskId, $this->task->getDate());
-        $this->task->updateTime($taskId, $this->task->getTime());
-        $this->task->start();
-
-        /**
-         *  Set repo type for the task to be executed
-         */
-        $this->type = $taskParams['repo-type'];
+        // Set repo type for the task to be executed
+        $this->type = $this->params['repo-type'];
     }
 
     /**
@@ -138,8 +65,8 @@ class Create
         /**
          *  Define the date and time of the new mirror snapshot
          */
-        $this->repo->setDate(date('Y-m-d'));
-        $this->repo->setTime(date('H:i'));
+        $this->repoController->setDate(date('Y-m-d'));
+        $this->repoController->setTime(date('H:i'));
 
         try {
             /**
@@ -165,30 +92,18 @@ class Create
             /**
              *  Set task status to 'done'
              */
-            $this->task->setStatus('done');
-            $this->task->updateStatus($this->task->getId(), 'done');
+            $this->taskController->setStatus('done');
+            $this->taskController->updateStatus($this->taskId, 'done');
         } catch (Exception $e) {
             // Set sub step error message and mark step as error
             $this->taskLogSubStepController->error($e->getMessage());
             $this->taskLogStepController->error();
 
             // Set task status to error
-            $this->task->setStatus('error');
-            $this->task->updateStatus($this->task->getId(), 'error');
-            $this->task->setError('Failed');
+            $this->taskController->setStatus('error');
+            $this->taskController->updateStatus($this->taskId, 'error');
+            $this->taskController->setError('Failed');
         }
-
-        /**
-         *  Get total duration
-         */
-        $duration = \Controllers\Utils\Convert::microtimeToHuman($this->task->getDuration());
-
-        /**
-         *  End task
-         */
-        $this->taskLogStepController->new('duration', 'DURATION');
-        $this->taskLogStepController->none('Total duration: ' . $duration);
-        $this->task->end();
     }
 
     /**
@@ -199,8 +114,8 @@ class Create
         /**
          *  Set today date and time as target date and time
          */
-        $this->repo->setDate(date('Y-m-d'));
-        $this->repo->setTime(date("H:i"));
+        $this->repoController->setDate(date('Y-m-d'));
+        $this->repoController->setTime(date("H:i"));
 
         try {
             $this->taskLogStepController->new('create-repo', 'CREATING REPOSITORY');
@@ -209,41 +124,41 @@ class Create
             /**
              *  Check if a repo/section with the same name is already active with snapshots
              */
-            if ($this->repo->getPackageType() == 'rpm') {
-                if ($this->rpmRepoController->isActive($this->repo->getName(), $this->repo->getReleasever())) {
-                    throw new Exception('<span class="label-white">' . $this->repo->getName() . ' (release ver. ' . $this->repo->getReleasever() . ')</span> repository already exists');
+            if ($this->repoController->getPackageType() == 'rpm') {
+                if ($this->rpmRepoController->isActive($this->repoController->getName(), $this->repoController->getReleasever())) {
+                    throw new Exception('<span class="label-white">' . $this->repoController->getName() . ' (release ver. ' . $this->repoController->getReleasever() . ')</span> repository already exists');
                 }
             }
-            if ($this->repo->getPackageType() == 'deb') {
-                if ($this->debRepoController->isActive($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection())) {
-                    throw new Exception('<span class="label-white">' . $this->repo->getName() . ' ❯ ' . $this->repo->getDist() . ' ❯ ' . $this->repo->getSection() . '</span> repository already exists');
+            if ($this->repoController->getPackageType() == 'deb') {
+                if ($this->debRepoController->isActive($this->repoController->getName(), $this->repoController->getDist(), $this->repoController->getSection())) {
+                    throw new Exception('<span class="label-white">' . $this->repoController->getName() . ' ❯ ' . $this->repoController->getDist() . ' ❯ ' . $this->repoController->getSection() . '</span> repository already exists');
                 }
             }
 
             /**
              *  Define snapshot directory path
              */
-            if ($this->repo->getPackageType() == 'rpm') {
-                $snapshotPath = REPOS_DIR . '/rpm/' . $this->repo->getName() . '/' . $this->repo->getReleasever() . '/' . $this->repo->getDate();
+            if ($this->repoController->getPackageType() == 'rpm') {
+                $snapshotPath = REPOS_DIR . '/rpm/' . $this->repoController->getName() . '/' . $this->repoController->getReleasever() . '/' . $this->repoController->getDate();
             }
-            if ($this->repo->getPackageType() == 'deb') {
-                $snapshotPath = REPOS_DIR . '/deb/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '/' . $this->repo->getDate();
+            if ($this->repoController->getPackageType() == 'deb') {
+                $snapshotPath = REPOS_DIR . '/deb/' . $this->repoController->getName() . '/' . $this->repoController->getDist() . '/' . $this->repoController->getSection() . '/' . $this->repoController->getDate();
             }
 
             /**
              *  Create snapshot directory and subdirectories
              */
-            if ($this->repo->getPackageType() == 'rpm') {
+            if ($this->repoController->getPackageType() == 'rpm') {
                 if (!is_dir($snapshotPath . '/packages')) {
                     if (!mkdir($snapshotPath . '/packages', 0770, true)) {
                         throw new Exception('Could not create directory ' . $snapshotPath . '/packages');
                     }
                 }
             }
-            if ($this->repo->getPackageType() == 'deb') {
-                if (!is_dir($snapshotPath . '/pool/' . $this->repo->getSection())) {
-                    if (!mkdir($snapshotPath . '/pool/' . $this->repo->getSection(), 0770, true)) {
-                        throw new Exception('Could not create directory ' . $snapshotPath . '/pool/' . $this->repo->getSection());
+            if ($this->repoController->getPackageType() == 'deb') {
+                if (!is_dir($snapshotPath . '/pool/' . $this->repoController->getSection())) {
+                    if (!mkdir($snapshotPath . '/pool/' . $this->repoController->getSection(), 0770, true)) {
+                        throw new Exception('Could not create directory ' . $snapshotPath . '/pool/' . $this->repoController->getSection());
                     }
                 }
             }
@@ -251,13 +166,13 @@ class Create
             /**
              *  Create environment symlink, if an environment has been specified
              */
-            if (!empty($this->repo->getEnv())) {
-                foreach ($this->repo->getEnv() as $env) {
-                    if ($this->repo->getPackageType() == 'rpm') {
-                        $link = REPOS_DIR . '/rpm/' . $this->repo->getName() . '/' . $this->repo->getReleasever() . '/' . $env;
+            if (!empty($this->repoController->getEnv())) {
+                foreach ($this->repoController->getEnv() as $env) {
+                    if ($this->repoController->getPackageType() == 'rpm') {
+                        $link = REPOS_DIR . '/rpm/' . $this->repoController->getName() . '/' . $this->repoController->getReleasever() . '/' . $env;
                     }
-                    if ($this->repo->getPackageType() == 'deb') {
-                        $link = REPOS_DIR . '/deb/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '/' . $env;
+                    if ($this->repoController->getPackageType() == 'deb') {
+                        $link = REPOS_DIR . '/deb/' . $this->repoController->getName() . '/' . $this->repoController->getDist() . '/' . $this->repoController->getSection() . '/' . $env;
                     }
 
                     /**
@@ -272,7 +187,7 @@ class Create
                     /**
                      *  Create symlink
                      */
-                    if (!symlink($this->repo->getDate(), $link)) {
+                    if (!symlink($this->repoController->getDate(), $link)) {
                         throw new Exception('Could not point environment to the repository');
                     }
 
@@ -287,33 +202,33 @@ class Create
             /**
              *  Check if repository already exists in database
              */
-            if ($this->repo->getPackageType() == 'rpm') {
-                $exists = $this->rpmRepoController->exists($this->repo->getName(), $this->repo->getReleasever());
+            if ($this->repoController->getPackageType() == 'rpm') {
+                $exists = $this->rpmRepoController->exists($this->repoController->getName(), $this->repoController->getReleasever());
             }
-            if ($this->repo->getPackageType() == 'deb') {
-                $exists = $this->debRepoController->exists($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection());
+            if ($this->repoController->getPackageType() == 'deb') {
+                $exists = $this->debRepoController->exists($this->repoController->getName(), $this->repoController->getDist(), $this->repoController->getSection());
             }
 
             /**
              *  If no repo of this name exists in database then we add it
-             *  Note: here we set the source as $this->repo->getName()
+             *  Note: here we set the source as $this->repoController->getName()
              */
             if ($exists === false) {
-                if ($this->repo->getPackageType() == 'rpm') {
-                    $this->rpmRepoController->add($this->repo->getName(), $this->repo->getReleasever(), $this->repo->getName());
+                if ($this->repoController->getPackageType() == 'rpm') {
+                    $this->rpmRepoController->add($this->repoController->getName(), $this->repoController->getReleasever(), $this->repoController->getName());
 
                     /**
                      *  Retrieve repo Id from the last insert row
                      */
-                    $this->repo->setRepoId($this->rpmRepoController->getLastInsertRowID());
+                    $this->repoController->setRepoId($this->rpmRepoController->getLastInsertRowID());
                 }
-                if ($this->repo->getPackageType() == 'deb') {
-                    $this->debRepoController->add($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection(), $this->repo->getName());
+                if ($this->repoController->getPackageType() == 'deb') {
+                    $this->debRepoController->add($this->repoController->getName(), $this->repoController->getDist(), $this->repoController->getSection(), $this->repoController->getName());
 
                     /**
                      *  Retrieve repo Id from the last insert row
                      */
-                    $this->repo->setRepoId($this->debRepoController->getLastInsertRowID());
+                    $this->repoController->setRepoId($this->debRepoController->getLastInsertRowID());
                 }
 
             /**
@@ -323,19 +238,19 @@ class Create
                 /**
                  *  Retrieve and set repo Id from database
                  */
-                if ($this->repo->getPackageType() == 'rpm') {
-                    $repoId = $this->rpmRepoController->getIdByNameReleasever($this->repo->getName(), $this->repo->getReleasever());
+                if ($this->repoController->getPackageType() == 'rpm') {
+                    $repoId = $this->rpmRepoController->getIdByNameReleasever($this->repoController->getName(), $this->repoController->getReleasever());
                 }
 
-                if ($this->repo->getPackageType() == 'deb') {
-                    $repoId = $this->debRepoController->getIdByNameDistComponent($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection());
+                if ($this->repoController->getPackageType() == 'deb') {
+                    $repoId = $this->debRepoController->getIdByNameDistComponent($this->repoController->getName(), $this->repoController->getDist(), $this->repoController->getSection());
                 }
 
                 if (empty($repoId)) {
                     throw new Exception('Could not retrieve repository Id from database');
                 }
 
-                $this->repo->setRepoId($repoId);
+                $this->repoController->setRepoId($repoId);
             }
 
             unset($exists, $repoId);
@@ -343,19 +258,19 @@ class Create
             /**
              *  Add snapshot to database
              */
-            $this->repoSnapshotController->add($this->repo->getDate(), $this->repo->getTime(), 'false', $this->repo->getArch(), array(), array(), array(), $this->repo->getType(), 'active', $this->repo->getRepoId());
+            $this->repoSnapshotController->add($this->repoController->getDate(), $this->repoController->getTime(), 'false', $this->repoController->getArch(), array(), array(), array(), $this->repoController->getType(), 'active', $this->repoController->getRepoId());
 
             /**
              *  Retrieve snapshot Id from the last insert row
              */
-            $this->repo->setSnapId($this->repoSnapshotController->getLastInsertRowID());
+            $this->repoController->setSnapId($this->repoSnapshotController->getLastInsertRowID());
 
             /**
              *  Add env to database if an env has been specified by the user
              */
-            if (!empty($this->repo->getEnv())) {
-                foreach ($this->repo->getEnv() as $env) {
-                    $this->repoEnvController->add($env, $this->repo->getDescription(), $this->repo->getSnapId());
+            if (!empty($this->repoController->getEnv())) {
+                foreach ($this->repoController->getEnv() as $env) {
+                    $this->repoEnvController->add($env, $this->repoController->getDescription(), $this->repoController->getSnapId());
                 }
             }
 
@@ -366,17 +281,17 @@ class Create
             /**
              *  Apply permissions on the new repo
              */
-            \Controllers\Filesystem\File::recursiveChmod($snapshotPath, 'dir', 770);
-            \Controllers\Filesystem\File::recursiveChmod($snapshotPath, 'file', 660);
+            File::recursiveChmod($snapshotPath, 'dir', 770);
+            File::recursiveChmod($snapshotPath, 'file', 660);
 
             $this->taskLogSubStepController->completed();
 
             /**
              *  Add repo to group if a group has been specified
              */
-            if (!empty($this->repo->getGroup())) {
+            if (!empty($this->repoController->getGroup())) {
                 $this->taskLogStepController->new('add-to-group', 'ADDING REPOSITORY TO GROUP');
-                $this->repo->addRepoIdToGroup($this->repo->getRepoId(), $this->repo->getGroup());
+                $this->repoController->addRepoIdToGroup($this->repoController->getRepoId(), $this->repoController->getGroup());
                 $this->taskLogStepController->completed();
             }
 
@@ -385,7 +300,7 @@ class Create
             /**
              *  Clean unused repos in groups
              */
-            $this->repo->cleanGroups();
+            $this->repoController->cleanGroups();
 
             $this->taskLogSubStepController->completed();
             $this->taskLogStepController->completed();
@@ -393,29 +308,17 @@ class Create
             /**
              *  Set task status to 'done'
              */
-            $this->task->setStatus('done');
-            $this->task->updateStatus($this->task->getId(), 'done');
+            $this->taskController->setStatus('done');
+            $this->taskController->updateStatus($this->taskId, 'done');
         } catch (Exception $e) {
             // Set sub step error message and mark step as error
             $this->taskLogSubStepController->error($e->getMessage());
             $this->taskLogStepController->error();
 
             // Set task status to error
-            $this->task->setStatus('error');
-            $this->task->updateStatus($this->task->getId(), 'error');
-            $this->task->setError('Failed');
+            $this->taskController->setStatus('error');
+            $this->taskController->updateStatus($this->taskId, 'error');
+            $this->taskController->setError('Failed');
         }
-
-        /**
-         *  Get total duration
-         */
-        $duration = \Controllers\Utils\Convert::microtimeToHuman($this->task->getDuration());
-
-        /**
-         *  End task
-         */
-        $this->taskLogStepController->new('duration', 'DURATION');
-        $this->taskLogStepController->none('Total duration: ' . $duration);
-        $this->task->end();
     }
 }

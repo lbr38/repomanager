@@ -61,7 +61,7 @@ endif;
  *  Define schedule form action and allowed type(s)
  */
 $scheduleForm['action'] = 'duplicate';
-$scheduleForm['type'] = array('unique'); ?>
+$scheduleForm['type'] = ['unique']; ?>
 
 <script>
 $(document).ready(function(){
