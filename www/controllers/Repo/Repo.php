@@ -271,11 +271,6 @@ class Repo
         return $this->releasever;
     }
 
-    public function getTargetArch()
-    {
-        return $this->targetArch;
-    }
-
     public function getDescription()
     {
         return $this->description;

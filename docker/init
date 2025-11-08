@@ -104,13 +104,13 @@ fi
 /usr/sbin/service postfix start > /dev/null
 
 # Initialize database
-setpriv --reuid www-data --regid www-data --groups www-data,repomanager /usr/bin/php "$WWW_DIR/tools/database/initialize.php"
+setpriv --reuid www-data --regid www-data --groups www-data /usr/bin/php "$WWW_DIR/tools/database/initialize.php"
 
 # Update database (if needed)
-setpriv --reuid www-data --regid www-data --groups www-data,repomanager /usr/bin/php "$WWW_DIR/tools/database/update.php"
+setpriv --reuid www-data --regid www-data --groups www-data /usr/bin/php "$WWW_DIR/tools/database/update.php"
 
 # Start repomanager service
-setpriv --reuid www-data --regid www-data --groups www-data,repomanager /usr/bin/php "$WWW_DIR/tools/service.php" &
+setpriv --reuid www-data --regid www-data --groups www-data /usr/bin/php "$WWW_DIR/tools/service.php" &
 
 # Retrieve service.php PID
 main_pid=$!

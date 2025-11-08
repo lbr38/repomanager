@@ -45,7 +45,7 @@ class Gpg
          *  Create GPG pubkey export directory
          */
         if (!is_dir(REPOS_DIR . '/gpgkeys')) {
-            if (!mkdir(REPOS_DIR . '/gpgkeys', 0700, true)) {
+            if (!mkdir(REPOS_DIR . '/gpgkeys', 0770, true)) {
                 throw new Exception('Cannot create directory: ' . REPOS_DIR . '/gpgkeys');
             }
         }
