@@ -169,9 +169,9 @@ class Source
                                         }
                                     }
 
-                                    $distributionGpgKeys[] = array(
+                                    $distributionGpgKeys[] = [
                                         'fingerprint' => $fingerprint
-                                    );
+                                    ];
                                 }
                             }
 
@@ -217,9 +217,9 @@ class Source
                                         }
                                     }
 
-                                    $releaseverGpgKeys[] = array(
+                                    $releaseverGpgKeys[] = [
                                         'fingerprint' => $fingerprint
-                                    );
+                                    ];
                                 }
 
                                 /**

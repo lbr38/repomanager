@@ -285,7 +285,7 @@ class Host
             throw new Exception('The server could not finalize registering.');
         }
 
-        return array('authId' => $authId, 'token' => $token);
+        return ['authId' => $authId, 'token' => $token];
     }
 
     /**

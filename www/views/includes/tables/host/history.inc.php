@@ -7,7 +7,7 @@
                     <p><b><?= DateTime::createFromFormat('Y-m-d', $date)->format('d-m-Y') ?></b></p>
                 </div>
 
-                <div class="grid grid-rfr-1-3 row-gap-15 column-gap-30">
+                <div class="grid grid-rfr-1-4 row-gap-15 column-gap-30">
                     <?php
                     foreach ($packageState as $state => $packages) :
                         if (empty($packages)) {

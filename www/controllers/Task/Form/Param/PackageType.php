@@ -8,7 +8,7 @@ class PackageType
 {
     public static function check(string $type) : void
     {
-        $valid = array('rpm', 'deb');
+        $valid = ['rpm', 'deb'];
 
         if (empty($type)) {
             throw new Exception('Package type must be specified');

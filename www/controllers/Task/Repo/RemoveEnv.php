@@ -121,7 +121,7 @@ class RemoveEnv
              *  Set task status to done
              */
             $this->task->setStatus('done');
-            $this->task->updateStatus($this->task->getId(), 'done');
+            $this->task->updateStatus($this->taskId, 'done');
         } catch (Exception $e) {
             // Set sub step error message and mark step as error
             $this->taskLogSubStepController->error($e->getMessage());
@@ -129,7 +129,7 @@ class RemoveEnv
 
             // Set task status to error
             $this->task->setStatus('error');
-            $this->task->updateStatus($this->task->getId(), 'error');
+            $this->task->updateStatus($this->taskId, 'error');
             $this->task->setError('Failed');
         }
 
