@@ -5,7 +5,7 @@ cli_set_process_title('repomanager.task-run');
 
 // Load configuration
 define('ROOT', '/var/www/repomanager');
-require_once(ROOT . "/controllers/Autoloader.php");
+require_once(ROOT . '/controllers/Autoloader.php');
 new \Controllers\Autoloader();
 new \Controllers\App\Main('minimal');
 
@@ -175,7 +175,7 @@ try {
  *  Catch exceptions
  */
 } catch (Exception $e) {
-    $mylog->log('error', 'An exception error occurred while running task #' . $taskId, $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
+    $mylog->log('error', 'An exception error occurred while running task #' . $taskId, $e->getMessage(), $e->getTraceAsString());
     echo 'Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine() . PHP_EOL;
     exit(1);
 
@@ -183,7 +183,7 @@ try {
  *  Catch fatal errors
  */
 } catch (Error $e) {
-    $mylog->log('error', 'A fatal error occurred while running task #' . $taskId, $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
+    $mylog->log('error', 'A fatal error occurred while running task #' . $taskId, $e->getMessage(), $e->getTraceAsString());
     echo 'Fatal error: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine() . PHP_EOL;
     exit(1);
 }

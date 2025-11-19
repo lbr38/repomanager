@@ -47,14 +47,14 @@ class Repo
         $this->repoId = Validate::string($id);
     }
 
-    public function setSnapId(string $id)
+    public function setSnapId(int $id)
     {
-        $this->snapId = Validate::string($id);
+        $this->snapId = $id;
     }
 
-    public function setEnvId(string $id)
+    public function setEnvId(int $id)
     {
-        $this->envId = Validate::string($id);
+        $this->envId = $id;
     }
 
     public function setName(string $name)

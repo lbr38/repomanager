@@ -44,6 +44,8 @@ class Execution
         try {
             $requiredParams = [];
             $optionalParams = [];
+            $conditionalRequiredParams = [];
+            $conditionalOptionalParams = [];
 
             // Prepare task and task log
             $date = date('Y-m-d');
@@ -55,8 +57,8 @@ class Execution
             $this->date   = $date;
             $this->time   = $time;
 
-            // Retrieve tasks parameters
-            include_once ROOT . '/config/tasks.php';
+            // Retrieve tasks parameters definition
+            include_once ROOT . '/config/tasks/' . $action . '.php';
 
             // Retrieve task params
             $this->task = $this->taskController->getById($taskId);
@@ -67,71 +69,129 @@ class Execution
                 throw new Exception('could not decode task #' . $taskId . ' parameters JSON: ' . $e->getMessage());
             }
 
-            // Retrieve required and optional params for the specified action, if any
-            if (isset($tasksDefinitions[$action]['required-params'])) {
-                $requiredParams = $tasksDefinitions[$action]['required-params'];
-            }
-
-            if (isset($tasksDefinitions[$action]['optional-params'])) {
-                $optionalParams = $tasksDefinitions[$action]['optional-params'];
-            }
-
-            // Check required parameters
-            try {
-                if (!empty($requiredParams)) {
-                    $this->paramsCheck($requiredParams);
+            // Retrieve the latest snapshot Id for the repository, if needed
+            // This requires 'repo-id' to be defined in params and to be numeric
+            if (isset($taskConfig['use-latest-snapshot']) and $taskConfig['use-latest-snapshot']) {
+                if (!isset($this->params['repo-id'])) {
+                    throw new Exception('parameter repo-id is undefined, cannot retrieve latest snapshot Id for the repository');
                 }
-            } catch (Exception $e) {
-                throw new Exception('required parameter check error: ' . $e->getMessage());
-            }
 
-            // If there are conditional required parameters, check them too
-            if (isset($tasksDefinitions[$action]['conditional-required-params'])) {
-                // $basedOnParam must be set in params, for example 'package-type' must exists in params if there are conditional required params based on 'package-type'
-                foreach ($tasksDefinitions[$action]['conditional-required-params'] as $basedOnParam => $conditions) {
-                    if (isset($this->params[$basedOnParam]) and isset($conditions[$this->params[$basedOnParam]])) {
-                        $conditionalRequiredParams = $conditions[$this->params[$basedOnParam]]['required-params'];
+                if (!is_numeric($this->params['repo-id'])) {
+                    throw new Exception('parameter repo-id is not numeric, cannot retrieve latest snapshot Id for the repository');
+                }
 
-                        try {
-                            if (!empty($conditionalRequiredParams)) {
-                                $this->paramsCheck($conditionalRequiredParams);
-                            }
-                        } catch (Exception $e) {
-                            throw new Exception('conditional required parameter check error: ' . $e->getMessage());
-                        }
-                    }
+                // Get the latest snapshot Id for the repository, this can return null if no snapshot was found
+                $latestSnapId = $this->repoController->getLatestSnapId($this->params['repo-id']);
+
+                // If latest snapshot Id was not found, throw an exception
+                if (empty($latestSnapId)) {
+                    throw new Exception('could not find the latest snapshot Id repository #' . $this->params['repo-id']);
+                }
+
+                // Update snap-id param to latest snapshot Id
+                $this->params['snap-id'] = $latestSnapId;
+
+                // Update Raw_params in the database
+                try {
+                    $this->taskController->updateRawParams($taskId, json_encode($this->params));
+                } catch (JsonException $e) {
+                    throw new Exception('could not update task #' . $taskId . ' parameters in database (JSON encode failed): ' . $e->getMessage());
                 }
             }
 
             // Retrieve repository details from snap Id, if needed
-            if (isset($tasksDefinitions[$action]['retrieve-repo-from-snap-id']) and $tasksDefinitions[$action]['retrieve-repo-from-snap-id'] === true) {
+            if (isset($taskConfig['retrieve-repo-from-snap-id']) and $taskConfig['retrieve-repo-from-snap-id']) {
                 $this->repoController->getAllById(null, $this->params['snap-id'], null);
             }
 
-            // Set required and optional params
-            $this->paramsSet($requiredParams, $optionalParams);
+            // Retrieve required and optional params for the specified action, if any
+            if (isset($taskConfig['required-params'])) {
+                array_push($requiredParams, ...$taskConfig['required-params']);
+            }
 
-            // If there are conditional required parameters, set them too
-            if (isset($tasksDefinitions[$action]['conditional-required-params'])) {
+            if (isset($taskConfig['optional-params'])) {
+                array_push($optionalParams, ...$taskConfig['optional-params']);
+            }
+
+            // If there are conditional required parameters, retrieve them too
+            if (isset($taskConfig['conditional-required-params'])) {
                 // $basedOnParam must be set in params, for example 'package-type' must exists in params if there are conditional required params based on 'package-type'
-                foreach ($tasksDefinitions[$action]['conditional-required-params'] as $basedOnParam => $conditions) {
-                    if (isset($this->params[$basedOnParam]) and isset($conditions[$this->params[$basedOnParam]])) {
-                        $conditionalRequiredParams = $conditions[$this->params[$basedOnParam]]['required-params'];
-                        $conditionalOptionalParams = [];
+                foreach ($taskConfig['conditional-required-params'] as $basedOnParam => $conditions) {
+                    // If based on user form input values
+                    if ($taskConfig['conditional-compare-with'] == 'form') {
+                        if (isset($this->params[$basedOnParam]) and isset($conditions[$this->params[$basedOnParam]])) {
+                            array_push($requiredParams, ...$conditions[$this->params[$basedOnParam]]);
+                        }
+                    }
 
-                        if (isset($conditions[$this->params[$basedOnParam]]['optional-params'])) {
-                            $conditionalOptionalParams = $conditions[$this->params[$basedOnParam]]['optional-params'];
+                    // If based on current repository values
+                    if ($taskConfig['conditional-compare-with'] == 'current-repo') {
+                        // Retrieve current repository details
+                        if ($basedOnParam == 'repo-type') {
+                            $value = $this->repoController->getType();
+                        }
+                        if ($basedOnParam == 'package-type') {
+                            $value = $this->repoController->getPackageType();
                         }
 
-                        $this->paramsSet($conditionalRequiredParams, $conditionalOptionalParams);
+                        if (isset($conditions[$value])) {
+                            array_push($requiredParams, ...$conditions[$value]);
+                        }
                     }
                 }
             }
 
-            // TODO ?: Prepare other things before executing the task
+            // If there are conditional optional parameters, retrieve them too
+            if (isset($taskConfig['conditional-optional-params'])) {
+                // $basedOnParam must be set in params, for example 'package-type' must exists in params if there are conditional optional params based on 'package-type'
+                foreach ($taskConfig['conditional-optional-params'] as $basedOnParam => $conditions) {
+                    // If based on user form input values
+                    if ($taskConfig['conditional-compare-with'] == 'form') {
+                        if (isset($this->params[$basedOnParam]) and isset($conditions[$this->params[$basedOnParam]])) {
+                            array_push($optionalParams, ...$conditions[$this->params[$basedOnParam]]);
+                        }
+                    }
+
+                    // If based on current repository values
+                    if ($taskConfig['conditional-compare-with'] == 'current-repo') {
+                        // Retrieve current repository details
+                        if ($basedOnParam == 'repo-type') {
+                            $value = $this->repoController->getType();
+                        }
+                        if ($basedOnParam == 'package-type') {
+                            $value = $this->repoController->getPackageType();
+                        }
+
+                        if (isset($conditions[$value])) {
+                            array_push($optionalParams, ...$conditions[$value]);
+                        }
+                    }
+                }
+            }
+
+            // Check required parameters
+            try {
+                $this->paramsCheck($requiredParams);
+            } catch (Exception $e) {
+                throw new Exception('parameters check error: ' . $e->getMessage());
+            }
+
+            // TODO debug
+            print_r('Required params:');
+            print_r($requiredParams);
+            print_r('Optional params:');
+            print_r($optionalParams);
+
+            // Set required and optional params
+            try {
+                $this->paramsSet($requiredParams, $optionalParams);
+            } catch (Exception $e) {
+                throw new Exception('parameters set error: ' . $e->getMessage());
+            }
 
 
 
+            // TODO debug : Prepare other things before executing the task ?
 
 
             // Update date and time in database
@@ -141,7 +201,7 @@ class Execution
             // Start task
             $this->start();
         } catch (Exception $e) {
-            throw new Exception('task initialization error: ' . $e->getMessage());
+            throw new Exception('Task initialization error: ' . $e->getMessage());
         }
     }
 
@@ -159,7 +219,6 @@ class Execution
      */
     public function paramsCheck($requiredParams)
     {
-        // Check required parameters
         foreach ($requiredParams as $param) {
             if (!isset($this->params[$param])) {
                 throw new Exception('parameter ' . $param . ' is undefined.');
@@ -180,6 +239,7 @@ class Execution
          *  Repo controller setter functions depending on parameters
          */
         $setters = [
+            'repo-id' => 'setRepoId',
             'snap-id' => 'setSnapId',
             'package-type' => 'setPackageType',
             'repo-type' => 'setType',
