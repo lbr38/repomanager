@@ -3,7 +3,6 @@
 namespace Controllers\Api\Profile;
 
 use Exception;
-use Datetime;
 
 class Profile extends \Controllers\Api\Controller
 {
@@ -29,7 +28,7 @@ class Profile extends \Controllers\Api\Controller
          *  Print all profiles
          */
         if (empty($this->profile) and $this->method == 'GET') {
-            return array('results' => $myprofile->listName());
+            return ['results' => $myprofile->listName()];
         }
 
         /**
@@ -41,28 +40,28 @@ class Profile extends \Controllers\Api\Controller
              *  If $this->profile == 'server-settings' then return server configuration
              */
             if ($this->profile == 'server-settings') {
-                return array('results' => array($myprofile->getServerConfiguration()));
+                return ['results' => [$myprofile->getServerConfiguration()]];
             }
 
             /**
              *  Return profile main configuration
              */
             if (empty($this->component)) {
-                return array('results' => array($myprofile->getProfileConfiguration($this->profile)));
+                return ['results' => [$myprofile->getProfileConfiguration($this->profile)]];
             }
 
             /**
              *  Return profile packages excludes
              */
             if ($this->component == 'excludes') {
-                return array('results' => array($myprofile->getProfilePackagesConfiguration($this->profile)));
+                return ['results' => [$myprofile->getProfilePackagesConfiguration($this->profile)]];
             }
 
             /**
              *  Return profile repos configuration
              */
             if ($this->component == 'repos') {
-                return array('results' => $myprofile->getReposMembersList($this->profile));
+                return ['results' => $myprofile->getReposMembersList($this->profile)];
             }
         }
 

@@ -117,9 +117,14 @@ class Execute extends \Controllers\Host
              *  If the host has a hostname, we push it in the array, otherwise we push only its ip
              */
             if (!empty($hostname)) {
-                $handledHosts[] = array('ip' => $ip, 'hostname' => $hostname);
+                $handledHosts[] = [
+                    'ip' => $ip,
+                    'hostname' => $hostname
+                ];
             } else {
-                $handledHosts[] = array('ip' => $ip);
+                $handledHosts[] = [
+                    'ip' => $ip
+                ];
             }
         }
 

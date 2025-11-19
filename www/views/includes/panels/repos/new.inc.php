@@ -233,7 +233,7 @@
      *  Define schedule form action and allowed type(s)
      */
     $scheduleForm['action'] = 'create';
-    $scheduleForm['type'] = array('unique');
+    $scheduleForm['type'] = ['unique'];
 
     /**
      *  Include schedule task template

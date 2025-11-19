@@ -343,9 +343,9 @@ class Task
          *  If task is not scheduled, overwrite the schedule parameters to clear them and only keep the 'scheduled' field
          */
         if ($params['schedule']['scheduled'] == 'false') {
-            $params['schedule'] = array(
+            $params['schedule'] = [
                 'scheduled' => 'false'
-            );
+            ];
         }
 
         /**
@@ -646,7 +646,7 @@ class Task
     /**
      *  Duplicate a task in database from its Id and return the new task Id
      */
-    private function duplicate(int $id) : int
+    public function duplicate(int $id) : int
     {
         return $this->model->duplicate($id);
     }
@@ -873,14 +873,14 @@ class Task
         $dateNow = new DateTime(DATE_YMD);
         $timeNow = new DateTime(date('H:i'));
 
-        $schedule = array(
+        $schedule = [
             'date' => '',
             'time' => '',
-            'left' => array(
+            'left' => [
                 'days' => '',
                 'time' => ''
-            ),
-        );
+            ],
+        ];
 
         /**
          *  Retrieve task details

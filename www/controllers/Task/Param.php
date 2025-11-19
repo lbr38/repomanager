@@ -1,4 +1,5 @@
 <?php
+// TODO: to delete after new Task class implementation is fully functional
 
 namespace Controllers\Task;
 
@@ -29,7 +30,7 @@ trait Param
         /**
          *  Repo controller setter functions depending on parameters
          */
-        $setters = array(
+        $setters = [
             'package-type' => 'setPackageType',
             'repo-type' => 'setType',
             'name' => 'setName',
@@ -46,7 +47,7 @@ trait Param
             'group' => 'setGroup',
             'package-include' => 'setPackagesToInclude',
             'package-exclude' => 'setPackagesToExclude'
-        );
+        ];
 
         /**
          *  Set required parameters, using the appropriate setter function

@@ -43,7 +43,7 @@ class Repo extends \Controllers\Api\Controller
                     throw new Exception('No repositories found');
                 }
 
-                return array('results' => $repos);
+                return ['results' => $repos];
             }
         }
 
@@ -68,7 +68,7 @@ class Repo extends \Controllers\Api\Controller
                     throw new Exception('No snapshots found for this repository');
                 }
 
-                return array('results' => $snapshots);
+                return ['results' => $snapshots];
             }
         }
 

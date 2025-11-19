@@ -30,7 +30,10 @@ class Notification
          */
         if (empty($_SESSION['email'])) {
             $message = '<span>You can configure your email in your user profile. This email can be used as a recipient to send notifications of events like scheduled tasks status or scheduled tasks reminders.</span>';
-            $NOTIFICATION_MESSAGES[] = array('Title' => 'Email contact is not set', 'Message' =>  $message);
+            $NOTIFICATION_MESSAGES[] = [
+                'Title' => 'Email contact is not set',
+                'Message' =>  $message
+            ];
             $NOTIFICATION++;
         }
 

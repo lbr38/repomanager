@@ -235,7 +235,10 @@ class Group
          *  Add default group 'Default' to the end of the list
          */
         if ($withDefault === true) {
-            $groups[] = array('Id' => 0, 'Name' => 'Default');
+            $groups[] = [
+                'Id' => 0,
+                'Name' => 'Default'
+            ];
         }
 
         return $groups;

@@ -9,41 +9,45 @@
                 <p class="lowopacity-cst">Log messages (<?= LOG ?>)</p>
                 <?php
                 foreach (LOG_MESSAGES as $log) : ?>
-                    <div class="flex justify-space-between">
-                        <div class="flex flex-direction-column row-gap-5">
-                            <div class="flex align-item-center column-gap-10">
-                                <?php
-                                if ($log['Type'] == 'error') {
-                                    echo '<img src="/assets/icons/error.svg" class="icon">';
-                                }
-                                if ($log['Type'] == 'info') {
-                                    echo '<img src="/assets/icons/check.svg" class="icon">';
-                                } ?>
+                    <div>
+                        <div class="flex justify-space-between column-gap-50">
+                            <div class="flex flex-direction-column row-gap-5">
+                                <div class="flex align-item-center column-gap-10">
+                                    <?php
+                                    if ($log['Type'] == 'error') {
+                                        echo '<img src="/assets/icons/error.svg" class="icon">';
+                                    }
+                                    if ($log['Type'] == 'info') {
+                                        echo '<img src="/assets/icons/check.svg" class="icon">';
+                                    } ?>
 
-                                <p><?= $log['Date'] . ' ' . $log['Time'] ?> - <code><?= $log['Component'] ?></code> - <?= $log['Message'] ?></p>
-                            </div>
-
-                            <?php
-                            if (!empty($log['Details'])) {
-                                echo '<pre class="codeblock general-log-details hide" log-id="' . $log['Id'] . '">' . $log['Details'] . '</pre>';
-                            } ?>
-                        </div>
-
-                        <div>
-                            <?php
-                            if (!empty($log['Details'])) : ?>
-                                <div class="slide-btn-tr general-log-show-info-btn" log-id="<?= $log['Id'] ?>" title="More info">
-                                    <img src="/assets/icons/info.svg" />
-                                    <span>More info</span>
+                                    <p class="wordbreakall"><?= $log['Date'] . ' ' . $log['Time'] ?> - <code><?= $log['Component'] ?></code> - <?= $log['Message'] ?></p>
                                 </div>
-                                <?php
-                            endif ?>
 
-                            <div class="slide-btn general-log-acquit-btn" log-id="<?= $log['Id'] ?>" title="Mark as read">
-                                <img src="/assets/icons/enabled.svg" />
-                                <span>Mark as read</span>
+                                
+                            </div>
+
+                            <div class="flex column-gap-10 row-gap-10">
+                                <?php
+                                if (!empty($log['Details'])) : ?>
+                                    <div class="slide-btn-tr general-log-show-info-btn" log-id="<?= $log['Id'] ?>" title="More info">
+                                        <img src="/assets/icons/info.svg" />
+                                        <span>More info</span>
+                                    </div>
+                                    <?php
+                                endif ?>
+
+                                <div class="slide-btn general-log-acquit-btn" log-id="<?= $log['Id'] ?>" title="Mark as read">
+                                    <img src="/assets/icons/enabled.svg" />
+                                    <span>Mark as read</span>
+                                </div>
                             </div>
                         </div>
+
+                        <?php
+                        if (!empty($log['Details'])) {
+                            echo '<pre class="codeblock general-log-details margin-top-10 hide" log-id="' . $log['Id'] . '">' . $log['Details'] . '</pre>';
+                        } ?>
                     </div>
                     <?php
                 endforeach ?>

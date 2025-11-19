@@ -127,26 +127,21 @@ class Profile extends Model
     /**
      *  Return server configuration for profiles management
      */
-    public function getServerConfiguration()
+    public function getServerConfiguration() : array
     {
+        $data = [];
+
         try {
             $result = $this->db->query("SELECT * FROM profile_settings");
         } catch (Exception $e) {
             DbLog::error($e);
         }
 
-        /**
-         *  Une première partie de la configuration concerne l'adresse IP et l'url du serveur qu'on peut obtenir à partir de constantes
-         */
-        $settings = array('Ip' => __SERVER_IP__, 'Url' => __SERVER_URL__);
-
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $profileSettings = $row;
+            $data = $row;
         }
 
-        $settings = array_merge($settings, $profileSettings);
-
-        return $settings;
+        return $data;
     }
 
     /**

@@ -36,4 +36,4 @@
  *  Define schedule form action and allowed type(s)
  */
 $scheduleForm['action'] = 'rebuild';
-$scheduleForm['type'] = array('unique', 'recurring'); ?>
+$scheduleForm['type'] = ['unique', 'recurring']; ?>
