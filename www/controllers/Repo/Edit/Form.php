@@ -109,7 +109,6 @@ class Form
             /**
              *  Retrieve all repo data from the Ids
              */
-            // $repoController->setSnapId($param['snap-id']);
             $repoController->getAllById($param['repo-id'], $param['snap-id']);
 
             /**

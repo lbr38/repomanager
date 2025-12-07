@@ -1,7 +1,8 @@
 <?php
 
-namespace Controllers\Task\Repo\Metadata;
+namespace Controllers\Repo\Metadata;
 
+use \Controllers\Filesystem\Directory;
 use Exception;
 
 class Deb extends Metadata
@@ -76,13 +77,13 @@ class Deb extends Metadata
         /**
          *  Define directory to create for the repository
          */
-        $dirs = array(
+        $dirs = [
             'dists',
             'dists/' . $this->dist,
             'dists/' . $this->dist . '/' . $this->section,
             'pool',
             'cache'
-        );
+        ];
 
         /**
          *  Append binary arch directories to the list of directories to create
@@ -111,7 +112,7 @@ class Deb extends Metadata
              *  Clean directory if it exists
              */
             if (is_dir($this->root . '/' . $dir)) {
-                if (!\Controllers\Filesystem\Directory::deleteRecursive($this->root . '/' . $dir)) {
+                if (!Directory::deleteRecursive($this->root . '/' . $dir)) {
                     throw new Exception('Cannot delete existing directory: ' . $this->root . '/' . $dir);
                 }
             }

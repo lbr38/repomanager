@@ -38,11 +38,11 @@ class Deb extends \Controllers\Repo\Source\Source
         /**
          *  Add the new distribution
          */
-        $currentDefinition['distributions'][] = array(
+        $currentDefinition['distributions'][] = [
             'name' => $name,
             'description' => '',
             'components' => []
-        );
+        ];
 
         /**
          *  Save the new source repository definition
@@ -175,9 +175,9 @@ class Deb extends \Controllers\Repo\Source\Source
         /**
          *  Add the new section
          */
-        $currentDefinition['distributions'][$distributionId]['components'][] = array(
+        $currentDefinition['distributions'][$distributionId]['components'][] = [
             'name' => $section
-        );
+        ];
 
         /**
          *  Save the new source repository definition
@@ -266,9 +266,9 @@ class Deb extends \Controllers\Repo\Source\Source
             }
 
             // Otherwise add the fingerprint
-            $currentParams['distributions'][$distributionId]['gpgkeys'][] = array(
+            $currentParams['distributions'][$distributionId]['gpgkeys'][] = [
                 'fingerprint' => $fingerprint
-            );
+            ];
         }
 
         /**
@@ -404,20 +404,20 @@ class Deb extends \Controllers\Repo\Source\Source
          *  Add predefined distributions if any
          */
         if (!empty($predefinedDistributions)) {
-            $data[] = array(
+            $data[] = [
                 "text" => "Suggested distributions",
                 "children" => $predefinedDistributions
-            );
+            ];
         }
 
         /**
          *  Add possible distributions
          */
         if (!empty($possibleDistributions)) {
-            $data[] = array(
+            $data[] = [
                 "text" => "Possible distributions",
                 "children" => $possibleDistributions
-            );
+            ];
         }
 
 
@@ -539,20 +539,20 @@ class Deb extends \Controllers\Repo\Source\Source
          *  Add predefined components if any
          */
         if (!empty($predefinedComponents)) {
-            $data[] = array(
+            $data[] = [
                 "text" => "Suggested components",
                 "children" => $predefinedComponents
-            );
+            ];
         }
 
         /**
          *  Add possible components
          */
         if (!empty($possibleComponents)) {
-            $data[] = array(
+            $data[] = [
                 "text" => "Possible components",
                 "children" => $possibleComponents
-            );
+            ];
         }
 
         return $data;

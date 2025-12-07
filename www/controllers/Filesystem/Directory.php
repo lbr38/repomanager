@@ -134,11 +134,32 @@ class Directory
         $myprocess->execute();
         $myprocess->close();
 
+        // TODO: throw an exception instead
         if ($myprocess->getExitCode() != 0) {
             return false;
         }
 
         return true;
+    }
+
+    /**
+     *  Delete specified directory if empty
+     */
+    public static function deleteIfEmpty(array $directories) : void
+    {
+        foreach ($directories as $directory) {
+            // Ignore if directory does not exist
+            if (!is_dir($directory)) {
+                continue;
+            }
+
+            // Delete directory if empty
+            if (self::isEmpty($directory)) {
+                if (!self::deleteRecursive($directory)) {
+                    throw new Exception('Cannot delete directory: ' . $directory);
+                }
+            }
+        }
     }
 
     /**
@@ -163,7 +184,7 @@ class Directory
      */
     public static function isEmpty($dir) : bool
     {
-        $files = \Controllers\Filesystem\File::recursiveScan($dir);
+        $files = File::recursiveScan($dir);
 
         if (!empty($files)) {
             return false;

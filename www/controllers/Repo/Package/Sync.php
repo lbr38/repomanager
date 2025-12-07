@@ -1,7 +1,12 @@
 <?php
 
-namespace Controllers\Task\Repo\Package;
+namespace Controllers\Repo\Package;
 
+use \Controllers\Utils\Generate\Html\Label;
+use \Controllers\Filesystem\Directory;
+use \Controllers\Repo\Source\Source;
+use \Controllers\Repo\Mirror\Rpm;
+use \Controllers\Repo\Mirror\Deb;
 use Exception;
 use JsonException;
 
@@ -12,26 +17,25 @@ trait Sync
      */
     private function syncPackage()
     {
-        $mysource = new \Controllers\Repo\Source\Source();
-
-        $this->taskLogStepController->new('sync-packages', 'SYNCING PACKAGES');
+        $mysource = new Source();
 
         try {
+            $this->taskLogStepController->new('sync-packages', 'SYNCING PACKAGES');
             $this->taskLogSubStepController->new('initializing', 'INITIALIZING');
 
             /**
              *  If it is a new repo, check that a repo with the same name and active snapshots does not already exist.
              *  A repo can exist and have no snapshot / environment attached (it will be invisible in the list) but in this case it should not prevent the creation of a new repo
              */
-            if ($this->task->getAction() == 'create') {
-                if ($this->repo->getPackageType() == 'rpm') {
-                    if ($this->rpmRepoController->isActive($this->repo->getName(), $this->repo->getReleasever())) {
-                        throw new Exception('<span class="label-white">' . $this->repo->getName() . ' (release ver. ' . $this->repo->getReleasever() . ')</span> repository already exists');
+            if ($this->action == 'create') {
+                if ($this->repoController->getPackageType() == 'rpm') {
+                    if ($this->rpmRepoController->isActive($this->repoController->getName(), $this->repoController->getReleasever())) {
+                        throw new Exception(Label::white($this->repoController->getName() . ' ❯ ' . $this->repoController->getReleasever()) . ' repository already exists');
                     }
                 }
-                if ($this->repo->getPackageType() == 'deb') {
-                    if ($this->debRepoController->isActive($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection())) {
-                        throw new Exception('<span class="label-white">' . $this->repo->getName() . ' ❯ ' . $this->repo->getDist() . ' ❯ ' . $this->repo->getSection() . '</span> repository already exists');
+                if ($this->repoController->getPackageType() == 'deb') {
+                    if ($this->debRepoController->isActive($this->repoController->getName(), $this->repoController->getDist(), $this->repoController->getSection())) {
+                        throw new Exception(Label::white($this->repoController->getName() . ' ❯ ' . $this->repoController->getDist() . ' ❯ ' . $this->repoController->getSection()) . ' repository already exists');
                     }
                 }
             }
@@ -39,29 +43,29 @@ trait Sync
             /**
              *  If it is a repo snapshot update, check that the snapshot id exists in the database
              */
-            if ($this->task->getAction() == 'update') {
+            if ($this->action == 'update') {
                 /**
                  *  Check if a snapshot exists in the database
                  */
-                if ($this->repo->existsSnapId($this->repo->getSnapId()) === false) {
+                if ($this->repoController->existsSnapId($this->repoController->getSnapId()) === false) {
                     throw new Exception('Specified repo snapshot does not exist');
                 }
 
                 /**
                  *  We can update a snapshot in the same day, but we can't update another snapshot if a snapshot at the current date already exists
                  *
-                 *  So if the snapshot date being updated == today's date ($this->repo->getDate()) then the task can continue
+                 *  So if the snapshot date being updated == today's date ($this->repoController->getDate()) then the task can continue
                  *  Else we check that another snapshot at the current date does not already exist, if it does we quit
                  */
-                if ($this->repo->getSnapDateById($this->repo->getSnapId()) != $this->repo->getDate()) {
-                    if ($this->repo->getPackageType() == 'rpm') {
-                        if ($this->rpmRepoController->existsSnapDate($this->repo->getName(), $this->repo->getReleasever(), $this->repo->getDate())) {
-                            throw new Exception('A snapshot already exists on the <span class="label-black">' . $this->repo->getDateFormatted() . '</span>');
+                if ($this->repoController->getSnapDateById($this->repoController->getSnapId()) != $this->repoController->getDate()) {
+                    if ($this->repoController->getPackageType() == 'rpm') {
+                        if ($this->rpmRepoController->existsSnapDate($this->repoController->getName(), $this->repoController->getReleasever(), $this->repoController->getDate())) {
+                            throw new Exception('A snapshot already exists on the ' . Label::black($this->repoController->getDateFormatted()));
                         }
                     }
-                    if ($this->repo->getPackageType() == 'deb') {
-                        if ($this->debRepoController->existsSnapDate($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection(), $this->repo->getDate())) {
-                            throw new Exception('A snapshot already exists on the <span class="label-black">' . $this->repo->getDateFormatted() . '</span>');
+                    if ($this->repoController->getPackageType() == 'deb') {
+                        if ($this->debRepoController->existsSnapDate($this->repoController->getName(), $this->repoController->getDist(), $this->repoController->getSection(), $this->repoController->getDate())) {
+                            throw new Exception('A snapshot already exists on the ' . Label::black($this->repoController->getDateFormatted()));
                         }
                     }
                 }
@@ -70,39 +74,39 @@ trait Sync
             /**
              *  Arch must be specified
              */
-            if (empty($this->repo->getArch())) {
+            if (empty($this->repoController->getArch())) {
                 throw new Exception('Packages arch must be specified');
             }
 
             /**
              *  Define temporary working directory
              */
-            $workingDir = REPOS_DIR . '/temporary-task-' . $this->task->getId();
+            $workingDir = REPOS_DIR . '/temporary-task-' . $this->taskId;
 
             /**
              *  Define snapshot parent directory
              */
-            if ($this->repo->getPackageType() == 'rpm') {
-                $parentDir = REPOS_DIR . '/rpm/' . $this->repo->getName() . '/' . $this->repo->getReleasever();
+            if ($this->repoController->getPackageType() == 'rpm') {
+                $parentDir = REPOS_DIR . '/rpm/' . $this->repoController->getName() . '/' . $this->repoController->getReleasever();
             }
-            if ($this->repo->getPackageType() == 'deb') {
-                $parentDir = REPOS_DIR . '/deb/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection();
+            if ($this->repoController->getPackageType() == 'deb') {
+                $parentDir = REPOS_DIR . '/deb/' . $this->repoController->getName() . '/' . $this->repoController->getDist() . '/' . $this->repoController->getSection();
             }
 
             /**
              *  Define snapshot path
              */
-            $snapshotPath = $parentDir . '/' . $this->repo->getDate();
+            $snapshotPath = $parentDir . '/' . $this->repoController->getDate();
 
             /**
              *  If the task is an update, retrieve previous snapshot directory path
              */
-            if ($this->task->getAction() == 'update') {
-                if ($this->sourceRepo->getPackageType() == 'rpm') {
-                    $previousSnapshotDir = REPOS_DIR . '/rpm/' . $this->sourceRepo->getName() . '/' . $this->sourceRepo->getReleasever() . '/' . $this->sourceRepo->getDate();
+            if ($this->action == 'update') {
+                if ($this->sourceRepoController->getPackageType() == 'rpm') {
+                    $previousSnapshotDir = REPOS_DIR . '/rpm/' . $this->sourceRepoController->getName() . '/' . $this->sourceRepoController->getReleasever() . '/' . $this->sourceRepoController->getDate();
                 }
-                if ($this->sourceRepo->getPackageType() == 'deb') {
-                    $previousSnapshotDir = REPOS_DIR . '/deb/' . $this->sourceRepo->getName() . '/' . $this->sourceRepo->getDist() . '/' . $this->sourceRepo->getSection() . '/' . $this->sourceRepo->getDate();
+                if ($this->sourceRepoController->getPackageType() == 'deb') {
+                    $previousSnapshotDir = REPOS_DIR . '/deb/' . $this->sourceRepoController->getName() . '/' . $this->sourceRepoController->getDist() . '/' . $this->sourceRepoController->getSection() . '/' . $this->sourceRepoController->getDate();
                 }
 
                 /**
@@ -123,7 +127,7 @@ trait Sync
             /**
              *  Get source repo informations
              */
-            $source = $mysource->get($this->repo->getPackageType(), $this->repo->getSource());
+            $source = $mysource->get($this->repoController->getPackageType(), $this->repoController->getSource());
             $sourceDefinition = $source['Definition'];
 
             /**
@@ -151,28 +155,27 @@ trait Sync
             /**
              *  Define mirroring params
              */
-            if ($this->repo->getPackageType() == 'rpm') {
-                $mymirror = new \Controllers\Repo\Mirror\Rpm($this->task->getId());
-                $mymirror->setReleasever($this->repo->getReleasever());
+            if ($this->repoController->getPackageType() == 'rpm') {
+                $mymirror = new Rpm($this->taskId);
+                $mymirror->setReleasever($this->repoController->getReleasever());
             }
-            if ($this->repo->getPackageType() == 'deb') {
-                $mymirror = new \Controllers\Repo\Mirror\Deb($this->task->getId());
+            if ($this->repoController->getPackageType() == 'deb') {
+                $mymirror = new Deb($this->taskId);
                 $mymirror->setNonCompliantSource($nonCompliantSource);
-                $mymirror->setDist($this->repo->getDist());
-                $mymirror->setSection($this->repo->getSection());
+                $mymirror->setDist($this->repoController->getDist());
+                $mymirror->setSection($this->repoController->getSection());
             }
             $mymirror->setUrl($sourceUrl);
-            $mymirror->setWorkingDir($workingDir);
-            $mymirror->setArch($this->repo->getArch());
-            $mymirror->setCheckSignature($this->repo->getGpgCheck());
-            $mymirror->setPackagesToInclude($this->repo->getPackagesToInclude());
-            $mymirror->setPackagesToExclude($this->repo->getPackagesToExclude());
+            $mymirror->setArch($this->repoController->getArch());
+            $mymirror->setCheckSignature($this->repoController->getGpgCheck());
+            $mymirror->setPackagesToInclude($this->repoController->getPackagesToInclude());
+            $mymirror->setPackagesToExclude($this->repoController->getPackagesToExclude());
 
             /**
              *  If the task is an update, set the previous repo directory path
              *  Hard links will be created from the previous snapshot to the new snapshot
              */
-            if ($this->task->getAction() == 'update' and !empty($previousSnapshotDir)) {
+            if ($this->action == 'update' and !empty($previousSnapshotDir)) {
                 $mymirror->setPreviousSnapshotDirPath($previousSnapshotDir);
             }
 
@@ -183,7 +186,7 @@ trait Sync
                 /**
                  *  Create a temporary file with the certificate content
                  */
-                $sslCertificate = tempnam(TEMP_DIR . '/' . $this->task->getId(), '');
+                $sslCertificate = tempnam(TEMP_DIR . '/' . $this->taskId, '');
 
                 if (!$sslCertificate) {
                     throw new Exception('Could not create temporary file for SSL certificate');
@@ -205,7 +208,7 @@ trait Sync
                 /**
                  *  Create a temporary file with the private key content
                  */
-                $sslPrivateKey = tempnam(TEMP_DIR . '/' . $this->task->getId(), '');
+                $sslPrivateKey = tempnam(TEMP_DIR . '/' . $this->taskId, '');
 
                 if (!$sslPrivateKey) {
                     throw new Exception('Could not create temporary file for SSL private key');
@@ -227,7 +230,7 @@ trait Sync
                 /**
                  *  Create a temporary file with the CA certificate content
                  */
-                $sslCaCertificate = tempnam(TEMP_DIR . '/' . $this->task->getId(), '');
+                $sslCaCertificate = tempnam(TEMP_DIR . '/' . $this->taskId, '');
 
                 if (!$sslCaCertificate) {
                     throw new Exception('Could not create temporary file for SSL CA certificate');
@@ -265,12 +268,12 @@ trait Sync
              */
             $mymirror->mirror();
 
-            if ($this->repo->getPackageType() == 'rpm') {
+            if ($this->repoController->getPackageType() == 'rpm') {
                 /**
                  *  If the repo snapshot must be signed, then retrieve the list of packages to sign from the mirroring task
                  *  It will be used in the signing task (see Sign.php)
                  */
-                if ($this->repo->getGpgSign() == 'true') {
+                if ($this->repoController->getGpgSign() == 'true') {
                     $this->packagesToSign = $mymirror->getPackagesToSign();
                 }
             }
@@ -281,7 +284,7 @@ trait Sync
              *  Delete the target snapshot directory if it already exists
              */
             if (is_dir($snapshotPath)) {
-                if (!\Controllers\Filesystem\Directory::deleteRecursive($snapshotPath)) {
+                if (!Directory::deleteRecursive($snapshotPath)) {
                     throw new Exception('Cannot delete existing directory: ' . $snapshotPath);
                 }
             }
@@ -306,7 +309,7 @@ trait Sync
              *  If there was an error while mirroring, delete working dir if exists
              */
             if (is_dir($workingDir)) {
-                \Controllers\Filesystem\Directory::deleteRecursive($workingDir);
+                Directory::deleteRecursive($workingDir);
             }
 
             /**

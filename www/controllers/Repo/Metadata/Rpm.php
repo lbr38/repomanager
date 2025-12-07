@@ -1,6 +1,6 @@
 <?php
 
-namespace Controllers\Task\Repo\Metadata;
+namespace Controllers\Repo\Metadata;
 
 use Exception;
 

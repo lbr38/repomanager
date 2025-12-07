@@ -2,9 +2,6 @@
 
 namespace Controllers\Task\Log;
 
-use Exception;
-use Datetime;
-
 class Step extends Log
 {
     public function __construct(int $taskId)
@@ -98,7 +95,7 @@ class Step extends Log
     /**
      *  Return the latest step ID for the provided task ID
      */
-    public function getLatestStepId(int $taskId) : int
+    public function getLatestStepId(int $taskId) : int|null
     {
         return $this->model->getLatestStepId($taskId);
     }

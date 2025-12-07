@@ -12,7 +12,7 @@
         } ?>
     </p>
 
-    <p>⸺<span class="label-black"><?=$myrepo->getDateFormatted()?></span></p>
+    <p>⸺<span class="label-black"><?= $myrepo->getDateFormatted() ?></span></p>
 </div>
   
 <h6 class="required">NEW REPOSITORY NAME</h6>
@@ -21,7 +21,7 @@
 
 <h6>POINT AN ENVIRONMENT</h6>
 <p class="note">Select one or multiple environments to point to the new repository snapshot.</p>
-<select id="duplicate-repo-target-env-select-<?=$myrepo->getSnapId()?>" class="task-param" param-name="env" multiple>
+<select id="duplicate-repo-target-env-select-<?= $myrepo->getSnapId() ?>" class="task-param" param-name="env" multiple>
     <option value=""></option>
     <?php
     foreach (ENVS as $env) {
@@ -37,6 +37,15 @@
     <h6>DESCRIPTION</h6>
     <input type="text" class="task-param" param-name="description" />
 </div>
+
+<select class="task-param hide" param-name="arch" multiple>
+    <?php
+    foreach ($myrepo->getArch() as $arch) {
+        echo '<option value="' . $arch . '" selected>' . $arch . '</option>';
+    } ?>
+</select>
+
+<input type="hidden" class="task-param" param-name="gpg-sign" value="<?= $myrepo->getSigned() ?>" />
 
 <?php
 /**
@@ -61,7 +70,7 @@ endif;
  *  Define schedule form action and allowed type(s)
  */
 $scheduleForm['action'] = 'duplicate';
-$scheduleForm['type'] = array('unique'); ?>
+$scheduleForm['type'] = ['unique']; ?>
 
 <script>
 $(document).ready(function(){

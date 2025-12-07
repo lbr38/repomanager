@@ -1,5 +1,7 @@
 #log-refresh-container {
     flex: 0 0 100%;
+    position: relative;
+    min-height: 90vh;
 }
 
 #log-refresh-container h3 {

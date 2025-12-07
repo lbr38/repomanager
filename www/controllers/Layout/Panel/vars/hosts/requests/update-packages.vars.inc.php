@@ -17,7 +17,10 @@ $hosts = [];
 if (!empty($item['hostId'])) {
     if ($myhostController->existsId($item['hostId'])) {
         $hostname = $myhostController->getHostnameById($item['hostId']);
-        $hosts[] = array('id' => $item['hostId'], 'hostname' => $hostname);
+        $hosts[] = [
+            'id' => $item['hostId'],
+            'hostname' => $hostname
+        ];
     }
 }
 
@@ -28,7 +31,10 @@ if (!empty($item['hostsId'])) {
     foreach ($item['hostsId'] as $hostId) {
         if ($myhostController->existsId($hostId)) {
             $hostname = $myhostController->getHostnameById($hostId);
-            $hosts[] = array('id' => $hostId, 'hostname' => $hostname);
+            $hosts[] = [
+                'id' => $hostId,
+                'hostname' => $hostname
+            ];
         }
     }
 }

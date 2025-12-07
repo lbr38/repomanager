@@ -12,6 +12,8 @@ use \Controllers\Utils\Compress\Xz;
 
 class Deb extends \Controllers\Repo\Mirror\Mirror
 {
+    private $validReleaseFile;
+
     /**
      *  Download Release file
      */
@@ -265,7 +267,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  Download Packages.xx file using its location
              */
             if (!$this->download($url . '/' . $packageIndicesLocation, $this->workingDir . '/' . $packageIndicesName)) {
-                throw new Exception('Error while downloading <code>' . $packageIndicesName . '</code> indices file: <code>' . $this->url . '/' . $packageIndicesLocation . '</code>');
+                throw new Exception('Error while downloading <code>' . $packageIndicesName . '</code> indices file: <code>' . $url . '/' . $packageIndicesLocation . '</code>');
             }
 
             /**
@@ -619,7 +621,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
     /**
      *  Check GPG signature of specified file
      */
-    private function checkGPGSignature(string $signedFile, string $clearFile = null)
+    private function checkGPGSignature(string $signedFile, string $clearFile = '')
     {
         /**
          *  Check that signature file exists
@@ -1052,18 +1054,27 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
     {
         $this->initialize();
 
-        // Default URL to download files from is the base URL followed by /dists/<distribution>
-        $url = $this->url . '/dists/' . $this->dist;
+        // Default URL is the base URL
+        $url = $this->url;
 
-        // If the source repository is a non-compliant deb repository, then the URL is just the base URL
-        if ($this->nonCompliantSource == 'true') {
-            $url = $this->url;
+        // Replace $dist with the specified distribution in the URL (if any)
+        $url = str_replace('$dist', $this->dist, $url);
+
+        // Replace $component with the specified section in the URL (if any)
+        $url = str_replace('$component', $this->section, $url);
+
+        // The URL to download metadata is the previous formatted base URL
+        $metadataUrl = $url;
+
+        // By default, the metadata URL is the base URL followed by /dists/<distribution>, unless it is a non-compliant source (then do not append)
+        if ($this->nonCompliantSource != 'true') {
+            $metadataUrl = $url . '/dists/' . $this->dist;
         }
 
         /**
          *  Try to download distant Release / InRelease file
          */
-        $this->downloadReleaseFile($url);
+        $this->downloadReleaseFile($metadataUrl);
 
         /**
          *  Check Release GPG signature if enabled
@@ -1073,27 +1084,27 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
         /**
          *  Parse Release file to find Packages source files location
          */
-        $this->parseReleaseFile($url);
+        $this->parseReleaseFile($metadataUrl);
 
         /**
          *  Parse Packages indices file to find packages location
          */
-        $this->parsePackagesIndiceFile($url);
+        $this->parsePackagesIndiceFile($metadataUrl);
 
         /**
          *  Parse Sources indices file to find sources packages location
          */
-        $this->parseSourcesIndiceFile($url);
+        $this->parseSourcesIndiceFile($metadataUrl);
 
         /**
          *  Download deb packages
          */
-        $this->downloadDebPackages($this->url);
+        $this->downloadDebPackages($url);
 
         /**
          *  Download sources packages
          */
-        $this->downloadDebSourcesPackages($this->url);
+        $this->downloadDebSourcesPackages($url);
 
         /**
          *  Download translations

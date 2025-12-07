@@ -399,14 +399,15 @@ class Package extends \Models\Model
     }
 
     /**
-     *  Add a package in the table available packages list
+     *  Add a package in the available packages list
      */
-    public function addPackageAvailable(string $name, string $version) : void
+    public function addPackageAvailable(string $name, string $version, string $repository) : void
     {
         try {
-            $stmt = $this->dedicatedDb->prepare("INSERT INTO packages_available ('Name', 'Version') VALUES (:name, :version)");
+            $stmt = $this->dedicatedDb->prepare("INSERT INTO packages_available ('Name', 'Version', 'Repository') VALUES (:name, :version, :repository)");
             $stmt->bindValue(':name', $name);
             $stmt->bindValue(':version', $version);
+            $stmt->bindValue(':repository', $repository);
             $stmt->execute();
         } catch (Exception $e) {
             DbLog::error($e);
@@ -416,12 +417,13 @@ class Package extends \Models\Model
     /**
      *  Update a package in the available packages list
      */
-    public function updatePackageAvailable(string $name, string $version) : void
+    public function updatePackageAvailable(string $name, string $version, string $repository) : void
     {
         try {
-            $stmt = $this->dedicatedDb->prepare("UPDATE packages_available SET Version = :version WHERE Name = :name");
+            $stmt = $this->dedicatedDb->prepare("UPDATE packages_available SET Version = :version, Repository = :repository WHERE Name = :name");
             $stmt->bindValue(':name', $name);
             $stmt->bindValue(':version', $version);
+            $stmt->bindValue(':repository', $repository);
             $stmt->execute();
         } catch (Exception $e) {
             DbLog::error($e);
@@ -453,23 +455,6 @@ class Package extends \Models\Model
     }
 
     /**
-     *  Add a new event in database
-     */
-    public function addEvent(string $dateStart, string $dateEnd, string $timeStart, string $timeEnd) : void
-    {
-        try {
-            $stmt = $this->dedicatedDb->prepare("INSERT INTO events ('Date', 'Date_end', 'Time', 'Time_end', 'Status') VALUES (:date_start, :date_end, :time_start, :time_end, 'done')");
-            $stmt->bindValue(':date_start', $dateStart);
-            $stmt->bindValue(':date_end', $dateEnd);
-            $stmt->bindValue(':time_start', $timeStart);
-            $stmt->bindValue(':time_end', $timeEnd);
-            $stmt->execute();
-        } catch (Exception $e) {
-            DbLog::error($e);
-        }
-    }
-
-    /**
      *  Return true if the package exists in database
      */
     public function exists(string $name) : bool
@@ -477,27 +462,6 @@ class Package extends \Models\Model
         try {
             $stmt = $this->dedicatedDb->prepare("SELECT * FROM packages WHERE Name = :name");
             $stmt->bindValue(':name', $name);
-            $result = $stmt->execute();
-        } catch (Exception $e) {
-            DbLog::error($e);
-        }
-
-        if ($this->dedicatedDb->isempty($result) === true) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     *  Return true if an event exists at the specified date and time
-     */
-    public function eventExists(string $dateStart, string $timeStart) : bool
-    {
-        try {
-            $stmt = $this->dedicatedDb->prepare("SELECT Id FROM events WHERE Date = :date_start and Time = :time_start");
-            $stmt->bindValue(':date_start', $dateStart);
-            $stmt->bindValue(':time_start', $timeStart);
             $result = $stmt->execute();
         } catch (Exception $e) {
             DbLog::error($e);

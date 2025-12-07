@@ -1,0 +1,56 @@
+::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+/* Force hide scrollbar on mobile devices only */
+@media (max-width: 1024px) {
+    ::-webkit-scrollbar {
+        display: none;
+        width: 0;
+        height: 0;
+    }
+
+    * {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+}
+
+/* Desktop configuration */
+@media (min-width:1025px) {
+    /* Custom scrollbar, for Chrome, Edge, Safari */
+    ::-webkit-scrollbar {
+        display: block;
+        width: 6px;
+        height: 6px;
+    }
+
+    /* Track */
+    ::-webkit-scrollbar-track {
+        box-shadow: inset 0 0 5px #252525;
+    }
+
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+        background: #596EB5;
+        border-radius: 5px;
+    }
+
+    /* Firefox */
+    @-moz-document url-prefix() {
+        * {
+            scrollbar-width: auto;
+            scrollbar-color: #596EB5 #252525;
+        }
+    }
+
+    /* Alternative Firefox support */
+    @supports (-moz-appearance:none) {
+        * {
+            scrollbar-width: auto;
+            scrollbar-color: #596EB5 #252525;
+        }
+    }
+}

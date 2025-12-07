@@ -105,6 +105,24 @@ class Event extends \Models\Model
     }
 
     /**
+     *  Add a new event in database
+     */
+    public function add(string $dateStart, string $dateEnd, string $timeStart, string $timeEnd, string $command) : void
+    {
+        try {
+            $stmt = $this->dedicatedDb->prepare("INSERT INTO events ('Date', 'Date_end', 'Time', 'Time_end', 'Command', 'Status') VALUES (:date_start, :date_end, :time_start, :time_end, :command, 'done')");
+            $stmt->bindValue(':date_start', $dateStart);
+            $stmt->bindValue(':date_end', $dateEnd);
+            $stmt->bindValue(':time_start', $timeStart);
+            $stmt->bindValue(':time_end', $timeEnd);
+            $stmt->bindValue(':command', $command);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+    }
+
+    /**
      *  Return true if event exists
      */
     public function exists(int $id) : bool
@@ -122,5 +140,34 @@ class Event extends \Models\Model
         }
 
         return true;
+    }
+
+    /**
+     *  Return true if an event exists at the specified date and time
+     */
+    public function existsByDateTime(string $dateStart, string $timeStart) : bool
+    {
+        try {
+            $stmt = $this->dedicatedDb->prepare("SELECT Id FROM events WHERE Date = :date_start and Time = :time_start");
+            $stmt->bindValue(':date_start', $dateStart);
+            $stmt->bindValue(':time_start', $timeStart);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+
+        if ($this->dedicatedDb->isempty($result) === true) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     *  Return the last insert row ID in the dedicated database for a host
+     */
+    public function getHostLastInsertRowID()
+    {
+        return $this->dedicatedDb->lastInsertRowID();
     }
 }

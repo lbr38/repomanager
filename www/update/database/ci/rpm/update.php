@@ -3,6 +3,7 @@
  *  Update rpm mirror repo
  */
 $rawParams['action'] = 'update';
+$rawParams['repo-id'] = '1';
 $rawParams['snap-id'] = '1';
 $rawParams['env-id'] = '';
 $rawParams['arch'] = ['x86_64', 'noarch'];

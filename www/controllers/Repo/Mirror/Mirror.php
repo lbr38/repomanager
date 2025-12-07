@@ -45,6 +45,9 @@ class Mirror
         $this->taskLogStepController = new \Controllers\Task\Log\Step($taskId);
         $this->taskLogSubStepController = new \Controllers\Task\Log\SubStep($taskId);
         $this->httpRequestController = new \Controllers\HttpRequest();
+
+        // Set working dir
+        $this->workingDir = REPOS_DIR . '/temporary-task-' . $taskId;
     }
 
     public function setTaskId(string $taskId) : void
@@ -95,11 +98,6 @@ class Mirror
     public function setTranslation(array $translation) : void
     {
         $this->translation = $translation;
-    }
-
-    public function setWorkingDir(string $dir) : void
-    {
-        $this->workingDir = $dir;
     }
 
     public function setSslCustomCertificate(string $path) : void

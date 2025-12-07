@@ -31,6 +31,9 @@ $(document).on('click','.show-step-content-btn',function () {
 $(document).on('click','.show-task-btn',function () {
     var taskId = $(this).attr('task-id');
 
+    // Add a loading spinner to the container
+    $('#log-refresh-container').html('<div class="absolute min-height-50vh flex align-item-center justify-center"><img src="/assets/icons/loading.svg" class="icon" /></div>');
+
     // Change URL without reloading the page
     history.pushState(null, null, '/run/' + taskId);
 
@@ -38,6 +41,9 @@ $(document).on('click','.show-task-btn',function () {
     mycontainer.reload('tasks/log').then(function () {
         // Restart log scroll event listener
         scrollEventListener();
+
+        // Remove loading spinner
+        $('#log-refresh-container .loading-veil').remove();
     });
 });
 

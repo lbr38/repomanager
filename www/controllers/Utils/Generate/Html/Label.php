@@ -31,4 +31,20 @@ class Label
 
         return '<span class="' . $class . '" style="background-color: ' . $background . '; color: ' . $color . '">' . $name . '</span>';
     }
+
+    /**
+     *  Generate white label
+     */
+    public static function white(string $string): string
+    {
+        return '<span class="label-white">' . $string . '</span>';
+    }
+
+    /**
+     *  Generate black label
+     */
+    public static function black(string $string): string
+    {
+        return '<span class="label-black">' . $string . '</span>';
+    }
 }

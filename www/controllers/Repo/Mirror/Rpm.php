@@ -4,6 +4,7 @@ namespace Controllers\Repo\Mirror;
 
 use Exception;
 use SimpleXMLElement;
+use XMLReader;
 use \Controllers\Gpg;
 use \Controllers\Process;
 use \Controllers\Utils\Compress\Bzip2;
@@ -454,100 +455,70 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         }
 
         /**
-         *  Convert primary.xml content from XML to JSON to PHP array for a simpler parsing
+         *  Parse primary.xml file with XMLReader for lower memory consumption
          */
-        try {
-            $xml = new SimpleXMLElement(file_get_contents($primaryFile), LIBXML_PARSEHUGE);
-            $jsonArray = json_decode(json_encode($xml), true);
-            unset($xml);
-        } catch (Exception $e) {
-            throw new Exception('Could not parse ' . $primaryFile . ': ' . $e->getMessage());
+        $reader = new XMLReader();
+
+        if (!$reader->open($primaryFile, null, LIBXML_PARSEHUGE)) {
+            throw new Exception('Could not open ' . $primaryFile . ' with XMLReader');
         }
 
-        gc_collect_cycles();
+        while ($reader->read()) {
+            // When a <package> element is found
+            if ($reader->nodeType === XMLReader::ELEMENT && $reader->localName === 'package') {
+                $arch = null;
+                $location = null;
+                $checksum = null;
 
-        /**
-         *  First count number of packages because retrieving the packages informations is different if there is only one package or multiple packages
-         */
-        $packageCount = $jsonArray['@attributes']['packages'];
+                // Read until the end of the <package> element
+                $depth = $reader->depth;
+                while ($reader->read()) {
+                    if ($reader->nodeType === XMLReader::END_ELEMENT && $reader->localName === 'package' && $reader->depth === $depth) {
+                        break;
+                    }
 
-        /**
-         *  Case there is only one package in the target repository
-         */
-        if ($packageCount == 1) {
-            /**
-             *  If package arch is not part of the archs selected by the user then skip it
-             */
-            if (!in_array($jsonArray['package']['arch'], $this->arch)) {
-                $this->taskLogSubStepController->warning('Package architecture ' . $jsonArray['package']['arch'] . ' is not matching any of the desired architecture (ignored)');
-                $error++;
-            }
+                    if ($reader->nodeType === XMLReader::ELEMENT) {
+                        switch ($reader->localName) {
+                            case 'arch':
+                                $arch = $reader->readString();
+                                break;
 
-            /**
-             *  Find package location
-             */
-            if (!empty($jsonArray['package']['location']['@attributes']['href'])) {
-                $packageLocation = $jsonArray['package']['location']['@attributes']['href'];
+                            case 'location':
+                                $location = $reader->getAttribute('href');
+                                break;
 
-                /**
-                 *  If package checksum is not found then it can not be retrieved
-                 */
-                if (empty($jsonArray['package']['checksum'])) {
-                    throw new Exception('Could not find checksum value for package ' . $packageLocation);
-                } else {
-                    $packageChecksum = $jsonArray['package']['checksum'];
-
-                    /**
-                     *  If path and checksum have been parsed, had them to the global rpm packages list array
-                     */
-                    $this->rpmPackagesLocation[] = ['location' => $packageLocation, 'checksum' => $packageChecksum];
+                            case 'checksum':
+                                $checksum = $reader->readString();
+                                break;
+                        }
+                    }
                 }
-            }
-        }
 
-        /**
-         *  Case there is more than one package in the target repository
-         */
-        if ($packageCount > 1) {
-            foreach ($jsonArray['package'] as $data) {
-                /**
-                 *  If package arch is not part of the archs selected by the user then skip it
-                 */
-                if (!in_array($data['arch'], $this->arch)) {
+                // If package arch is not part of the archs selected by the user then skip it
+                if (!in_array($arch, $this->arch)) {
                     continue;
                 }
 
-                /**
-                 *  Find package location
-                 */
-                if (!empty($data['location']['@attributes']['href'])) {
-                    $packageLocation = $data['location']['@attributes']['href'];
-
-                    /**
-                     *  If package arch is not found then it can not be retrieved
-                     */
-                    if (empty($data['arch'])) {
-                        throw new Exception('Could not find architecture value for package ' . $packageLocation . ' in primary.xml file');
-                    }
-
-                    $packageArch = $data['arch'];
-
-                    /**
-                     *  If package checksum is not found then it can not be retrieved
-                     */
-                    if (empty($data['checksum'])) {
-                        throw new Exception('Could not find checksum value for package ' . $packageLocation . ' in primary.xml file');
-                    }
-
-                    $packageChecksum = $data['checksum'];
-
-                    /**
-                     *  If path, arch and checksum have been parsed, had them to the global rpm packages list array
-                     */
-                    $this->rpmPackagesLocation[] = ['location' => $packageLocation, 'arch' => $packageArch, 'checksum' => $packageChecksum];
+                // If package location was not found, throw an error
+                if (!isset($location)) {
+                    throw new Exception('Missing location (href) for package in primary.xml file');
                 }
+
+                // If package checksum was not found, throw an error
+                if (!isset($checksum)) {
+                    throw new Exception('Could not find checksum value for package ' . $location . ' in primary.xml file');
+                }
+
+                // If package path, arch and checksum have been parsed, add them to the global rpm packages list array
+                $this->rpmPackagesLocation[] = [
+                    'location' => $location,
+                    'arch'     => $arch,
+                    'checksum' => $checksum,
+                ];
             }
         }
+
+        $reader->close();
 
         /**
          *  Print error if no package location has been found

@@ -2,10 +2,12 @@
 
 namespace Controllers\Service\Unit;
 
-use Exception;
-use DateTime;
+use \Controllers\Filesystem\Directory;
+use \Controllers\Filesystem\File;
 use \Controllers\App\Maintenance;
 use \Controllers\Update;
+use Exception;
+use DateTime;
 
 class Statistic extends \Controllers\Service\Service
 {
@@ -63,12 +65,12 @@ class Statistic extends \Controllers\Service\Service
                         /**
                          *  Calculate repo size in bytes
                          */
-                        $repoSize = \Controllers\Filesystem\Directory::getSize(REPOS_DIR . '/rpm/' . $repo['Name'] . '/' . $repo['Releasever'] . '/' . $repo['Env']);
+                        $repoSize = Directory::getSize(REPOS_DIR . '/rpm/' . $repo['Name'] . '/' . $repo['Releasever'] . '/' . $repo['Env']);
 
                         /**
                          *  Calculate number of packages in the repo
                          */
-                        $packagesCount = count(\Controllers\Filesystem\File::findRecursive(REPOS_DIR . '/rpm/' . $repo['Name'] . '/' . $repo['Releasever'] . '/' . $repo['Env'], ['rpm']));
+                        $packagesCount = count(File::findRecursive(REPOS_DIR . '/rpm/' . $repo['Name'] . '/' . $repo['Releasever'] . '/' . $repo['Env'], ['rpm']));
                     }
                 }
 
@@ -77,12 +79,12 @@ class Statistic extends \Controllers\Service\Service
                         /**
                          *  Calculate repo size in bytes
                          */
-                        $repoSize = \Controllers\Filesystem\Directory::getSize(REPOS_DIR . '/deb/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '/' . $repo['Env']);
+                        $repoSize = Directory::getSize(REPOS_DIR . '/deb/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '/' . $repo['Env']);
 
                         /**
                          *  Calculate number of packages in the repo
                          */
-                        $packagesCount = count(\Controllers\Filesystem\File::findRecursive(REPOS_DIR . '/deb/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '/' . $repo['Env'], ['deb']));
+                        $packagesCount = count(File::findRecursive(REPOS_DIR . '/deb/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '/' . $repo['Env'], ['deb']));
                     }
                 }
 

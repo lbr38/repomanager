@@ -2,6 +2,7 @@
 
 namespace Controllers\Repo;
 
+use \Controllers\Filesystem\Directory;
 use Exception;
 use DateTime;
 
@@ -89,38 +90,38 @@ class Snapshot
 
                 if ($packageType == 'rpm') {
                     if (is_dir(REPOS_DIR . '/rpm/' . $repoName . '/' . $repoReleasever . '/' . $snapDate)) {
-                        $successful = \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/rpm/' . $repoName . '/' . $repoReleasever . '/' . $snapDate);
+                        $successful = Directory::deleteRecursive(REPOS_DIR . '/rpm/' . $repoName . '/' . $repoReleasever . '/' . $snapDate);
                     }
 
                     /**
                      *  Delete the parent directories if they are empty
                      */
-                    if (\Controllers\Filesystem\Directory::isEmpty(REPOS_DIR . '/rpm/' . $repoName . '/' . $repoReleasever)) {
-                        \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/rpm/' . $repoName . '/' . $repoReleasever);
+                    if (Directory::isEmpty(REPOS_DIR . '/rpm/' . $repoName . '/' . $repoReleasever)) {
+                        Directory::deleteRecursive(REPOS_DIR . '/rpm/' . $repoName . '/' . $repoReleasever);
                     }
 
-                    if (\Controllers\Filesystem\Directory::isEmpty(REPOS_DIR . '/rpm/' . $repoName)) {
-                        \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/rpm/' . $repoName);
+                    if (Directory::isEmpty(REPOS_DIR . '/rpm/' . $repoName)) {
+                        Directory::deleteRecursive(REPOS_DIR . '/rpm/' . $repoName);
                     }
                 }
                 if ($packageType == 'deb') {
                     if (is_dir(REPOS_DIR . '/deb/' . $repoName . '/' . $repoDist . '/' . $repoSection . '/' . $snapDate)) {
-                        $successful = \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/deb/' . $repoName . '/' . $repoDist . '/' . $repoSection . '/' . $snapDate);
+                        $successful = Directory::deleteRecursive(REPOS_DIR . '/deb/' . $repoName . '/' . $repoDist . '/' . $repoSection . '/' . $snapDate);
                     }
 
                     /**
                      *  Delete the parent directories if they are empty
                      */
-                    if (\Controllers\Filesystem\Directory::isEmpty(REPOS_DIR . '/deb/' . $repoName . '/' . $repoDist . '/' . $repoSection)) {
-                        \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/deb/' . $repoName . '/' . $repoDist . '/' . $repoSection);
+                    if (Directory::isEmpty(REPOS_DIR . '/deb/' . $repoName . '/' . $repoDist . '/' . $repoSection)) {
+                        Directory::deleteRecursive(REPOS_DIR . '/deb/' . $repoName . '/' . $repoDist . '/' . $repoSection);
                     }
 
-                    if (\Controllers\Filesystem\Directory::isEmpty(REPOS_DIR . '/deb/' . $repoName . '/' . $repoDist)) {
-                        \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/deb/' . $repoName . '/' . $repoDist);
+                    if (Directory::isEmpty(REPOS_DIR . '/deb/' . $repoName . '/' . $repoDist)) {
+                        Directory::deleteRecursive(REPOS_DIR . '/deb/' . $repoName . '/' . $repoDist);
                     }
 
-                    if (\Controllers\Filesystem\Directory::isEmpty(REPOS_DIR . '/deb/' . $repoName)) {
-                        \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/deb/' . $repoName);
+                    if (Directory::isEmpty(REPOS_DIR . '/deb/' . $repoName)) {
+                        Directory::deleteRecursive(REPOS_DIR . '/deb/' . $repoName);
                     }
                 }
 

@@ -1076,6 +1076,7 @@ class Connection extends SQLite3
         Date_end DATE NOT NULL,
         Time_end TIME NOT NULL,
         Report VARCHAR(255),
+        Command VARCHAR(255),
         Status VARCHAR(7))"); /* error / warning / unknown / done */
 
         /**

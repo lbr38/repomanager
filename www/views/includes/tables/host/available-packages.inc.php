@@ -10,7 +10,7 @@
         } ?>
 
         <div class="flex justify-space-between align-item-center">
-            <p class="margin-top-15 margin-bottom-15 mediumopacity-cst"><?=  $reloadableTableTotalItems ?> package(s) to update</p>
+            <p class="margin-top-15 margin-bottom-15 mediumopacity-cst"><?=  $reloadableTableTotalItems ?> package<?= $reloadableTableTotalItems > 1 ? 's' : '' ?> to update</p>
 
             <div class="margin-right-20">
                 <?php
@@ -37,8 +37,16 @@
                 </div>
 
                 <div class="get-package-timeline pointer" hostid="<?= $id ?>" packagename="<?= $item['Name'] ?>" title="See package history">
-                    <p class="copy"><?= $item['Name'] ?></p>
-                    <p class="lowopacity-cst wordbreakall copy"><?= $item['Version'] ?></p>
+                    <div class="flex align-item-center column-gap-5">
+                        <p class="copy" title="Available package"><?= $item['Name'] ?></p>
+                        <p class="copy" title="Available version"><code class="wordbreakall"><?= $item['Version'] ?></code></p>
+                    </div>
+
+                    <?php
+                    if (!empty($item['Repository'])) : ?>
+                        <p class="note wordbreakall copy" title="Repository"><?= $item['Repository'] ?></p>
+                        <?php
+                    endif ?>
                 </div>
 
                 <div class="text-right margin-right-5">

@@ -12,7 +12,7 @@ class Directory
         $__CREATE_DIRS_ERROR = 0;
         $__CREATE_DIRS_MESSAGES = [];
 
-        $dirs = array(
+        $dirs = [
             DB_DIR,
             //GPGHOME, // perms must be 0700 on this directory
             LOGS_DIR,
@@ -26,7 +26,7 @@ class Directory
             DB_UPDATE_DONE_DIR,
             CUSTOM_SOURCES_REPOS_LISTS_DIR . '/rpm',
             CUSTOM_SOURCES_REPOS_LISTS_DIR . '/deb',
-        );
+        ];
 
         foreach ($dirs as $dir) {
             if (is_dir($dir)) {

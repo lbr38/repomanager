@@ -1,0 +1,40 @@
+---
+description: Linudpate official repositories
+type: deb
+repositories:
+  - name: linupdate
+    type: deb
+    description: Package updater tool - Repomanager client side agent
+    url: https://packages.repomanager.net/repo/deb/linupdate3/$dist/main/prod
+    distributions:
+      # Debian 12
+      - name: bookworm
+        description: Debian 12
+        components:
+          - name: main
+        gpgkeys:
+          - link: https://packages.repomanager.net/repo/gpgkeys/packages.repomanager.net.pub
+
+      # Debian 11
+      - name: bullseye
+        description: Debian 11
+        components:
+          - name: main
+        gpgkeys:
+          - link: https://packages.repomanager.net/repo/gpgkeys/packages.repomanager.net.pub
+
+      # Ubuntu 24.04 LTS
+      - name: noble
+        description: Ubuntu 24.04 LTS
+        components:
+          - name: main
+        gpgkeys:
+          - link: https://packages.repomanager.net/repo/gpgkeys/packages.repomanager.net.pub
+        
+      # Ubuntu 22.04 LTS
+      - name: jammy
+        description: Ubuntu 22.04 LTS
+        components:
+          - name: main
+        gpgkeys:
+          - link: https://packages.repomanager.net/repo/gpgkeys/packages.repomanager.net.pub

@@ -3,6 +3,7 @@
  *  Update deb mirror repo
  */
 $rawParams['action'] = 'update';
+$rawParams['repo-id'] = '1';
 $rawParams['snap-id'] = '1';
 $rawParams['env-id'] = '';
 $rawParams['arch'] = ['amd64', 'armhf'];

@@ -78,7 +78,7 @@
             throw new Exception('You are not allowed to rebuild repositories');
         } ?>
             
-        <h3>REBUILD REPO</h3>
+        <h3>REBUILD REPOSITORY</h3>
 
         <?php
         /**

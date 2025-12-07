@@ -80,19 +80,19 @@ class Step extends \Models\Model
             while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
                 $data[] = $row;
             }
-
-            return $data;
         } catch (Exception $e) {
             DbLog::error($e);
         }
+
+        return $data;
     }
 
     /**
      *  Return the latest step ID for the provided task ID
      */
-    public function getLatestStepId(int $taskId) : int
+    public function getLatestStepId(int $taskId) : int|null
     {
-        $data = '';
+        $data = null;
 
         try {
             $stmt = $this->dedicatedDb->prepare("SELECT Id FROM steps WHERE Task_id = :taskId ORDER BY Id DESC LIMIT 1");
@@ -102,10 +102,10 @@ class Step extends \Models\Model
             while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
                 $data = $row['Id'];
             }
-
-            return $data;
         } catch (Exception $e) {
             DbLog::error($e);
         }
+
+        return $data;
     }
 }
