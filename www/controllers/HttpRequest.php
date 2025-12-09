@@ -2,9 +2,10 @@
 
 namespace Controllers;
 
+use \Controllers\App\DebugMode;
 use Exception;
 use JsonException;
-use \Controllers\Log\Cli as CliLog;
+
 
 class HttpRequest
 {
@@ -25,15 +26,24 @@ class HttpRequest
     }
 
     /**
+     *  Check if a URL is reachable
+     */
+    public function reachable(array $params) : string|array|null
+    {
+        return $this->get($params);
+    }
+
+    /**
      *  Perform a GET request
      *  Returns the result as a string or saves it to a file (and returns true)
      */
-    public function get(array $params, bool $parseJson = false, string $jsonExtract = null) : bool|string|array
+    public function get(array $params, bool $parseJson = false, string $jsonExtract = '') : string|array|null
     {
         try {
-            /**
-             *  Set curl options
-             */
+            // Set verbose output if debug mode is enabled
+            if (DebugMode::enabled()) {
+                curl_setopt($this->ch, CURLOPT_VERBOSE, true);
+            }
 
             // Set URL
             curl_setopt($this->ch, CURLOPT_URL, $params['url']);
@@ -43,6 +53,18 @@ class HttpRequest
 
             // Set max transfer timeout (default 30 seconds)
             curl_setopt($this->ch, CURLOPT_TIMEOUT, isset($params['timeout']) ? $params['timeout'] : 30);
+
+            // Use compression if supported
+            curl_setopt($this->ch, CURLOPT_ENCODING, '');
+
+            // Fail if http return code is >= 400
+            curl_setopt($this->ch, CURLOPT_FAILONERROR, true);
+
+            // Follow redirects
+            curl_setopt($this->ch, CURLOPT_FOLLOWLOCATION, true);
+
+            // Return the result as a string instead of outputting it directly
+            curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, true);
 
             // Set proxy if specified
             if (!empty($params['proxy'])) {
@@ -69,23 +91,40 @@ class HttpRequest
                 curl_setopt($this->ch, CURLOPT_CAINFO, $params['sslCaCertificatePath']);
             }
 
-            // Use compression if supported
-            curl_setopt($this->ch, CURLOPT_ENCODING, '');
+            // If HTTP version 1.1 is requested
+            if (isset($params['http1.1']) && $params['http1.1'] === true) {
+                curl_setopt($this->ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+            }
 
-            // Follow redirects
-            curl_setopt($this->ch, CURLOPT_FOLLOWLOCATION, true);
+            // If the target must be saved as a file directly
+            if (isset($params['save'])) {
+                // Disable return transfer option in this case
+                curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, false);
 
-            // Return the result as a string instead of outputting it directly
-            curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, true);
+                // Open the file for writing
+                $fp = fopen($params['save'], "w");
+
+                if ($fp === false) {
+                    throw new Exception('Unable to open file for writing: ' . $params['save']);
+                }
+
+                // Set curl to write output directly to the file
+                curl_setopt($this->ch, CURLOPT_FILE, $fp);
+            }
 
             /**
              *  Execute curl request
              */
-            $output = curl_exec($this->ch);
 
-            // If curl_exec() returns false, an error has occurred
-            if (!$output) {
-                throw new Exception('curl failed: ' . curl_error($this->ch));
+            // If the output must be returned directly, parsed as JSON, or saved to a file, then capture the output
+            if ((isset($params['returnOutput']) && $params['returnOutput'] === true) or $parseJson or !empty($params['outputToFile'])) {
+                if (!$output = curl_exec($this->ch)) {
+                    throw new Exception('curl failed: ' . curl_error($this->ch));
+                }
+            } else {
+                if (!curl_exec($this->ch)) {
+                    throw new Exception('curl failed: ' . curl_error($this->ch));
+                }
             }
 
             // Check that the http return code is 200 (the file has been downloaded)
@@ -127,19 +166,17 @@ class HttpRequest
                 }
             }
 
-            /**
-             *  If an output file is specified, write the result to the file
-             */
-            if (!empty($params['outputFile'])) {
+            // Case the output must be written to a file
+            if (!empty($params['outputToFile'])) {
                 // If the output is a string, write it directly
                 if (is_string($output)) {
-                    $write = file_put_contents($params['outputFile'], trim($output));
+                    $write = file_put_contents($params['outputToFile'], trim($output));
                 }
 
                 // If the output is an array or object, encode it as JSON
                 if (is_array($output) || is_object($output)) {
                     try {
-                        $write = file_put_contents($params['outputFile'], json_encode($output, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR));
+                        $write = file_put_contents($params['outputToFile'], json_encode($output, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR));
                     } catch (JsonException $e) {
                         throw new Exception('JSON encode error: ' . $e->getMessage());
                     }
@@ -147,18 +184,30 @@ class HttpRequest
 
                 // If writing to the file failed
                 if ($write === false) {
-                    throw new Exception('unable to write to output file ' . $params['outputFile']);
+                    throw new Exception('unable to write to output file ' . $params['outputToFile']);
+                }
+            }
+
+            // Case the target must be saved as a file directly
+            if (!empty($params['save'])) {
+                // If raw output to file was requested, close the file
+                if (isset($fp) && is_resource($fp)) {
+                    fclose($fp);
                 }
 
-                // Return true to indicate success
-                return true;
+                // Reset option for next calls if handle is reused
+                curl_setopt($this->ch, CURLOPT_FILE, null);
             }
 
             /**
-             *  Otherwise, return the result directly
+             *  If the output must be returned directly
              *  It can be a string (raw output) or an array/object (decoded JSON) or parsed JSON
              */
-            return $output;
+            if (!empty($output)) {
+                return $output;
+            }
+
+            return null;
         } catch (Exception $e) {
             throw new Exception('HTTP request error: ' . $e->getMessage());
         }

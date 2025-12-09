@@ -99,12 +99,13 @@ class Profile extends Model
     /**
      *  Get profile full configuration from database
      */
-    public function getProfileFullConfiguration(string $profileId)
+    public function getProfileConfiguration(string $profileId) : array
     {
         $profile = [];
 
         try {
             $stmt = $this->db->prepare("SELECT
+            Name,
             Package_exclude,
             Package_exclude_major,
             Service_reload,

@@ -9,6 +9,7 @@ class Step
 {
     private $taskId;
     private $content;
+    private $taskLogController;
 
     public function __construct(int $taskId)
     {

@@ -23,10 +23,10 @@ class Version extends \Controllers\Service\Service
 
             try {
                 $httpRequestController->get([
-                    'url'        => VERSION_FILE_URL,
-                    'outputFile' => DATA_DIR . '/version.available',
-                    'timeout'    => 30,
-                    'proxy'      => PROXY ?? null,
+                    'url'          => VERSION_FILE_URL,
+                    'outputToFile' => DATA_DIR . '/version.available',
+                    'timeout'      => 30,
+                    'proxy'        => PROXY ?? null,
                 ]);
             } catch (Exception $e) {
                 throw new Exception('error while checking for new version from Github: ' . $e->getMessage());
@@ -36,11 +36,11 @@ class Version extends \Controllers\Service\Service
             try {
                 $httpRequestController->get(
                     [
-                        'url'        => RELEASES_URL,
-                        'outputFile' => DATA_DIR . '/releases.available',
-                        'timeout'    => 30,
-                        'proxy'      => PROXY ?? null,
-                        'headers'    => [
+                        'url'          => RELEASES_URL,
+                        'outputToFile' => DATA_DIR . '/releases.available',
+                        'timeout'      => 30,
+                        'proxy'        => PROXY ?? null,
+                        'headers'      => [
                             'User-Agent: repomanager',
                             'Accept: application/vnd.github.v3+json',
                         ]

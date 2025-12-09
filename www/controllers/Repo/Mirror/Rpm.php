@@ -15,11 +15,17 @@ use \Controllers\Utils\Compress\Zstd;
 class Rpm extends \Controllers\Repo\Mirror\Mirror
 {
     private $archUrls = [];
+    private $updateInfoLocation;
+    private $updateInfoChecksum;
+    private $modulesLocation;
+    private $modulesChecksum;
+    private $compsLocation;
+    private $compsChecksum;
 
     /**
      *  Download repomd.xml file
      */
-    private function downloadRepomd(string $url)
+    private function downloadRepomd(string $url) : void
     {
         $this->taskLogSubStepController->new('getting-repomd', 'GETTING REPOMD.XML', 'From ' . $url . '/repodata/repomd.xml');
 
@@ -33,7 +39,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
     /**
      *  Download primary.xml packages list file
      */
-    private function downloadPrimary(string $url)
+    private function downloadPrimary(string $url) : void
     {
         $this->taskLogSubStepController->new('getting-primary', 'GETTING PRIMARY.XML.GZ', 'From ' . $url . '/' . $this->primaryLocation);
 
@@ -54,7 +60,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
     /**
      *  Download comps.xml file
      */
-    private function downloadComps(string $url)
+    private function downloadComps(string $url) : void
     {
         /**
          *  Quit if there is no comps.xml file to download
@@ -82,7 +88,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
     /**
      *  Download modules.yaml file
      */
-    private function downloadModules(string $url)
+    private function downloadModules(string $url) : void
     {
         /**
          *  Quit if there is no modules.yaml file to download
@@ -163,7 +169,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
     /**
      *  Download updateinfo.xml.gz file
      */
-    private function downloadUpdateInfo(string $url)
+    private function downloadUpdateInfo(string $url) : void
     {
         /**
          *  Quit if there is no updateinfo.xml.gz file to download
@@ -243,7 +249,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
     /**
      *  Parsing repomd.xml to get database location
      */
-    private function parseRepoMd()
+    private function parseRepoMd() : void
     {
         $this->taskLogSubStepController->new('parsing-repomd', 'PARSING REPOMD.XML');
 
@@ -394,7 +400,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
     /**
      *  Parse primary packages list file to find .rpm packages location and their checksum
      */
-    private function parsePrimaryPackagesList(string $primaryFile)
+    private function parsePrimaryPackagesList(string $primaryFile) : void
     {
         $error = 0;
         $this->rpmPackagesLocation = [];
@@ -540,7 +546,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
     /**
      *  Download rpm packages
      */
-    private function downloadRpmPackages(string $url)
+    private function downloadRpmPackages(string $url) : void
     {
         $this->taskLogSubStepController->new('downloading-packages', 'DOWNLOADING PACKAGES', 'From ' . $url);
 
@@ -911,7 +917,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
     /**
      *  Mirror a rpm repository
      */
-    public function mirror()
+    public function mirror() : void
     {
         $this->initialize();
 
@@ -996,10 +1002,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          */
         foreach ($this->archUrls as $url) {
             try {
-                $this->httpRequestController->get([
+                $this->httpRequestController->reachable([
                     'url' => $url . '/repodata/repomd.xml',
-                    'connectTimeout' => 30,
-                    'timeout' => 30,
                     'sslCertificatePath' => $this->sslCustomCertificate,
                     'sslPrivateKeyPath' => $this->sslCustomPrivateKey,
                     'sslCaCertificatePath' => $this->sslCustomCaCertificate,

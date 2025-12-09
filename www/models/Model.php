@@ -2,8 +2,6 @@
 
 namespace Models;
 
-use Exception;
-
 abstract class Model
 {
     protected $db;
@@ -33,4 +31,16 @@ abstract class Model
     {
         $this->db->close();
     }
+
+    // TODO: see if it is useful
+    // public function __destruct()
+    // {
+    //     if (isset($this->db)) {
+    //         $this->db->close();
+    //     }
+
+    //     if (isset($this->dedicatedDb)) {
+    //         $this->dedicatedDb->close();
+    //     }
+    // }
 }

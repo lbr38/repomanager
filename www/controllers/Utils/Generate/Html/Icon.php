@@ -7,7 +7,7 @@ class Icon
     /**
      *  Generate OS icon image
      */
-    public static function os(string $os) : string
+    public static function os(string $os = '') : string
     {
         if (preg_match('/centos/i', $os)) {
             return '<img src="/assets/icons/products/centos.png" class="icon-np" title="' . $os . '" />';
@@ -34,7 +34,7 @@ class Icon
     /**
      *  Generate product icon image
      */
-    public static function product(string $product) : string
+    public static function product(string $product = '') : string
     {
         if (preg_match('/python/i', $product)) {
             return '<img src="/assets/icons/products/python.png" class="icon-np" />';

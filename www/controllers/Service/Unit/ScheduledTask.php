@@ -21,7 +21,7 @@ class ScheduledTask extends \Controllers\Service\Service
     /**
      *  Execute scheduled tasks if any
      */
-    public function execute()
+    public function execute() : void
     {
         parent::log('Executing scheduled tasks if any...');
 
@@ -162,88 +162,84 @@ class ScheduledTask extends \Controllers\Service\Service
     /**
      *  Send scheduled tasks reminders
      */
-    public function sendReminders()
+    public function sendReminders() : void
     {
-        /**
-         *  Quit if current time != 00:00
-         */
-        if (date('H:i') != '00:00') {
-            return;
-        }
-
-        parent::log('Sending scheduled tasks reminder if any...');
-
-        /**
-         *  Quit if there was an error while loading general settings
-         */
-        if (defined('__LOAD_GENERAL_ERROR') and __LOAD_GENERAL_ERROR > 0) {
-            return;
-        }
-
-        $tasksToReminder = [];
-        $dateNow = date('Y-m-d');
-        $reminderMessage = '';
-
-        /**
-         *  Get scheduled tasks
-         */
-        $scheduledTasks = $this->taskController->listScheduled();
-
-        /**
-         *  Quit if there is no task to execute
-         */
-        if (empty($scheduledTasks)) {
-            return;
-        }
-
-        /**
-         *  Loop through scheduled tasks
-         *  Reverse the array to get the latest tasks first
-         */
-        foreach (array_reverse($scheduledTasks) as $task) {
+        try {
             /**
-             *  Skip disabled tasks
+             *  Quit if current time != 00:00
              */
-            if ($task['Status'] == 'disabled') {
-                continue;
+            if (date('H:i') != '00:00') {
+                return;
             }
 
-            $taskRawParams = json_decode($task['Raw_params'], true);
+            parent::log('Sending scheduled tasks reminder if any...');
+
+            $tasksToReminder = [];
+            $dateNow = date('Y-m-d');
 
             /**
-             *  If the task has no mail recipient then skip it
+             *  Get scheduled tasks
              */
-            if (empty($taskRawParams['schedule']['schedule-recipient'])) {
-                continue;
+            $scheduledTasks = $this->taskController->listScheduled();
+
+            /**
+             *  Quit if there is no task to execute
+             */
+            if (empty($scheduledTasks)) {
+                return;
             }
 
             /**
-             *  If the task is a unique task
+             *  Loop through scheduled tasks
+             *  Reverse the array to get the latest tasks first
              */
-            if ($taskRawParams['schedule']['schedule-type'] == 'unique') {
+            foreach (array_reverse($scheduledTasks) as $task) {
                 /**
-                 *  A scheduled task can have 1 or more reminders.
-                 *  For each reminder, check if its date corresponds to the current date less (-) the number of days of the reminder
+                 *  Skip disabled tasks
                  */
-                foreach ($taskRawParams['schedule']['schedule-reminder'] as $reminder) {
-                    $reminderDate = date_create($taskRawParams['schedule']['schedule-date'])->modify("-$reminder days")->format('Y-m-d');
+                if ($task['Status'] == 'disabled') {
+                    continue;
+                }
 
-                    if ($reminderDate == $dateNow) {
-                        /**
-                         *  Task Id is added to the array of tasks to remind
-                         */
-                        $tasksToReminder[] = $task['Id'];
+                $taskRawParams = json_decode($task['Raw_params'], true);
+
+                /**
+                 *  If the task has no mail recipient then skip it
+                 */
+                if (empty($taskRawParams['schedule']['schedule-recipient'])) {
+                    continue;
+                }
+
+                /**
+                 *  If the task is a unique task
+                 */
+                if ($taskRawParams['schedule']['schedule-type'] == 'unique') {
+                    /**
+                     *  A scheduled task can have 1 or more reminders.
+                     *  For each reminder, check if its date corresponds to the current date less (-) the number of days of the reminder
+                     */
+                    foreach ($taskRawParams['schedule']['schedule-reminder'] as $reminder) {
+                        $reminderDate = date_create($taskRawParams['schedule']['schedule-date'])->modify('-' . $reminder . 'days')->format('Y-m-d');
+
+                        if ($reminderDate == $dateNow) {
+                            /**
+                             *  Task Id is added to the array of tasks to remind
+                             */
+                            $tasksToReminder[] = $task['Id'];
+                        }
                     }
                 }
             }
-        }
 
-        // Quit if there is no task to remind
-        if (empty($tasksToReminder)) {
-            return;
-        }
+            // Quit if there is no task to remind
+            if (empty($tasksToReminder)) {
+                return;
+            }
 
-        // Send reminders
-        $this->taskNotifyController->reminder($tasksToReminder);
+            // Send reminders
+            $this->taskNotifyController->reminder($tasksToReminder);
+        } catch (Exception $e) {
+            parent::log('Error while sending scheduled tasks reminders: ' . $e->getMessage());
+        }
     }
 }

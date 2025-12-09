@@ -17,38 +17,16 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
     /**
      *  Download Release file
      */
-    private function downloadReleaseFile(string $url)
+    private function downloadReleaseFile(string $url) : void
     {
         $this->taskLogSubStepController->new('getting-release', 'GETTING INRELEASE / RELEASE FILE', 'From ' . $url . '/');
 
-        /**
-         *  Check that Release.xx file exists before downloading it to prevent error message displaying for nothing
-         */
-        $releasePossibleNames = ['InRelease', 'Release', 'Release.gpg'];
-
-        foreach ($releasePossibleNames as $releaseFile) {
-            /**
-             *  Check if the URL is reachable
-             */
-            try {
-                $this->httpRequestController->get([
-                    'url' => $url . '/' . $releaseFile,
-                    'connectTimeout' => 30,
-                    'timeout' => 30,
-                    'sslCertificatePath' => $this->sslCustomCertificate,
-                    'sslPrivateKeyPath' => $this->sslCustomPrivateKey,
-                    'sslCaCertificatePath' => $this->sslCustomCaCertificate,
-                    'proxy' => PROXY ?? null,
-                ]);
-            } catch (Exception $e) {
+        // Try to download InRelease, Release and Release.gpg files
+        foreach (['InRelease', 'Release', 'Release.gpg'] as $releaseFile) {
+            if (!$this->download($url . '/' . $releaseFile, $this->workingDir . '/' . $releaseFile)) {
                 // If the URL is not reachable, then continue to the next possible Release file
                 continue;
             }
-
-            /**
-             *  Download the Release file
-             */
-            $this->download($url . '/' . $releaseFile, $this->workingDir . '/' . $releaseFile);
         }
 
         /**
@@ -67,7 +45,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
      *   - Sources packages file location  (Sources / Sources.gz)
      *   - Translation file location       (Translation-en / Translation-en.bz2)
      */
-    private function parseReleaseFile(string $url)
+    private function parseReleaseFile(string $url) : void
     {
         /**
          *  Process research of Packages indices for each arch
@@ -144,10 +122,8 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                      *  Include this Packages.xx/Sources.xx file only if it does really exist on the remote server (sometimes it can be declared in Release but not exists...)
                      */
                     try {
-                        $this->httpRequestController->get([
+                        $this->httpRequestController->reachable([
                             'url' => $url . '/' . $location,
-                            'connectTimeout' => 30,
-                            'timeout' => 30,
                             'sslCertificatePath' => $this->sslCustomCertificate,
                             'sslPrivateKeyPath' => $this->sslCustomPrivateKey,
                             'sslCaCertificatePath' => $this->sslCustomCaCertificate,
@@ -250,7 +226,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
     /**
      *  Parse Packages indices file to find .deb packages location
      */
-    private function parsePackagesIndiceFile(string $url)
+    private function parsePackagesIndiceFile(string $url) : void
     {
         $this->taskLogSubStepController->new('retrieving-deb-packages-list', 'RETRIEVING DEB PACKAGES LIST');
 
@@ -369,7 +345,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
     /**
      *  Parse Sources indices file to find .dsc/tar.gz/tar.xz sources packages location
      */
-    private function parseSourcesIndiceFile(string $url)
+    private function parseSourcesIndiceFile(string $url) : void
     {
         /**
          *  Ignore this function if no 'src' arch has been specified
@@ -532,7 +508,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
     /**
      *  Check Release file GPG signature
      */
-    private function checkReleaseGPGSignature()
+    private function checkReleaseGPGSignature() : void
     {
         /**
          *  List of possible Release files to check
@@ -621,7 +597,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
     /**
      *  Check GPG signature of specified file
      */
-    private function checkGPGSignature(string $signedFile, string $clearFile = '')
+    private function checkGPGSignature(string $signedFile, string $clearFile = '') : void
     {
         /**
          *  Check that signature file exists
@@ -678,7 +654,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
     /**
      *  Download deb packages
      */
-    private function downloadDebPackages($url)
+    private function downloadDebPackages($url) : void
     {
         /**
          *  Define package relative dir
@@ -905,7 +881,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
     /**
      *  Download deb sources packages
      */
-    private function downloadDebSourcesPackages($url)
+    private function downloadDebSourcesPackages($url) : void
     {
         /**
          *  Ignore this function if no 'src' arch has been specified
@@ -1050,7 +1026,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
     /**
      *  Mirror a deb repository
      */
-    public function mirror()
+    public function mirror() : void
     {
         $this->initialize();
 

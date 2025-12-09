@@ -11,7 +11,7 @@ use PHPMailer\PHPMailer\Exception;
 
 class Mail
 {
-    public function __construct(string $to, string $subject, string $content, string $link = null, string $linkName = 'Click here', string $attachmentFilePath = null)
+    public function __construct(string $to, string $subject, string $content, string $link = '', string $linkName = 'Click here', string $attachmentFilePath = '')
     {
         if (empty($to)) {
             throw new \Exception('Cannot send email: no recipient specified.');

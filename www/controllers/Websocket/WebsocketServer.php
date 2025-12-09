@@ -1,6 +1,7 @@
 <?php
 
 namespace Controllers\Websocket;
+
 use Controllers\Log\File as FileLog;
 
 /**
@@ -8,7 +9,6 @@ use Controllers\Log\File as FileLog;
  */
 require ROOT . '/libs/vendor/autoload.php';
 
-use Exception;
 use Ratchet\Server\IoServer;
 use Ratchet\Http\HttpServer;
 use Ratchet\WebSocket\WsServer;
@@ -111,7 +111,7 @@ class WebsocketServer
     /**
      *  Return all websocket connections from database
      */
-    public function getWsConnections(string $type = null)
+    public function getWsConnections(string $type = '')
     {
         return $this->model->getWsConnections($type);
     }
