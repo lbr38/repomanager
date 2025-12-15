@@ -1,16 +1,19 @@
 <div class="reloadable-table" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
     <?php
     if (!empty($reloadableTableContent)) : ?>
-        <h6 class="margin-top-0 margin-bottom-5"><?= strtoupper($taskTableType) ?></h6>
+        <div class="flex align-item-center justify-space-between">
+            <h6 class="margin-top-0 margin-bottom-5"><?= strtoupper($taskTableType) ?></h6>
+
+            <?php
+            if (in_array($taskTableType, ['scheduled', 'queued'])) : ?>
+                <div class="flex justify-end margin-bottom-10 margin-right-15">
+                    <input type="checkbox" class="select-all-checkbox lowopacity" checkbox-id="<?= $taskTableType . '-task' ?>" title="Select all" />
+                </div>
+                <?php
+            endif ?>
+        </div>
 
         <?php
-        if (in_array($taskTableType, ['scheduled', 'queued'])) : ?>
-            <div class="flex justify-end margin-bottom-10 margin-right-15">
-                <input type="checkbox" class="select-all-checkbox lowopacity" checkbox-id="<?= $taskTableType . '-task' ?>" title="Select all" />
-            </div>
-            <?php
-        endif;
-
         foreach ($reloadableTableContent as $item) :
             $headerColor = '';
             $actionBtn = 'show-task-btn';

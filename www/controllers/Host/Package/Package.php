@@ -27,7 +27,7 @@ class Package
     /**
      *  Return package Id in database, based on its name and version
      */
-    private function getIdByNameVersion(string $name, string $version = null) : int|bool
+    private function getIdByNameVersion(string $name, string $version = '') : int|bool
     {
         return $this->model->getIdByNameVersion($name, $version);
     }
@@ -128,7 +128,7 @@ class Package
         }
 
         $dateEnd   = date('Y-m-d');
-        $dateStart = date_create($dateEnd)->modify("-${days} days")->format('Y-m-d');
+        $dateStart = date_create($dateEnd)->modify('-' . $days . ' days')->format('Y-m-d');
 
         return $this->model->countByStatusOverDays($status, $dateStart, $dateEnd);
     }
@@ -136,7 +136,7 @@ class Package
     /**
      *  Add a new package in database
      */
-    private function addPackage(string $name, string $version, string $state, string $type, string $date, string $time, string $eventId = null) : void
+    private function addPackage(string $name, string $version, string $state, string $type, string $date, string $time, string $eventId = '') : void
     {
         $this->model->addPackage($name, $version, $state, $type, $date, $time, $eventId);
     }
@@ -200,7 +200,7 @@ class Package
     /**
      *  Add package state in database
      */
-    public function setPackageState(string $name, string $version, string $state, string $date, string $time, string $eventId = null) : void
+    public function setPackageState(string $name, string $version, string $state, string $date, string $time, string $eventId = '') : void
     {
         /**
          *  If the package already exists in database, we update it

@@ -201,7 +201,7 @@ class Repo
         return $this->section;
     }
 
-    public function getPackageType()
+    public function getPackageType() : string
     {
         return $this->packageType;
     }

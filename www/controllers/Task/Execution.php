@@ -341,12 +341,12 @@ class Execution
                 // Send notifications if needed
                 // If the task has a notification on error, send it
                 if ($this->params['schedule']['schedule-notify-error'] == 'true' and $this->status == 'error') {
-                    $this->taskNotifyController->error($this->task, $this->error);
+                    $this->taskNotifyController->error($this->taskId, $this->error);
                 }
 
                 // If the task has a notification on success, send it
                 if ($this->params['schedule']['schedule-notify-success'] == 'true' and $this->status == 'done') {
-                    $this->taskNotifyController->success($this->task);
+                    $this->taskNotifyController->success($this->taskId);
                 }
 
                 // If it is a recurring task, duplicate the task in database and reschedule it

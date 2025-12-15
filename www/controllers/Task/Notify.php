@@ -2,111 +2,66 @@
 
 namespace Controllers\Task;
 
-use Exception;
-use Datetime;
+use \Controllers\Utils\Generate\Html\Label;
+use \Controllers\Mail;
 
-class Notify
+use Datetime;
+use Exception;
+use JsonException;
+
+class Notify extends Task
 {
     private $logController;
 
     public function __construct()
     {
+        parent::__construct();
+
         $this->logController = new \Controllers\Log\Log();
     }
 
     /**
      *  Generate task action details
      */
-    public function generateAction(array $taskRawParams)
+    private function generateAction(array $taskRawParams) : string
     {
-        $myRepo = new \Controllers\Repo\Repo();
-        $action = '';
+        $action = 'Unknown action';
 
-        /**
-         *  Generate action and repository details
-         */
-
-        /**
-         *  Case the action is 'create'
-         */
+        // Case the action is 'create'
         if ($taskRawParams['action'] == 'create') {
-            /**
-             *  If an alias is defined, use it, otherwise use the source repository name
-             */
-            if (!empty($taskRawParams['alias'])) {
-                $repo = $taskRawParams['alias'];
-            } else {
-                $repo = $taskRawParams['source'];
-            }
-
-            /**
-             *  If package type is deb, add dist and section
-             */
-            if ($taskRawParams['package-type'] == 'deb') {
-                $repo .= ' ❯ ' . $taskRawParams['dist'] . ' ❯ ' . $taskRawParams['section'];
-            }
-
-            /**
-             *  If package type is rpm, add releasever
-             */
-            if ($taskRawParams['package-type'] == 'rpm') {
-                $repo .= ' (release ver. ' . $taskRawParams['releasever'] . ')';
-            }
-
-            $action = '<b>Create new repository</b> <span class="label-transparent">' . $repo . '</span>';
+            $action = 'Create new repository';
         }
 
-        /**
-         *  Case the action is 'update', 'env', 'removeEnv', 'duplicate', 'rebuild' or 'delete'
-         */
+        // Case the action is 'update', 'env', 'removeEnv', 'duplicate', 'rebuild' or 'delete'
         if (in_array($taskRawParams['action'], ['update', 'duplicate', 'env', 'removeEnv', 'rebuild', 'delete'])) {
-            /**
-             *  Retrieve repository details
-             */
-            $myRepo->getAllById(null, $taskRawParams['snap-id']);
-
-            /**
-             *  Define repository name
-             */
-            $repo = $myRepo->getName();
-            if (!empty($myRepo->getDist()) and !empty($myRepo->getSection())) {
-                $repo .= ' ❯ ' . $myRepo->getDist() . ' ❯ ' . $myRepo->getSection();
-            }
-
             // Case the action is 'update'
             if ($taskRawParams['action'] == 'update') {
-                $action = '<b>Update repository</b> <span class="label-transparent">' . $repo . '</span> <span class="label-black">' . DateTime::createFromFormat('Y-m-d', $myRepo->getDate())->format('d-m-Y') . '</span>';
+                $action = 'Update repository';
             }
 
             // Case the action is 'duplicate'
             if ($taskRawParams['action'] == 'duplicate') {
-                $targetRepo = $taskRawParams['name'];
-
-                if (!empty($myRepo->getDist()) and !empty($myRepo->getSection())) {
-                    $targetRepo .= ' ❯ ' . $myRepo->getDist() . ' ❯ ' . $myRepo->getSection();
-                }
-
-                $action = '<b>Duplicate</b> <span class="label-transparent">' . $repo . '</span> <span class="label-black">' . DateTime::createFromFormat('Y-m-d', $myRepo->getDate())->format('d-m-Y') . '</span> <b>to</b> <span class="label-transparent">' . $targetRepo . '</span>';
+                $action = 'Duplicate';
             }
 
             // Case the action is 'env'
             if ($taskRawParams['action'] == 'env') {
-                $action = '<b>Point environment</b> <span class="label-transparent">' . $taskRawParams['env'] . '</span> <b>to</b> <span class="label-transparent">' . $repo . '</span> <span class="label-black">' . DateTime::createFromFormat('Y-m-d', $myRepo->getDate())->format('d-m-Y') . '</span>';
+                $action = 'Point environment';
             }
 
             // Case the action is 'removeEnv'
             if ($taskRawParams['action'] == 'removeEnv') {
-                $action = '<b>Remove environment</b> ' . $taskRawParams['env'] . ' <b>from repository</b> <span class="label-transparent">' . $repo . '</span> <span class="label-black">' . DateTime::createFromFormat('Y-m-d', $myRepo->getDate())->format('d-m-Y') . '</span>';
+                $action = 'Remove environment';
             }
 
             // Case the action is 'rebuild'
             if ($taskRawParams['action'] == 'rebuild') {
-                $action = '<b>Rebuild metadata of repository</b> <span class="label-transparent">' . $repo . '</span> <span class="label-black">' . DateTime::createFromFormat('Y-m-d', $myRepo->getDate())->format('d-m-Y') . '</span>';
+                $action = 'Rebuild repository metadata';
             }
 
             // Case the action is 'delete'
             if ($taskRawParams['action'] == 'delete') {
-                $action = '<b>Delete repository snapshot</b> <span class="label-transparent">' . $repo . '</span> <span class="label-black">' . DateTime::createFromFormat('Y-m-d', $myRepo->getDate())->format('d-m-Y') . '</span>';
+                $action = 'Delete repository snapshot';
             }
         }
 
@@ -114,31 +69,134 @@ class Notify
     }
 
     /**
+     *  Generate repository details for the task
+     */
+    private function generateRepository(array $taskRawParams) : array
+    {
+        $repoController = new \Controllers\Repo\Repo();
+
+        // Case the action is 'create'
+        if ($taskRawParams['action'] == 'create') {
+            // If an alias is defined, use it, otherwise use the source repository name
+            if (!empty($taskRawParams['alias'])) {
+                $repo = $taskRawParams['alias'];
+            } else {
+                $repo = $taskRawParams['source'];
+            }
+
+            // Case it's deb, add dist and section
+            if ($taskRawParams['package-type'] == 'deb') {
+                $repo .= ' ❯ ' . $taskRawParams['dist'] . ' ❯ ' . $taskRawParams['section'];
+            }
+
+            // Case it's rpm, add releasever
+            if ($taskRawParams['package-type'] == 'rpm') {
+                $repo .= ' ❯ ' . $taskRawParams['releasever'];
+            }
+
+            return [
+                'repository' => $repo
+            ];
+        }
+
+        // Case the action is 'update', 'env', 'removeEnv', 'duplicate', 'rebuild' or 'delete'
+        if (in_array($taskRawParams['action'], ['update', 'duplicate', 'env', 'removeEnv', 'rebuild', 'delete'])) {
+            // Retrieve repository details
+            $repoController->getAllById(null, $taskRawParams['snap-id']);
+
+            // Define repository name
+            $repo = $repoController->getName();
+
+            // Case it's deb, add dist and section
+            if ($repoController->getPackageType() == 'deb') {
+                $repo .= ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection();
+            }
+
+            // Case it's rpm, add releasever
+            if ($repoController->getPackageType() == 'rpm') {
+                $repo .= ' ❯ ' . $repoController->getReleasever();
+            }
+
+            // Case the action is 'update'
+            if ($taskRawParams['action'] == 'update') {
+                return [
+                    'repository'    => $repo,
+                    'snapshot-date' => DateTime::createFromFormat('Y-m-d', $repoController->getDate())->format('d-m-Y')
+                ];
+            }
+
+            // Case the action is 'duplicate'
+            if ($taskRawParams['action'] == 'duplicate') {
+                $targetRepo = $taskRawParams['name'];
+
+                // Case it's deb, add dist and section
+                if ($repoController->getPackageType() == 'deb') {
+                    $targetRepo .= ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection();
+                }
+
+                // Case it's rpm, add releasever
+                if ($repoController->getPackageType() == 'rpm') {
+                    $targetRepo .= ' ❯ ' . $repoController->getReleasever();
+                }
+
+                return [
+                    'repository'    => $repo,
+                    'snapshot-date' => DateTime::createFromFormat('Y-m-d', $repoController->getDate())->format('d-m-Y'),
+                    'target-repo'   => $targetRepo
+                ];
+            }
+
+            // Case the action is 'env'
+            if ($taskRawParams['action'] == 'env') {
+                return [
+                    'repository'    => $repo,
+                    'snapshot-date' => DateTime::createFromFormat('Y-m-d', $repoController->getDate())->format('d-m-Y'),
+                    'environment'   => $taskRawParams['env']
+                ];
+            }
+
+            // Case the action is 'removeEnv'
+            if ($taskRawParams['action'] == 'removeEnv') {
+                return [
+                    'repository'    => $repo,
+                    'snapshot-date' => DateTime::createFromFormat('Y-m-d', $repoController->getDate())->format('d-m-Y'),
+                    'environment'   => $taskRawParams['env']
+                ];
+            }
+
+            // Case the action is 'rebuild'
+            if ($taskRawParams['action'] == 'rebuild') {
+                return [
+                    'repository'    => $repo,
+                    'snapshot-date' => DateTime::createFromFormat('Y-m-d', $repoController->getDate())->format('d-m-Y')
+                ];
+            }
+
+            // Case the action is 'delete'
+            if ($taskRawParams['action'] == 'delete') {
+                return [
+                    'repository'    => $repo,
+                    'snapshot-date' => DateTime::createFromFormat('Y-m-d', $repoController->getDate())->format('d-m-Y')
+                ];
+            }
+        }
+
+        return [];
+    }
+
+    /**
      *  Generate and send tasks reminders
      *  https://mjml.io/
      */
-    public function reminder(array $taskIds)
+    public function reminder(array $taskIds) : void
     {
-        $myTask = new \Controllers\Task\Task();
-
         try {
             foreach ($taskIds as $taskId) {
-                /**
-                 *  Get task details
-                 */
-                $task = $myTask->getById($taskId);
-                $taskRawParams = json_decode($task['Raw_params'], true);
-
-                $message  = '<p>Task <b>#' . $taskId . '</b></p>';
-                $message .= '<p>Scheduled on <b>' . DateTime::createFromFormat('Y-m-d', $taskRawParams['schedule']['schedule-date'])->format('d-m-Y') . ' ' . $taskRawParams['schedule']['schedule-time'] . '</b></p>';
-                $message .= '<p>Action: ' . $this->generateAction($taskRawParams) . '</p>';
-                $message .= '<br>';
-
-                /**
-                 *  Send email
-                 */
-                $mailSubject = '[ Reminder ] Scheduled task #' . $taskId . ' to come on ' . WWW_HOSTNAME;
-                new \Controllers\Mail(implode(',', $taskRawParams['schedule']['schedule-recipient']), $mailSubject, $message, __SERVER_PROTOCOL__ . '://' . WWW_HOSTNAME . '/run', 'Tasks');
+                $this->send(
+                    $taskId,
+                    '📅​ Reminder: scheduled task #' . $taskId . ' on ' . WWW_HOSTNAME,
+                    'scheduled'
+                );
             }
         } catch (Exception $e) {
             $this->logController->log('error', 'Service', 'Error while sending scheduled tasks reminder: ' . $e->getMessage());
@@ -148,33 +206,144 @@ class Notify
     /**
      *  Notify task error
      */
-    public function error(array $task, string $error)
+    public function error(int $taskId, string $error) : void
     {
-        $taskRawParams = json_decode($task['Raw_params'], true);
-
-        $message  = '<p>Scheduled task <b>#' . $task['Id'] . '</b> failed</p>';
-        $message .= '<p>Executed on: <b>' . DateTime::createFromFormat('Y-m-d', $task['Date'])->format('d-m-Y') . ' ' . $task['Time'] . '</b></p>';
-        $message .= '<p>Action: ' . $this->generateAction($taskRawParams) . '</p>';
-        $message .= '<p>Error: ' . $error . '</p>';
-        $message .= '<br>';
-
-        $mailSubject = '[ ERROR ] Scheduled task #' . $task['Id'] . ' failed on ' . WWW_HOSTNAME;
-        new \Controllers\Mail(implode(',', $taskRawParams['schedule']['schedule-recipient']), $mailSubject, $message, __SERVER_PROTOCOL__ . '://' . WWW_HOSTNAME . '/run/' . $task['Id'], 'View task log');
+        $this->send($taskId, '❌​ Scheduled task #' . $taskId . ' failed on ' . WWW_HOSTNAME, 'error: ' . strip_tags($error));
     }
 
     /**
      *  Notify task success
      */
-    public function success(array $task)
+    public function success(int $taskId) : void
     {
-        $taskRawParams = json_decode($task['Raw_params'], true);
+        $this->send($taskId, '✅​ Scheduled task #' . $taskId . ' succeeded on ' . WWW_HOSTNAME, 'success');
+    }
 
-        $message  = '<p>Scheduled task <b>#' . $task['Id'] . '</b> succeeded</p>';
-        $message .= '<p>Executed on: <b>' . DateTime::createFromFormat('Y-m-d', $task['Date'])->format('d-m-Y') . ' ' . $task['Time'] . '</b></p>';
-        $message .= '<p>Action: ' . $this->generateAction($taskRawParams) . '</p>';
-        $message .= '<br>';
+    /**
+     *  Generate and send task message
+     */
+    private function send(int $taskId, string $mailSubject, string $status) : void
+    {
+        $btn = 'View task log';
 
-        $mailSubject = '[ SUCCESS ] Scheduled task #' . $task['Id'] . ' succeeded on ' . WWW_HOSTNAME;
-        new \Controllers\Mail(implode(',', $taskRawParams['schedule']['schedule-recipient']), $mailSubject, $message, __SERVER_PROTOCOL__ . '://' . WWW_HOSTNAME . '/run/' . $task['Id'], 'View task log');
+        try {
+            // Status must be either 'success', 'error' or 'scheduled'
+            if (!in_array($status, ['success', 'error', 'scheduled'])) {
+                throw new Exception('invalid task status ' . $status);
+            }
+
+            if ($status == 'scheduled') {
+                $btn = 'Go to tasks list';
+            }
+
+            // Get task details
+            $task = $this->getById($taskId);
+
+            try {
+                $taskRawParams = json_decode($task['Raw_params'], true);
+            } catch (JsonException $e) {
+                throw new Exception('cannot decode JSON parameters: ' . $e->getMessage());
+            }
+
+            // Task Id
+            $message  = '<h1 style="margin:0px">Task #' . $task['Id'] . '</h1>';
+            $message .= '<hr style="margin-top:25px; margin-bottom:20px;">';
+
+            // Date and time
+
+            // Case it is a done task (success or error), show date and time
+            if (in_array($status, ['success', 'error'])) {
+                if (!empty($task['Date']) and !empty($task['Time'])) {
+                    $message .= '<p>Date: <b>' . DateTime::createFromFormat('Y-m-d', $task['Date'])->format('d-m-Y') . ' ' . $task['Time'] . '</b></p>';
+                }
+            }
+
+            // Case it is a scheduled task (reminder), show scheduled date and time
+            if ($status == 'scheduled') {
+                if ($taskRawParams['schedule']['schedule-type'] == 'unique') {
+                    $scheduleDate = $taskRawParams['schedule']['schedule-date'];
+                    $scheduleTime = $taskRawParams['schedule']['schedule-time'];
+
+                    $message .= '<p>Scheduled date: <b>' . DateTime::createFromFormat('Y-m-d', $scheduleDate)->format('d-m-Y') . ' ' . $scheduleTime . '</b></p>';
+                }
+
+                // TODO: reccuring tasks are not yet supported for reminders (see sendReminders() in ScheduledTask.php)
+                if ($taskRawParams['schedule']['schedule-type'] == 'recurring') {
+                    // Hourly
+                    if ($taskRawParams['schedule']['schedule-frequency'] == 'hourly') {
+                        $message .= '<p>Scheduled interval: <b>Every hour<b></p>';
+                    }
+
+                    // Daily
+                    if ($taskRawParams['schedule']['schedule-frequency'] == 'daily') {
+                        $message .= '<p>Scheduled interval: <b>Every day at ' . $taskRawParams['schedule']['schedule-time'] . '<b></p>';
+                    }
+
+                    // Weekly
+                    if ($taskRawParams['schedule']['schedule-frequency'] == 'weekly') {
+                        $message .= '<p>Scheduled interval: <b>Every ' . ucfirst($taskRawParams['schedule']['schedule-day']) . ' at ' . $taskRawParams['schedule']['schedule-time'] . '<b></p>';
+                    }
+
+                    // Monthly
+                    if ($taskRawParams['schedule']['schedule-frequency'] == 'monthly') {
+                        $message .= '<p>Scheduled interval: <b>Every month on day ' . $taskRawParams['schedule']['schedule-day'] . ' at ' . $taskRawParams['schedule']['schedule-time'] . '<b></p>';
+                    }
+                }
+            }
+
+            // Action
+            $message .= '<p>Action: <b>' . $this->generateAction($taskRawParams) . '</b></p>';
+
+            // Repository details
+            foreach ($this->generateRepository($taskRawParams) as $key => $value) {
+                if ($key == 'repository') {
+                    $message .= '<p>Repository: <span class="label-transparent">' . $value . '</span></p>';
+                }
+
+                if ($key == 'snapshot-date') {
+                    $message .= '<p>Snapshot date: <span class="label-black">' . $value . '</span></p>';
+                }
+
+                if ($key == 'environment') {
+                    $message .= '<p>Environment: ';
+
+                    foreach ($value as $env) {
+                        $message .= Label::envtag($env) . ' ';
+                    }
+
+                    $message .= '</p>';
+                }
+
+                if ($key == 'target-repo') {
+                    $message .= '<p>Target repository: <span class="label-transparent">' . $value . '</span></p>';
+                }
+            }
+
+            // Duration
+            if (!empty($task['Duration'])) {
+                $message .= 'Total duration: <b>' . $task['Duration'] . '</b></p>';
+            }
+
+            // Status (success, error, scheduled)
+            $message .= '<p>Status: <b>';
+
+            if ($status == 'success') {
+                $message .= '✅ Success';
+            }
+            if ($status == 'error') {
+                $message .= '❌ Error';
+            }
+            if ($status == 'scheduled') {
+                $message .= '📅 Scheduled';
+            }
+
+            $message .= '</b></p>';
+            $message .= '<br>';
+
+            // Send email
+            new Mail(implode(',', $taskRawParams['schedule']['schedule-recipient']), $mailSubject, $message, __SERVER_PROTOCOL__ . '://' . WWW_HOSTNAME . '/run/' . $task['Id'], $btn);
+        } catch (Exception $e) {
+            $this->logController->log('error', 'Service', 'Error while sending scheduled task #' . $taskId . ' notification: ' . $e->getMessage());
+        }
     }
 }

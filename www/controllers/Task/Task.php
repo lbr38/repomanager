@@ -10,7 +10,6 @@ class Task
 {
     private $id;
     private $pid;
-    private $model;
     private $action;
     private $status;
     private $error;
@@ -22,7 +21,7 @@ class Task
     private $gpgSign;
     private $timeStart;
     private $timeEnd;
-
+    protected $model;
     private $profileController;
     private $layoutContainerReloadController;
 
@@ -307,25 +306,27 @@ class Task
             /**
              *  Clean some parameters captured in the form as they are not needed for some scheduled tasks
              */
-            if ($params['schedule']['schedule-frequency'] == 'hourly') {
-                unset($params['schedule']['schedule-monthly-day-position']);
-                unset($params['schedule']['schedule-monthly-day']);
-                unset($params['schedule']['schedule-day']);
-            }
+            if (isset($params['schedule']['schedule-frequency'])) {
+                if ($params['schedule']['schedule-frequency'] == 'hourly') {
+                    unset($params['schedule']['schedule-monthly-day-position']);
+                    unset($params['schedule']['schedule-monthly-day']);
+                    unset($params['schedule']['schedule-day']);
+                }
 
-            if ($params['schedule']['schedule-frequency'] == 'daily') {
-                unset($params['schedule']['schedule-monthly-day-position']);
-                unset($params['schedule']['schedule-monthly-day']);
-                unset($params['schedule']['schedule-day']);
-            }
+                if ($params['schedule']['schedule-frequency'] == 'daily') {
+                    unset($params['schedule']['schedule-monthly-day-position']);
+                    unset($params['schedule']['schedule-monthly-day']);
+                    unset($params['schedule']['schedule-day']);
+                }
 
-            if ($params['schedule']['schedule-frequency'] == 'weekly') {
-                unset($params['schedule']['schedule-monthly-day-position']);
-                unset($params['schedule']['schedule-monthly-day']);
-            }
+                if ($params['schedule']['schedule-frequency'] == 'weekly') {
+                    unset($params['schedule']['schedule-monthly-day-position']);
+                    unset($params['schedule']['schedule-monthly-day']);
+                }
 
-            if ($params['schedule']['schedule-frequency'] == 'monthly') {
-                unset($params['schedule']['schedule-day']);
+                if ($params['schedule']['schedule-frequency'] == 'monthly') {
+                    unset($params['schedule']['schedule-day']);
+                }
             }
         }
 

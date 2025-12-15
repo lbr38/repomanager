@@ -13,6 +13,7 @@ class Label
         $class = 'env';
         $color = '#000000';
         $background = '#ffffff';
+        $border = '';
 
         // Retrieve color from ENVS array
         if (defined('ENVS')) {
@@ -20,16 +21,22 @@ class Label
                 if ($env['Name'] == $name and !empty($env['Color'])) {
                     $background = $env['Color'];
                     // Get contrasting text color
-                    $color = \Controllers\Utils\Generate\Html\Color::contrastingText($background);
+                    $color = Color::contrastingText($background);
                 }
             }
+        }
+
+        if ($background == '#ffffff') {
+            $border = '1px solid #949494';
+        } else {
+            $border = '1px solid ' . $background;
         }
 
         if ($css == 'fit') {
             $class = 'env-fit';
         }
 
-        return '<span class="' . $class . '" style="background-color: ' . $background . '; color: ' . $color . '">' . $name . '</span>';
+        return '<span class="' . $class . '" style="background-color: ' . $background . '; color: ' . $color . '; border: ' . $border . '">' . $name . '</span>';
     }
 
     /**

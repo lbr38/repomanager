@@ -456,26 +456,6 @@ class Repo extends \Models\Model
     }
 
     /**
-     *  Vérifie que l'Id d'environnement existe en base de données
-     */
-    public function existsEnvId(string $id)
-    {
-        try {
-            $stmt = $this->db->prepare("SELECT Id FROM repos_env WHERE Id = :id");
-            $stmt->bindValue(':id', $id);
-            $result = $stmt->execute();
-        } catch (Exception $e) {
-            DbLog::error($e);
-        }
-
-        if ($this->db->isempty($result) === true) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      *  Return true if env exists, based on its name and the snapshot Id it points to
      */
     public function existsSnapIdEnv(string $snapId, string $env)

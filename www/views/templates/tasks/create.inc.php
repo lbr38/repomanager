@@ -15,7 +15,7 @@
             <div class="flex align-item-center column-gap-5 justify-end">
                 <p title="Task Id">Task #<?= $taskId ?></p>
                 <?php
-                if (DEVEL and file_exists(MAIN_LOGS_DIR . '/repomanager-task-' . $taskId . '-log.process')) {
+                if ((DEVEL or \Controllers\App\DebugMode::enabled()) and file_exists(MAIN_LOGS_DIR . '/repomanager-task-' . $taskId . '-log.process')) {
                     echo '<img src="/assets/icons/file.svg" class="icon view-task-process-log" task-id="' . $taskId . '" title="Debug log" />';
                 } ?>
             </div>

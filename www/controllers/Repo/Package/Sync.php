@@ -7,6 +7,7 @@ use \Controllers\Filesystem\Directory;
 use \Controllers\Repo\Source\Source;
 use \Controllers\Repo\Mirror\Rpm;
 use \Controllers\Repo\Mirror\Deb;
+use \Controllers\App\DebugMode;
 use Exception;
 use JsonException;
 
@@ -308,7 +309,7 @@ trait Sync
             /**
              *  If there was an error while mirroring, delete working dir if exists
              */
-            if (is_dir($workingDir)) {
+            if (is_dir($workingDir) and !DebugMode::enabled()) {
                 Directory::deleteRecursive($workingDir);
             }
 

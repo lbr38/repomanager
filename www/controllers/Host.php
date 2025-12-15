@@ -2,6 +2,10 @@
 
 namespace Controllers;
 
+use \Controllers\Host\Package\Package as HostPackage;
+use \Controllers\Host\Request as HostRequest;
+use \Controllers\Group\Host as HostGroup;
+use \Controllers\Layout\ContainerReload;
 use \Controllers\Filesystem\Directory;
 use \Controllers\Utils\Validate;
 use Exception;
@@ -16,7 +20,7 @@ class Host
     public function __construct()
     {
         $this->model = new \Models\Host();
-        $this->layoutContainerReloadController = new \Controllers\Layout\ContainerReload();
+        $this->layoutContainerReloadController = new ContainerReload();
     }
 
     /**
@@ -317,7 +321,7 @@ class Host
      */
     public function deleteById(int $id) : void
     {
-        $hostRequestController = new \Controllers\Host\Request();
+        $hostRequestController = new HostRequest();
 
         /**
          *  Delete host from database
@@ -365,7 +369,7 @@ class Host
          *  For each host, search for the package in the host's database and return the result
          */
         foreach ($hosts as $id) {
-            $hostPackageController = new \Controllers\Host\Package\Package($id);
+            $hostPackageController = new HostPackage($id);
             $results[$id] = $hostPackageController->searchPackage($name, $version, $strictName, $strictVersion);
         }
 
@@ -377,9 +381,9 @@ class Host
     /**
      *  Add/delete hosts to/from a group
      */
-    public function addHostsIdToGroup(array $hostsId = null, int $groupId) : void
+    public function addHostsIdToGroup(array $hostsId = [], int $groupId) : void
     {
-        $mygroup = new \Controllers\Group\Host();
+        $mygroup = new HostGroup();
 
         if (!empty($hostsId)) {
             foreach ($hostsId as $hostId) {

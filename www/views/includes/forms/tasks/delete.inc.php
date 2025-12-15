@@ -5,8 +5,16 @@ if ($myrepo->getPackageType() == 'rpm') {
     echo '<span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getReleasever() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span>';
 }
 if ($myrepo->getPackageType() == 'deb') {
-    echo '<span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span>';
+    echo '<p><span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span></p>';
 }
+
+if ($scheduledTasksCount > 0) : ?>
+    <div class="flex align-items-center column-gap-5 margin-top-15">
+        <img src="/assets/icons/warning.svg" class="icon-np" />
+        <p class="note yellowtext">There <?= $scheduledTasksCount > 1 ? 'are' : 'is' ?> <b><?= $scheduledTasksCount ?></b> scheduled <?= $scheduledTasksCount > 1 ? 'tasks' : 'task' ?> associated with this snapshot. Deleting this snapshot will also delete those tasks.</p>
+    </div>
+    <?php
+endif;
 
 /**
  *  Define schedule form action and allowed type(s)

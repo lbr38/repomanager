@@ -111,7 +111,7 @@ class Import
                 try {
                     $this->httpRequestController->get([
                         'url'        => $feedUrl,
-                        'outputFile' => DATA_DIR . '/cve-feed.gz',
+                        'outputToFile' => DATA_DIR . '/cve-feed.gz',
                         'timeout'    => 30,
                         'proxy'      => PROXY ?? null,
                     ]);

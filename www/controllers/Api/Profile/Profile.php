@@ -54,7 +54,12 @@ class Profile extends \Controllers\Api\Controller
              *  Return profile packages excludes
              */
             if ($this->component == 'excludes') {
-                return ['results' => [$myprofile->getProfilePackagesConfiguration($this->profile)]];
+                $configuration = $myprofile->getProfileConfiguration($this->profile);
+
+                return ['results' => [
+                    'Package_exclude' => $configuration['Package_exclude'],
+                    'Package_exclude_major' => $configuration['Package_exclude_major'],
+                ]];
             }
 
             /**

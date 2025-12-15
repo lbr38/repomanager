@@ -2,8 +2,6 @@
 
 namespace Controllers\Service\Unit;
 
-use Exception;
-
 class WebsocketServer extends \Controllers\Service\Service
 {
     private $wssController;

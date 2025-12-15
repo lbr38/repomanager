@@ -343,6 +343,9 @@ class Package extends \Models\Model
                 }
             }
 
+            // Only get installed packages
+            $query .= " and (State = 'inventored' or State = 'installed' or State = 'dep-installed' or State = 'upgraded' or State = 'downgraded')";
+
             // Prepare the query
             $stmt = $this->dedicatedDb->prepare($query);
 

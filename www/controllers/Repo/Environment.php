@@ -17,7 +17,7 @@ class Environment
     /**
      *  Associate a new environment to a snapshot
      */
-    public function add(string $env, string $description = null, int $snapId) : void
+    public function add(string $env, string $description = '', int $snapId) : void
     {
         $this->model->add($env, $description, $snapId);
     }
@@ -41,5 +41,13 @@ class Environment
         }
 
         $this->model->updateDescription($id, Validate::string($description));
+    }
+
+    /**
+     *  Return true if the repository environment Id exists
+     */
+    public function exists(int $id) : bool
+    {
+        return $this->model->exists($id);
     }
 }

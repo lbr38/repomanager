@@ -7,9 +7,13 @@ use Exception;
 
 class Delete extends \Controllers\Task\Execution
 {
+    private $scheduledTaskController;
+
     public function __construct(string $taskId)
     {
         parent::__construct($taskId, 'delete');
+
+        $this->scheduledTaskController = new \Controllers\Task\Scheduled();
 
         // Execute the task
         try {
@@ -95,6 +99,9 @@ class Delete extends \Controllers\Task\Execution
 
         // Clean unused repos in groups
         $this->repoController->cleanGroups();
+
+        // Delete any scheduled tasks that were using this snapshot
+        $this->scheduledTaskController->deleteBySnapId($this->repoController->getSnapId());
 
         // Delete the parent directories if they are empty
         if ($this->repoController->getPackageType() == 'rpm') {

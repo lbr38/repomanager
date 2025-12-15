@@ -57,6 +57,7 @@ class Snapshot
         $removedSnapsError = [];
         $removedSnapsFinalArray = [];
         $repoListingController = new \Controllers\Repo\Listing();
+        $scheduledTaskController = new \Controllers\Task\Scheduled();
 
         /**
          *  Get the list of all repositories with active snapshots
@@ -156,6 +157,13 @@ class Snapshot
                  *  Change the status in the database
                  */
                 $this->updateStatus($snapId, 'deleted');
+
+                // Delete any scheduled tasks that were using this snapshot
+                try {
+                    $scheduledTaskController->deleteBySnapId($snapId);
+                } catch (Exception $e) {
+                    $removedSnapsError[] = 'Error while deleting scheduled tasks using snapshot <span class="label-white">' . $repoName . '</span>⸺<span class="label-black">' . $snapDateFormatted . '</span>: ' . $e->getMessage();
+                }
             }
         }
 

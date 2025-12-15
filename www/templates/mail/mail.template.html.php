@@ -43,7 +43,7 @@
 
     p {
       display: block;
-      line-height: 15px;
+      line-height: 1;
     }
 
     .sub-title {
@@ -51,25 +51,24 @@
       text-align: center;
     }
 
-    .label-black {
-      font-size: 13px;
-      padding: 4px;
+    .label-black, .label-transparent, .env {
+      font-size: 12px;
+      padding: 0 4px 0 4px;
       text-align: center;
       border-radius: 60px;
+      display: inline-block;
+      line-height: 1.5;
+    }
+
+    .label-black {
       color: white;
       background-color: rgb(46, 54, 58);
-      display: inline-block;
     }
 
     .label-transparent {
-      font-size: 13px;
-      padding: 4px;
-      text-align: center;
-      border-radius: 60px;
       color: black;
-      background-color: #f4f4f4;
-      border: 1px solid rgb(46, 54, 58);
-      display: inline-block;
+      background-color: #ffffff;
+      border: 1px solid #949494;
     }
 
   </style>

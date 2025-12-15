@@ -17,7 +17,7 @@ class File
     /**
      *  Write an error message to the file
      */
-    public static function error(string $file, string $message, string $title = null) : void
+    public static function error(string $file, string $message, string $title = '') : void
     {
         if (!is_null($title)) {
             file_put_contents($file, self::date() . '[ERR] ' . $title . ':' . PHP_EOL, FILE_APPEND);
@@ -31,7 +31,7 @@ class File
     /**
      *  Write a warning message to the file
      */
-    public static function warning(string $file, string $message, string $title = null) : void
+    public static function warning(string $file, string $message, string $title = '') : void
     {
         if (!is_null($title)) {
             file_put_contents($file, self::date() . '[WRN] ' . $title . ':' . PHP_EOL, FILE_APPEND);

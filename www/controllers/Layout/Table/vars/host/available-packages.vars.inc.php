@@ -53,7 +53,7 @@ if (!empty($host['Profile'])) {
     /**
      *  Get the host profile configuration to retrieve the list of packages that are excluded
      */
-    $profileConfiguration = $profileController->getProfilePackagesConfiguration($host['Profile']);
+    $profileConfiguration = $profileController->getProfileConfiguration($host['Profile']);
 
     /**
      *  Get the list of packages that are excluded from updates

@@ -11,7 +11,7 @@ repositories:
       - name: 10
         description: RHEL 10 and derivatives
         gpgkeys:
-          - link: https://rpms.remirepo.net/enterprise/10.0/RPM-GPG-KEY-remi
+          - link: https://rpms.remirepo.net/enterprise/10/RPM-GPG-KEY-remi
 
       # RHEL/CentOS 9
       - name: 9

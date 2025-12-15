@@ -69,9 +69,9 @@ class Profile
     }
 
     /**
-     *  Get profile full configuration from database
+     *  Get profile configuration
      */
-    public function getProfileFullConfiguration(string $profile)
+    public function getProfileConfiguration(string $profile) : array
     {
         /**
          *  Check that profile exists
@@ -88,51 +88,7 @@ class Profile
         /**
          *  Get profile full configuration
          */
-        return $this->model->getProfileFullConfiguration($profileId);
-    }
-
-    /**
-     *  Get profile configuration
-     */
-    public function getProfileConfiguration(string $profile)
-    {
-        $configuration = [];
-
-        /**
-         *  Get profile full configuration
-         */
-        $fullConfiguration = $this->getProfileFullConfiguration($profile);
-
-        /**
-         *  Return only main configuration
-         *  For now we only return the profile name but we could return more in the future
-         */
-        $configuration['Name'] = $fullConfiguration['Name'];
-
-        return $configuration;
-    }
-
-    /**
-     *  Get profile packages excludes configuration
-     */
-    public function getProfilePackagesConfiguration(string $profile)
-    {
-        $configuration = [];
-
-        /**
-         *  Get profile full configuration
-         */
-        $fullConfiguration = $this->getProfileFullConfiguration($profile);
-
-        /**
-         *  Return only packages configuration
-         */
-        $configuration['Package_exclude'] = $fullConfiguration['Package_exclude'];
-        $configuration['Package_exclude_major'] = $fullConfiguration['Package_exclude_major'];
-        $configuration['Service_reload'] = $fullConfiguration['Service_reload'];
-        $configuration['Service_restart'] = $fullConfiguration['Service_restart'];
-
-        return $configuration;
+        return $this->model->getProfileConfiguration($profileId);
     }
 
     /**
@@ -321,7 +277,7 @@ class Profile
         /**
          *  Retrieve source profile configuration
          */
-        $profileConf = $this->model->getProfileFullConfiguration($id);
+        $profileConf = $this->model->getProfileConfiguration($id);
 
         /**
          *  Copy source profile configuration to new profile

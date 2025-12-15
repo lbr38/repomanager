@@ -21,6 +21,8 @@ class Form
 
         foreach ($repos as $repo) {
             $myrepo = new \Controllers\Repo\Repo();
+            $repoEnvController = new \Controllers\Repo\Environment();
+            $scheduledTaskController = new \Controllers\Task\Scheduled();
             $repoId = Validate::string($repo['repo-id']);
             $snapId = Validate::string($repo['snap-id']);
             $envId  = null;
@@ -57,7 +59,7 @@ class Form
                 throw new Exception("Snapshot Id does not exist");
             }
             if (!is_null($envId)) {
-                if (!$myrepo->existsEnvId($envId)) {
+                if (!$repoEnvController->exists($envId)) {
                     throw new Exception("Environment Id does not exist");
                 }
             }
@@ -71,6 +73,10 @@ class Form
              *  Retrieve the package type of the repo
              */
             $packageType = $myrepo->getPackageType();
+
+            // Get scheduled tasks on this snapshot (if any) and count them
+            $scheduledTasks = $scheduledTaskController->getBySnapId($snapId);
+            $scheduledTasksCount = count($scheduledTasks);
 
             /**
              *  Build the form from a template

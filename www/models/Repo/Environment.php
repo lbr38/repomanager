@@ -56,4 +56,24 @@ class Environment extends \Models\Model
             DbLog::error($e);
         }
     }
+
+    /**
+     *  Return true if the repository environment Id exists
+     */
+    public function exists(int $id)
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT Id FROM repos_env WHERE Id = :id");
+            $stmt->bindValue(':id', $id);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+
+        if ($this->db->isempty($result) === true) {
+            return false;
+        }
+
+        return true;
+    }
 }

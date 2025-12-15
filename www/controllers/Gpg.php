@@ -452,7 +452,7 @@ class Gpg
 
         // Check if the URL is reachable
         try {
-            $this->httpRequestController->get([
+            $this->httpRequestController->reachable([
                 'url' => $url,
                 'connectTimeout' => 5,
                 'proxy' => PROXY ?? null,
@@ -468,6 +468,7 @@ class Gpg
                 'connectTimeout' => 5,
                 'timeout'        => 10,
                 'proxy'          => PROXY ?? null,
+                'returnOutput'   => true
             ]);
 
             if (empty($output)) {
