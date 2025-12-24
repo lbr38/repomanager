@@ -8,6 +8,7 @@ $mysource = new \Controllers\Repo\Source\Source();
 /**
  *  If no sources repositories are defined, import some default ones
  */
+
 try {
     $sources = $mysource->listAll();
 
@@ -37,5 +38,6 @@ try {
      */
     $mysource->import($lists);
 } catch (Exception $e) {
-    throw new Exception('could not import default source repositories: ' . $e->getMessage());
+    \Controllers\Log\Cli::warning('Could not import default source repositories: ' . $e->getMessage());
+    \Controllers\Log\Cli::warning('Try to import them manually later from the web interface.');
 }

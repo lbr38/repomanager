@@ -14,16 +14,23 @@ trait Create
      */
     private function createMetadata()
     {
-        $createMetadataError = 0;
-        $createMetadataErrorMsg = '';
+        $workingDir = REPOS_DIR . '/temporary-task-' . $this->taskId;
 
         $this->taskLogStepController->new('create-repo-metadata', 'CREATING REPOSITORY');
 
+        // Define final snapshot path and parent directory
         if ($this->repoController->getPackageType() == 'rpm') {
-            $snapshotPath = REPOS_DIR . '/rpm/' . $this->repoController->getName() . '/' . $this->repoController->getReleasever() . '/' . $this->repoController->getDate();
+            $parentDir = REPOS_DIR . '/rpm/' . $this->repoController->getName() . '/' . $this->repoController->getReleasever();
+            $snapshotPath = $parentDir . '/' . $this->repoController->getDate();
         }
         if ($this->repoController->getPackageType() == 'deb') {
-            $snapshotPath = REPOS_DIR . '/deb/' . $this->repoController->getName() . '/' . $this->repoController->getDist() . '/' . $this->repoController->getSection() . '/' . $this->repoController->getDate();
+            $parentDir = REPOS_DIR . '/deb/' . $this->repoController->getName() . '/' . $this->repoController->getDist() . '/' . $this->repoController->getSection();
+            $snapshotPath = $parentDir . '/' . $this->repoController->getDate();
+        }
+
+        // If action is 'rebuild', set working dir to the existing snapshot path
+        if ($this->action == 'rebuild') {
+            $workingDir = $snapshotPath;
         }
 
         /**
@@ -32,13 +39,13 @@ trait Create
         try {
             if ($this->repoController->getPackageType() == 'rpm') {
                 $mymetadata = new RpmMetadata($this->taskId);
-                $mymetadata->setRoot($snapshotPath);
+                $mymetadata->setRoot($workingDir);
                 $mymetadata->create();
             }
 
             if ($this->repoController->getPackageType() == 'deb') {
                 $mymetadata = new DebMetadata($this->taskId);
-                $mymetadata->setRoot($snapshotPath);
+                $mymetadata->setRoot($workingDir);
                 $mymetadata->setRepo($this->repoController->getName());
                 $mymetadata->setDist($this->repoController->getDist());
                 $mymetadata->setSection($this->repoController->getSection());
@@ -47,52 +54,40 @@ trait Create
                 $mymetadata->create();
             }
         } catch (Exception $e) {
-            $createMetadataError++;
-            $createMetadataErrorMsg = $e->getMessage();
-        }
-
-        /**
-         *  If there was error while creating metadata, then delete everything
-         */
-        if ($createMetadataError != 0) {
-            /**
-             *  Delete everything to make sure the task can be relaunched (except if action is 'rebuild')
-             */
-            if ($this->action != 'rebuild') {
-                if ($this->repoController->getPackageType() == 'rpm') {
-                    if (!Directory::deleteRecursive($snapshotPath)) {
-                        throw new Exception('Repository creation has failed and directory cannot be cleaned: ' . $snapshotPath);
-                    }
-                }
-                if ($this->repoController->getPackageType() == 'deb') {
-                    if (!Directory::deleteRecursive($snapshotPath)) {
-                        throw new Exception('Repository creation has failed and directory cannot be cleaned: ' . $snapshotPath);
-                    }
-                }
-            }
-
-            /**
-             *  Throw exception to stop the process
-             */
-            $msg = 'Repository creation has failed';
-
-            if (!empty($createMetadataErrorMsg)) {
-                $msg .= ': ' . $createMetadataErrorMsg;
-            }
-
-            throw new Exception($msg);
+            throw new Exception('Repository creation has failed: ' . $e->getMessage());
         }
 
         $this->taskLogSubStepController->completed();
 
-        $this->taskLogSubStepController->new('pointing-env', 'POINTING ENVIRONMENT(S)');
-
-        /**
-         *  Create symbolic link (environment)
-         *  Only if user has specified to point an environment to the created snapshot
-         */
         if ($this->action == 'create' or $this->action == 'update') {
+            // Rename temporary working dir to the final path
+
+            // Delete the target snapshot directory if it already exists
+            if (is_dir($snapshotPath)) {
+                if (!Directory::deleteRecursive($snapshotPath)) {
+                    throw new Exception('Cannot delete existing directory: ' . $snapshotPath);
+                }
+            }
+
+            // Create parent directory if not exists
+            if (!is_dir($parentDir)) {
+                if (!mkdir($parentDir, 0770, true)) {
+                    throw new Exception('Could not create directory: ' . $parentDir);
+                }
+            }
+
+            // Rename temporary working directory to the final snapshot path
+            if (!rename($workingDir, $snapshotPath)) {
+                throw new Exception('Could not rename working directory ' . $workingDir);
+            }
+
+            /**
+             *  Create symbolic link (environment)
+             *  Only if user has specified to point an environment to the created snapshot
+             */
             if (!empty($this->repoController->getEnv())) {
+                $this->taskLogSubStepController->new('pointing-env', 'POINTING ENVIRONMENT(S)');
+
                 foreach ($this->repoController->getEnv() as $env) {
                     if ($this->repoController->getPackageType() == 'rpm') {
                         $link = REPOS_DIR . '/rpm/' . $this->repoController->getName() . '/' . $this->repoController->getReleasever() . '/' . $env;
@@ -119,10 +114,10 @@ trait Create
 
                     unset($link);
                 }
+
+                $this->taskLogSubStepController->completed();
             }
         }
-
-        $this->taskLogSubStepController->completed();
 
         $this->taskLogStepController->completed();
     }

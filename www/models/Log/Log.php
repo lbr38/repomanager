@@ -15,12 +15,12 @@ class Log extends \Models\Model
     /**
      *  Get all logs or logs of a specific type
      */
-    public function getUnread(string $type = null, int $limit = 0)
+    public function getUnread(string $type = '', int $limit = 0)
     {
         $logs = [];
 
         try {
-            if ($type == null) {
+            if (empty($type)) {
                 $query = "SELECT * FROM logs WHERE Status = 'new' ORDER BY Date DESC, Time DESC";
             }
             if ($type == 'error') {

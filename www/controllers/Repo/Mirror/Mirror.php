@@ -240,6 +240,16 @@ class Mirror
     }
 
     /**
+     *  Create .completed file to indicate that downloading is complete
+     */
+    protected function createCompletedFile(string $path) : void
+    {
+        if (!touch($path . '.completed')) {
+            throw new Exception('Cannot create .completed file for ' . $path);
+        }
+    }
+
+    /**
      *  Clean remaining files in working directory
      */
     public function clean() : void

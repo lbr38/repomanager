@@ -284,34 +284,34 @@ trait Sync
             /**
              *  Delete the target snapshot directory if it already exists
              */
-            if (is_dir($snapshotPath)) {
-                if (!Directory::deleteRecursive($snapshotPath)) {
-                    throw new Exception('Cannot delete existing directory: ' . $snapshotPath);
-                }
-            }
+            // if (is_dir($snapshotPath)) {
+            //     if (!Directory::deleteRecursive($snapshotPath)) {
+            //         throw new Exception('Cannot delete existing directory: ' . $snapshotPath);
+            //     }
+            // }
 
-            /**
-             *  Create parent directory if not exists
-             */
-            if (!is_dir($parentDir)) {
-                if (!mkdir($parentDir, 0770, true)) {
-                    throw new Exception('Could not create directory: ' . $parentDir);
-                }
-            }
+            // /**
+            //  *  Create parent directory if not exists
+            //  */
+            // if (!is_dir($parentDir)) {
+            //     if (!mkdir($parentDir, 0770, true)) {
+            //         throw new Exception('Could not create directory: ' . $parentDir);
+            //     }
+            // }
 
             /**
              *  Rename temporary working directory to the final snapshot path
              */
-            if (!rename($workingDir, $snapshotPath)) {
-                throw new Exception('Could not rename working directory ' . $workingDir);
-            }
+            // if (!rename($workingDir, $snapshotPath)) {
+            //     throw new Exception('Could not rename working directory ' . $workingDir);
+            // }
         } catch (Exception $e) {
             /**
              *  If there was an error while mirroring, delete working dir if exists
              */
-            if (is_dir($workingDir) and !DebugMode::enabled()) {
-                Directory::deleteRecursive($workingDir);
-            }
+            // if (is_dir($workingDir) and !DebugMode::enabled()) {
+            //     Directory::deleteRecursive($workingDir);
+            // }
 
             /**
              *  Throw exception with mirror error message

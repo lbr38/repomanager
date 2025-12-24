@@ -17,7 +17,7 @@ class Update
     /**
      *  Enable / disable maintenance
      */
-    public function setMaintenance(string $status)
+    public function setMaintenance(string $status) : void
     {
         if ($status == 'on') {
             /**
@@ -38,7 +38,7 @@ class Update
     /**
      *  Execute SQL queries to update database
      */
-    public function updateDB(string $targetVersion = null)
+    public function updateDB(string $targetVersion = '') : void
     {
         if (!is_dir($this->sqlQueriesDir)) {
             return;

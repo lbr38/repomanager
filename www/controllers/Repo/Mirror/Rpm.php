@@ -591,13 +591,6 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             $this->taskLogSubStepController->new('downloading-package-' . $packageCounter, 'DOWNLOADING PACKAGE (' . $packageCounter . '/' . $totalPackages . ')', $url . '/' . $rpmPackageLocation);
 
             /**
-             *  Before downloading package, check if there is enough disk space left (2GB minimum)
-             */
-            if (disk_free_space(REPOS_DIR) < 2000000000) {
-                throw new Exception('Low disk space: repository storage has reached 2GB (minimum) of free space left. Task automatically stopped.');
-            }
-
-            /**
              *  If a list of package(s) to include has been provided, check if the package is in the list
              *  If not, skip the package
              */
@@ -683,12 +676,16 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             }
 
             /**
-             *  Check if file does not already exists in the working dir before downloading it (e.g. when a package has multiple possible archs, it can have
+             *  Check if file does not already exists in the working dir before downloading it (e.g. when a package has multiple archs, it can have
              *  been downloaded or linked already from another arch)
+             *  Or if resuming from a previous run (.completed file exists)
              */
             if (file_exists($absoluteDir . '/' . $rpmPackageName)) {
-                $this->taskLogSubStepController->completed($absoluteDir . '/' . $rpmPackageName . ' Already exists (ignoring)');
-                continue;
+                // Check that .completed file exists, if so, skip the package
+                if (file_exists($absoluteDir . '/' . $rpmPackageName . '.completed')) {
+                    $this->taskLogSubStepController->completed('Already exists (resuming from previous run)');
+                    continue;
+                }
             }
 
             /**
@@ -725,10 +722,22 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             }
 
             /**
+             *  Before downloading package, check if there is enough disk space left (2GB minimum)
+             */
+            if (disk_free_space(REPOS_DIR) < 2000000000) {
+                throw new Exception('Low disk space: repository storage has reached 2GB (minimum) of free space left. Task automatically stopped.');
+            }
+
+            /**
              *  Download package if it does not already exist
              */
             if (!$this->download($url . '/' . $rpmPackageLocation, $absoluteDir . '/' . $rpmPackageName, 3)) {
                 throw new Exception('Error while downloading package');
+            }
+
+            // Because the package is downloaded, remove any .signed file that could exist from a previous run, because the package has changed and must be signed again
+            if (file_exists($absoluteDir . '/' . $rpmPackageName . '.signed')) {
+                unlink($absoluteDir . '/' . $rpmPackageName . '.signed');
             }
 
             /**
@@ -752,13 +761,13 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                         unlink($absoluteDir . '/' . $rpmPackageName);
                     }
 
-                    continue;
+                    // continue;
                 }
 
                 // If the MIRRORING_PACKAGE_CHECKSUM_FAILURE setting is set to 'keep', then we keep the package anyway and continue
                 if (MIRRORING_PACKAGE_CHECKSUM_FAILURE == 'keep') {
                     $this->taskLogSubStepController->warning($message . ', keeping package anyway');
-                    continue;
+                    // continue;
                 }
 
                 unset($message);
@@ -773,7 +782,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              *  rpm -q --qf "%|DSAHEADER?{%{DSAHEADER:pgpsig}}:{%|RSAHEADER?{%{RSAHEADER:pgpsig}}:{(none}|}| %{NVRA}\n" PACKAGE.rpm
              *  rpm --checksig PACKAGE.rpm
              */
-            if ($this->checkSignature === 'true') {
+            if ($this->checkSignature == 'true') {
                 /**
                  *  Throw an error if there are no known GPG public keys because it is impossible to check for signature then
                  */
@@ -797,22 +806,16 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                  *  Case no key ID has been found in the package header (missing signature)
                  */
                 if (!preg_match('/key ID(.*) /i', $content, $matches)) {
-                    /**
-                     *  If RPM_MISSING_SIGNATURE is set to 'error', then throw an error
-                     */
+                    // If RPM_MISSING_SIGNATURE is set to 'error', then throw an error
                     if (RPM_MISSING_SIGNATURE == 'error') {
                         throw new Exception('This package has no GPG signature (GPG signing key ID not found in the package header)');
                     }
 
-                    /**
-                     *  If RPM_MISSING_SIGNATURE is set to 'ignore', then just ignore the package (delete it because it has been downloaded, and process next package)
-                     */
+                    // If RPM_MISSING_SIGNATURE is set to 'ignore', then just ignore the package (delete it because it has been downloaded, and process next package)
                     if (RPM_MISSING_SIGNATURE == 'ignore') {
                         $this->taskLogSubStepController->warning('This package has no GPG signature (GPG signing key ID not found in the package header) (ignoring package)');
 
-                        /**
-                         *  Delete package
-                         */
+                        // Delete package
                         if (!unlink($absoluteDir . '/' . $rpmPackageName)) {
                             throw new Exception('Error while deleting package <code>' . $absoluteDir. '/' . $rpmPackageName . '</code>');
                         }
@@ -820,9 +823,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                         continue;
                     }
 
-                    /**
-                     *  If RPM_MISSING_SIGNATURE is set to 'download', then download the package anyway
-                     */
+                    // If RPM_MISSING_SIGNATURE is set to 'download', then download the package anyway
                     if (RPM_MISSING_SIGNATURE == 'download') {
                         $this->taskLogSubStepController->warning('This package has no GPG signature (GPG signing key ID not found in the package header) (downloaded anyway)');
 
@@ -831,6 +832,9 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                          *  This is the relative patch which is added, because the absolute path is just a temporary path (download-xxxx)
                          */
                         $this->packagesToSign[] = $relativeDir . '/' . $rpmPackageName;
+
+                        // Create a .completed file to indicate that the package has been downloaded
+                        $this->createCompletedFile($absoluteDir . '/' . $rpmPackageName);
 
                         continue;
                     }
@@ -854,22 +858,16 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                  *  Check if that key Id appears in known public keys Id
                  */
                 if (!preg_grep("/$keyId\$/i", $knownPublicKeys)) {
-                    /**
-                     *  If RPM_INVALID_SIGNATURE is set to 'error', then throw an error
-                     */
+                    // If RPM_INVALID_SIGNATURE is set to 'error', then throw an error
                     if (RPM_INVALID_SIGNATURE == 'error') {
                         throw new Exception('GPG signature check failed (unknown GPG signing key ID: ' . $keyId . ')');
                     }
 
-                    /**
-                     *  If RPM_INVALID_SIGNATURE is set to 'ignore', then just ignore the package (delete it because it has been downloaded, and process next package)
-                     */
+                    // If RPM_INVALID_SIGNATURE is set to 'ignore', then just ignore the package (delete it because it has been downloaded, and process next package)
                     if (RPM_INVALID_SIGNATURE == 'ignore') {
                         $this->taskLogSubStepController->warning('GPG signature check failed (unknown GPG signing key ID: ' . $keyId . ') (ignoring package)');
 
-                        /**
-                         *  Delete package
-                         */
+                        // Delete package
                         if (!unlink($absoluteDir. '/' . $rpmPackageName)) {
                             throw new Exception('Error while deleting package <code>' . $absoluteDir. '/' . $rpmPackageName . '</code>');
                         }
@@ -877,9 +875,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                         continue;
                     }
 
-                    /**
-                     *  If RPM_INVALID_SIGNATURE is set to 'download', then download the package anyway
-                     */
+                    // If RPM_INVALID_SIGNATURE is set to 'download', then download the package anyway
                     if (RPM_INVALID_SIGNATURE == 'download') {
                         $this->taskLogSubStepController->warning('GPG signature check failed (unknown GPG signing key ID: ' . $keyId . ') (downloaded anyway)');
 
@@ -888,6 +884,9 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                          *  This is the relative patch which is added, because the absolute path is just a temporary path (download-xxxx)
                          */
                         $this->packagesToSign[] = $relativeDir . '/' . $rpmPackageName;
+
+                        // Create a .completed file to indicate that the package has been downloaded
+                        $this->createCompletedFile($absoluteDir . '/' . $rpmPackageName);
 
                         continue;
                     }
@@ -899,6 +898,9 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              *  This is the relative patch which is added, because the absolute path is just a temporary path (download-xxxx)
              */
             $this->packagesToSign[] = $relativeDir . '/' . $rpmPackageName;
+
+            // Create a .completed file to indicate that the package has been downloaded and verified successfully
+            $this->createCompletedFile($absoluteDir . '/' . $rpmPackageName);
 
             /**
              *  Print OK if package has been downloaded and verified successfully

@@ -618,7 +618,7 @@ class Host extends Model
     /**
      *  Remove the host from the specified group
      */
-    public function removeFromGroup(string $hostId, string $groupId = null) : void
+    public function removeFromGroup(string $hostId, string $groupId = '') : void
     {
         try {
             // If the groupId is specified
@@ -640,6 +640,8 @@ class Host extends Model
      */
     public function countByProfile(string $profile) : int
     {
+        $count = 0;
+
         try {
             $stmt = $this->db->prepare("SELECT COUNT(Id) as count FROM hosts WHERE Profile = :profile");
             $stmt->bindValue(':profile', $profile);
@@ -649,7 +651,9 @@ class Host extends Model
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            return $row['count'];
+            $count = $row['count'];
         }
+
+        return $count;
     }
 }

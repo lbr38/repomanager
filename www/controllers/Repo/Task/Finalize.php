@@ -3,6 +3,7 @@
 namespace Controllers\Repo\Task;
 
 use \Controllers\Filesystem\File;
+use Exception;
 
 trait Finalize
 {
@@ -12,6 +13,15 @@ trait Finalize
     protected function finalize()
     {
         $this->taskLogStepController->new('finalizing', 'FINALIZING');
+
+        // Define snapshot path
+        if ($this->repoController->getPackageType() == 'rpm') {
+            $snapshotPath = REPOS_DIR . '/rpm/' . $this->repoController->getName() . '/' . $this->repoController->getReleasever() . '/' . $this->repoController->getDate();
+        }
+        if ($this->repoController->getPackageType() == 'deb') {
+            $snapshotPath = REPOS_DIR . '/deb/' . $this->repoController->getName() . '/' . $this->repoController->getDist() . '/' . $this->repoController->getSection() . '/' . $this->repoController->getDate();
+        }
+
         $this->taskLogSubStepController->new('updating-database', 'UPDATING DATABASE');
 
         /**
@@ -220,14 +230,42 @@ trait Finalize
 
         $this->taskLogStepController->new('cleaning', 'CLEANING');
 
-        /**
-         *  Clean unused repos in groups
-         */
-        $this->repoController->cleanGroups();
+        // Clean .completed and .signed files left
+        $this->taskLogSubStepController->new('cleaning-temp-files', 'CLEANING TEMPORARY FILES');
 
-        /**
-         *  Clean unused snapshots
-         */
+        try {
+            $completedFiles = File::findRecursive($snapshotPath, ['completed'], true);
+            $signedFiles = File::findRecursive($snapshotPath, ['signed'], true);
+
+            foreach ($completedFiles as $file) {
+                if (!unlink($file)) {
+                    throw new Exception('Cannot remove file ' . $file);
+                }
+            }
+
+            foreach ($signedFiles as $file) {
+                if (!unlink($file)) {
+                    throw new Exception('Cannot remove file ' . $file);
+                }
+            }
+        } catch (Exception $e) {
+            throw new Exception('Error while cleaning temporary files: ' . $e->getMessage());
+        }
+
+        $this->taskLogSubStepController->completed();
+
+        // Clean unused repos in groups
+        $this->taskLogSubStepController->new('cleaning-groups', 'CLEANING GROUPS');
+
+        try {
+            $this->repoController->cleanGroups();
+        } catch (Exception $e) {
+            throw new Exception('Error while cleaning groups: ' . $e->getMessage());
+        }
+
+        $this->taskLogSubStepController->completed();
+
+        // Clean unused snapshots
         $this->taskLogSubStepController->new('cleaning-snapshots', 'CLEANING SNAPSHOTS');
         $this->taskLogSubStepController->completed($this->repoSnapshotController->clean());
 
