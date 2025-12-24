@@ -12,7 +12,7 @@ trait Create
     /**
      *  Create repo metadata and symbolic links (environments)
      */
-    private function createMetadata()
+    private function createMetadata() : void
     {
         $workingDir = REPOS_DIR . '/temporary-task-' . $this->taskId;
 
@@ -31,32 +31,28 @@ trait Create
         }
 
         // If action is 'rebuild' or 'duplicate', set working dir to the existing snapshot path
-        if ($this->action == 'rebuild' or $this->action == 'duplicate') {
+        if (in_array($this->action, ['rebuild', 'duplicate'])) {
             $workingDir = $snapshotPath;
         }
 
         /**
          *  Generate repository metadata
          */
-        try {
-            if ($this->repoController->getPackageType() == 'rpm') {
-                $mymetadata = new RpmMetadata($this->taskId);
-                $mymetadata->setRoot($workingDir);
-                $mymetadata->create();
-            }
+        if ($this->repoController->getPackageType() == 'rpm') {
+            $mymetadata = new RpmMetadata($this->taskId);
+            $mymetadata->setRoot($workingDir);
+            $mymetadata->create();
+        }
 
-            if ($this->repoController->getPackageType() == 'deb') {
-                $mymetadata = new DebMetadata($this->taskId);
-                $mymetadata->setRoot($workingDir);
-                $mymetadata->setRepo($this->repoController->getName());
-                $mymetadata->setDist($this->repoController->getDist());
-                $mymetadata->setSection($this->repoController->getSection());
-                $mymetadata->setArch($this->repoController->getArch());
-                $mymetadata->setGpgSign($this->repoController->getGpgSign());
-                $mymetadata->create();
-            }
-        } catch (Exception $e) {
-            throw new Exception('Repository creation has failed: ' . $e->getMessage());
+        if ($this->repoController->getPackageType() == 'deb') {
+            $mymetadata = new DebMetadata($this->taskId);
+            $mymetadata->setRoot($workingDir);
+            $mymetadata->setRepo($this->repoController->getName());
+            $mymetadata->setDist($this->repoController->getDist());
+            $mymetadata->setSection($this->repoController->getSection());
+            $mymetadata->setArch($this->repoController->getArch());
+            $mymetadata->setGpgSign($this->repoController->getGpgSign());
+            $mymetadata->create();
         }
 
         $this->taskLogSubStepController->completed();
