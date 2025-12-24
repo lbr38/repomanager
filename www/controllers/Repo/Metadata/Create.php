@@ -18,6 +18,8 @@ trait Create
 
         $this->taskLogStepController->new('create-repo-metadata', 'CREATING REPOSITORY');
 
+        $this->taskLogSubStepController->new('generate-metadata', 'GENERATING METADATA');
+
         // Define final snapshot path and parent directory
         if ($this->repoController->getPackageType() == 'rpm') {
             $parentDir = REPOS_DIR . '/rpm/' . $this->repoController->getName() . '/' . $this->repoController->getReleasever();
@@ -28,8 +30,8 @@ trait Create
             $snapshotPath = $parentDir . '/' . $this->repoController->getDate();
         }
 
-        // If action is 'rebuild', set working dir to the existing snapshot path
-        if ($this->action == 'rebuild') {
+        // If action is 'rebuild' or 'duplicate', set working dir to the existing snapshot path
+        if ($this->action == 'rebuild' or $this->action == 'duplicate') {
             $workingDir = $snapshotPath;
         }
 
