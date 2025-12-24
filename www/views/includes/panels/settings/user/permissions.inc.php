@@ -53,6 +53,17 @@
         <option value="stop" <?= isset($permissions['tasks']['allowed-actions']) && in_array('stop', $permissions['tasks']['allowed-actions']) ? 'selected' : '' ?>>Stop tasks</option>
     </select>
 
+    <h5>HOSTS</h5>
+
+    <h6>ALLOW ACTIONS ON HOSTS</h6>
+    <select id="user-permissions-hosts-actions" user-id="<?= $userId ?>" multiple>
+        <option value="request-general-infos" <?= isset($permissions['hosts']['allowed-actions']) && in_array('request-general-infos', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Request general information</option>
+        <option value="request-packages-infos" <?= isset($permissions['hosts']['allowed-actions']) && in_array('request-packages-infos', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Request packages information</option>
+        <option value="update-packages" <?= isset($permissions['hosts']['allowed-actions']) && in_array('update-packages', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Update packages on hosts</option>
+        <option value="reset" <?= isset($permissions['hosts']['allowed-actions']) && in_array('reset', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Reset hosts</option>
+        <option value="delete" <?= isset($permissions['hosts']['allowed-actions']) && in_array('delete', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Delete hosts</option>
+    </select>
+
     <br><br>
     <button type="submit" class="btn-small-green">Save</button>
 </form>
@@ -62,6 +73,7 @@ $(document).ready(function(){
     myselect2.convert('#user-permissions-repos-actions', 'Select allowed actions...');
     myselect2.convert('#user-permissions-repos-view', 'Select repositories...');
     myselect2.convert('#user-permissions-tasks-actions', 'Select allowed actions...');
+    myselect2.convert('#user-permissions-hosts-actions', 'Select allowed actions...');
 });
 </script>
 

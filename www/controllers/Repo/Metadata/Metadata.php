@@ -2,8 +2,6 @@
 
 namespace Controllers\Repo\Metadata;
 
-use Exception;
-
 class Metadata
 {
     protected $taskController;

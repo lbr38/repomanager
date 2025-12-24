@@ -11,8 +11,8 @@ class Permission extends User
     private $defaultPermissions = [
         'repositories' => [
             'allowed-actions' => [
-                'repos' => [],
-                'hosts' => [],
+                'repos' => [], // TODO debug: à corriger
+                // 'hosts' => [],
             ],
             'view' => [
                 'all',
@@ -20,6 +20,9 @@ class Permission extends User
             ],
         ],
         'tasks' => [
+            'allowed-actions' => [],
+        ],
+        'hosts' => [
             'allowed-actions' => [],
         ],
     ];
@@ -78,7 +81,7 @@ class Permission extends User
     /**
      *  Set user permissions
      */
-    public function set(int $id, array $reposView, array $reposActions, array $tasksActions) : void
+    public function set(int $id, array $reposView, array $reposActions, array $tasksActions, array $hostsActions) : void
     {
         if (!IS_ADMIN) {
             throw new Exception('You are not allowed to execute this action.');
@@ -162,6 +165,21 @@ class Permission extends User
         }
 
         /**
+         *  Set permissions for hosts actions
+         */
+        if (!empty($hostsActions)) {
+            foreach (array_filter($hostsActions) as $action) {
+                // Check that action is valid
+                if (!in_array($action, ['request-general-infos', 'request-packages-infos', 'update-packages', 'reset', 'delete'])) {
+                    throw new Exception('Invalid action: ' . $action);
+                }
+
+                // Add action to allowed actions
+                $permissions['hosts']['allowed-actions'][] = $action;
+            }
+        }
+
+        /**
          *  Encode permissions to JSON
          */
         try {
@@ -174,6 +192,16 @@ class Permission extends User
          *  Set permissions in database
          */
         $this->permissionModel->set($id, $permissions);
+    }
+
+    /**
+     *  Return true if user has the specified permission
+     */
+    public static function has(array $path, string $permission) : bool
+    {
+
+
+        return false;
     }
 
     /**

@@ -140,13 +140,9 @@
                             if (!empty($hostsList)) : ?>
                                 <div class="hosts-table">
                                     <div class="flex justify-end margin-bottom-10">
-                                        <?php
-                                        if (IS_ADMIN) : ?>
-                                            <span class="margin-right-15">
-                                                <input class="select-group-hosts-checkbox lowopacity pointer" type="checkbox" group="<?= $group['Name'] ?>" title="Select all" >
-                                            </span>
-                                            <?php
-                                        endif ?>
+                                        <span class="margin-right-15">
+                                            <input class="select-group-hosts-checkbox lowopacity pointer" type="checkbox" group="<?= $group['Name'] ?>" title="Select all" >
+                                        </span>
                                     </div>
                                 
                                     <?php
@@ -597,11 +593,7 @@
                                                 </div>
 
                                                 <div class="align-self-center">
-                                                    <?php
-                                                    if (IS_ADMIN) : ?>
-                                                        <input type="checkbox" class="js-host-checkbox lowopacity pointer" name="checkbox-host[]" group="<?= $group['Name'] ?>" value="<?= $id ?>" title="Select <?= $hostname ?>">
-                                                        <?php
-                                                    endif ?>
+                                                    <input type="checkbox" class="js-host-checkbox lowopacity pointer" name="checkbox-host[]" group="<?= $group['Name'] ?>" value="<?= $id ?>" title="Select <?= $hostname ?>">
                                                 </div>
                                             </div>
                                         </div>
