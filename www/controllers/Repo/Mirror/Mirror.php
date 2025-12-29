@@ -244,6 +244,10 @@ class Mirror
      */
     protected function createCompletedFile(string $path) : void
     {
+        if (file_exists($path . '.completed')) {
+            return;
+        }
+
         if (!touch($path . '.completed')) {
             throw new Exception('Cannot create .completed file for ' . $path);
         }
