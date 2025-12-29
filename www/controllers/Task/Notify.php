@@ -208,7 +208,7 @@ class Notify extends Task
      */
     public function error(int $taskId, string $error) : void
     {
-        $this->send($taskId, '❌​ Scheduled task #' . $taskId . ' failed on ' . WWW_HOSTNAME, 'error: ' . strip_tags($error));
+        $this->send($taskId, '❌​ Scheduled task #' . $taskId . ' failed on ' . WWW_HOSTNAME, 'error', strip_tags($error));
     }
 
     /**
@@ -222,7 +222,7 @@ class Notify extends Task
     /**
      *  Generate and send task message
      */
-    private function send(int $taskId, string $mailSubject, string $status) : void
+    private function send(int $taskId, string $mailSubject, string $status, string $error = '') : void
     {
         $btn = 'View task log';
 
@@ -338,6 +338,12 @@ class Notify extends Task
             }
 
             $message .= '</b></p>';
+
+            // Error message, if any
+            if ($status == 'error' and !empty($error)) {
+                $message .= '<p>Error message: <b>' . $error . '</b></p>';
+            }
+
             $message .= '<br>';
 
             // Send email
