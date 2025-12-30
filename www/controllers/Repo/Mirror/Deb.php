@@ -811,29 +811,30 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                  */
                 if (isset($this->previousSnapshotDirPath)) {
                     if (file_exists($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName)) {
-                        /**
-                         *  If deduplication is enabled
-                         *  Create a hard link to the package
-                         */
-                        if (REPO_DEDUPLICATION) {
-                            if (!link($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName, $absoluteDir . '/' . $debPackageName)) {
-                                throw new Exception('Cannot create hard link to package: ' . $this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName);
+                        if (!file_exists($absoluteDir . '/' . $debPackageName)) {
+                            // If deduplication is enabled, create a hard link to the package
+                            if (REPO_DEDUPLICATION) {
+                                if (!link($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName, $absoluteDir . '/' . $debPackageName)) {
+                                    throw new Exception('Cannot create hard link to package: ' . $this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName);
+                                }
+
+                                $this->taskLogSubStepController->completed('Linked to previous snapshot');
+                            } else {
+
+                                /**
+                                 *  If deduplication is not enabled
+                                 *  Copy package from the previous snapshot
+                                 */
+                                if (!copy($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName, $absoluteDir . '/' . $debPackageName)) {
+                                    throw new Exception('Cannot copy package from previous snapshot: ' . $this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName);
+                                }
+
+                                $this->taskLogSubStepController->completed('Copied from previous snapshot');
                             }
-
-                            $this->taskLogSubStepController->completed('Linked to previous snapshot');
-
-                            continue;
                         }
 
-                        /**
-                         *  If deduplication is not enabled
-                         *  Copy package from the previous snapshot
-                         */
-                        if (!copy($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName, $absoluteDir . '/' . $debPackageName)) {
-                            throw new Exception('Cannot copy package from previous snapshot: ' . $this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName);
-                        }
-
-                        $this->taskLogSubStepController->completed('Copied from previous snapshot');
+                        // Create a .completed file to indicate that the package has been downloaded
+                        $this->createCompletedFile($absoluteDir . '/' . $debPackageName);
 
                         continue;
                     }
