@@ -34,8 +34,8 @@ $(document).on('click',".package-checkbox",function () {
         var allowedActions = [];
 
         // Loop through all permissions and check if the user has the permission to execute the action
-        if (userPermissions.repositories && userPermissions.repositories['allowed-actions'] && userPermissions.repositories['allowed-actions']['repos']) {
-            var allowedActions = userPermissions.repositories['allowed-actions']['repos'];
+        if (userPermissions.repositories && userPermissions.repositories['allowed-actions']) {
+            var allowedActions = userPermissions.repositories['allowed-actions'];
         }
     }
 

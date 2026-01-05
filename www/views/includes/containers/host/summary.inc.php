@@ -7,7 +7,7 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
 
         <div class="flex justify-space-between">
             <?php
-            if (IS_ADMIN or HostPermission::allowedAction('reset')) : ?>
+            if (HostPermission::allowedAction('reset')) : ?>
                 <div id="host-reset-btn" class="slide-btn-yellow" host-id="<?= $id ?>" title="Reset host informations">
                     <img src="/assets/icons/update.svg">
                     <span>Reset</span>
@@ -15,13 +15,13 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
                 <?php
             endif;
 
-            if (IS_ADMIN or HostPermission::allowedAction('delete')) : ?>
+            if (HostPermission::allowedAction('delete')) : ?>
                 <div id="host-delete-btn" class="slide-btn-red" host-id="<?= $id ?>" title="Delete host">
                     <img src="/assets/icons/delete.svg">
                     <span>Delete</span>
                 </div>
                 <?php
-            endif ?>            
+            endif ?>
         </div>
     </div>
 

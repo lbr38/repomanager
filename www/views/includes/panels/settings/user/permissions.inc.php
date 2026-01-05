@@ -27,18 +27,18 @@
     <h6>ALLOW ACTIONS ON REPOSITORIES</h6>
     <p class="note">Select the actions that this user can perform on repositories.</p>
     <select id="user-permissions-repos-actions" user-id="<?= $userId ?>" multiple>
-        <option value="create" <?= isset($permissions['repositories']['allowed-actions']['repos']) && in_array('create', $permissions['repositories']['allowed-actions']['repos']) ? 'selected' : '' ?>>Create repositories</option>
-        <option value="update" <?= isset($permissions['repositories']['allowed-actions']['repos']) && in_array('update', $permissions['repositories']['allowed-actions']['repos']) ? 'selected' : '' ?>>Update repositories</option>
-        <option value="delete" <?= isset($permissions['repositories']['allowed-actions']['repos']) && in_array('delete', $permissions['repositories']['allowed-actions']['repos']) ? 'selected' : '' ?>>Delete repositories</option>
-        <option value="duplicate" <?= isset($permissions['repositories']['allowed-actions']['repos']) && in_array('duplicate', $permissions['repositories']['allowed-actions']['repos']) ? 'selected' : '' ?>>Duplicate repositories</option>
-        <option value="rebuild" <?= isset($permissions['repositories']['allowed-actions']['repos']) && in_array('rebuild', $permissions['repositories']['allowed-actions']['repos']) ? 'selected' : '' ?>>Rebuild repositories</option>
-        <option value="edit" <?= isset($permissions['repositories']['allowed-actions']['repos']) && in_array('edit', $permissions['repositories']['allowed-actions']['repos']) ? 'selected' : '' ?>>Edit repositories</option>
-        <option value="browse" <?= isset($permissions['repositories']['allowed-actions']['repos']) && in_array('browse', $permissions['repositories']['allowed-actions']['repos']) ? 'selected' : '' ?>>Browse repositories</option>
-        <option value="upload-package" <?= isset($permissions['repositories']['allowed-actions']['repos']) && in_array('upload-package', $permissions['repositories']['allowed-actions']['repos']) ? 'selected' : '' ?>>Upload packages to repositories</option> 
-        <option value="delete-package" <?= isset($permissions['repositories']['allowed-actions']['repos']) && in_array('delete-package', $permissions['repositories']['allowed-actions']['repos']) ? 'selected' : '' ?>>Delete packages from repositories</option>
-        <option value="env" <?= isset($permissions['repositories']['allowed-actions']['repos']) && in_array('env', $permissions['repositories']['allowed-actions']['repos']) ? 'selected' : '' ?>>Point environment to repository</option>
-        <option value="removeEnv" <?= isset($permissions['repositories']['allowed-actions']['repos']) && in_array('removeEnv', $permissions['repositories']['allowed-actions']['repos']) ? 'selected' : '' ?>>Remove repository environment</option>
-        <option value="view-stats" <?= isset($permissions['repositories']['allowed-actions']['repos']) && in_array('view-stats', $permissions['repositories']['allowed-actions']['repos']) ? 'selected' : '' ?>>View repository statistics</option>
+        <option value="create" <?= isset($permissions['repositories']['allowed-actions']) && in_array('create', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Create repositories</option>
+        <option value="update" <?= isset($permissions['repositories']['allowed-actions']) && in_array('update', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Update repositories</option>
+        <option value="delete" <?= isset($permissions['repositories']['allowed-actions']) && in_array('delete', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Delete repositories</option>
+        <option value="duplicate" <?= isset($permissions['repositories']['allowed-actions']) && in_array('duplicate', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Duplicate repositories</option>
+        <option value="rebuild" <?= isset($permissions['repositories']['allowed-actions']) && in_array('rebuild', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Rebuild repositories</option>
+        <option value="edit" <?= isset($permissions['repositories']['allowed-actions']) && in_array('edit', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Edit repositories</option>
+        <option value="browse" <?= isset($permissions['repositories']['allowed-actions']) && in_array('browse', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Browse repositories</option>
+        <option value="upload-package" <?= isset($permissions['repositories']['allowed-actions']) && in_array('upload-package', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Upload packages to repositories</option> 
+        <option value="delete-package" <?= isset($permissions['repositories']['allowed-actions']) && in_array('delete-package', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Delete packages from repositories</option>
+        <option value="env" <?= isset($permissions['repositories']['allowed-actions']) && in_array('env', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Point environment to repository</option>
+        <option value="removeEnv" <?= isset($permissions['repositories']['allowed-actions']) && in_array('removeEnv', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Remove repository environment</option>
+        <option value="view-stats" <?= isset($permissions['repositories']['allowed-actions']) && in_array('view-stats', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>View repository statistics</option>
     </select>
 
     <h5>TASKS</h5>

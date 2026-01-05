@@ -4,6 +4,7 @@ namespace Controllers\Task\Form;
 
 use Exception;
 use \Controllers\Utils\Validate;
+use \Controllers\User\Permission\Repo as RepoPermission;
 
 class Form
 {
@@ -130,9 +131,9 @@ class Form
             }
 
             /**
-             *  If the user is not an administrator or does not have permission to perform the specified action, prevent execution of the task.
+             *  If the user does not have permission to perform the specified action, prevent execution of the task.
              */
-            if (!IS_ADMIN and !in_array($task['action'], USER_PERMISSIONS['repositories']['allowed-actions']['repos'])) {
+            if (!RepoPermission::allowedAction($task['action'])) {
                 throw new Exception('You are not allowed to execute this action');
             }
 

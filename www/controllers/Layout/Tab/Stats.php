@@ -2,14 +2,16 @@
 
 namespace Controllers\Layout\Tab;
 
+use \Controllers\User\Permission\Repo as RepoPermission;
+
 class Stats
 {
     public static function render()
     {
         /**
-         *  If the user is not an administrator and does not have permission to view repository statistics, redirect to the home page.
+         *  If the user does not have permission to view repository statistics, redirect to the home page.
          */
-        if (!IS_ADMIN and !in_array('view-stats', USER_PERMISSIONS['repositories']['allowed-actions']['repos'])) {
+        if (!RepoPermission::allowedAction('view-stats')) {
             header('Location: /');
         }
 

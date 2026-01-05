@@ -4,7 +4,7 @@ use \Controllers\User\Permission\Repo as RepoPermission;
 /**
  *  If the user is not an administrator or does not have permission to edit repositories, prevent access to this panel.
  */
-if (!IS_ADMIN and !RepoPermission::allowedAction('edit')) {
+if (!RepoPermission::allowedAction('edit')) {
     throw new Exception('You are not allowed to access this panel');
 }
 

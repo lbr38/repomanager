@@ -1,10 +1,13 @@
+<?php
+use \Controllers\User\Permission\Repo as RepoPermission; ?>
+
 <section class="section-right reloadable-container" container="browse/actions">
     <?php
     try {
         /**
-         *  If the user is not an administrator or does not have permission to upload packages, prevent access to this panel.
+         *  If the user does not have permission to upload packages, prevent access to this panel.
          */
-        if (!IS_ADMIN and !in_array('upload-package', USER_PERMISSIONS['repositories']['allowed-actions']['repos'])) {
+        if (!RepoPermission::allowedAction('upload-package')) {
             throw new Exception('You are not allowed to upload packages');
         } ?>
 
@@ -72,9 +75,9 @@
 
     try {
         /**
-         *  If the user is not an administrator or does not have permission to rebuild repositories, prevent access to this panel.
+         *  If the user does not have permission to rebuild repositories, prevent access to this panel.
          */
-        if (!IS_ADMIN and !in_array('rebuild', USER_PERMISSIONS['repositories']['allowed-actions']['repos'])) {
+        if (!RepoPermission::allowedAction('rebuild')) {
             throw new Exception('You are not allowed to rebuild repositories');
         } ?>
             

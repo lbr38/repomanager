@@ -10,7 +10,7 @@ class Browse
         /**
          *  If the user is not an administrator and does not have permission to browse repository, redirect to the home page.
          */
-        if (!IS_ADMIN and !RepoPermission::allowedAction('browse')) {
+        if (!RepoPermission::allowedAction('browse')) {
             header('Location: /');
         }
 

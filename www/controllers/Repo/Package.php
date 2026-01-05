@@ -4,6 +4,7 @@ namespace Controllers\Repo;
 
 use Exception;
 use \Controllers\Utils\Validate;
+use \Controllers\User\Permission\Repo as RepoPermission;
 
 class Package
 {
@@ -13,9 +14,9 @@ class Package
     public function upload(int $snapId, $packages)
     {
         /**
-         *  If the user is not an administrator and does not have permission to upload packages, prevent access to this action.
+         *  If the user does not have permission to upload packages, prevent access to this action.
          */
-        if (!IS_ADMIN and !in_array('upload-package', USER_PERMISSIONS['repositories']['allowed-actions']['repos'])) {
+        if (!RepoPermission::allowedAction('upload-package')) {
             throw new Exception('You are not allowed to upload packages');
         }
 
@@ -260,9 +261,9 @@ class Package
     public function delete(int $snapId, array $packages)
     {
         /**
-         *  If the user is not an administrator and does not have permission to delete packages, prevent access to this action.
+         *  If the user does not have permission to delete packages, prevent access to this action.
          */
-        if (!IS_ADMIN and !in_array('delete-package', USER_PERMISSIONS['repositories']['allowed-actions']['repos'])) {
+        if (!RepoPermission::allowedAction('delete-package')) {
             throw new Exception('You are not allowed to delete packages.');
         }
 

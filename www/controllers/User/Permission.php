@@ -10,10 +10,7 @@ class Permission extends User
     private $permissionModel;
     private $defaultPermissions = [
         'repositories' => [
-            'allowed-actions' => [
-                'repos' => [], // TODO debug: à corriger
-                // 'hosts' => [],
-            ],
+            'allowed-actions' => [],
             'view' => [
                 'all',
                 'groups' => []
@@ -145,7 +142,7 @@ class Permission extends User
                 }
 
                 // Add action to allowed actions
-                $permissions['repositories']['allowed-actions']['repos'][] = $action;
+                $permissions['repositories']['allowed-actions'][] = $action;
             }
         }
 
@@ -192,16 +189,6 @@ class Permission extends User
          *  Set permissions in database
          */
         $this->permissionModel->set($id, $permissions);
-    }
-
-    /**
-     *  Return true if user has the specified permission
-     */
-    public static function has(array $path, string $permission) : bool
-    {
-
-
-        return false;
     }
 
     /**

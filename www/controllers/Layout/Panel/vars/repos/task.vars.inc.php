@@ -23,7 +23,7 @@ if (!in_array($item['action'], ['update', 'env', 'duplicate', 'delete', 'rebuild
 /**
  *  If the user is not an administrator or does not have permission to perform the specified action, prevent access to this panel.
  */
-if (!IS_ADMIN and !RepoPermission::allowedAction($item['action'])) {
+if (!RepoPermission::allowedAction($item['action'])) {
     throw new Exception('You are not allowed to access this panel');
 }
 

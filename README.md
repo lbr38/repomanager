@@ -29,17 +29,15 @@
 
 <h3>Hardware</h3>
 
-- CPU and RAM are mostly sollicited during mirror creation if GPG signature is enabled
-- Disk space depends on the size of the repos you need to clone
+This is the minimum hardware requirements to run Repomanager smoothly: 
 
-Minimum requirements:
 - 4 vCPU
 - 4 GB of RAM
 - Please use a SSD disk to avoid disk I/O and latency issues
 
 <h3>Software and configuration</h3>
 
-- **docker** (service must be up and running)
+- **Docker** (service must be up and running)
 - **A fully qualified domain name** (FQDN) and a valid SSL certificate for this FQDN if you want to access the web interface through a secure connection (https)
 - A least a **SPF record** configured for your FQDN, to be able to send emails from Repomanager
 

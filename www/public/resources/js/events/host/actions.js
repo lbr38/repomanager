@@ -476,7 +476,7 @@ $(document).on('click','#host-request-btn',function () {
         var allowedActions = [];
 
         // Loop through all permissions and check if the user has the permission to execute the action
-        if (userPermissions.hosts && userPermissions.hosts['allowed-actions'] && userPermissions.hosts['allowed-actions']) {
+        if (userPermissions.hosts && userPermissions.hosts['allowed-actions']) {
             var allowedActions = userPermissions.hosts['allowed-actions'];
         }
     }
