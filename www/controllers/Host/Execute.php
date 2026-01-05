@@ -4,6 +4,7 @@ namespace Controllers\Host;
 
 use Exception;
 use \Controllers\Utils\Validate;
+use \Controllers\User\Permission\Host as HostPermission;
 
 class Execute extends \Controllers\Host
 {
@@ -25,7 +26,7 @@ class Execute extends \Controllers\Host
         /**
          *  Only admins should be able to perform actions
          */
-        if (!IS_ADMIN) {
+        if (!IS_ADMIN and !HostPermission::allowedAction($action)) {
             throw new Exception('You are not allowed to perform this action');
         }
 
@@ -244,7 +245,7 @@ class Execute extends \Controllers\Host
      */
     public function updatePackages(array $params)
     {
-        if (!IS_ADMIN) {
+        if (!IS_ADMIN and !HostPermission::allowedAction('update-packages')) {
             throw new Exception('You are not allowed to execute this action');
         }
 

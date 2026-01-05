@@ -237,15 +237,9 @@ trait Finalize
             $completedFiles = File::findRecursive($snapshotPath, ['completed'], true);
             $signedFiles = File::findRecursive($snapshotPath, ['signed'], true);
 
-            foreach ($completedFiles as $file) {
+            foreach (array_merge($completedFiles, $signedFiles) as $file) {
                 if (!unlink($file)) {
-                    throw new Exception('Cannot remove file ' . $file);
-                }
-            }
-
-            foreach ($signedFiles as $file) {
-                if (!unlink($file)) {
-                    throw new Exception('Cannot remove file ' . $file);
+                    throw new Exception('cannot remove file ' . $file);
                 }
             }
         } catch (Exception $e) {

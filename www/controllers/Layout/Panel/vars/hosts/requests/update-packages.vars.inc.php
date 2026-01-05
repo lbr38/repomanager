@@ -1,5 +1,7 @@
 <?php
-if (!IS_ADMIN) {
+use \Controllers\User\Permission\Host as HostPermission;
+
+if (!IS_ADMIN and !HostPermission::allowedAction('update-packages')) {
     throw new Exception('You are not allowed to access this panel');
 }
 

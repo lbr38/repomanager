@@ -1,8 +1,10 @@
 <?php
+use \Controllers\User\Permission\Repo as RepoPermission;
+
 /**
  *  If the user is not an administrator or does not have permission to create repositories, prevent access to this panel.
  */
-if (!IS_ADMIN and !in_array('create', USER_PERMISSIONS['repositories']['allowed-actions']['repos'])) {
+if (!IS_ADMIN and !RepoPermission::allowedAction('create')) {
     throw new Exception('You are not allowed to access this panel');
 }
 

@@ -819,12 +819,8 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                                 }
 
                                 $this->taskLogSubStepController->completed('Linked to previous snapshot');
+                            // If deduplication is not enabled, copy the package from the previous snapshot
                             } else {
-
-                                /**
-                                 *  If deduplication is not enabled
-                                 *  Copy package from the previous snapshot
-                                 */
                                 if (!copy($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName, $absoluteDir . '/' . $debPackageName)) {
                                     throw new Exception('Cannot copy package from previous snapshot: ' . $this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName);
                                 }

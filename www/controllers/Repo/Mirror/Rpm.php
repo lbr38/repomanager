@@ -701,8 +701,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                             }
 
                             $this->taskLogSubStepController->completed('Linked to previous snapshot');
+                        // If deduplication is not enabled, copy the package from the previous snapshot
                         } else {
-                            // If deduplication is not enabled, copy the package from the previous snapshot
                             if (!copy($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $rpmPackageName, $absoluteDir . '/' . $rpmPackageName)) {
                                 throw new Exception('Cannot copy package from previous snapshot: ' . $this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $rpmPackageName);
                             }
@@ -757,14 +757,11 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                     if (file_exists($absoluteDir . '/' . $rpmPackageName)) {
                         unlink($absoluteDir . '/' . $rpmPackageName);
                     }
-
-                    // continue;
                 }
 
                 // If the MIRRORING_PACKAGE_CHECKSUM_FAILURE setting is set to 'keep', then we keep the package anyway and continue
                 if (MIRRORING_PACKAGE_CHECKSUM_FAILURE == 'keep') {
                     $this->taskLogSubStepController->warning($message . ', keeping package anyway');
-                    // continue;
                 }
 
                 unset($message);

@@ -458,25 +458,56 @@ $(document).on('click','#host-delete-btn',function () {
 $(document).on('click','#host-request-btn',function () {
     var id = $(this).attr('host-id');
 
-    myconfirmbox.print(
-        {
-            'title': 'Request',
-            'message': 'Select a request to send to the host',
-            'buttons': [
+    // The buttons that will be displayed in the confirm box
+    var buttons = [];
+
+    /**
+     *  The list of allowed actions the user can execute on the selected hosts
+     *  By default: all, unless the user has specific permissions
+     *  Those permissions are later verified by the server so even if the user tries to execute an action he is not allowed to, it will not work
+     */
+    var allowedActions = ['request-general-infos', 'request-packages-infos', 'update-packages'];
+
+    // Get permissions from cookie
+    if (mycookie.exists('user_permissions')) {
+        var userPermissions = JSON.parse(mycookie.get('user_permissions'));
+
+        // Reset allowed actions array
+        var allowedActions = [];
+
+        // Loop through all permissions and check if the user has the permission to execute the action
+        if (userPermissions.hosts && userPermissions.hosts['allowed-actions'] && userPermissions.hosts['allowed-actions']) {
+            var allowedActions = userPermissions.hosts['allowed-actions'];
+        }
+    }
+
+    // Define confirm box buttons depending on the allowed actions
+    if (allowedActions.includes('request-general-infos')) {
+        buttons.push(
             {
                 'text': 'Request general informations',
                 'color': 'blue-alt',
                 'callback': function () {
                     executeAction('request-general-infos', [id]);
                 }
-            },
+            }
+        );
+    }
+
+    if (allowedActions.includes('request-packages-infos')) {
+        buttons.push(
             {
                 'text': 'Request packages informations',
                 'color': 'blue-alt',
                 'callback': function () {
                     executeAction('request-packages-infos', [id]);
                 }
-            },
+            }
+        );
+    }
+
+    if (allowedActions.includes('update-packages')) {
+        buttons.push(
             {
                 'text': 'Update packages',
                 'color': 'blue-alt',
@@ -485,7 +516,16 @@ $(document).on('click','#host-request-btn',function () {
                         hostsId: [id]
                     });
                 }
-            }]
+            }
+        );
+    }
+
+    myconfirmbox.print(
+        {
+            'title': 'Request',
+            'message': 'Select a request to send to the host',
+            'id': 'host-request-confirm-box',
+            'buttons': buttons
         }
     );
 });
