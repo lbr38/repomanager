@@ -7,6 +7,14 @@ repositories:
     description: Proxmox Virtual Environment Public Repositories
     url: http://download.proxmox.com/debian/pve
     distributions:
+      - name: trixie
+        description: PVE 9 for Debian Trixie
+        components:
+          - name: pve-no-subscription
+          - name: pve-test
+        gpgkeys:
+          - fingerprint: 24B30F06ECC1836A4E5EFECBA7BCD1420BFE778E
+          - link: https://enterprise.proxmox.com/debian/proxmox-release-trixie.gpg
       - name: bookworm
         description: PVE 8 for Debian Bookworm
         components:
@@ -67,6 +75,13 @@ repositories:
     description: Proxmox Virtual Environment Enterprise Repositories
     url: https://enterprise.proxmox.com/debian/pve
     distributions:
+      - name: trixie
+        description: PVE 9 for Debian Trixie
+        components:
+          - name: pve-enterprise
+        gpgkeys:
+          - fingerprint: 24B30F06ECC1836A4E5EFECBA7BCD1420BFE778E
+          - link: https://enterprise.proxmox.com/debian/proxmox-release-trixie.gpg
       - name: bookworm
         description: PVE 8 for Debian Bookworm
         components:
