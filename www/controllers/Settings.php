@@ -82,6 +82,12 @@ class Settings
             $settingsToApply['PROXY'] = '';
         }
 
+        if (!empty($sendSettings['systemUseNotification'])) {
+            $settingsToApply['SYSTEM_USE_NOTIFICATION'] = Validate::string($sendSettings['systemUseNotification']);
+        } else {
+            $settingsToApply['SYSTEM_USE_NOTIFICATION'] = '';
+        }
+
         if (!empty($sendSettings['task-queuing'])) {
             if ($sendSettings['task-queuing'] == 'true') {
                 $settingsToApply['TASK_QUEUING'] = 'true';

@@ -64,6 +64,12 @@ try {
         <div id="login">
             <img src="/assets/icons/package.svg" class="margin-bottom-30 mediumopacity-cst" />
 
+            <?php
+            /** Show system use notification */
+            if (!empty(SYSTEM_USE_NOTIFICATION)) {
+                echo '<p>' . SYSTEM_USE_NOTIFICATION . '</p>';
+            } ?>
+
             <form action="/login" method="post" autocomplete="off">
                 <input type="hidden" name="authType" value="local" />
                 <input type="text" name="username" placeholder="Username" required />

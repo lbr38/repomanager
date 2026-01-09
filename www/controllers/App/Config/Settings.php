@@ -35,7 +35,7 @@ class Settings
             /**
              *  Following parameters can be empty (or equal to 0), we don't increment the error counter in their case
              */
-            $ignoreEmptyParam = ['EMAIL_RECIPIENT', 'PROXY', 'RPM_DEFAULT_ARCH', 'DEB_DEFAULT_ARCH', 'DEB_DEFAULT_TRANSLATION', 'REPO_CONF_FILES_PREFIX', 'RETENTION', 'OIDC_PROVIDER_URL', 'OIDC_AUTHORIZATION_ENDPOINT', 'OIDC_TOKEN_ENDPOINT', 'OIDC_USERINFO_ENDPOINT', 'OIDC_SCOPES', 'OIDC_CLIENT_ID', 'OIDC_CLIENT_SECRET', 'OIDC_HTTP_PROXY', 'OIDC_CERT_PATH'];
+            $ignoreEmptyParam = ['EMAIL_RECIPIENT', 'PROXY', 'SYSTEM_USE_NOTIFICATION', 'RPM_DEFAULT_ARCH', 'DEB_DEFAULT_ARCH', 'DEB_DEFAULT_TRANSLATION', 'REPO_CONF_FILES_PREFIX', 'RETENTION', 'OIDC_PROVIDER_URL', 'OIDC_AUTHORIZATION_ENDPOINT', 'OIDC_TOKEN_ENDPOINT', 'OIDC_USERINFO_ENDPOINT', 'OIDC_SCOPES', 'OIDC_CLIENT_ID', 'OIDC_CLIENT_SECRET', 'OIDC_HTTP_PROXY', 'OIDC_CERT_PATH'];
 
             if (in_array($key, $ignoreEmptyParam)) {
                 continue;
@@ -103,6 +103,14 @@ class Settings
                 define('PROXY', $settings['PROXY']);
             } else {
                 define('PROXY', '');
+            }
+        }
+
+        if (!defined('SYSTEM_USE_NOTIFICATION')) {
+            if (!empty($settings['SYSTEM_USE_NOTIFICATION'])) {
+                define('SYSTEM_USE_NOTIFICATION', $settings['SYSTEM_USE_NOTIFICATION']);
+            } else {
+                define('SYSTEM_USE_NOTIFICATION', '');
             }
         }
 
