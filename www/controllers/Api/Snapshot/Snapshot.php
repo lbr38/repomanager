@@ -2,6 +2,7 @@
 
 namespace Controllers\Api\Snapshot;
 
+use \Controllers\User\Permission\Repo as RepoPermission;
 use Exception;
 
 class Snapshot extends \Controllers\Api\Controller
@@ -66,7 +67,7 @@ class Snapshot extends \Controllers\Api\Controller
                      */
                     $mytask = new \Controllers\Task\Task();
 
-                    if (!IS_ADMIN and !in_array('rebuild', USER_PERMISSIONS['repositories']['allowed-actions']['repos'])) {
+                    if (!RepoPermission::allowedAction('rebuild')) {
                         throw new Exception('You are not allowed to rebuild a repository snapshot');
                     }
 

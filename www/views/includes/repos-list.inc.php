@@ -1,4 +1,6 @@
 <?php
+use \Controllers\User\Permission\Repo as RepoPermission;
+
 /**
  *  Print groups and repos
  */
@@ -289,7 +291,7 @@ if (!empty($groupsList)) {
                                 if ($snapId != $previousSnapId) : ?>
                                     <div class="item-date">
                                         <?php
-                                        if (IS_ADMIN or in_array('browse', USER_PERMISSIONS['repositories']['allowed-actions']['repos'])) : ?>
+                                        if (RepoPermission::allowedAction('browse')) : ?>
                                             <a href="/browse/<?= $snapId ?>" title="<?= "Browse snapshot ($dateFormatted $time) content" ?>">
                                                 <span><?= $dateFormatted ?></span>
                                             </a>
@@ -347,7 +349,7 @@ if (!empty($groupsList)) {
                                     /**
                                      *  Print env with a link to stats page if enabled
                                      */
-                                    if (STATS_ENABLED == "true" and (IS_ADMIN or in_array('view-stats', USER_PERMISSIONS['repositories']['allowed-actions']['repos']))) {
+                                    if (STATS_ENABLED == "true" and RepoPermission::allowedAction('view-stats')) {
                                         echo '<a href="/stats/' . $envId . '" title="Visualize stats and metrics">';
                                         echo \Controllers\Utils\Generate\Html\Label::envtag($env, 'fit');
                                         echo '</a>';
@@ -377,7 +379,7 @@ if (!empty($groupsList)) {
                                     }
 
                                     // If the user is an admin or is a regular user with the 'removeEnv' permission
-                                    if (IS_ADMIN or in_array('removeEnv', USER_PERMISSIONS['repositories']['allowed-actions']['repos'])) { ?>
+                                    if (RepoPermission::allowedAction('removeEnv')) { ?>
                                         <input type="checkbox" cid="<?= $repoId . $snapId . $envId ?>" class="select-env-checkbox icon-lowopacity" name="env-checkbox" repo-id="<?= $repoId ?>" snap-id="<?= $snapId ?>" env-id="<?= $envId ?>" env="<?= $env ?>" title="Select environment">
                                         <?php
                                     }

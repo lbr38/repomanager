@@ -1,3 +1,6 @@
+<?php
+use \Controllers\User\Permission\Repo as RepoPermission; ?>
+
 <section class="section-left reloadable-container" container="repos/list">
     <div class="reposList">
         <div id="title-button-div">
@@ -18,7 +21,7 @@
                     <?php
                 endif;
 
-                if (IS_ADMIN or in_array('create', USER_PERMISSIONS['repositories']['allowed-actions']['repos'])) : ?>
+                if (RepoPermission::allowedAction('create')) : ?>
                     <div class="slide-btn get-panel-btn" panel="repos/new" title="Create a new mirror or local repository">
                         <img src="/assets/icons/plus.svg" />
                         <span>Create a new repository</span>

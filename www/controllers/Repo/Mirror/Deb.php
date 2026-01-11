@@ -2,6 +2,11 @@
 
 namespace Controllers\Repo\Mirror;
 
+/**
+ *  Global notes for deb mirroring:
+ *  - It is useless to create .completed files as checksum can be used to check if a package has been fully downloaded previously or not
+ */
+
 use Exception;
 use \Controllers\Process;
 use \Controllers\App\DebugMode;
@@ -785,8 +790,16 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
 
                 /**
                  *  Check if file does not already exists before downloading it (e.g. copied from a previously snapshot)
+                 *  Or if resuming from a previous run (.completed file exists)
                  */
                 if (file_exists($absoluteDir . '/' . $debPackageName)) {
+                    // Check that .completed file exists, if so, skip the package
+                    // if (file_exists($absoluteDir . '/' . $debPackageName . '.completed')) {
+                    //     $this->taskLogSubStepController->completed('Already exists (resuming from previous run)');
+                    //     continue;
+                    // }
+
+                    // Otherwise check that checksum matches, if so, skip the package
                     if ($this->checksum($absoluteDir . '/' . $debPackageName, $debPackageChecksum)) {
                         $this->taskLogSubStepController->completed('Already exists (ignoring)');
                         continue;
@@ -798,29 +811,26 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                  */
                 if (isset($this->previousSnapshotDirPath)) {
                     if (file_exists($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName)) {
-                        /**
-                         *  If deduplication is enabled
-                         *  Create a hard link to the package
-                         */
-                        if (REPO_DEDUPLICATION) {
-                            if (!link($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName, $absoluteDir . '/' . $debPackageName)) {
-                                throw new Exception('Cannot create hard link to package: ' . $this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName);
+                        if (!file_exists($absoluteDir . '/' . $debPackageName)) {
+                            // If deduplication is enabled, create a hard link to the package
+                            if (REPO_DEDUPLICATION) {
+                                if (!link($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName, $absoluteDir . '/' . $debPackageName)) {
+                                    throw new Exception('Cannot create hard link to package: ' . $this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName);
+                                }
+
+                                $this->taskLogSubStepController->completed('Linked to previous snapshot');
+                            // If deduplication is not enabled, copy the package from the previous snapshot
+                            } else {
+                                if (!copy($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName, $absoluteDir . '/' . $debPackageName)) {
+                                    throw new Exception('Cannot copy package from previous snapshot: ' . $this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName);
+                                }
+
+                                $this->taskLogSubStepController->completed('Copied from previous snapshot');
                             }
-
-                            $this->taskLogSubStepController->completed('Linked to previous snapshot');
-
-                            continue;
                         }
 
-                        /**
-                         *  If deduplication is not enabled
-                         *  Copy package from the previous snapshot
-                         */
-                        if (!copy($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName, $absoluteDir . '/' . $debPackageName)) {
-                            throw new Exception('Cannot copy package from previous snapshot: ' . $this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName);
-                        }
-
-                        $this->taskLogSubStepController->completed('Copied from previous snapshot');
+                        // Create a .completed file to indicate that the package has been downloaded
+                        $this->createCompletedFile($absoluteDir . '/' . $debPackageName);
 
                         continue;
                     }
@@ -932,19 +942,23 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                 $this->taskLogSubStepController->new('downloading-source-package-' . $packageCounter, 'DOWNLOADING SOURCE PACKAGE (' . $packageCounter . '/' . $totalPackages . ')', $sourcePackageLocation);
 
                 /**
+                 *  Check if file does not already exists in the working dir before downloading it (e.g. when a package has multiple possible archs, it can have
+                 *  been downloaded or linked already from another arch)
+                 *  Or if resuming from a previous run (.completed file exists)
+                 */
+                if (file_exists($absoluteDir . '/' . $sourcePackageName)) {
+                    // Check that .completed file exists, if so, skip the package
+                    if (file_exists($absoluteDir . '/' . $sourcePackageName . '.completed')) {
+                        $this->taskLogSubStepController->completed('Already exists (resuming from previous run)');
+                        continue;
+                    }
+                }
+
+                /**
                  *  Before downloading package, check if there is enough disk space left (2GB minimum)
                  */
                 if (disk_free_space(REPOS_DIR) < 2000000000) {
                     throw new Exception('Low disk space: repository storage has reached 2GB (minimum) of free space left. Task automatically stopped.');
-                }
-
-                /**
-                 *  Check if file does not already exists in the working dir before downloading it (e.g. when a package has multiple possible archs, it can have
-                 *  been downloaded or linked already from another arch)
-                 */
-                if (file_exists($absoluteDir . '/' . $sourcePackageName)) {
-                    $this->taskLogSubStepController->completed('Already exists (ignoring)');
-                    continue;
                 }
 
                 /**

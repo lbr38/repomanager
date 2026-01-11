@@ -1,6 +1,7 @@
 <?php
-
 namespace Controllers\Layout\Tab;
+
+use \Controllers\User\Permission\Repo as RepoPermission;
 
 class Browse
 {
@@ -9,7 +10,7 @@ class Browse
         /**
          *  If the user is not an administrator and does not have permission to browse repository, redirect to the home page.
          */
-        if (!IS_ADMIN and !in_array('browse', USER_PERMISSIONS['repositories']['allowed-actions']['repos'])) {
+        if (!RepoPermission::allowedAction('browse')) {
             header('Location: /');
         }
 

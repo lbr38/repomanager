@@ -137,7 +137,7 @@ class File
     /**
      *  Return an array with the list of founded files in specified directory path
      */
-    public static function findRecursive(string $path, array $fileExtension = [], bool $absolute = true)
+    public static function findRecursive(string $path, array $fileExtension = [], bool $absolute = true) : array
     {
         $foundedFiles = [];
 

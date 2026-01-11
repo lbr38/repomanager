@@ -15,6 +15,8 @@ trait Sign
      */
     private function signPackage()
     {
+        $workingDir = REPOS_DIR . '/temporary-task-' . $this->taskId;
+
         /**
          *  Skip if not rpm
          */
@@ -27,6 +29,11 @@ trait Sign
          */
         if ($this->repoController->getGpgSign() != 'true') {
             return;
+        }
+
+        // If action is 'rebuild', set working dir to the existing snapshot path
+        if ($this->action == 'rebuild') {
+            $workingDir = REPOS_DIR . '/rpm/' . $this->repoController->getName() . '/' . $this->repoController->getReleasever() . '/' . $this->repoController->getDate();
         }
 
         /**
@@ -57,7 +64,7 @@ trait Sign
          *  If all packages must be signed, retrieve all RPM files recursively
          */
         if (!is_array($this->packagesToSign) and $this->packagesToSign == 'all') {
-            $rpmFiles = File::findRecursive(REPOS_DIR . '/rpm/' . $this->repoController->getName() . '/' . $this->repoController->getReleasever() . '/' . $this->repoController->getDate(), ['rpm'], true);
+            $rpmFiles = File::findRecursive($workingDir . '/packages', ['rpm'], true);
         }
 
         /**
@@ -67,7 +74,7 @@ trait Sign
          */
         if (is_array($this->packagesToSign)) {
             foreach ($this->packagesToSign as $relativePackagePath) {
-                $rpmFiles[] = REPOS_DIR . '/rpm/' . $this->repoController->getName() . '/' . $this->repoController->getReleasever() . '/' . $this->repoController->getDate() . '/' . $relativePackagePath;
+                $rpmFiles[] = $workingDir . '/' . $relativePackagePath;
             }
         }
 
@@ -122,6 +129,12 @@ trait Sign
                  */
                 $this->taskLogSubStepController->new('signing-package-' . $packageCounter, 'SIGNING PACKAGE (' . $packageCounter . '/' . $totalPackages . ')', basename($rpmFile));
 
+                // If a .signed file exists for this package, it means it has already been signed, so we skip it
+                if (file_exists($rpmFile . '.signed')) {
+                    $this->taskLogSubStepController->completed('Already signed (resuming from previous run)');
+                    continue;
+                }
+
                 /**
                  *  Sign package
                  */
@@ -146,9 +159,9 @@ trait Sign
                     // If the RPM_SIGNATURE_FAIL setting is set to 'error', then stop the task with an error
                     if (RPM_SIGNATURE_FAIL == 'error') {
                         // First, delete everything to avoid leaving a broken repository (don't delete if the action is 'rebuild')
-                        if ($this->action != 'rebuild') {
-                            Directory::deleteRecursive(REPOS_DIR . '/rpm/' . $this->repoController->getName() . '/' . $this->repoController->getReleasever() . '/' . $this->repoController->getDate());
-                        }
+                        // if ($this->action != 'rebuild') {
+                        //     Directory::deleteRecursive(REPOS_DIR . '/rpm/' . $this->repoController->getName() . '/' . $this->repoController->getReleasever() . '/' . $this->repoController->getDate());
+                        // }
 
                         throw new Exception('Error while signing package<br><pre class="codeblock margin-top-10">' . $output . '</pre>');
                     }
@@ -192,6 +205,9 @@ trait Sign
                 } else {
                     $this->taskLogSubStepController->completed();
                 }
+
+                // Create .signed file to indicate that signing is complete
+                $this->createSignedFile($rpmFile);
             }
         }
 
@@ -199,5 +215,15 @@ trait Sign
         $this->taskLogSubStepController->completed('', 'sign-packages');
 
         $this->taskLogStepController->completed();
+    }
+
+    /**
+     *  Create .signed file to indicate that signing is complete
+     */
+    private function createSignedFile(string $path) : void
+    {
+        if (!touch($path . '.signed')) {
+            throw new Exception('Cannot create .signed file for ' . $path);
+        }
     }
 }

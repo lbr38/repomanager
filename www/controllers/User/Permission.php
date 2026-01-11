@@ -10,16 +10,16 @@ class Permission extends User
     private $permissionModel;
     private $defaultPermissions = [
         'repositories' => [
-            'allowed-actions' => [
-                'repos' => [],
-                'hosts' => [],
-            ],
+            'allowed-actions' => [],
             'view' => [
                 'all',
                 'groups' => []
             ],
         ],
         'tasks' => [
+            'allowed-actions' => [],
+        ],
+        'hosts' => [
             'allowed-actions' => [],
         ],
     ];
@@ -78,7 +78,7 @@ class Permission extends User
     /**
      *  Set user permissions
      */
-    public function set(int $id, array $reposView, array $reposActions, array $tasksActions) : void
+    public function set(int $id, array $reposView, array $reposActions, array $tasksActions, array $hostsActions) : void
     {
         if (!IS_ADMIN) {
             throw new Exception('You are not allowed to execute this action.');
@@ -142,7 +142,7 @@ class Permission extends User
                 }
 
                 // Add action to allowed actions
-                $permissions['repositories']['allowed-actions']['repos'][] = $action;
+                $permissions['repositories']['allowed-actions'][] = $action;
             }
         }
 
@@ -158,6 +158,21 @@ class Permission extends User
 
                 // Add action to allowed actions
                 $permissions['tasks']['allowed-actions'][] = $action;
+            }
+        }
+
+        /**
+         *  Set permissions for hosts actions
+         */
+        if (!empty($hostsActions)) {
+            foreach (array_filter($hostsActions) as $action) {
+                // Check that action is valid
+                if (!in_array($action, ['request-general-infos', 'request-packages-infos', 'update-packages', 'reset', 'delete'])) {
+                    throw new Exception('Invalid action: ' . $action);
+                }
+
+                // Add action to allowed actions
+                $permissions['hosts']['allowed-actions'][] = $action;
             }
         }
 

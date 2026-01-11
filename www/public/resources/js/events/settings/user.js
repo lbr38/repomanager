@@ -129,6 +129,7 @@ $(document).on('submit','#user-permissions-form',function () {
     var reposView = $(this).find('#user-permissions-repos-view').val();
     var reposActions = $(this).find('#user-permissions-repos-actions').val();
     var tasksActions = $(this).find('#user-permissions-tasks-actions').val();
+    var hostsActions = $(this).find('#user-permissions-hosts-actions').val();
 
     // If no repos view are selected, set to empty array
     if (empty(reposView)) {
@@ -145,6 +146,11 @@ $(document).on('submit','#user-permissions-form',function () {
         tasksActions = [''];
     }
 
+    // If no hosts actions are selected, set to empty array
+    if (empty(hostsActions)) {
+        hostsActions = [''];
+    }
+
     ajaxRequest(
         // Controller:
         'settings/user',
@@ -155,7 +161,8 @@ $(document).on('submit','#user-permissions-form',function () {
             id: id,
             reposView: reposView,
             reposActions: reposActions,
-            tasksActions: tasksActions
+            tasksActions: tasksActions,
+            hostsActions: hostsActions
         },
         // Print success alert:
         true,

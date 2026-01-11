@@ -19,7 +19,7 @@ class File
      */
     public static function error(string $file, string $message, string $title = '') : void
     {
-        if (!is_null($title)) {
+        if (!empty($title)) {
             file_put_contents($file, self::date() . '[ERR] ' . $title . ':' . PHP_EOL, FILE_APPEND);
             file_put_contents($file, $message . PHP_EOL, FILE_APPEND);
             return;
@@ -33,7 +33,7 @@ class File
      */
     public static function warning(string $file, string $message, string $title = '') : void
     {
-        if (!is_null($title)) {
+        if (!empty($title)) {
             file_put_contents($file, self::date() . '[WRN] ' . $title . ':' . PHP_EOL, FILE_APPEND);
             file_put_contents($file, $message . PHP_EOL, FILE_APPEND);
             return;

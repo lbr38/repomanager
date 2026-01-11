@@ -26,9 +26,9 @@ class Cli
     /**
      *  Print a yellow warning message to the console
      */
-    public static function warning(string $message, string $title = null) : void
+    public static function warning(string $message, string $title = '') : void
     {
-        if (!is_null($title)) {
+        if (!empty($title)) {
             echo self::date() . "[WRN]\033[33m " . $title . ':' . PHP_EOL;
             echo $message . "\033[0m" . PHP_EOL;
         } else {

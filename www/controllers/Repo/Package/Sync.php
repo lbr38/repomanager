@@ -3,11 +3,9 @@
 namespace Controllers\Repo\Package;
 
 use \Controllers\Utils\Generate\Html\Label;
-use \Controllers\Filesystem\Directory;
 use \Controllers\Repo\Source\Source;
 use \Controllers\Repo\Mirror\Rpm;
 use \Controllers\Repo\Mirror\Deb;
-use \Controllers\App\DebugMode;
 use Exception;
 use JsonException;
 
@@ -261,63 +259,21 @@ trait Sync
         }
 
         /**
-         *  3. Retrieving packages
+         *  Start mirroring
          */
-        try {
-            /**
-             *  Start mirroring
-             */
-            $mymirror->mirror();
+        $mymirror->mirror();
 
-            if ($this->repoController->getPackageType() == 'rpm') {
-                /**
-                 *  If the repo snapshot must be signed, then retrieve the list of packages to sign from the mirroring task
-                 *  It will be used in the signing task (see Sign.php)
-                 */
-                if ($this->repoController->getGpgSign() == 'true') {
-                    $this->packagesToSign = $mymirror->getPackagesToSign();
-                }
+        if ($this->repoController->getPackageType() == 'rpm') {
+            /**
+             *  If the repo snapshot must be signed, then retrieve the list of packages to sign from the mirroring task
+             *  It will be used in the signing task (see Sign.php)
+             */
+            if ($this->repoController->getGpgSign() == 'true') {
+                $this->packagesToSign = $mymirror->getPackagesToSign();
             }
-
-            unset($mymirror);
-
-            /**
-             *  Delete the target snapshot directory if it already exists
-             */
-            if (is_dir($snapshotPath)) {
-                if (!Directory::deleteRecursive($snapshotPath)) {
-                    throw new Exception('Cannot delete existing directory: ' . $snapshotPath);
-                }
-            }
-
-            /**
-             *  Create parent directory if not exists
-             */
-            if (!is_dir($parentDir)) {
-                if (!mkdir($parentDir, 0770, true)) {
-                    throw new Exception('Could not create directory: ' . $parentDir);
-                }
-            }
-
-            /**
-             *  Rename temporary working directory to the final snapshot path
-             */
-            if (!rename($workingDir, $snapshotPath)) {
-                throw new Exception('Could not rename working directory ' . $workingDir);
-            }
-        } catch (Exception $e) {
-            /**
-             *  If there was an error while mirroring, delete working dir if exists
-             */
-            if (is_dir($workingDir) and !DebugMode::enabled()) {
-                Directory::deleteRecursive($workingDir);
-            }
-
-            /**
-             *  Throw exception with mirror error message
-             */
-            throw new Exception($e->getMessage());
         }
+
+        unset($mymirror);
 
         $this->taskLogStepController->completed();
     }

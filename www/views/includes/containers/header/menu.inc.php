@@ -152,13 +152,13 @@
 
                     <div>
                         <a href="/history"><img src="/assets/icons/time.svg" class="icon-lowopacity" title="Repomanager history" /></a>
-                    </div>
+                    </div>                
+
+                    <a href="/status">
+                        <img src="/assets/icons/health.svg" class="icon-lowopacity margin-right-0" title="Access system health & monitoring" />
+                    </a>
                     <?php
                 endif ?>
-
-                <a href="/status">
-                    <img src="/assets/icons/health.svg" class="icon-lowopacity margin-right-0" title="Access system health & monitoring" />
-                </a>
 
                 <div class="relative">
                     <img src="/assets/icons/alarm.svg" class="icon-lowopacity get-panel-btn" panel="general/notification" title="Show notifications" />

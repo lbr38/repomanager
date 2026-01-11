@@ -1,4 +1,6 @@
 <?php
+use \Controllers\User\Permission\Repo as RepoPermission;
+
 $myTaskForm = new \Controllers\Task\Form\Form();
 
 /**
@@ -21,7 +23,7 @@ if (!in_array($item['action'], ['update', 'env', 'duplicate', 'delete', 'rebuild
 /**
  *  If the user is not an administrator or does not have permission to perform the specified action, prevent access to this panel.
  */
-if (!IS_ADMIN and !in_array($item['action'], USER_PERMISSIONS['repositories']['allowed-actions']['repos'])) {
+if (!RepoPermission::allowedAction($item['action'])) {
     throw new Exception('You are not allowed to access this panel');
 }
 

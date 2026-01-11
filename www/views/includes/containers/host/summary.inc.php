@@ -1,22 +1,28 @@
+<?php
+use \Controllers\User\Permission\Host as HostPermission; ?>
+
 <section class="section-main reloadable-container" container="host/summary">
     <div id="title-button-div">
         <h3><?= strtoupper($hostname) ?></h3>
 
-        <?php
-        if (IS_ADMIN) : ?>
-            <div class="flex justify-space-between">
+        <div class="flex justify-space-between">
+            <?php
+            if (HostPermission::allowedAction('reset')) : ?>
                 <div id="host-reset-btn" class="slide-btn-yellow" host-id="<?= $id ?>" title="Reset host informations">
                     <img src="/assets/icons/update.svg">
                     <span>Reset</span>
                 </div>
+                <?php
+            endif;
 
+            if (HostPermission::allowedAction('delete')) : ?>
                 <div id="host-delete-btn" class="slide-btn-red" host-id="<?= $id ?>" title="Delete host">
                     <img src="/assets/icons/delete.svg">
                     <span>Delete</span>
                 </div>
-            </div>
-            <?php
-        endif ?>
+                <?php
+            endif ?>
+        </div>
     </div>
 
     <div class="grid grid-rfr-1-2 row-gap-30 justify-space-between align-item-center div-generic-blue padding-left-30 padding-right-30">
