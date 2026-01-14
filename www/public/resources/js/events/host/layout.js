@@ -5,15 +5,30 @@ $(document).on('click','#compact-view-btn',function () {
     // Get current view mode from cookie
     var viewMode = mycookie.get('hosts/compact-view');
 
-    // If view mode is set to true, then set it to false
-    if (viewMode == 1) {
-        mycookie.set('hosts/compact-view', 0, 365);
+    // Default to compact view ("1") if no cookie is set - same as PHP logic
+    if (viewMode == "") {
+        viewMode = "1";
     }
 
-    // If there was no cookie or if view mode is set to false, then set it to true
-    if (viewMode == "" || viewMode == 0) {
+    // Toggle the view mode and set the new value
+    var newViewMode;
+    
+    // If compact view is active, switch to full view
+    if (viewMode == "1") {
+        newViewMode = "0";
+        mycookie.set('hosts/compact-view', 0, 365);
+    }
+    // If full view is active, switch to compact view
+    else {
+        newViewMode = "1";
         mycookie.set('hosts/compact-view', 1, 365);
     }
+
+    // Update button title using the NEW view mode
+    $(this).find('span').text(newViewMode == "1" ? 'Full view' : 'Compact view');
+
+    // Update button icon using the NEW view mode
+    $(this).find('img').attr('src', newViewMode == "1" ? '/assets/icons/view.svg' : '/assets/icons/view-off.svg');
 
     // Reload the container
     mycontainer.reload('hosts/list', '#hosts');

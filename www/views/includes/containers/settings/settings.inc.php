@@ -53,9 +53,9 @@
             <p class="note">Specify the proxy URL to use to access the internet. e.g. https://myproxy.com:8080</p>
             <input class="settings-param" param-name="proxy" type="text" value="<?= PROXY ?>" placeholder="https://">
 
-            <h6>System use notification</h6>
-            <p class="note">System use notification, a banner on the login page</p>
-            <input class="settings-param" param-name="systemUseNotification" type="text" value="<?= SYSTEM_USE_NOTIFICATION ?>">
+            <h6>LOGIN PAGE BANNER</h6>
+            <p class="note">Add a banner on the login page (e.g. system use notification).</p>
+            <input class="settings-param" param-name="login-banner" type="text" value="<?= LOGIN_BANNER ?>">
 
             <hr class="margin-top-20 margin-bottom-20">
 

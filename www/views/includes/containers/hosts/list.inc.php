@@ -5,37 +5,40 @@
         <div>
             <?php
             if ($totalHosts > 0) :
-                if (!empty($_COOKIE['hosts/compact-view']) && $_COOKIE['hosts/compact-view'] == true) : ?>
-                    <div id="compact-view-btn" class="slide-btn" title="Switch to full view">
-                        <img src="/assets/icons/view-off.svg" />
-                        <span>Switch to full view</span>
+                // Default to compact view if no cookie is set
+                $currentView = isset($_COOKIE['hosts/compact-view']) ? $_COOKIE['hosts/compact-view'] : "1";
+
+                if ($currentView == "1") : // Compact view active ?>
+                    <div id="compact-view-btn" class="slide-btn mediumopacity" title="Switch to full view">
+                        <img src="/assets/icons/view.svg" />
+                        <span>Full view</span>
                     </div>
                     <?php
-                else : ?>
-                    <div id="compact-view-btn" class="slide-btn" title="Switch to compact view">
-                        <img src="/assets/icons/view.svg" />
-                        <span>Switch to compact view</span>
+                else : // Full view active ?>
+                    <div id="compact-view-btn" class="slide-btn mediumopacity" title="Switch to compact view">
+                        <img src="/assets/icons/view-off.svg" />
+                        <span>Compact view</span>
                     </div>
                     <?php
                 endif;
             endif;
 
             if (IS_ADMIN) : ?>
-                <div class="slide-btn get-panel-btn" panel="hosts/profiles" title="Manage hosts profiles">
+                <div class="slide-btn get-panel-btn mediumopacity" panel="hosts/profiles" title="Manage hosts profiles">
                     <img src="/assets/icons/profile.svg" />
-                    <span>Manage profiles</span>
+                    <span>Profiles</span>
                 </div>
                 <?php
             endif;
 
             if ($totalHosts > 0) :
                 if (IS_ADMIN) : ?>
-                    <div class="slide-btn get-panel-btn" panel="hosts/groups/list" title="Manage hosts groups">
+                    <div class="slide-btn get-panel-btn mediumopacity" panel="hosts/groups/list" title="Manage hosts groups">
                         <img src="/assets/icons/folder.svg" />
-                        <span>Manage groups</span>
+                        <span>Groups</span>
                     </div>
 
-                    <div class="slide-btn get-panel-btn" panel="hosts/settings" title="Edit display settings">
+                    <div class="slide-btn get-panel-btn mediumopacity" panel="hosts/settings" title="Edit display settings">
                         <img src="/assets/icons/cog.svg" />
                         <span>Settings</span>
                     </div>
@@ -61,7 +64,7 @@
                         <img src="/assets/icons/info.svg" class="icon-small icon-np lowopacity search-host-tooltip" />
                     </div>
                     
-                    <input type="text" id="search-host-input" onkeyup="myhost.search()" autocomplete="off" placeholder="Hostname, IP, type, ..." title="Search a host by hostname, IP" />
+                    <input type="text" id="search-host-input" onkeyup="HostSearch.search()" autocomplete="off" placeholder="Hostname, IP, type, ..." title="Search a host by hostname, IP" />
                 </div>
 
                 <div>
@@ -70,7 +73,7 @@
                         <img src="/assets/icons/info.svg" class="icon-small icon-np lowopacity search-package-tooltip" />
                     </div>
 
-                    <input type="text" id="search-package-input" onkeyup="myhost.searchPackage()" autocomplete="off" placeholder="name=package name" />
+                    <input type="text" id="search-package-input" onkeyup="HostSearch.searchPackage()" autocomplete="off" placeholder="name=package name" />
                 </div>
             </div>
 
@@ -80,6 +83,11 @@
                     <input type="checkbox" title="Select all hosts" />
                 </div>
             </div>
+        </div>
+
+        <div id="hosts-search" class="align-item-center column-gap-5 hide">
+            <img src="/assets/icons/loading.svg" class="icon-np" />
+            <p class="note">Searching...</p>
         </div>
 
         <div id="hosts">

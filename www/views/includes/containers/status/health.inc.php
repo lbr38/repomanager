@@ -2,7 +2,7 @@
     <h3>DATABASES HEALTH</h3>
 
     <div class="div-generic-blue">
-        <div class="grid grid-rfr-2-4 row-gap-30 column-gap-20">
+        <div class="grid grid-rfr-1-4 row-gap-30 column-gap-20">
             <?php
             foreach ($appDatabases as $name => $properties) :
                 $icon = 'check'; ?>
@@ -18,8 +18,8 @@
                         $icon = 'warning';
                     } ?>
 
-                    <div class="flex column-gap-5 row-gap-5">
-                        <img src="/assets/icons/<?= $icon ?>.svg" class="icon" />
+                    <div class="flex align-item-center column-gap-5 row-gap-5">
+                        <img src="/assets/icons/<?= $icon ?>.svg" class="icon-np" />
                         <div class="flex flex-direction-column row-gap-5">
                             <?php
                             if (empty($properties['errors'])) {
@@ -30,6 +30,7 @@
                                 }
                             } ?>
                         </div>
+                        <p class="font-size-13 mediumopacity-cst" title="Total tables">(<?= $properties['total'] ?>)</p>
                     </div>
                 </div>
                 <?php

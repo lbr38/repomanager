@@ -1,4 +1,12 @@
-<div class="reloadable-table" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">   
+<div class="reloadable-table" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
+    <h6>ADD</h6>
+    <p class="note">Add a new source repository manually or import from a predefined or custom list.</p>
+
+    <div class="flex column-gap-10 margin-top-5 margin-bottom-30">
+        <button type="button" class="btn-medium-blue get-panel-btn" panel="repos/sources/new">Manually add</button>
+        <button type="button" class="btn-medium-blue get-panel-btn" panel="repos/sources/import">Import</button>
+    </div>
+
     <h6>CURRENT SOURCE REPOSITORIES</h6>
     <p class="note">Source repositories to be mirrored.</p>
 
@@ -6,11 +14,6 @@
     if (empty($reloadableTableContent)) {
         echo '<p class="note">Nothing for now!</p>';
     } ?>
-
-    <div class="flex column-gap-10 margin-top-10 margin-bottom-15">
-        <button type="button" class="btn-medium-blue get-panel-btn" panel="repos/sources/new">Manually add</button>
-        <button type="button" class="btn-medium-blue get-panel-btn" panel="repos/sources/import">Import</button>
-    </div>
 
     <?php
     if (!empty($reloadableTableContent)) : ?>

@@ -17,6 +17,8 @@
     <link rel="stylesheet" type="text/css" href="/resources/styles/components/modal.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/components/tooltip.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/components/scrollbar.css?<?= VERSION ?>">
+    <link rel="stylesheet" type="text/css" href="/resources/styles/components/echart.css?<?= VERSION ?>">
+    <link rel="stylesheet" type="text/css" href="/resources/styles/components/hide.css?<?= VERSION ?>">
     <link rel="stylesheet" type='text/css' href="/resources/styles/select2.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/main.css?<?= VERSION ?>">
 
@@ -51,8 +53,8 @@
     <script src="/resources/js/libs/jquery-3.7.1.min.js?<?= VERSION ?>"></script>
     <!-- Select2 https://select2.org/ -->
     <script src="/resources/js/libs/select2.js?<?= VERSION ?>"></script>
-    <!-- ChartJS -->
-    <script src="/resources/js/libs/chartjs-4.4.8.umd.js?<?= VERSION ?>"></script>
+    <!-- ECharts -->
+    <script src="/resources/js/libs/echarts.min.js?<?= VERSION ?>"></script>
     <!-- Morhpdom -->
     <script src="/resources/js/libs/morphdom-umd.min.js?<?= VERSION ?>"></script>
     <!-- App config files -->

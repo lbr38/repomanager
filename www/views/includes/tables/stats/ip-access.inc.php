@@ -1,5 +1,5 @@
-<div class="reloadable-table flex-div-50 div-generic-blue" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
-    <div class="flex justify-space-between">
+<div class="reloadable-table div-generic-blue" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
+    <div class="flex flex-wrap justify-space-between">
         <div>
             <h6 class="margin-top-0">TOP IP ACCESS</h6>
             <p class="note">Number of accesses to the repository snapshot by IP address for the selected date.</p>

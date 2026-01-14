@@ -210,98 +210,18 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
             </div>
         </div>
 
-        <div class="host-line-chart-container">
-            <canvas id="packages-status-chart"></canvas>
+        <div class="echart-container">
+            <div id="host-packages-status-chart-loading" class="echart-loading">
+                <img src="/assets/icons/loading.svg" class="icon-np" />
+            </div>
+
+            <div id="host-packages-status-chart" class="echart"></div>
         </div>
 
         <script>
-        $(document).ready(function(){
-            /**
-             *  Line chart
-             */
-            // Data
-            var lineChartData = {
-                labels: [<?=$lineChartDates?>],
-                datasets: [
-                    {
-                        label: 'Installed',
-                        data: [<?=$lineChartInstalledPackagesCount?>],
-                        borderColor: '#15bf7f',
-                        backgroundColor: 'rgba(21, 191, 127, 0.2)',
-                        fill: true
-                    },
-                    {
-                        label: 'Updated',
-                        data: [<?=$lineChartUpgradedPackagesCount?>],
-                        borderColor: '#cc9951',
-                        backgroundColor: 'rgba(204, 153, 81, 0.2)',
-                        fill: true
-                    },
-                    {
-                        label: 'Uninstalled',
-                        data: [<?=$lineChartRemovedPackagesCount?>],
-                        borderColor: '#F32F63',
-                        backgroundColor: 'rgba(243, 47, 99, 0.2)',
-                        fill: true
-                    }
-                ],
-            };
-            // Options
-            var lineChartOptions = {
-                tension: 0.2,
-                responsive: true,
-                maintainAspectRatio: false,
-                borderWidth: 1.5,
-                scales: {
-                    x: {
-                        display: false // do not print dates on X axis
-                    },
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            color: '#8A99AA',
-                            font: {
-                                size: 11,
-                                family: 'Roboto'
-                            },
-                            stepSize: 1
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        labels: {
-                            padding: 20,
-                            font: {
-                                size: 13,
-                                family: 'Roboto',
-                            },
-                            color: '#8A99AA',
-                            usePointStyle: true
-                        },
-
-                        display: true,
-                        position: 'left',
-                        title: {
-                            display: true,
-                            text: 'Packages',
-                            font: {
-                                size: 14,
-                                family: 'Roboto',
-                            },
-                            color: '#8A99AA',
-                        }
-                    },
-                },
-            }
-            // Print chart
-            var ctx = document.getElementById('packages-status-chart').getContext("2d");
-            window.myLine = new Chart(ctx, {
-                type: "line",
-                data: lineChartData,
-                options: lineChartOptions
+            $(document).ready(function(){
+                new EChart('line', 'host-packages-status-chart');
             });
-        });
         </script>
     </div>
 </section>

@@ -12,7 +12,7 @@ use Exception;
 
 class Host
 {
-    private $id;
+    // private $id;
     protected $dedicatedDb;
     protected $model;
     protected $layoutContainerReloadController;
@@ -124,14 +124,6 @@ class Host
     public function existsId(int $id) : bool
     {
         return $this->model->existsId($id);
-    }
-
-    /**
-     *  Return true if the IP exists in the database
-     */
-    private function ipExists(string $ip) : bool
-    {
-        return $this->model->ipExists($ip);
     }
 
     /**

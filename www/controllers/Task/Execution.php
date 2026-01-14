@@ -368,7 +368,6 @@ class Execution
             // Update layout containers states
             $this->layoutContainerReloadController->reload('header/menu');
             $this->layoutContainerReloadController->reload('repos/list');
-            $this->layoutContainerReloadController->reload('repos/properties');
             $this->layoutContainerReloadController->reload('tasks/list');
             $this->layoutContainerReloadController->reload('browse/list');
             $this->layoutContainerReloadController->reload('browse/actions');

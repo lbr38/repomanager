@@ -9,7 +9,7 @@
         $repo = $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection();
     } ?>
 
-    <div class="div-generic-blue grid grid-4">
+    <div class="grid grid-rfr-1-4 row-gap-20 div-generic-blue margin-bottom-15">
         <div>
             <h6 class="margin-top-0">REPOSITORY</h6>
             <div class="flex align-item-center column-gap-5">

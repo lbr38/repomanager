@@ -3,5 +3,5 @@
  *  @type {Array}
  */
 const containersUsingMorphdom = [
-    'repos/properties',
+    // 'repos/properties',
 ];

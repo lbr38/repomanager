@@ -588,9 +588,6 @@ $(document).on('submit','#task-form',function () {
         // Uncheck all checkboxes and remove all styles JQuery could have applied
         $('.reposList').find('input[name=checkbox-repo]').prop('checked', false);
         $('.reposList').find('input[name=checkbox-repo]').removeAttr('style');
-
-        // Reload right panel
-        mycontainer.reload('repos/properties');
     });
 
     return false;

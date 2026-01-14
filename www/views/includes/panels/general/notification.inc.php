@@ -2,7 +2,7 @@
 
 <?php
 if (NOTIFICATION == 0) :
-    echo '<p>Nothing for now!</p>';
+    echo '<p class="note">Nothing for now!</p>';
 else :
     /**
      *  If an update is available, generate the update notification
@@ -72,9 +72,9 @@ else :
             
                 <?php
                 if (!empty($notification['Id'])) : ?>
-                    <div class="slide-btn align-self-center acquit-notification-btn margin-top-10" notification-id="<?= $notification['Id'] ?>" title="Mark as read">
-                        <img src="/assets/icons/enabled.svg" />
-                        <span>Mark as read</span>
+                    <div class="flex align-item-center column-gap-5 mediumopacity acquit-notification-btn margin-top-10" notification-id="<?= $notification['Id'] ?>" title="Mark as read">
+                        <img src="/assets/icons/enabled.svg" class="icon" />
+                        <p class="pointer">Mark as read</p>
                     </div>
                     <?php
                 endif ?>

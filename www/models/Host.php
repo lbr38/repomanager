@@ -366,26 +366,6 @@ class Host extends Model
     }
 
     /**
-     *  Return true if the IP exists in the database
-     */
-    public function ipExists(string $ip) : bool
-    {
-        try {
-            $stmt = $this->db->prepare("SELECT Ip FROM hosts WHERE Ip = :ip");
-            $stmt->bindValue(':ip', $ip);
-            $result = $stmt->execute();
-        } catch (Exception $e) {
-            DbLog::error($e);
-        }
-
-        if ($this->db->isempty($result) === true) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      *  Return true if the hostname exists in the database
      */
     public function hostnameExists(string $hostname) : bool

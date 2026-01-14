@@ -1,23 +1,31 @@
-#login-container {
-    display: grid;
-    grid-template-rows: 60% 40%;
+#login-container > div {
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
     justify-content: center;
-    justify-items: center;
+    align-items: center;
     width: 90vw;
     height: 90vh;
     margin: auto;
+    overflow: auto;
 }
-#login {
-    align-self: end;
-    width: 250px;
+
+#login-logo {
+    max-width: 80px;
+    margin-bottom: 30px;
     text-align: center;
 }
-#login img {
-    max-width: 80px;
+
+#login-banner {
+    max-width: 80%;
+    max-height: 20%;
+    overflow: auto;
 }
-#login form input {
-    display: block;
+
+#login-form, #login-sso-form {
+    width: 250px;
 }
+
 #login-error {
     width: 90vw;
     max-width: 90vw;

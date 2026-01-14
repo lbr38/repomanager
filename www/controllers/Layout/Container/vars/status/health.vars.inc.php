@@ -44,10 +44,25 @@ foreach ($appDatabases as $name => $db) {
     // Check that all tables are present
     $cn = new \Models\Connection($name);
     $method = 'check' . ucfirst($name) . 'Tables';
+    $cn->$method();
 
-    if ($cn->$method() === false) {
-        $appDatabases[$name]['errors'][] = 'One or more table are missing';
+    $appDatabases[$name]['required'] = $cn->required;
+    $appDatabases[$name]['count'] = $cn->count;
+
+    // Store total tables info
+    $appDatabases[$name]['total'] = $cn->count . '/' . $cn->required;
+
+    // If tables are missing, calculate how many
+    if ($cn->count < $cn->required) {
+        $missingTables = $cn->required - $cn->count;
+        $appDatabases[$name]['errors'][] = $missingTables . ' table(s) missing';
+    }
+
+    // If there are more tables than required, calculate how many
+    if ($cn->count > $cn->required) {
+        $extraTables = $cn->count - $cn->required;
+        $appDatabases[$name]['errors'][] = $extraTables . ' extra table' . ($extraTables > 1 ? 's' : '') . ' found';
     }
 }
 
-unset($name, $db, $cn, $method);
+unset($name, $db, $cn, $method, $missingTables, $extraTables);

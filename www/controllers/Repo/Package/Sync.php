@@ -78,26 +78,6 @@ trait Sync
             }
 
             /**
-             *  Define temporary working directory
-             */
-            $workingDir = REPOS_DIR . '/temporary-task-' . $this->taskId;
-
-            /**
-             *  Define snapshot parent directory
-             */
-            if ($this->repoController->getPackageType() == 'rpm') {
-                $parentDir = REPOS_DIR . '/rpm/' . $this->repoController->getName() . '/' . $this->repoController->getReleasever();
-            }
-            if ($this->repoController->getPackageType() == 'deb') {
-                $parentDir = REPOS_DIR . '/deb/' . $this->repoController->getName() . '/' . $this->repoController->getDist() . '/' . $this->repoController->getSection();
-            }
-
-            /**
-             *  Define snapshot path
-             */
-            $snapshotPath = $parentDir . '/' . $this->repoController->getDate();
-
-            /**
              *  If the task is an update, retrieve previous snapshot directory path
              */
             if ($this->action == 'update') {

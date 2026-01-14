@@ -27,6 +27,11 @@
     </div>
 
     <div class="flex column-gap-10">
+        <img src="/assets/icons/health.svg" class="icon" />
+        <a href="/status"><h5 class="margin-0">HEALTH & MONITORING</h5></a>
+    </div>
+
+    <div class="flex column-gap-10">
         <img src="/assets/icons/alarm.svg" class="icon" />
         <h5 class="margin-0 get-panel-btn" panel="general/notification">NOTIFICATIONS</h5>
     </div>

@@ -82,10 +82,10 @@ class Settings
             $settingsToApply['PROXY'] = '';
         }
 
-        if (!empty($sendSettings['systemUseNotification'])) {
-            $settingsToApply['SYSTEM_USE_NOTIFICATION'] = Validate::string($sendSettings['systemUseNotification']);
+        if (!empty($sendSettings['login-banner'])) {
+            $settingsToApply['LOGIN_BANNER'] = Validate::string($sendSettings['login-banner']);
         } else {
-            $settingsToApply['SYSTEM_USE_NOTIFICATION'] = '';
+            $settingsToApply['LOGIN_BANNER'] = '';
         }
 
         if (!empty($sendSettings['task-queuing'])) {

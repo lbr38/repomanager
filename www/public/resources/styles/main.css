@@ -17,7 +17,6 @@ header {
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    /* font-size: 14px; */
     -webkit-box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.75);
     -moz-box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.75);
     box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.75);
@@ -179,10 +178,9 @@ article {
 }
 
 .repos-list-group-select-all-btns {
-    display: flex;
     align-items: center;
-    margin-left: 330px;
-    column-gap: 10px;
+    margin-left: 380px;
+    column-gap: 8px;
 }
 
 .repos-list-group-select-all-btns input[type="checkbox"] {
@@ -192,7 +190,8 @@ article {
 
 .repos-list-group-flex-div {
     display: grid;
-    grid-template-columns: 300px 55px auto auto auto 55px 1fr;
+    /* grid-template-columns: 350px 55px auto auto auto 55px 1fr; */
+    grid-template-columns: 100px 55px auto auto auto 55px;
     row-gap: 25px;
     margin-bottom: 12px;
     background-color: #22384F;
@@ -483,6 +482,12 @@ footer #github img { width: 25px; }
 .circle-div-container-count-yellow { border: 4px solid #ffb536; }
 .circle-div-container-count-red { border: 4px solid #F32F63; }
 
+#repo-storage-chart {
+    min-height: 18px !important;
+    height: 18px !important;
+    width: 18px !important;
+}
+
 .donut-chart-container {
     width: 120px;
     height: 120px;
@@ -510,8 +515,8 @@ footer #github img { width: 25px; }
 .donut-legend-title {
     position: absolute;
     text-align: center;
-    font-size: 11px;
-    top: 30%;
+    font-size: 13px;
+    top: 33%;
     left: 50%;
     -ms-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
@@ -569,12 +574,15 @@ footer #github img { width: 25px; }
     text-align: center;
 }
 
-.hide, .tr-hide, .td-hide {
-    display: none;
+#monitoring-stats-container {
+    display: flex;
+    flex-wrap: wrap;
+    row-gap: 10px;
+    align-items: center;
 }
 
-#monitoring-stats-container div {
-    height: 250px !important;
+#monitoring-stats-container > div {
+    width: 100%;
 }
 
 /* Desktop configuration */
@@ -620,5 +628,9 @@ footer #github img { width: 25px; }
     .profiles-container {
         columns: 2;
         column-count: 2;
+    }
+
+    .repos-list-group-flex-div {
+        grid-template-columns: 350px 55px auto auto auto 55px 1fr;
     }
 }

@@ -1,5 +1,5 @@
 /**
- *  v1.20
+ *  v1.21
  */
 @font-face{font-family: 'Roboto'; src: url('/assets/fonts/Roboto/Roboto-Regular.ttf') format('truetype');}
 
@@ -187,8 +187,12 @@ pre.codeblock {
 .grid-fr-6 {grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr !important}
 .grid-40p-45p-10p{grid-template-columns: 40% 45% 10% !important}
 /* For responsive */
-.grid-rfr-1-2,.grid-rfr-1-3,.grid-rfr-1-4,.grid-rfr-1-6{grid-template-columns:1fr !important}
+.grid-rfr-1-2,.grid-rfr-1-3,.grid-rfr-1-4,.grid-rfr-1-5,.grid-rfr-1-6{grid-template-columns:1fr !important}
 .grid-rfr-2-4{grid-template-columns:repeat(2, 1fr) !important}
+/* For responsive */
+/* column on mobile */
+.flexrc{display:flex;flex-direction: column;}
+.hide-mobile{display:none!important;}
 .justify-center {justify-content: center}
 .justify-space-between {justify-content: space-between}
 .justify-space-around{justify-content: space-around}
@@ -217,14 +221,14 @@ pre.codeblock {
 .margin-right-0 {margin-right: 0px !important}.margin-right-5 {margin-right: 5px !important}.margin-right-8{margin-right:8px!important}.margin-right-10 {margin-right: 10px !important}.margin-right-15 {margin-right: 15px !important}.margin-right-20 {margin-right: 20px !important}.margin-right-30 {margin-right: 30px !important}.margin-right-40 {margin-right: 40px !important}
 .margin-top-0 {margin-top: 0px !important}.margin-top-5 {margin-top: 5px !important}.margin-top-8{margin-top:8px!important}.margin-top-10 {margin-top: 10px !important}.margin-top-15 {margin-top: 15px !important}.margin-top-20 {margin-top: 20px !important}.margin-top-30 {margin-top: 30px !important}.margin-top-40 {margin-top: 40px !important}.margin-top-50{margin-top:50px !important}
 .margin-bottom-0 {margin-bottom: 0px !important}.margin-bottom-5 {margin-bottom: 5px !important}.margin-bottom-8{margin-bottom:8px!important}.margin-bottom-10 {margin-bottom: 10px !important}.margin-bottom-15 {margin-bottom: 15px !important}.margin-bottom-20 {margin-bottom: 20px !important}.margin-bottom-30 {margin-bottom: 30px !important}.margin-bottom-40 {margin-bottom: 40px !important} .margin-bottom-50{margin-bottom:50px!important}
-.min-height-100 {min-height: 100px}.min-height-200 {min-height: 200px}.min-height-300 {min-height: 300px}.min-height-400 {min-height: 400px}.min-height-500 {min-height: 500px}.min-height-600 {min-height: 600px}.min-height-700 {min-height: 700px}.min-height-800 {min-height: 800px}.min-height-900 {min-height: 900px}.min-height-1000 {min-height: 1000px}
+.min-height-100{min-height:100px!important}.min-height-120{min-height:120px!important}.min-height-150{min-height:150px!important}.min-height-200{min-height:200px!important}.min-height-300{min-height:300px!important}.min-height-400{min-height:400px!important}.min-height-500{min-height:500px!important}.min-height-600{min-height:600px!important}.min-height-700{min-height:700px!important}.min-height-800{min-height:800px!important}.min-height-900{min-height:900px!important}.min-height-1000{min-height:1000px!important}
 .min-width-100 {min-width: 100px}.min-width-200 {min-width: 200px}.min-width-300 {min-width: 300px}.min-width-400 {min-width: 400px}.min-width-500 {min-width: 500px}.min-width-600 {min-width: 600px}.min-width-700 {min-width: 700px}.min-width-800 {min-width: 800px}.min-width-900 {min-width: 900px}.min-width-1000 {min-width: 1000px}
 .min-height-50vh{min-height:50vh}.min-height-90vh{min-height:90vh}.min-height-100vh{min-height:100vh}
 .min-width-100vw{min-width:100vw}
 .width-100{width:100%}
 .height-100{height:100%}
 .max-width-fit{max-width:fit-content}
-.max-width-100{max-width:100px}.max-width-200{max-width:200px}.max-width-300{max-width:300px}.max-width-400{max-width:400px}.max-width-500{max-width:500px}.max-width-600{max-width:600px}.max-width-700{max-width:700px}.max-width-800{max-width:800px}.max-width-900{max-width:900px}.max-width-1000{max-width:1000px}
+.max-width-80{max-width:80px}.max-width-100{max-width:100px}.max-width-200{max-width:200px}.max-width-300{max-width:300px}.max-width-400{max-width:400px}.max-width-500{max-width:500px}.max-width-600{max-width:600px}.max-width-700{max-width:700px}.max-width-800{max-width:800px}.max-width-900{max-width:900px}.max-width-1000{max-width:1000px}
 .resize-disabled{resize:none;}
 
 code {
@@ -235,59 +239,6 @@ code {
     padding: .2em .4em;
     border-radius: 50px;
 }
-
-/**
- *   Tables
- */
-table {
-    width: 100%;
-    font-size: 14px;
-    table-layout: auto !important;
-}
-
-td {
-    height: 36px;
-    vertical-align: middle;
-    color: white;
-}
-
-.td-50, .td-100 {
-    width: 0px;
-    margin: 0px;
-    white-space: nowrap;
-}
-.td-50 { padding-right: 50px !important; }
-.td-100 { padding-right: 100px !important; }
-
-/**
- *  Generic tables
- */
-
-/* Concerne toutes les classes commencant par table-generic- */
-[class^="table-generic"] {
-    border-collapse: separate !important;
-    border-spacing: 0 4px;
-    table-layout: auto !important;
-    word-break: break-word;
-}
-[class^="table-generic"] tr td {
-    padding-left: 8px;
-    padding-right: 8px;
-}
-[class^="table-generic"] tr td:first-child {
-    border-top-left-radius: 2px;
-    border-bottom-left-radius: 2px;
-}
-[class^="table-generic"] tr td:last-child {
-    border-top-right-radius: 2px;
-    border-bottom-right-radius: 2px;
-}
-[class^="table-generic"] thead tr {
-    background: none !important;
-    font-weight: bold;
-}
-.table-generic-blue tr { background-color: #22384F; }
-.table-generic-red tr  { background-color: #F32F63; }
 
 /**
  *  Generic table with pagination
@@ -381,7 +332,7 @@ td {
     width: 100%;
     padding: 20px;
     background-color: #182b3e;
-    border-left: 1px solid rgb(60 70 75 / 34%);
+    border-left: 1px solid rgb(117 128 134 / 34%);
     box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
     overflow: auto;
 }
@@ -438,12 +389,16 @@ td {
     .grid-rfr-1-2{grid-template-columns:repeat(2, 1fr)!important}
     .grid-rfr-1-3{grid-template-columns:repeat(3, 1fr)!important}
     .grid-rfr-1-4{grid-template-columns:repeat(4, 1fr)!important}
+    .grid-rfr-1-5{grid-template-columns:repeat(5, 1fr)!important}
     .grid-rfr-1-6{grid-template-columns:repeat(6, 1fr)!important}
     .grid-rfr-2-4{grid-template-columns:repeat(4, 1fr)!important}
+    .flexrc{flex-direction:row!important;}
+    .hide-mobile{display:initial!important;}
+    .d-align-item-center{align-items:center!important;}
     .table-container-3{grid-template-columns: fit-content(10%) auto 10%!important}
 
     .slide-panel {
-        width: 30%;
+        width: 40%;
     }
 
     #loading {
