@@ -118,6 +118,7 @@ if (__ACTUAL_URI__[1] == '') {
 if (__ACTUAL_URI__[1] == 'hosts' or __ACTUAL_URI__[1] == 'host') {
     $jsClasses = [
         'Host',
+        'Host/HostSearch'
     ];
 
     $jsFiles =[
@@ -191,7 +192,7 @@ if (!empty($jsClasses)) {
     <?php
     if (!empty($jsClasses)) {
         foreach ($jsClasses as $jsClass) {
-            echo 'const my' . strtolower($jsClass) . ' = new ' . $jsClass . '();';
+            echo 'const my' . strtolower(str_replace('/', '',  $jsClass)) . ' = new ' . end(explode('/', $jsClass)) . "();\n";
         }
     } ?>
 </script>

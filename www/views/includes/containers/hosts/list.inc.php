@@ -61,7 +61,7 @@
                         <img src="/assets/icons/info.svg" class="icon-small icon-np lowopacity search-host-tooltip" />
                     </div>
                     
-                    <input type="text" id="search-host-input" onkeyup="myhost.search()" autocomplete="off" placeholder="Hostname, IP, type, ..." title="Search a host by hostname, IP" />
+                    <input type="text" id="search-host-input" onkeyup="HostSearch.search()" autocomplete="off" placeholder="Hostname, IP, type, ..." title="Search a host by hostname, IP" />
                 </div>
 
                 <div>
@@ -70,7 +70,7 @@
                         <img src="/assets/icons/info.svg" class="icon-small icon-np lowopacity search-package-tooltip" />
                     </div>
 
-                    <input type="text" id="search-package-input" onkeyup="myhost.searchPackage()" autocomplete="off" placeholder="name=package name" />
+                    <input type="text" id="search-package-input" onkeyup="HostSearch.searchPackage()" autocomplete="off" placeholder="name=package name" />
                 </div>
             </div>
 
