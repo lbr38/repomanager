@@ -31,155 +31,162 @@ class HostSearch
         // Show search loading spinner
         HostSearch.showSearchSpinner();
 
-        /**
-         *  Retrieve the search term from the input
-         *  Convert the search term to uppercase to ignore case when searching
-         */
-        var search = $('#search-host-input').val().toUpperCase();
+        setTimeout(function () {
+            /**
+             *  Retrieve the search term from the input
+             *  Convert the search term to uppercase to ignore case when searching
+             */
+            var search = $('#search-host-input').val().toUpperCase();
 
-        // Show all group containers (in case they were hidden during a previous search)
-        $('.hosts-group-container').show();
+            // Show all group containers (in case they were hidden during a previous search)
+            $('.hosts-group-container').show();
 
-        //  Hide all host lines, only those corresponding to the search will be re-displayed
-        $('.host-line').removeClass('flex').hide();
+            //  Hide all host lines, only those corresponding to the search will be re-displayed
+            $('.host-line').removeClass('flex').hide();
 
-        /**
-         *  Check if the user has entered a filter in his search, different filters are possible:
-         *  os, os_version, os_family, type, kernel, arch, profile, env, agent_version, reboot_required
-         *
-         *  e.g:
-         *  os=ubuntu 192.168
-         *  os="Linux Mint" os_version="21" 192.168
-         *
-         *  As the input retrieved has been converted to uppercase, we search for the presence of a filter in uppercase
-         */
-        
-        filters.forEach(function (filter) {
-            // Match filter value: if quoted, allow spaces; if not, stop at first space
-            // e.g. os="Linux Mint" or os=Ubuntu
-            var regex = new RegExp(filter + '=(?:"([^"]+)"|([^" ]+))');
-            var match = search.match(regex);
-            if (match) {
-                var filterValue = match[1] !== undefined ? match[1] : match[2];
+            /**
+             *  Check if the user has entered a filter in his search, different filters are possible:
+             *  os, os_version, os_family, type, kernel, arch, profile, env, agent_version, reboot_required
+             *
+             *  e.g:
+             *  os=ubuntu 192.168
+             *  os="Linux Mint" os_version="21" 192.168
+             *
+             *  As the input retrieved has been converted to uppercase, we search for the presence of a filter in uppercase
+             */
+            
+            filters.forEach(function (filter) {
+                // Match filter value: if quoted, allow spaces; if not, stop at first space
+                // e.g. os="Linux Mint" or os=Ubuntu
+                var regex = new RegExp(filter + '=(?:"([^"]+)"|([^" ]+))');
+                var match = search.match(regex);
+                if (match) {
+                    var filterValue = match[1] !== undefined ? match[1] : match[2];
 
-                // Remove the filter from the global search (preserve spaces outside quotes)
-                search = search.replace(regex, '').replace(/\s{2,}/g, ' ').trim();
+                    // Remove the filter from the global search (preserve spaces outside quotes)
+                    search = search.replace(regex, '').replace(/\s{2,}/g, ' ').trim();
 
-                switch (filter) {
-                    case 'HOSTNAME':
-                        filter_hostname = filterValue.toUpperCase();
-                    break;
-                    case 'OS':
-                        filter_os = filterValue.toUpperCase();
-                    break;
-                    case 'OS-VERSION':
-                        filter_os_version = filterValue.toUpperCase();
-                    break;
-                    case 'OS-FAMILY':
-                        filter_os_family = filterValue.toUpperCase();
-                    break;
-                    case 'TYPE':
-                        filter_type = filterValue.toUpperCase();
-                    break;
-                    case 'KERNEL':
-                        filter_kernel = filterValue.toUpperCase();
-                    break;
-                    case 'ARCH':
-                        filter_arch = filterValue.toUpperCase();
-                    break;
-                    case 'PROFILE':
-                        filter_profile = filterValue.toUpperCase();
-                    break;
-                    case 'ENV':
-                        filter_env = filterValue.toUpperCase();
-                    break;
-                    case 'AGENT-VERSION':
-                        filter_agent_version = filterValue.toUpperCase();
-                    break;
-                    case 'REBOOT-REQUIRED':
-                        filter_reboot_required = filterValue.toUpperCase();
-                    break;
-                    default:
-                        console.warn('Unknown filter:', filter);
-                    break;
+                    switch (filter) {
+                        case 'HOSTNAME':
+                            filter_hostname = filterValue.toUpperCase();
+                        break;
+                        case 'OS':
+                            filter_os = filterValue.toUpperCase();
+                        break;
+                        case 'OS-VERSION':
+                            filter_os_version = filterValue.toUpperCase();
+                        break;
+                        case 'OS-FAMILY':
+                            filter_os_family = filterValue.toUpperCase();
+                        break;
+                        case 'TYPE':
+                            filter_type = filterValue.toUpperCase();
+                        break;
+                        case 'KERNEL':
+                            filter_kernel = filterValue.toUpperCase();
+                        break;
+                        case 'ARCH':
+                            filter_arch = filterValue.toUpperCase();
+                        break;
+                        case 'PROFILE':
+                            filter_profile = filterValue.toUpperCase();
+                        break;
+                        case 'ENV':
+                            filter_env = filterValue.toUpperCase();
+                        break;
+                        case 'AGENT-VERSION':
+                            filter_agent_version = filterValue.toUpperCase();
+                        break;
+                        case 'REBOOT-REQUIRED':
+                            filter_reboot_required = filterValue.toUpperCase();
+                        break;
+                        default:
+                            console.warn('Unknown filter:', filter);
+                        break;
+                    }
                 }
+            });
+
+            // Trim the search term again after removing filters
+            search = search.trim();
+
+            // Get all host lines
+            var hosts = $('.host-line');
+
+            if (!empty(filter_hostname)) {
+                hosts = hosts.filter(function () {
+                    return $(this).attr('hostname').toUpperCase().indexOf(filter_hostname) > -1;
+                });
             }
-        });
+            if (!empty(filter_os)) {
+                hosts = hosts.filter(function () {
+                    return $(this).attr('os').toUpperCase().indexOf(filter_os) > -1;
+                });
+            }
+            if (!empty(filter_os_version)) {
+                hosts = hosts.filter(function () {
+                    return $(this).attr('os_version').toUpperCase().indexOf(filter_os_version) > -1;
+                });
+            }
+            if (!empty(filter_os_family)) {
+                hosts = hosts.filter(function () {
+                    return $(this).attr('os_family').toUpperCase().indexOf(filter_os_family) > -1;
+                });
+            }
+            if (!empty(filter_type)) {
+                hosts = hosts.filter(function () {
+                    return $(this).attr('type').toUpperCase().indexOf(filter_type) > -1;
+                });
+            }
+            if (!empty(filter_kernel)) {
+                hosts = hosts.filter(function () {
+                    return $(this).attr('kernel').toUpperCase().indexOf(filter_kernel) > -1;
+                });
+            }
+            if (!empty(filter_arch)) {
+                hosts = hosts.filter(function () {
+                    return $(this).attr('arch').toUpperCase().indexOf(filter_arch) > -1;
+                });
+            }
+            if (!empty(filter_profile)) {
+                hosts = hosts.filter(function () {
+                    return $(this).attr('profile').toUpperCase().indexOf(filter_profile) > -1;
+                });
+            }
+            if (!empty(filter_env)) {
+                hosts = hosts.filter(function () {
+                    return $(this).attr('env').toUpperCase().indexOf(filter_env) > -1;
+                });
+            }
+            if (!empty(filter_agent_version)) {
+                hosts = hosts.filter(function () {
+                    return $(this).attr('agent_version').toUpperCase().indexOf(filter_agent_version) > -1;
+                });
+            }
+            if (!empty(filter_reboot_required)) {
+                hosts = hosts.filter(function () {
+                    return $(this).attr('reboot_required').toUpperCase().indexOf(filter_reboot_required) > -1;
+                });
+            }
 
-        // Trim the search term again after removing filters
-        search = search.trim();
+            // Process each host line to check if it matches the search term
+            $.each(hosts, function () {
+                div = $(this).find('div')[0];
 
-        // Get all host lines
-        const hosts = $('.host-line');
-
-        if (!empty(filter_os)) {
-            hosts = hosts.filter(function () {
-                return $(this).attr('os').toUpperCase().indexOf(filter_os) > -1;
-            });
-        }
-        if (!empty(filter_os_version)) {
-            hosts = hosts.filter(function () {
-                return $(this).attr('os_version').toUpperCase().indexOf(filter_os_version) > -1;
-            });
-        }
-        if (!empty(filter_os_family)) {
-            hosts = hosts.filter(function () {
-                return $(this).attr('os_family').toUpperCase().indexOf(filter_os_family) > -1;
-            });
-        }
-        if (!empty(filter_type)) {
-            hosts = hosts.filter(function () {
-                return $(this).attr('type').toUpperCase().indexOf(filter_type) > -1;
-            });
-        }
-        if (!empty(filter_kernel)) {
-            hosts = hosts.filter(function () {
-                return $(this).attr('kernel').toUpperCase().indexOf(filter_kernel) > -1;
-            });
-        }
-        if (!empty(filter_arch)) {
-            hosts = hosts.filter(function () {
-                return $(this).attr('arch').toUpperCase().indexOf(filter_arch) > -1;
-            });
-        }
-        if (!empty(filter_profile)) {
-            hosts = hosts.filter(function () {
-                return $(this).attr('profile').toUpperCase().indexOf(filter_profile) > -1;
-            });
-        }
-        if (!empty(filter_env)) {
-            hosts = hosts.filter(function () {
-                return $(this).attr('env').toUpperCase().indexOf(filter_env) > -1;
-            });
-        }
-        if (!empty(filter_agent_version)) {
-            hosts = hosts.filter(function () {
-                return $(this).attr('agent_version').toUpperCase().indexOf(filter_agent_version) > -1;
-            });
-        }
-        if (!empty(filter_reboot_required)) {
-            hosts = hosts.filter(function () {
-                return $(this).attr('reboot_required').toUpperCase().indexOf(filter_reboot_required) > -1;
-            });
-        }
-
-        // Process each host line to check if it matches the search term
-        $.each(hosts, function () {
-            div = $(this).find('div')[0];
-
-            if (div) {
-                var txtValue = div.textContent || div.innerText;
-                if (txtValue.toUpperCase().indexOf(search) > -1) {
-                    $(this).addClass('flex').show();
+                if (div) {
+                    var txtValue = div.textContent || div.innerText;
+                    if (txtValue.toUpperCase().indexOf(search) > -1) {
+                        $(this).addClass('flex').show();
+                    }
                 }
-            }
-        });
+            });
 
-        // Finally, hide the search spinner and show the hosts container
-        HostSearch.hideSearchSpinner();
+            // Finally, hide the search spinner and show the hosts container
+            HostSearch.hideSearchSpinner();
 
-        // Hide group divs whose all divs have been hidden
-        HostSearch.hideGroupDiv();
+            // Hide group divs whose all divs have been hidden
+            HostSearch.hideGroupDiv();
+        }, 500);  
     }
 
     /**
@@ -208,6 +215,8 @@ class HostSearch
             HostSearch.showAll();
             return;
         }
+
+        HostSearch.showSearchSpinner();
 
         // Use a setTimeout to give the user time to finish typing before searching
         setTimeout(function () {
@@ -313,7 +322,7 @@ class HostSearch
 
             // Release the lock after the search is done
             self.packagesearchlock = false;
-        }, 500);
+        }, 1000);
     }
 
     /**
