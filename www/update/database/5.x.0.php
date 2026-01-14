@@ -1,6 +1,6 @@
 <?php
 /**
- *  5.x.0 update
+ *  5.6.0 update
  */
 
 /**

@@ -5,7 +5,7 @@
         <div>
             <div class="flex align-item-center column-gap-5">
                 <h6 class="margin-top-0">MAIN SERVICE</h6>
-                <img src="/assets/icons/info.svg" class="icon-lowopacity icon-small icon-np tooltip" tooltip="This is the main service unit that controls all other service units. If this service is not running, none of the other service units will be running." />
+                <img src="/assets/icons/info.svg" class="icon-lowopacity icon-small icon-np tooltip" tooltip="This is the main service that controls all service units. If this service is not running, none of the service units will be running." />
             </div>
 
             <div class="flex align-item-center column-gap-5">
