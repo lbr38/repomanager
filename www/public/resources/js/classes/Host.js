@@ -159,7 +159,10 @@ class Host
             return;
         }
 
-        mylayout.printLoading();
+        // mylayout.printLoading();
+
+        $('#hosts-search').css('display', 'flex');
+        $('#hosts').hide();
 
         /**
          *  Retrieve the search term from the input
@@ -310,7 +313,13 @@ class Host
         // Hide group divs whose all divs have been hidden
         hideGroupDiv();
 
-        mylayout.hideLoading();
+        // Finally, hide the loading icon
+        $('#hosts-search').hide();
+
+        // Show hosts container
+        $('#hosts').show();
+
+        // mylayout.hideLoading();
     }
 
     /**
@@ -334,17 +343,24 @@ class Host
         self.packagesearchlock = true;
 
         // Print a loading icon
-        mylayout.printLoading();
+        // mylayout.printLoading();
 
-        // On every input, (re)-display all hidden elements and remove any info in 'host-additionnal-info'
-        $('.hosts-group-container').show();
-        $('.host-line').show();
-        $('div.host-additionnal-info').html('');
-        $('div.host-additionnal-info').hide();
+        // // On every input, (re)-display all hidden elements and remove any info in 'host-additionnal-info'
+        // $('.hosts-group-container').show();
+        // $('.host-line').show();
+        // $('div.host-additionnal-info').html('');
+        // $('div.host-additionnal-info').hide();
 
         // If the input is empty, quit
         if (!$("#search-package-input").val()) {
             self.packagesearchlock = false;
+    
+            $('.hosts-group-container, .host-line').show();
+            $('div.host-additionnal-info').html('');
+            $('div.host-additionnal-info').hide();
+            $('#hosts-search').hide();
+            $('#hosts').show();
+
             return;
         }
 
@@ -353,6 +369,12 @@ class Host
             // If the input is empty, quit
             if (!$("#search-package-input").val()) {
                 self.packagesearchlock = false;
+
+                $('.hosts-group-container, .host-line').show();
+                $('div.host-additionnal-info').html('');
+                $('div.host-additionnal-info').hide();
+                $('#hosts-search').hide();
+                $('#hosts').show();
                 return;
             }
 
@@ -362,6 +384,7 @@ class Host
             // Search format is: name=package_name version=package_version strict-name=true/false strict-version=true/false
             // Split the search term by spaces
             var searchParts = search.split(' ');
+
             searchParts.forEach(function (part) {
                 // If the part starts with 'name=', extract the package name
                 if (part.startsWith('name=')) {
@@ -384,6 +407,14 @@ class Host
                 self.packagesearchlock = false;
                 return;
             }
+
+            // On every input, (re)-display all hidden elements and remove any info in 'host-additionnal-info'
+            $('.hosts-group-container, .host-line').show();
+            $('div.host-additionnal-info').html('');
+            $('div.host-additionnal-info').hide();
+
+            $('#hosts-search').css('display', 'flex');
+            $('#hosts').hide();
 
             // For each Id, get the hostid and add it to the hosts array
             $('.hosts-table').find('.host-line').each(function () {
@@ -433,13 +464,17 @@ class Host
                 }
 
                 hideGroupDiv();
+
             });
+
+            $('#hosts-search').hide();
+            $('#hosts').show();
 
             // Release the lock after the search is done
             self.packagesearchlock = false;
 
-            mylayout.hideLoading();
-        }, 1000);
+            // mylayout.hideLoading();
+        }, 500);
     }
 
     /**

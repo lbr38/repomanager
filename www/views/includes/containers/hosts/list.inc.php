@@ -82,6 +82,11 @@
             </div>
         </div>
 
+        <div id="hosts-search" class="align-item-center column-gap-5 hide">
+            <img src="/assets/icons/loading.svg" class="icon-np" />
+            <p class="note">Searching...</p>
+        </div>
+
         <div id="hosts">
             <?php
             if (!empty($hostGroupsList)) : ?>
