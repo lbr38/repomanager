@@ -189,6 +189,9 @@ pre.codeblock {
 /* For responsive */
 .grid-rfr-1-2,.grid-rfr-1-3,.grid-rfr-1-4,.grid-rfr-1-6{grid-template-columns:1fr !important}
 .grid-rfr-2-4{grid-template-columns:repeat(2, 1fr) !important}
+/* For responsive */
+/* column on mobile */
+.flexrc{display:flex;flex-direction: column;}
 .justify-center {justify-content: center}
 .justify-space-between {justify-content: space-between}
 .justify-space-around{justify-content: space-around}
@@ -440,6 +443,9 @@ td {
     .grid-rfr-1-4{grid-template-columns:repeat(4, 1fr)!important}
     .grid-rfr-1-6{grid-template-columns:repeat(6, 1fr)!important}
     .grid-rfr-2-4{grid-template-columns:repeat(4, 1fr)!important}
+    .flexrc{flex-direction:row!important;}
+    .d-align-item-center{align-items:center!important;}
+
     .table-container-3{grid-template-columns: fit-content(10%) auto 10%!important}
 
     .slide-panel {

@@ -573,10 +573,6 @@ footer #github img { width: 25px; }
     display: none;
 }
 
-#monitoring-stats-container div {
-    height: 250px !important;
-}
-
 /* Desktop configuration */
 @media (min-width:1500px) {
     #menu {
