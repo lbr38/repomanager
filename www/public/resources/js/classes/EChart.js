@@ -367,7 +367,7 @@ class EChart
             return this.datasets.map(dataset => {
                 const data = dataset.data.map((v, i) => {
                     const item = [this.labels[i], v];
-                    
+
                     // If we have individual colors defined, apply them
                     if (dataset.colors && dataset.colors[i]) {
                         // For bar charts, we need to return an object with itemStyle
@@ -382,12 +382,12 @@ class EChart
                     
                     return item;
                 });
-                
+
                 return {
                     name: dataset.name,
                     type: 'bar',
                     color: dataset.color, // Default color if no individual colors
-                    barMaxWidth: 40, // Maximum width of each bar in pixels
+                    barMaxWidth: 30, // Maximum width of each bar in pixels
                     itemStyle: {
                         borderRadius: [2, 2, 0, 0],
                         color: dataset.color // Default color
@@ -409,16 +409,17 @@ class EChart
                         name: this.labels[i],
                         value: v
                     };
-                    
+
                     // Add custom color if defined
                     if (dataset.colors && dataset.colors[i]) {
                         item.itemStyle = {
                             color: dataset.colors[i]
                         };
                     }
-                    
+
                     return item;
                 });
+
                 return {
                     name: dataset.name,
                     type: 'pie',
@@ -522,12 +523,23 @@ class EChart
             options.dataZoom = [];
         }
 
+        // For line charts, adjust tooltip trigger
+        if (this.type === 'line') {
+            options.tooltip.trigger = 'axis';
+        }
+
         // For bar charts, adjust axis configuration
         if (this.type === 'bar') {
             // For bar charts, we usually use categories on the X axis
             options.xAxis.type = 'category';
             options.xAxis.data = this.labels;
-            options.xAxis.axisLabel.rotate = this.labels.some(label => label.length > 10) ? 45 : 0;
+            options.xAxis.boundaryGap = true; // Add space around bars
+            options.xAxis.axisLabel.rotate = 45;
+            options.xAxis.axisLabel.interval = 0; // Show all labels
+            options.xAxis.axisLabel.fontSize = 12;
+            options.xAxis.axisLabel.textStyle = {
+                color: '#8A99AA'
+            };
             // Disable dataZoom to avoid conflicts with page scroll
             options.dataZoom = [];
         }
@@ -596,7 +608,7 @@ class EChart
             options.legend.show = true;
 
             // If legend is show, adjust grid bottom to make room
-            options.grid.bottom = '40px';
+            options.grid.bottom = '30px';
         }
 
         // Window size for initial zoom (default 15 points) - only for line charts
