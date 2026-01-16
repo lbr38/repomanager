@@ -61,23 +61,30 @@ try {
 
 <body>
     <div id="login-container">
-        <div id="login">
-            <img src="/assets/icons/package.svg" class="margin-bottom-30 mediumopacity-cst" />
+        <img id="login-logo" src="/assets/icons/package.svg" class="mediumopacity-cst" />
 
-            <form action="/login" method="post" autocomplete="off">
-                <input type="hidden" name="authType" value="local" />
-                <input type="text" name="username" placeholder="Username" required />
-                <br>
-                <input type="password" name="password" placeholder="Password" required />
-                <br>
-                <button class="btn-large-green" type="submit">Login</button>
-            </form>
-            <br>
-
+        <div id="login-banner">
             <?php
-            /**
-             * Show SSO login button
-             */
+            // Login banner (system use notification)
+            if (!empty(SYSTEM_USE_NOTIFICATION)) {
+                echo '<p class="font-size-14">' . SYSTEM_USE_NOTIFICATION . '</p>';
+            } ?>
+        </div>
+
+        <div id="login-form">
+            <form action="/login" method="post" autocomplete="off">
+                <div class="flex flex-direction-column row-gap-5">
+                    <input type="hidden" name="authType" value="local" />
+                    <input type="text" name="username" placeholder="Username" required />
+                    <input type="password" name="password" placeholder="Password" required />
+                    <button class="btn-large-green margin-top-10" type="submit">Login</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="login-sso-form">
+            <?php
+            // SSO login button
             if (OIDC_ENABLED == 'true') : ?>
                 <form action="/login" method="post">
                     <input type="hidden" name="authType" value="sso" />
@@ -89,11 +96,9 @@ try {
 
         <div id="login-error">
             <?php
-            /**
-             *  Display authentication errors if any
-             */
+            // Display authentication errors if any
             if (!empty($loginError)) {
-                echo '<p>' . $loginError . '</p>';
+                echo '<p class="font-size-14">' . $loginError . '</p>';
             } ?>
         </div>
     </div>

@@ -45,37 +45,6 @@ function filterPackage()
 }
 
 /**
- *  Masquer les groupes d'hôtes dont les hôtes ont tous été masqués (au cours d'une recherche)
- */
-function hideGroupDiv()
-{
-    /**
-     *  Pour chaque div 'hosts-group-container' on recherche toutes les listes d'hôtes
-     */
-    $(".hosts-group-container").each(function () {
-        /**
-         *  Si le div a une classe hosts-table-empty alors il est forcément vide ("aucun hote dans ce groupe"), donc on masque la div entière du résultat de recherche
-         */
-        if ($(this).find(".hosts-table-empty").length == 1) {
-            $(this).hide();
-
-        /**
-         *  Si la liste contient des hôtes, alors on vérifie si il y a au moins 1 div d'affiché (qui correspond au résultat de recherche)
-         *  Si c'est le cas alors on laisse le div affiché
-         *  Si ce n'est pas le cas on masque la div entière
-         */
-        } else {
-            var nb = $(this).find(".host-line:visible").length;
-            if (nb == 0) {
-                $(this).hide();
-            } else {
-                $(this).show();
-            }
-        }
-    });
-}
-
-/**
  *  Events listeners
  */
 

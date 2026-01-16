@@ -56,7 +56,7 @@
 <script src="/resources/js/classes/Tooltip.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/Select2.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/SessionStorage.js?<?= VERSION ?>"></script>
-<script src="/resources/js/classes/AsyncChart.js?<?= VERSION ?>"></script>
+<script src="/resources/js/classes/EChart.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/System.js?<?= VERSION ?>"></script>
 
 <script>
@@ -118,12 +118,14 @@ if (__ACTUAL_URI__[1] == '') {
 if (__ACTUAL_URI__[1] == 'hosts' or __ACTUAL_URI__[1] == 'host') {
     $jsClasses = [
         'Host',
+        'Host/HostSearch'
     ];
 
     $jsFiles =[
         'host',
         'events/host/layout',
         'events/host/actions',
+        'events/host/search',
         'events/profile/actions',
         'events/task/stop'
     ];
@@ -174,14 +176,15 @@ if (__ACTUAL_URI__[1] == 'cves') {
 if (__ACTUAL_URI__[1] == 'status') {
     $jsFiles = [
         'events/status/service',
+        'events/status/monitoring'
     ];
 }
 
 // Load additional JS classes
 if (!empty($jsClasses)) {
-    foreach ($jsClasses as $jsClass) {
-        if (is_file(ROOT . '/public/resources/js/classes/' . $jsClass . '.js')) {
-            echo '<script src="/resources/js/classes/' . $jsClass . '.js?' . VERSION . '"></script>';
+    foreach ($jsClasses as $class) {
+        if (is_file(ROOT . '/public/resources/js/classes/' . $class . '.js')) {
+            echo '<script src="/resources/js/classes/' . $class . '.js?' . VERSION . '"></script>';
         }
     }
 } ?>
@@ -189,8 +192,10 @@ if (!empty($jsClasses)) {
 <script>
     <?php
     if (!empty($jsClasses)) {
-        foreach ($jsClasses as $jsClass) {
-            echo 'const my' . strtolower($jsClass) . ' = new ' . $jsClass . '();';
+        foreach ($jsClasses as $class) {
+            $name = explode('/', $class);
+            $name = end($name);
+            echo 'const my' . strtolower(str_replace('/', '',  $class)) . ' = new ' . $name . "();\n";
         }
     } ?>
 </script>
@@ -198,9 +203,9 @@ if (!empty($jsClasses)) {
 <?php
 // Load additional JS files
 if (!empty($jsFiles)) {
-    foreach ($jsFiles as $jsFile) {
-        if (is_file(ROOT . '/public/resources/js/' . $jsFile . '.js')) {
-            echo '<script src="/resources/js/' . $jsFile . '.js?' . VERSION . '"></script>';
+    foreach ($jsFiles as $file) {
+        if (is_file(ROOT . '/public/resources/js/' . $file . '.js')) {
+            echo '<script src="/resources/js/' . $file . '.js?' . VERSION . '"></script>';
         }
     }
 } ?>

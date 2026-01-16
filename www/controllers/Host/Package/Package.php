@@ -119,12 +119,11 @@ class Package
     /**
      *  Count the number of packages installed, updated, removed... over the last X days.
      *  Returns an array containing dates => number of packages
-     *  Function used notably for creating the ChartJS 'line' chart on the host page
      */
     public function countByStatusOverDays(string $status, string $days) : array
     {
-        if ($status != 'installed' and $status != 'upgraded' and $status != 'removed') {
-            throw new Exception("Invalid status");
+        if (!in_array($status, ['installed', 'upgraded', 'removed'])) {
+            throw new Exception('invalid status: ' . $status);
         }
 
         $dateEnd   = date('Y-m-d');
