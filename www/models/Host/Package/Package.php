@@ -523,16 +523,20 @@ class Package extends \Models\Model
      */
     public function countByStatusOverDays(string $status, string $dateStart, string $dateEnd) : array
     {
-        $array = [];
+        $data = [];
 
         try {
-            $stmt = $this->dedicatedDb->prepare("SELECT Date, COUNT(*) as date_count FROM packages
-            WHERE State = :status and Date BETWEEN :dateStart and :dateEnd
-            GROUP BY Date
-            UNION
-            SELECT Date, COUNT(*) as date_count FROM packages_history
-            WHERE State = :status and Date BETWEEN :dateStart and :dateEnd
-            GROUP BY Date");
+            $stmt = $this->dedicatedDb->prepare("
+                SELECT Date, SUM(date_count) as total_count FROM (
+                    SELECT Date, COUNT(*) as date_count FROM packages
+                    WHERE State = :status and Date BETWEEN :dateStart and :dateEnd
+                    GROUP BY Date
+                    UNION ALL
+                    SELECT Date, COUNT(*) as date_count FROM packages_history
+                    WHERE State = :status and Date BETWEEN :dateStart and :dateEnd
+                    GROUP BY Date
+                ) GROUP BY Date
+            ");
             $stmt->bindValue(':status', $status);
             $stmt->bindValue(':dateStart', $dateStart);
             $stmt->bindValue(':dateEnd', $dateEnd);
@@ -542,13 +546,9 @@ class Package extends \Models\Model
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            if (!array_key_exists($row['Date'], $array)) {
-                $array[$row['Date']] = $row['date_count'];
-            } else {
-                $array[$row['Date']] += $row['date_count'];
-            }
+            $data[$row['Date']] = (int) $row['total_count'];
         }
 
-        return $array;
+        return $data;
     }
 }

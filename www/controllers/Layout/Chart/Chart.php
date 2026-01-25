@@ -6,14 +6,20 @@ use Exception;
 
 class Chart
 {
-    public static function get(string $id)
+    public static function get(string $id, int $days) : array
     {
         try {
             if (!file_exists(ROOT . '/controllers/Layout/Chart/vars/' . $id . '.vars.inc.php')) {
                 throw new Exception('could not retrieve chart data for chart ID ' . $id);
             }
 
-            include_once(ROOT . '/controllers/Layout/Chart/vars/' . $id . '.vars.inc.php');
+            // Timestart is X days ago
+            $timeStart = strtotime('-' . $days . ' days');
+            $timeEnd   = time();
+
+            include(ROOT . '/controllers/Layout/Chart/vars/' . $id . '.vars.inc.php');
+
+            unset($timeStart, $timeEnd);
 
             /**
              *  Return chart data
@@ -24,7 +30,7 @@ class Chart
                 'options' => $options
             ];
         } catch (Exception $e) {
-            throw new Exception('Error rendering chart: ' . $e->getMessage());
+            throw new Exception('Error rendering chart #' . $id . ': ' . $e->getMessage());
         }
     }
 }

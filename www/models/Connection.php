@@ -8,6 +8,9 @@ use Exception;
 
 class Connection extends SQLite3
 {
+    public $required;
+    public $count;
+
     public function __construct(string $database, int|null $databaseId = null, bool $check = true)
     {
         /**
@@ -124,7 +127,7 @@ class Connection extends SQLite3
     /**
      *  Enable WAL mode
      */
-    private function enableWAL()
+    private function enableWAL(): void
     {
         $this->exec('pragma journal_mode = WAL; pragma synchronous = normal; pragma temp_store = memory; pragma mmap_size = 30000000000;');
     }
@@ -132,7 +135,7 @@ class Connection extends SQLite3
     /**
      *  Disable WAL mode
      */
-    private function disableWAL()
+    private function disableWAL(): void
     {
         $this->exec('pragma journal_mode = DELETE;');
     }
@@ -146,7 +149,7 @@ class Connection extends SQLite3
     /**
      *  Count the number of tables in the database
      */
-    public function countTables()
+    public function countTables(): int
     {
         $result = $this->query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'");
 
@@ -156,20 +159,19 @@ class Connection extends SQLite3
     /**
      *  Check if all tables are present in the main database
      */
-    public function checkMainTables()
+    public function checkMainTables(): bool
     {
-        $required = 28;
+        $this->required = 28;
+        $this->count = $this->countTables();
 
-        /**
-         *  If the number of tables != $required then we try to regenerate the tables
-         */
-        if ($this->countTables() != $required) {
+        // If the number of required tables != $required then try to regenerate the tables
+        if ($this->count != $this->required) {
             $this->generateMainTables();
 
-            /**
-             *  Count again the number of tables after the regeneration attempt, return false if it's still not good
-             */
-            if ($this->countTables() != $required) {
+            // Count again the number of tables after the regeneration attempt, return false if it's still not good
+            $this->count = $this->countTables();
+
+            if ($this->count != $this->required) {
                 return false;
             }
         }
@@ -180,20 +182,19 @@ class Connection extends SQLite3
     /**
      *  Check if all tables are present in the stats database
      */
-    public function checkStatsTables()
+    public function checkStatsTables(): bool
     {
-        $required = 4;
+        $this->required = 4;
+        $this->count = $this->countTables();
 
-        /**
-         *  If the number of tables != $required then we try to regenerate the tables
-         */
-        if ($this->countTables() != $required) {
+        // If the number of required tables != $required then try to regenerate the tables
+        if ($this->count != $this->required) {
             $this->generateStatsTables();
 
-            /**
-             *  Count again the number of tables after the regeneration attempt, return false if it's still not good
-             */
-            if ($this->countTables() != $required) {
+            // Count again the number of tables after the regeneration attempt, return false if it's still not good
+            $this->count = $this->countTables();
+
+            if ($this->count != $this->required) {
                 return false;
             }
         }
@@ -204,20 +205,19 @@ class Connection extends SQLite3
     /**
      *  Check if all tables are present in the hosts database
      */
-    public function checkHostsTables()
+    public function checkHostsTables(): bool
     {
-        $required = 5;
+        $this->required = 5;
+        $this->count = $this->countTables();
 
-        /**
-         *  If the number of tables != $required then we try to regenerate the tables
-         */
-        if ($this->countTables() != $required) {
+        // If the number of required tables != $required then try to regenerate the tables
+        if ($this->count != $this->required) {
             $this->generateHostsTables();
 
-            /**
-             *  Count again the number of tables after the regeneration attempt, return false if it's still not good
-             */
-            if ($this->countTables() != $required) {
+            // Count again the number of tables after the regeneration attempt, return false if it's still not good
+            $this->count = $this->countTables();
+
+            if ($this->count != $this->required) {
                 return false;
             }
         }
@@ -228,20 +228,19 @@ class Connection extends SQLite3
     /**
      *  Check if all tables are present in a ws database
      */
-    public function checkWsTables()
+    public function checkWsTables(): bool
     {
-        $required = 1;
+        $this->required = 1;
+        $this->count = $this->countTables();
 
-        /**
-         *  If the number of tables != $required then we try to regenerate the tables
-         */
-        if ($this->countTables() != $required) {
+        // If the number of required tables != $required then try to regenerate the tables
+        if ($this->count != $this->required) {
             $this->generateWsTables();
 
-            /**
-             *  Count again the number of tables after the regeneration attempt, return false if it's still not good
-             */
-            if ($this->countTables() != $required) {
+            // Count again the number of tables after the regeneration attempt, return false if it's still not good
+            $this->count = $this->countTables();
+
+            if ($this->count != $this->required) {
                 return false;
             }
         }
@@ -258,7 +257,7 @@ class Connection extends SQLite3
     /**
      *  Generate tables in the main database
      */
-    private function generateMainTables()
+    private function generateMainTables(): void
     {
         /**
          *  repos table
@@ -562,6 +561,7 @@ class Connection extends SQLite3
         EMAIL_RECIPIENT VARCHAR(255),
         SESSION_TIMEOUT INTEGER,
         PROXY VARCHAR(255),
+        LOGIN_BANNER VARCHAR(255),
         TASK_EXECUTION_MEMORY_LIMIT INTEGER,
         TASK_QUEUING CHAR(5),
         TASK_QUEUING_MAX_SIMULTANEOUS INTEGER,
@@ -858,7 +858,7 @@ class Connection extends SQLite3
     /**
      *  Generate tables in the stats database
      */
-    private function generateStatsTables()
+    private function generateStatsTables(): void
     {
         /**
          *  stats table
@@ -925,7 +925,7 @@ class Connection extends SQLite3
     /**
      *  Generate tables in the hosts database
      */
-    private function generateHostsTables()
+    private function generateHostsTables(): void
     {
         /**
          *  requests table
@@ -1027,7 +1027,7 @@ class Connection extends SQLite3
      *  Generate tables in the database dedicated to a host
      *  This function is public because it can be called when resetting a host
      */
-    public function generateHostTables()
+    public function generateHostTables(): void
     {
         /**
          *  packages table
@@ -1098,7 +1098,7 @@ class Connection extends SQLite3
     /**
      *  Generate tables in the ws database
      */
-    private function generateWsTables()
+    private function generateWsTables(): void
     {
         /**
          *  ws_connections table
@@ -1119,7 +1119,7 @@ class Connection extends SQLite3
     /**
      *  Generate tables in the task logs database
      */
-    private function generateTaskLogTables()
+    private function generateTaskLogTables(): void
     {
         // steps table
         $this->exec("CREATE TABLE IF NOT EXISTS steps (
@@ -1153,7 +1153,7 @@ class Connection extends SQLite3
     /**
      *  Return true if result is empty and false if not
      */
-    public function isempty($result)
+    public function isempty($result): bool
     {
         $count = 0;
 
@@ -1177,7 +1177,7 @@ class Connection extends SQLite3
     /**
      *  Return the number of rows resulting from a query
      */
-    public function count(object $result)
+    public function count(object $result): int
     {
         $count = 0;
 
@@ -1191,7 +1191,7 @@ class Connection extends SQLite3
     /**
      *  Return true if table name exists
      */
-    public function tableExist(string $tableName)
+    public function tableExist(string $tableName): bool
     {
         $result = $this->query("SELECT name FROM sqlite_master WHERE type='table' AND name='{$tableName}'");
 
@@ -1205,7 +1205,7 @@ class Connection extends SQLite3
     /**
      *  Return true if column name exists in the specified table
      */
-    public function columnExist(string $tableName, string $columnName)
+    public function columnExist(string $tableName, string $columnName): bool
     {
         $columns = [];
 

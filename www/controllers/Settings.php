@@ -82,6 +82,12 @@ class Settings
             $settingsToApply['PROXY'] = '';
         }
 
+        if (!empty($sendSettings['login-banner'])) {
+            $settingsToApply['LOGIN_BANNER'] = Validate::string($sendSettings['login-banner']);
+        } else {
+            $settingsToApply['LOGIN_BANNER'] = '';
+        }
+
         if (!empty($sendSettings['task-queuing'])) {
             if ($sendSettings['task-queuing'] == 'true') {
                 $settingsToApply['TASK_QUEUING'] = 'true';

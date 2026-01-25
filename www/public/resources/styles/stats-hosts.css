@@ -4,17 +4,6 @@
     justify-content: space-between;
 }
 
-#repo-access-chart-div {
-    height: 500px;
-    padding-bottom: 100px;
-}
-
-#repo-access-chart-canvas {
-    height: 100%;
-    max-width: 99%;
-    margin: auto;
-}
-
 .hosts-table {
     width: 100%;
 }
@@ -117,18 +106,6 @@
 .hosts-charts-list-label span {
     font-size: 14px;
     color: #ffffffd9;
-}
-
-.host-line-chart-container {
-    min-height: 100%;
-    max-height: 100%;
-}
-
-.host-pie-chart {
-    max-height: 180px;
-}
-.host-bar-chart {
-    max-height: 220px;
 }
 
 #hosts-requiring-reboot-chart {

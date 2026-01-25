@@ -6,30 +6,26 @@ $options = [];
 
 /**
  *  Get disk usage data
- *  This will fetch the last 60 minutes of disk usage data
  */
-$diskUsageStats = $systemMonitoringController->get(time() - 3600, time());
+$memoryUsageStats = $systemMonitoringController->get($timeStart, $timeEnd);
 
-foreach ($diskUsageStats as $stat) {
-    // Convert timestamp to a human-readable format using Datetime
-    $labels[] = (new DateTime())->setTimestamp($stat['Timestamp'])->format('H:i:s');
+foreach ($memoryUsageStats as $stat) {
+    $labels[] = $stat['Timestamp'] * 1000;
     $datasets[0]['data'][] = $stat['Disk_usage'];
 }
 
 /**
  *  Add current disk usage to the list
  */
-$labels[] = date('H:i:s');
-$datasets[0]['data'][] = \Controllers\System\Monitoring\Disk::getUsage(REPOS_DIR);
+$labels[] = time() * 1000;
+$datasets[0]['data'][] = \Controllers\System\Monitoring\Disk::getUsage('/');
 
 /**
  *  Prepare chart data
  */
 $options['title']['text'] = 'Disk usage (%)';
-$options['legend']['display']['position'] = 'bottom';
+$options['init-zoom'] = 60;
+$datasets[0]['color'] = '#F32F63';
+$datasets[0]['name'] = 'Disk usage';
 
-$datasets[0]['backgroundColor'] = 'rgba(243, 47, 99, 0.20)';
-$datasets[0]['borderColor'] = '#F32F63';
-$datasets[0]['label'] = 'Disk usage';
-
-unset($systemMonitoringController, $diskUsageStats, $stat);
+unset($systemMonitoringController, $memoryUsageStats, $stat);

@@ -77,15 +77,6 @@ class Main
         if (!defined('DB_UPDATE_DONE_DIR')) {
             define('DB_UPDATE_DONE_DIR', DATA_DIR . '/update');
         }
-        if (!defined('UPDATE_SUCCESS_LOG')) {
-            define('UPDATE_SUCCESS_LOG', LOGS_DIR . '/update/update.success');
-        }
-        if (!defined('UPDATE_ERROR_LOG')) {
-            define('UPDATE_ERROR_LOG', LOGS_DIR . '/update/update.error');
-        }
-        if (!defined('UPDATE_INFO_LOG')) {
-            define('UPDATE_INFO_LOG', LOGS_DIR . '/update/update.info');
-        }
         // PIDs
         if (!defined('PID_DIR')) {
             define('PID_DIR', DATA_DIR . "/tasks/pid");

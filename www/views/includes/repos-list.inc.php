@@ -388,7 +388,7 @@ if (!empty($groupsList)) {
 
                             <?php
                             // Description input
-                            echo '<div class="item-desc">';
+                            echo '<div class="item-desc hide-mobile">';
                             if (!empty($env)) {
                                 echo '<input type="text" class="repo-description-input" env-id="' . $envId . '" placeholder="🖉 add a description" value=\'' . htmlspecialchars_decode($description) . '\' />';
                             }

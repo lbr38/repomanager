@@ -84,6 +84,11 @@ class Update extends \Controllers\Task\Execution
         $this->taskLogSubStepController->new('initializing', 'INITIALIZING');
 
         /**
+         *  Define temporary working directory
+         */
+        $workingDir = REPOS_DIR . '/temporary-task-' . $this->taskId;
+
+        /**
          *  Check if a snapshot exists in the database
          */
         if ($this->repoController->existsSnapId($this->repoController->getSnapId()) === false) {
@@ -112,16 +117,6 @@ class Update extends \Controllers\Task\Execution
         }
 
         /**
-         *  Define snapshot directory path
-         */
-        if ($this->repoController->getPackageType() == 'rpm') {
-            $snapshotPath = REPOS_DIR . '/rpm/' . $this->repoController->getName() . '/' . $this->repoController->getReleasever() . '/' . DATE_YMD;
-        }
-        if ($this->repoController->getPackageType() == 'deb') {
-            $snapshotPath = REPOS_DIR . '/deb/' . $this->repoController->getName() . '/' . $this->repoController->getDist() . '/' . $this->repoController->getSection() . '/' . DATE_YMD;
-        }
-
-        /**
          *  Define previous snapshot directory path
          */
         if ($this->sourceRepoController->getPackageType() == 'rpm') {
@@ -139,11 +134,11 @@ class Update extends \Controllers\Task\Execution
         }
 
         /**
-         *  If target directory already exists, delete it
+         *  If working directory already exists, delete it
          */
-        if (is_dir($snapshotPath)) {
-            if (!\Directory::deleteRecursive($snapshotPath)) {
-                throw new Exception('Cannot delete existing directory: ' . $snapshotPath);
+        if (is_dir($workingDir)) {
+            if (!Directory::deleteRecursive($workingDir)) {
+                throw new Exception('Cannot delete existing directory: ' . $workingDir);
             }
         }
 
@@ -178,14 +173,14 @@ class Update extends \Controllers\Task\Execution
          */
         if ($this->repoController->getPackageType() == 'deb') {
             // Create pool directory
-            if (!mkdir($snapshotPath . '/pool/' . $this->repoController->getSection(), 0770, true)) {
-                throw new Exception('Cannot create directory: ' . $snapshotPath . '/pool/' . $this->repoController->getSection());
+            if (!mkdir($workingDir . '/pool/' . $this->repoController->getSection(), 0770, true)) {
+                throw new Exception('Cannot create directory: ' . $workingDir . '/pool/' . $this->repoController->getSection());
             }
         }
         if ($this->repoController->getPackageType() == 'rpm') {
             // Create packages directory. As it is a local repository, we don't need to create arch subdirectories as all packages are in the same directory
-            if (!mkdir($snapshotPath . '/packages', 0770, true)) {
-                throw new Exception('Cannot create directory: ' . $snapshotPath . '/packages');
+            if (!mkdir($workingDir . '/packages', 0770, true)) {
+                throw new Exception('Cannot create directory: ' . $workingDir . '/packages');
             }
         }
 
@@ -201,31 +196,31 @@ class Update extends \Controllers\Task\Execution
 
             // Define parent dir and target path
             if ($this->repoController->getPackageType() == 'rpm') {
-                $targetPath = $snapshotPath . '/packages/' . $name;
+                $targetPath = $workingDir . '/packages/' . $name;
 
                 foreach (RPM_ARCHS as $arch) {
                     if (preg_match("#\.$arch\.#", $name)) {
-                        $parentDir  = $snapshotPath . '/packages/' . $arch;
+                        $parentDir  = $workingDir . '/packages/' . $arch;
                         break;
                     }
                 }
 
                 // If the package is a source package then move it to the SRPMS subfolder
                 if (preg_match("#\.src\.#", $name)) {
-                    $parentDir  = $snapshotPath . '/packages/SRPMS';
+                    $parentDir  = $workingDir . '/packages/SRPMS';
                 }
 
                 // If no architecture has been found then we set it to 'noarch'
                 if (empty($parentDir)) {
-                    $parentDir = $snapshotPath . '/packages/noarch';
+                    $parentDir = $workingDir . '/packages/noarch';
                 }
 
                 $targetPath = $parentDir . '/' . $name;
             }
 
             if ($this->repoController->getPackageType() == 'deb') {
-                $parentDir  = $snapshotPath . '/pool/' . $this->repoController->getSection();
-                $targetPath = $snapshotPath . '/pool/' . $this->repoController->getSection() . '/' . $name;
+                $parentDir  = $workingDir . '/pool/' . $this->repoController->getSection();
+                $targetPath = $workingDir . '/pool/' . $this->repoController->getSection() . '/' . $name;
             }
 
             // Create parent dir if not exists

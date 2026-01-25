@@ -19,7 +19,6 @@
 .btn-auto-tr {
     background-color: initial;
     box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
-    /* border: 1px solid #24405c; */
     border: 1px solid #ffffff30;
 }
 
@@ -141,10 +140,10 @@
     transition: max-width 0.7s;
     margin: 0 3px 0 3px;
     color: white;
-    background-color: #15bf7f;
+    /* background-color: #15bf7f; */
     border-radius: 60px;
     cursor: pointer;
-    box-shadow: rgba(12, 18, 20, 0.504) 0px 0px 10px 1px;
+    /* box-shadow: rgba(12, 18, 20, 0.504) 0px 0px 10px 1px; */
 }
 [class^="slide-btn"] img {
     width: 20px;
@@ -303,7 +302,7 @@
 /* Desktop configuration */
 @media (min-width:1025px) {
     /* Slide btns */
-    [class^="slide-btn"]:hover {
-        max-width: 300px;
+    [class^="slide-btn"] {
+        max-width: 100%;
     }
 }

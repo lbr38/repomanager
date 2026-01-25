@@ -7,7 +7,7 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
 
         <?php
         if (HostPermission::allowedAction('request-general-infos') or HostPermission::allowedAction('request-packages-infos') or HostPermission::allowedAction('update-packages')) : ?>
-            <div id="host-request-btn" class="slide-btn" host-id="<?= $id ?>" title="Request">
+            <div id="host-request-btn" class="slide-btn mediumopacity" host-id="<?= $id ?>" title="Request">
                 <img src="/assets/icons/rocket.svg">
                 <span>New request</span>
             </div>

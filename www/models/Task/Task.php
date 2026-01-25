@@ -410,7 +410,7 @@ class Task extends \Models\Model
         $data = [];
 
         try {
-            $result = $this->db->query("SELECT * FROM tasks WHERE Type = 'scheduled' AND Status = 'queued'");
+            $result = $this->db->query("SELECT * FROM tasks WHERE Type = 'scheduled' AND Status = 'scheduled'");
         } catch (Exception $e) {
             DbLog::error($e);
         }

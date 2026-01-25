@@ -30,16 +30,16 @@
                             <div class="flex column-gap-10 row-gap-10">
                                 <?php
                                 if (!empty($log['Details'])) : ?>
-                                    <div class="slide-btn-tr general-log-show-info-btn" log-id="<?= $log['Id'] ?>" title="More info">
-                                        <img src="/assets/icons/info.svg" />
-                                        <span>More info</span>
+                                    <div class="flex align-item-center column-gap-5 mediumopacity general-log-show-info-btn" log-id="<?= $log['Id'] ?>" title="More info">
+                                        <img src="/assets/icons/info.svg" class="icon" />
+                                        <p class="pointer">More info</p>
                                     </div>
                                     <?php
                                 endif ?>
 
-                                <div class="slide-btn general-log-acquit-btn" log-id="<?= $log['Id'] ?>" title="Mark as read">
-                                    <img src="/assets/icons/enabled.svg" />
-                                    <span>Mark as read</span>
+                                <div class="flex align-item-center column-gap-5 mediumopacity general-log-acquit-btn" log-id="<?= $log['Id'] ?>" title="Mark as read">
+                                    <img src="/assets/icons/enabled.svg" class="icon" />
+                                    <p class="pointer">Mark as read</p>
                                 </div>
                             </div>
                         </div>
