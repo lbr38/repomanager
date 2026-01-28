@@ -46,7 +46,7 @@ if (!empty($groupsList)) {
                     <p class="font-size-16"><?= $group['Name'] ?></p>
                     <p class="lowopacity-cst"><?= $countMessage ?></p>
                 </div>
-                <img src="/assets/icons/view.svg" class="hideGroup pointer icon-lowopacity" group-id="<?= $group['Id'] ?>" state="visible" title="Hide/Show group">
+                <img src="/assets/icons/view.svg" class="hide-repo-group pointer icon-lowopacity" group-id="<?= $group['Id'] ?>" state="visible" title="Hide/Show group">
             </div>
 
             <div class="repos-list-group-select-all-btns mediumopacity pointer hide" group-id="<?= $group['Id'] ?>">
@@ -394,12 +394,8 @@ if (!empty($groupsList)) {
                             }
                             echo '</div>'; ?>
 
-                            <!-- TODO -->
-                            <!-- <div class="item-task-status" repo-id="<?= $repoId ?>" snap-id="<?= $snapId ?>">
-                                <img src="/assets/icons/check.svg" class="icon-mediumopacity" />
-                                <img src="/assets/icons/check.svg" class="icon-mediumopacity" />
-                                <img src="/assets/icons/error.svg" class="icon-mediumopacity" />
-                            </div> -->
+                            <div class="item-task-status" snap-id="<?= $snapId ?>">
+                            </div>
 
                             <?php
                             $previousName = $name;
@@ -427,6 +423,7 @@ if (!empty($groupsList)) {
 
 <script>
 $(document).ready(function() {
-    getReposSize();
+    myrepo.getSize();
+    myrepo.getLatestTaskStatus();
 });
 </script>
