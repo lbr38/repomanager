@@ -99,8 +99,12 @@ fi
 /bin/bash $WWW_DIR/bin/repomanager -p
 
 # Start services
+echo "Starting repomanager service..."
+echo "Starting php-fpm..."
 /usr/sbin/service php8.3-fpm start > /dev/null
+echo "Starting nginx..."
 /usr/sbin/service nginx start > /dev/null
+echo "Starting postfix..."
 /usr/sbin/service postfix start > /dev/null
 
 # Initialize database
