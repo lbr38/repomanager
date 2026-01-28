@@ -66,7 +66,6 @@
 
     if (__ACTUAL_URI__[1] == "") {
         $title .= ' - Repos';
-        echo '<script src="/resources/js/pre/functions/repo.js?' . VERSION . '"></script>';
     } elseif (__ACTUAL_URI__[1] == "run") {
         $title .= ' - Tasks';
     } elseif (__ACTUAL_URI__[1] == "browse") {

@@ -106,9 +106,20 @@ $(document).on('submit','#edit-form',function () {
 $(document).on('keypress','input[type="text"].repo-description-input',function (e) {
     e.stopPropagation();
 
-    const keycode = (event.keyCode ? event.keyCode : event.which);
+    const keycode = (e.keyCode ? e.keyCode : e.which);
 
     if (keycode == '13') {
         myenvironment.updateDescription($(this).attr('env-id'), $(this).val());
     }
 });
+
+/**
+ *  Event: create new repo: print description field only if an env is specified
+ */
+$(document).on('change','#new-repo-target-env-select',function () {
+    if ($('#new-repo-target-env-select').val() == "") {
+        $('#new-repo-target-description-tr').hide();
+    } else {
+        $('#new-repo-target-description-tr').show();
+    }
+}).trigger('change');

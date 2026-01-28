@@ -32,8 +32,8 @@ class Notify extends Task
             $action = 'Create new repository';
         }
 
-        // Case the action is 'update', 'env', 'removeEnv', 'duplicate', 'rebuild' or 'delete'
-        if (in_array($taskRawParams['action'], ['update', 'duplicate', 'env', 'removeEnv', 'rebuild', 'delete'])) {
+        // Case the action is 'update', 'env', 'removeEnv', 'duplicate', 'rebuild', 'rename' or 'delete'
+        if (in_array($taskRawParams['action'], ['update', 'duplicate', 'env', 'removeEnv', 'rebuild', 'rename', 'delete'])) {
             // Case the action is 'update'
             if ($taskRawParams['action'] == 'update') {
                 $action = 'Update repository';
@@ -57,6 +57,11 @@ class Notify extends Task
             // Case the action is 'rebuild'
             if ($taskRawParams['action'] == 'rebuild') {
                 $action = 'Rebuild repository metadata';
+            }
+
+            // Case the action is 'rename'
+            if ($taskRawParams['action'] == 'rename') {
+                $action = 'Rename repository';
             }
 
             // Case the action is 'delete'
@@ -99,8 +104,8 @@ class Notify extends Task
             ];
         }
 
-        // Case the action is 'update', 'env', 'removeEnv', 'duplicate', 'rebuild' or 'delete'
-        if (in_array($taskRawParams['action'], ['update', 'duplicate', 'env', 'removeEnv', 'rebuild', 'delete'])) {
+        // Case the action is 'update', 'env', 'removeEnv', 'duplicate', 'rebuild', 'rename' or 'delete'
+        if (in_array($taskRawParams['action'], ['update', 'duplicate', 'env', 'removeEnv', 'rebuild', 'rename', 'delete'])) {
             // Retrieve repository details
             $repoController->getAllById(null, $taskRawParams['snap-id']);
 
@@ -169,6 +174,26 @@ class Notify extends Task
                 return [
                     'repository'    => $repo,
                     'snapshot-date' => DateTime::createFromFormat('Y-m-d', $repoController->getDate())->format('d-m-Y')
+                ];
+            }
+
+            // Case the action is 'rename'
+            if ($taskRawParams['action'] == 'rename') {
+                $targetRepo = $taskRawParams['name'];
+
+                // Case it's deb, add dist and section
+                if ($repoController->getPackageType() == 'deb') {
+                    $targetRepo .= ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection();
+                }
+
+                // Case it's rpm, add releasever
+                if ($repoController->getPackageType() == 'rpm') {
+                    $targetRepo .= ' ❯ ' . $repoController->getReleasever();
+                }
+
+                return [
+                    'repository'    => $repo,
+                    'target-repo'   => $targetRepo
                 ];
             }
 

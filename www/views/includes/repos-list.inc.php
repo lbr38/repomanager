@@ -46,7 +46,7 @@ if (!empty($groupsList)) {
                     <p class="font-size-16"><?= $group['Name'] ?></p>
                     <p class="lowopacity-cst"><?= $countMessage ?></p>
                 </div>
-                <img src="/assets/icons/view.svg" class="hideGroup pointer icon-lowopacity" group-id="<?= $group['Id'] ?>" state="visible" title="Hide/Show group">
+                <img src="/assets/icons/view.svg" class="hide-repo-group pointer icon-lowopacity" group-id="<?= $group['Id'] ?>" state="visible" title="Hide/Show group">
             </div>
 
             <div class="repos-list-group-select-all-btns mediumopacity pointer hide" group-id="<?= $group['Id'] ?>">
@@ -92,9 +92,7 @@ if (!empty($groupsList)) {
                     <div class="repos-list-group-flex-div" group-id="<?= $group['Id'] ?>" group="<?= $group['Name'] ?>">
                         <?php
                         foreach ($repoArray as $repo) :
-                            /**
-                             *  Retrieving values from database
-                             */
+                            // Retrieve values from database
                             $name           = $repo['Name'];
                             $dist           = $repo['Dist'];
                             $section        = $repo['Section'];
@@ -115,9 +113,7 @@ if (!empty($groupsList)) {
                             $snapId         = $repo['snapId'];
                             $envId          = $repo['envId'];
 
-                            /**
-                             *  Conditional variables to print or not some informations
-                             */
+                            // Conditional variables to print or not some informations
                             $printRepoName        = true;
                             $printRepoDist        = true;
                             $printRepoSection     = true;
@@ -149,9 +145,7 @@ if (!empty($groupsList)) {
                                     $envCounter = 1;
                                 }
 
-                                /**
-                                 *  Reset previous dist and section values to avoid some display bugs with deb repos having the same name as rpm repos
-                                 */
+                                // Reset previous dist and section values to avoid some display bugs with deb repos having the same name as rpm repos
                                 $previousDist = '';
                                 $previousSection = '';
                             }
@@ -184,16 +178,15 @@ if (!empty($groupsList)) {
                                 $previousReleaseVersion = '';
                             }
 
-                            /**
-                             *  If the current env is the third to be print for the current repo, then print an empty line before to let a space between the previous env
-                             */
+                            // If the current env is the third to be print for the current repo, then print an empty line before to let a space between the previous env
                             if ($envCounter >= 3) {
                                 $printEmptyLine = true;
                             }
 
-                            /**
-                             *  Print double empty line
-                             */
+                            // Check if a task is running on the snapshot
+                            $taskRunning = $repoSnapshotController->taskRunning($snapId);
+
+                            // Print double empty line
                             if ($printDoubleEmptyLine) {
                                 echo '<div class="item-empty-line"></div>';
                             } ?>
@@ -226,9 +219,7 @@ if (!empty($groupsList)) {
                             <div class="item-checkbox">
                                 <?php
                                 if ($snapId != $previousSnapId) {
-                                    /**
-                                     *  Print a warning icon if repo snapshot needs to be rebuild
-                                     */
+                                    // Print a warning icon if repo snapshot needs to be rebuild
                                     if (!empty($rebuild)) {
                                         if ($rebuild == 'needed') {
                                             echo '<img class="icon-np" src="/assets/icons/warning.svg" title="Repository snapshot content has been modified. You have to rebuild metadata." />';
@@ -244,15 +235,18 @@ if (!empty($groupsList)) {
 
                                     /**
                                      *  Print a warning icon if snapshot directory does not exist on the server
+                                     *  Only print it if there is no task running on the snapshot because some tasks like rename can temporarily remove the snapshot directory
                                      */
-                                    if ($packageType == 'rpm') {
-                                        if (!is_dir($snapshotPath)) {
-                                            echo '<img class="icon-np" src="/assets/icons/warning.svg" title="This snapshot directory is missing on the server." />';
+                                    if (!$taskRunning) {
+                                        if ($packageType == 'rpm') {
+                                            if (!is_dir($snapshotPath)) {
+                                                echo '<img class="icon-np" src="/assets/icons/warning.svg" title="This snapshot directory is missing on the server." />';
+                                            }
                                         }
-                                    }
-                                    if ($packageType == 'deb') {
-                                        if (!is_dir($snapshotPath)) {
-                                            echo '<img class="icon-np" src="/assets/icons/warning.svg" title="This snapshot directory is missing on the server." />';
+                                        if ($packageType == 'deb') {
+                                            if (!is_dir($snapshotPath)) {
+                                                echo '<img class="icon-np" src="/assets/icons/warning.svg" title="This snapshot directory is missing on the server." />';
+                                            }
                                         }
                                     }
                                 }
@@ -264,7 +258,7 @@ if (!empty($groupsList)) {
                                  */
                                 // Print checkbox only if the snapshot is different from the previous one and there is no operation running on the snapshot
                                 if ($snapId != $previousSnapId) :
-                                    if ($repoSnapshotController->taskRunning($snapId)) : ?>
+                                    if ($taskRunning) : ?>
                                         <img src="/assets/icons/loading.svg" class="icon-np" title="A task is running on this repository snaphot." />
                                         <?php
                                     else : ?>
@@ -275,9 +269,7 @@ if (!empty($groupsList)) {
                             </div>
         
                             <?php
-                            /**
-                             *  Generate repo relative path
-                             */
+                            // Generate repo relative path
                             if ($packageType == 'rpm') {
                                 $repoRelativePath = 'rpm/' .$name . '/' . $releaseVersion . '/' . $date;
                             }
@@ -365,16 +357,18 @@ if (!empty($groupsList)) {
                                 <?php
                                 // Environment checkbox
                                 if (!empty($env)) {
-                                    // Print a warning icon if the env link is broken (target environment link does not exist)
-                                    if ($packageType == 'rpm') {
-                                        if (!is_link(REPOS_DIR . '/rpm/' . $name . '/' . $releaseVersion . '/' . $env)) {
-                                            echo '<img class="icon-np" src="/assets/icons/warning.svg" title="This environment link is broken." />';
+                                    // Print a warning icon if the env link is broken (target environment link does not exist). Only print it if there is no task running on the snapshot.
+                                    if (!$taskRunning) {
+                                        if ($packageType == 'rpm') {
+                                            if (!is_link(REPOS_DIR . '/rpm/' . $name . '/' . $releaseVersion . '/' . $env)) {
+                                                echo '<img class="icon-np" src="/assets/icons/warning.svg" title="This environment link is broken." />';
+                                            }
                                         }
-                                    }
 
-                                    if ($packageType == 'deb') {
-                                        if (!is_link(REPOS_DIR . '/deb/' . $name . '/' . $dist . '/' . $section . '/' . $env)) {
-                                            echo '<img class="icon-np" src="/assets/icons/warning.svg" title="This environment link is broken." />';
+                                        if ($packageType == 'deb') {
+                                            if (!is_link(REPOS_DIR . '/deb/' . $name . '/' . $dist . '/' . $section . '/' . $env)) {
+                                                echo '<img class="icon-np" src="/assets/icons/warning.svg" title="This environment link is broken." />';
+                                            }
                                         }
                                     }
 
@@ -394,12 +388,8 @@ if (!empty($groupsList)) {
                             }
                             echo '</div>'; ?>
 
-                            <!-- TODO -->
-                            <!-- <div class="item-task-status" repo-id="<?= $repoId ?>" snap-id="<?= $snapId ?>">
-                                <img src="/assets/icons/check.svg" class="icon-mediumopacity" />
-                                <img src="/assets/icons/check.svg" class="icon-mediumopacity" />
-                                <img src="/assets/icons/error.svg" class="icon-mediumopacity" />
-                            </div> -->
+                            <div class="item-task-status" snap-id="<?= $snapId ?>">
+                            </div>
 
                             <?php
                             $previousName = $name;
@@ -427,6 +417,7 @@ if (!empty($groupsList)) {
 
 <script>
 $(document).ready(function() {
-    getReposSize();
+    myrepo.getSize();
+    myrepo.getLatestTaskStatus();
 });
 </script>

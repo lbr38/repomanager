@@ -32,6 +32,7 @@
         <option value="delete" <?= isset($permissions['repositories']['allowed-actions']) && in_array('delete', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Delete repositories</option>
         <option value="duplicate" <?= isset($permissions['repositories']['allowed-actions']) && in_array('duplicate', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Duplicate repositories</option>
         <option value="rebuild" <?= isset($permissions['repositories']['allowed-actions']) && in_array('rebuild', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Rebuild repositories</option>
+        <option value="rename" <?= isset($permissions['repositories']['allowed-actions']) && in_array('rename', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Rename repositories</option>
         <option value="edit" <?= isset($permissions['repositories']['allowed-actions']) && in_array('edit', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Edit repositories</option>
         <option value="browse" <?= isset($permissions['repositories']['allowed-actions']) && in_array('browse', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Browse repositories</option>
         <option value="upload-package" <?= isset($permissions['repositories']['allowed-actions']) && in_array('upload-package', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Upload packages to repositories</option> 

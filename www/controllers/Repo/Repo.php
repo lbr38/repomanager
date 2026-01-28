@@ -24,7 +24,7 @@ class Repo
     private $dateFormatted;
     private $time;
     private $env;
-    private $envs;
+    // private $envs;
     private $description;
     private $group;
     private $packagesToInclude = [];
@@ -35,7 +35,7 @@ class Repo
     private $gpgCheck;
     private $gpgSign;
     private $releasever;
-    private $targetArch;
+    // private $targetArch;
 
     public function __construct()
     {
@@ -569,17 +569,17 @@ class Repo
     }
 
     /**
-     *  Update release version in database
+     *  Update name in database
      */
-    public function updateReleasever(int $repoId, string $releasever)
+    public function updateName(int $repoId, string $name): void
     {
-        $this->model->updateReleasever($repoId, $releasever);
+        $this->model->updateName($repoId, $name);
     }
 
     /**
      *  Update dist in database
      */
-    public function updateDist(int $repoId, string $dist)
+    public function updateDist(int $repoId, string $dist): void
     {
         $this->model->updateDist($repoId, $dist);
     }
@@ -587,15 +587,23 @@ class Repo
     /**
      *  Update section in database
      */
-    public function updateSection(int $repoId, string $section)
+    public function updateSection(int $repoId, string $section): void
     {
         $this->model->updateSection($repoId, $section);
     }
 
     /**
+     *  Update release version in database
+     */
+    public function updateReleasever(int $repoId, string $releasever): void
+    {
+        $this->model->updateReleasever($repoId, $releasever);
+    }
+
+    /**
      *  Update source repository in database
      */
-    public function updateSource(int $repoId, string $source)
+    public function updateSource(int $repoId, string $source): void
     {
         $this->model->updateSource($repoId, $source);
     }

@@ -36,6 +36,25 @@ class Task extends \Models\Model
         return $data;
     }
 
+    public function getLatestStatus(string $snapId) : array
+    {
+        $status = [];
+
+        try {
+            $stmt = $this->db->prepare("SELECT Id, Status FROM tasks WHERE json_extract(Raw_params, '$.snap-id') = :snapId ORDER BY Date DESC, Time DESC LIMIT 1");
+            $stmt->bindValue(':snapId', $snapId);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $status = $row;
+        }
+
+        return $status;
+    }
+
     /**
      *  Update date in database
      */

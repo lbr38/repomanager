@@ -191,7 +191,7 @@ article {
 .repos-list-group-flex-div {
     display: grid;
     /* grid-template-columns: 350px 55px auto auto auto 55px 1fr; */
-    grid-template-columns: 100px 55px auto auto auto 55px;
+    grid-template-columns: 100px 55px auto auto auto 55px 40px;
     row-gap: 25px;
     margin-bottom: 12px;
     background-color: #22384F;
@@ -631,6 +631,6 @@ footer #github img { width: 25px; }
     }
 
     .repos-list-group-flex-div {
-        grid-template-columns: 350px 55px auto auto auto 55px 1fr;
+        grid-template-columns: 350px 55px auto auto auto 55px 1fr 40px;
     }
 }

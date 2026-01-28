@@ -93,6 +93,9 @@
                                                 if ($taskParams['action'] == 'rebuild') {
                                                     echo 'Rebuilding metadata ';
                                                 }
+                                                if ($taskParams['action'] == 'rename') {
+                                                    echo 'Rename ';
+                                                }
                                                 if ($taskParams['action'] == 'duplicate') {
                                                     echo 'Duplicate ';
                                                 }

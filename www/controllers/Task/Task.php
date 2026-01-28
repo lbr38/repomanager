@@ -9,18 +9,18 @@ use Datetime;
 class Task
 {
     private $id;
-    private $pid;
-    private $action;
+    // private $pid;
+    // private $action;
     private $status;
     private $error;
     private $type;
     private $date;
     private $time;
-    private $repoName;
-    private $gpgCheck;
-    private $gpgSign;
+    // private $repoName;
+    // private $gpgCheck;
+    // private $gpgSign;
     private $timeStart;
-    private $timeEnd;
+    // private $timeEnd;
     protected $model;
     private $profileController;
     private $layoutContainerReloadController;
@@ -877,10 +877,14 @@ class Task
                 $nextScheduledTaskDate = $dateObject->modify($taskRawParams['schedule']['schedule-monthly-day-position'] . ' ' . $taskRawParams['schedule']['schedule-monthly-day'] . ' of this month')->format('Y-m-d');
 
                 /**
-                 *  But if the scheduled task date is today and the scheduled time is less than the current time, then the task will be executed next month
-                 *  Retrieve the next scheduled task date and time
+                 *  Check if the scheduled task date is in the past, or if it's today but the scheduled time has passed
                  */
-                if ($nextScheduledTaskDate == DATE_YMD and str_replace(':', '', $taskRawParams['schedule']['schedule-time']) < $timeNow->format('Hi')) {
+                $scheduledDateTime = new DateTime($nextScheduledTaskDate . ' ' . $taskRawParams['schedule']['schedule-time']);
+                $currentDateTime = new DateTime(DATE_YMD . ' ' . date('H:i:s'));
+
+                if ($scheduledDateTime <= $currentDateTime) {
+                    // Reset the date object and get the next month's occurrence
+                    $dateObject = new DateTime(DATE_YMD);
                     $nextScheduledTaskDate = $dateObject->modify($taskRawParams['schedule']['schedule-monthly-day-position'] . ' ' . $taskRawParams['schedule']['schedule-monthly-day'] . ' of next month')->format('Y-m-d');
                 }
 
@@ -963,5 +967,13 @@ class Task
         }
 
         unset($tasks, $files);
+    }
+
+    /**
+     *  Get latest task status for a snapshot Id
+     */
+    public function getLatestStatus(string $snapId) : array
+    {
+        return $this->model->getLatestStatus($snapId);
     }
 }

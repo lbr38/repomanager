@@ -8,7 +8,7 @@ use \Controllers\User\Permission\Repo as RepoPermission;
 
 class Form
 {
-    private $validActions = ['create', 'update', 'env', 'duplicate', 'delete', 'removeEnv', 'rebuild'];
+    private $validActions = ['create', 'update', 'env', 'duplicate', 'delete', 'removeEnv', 'rebuild', 'rename'];
 
     /**
      *  Return the task form to the user according to his selection
