@@ -143,66 +143,80 @@ trait Finalize
             }
         }
 
+        if ($this->action == 'rebuild') {
+            /**
+             *  Set repo signature state in database
+             *  As we have rebuilt the repo files, it is possible that we have switched from a signed repo to an unsigned repo, or vice versa, we must therefore modify the state in the database
+             */
+            $this->repoController->snapSetSigned($this->repoController->getSnapId(), $this->repoController->getGpgSign());
+
+
+            // Set snapshot metadata rebuild state in database
+            $this->repoController->snapSetRebuild($this->repoController->getSnapId(), '');
+        }
+
         $this->taskLogSubStepController->completed();
 
         /**
          *  If the user has specified an environment to point to the created snapshot
          */
-        if (!empty($this->repoController->getEnv())) {
-            $this->taskLogSubStepController->new('adding-env', 'ADDING ENVIRONMENT');
+        if (in_array($this->action, ['create', 'update'])) {
+            if (!empty($this->repoController->getEnv())) {
+                $this->taskLogSubStepController->new('adding-env', 'ADDING ENVIRONMENT');
 
-            foreach ($this->repoController->getEnv() as $env) {
-                /**
-                 *  If the user has not specified any description, then we retrieve the one currently in place on the environment of the same name (if the environment exists and if it has a description)
-                 */
-                if (empty($this->repoController->getDescription())) {
-                    if ($this->repoController->getPackageType() == 'rpm') {
-                        $actualDescription = $this->rpmRepoController->getDescriptionByName($this->repoController->getName(), $this->repoController->getReleasever(), $env);
-                    }
-                    if ($this->repoController->getPackageType() == 'deb') {
-                        $actualDescription = $this->debRepoController->getDescriptionByName($this->repoController->getName(), $this->repoController->getDist(), $this->repoController->getSection(), $env);
+                foreach ($this->repoController->getEnv() as $env) {
+                    /**
+                     *  If the user has not specified any description, then we retrieve the one currently in place on the environment of the same name (if the environment exists and if it has a description)
+                     */
+                    if (empty($this->repoController->getDescription())) {
+                        if ($this->repoController->getPackageType() == 'rpm') {
+                            $actualDescription = $this->rpmRepoController->getDescriptionByName($this->repoController->getName(), $this->repoController->getReleasever(), $env);
+                        }
+                        if ($this->repoController->getPackageType() == 'deb') {
+                            $actualDescription = $this->debRepoController->getDescriptionByName($this->repoController->getName(), $this->repoController->getDist(), $this->repoController->getSection(), $env);
+                        }
+
+                        /**
+                         *  If the retrieved description is empty then the description will remain empty
+                         */
+                        if (!empty($actualDescription)) {
+                            $this->repoController->setDescription(htmlspecialchars_decode($actualDescription));
+                        } else {
+                            $this->repoController->setDescription('');
+                        }
                     }
 
                     /**
-                     *  If the retrieved description is empty then the description will remain empty
+                     *  Retrieve the Id of the environment currently in place (if there is one)
                      */
-                    if (!empty($actualDescription)) {
-                        $this->repoController->setDescription(htmlspecialchars_decode($actualDescription));
-                    } else {
-                        $this->repoController->setDescription('');
+                    if ($this->repoController->getPackageType() == 'rpm') {
+                        $actualEnvIds = $this->rpmRepoController->getEnvIdFromRepoName($this->repoController->getName(), $this->repoController->getReleasever(), $env);
                     }
-                }
-
-                /**
-                 *  Retrieve the Id of the environment currently in place (if there is one)
-                 */
-                if ($this->repoController->getPackageType() == 'rpm') {
-                    $actualEnvIds = $this->rpmRepoController->getEnvIdFromRepoName($this->repoController->getName(), $this->repoController->getReleasever(), $env);
-                }
-                if ($this->repoController->getPackageType() == 'deb') {
-                    $actualEnvIds = $this->debRepoController->getEnvIdFromRepoName($this->repoController->getName(), $this->repoController->getDist(), $this->repoController->getSection(), $env);
-                }
-
-                /**
-                 *  Delete the possible environment of the same name pointing to a snapshot of this repo (if there is one)
-                 */
-                if (!empty($actualEnvIds)) {
-                    foreach ($actualEnvIds as $actualEnvId) {
-                        $this->repoEnvController->remove($actualEnvId);
+                    if ($this->repoController->getPackageType() == 'deb') {
+                        $actualEnvIds = $this->debRepoController->getEnvIdFromRepoName($this->repoController->getName(), $this->repoController->getDist(), $this->repoController->getSection(), $env);
                     }
+
+                    /**
+                     *  Delete the possible environment of the same name pointing to a snapshot of this repo (if there is one)
+                     */
+                    if (!empty($actualEnvIds)) {
+                        foreach ($actualEnvIds as $actualEnvId) {
+                            $this->repoEnvController->remove($actualEnvId);
+                        }
+                    }
+
+                    /**
+                     *  Then we declare the new environment and make it point to the previously created snapshot
+                     */
+                    $this->repoEnvController->add($env, $this->repoController->getDescription(), $this->repoController->getSnapId());
                 }
 
-                /**
-                 *  Then we declare the new environment and make it point to the previously created snapshot
-                 */
-                $this->repoEnvController->add($env, $this->repoController->getDescription(), $this->repoController->getSnapId());
+                $this->taskLogSubStepController->completed();
             }
-
-            $this->taskLogSubStepController->completed();
         }
 
         /**
-         *  Apply permissions on the created snapshot
+         *  Apply permissions on the snapshot
          */
         $this->taskLogSubStepController->new('applying-permissions', 'APPLYING PERMISSIONS');
 
@@ -244,17 +258,6 @@ trait Finalize
             }
         } catch (Exception $e) {
             throw new Exception('Error while cleaning temporary files: ' . $e->getMessage());
-        }
-
-        $this->taskLogSubStepController->completed();
-
-        // Clean unused repos in groups
-        $this->taskLogSubStepController->new('cleaning-groups', 'CLEANING GROUPS');
-
-        try {
-            $this->repoController->cleanGroups();
-        } catch (Exception $e) {
-            throw new Exception('Error while cleaning groups: ' . $e->getMessage());
         }
 
         $this->taskLogSubStepController->completed();

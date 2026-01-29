@@ -8,6 +8,7 @@ class Rebuild extends \Controllers\Task\Execution
 {
     use \Controllers\Repo\Package\Sign;
     use \Controllers\Repo\Metadata\Create;
+    use \Controllers\Repo\Task\Finalize;
 
     public function __construct(string $taskId)
     {
@@ -46,14 +47,8 @@ class Rebuild extends \Controllers\Task\Execution
         $this->createMetadata();
 
         /**
-         *  Set repo signature state in database
-         *  As we have rebuilt the repo files, it is possible that we have switched from a signed repo to an unsigned repo, or vice versa, we must therefore modify the state in the database
+         *  Finalize repository (update database, clean temporary files, etc.)
          */
-        $this->repoController->snapSetSigned($this->repoController->getSnapId(), $this->repoController->getGpgSign());
-
-        /**
-         *  Set snapshot metadata rebuild state in database
-         */
-        $this->repoController->snapSetRebuild($this->repoController->getSnapId(), '');
+        $this->finalize();
     }
 }

@@ -57,7 +57,7 @@
 
     if ($totalHosts >= 1) : ?>
         <div>
-            <div class="grid grid-2 justify-space-between column-gap-20 margin-bottom-10">
+            <div class="grid grid-rfr-1-2 justify-space-between column-gap-20 row-gap-15 margin-bottom-10">
                 <div>
                     <div class="flex align-item-center column-gap-5 margin-bottom-5">
                         <h6 class="margin-top-0 search-host-tooltip">SEARCH HOST</h6>
@@ -96,14 +96,10 @@
                 <div class="groups-container">
                     <?php
                     foreach ($hostGroupsList as $group) :
-                        /**
-                         *  Retrieve the list of hosts in the group
-                         */
+                        // Retrieve the list of hosts in the group
                         $hostsList = $myhost->listByGroup($group['Name']);
 
-                        /**
-                         *  If it's the default group 'Default' and it has no host then we ignore its display
-                         */
+                        // If it's the default group 'Default' and it has no host then we ignore its display
                         if ($group['Name'] == "Default" and empty($hostsList)) {
                             continue;
                         } ?>
@@ -111,23 +107,17 @@
         
                         <div class="hosts-group-container div-generic-blue veil-on-reload">
                             <?php
-                            /**
-                             *  Print the group name except if it's the Default group
-                             */
+                            // Print the group name except if it's the Default group
                             if ($group['Name'] == 'Default') {
                                 $groupName = 'Ungrouped';
                             } else {
                                 $groupName = $group['Name'];
                             }
 
-                            /**
-                             *  Count number of hosts in the group
-                             */
+                            // Count number of hosts in the group
                             $hostsCount = count($hostsList);
 
-                            /**
-                             *  Generate count message
-                             */
+                            // Generate count message
                             if ($hostsCount < 2) {
                                 $countMessage = $hostsCount . ' host';
                             } else {
@@ -142,9 +132,7 @@
                             </div>
 
                             <?php
-                            /**
-                             *  Print the hosts of the group
-                             */
+                            // Print the hosts of the group
                             if (!empty($hostsList)) : ?>
                                 <div class="hosts-table">
                                     <div class="flex justify-end margin-bottom-10">
@@ -154,10 +142,7 @@
                                     </div>
                                 
                                     <?php
-                                    /**
-                                     *  Process the hosts list
-                                     *  Here we will display the details of each host and we take the opportunity to retrieve some additional information from the database
-                                     */
+                                    // Process the hosts list
                                     foreach ($hostsList as $host) :
                                         $id = $host['Id'];
                                         $hostname = 'unknown';
@@ -216,44 +201,30 @@
                                             $agentStatus = $host['Online_status'];
                                         }
 
-                                        /**
-                                         *  Check if the last time the agent reported its status is less than 1h (and 10min of "margin")
-                                         */
+                                        // Check if the last time the agent reported its status is less than 1h (and 10min of "margin")
                                         if ($host['Online_status_date'] != DATE_YMD or $host['Online_status_time'] <= date('H:i:s', strtotime(date('H:i:s') . ' - 70 minutes'))) {
                                             $agentStatus = 'seems-stopped';
                                         }
 
-                                        /**
-                                         *  Last known status message
-                                         */
+                                        // Last known status message
                                         $agentLastSendStatusMsg = 'state on ' . DateTime::createFromFormat('Y-m-d', $host['Online_status_date'])->format('d-m-Y') . ' ' . $host['Online_status_time'];
 
-                                        /**
-                                         *  Open the dedicated database of the host from its ID to be able to retrieve additional information
-                                         */
+                                        // Open the dedicated database of the host from its ID to be able to retrieve additional information
                                         $hostPackageController = new \Controllers\Host\Package\Package($id);
 
-                                        /**
-                                         *  Retrieve the total number of available packages
-                                         */
+                                        // Retrieve the total number of available packages
                                         $packagesAvailableTotal = count($hostPackageController->getAvailable());
 
-                                        /**
-                                         *  Retrieve the total number of installed packages
-                                         */
+                                        // Retrieve the total number of installed packages
                                         $packagesInstalledTotal = count($hostPackageController->getInstalled());
 
-                                        /**
-                                         *  Retrieve the last pending request (if there is one)
-                                         */
+                                        // Retrieve the last pending request (if there is one)
                                         $lastPendingRequest = $hostRequestController->getLastPendingRequest($id);
 
                                         unset($hostPackageController);
 
-                                        /**
-                                         *  Print the host informations
-                                         *  Here the <div> will contain all the host informations in order to be able to search on it (input 'search a host')
-                                         */ ?>
+                                        // Print the host informations
+                                        // Here the <div> will contain all the host informations in order to be able to search on it (input 'search a host') ?>
                                         <div class="host-line flex flex-direction-column div-generic-blue bck-blue-alt margin-bottom-10" hostid="<?= $id ?>" hostname="<?= $hostname ?>" os="<?= $os ?>" os_version="<?= $osVersion ?>" os_family="<?= $osFamily ?>" type="<?= $type ?>" kernel="<?= $kernel ?>" arch="<?= $arch ?>" profile="<?= $profile ?>" env="<?= $env ?>" agent_version="<?= $agentVersion ?>" reboot_required="<?= $rebootRequired ?>">
                                             <div class="flex column-gap-20">
                                                 <div class="align-self-center">
@@ -269,10 +240,10 @@
                                                     endif ?>
                                                 </div>
 
-                                                <div class="width-100">
+                                                <div class="width-100 overflowx-auto overflowy-hidden">
                                                     <?php
                                                     if ($compactView) : ?>
-                                                        <div class="grid hosts-compact-view column-gap-40">
+                                                        <div class="grid hosts-compact-view">
                                                             <div>
                                                                 <div>
                                                                     <p title="Hostname" class="copy">
@@ -285,7 +256,7 @@
                                                                 </div>
                                                             </div>
 
-                                                            <div class="grid hosts-compact-view-subgrid column-gap-15 align-item-center">
+                                                            <div class="grid hosts-compact-view-subgrid align-item-center">
                                                                 <div class="label-icon-tr max-width-fit" title="OS and type">
                                                                     <?= \Controllers\Utils\Generate\Html\Icon::os($os); ?>
 
@@ -337,7 +308,7 @@
                                                             </p>
                                                         </div>
 
-                                                        <div class="grid grid-4 row-gap-20 column-gap-20">
+                                                        <div class="grid grid-rfr-1-4 row-gap-20 column-gap-20">
                                                             <div>
                                                                 <h6 class="margin-top-0">IP</h6>
                                                                 <p class="mediumopacity-cst copy"><?= $ip ?></p>
@@ -425,39 +396,27 @@
                                                     
                                                         <div>
                                                             <?php
-                                                            /**
-                                                             *  Last request status
-                                                             *  Ignore it if the request was a 'disconnect' request
-                                                             */
+                                                            // Last request status
                                                             if (!empty($lastPendingRequest)) :
-                                                                /**
-                                                                 *  Retrieve and decode JSON data
-                                                                 */
+                                                                // Retrieve and decode JSON data
                                                                 $requestJson = json_decode($lastPendingRequest['Request'], true);
 
-                                                                /**
-                                                                 *  Request name
-                                                                 */
+                                                                // Request name
                                                                 $request = $requestJson['request'];
 
-                                                                /**
-                                                                 *  Request data
-                                                                 */
+                                                                // Request data
                                                                 if (isset($requestJson['data'])) {
                                                                     $requestData = $requestJson['data'];
                                                                 }
 
+                                                                // Only if not a 'disconnect' request
                                                                 if ($request != 'disconnect') :
-                                                                    /**
-                                                                     *  Response data
-                                                                     */
+                                                                    // Response data
                                                                     if (!empty($lastPendingRequest['Response_json'])) {
                                                                         $responseJson = json_decode($lastPendingRequest['Response_json'], true);
                                                                     }
 
-                                                                    /**
-                                                                     *  Request status
-                                                                     */
+                                                                    // Request status
                                                                     if ($lastPendingRequest['Status'] == 'new') {
                                                                         $requestStatus = 'Pending';
                                                                         $requestStatusIcon = 'pending.svg';
@@ -483,14 +442,10 @@
                                                                         $requestStatusIcon = 'check.svg';
                                                                     }
 
-                                                                    /**
-                                                                     *  Request info
-                                                                     */
+                                                                    // Request info
                                                                     $requestInfo = $lastPendingRequest['Info'];
 
-                                                                    /**
-                                                                     *  Request title
-                                                                     */
+                                                                    // Request title
                                                                     if ($request == 'request-general-infos') {
                                                                         $requestTitle = 'Requested the host to send its general informations';
                                                                         $requestTitleShort = 'Request general informations';
@@ -512,16 +467,12 @@
                                                                         $requestTitleShort = 'Request to update all packages';
 
                                                                         if (!empty($responseJson)) {
-                                                                            /**
-                                                                             *  If there was no packages to update
-                                                                             */
+                                                                            // If there was no packages to update
                                                                             if ($responseJson['update']['status'] == 'nothing-to-do') {
                                                                                 $responseDetails = 'No packages to update';
                                                                             }
 
-                                                                            /**
-                                                                             *  If there was packages to update, retrieve the number of packages updated
-                                                                             */
+                                                                            // If there was packages to update, retrieve the number of packages updated
                                                                             if ($responseJson['update']['status'] == 'done' or $responseJson['update']['status'] == 'failed') {
                                                                                 $successCount = $responseJson['update']['success']['count'];
                                                                                 $failedCount  = $responseJson['update']['failed']['count'];
@@ -562,9 +513,7 @@
                                                                         }
                                                                     }
 
-                                                                    /**
-                                                                     *  Only print the request title if it was executed less than 1h ago
-                                                                     */
+                                                                    // Only print the request title if it was executed less than 1h ago
                                                                     if (strtotime($lastPendingRequest['Date'] . ' ' . $lastPendingRequest['Time']) >= strtotime(date('Y-m-d H:i:s') . ' - 1 hour')) : ?>
                                                                         <h6>LAST REQUEST</h6>
                                                                         <div class="flex align-item-center column-gap-5">

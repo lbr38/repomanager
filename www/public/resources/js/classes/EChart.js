@@ -13,14 +13,19 @@ class EChart
 
     // If on mobile, default to 1 day range, otherwise 3 days
     constructor(type, id, autoUpdate = true, autoUpdateInterval = 15000, days = window.innerWidth < 600 ? 1 : 3, wasInNaturalState = true, periodChanged = false)
+    constructor(type, id, autoUpdate = true, autoUpdateInterval = 15000, days = window.innerWidth < 600 ? 1 : 3, wasInNaturalState = true, periodChanged = false)
     {
         this.id                 = id;
         this.type               = type;
         this.currentType        = type; // Current type (can change with magicType)
         this._preservedColors   = null; // Store colors when switching types
+        this.currentType        = type; // Current type (can change with magicType)
+        this._preservedColors   = null; // Store colors when switching types
         this.autoUpdate         = autoUpdate;
         this.autoUpdateInterval = autoUpdateInterval;
         this.days               = days;
+        this._wasInNaturalState = wasInNaturalState;
+        this._periodChanged     = periodChanged;
         this._wasInNaturalState = wasInNaturalState;
         this._periodChanged     = periodChanged;
         this.datasets           = [];
@@ -706,6 +711,7 @@ class EChart
             // Y axis: categories (instead of X for vertical bars)
             options.yAxis.type = 'category';
             options.yAxis.data = this.labels;
+            options.yAxis.inverse = true; // Invert Y-axis to show first data at top
             options.yAxis.axisLabel = {
                 color: '#8A99AA'
             };
@@ -806,22 +812,7 @@ class EChart
         if (this.type === 'line') {
             const visibleCount = this.chartOptions?.['init-zoom'] ?? 15;
             const totalPoints = this.labels.length;
-            
-            // If period changed, always show all data so user can see the new time range
-            if (this._periodChanged) {
-                options.dataZoom[0].start = 0;
-                options.dataZoom[0].end = 100;
-                options.dataZoom[1].start = 0;
-                options.dataZoom[1].end = 100;
-            }
-            // If the chart was previously zoomed/panned, show all data instead of applying initial zoom
-            else if (this._wasInNaturalState === false) {
-                options.dataZoom[0].start = 0;
-                options.dataZoom[0].end = 100;
-                options.dataZoom[1].start = 0;
-                options.dataZoom[1].end = 100;
-            } else if (totalPoints > visibleCount) {
-                // Apply normal initial zoom logic only if chart was in natural state
+            if (totalPoints > visibleCount) {
                 // Find the range that contains the most recent data with actual values
                 let hasDataInRange = false;
                 let startPercent = Math.max(0, ((totalPoints - visibleCount) / totalPoints) * 100);
@@ -880,6 +871,25 @@ class EChart
             this.currentType = params.currentType;
             console.info('EChart: magicType changed to', params.currentType, 'for chart', this.id);
         });
+
+        // Add click event if configured in chartOptions
+        if (this.chartOptions.clickCallback?.enabled === true) {
+            chart.on('click', (params) => {
+                if (params.componentType === 'series' && params.name) {
+                    // Build URL with the configured pattern
+                    let url = this.chartOptions.clickCallback.url;
+                    // Replace placeholder with the clicked item name
+                    url = url.replace('{value}', encodeURIComponent(params.name));
+                    
+                    // Open in new tab or same tab based on configuration
+                    if (this.chartOptions.clickCallback.newTab !== false) {
+                        window.open(url, '_blank');
+                    } else {
+                        window.location.href = url;
+                    }
+                }
+            });
+        }
 
         // Handle window resize
         window.addEventListener('resize', () => {
