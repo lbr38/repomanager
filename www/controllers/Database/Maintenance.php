@@ -6,9 +6,9 @@ class Maintenance
 {
     private $model;
 
-    public function __construct(string $database)
+    public function __construct(string $database, int|null $hostId = null)
     {
-        $this->model = new \Models\Database\Maintenance($database);
+        $this->model = new \Models\Database\Maintenance($database, $hostId);
     }
 
     /**

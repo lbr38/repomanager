@@ -2,10 +2,10 @@
 
 namespace Controllers\User\Permission;
 
-class Host
+class Task
 {
     /**
-     *  Check if the user has any permission on hosts
+     *  Check if the user has any permission on tasks
      */
     public static function allowed(): bool
     {
@@ -14,7 +14,7 @@ class Host
             return true;
         }
 
-        if (isset(USER_PERMISSIONS['hosts']['allowed-actions']) && !empty(USER_PERMISSIONS['hosts']['allowed-actions'])) {
+        if (isset(USER_PERMISSIONS['tasks']['allowed-actions']) && !empty(USER_PERMISSIONS['tasks']['allowed-actions'])) {
             return true;
         }
 
@@ -22,7 +22,7 @@ class Host
     }
 
     /**
-     *  Check if the user is allowed to perform a specific action on hosts
+     *  Check if the user is allowed to perform a specific action on tasks
      */
     public static function allowedAction(string $action): bool
     {
@@ -31,7 +31,7 @@ class Host
             return true;
         }
 
-        if (isset(USER_PERMISSIONS['hosts']['allowed-actions']) && in_array($action, USER_PERMISSIONS['hosts']['allowed-actions'])) {
+        if (isset(USER_PERMISSIONS['tasks']['allowed-actions']) && in_array($action, USER_PERMISSIONS['tasks']['allowed-actions'])) {
             return true;
         }
 

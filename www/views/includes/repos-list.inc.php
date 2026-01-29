@@ -203,15 +203,20 @@ if (!empty($groupsList)) {
 
                                 if ($packageType == 'deb') {
                                     if ($printRepoDist or $printRepoSection) {
-                                        if ($printRepoDist) {
-                                            echo '<span class="lowopacity-cst font-size-13" title="Distribution and section">' . ucfirst($dist) . ' ' . $section . '</span>';
-                                        }
+                                        if ($printRepoDist) : ?>
+                                            <div class="flex align-item-center column-gap-5">
+                                                <p class="mediumopacity-cst font-size-13" title="<?= $dist ?>"><?= (DEB_DISTRIBUTIONS[$dist] ?? $dist) ?></p>
+                                                <p class="mediumopacity-cst">●</p>
+                                                <p class="mediumopacity-cst font-size-13"><?= $section ?></p>
+                                            </div>
+                                            <?php
+                                        endif;
                                     }
                                 }
 
                                 if ($packageType == 'rpm') {
                                     if ($printReleaseVersion) {
-                                        echo '<div class="lowopacity-cst font-size-13" title="Release version">Release version ' . $releaseVersion . '</div>';
+                                        echo '<p class="lowopacity-cst font-size-13" title="Release version">Release version ' . $releaseVersion . '</p>';
                                     }
                                 } ?>
                             </div>

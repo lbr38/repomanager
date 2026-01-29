@@ -6,5 +6,9 @@
     "NT02" : {
         "title" : "New! Discord channel",
         "message" : "A Discord channel is available <b><a href='https://discord.gg/34yeNsMmkQ'>here</a></b> for any questions or quick help/debugging (English or French spoken)."
+    },
+    "NT03" : {
+        "title" : "You like it? Star it! ⭐",
+        "message" : "If you like Repomanager, you can support its development by starring the project on <a href='https://github.com/lbr38/repomanager'><b>GitHub</b></a>!"
     }
 }

@@ -2,6 +2,8 @@
 
 namespace Controllers\Layout\Tab;
 
+use \Controllers\Layout\Container\Render;
+
 class Status
 {
     public static function render()
@@ -12,8 +14,8 @@ class Status
             exit;
         }
 
-        \Controllers\Layout\Container\Render::render('status/health');
-        \Controllers\Layout\Container\Render::render('status/service');
-        \Controllers\Layout\Container\Render::render('status/monitoring');
+        Render::render('status/health');
+        Render::render('status/service');
+        Render::render('status/monitoring');
     }
 }

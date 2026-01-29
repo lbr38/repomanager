@@ -261,7 +261,7 @@ trait Finalize
 
         // Clean unused snapshots
         $this->taskLogSubStepController->new('cleaning-snapshots', 'CLEANING SNAPSHOTS');
-        $this->taskLogSubStepController->completed($this->repoSnapshotController->clean());
+        $this->taskLogSubStepController->completed($this->repoSnapshotController->clean($this->repoController->getRepoId()));
 
         $this->taskLogStepController->completed();
     }

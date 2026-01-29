@@ -1,4 +1,30 @@
 /**
+ *  Event: view repository file content
+ */
+$(document).on('click','.view-file',function () {
+    const name = $(this).attr('name');
+    const path = $(this).attr('path');
+    
+    ajaxRequest(
+        // Controller:
+        'repo/browse',
+        // Action:
+        'view-file',
+        // Data:
+        {
+            path: path
+        },
+        // Print success alert:
+        false,
+        // Print error alert:
+        true
+    ).then(function () {
+        // Print the modal window with the log
+        mymodal.print(jsonValue.message, name, true);
+    });
+});
+
+/**
  *  Event: when we click on a checkbox, we show the 'Delete' and 'Download' buttons
  */
 $(document).on('click',".package-checkbox",function () {
@@ -39,6 +65,9 @@ $(document).on('click',".package-checkbox",function () {
         }
     }
 
+    // Count the number of selected packages
+    var count = $('#packages-list').find('input[type="checkbox"].package-checkbox:checked').length;
+
     /**
      *  Define confirm box buttons depending on the allowed actions
      */
@@ -72,7 +101,7 @@ $(document).on('click',".package-checkbox",function () {
     myconfirmbox.print(
         {
             'title': 'Select packages',
-            'message': 'Select an action to perform on the selected packages:',
+            'message': count + ' file(s) selected.',
             'id': 'select-package',
             'buttons': buttons
         }
@@ -92,7 +121,7 @@ $(document).on('click',"#rebuild-btn",function () {
 
     ajaxRequest(
         // Controller:
-        'browse',
+        'repo/browse',
         // Action:
         'rebuild',
         // Data:

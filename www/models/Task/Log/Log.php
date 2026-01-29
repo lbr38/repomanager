@@ -20,17 +20,17 @@ class Log extends \Models\Model
         $data = '';
 
         try {
-            $stmt = $this->dedicatedDb->prepare("SELECT Log FROM logs WHERE Task_id = :taskId");
+            $stmt = $this->db->prepare("SELECT Log FROM logs WHERE Task_id = :taskId");
             $stmt->bindValue(':taskId', $taskId);
             $result = $stmt->execute();
 
             while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
                 $data = $row['Log'];
             }
-
-            return $data;
         } catch (Exception $e) {
             DbLog::error($e);
         }
+
+        return $data;
     }
 }

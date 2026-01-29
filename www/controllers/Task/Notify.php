@@ -109,17 +109,14 @@ class Notify extends Task
             // Retrieve repository details
             $repoController->getAllById(null, $taskRawParams['snap-id']);
 
-            // Define repository name
-            $repo = $repoController->getName();
-
-            // Case it's deb, add dist and section
+            // Case it's a deb repository
             if ($repoController->getPackageType() == 'deb') {
-                $repo .= ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection();
+                $repo = $repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection();
             }
 
-            // Case it's rpm, add releasever
+            // Case it's rpm repository
             if ($repoController->getPackageType() == 'rpm') {
-                $repo .= ' ❯ ' . $repoController->getReleasever();
+                $repo = $repoController->getName() . ' ❯ ' . $repoController->getReleasever();
             }
 
             // Case the action is 'update'
@@ -179,16 +176,16 @@ class Notify extends Task
 
             // Case the action is 'rename'
             if ($taskRawParams['action'] == 'rename') {
-                $targetRepo = $taskRawParams['name'];
-
-                // Case it's deb, add dist and section
+                // Case it's a deb repository
                 if ($repoController->getPackageType() == 'deb') {
-                    $targetRepo .= ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection();
+                    $repo = $taskRawParams['old-name'] . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection();
+                    $targetRepo = $taskRawParams['name'] . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection();
                 }
 
-                // Case it's rpm, add releasever
+                // Case it's rpm repository
                 if ($repoController->getPackageType() == 'rpm') {
-                    $targetRepo .= ' ❯ ' . $repoController->getReleasever();
+                    $repo = $taskRawParams['old-name'] . ' ❯ ' . $repoController->getReleasever();
+                    $targetRepo = $taskRawParams['name'] . ' ❯ ' . $repoController->getReleasever();
                 }
 
                 return [

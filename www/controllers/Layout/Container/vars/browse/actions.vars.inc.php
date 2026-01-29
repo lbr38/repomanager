@@ -55,7 +55,7 @@ if (!empty($_POST['action']) and $_POST['action'] == 'uploadPackage' and !empty(
     $myrepoPackage = new \Controllers\Repo\Package();
 
     try {
-        $myrepoPackage->upload($_POST['snapId'], \Controllers\Browse::reArrayFiles($_FILES['packages']));
+        $myrepoPackage->upload($_POST['snapId'], \Controllers\Repo\Browse::reArrayFiles($_FILES['packages']));
         $uploadSuccessMessage = 'Packages uploaded successfully';
     } catch (Exception $e) {
         $uploadErrorMessage = $e->getMessage();

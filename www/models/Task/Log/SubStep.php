@@ -18,7 +18,7 @@ class SubStep extends \Models\Model
     public function new(int $stepId, string $identifier, string $title, string $note) : void
     {
         try {
-            $stmt = $this->dedicatedDb->prepare("INSERT INTO substeps ('Identifier', 'Title', 'Note', 'Status', 'Start', 'Step_id') VALUES (:identifier, :title, :note, 'running', :start, :stepId)");
+            $stmt = $this->db->prepare("INSERT INTO substeps ('Identifier', 'Title', 'Note', 'Status', 'Start', 'Step_id') VALUES (:identifier, :title, :note, 'running', :start, :stepId)");
             $stmt->bindValue(':identifier', $identifier);
             $stmt->bindValue(':title', $title);
             $stmt->bindValue(':note', $note);
@@ -41,7 +41,7 @@ class SubStep extends \Models\Model
             /**
              *  Get sub step start time
              */
-            $stmt = $this->dedicatedDb->prepare("SELECT Start FROM substeps WHERE Id = :subStepId");
+            $stmt = $this->db->prepare("SELECT Start FROM substeps WHERE Id = :subStepId");
             $stmt->bindValue(':subStepId', $subStepId);
             $result = $stmt->execute();
 
@@ -54,7 +54,7 @@ class SubStep extends \Models\Model
              */
             $duration = $end - $start;
 
-            $stmt = $this->dedicatedDb->prepare("UPDATE substeps SET Status = :status, End = :end, Duration = :duration WHERE Id = :subStepId");
+            $stmt = $this->db->prepare("UPDATE substeps SET Status = :status, End = :end, Duration = :duration WHERE Id = :subStepId");
             $stmt->bindValue(':status', $status);
             $stmt->bindValue(':end', microtime(true));
             $stmt->bindValue(':duration', $duration);
@@ -73,7 +73,7 @@ class SubStep extends \Models\Model
         $data = [];
 
         try {
-            $stmt = $this->dedicatedDb->prepare("SELECT * FROM substeps WHERE Step_id = :stepId");
+            $stmt = $this->db->prepare("SELECT * FROM substeps WHERE Step_id = :stepId");
             $stmt->bindValue(':stepId', $stepId);
             $result = $stmt->execute();
 
@@ -95,7 +95,7 @@ class SubStep extends \Models\Model
         $data = null;
 
         try {
-            $stmt = $this->dedicatedDb->prepare("SELECT Id FROM substeps WHERE Step_id = :stepId ORDER BY Id DESC LIMIT 1");
+            $stmt = $this->db->prepare("SELECT Id FROM substeps WHERE Step_id = :stepId ORDER BY Id DESC LIMIT 1");
             $stmt->bindValue(':stepId', $stepId);
             $result = $stmt->execute();
 
@@ -117,7 +117,7 @@ class SubStep extends \Models\Model
         $data = '';
 
         try {
-            $stmt = $this->dedicatedDb->prepare("SELECT Id FROM substeps WHERE Step_id = :stepId AND Identifier = :identifier ORDER BY Id DESC LIMIT 1");
+            $stmt = $this->db->prepare("SELECT Id FROM substeps WHERE Step_id = :stepId AND Identifier = :identifier ORDER BY Id DESC LIMIT 1");
             $stmt->bindValue(':stepId', $stepId);
             $stmt->bindValue(':identifier', $identifier);
             $result = $stmt->execute();
@@ -140,7 +140,7 @@ class SubStep extends \Models\Model
         $data = '';
 
         try {
-            $stmt = $this->dedicatedDb->prepare("SELECT Output FROM substeps WHERE Id = :substepId");
+            $stmt = $this->db->prepare("SELECT Output FROM substeps WHERE Id = :substepId");
             $stmt->bindValue(':substepId', $substepId);
             $result = $stmt->execute();
 
@@ -160,7 +160,7 @@ class SubStep extends \Models\Model
     public function writeOutput(int $substepId, string $output) : void
     {
         try {
-            $stmt = $this->dedicatedDb->prepare("UPDATE substeps SET Output = :output WHERE Id = :substepId");
+            $stmt = $this->db->prepare("UPDATE substeps SET Output = :output WHERE Id = :substepId");
             $stmt->bindValue(':output', $output);
             $stmt->bindValue(':substepId', $substepId);
             $stmt->execute();

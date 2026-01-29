@@ -23,10 +23,10 @@
                 <span class="label-white">
                     <?php
                     if ($repoController->getPackageType() == 'rpm') {
-                        echo $repoController->getName() . ' ❯ ' . $repoController->getReleasever();
+                        echo $rawParams['old-name'] . ' ❯ ' . $repoController->getReleasever();
                     }
                     if ($repoController->getPackageType() == 'deb') {
-                        echo $repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection();
+                        echo $rawParams['old-name'] . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection();
                     } ?>
                 </span>
             </p>
