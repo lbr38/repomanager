@@ -872,25 +872,6 @@ class EChart
             console.info('EChart: magicType changed to', params.currentType, 'for chart', this.id);
         });
 
-        // Add click event if configured in chartOptions
-        if (this.chartOptions.clickCallback?.enabled === true) {
-            chart.on('click', (params) => {
-                if (params.componentType === 'series' && params.name) {
-                    // Build URL with the configured pattern
-                    let url = this.chartOptions.clickCallback.url;
-                    // Replace placeholder with the clicked item name
-                    url = url.replace('{value}', encodeURIComponent(params.name));
-                    
-                    // Open in new tab or same tab based on configuration
-                    if (this.chartOptions.clickCallback.newTab !== false) {
-                        window.open(url, '_blank');
-                    } else {
-                        window.location.href = url;
-                    }
-                }
-            });
-        }
-
         // Handle window resize
         window.addEventListener('resize', () => {
             chart.resize();
