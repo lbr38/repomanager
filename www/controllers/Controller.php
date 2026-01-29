@@ -54,7 +54,12 @@ class Controller
 
         // Catch unexpected exceptions and errors
         } catch (Exception | Error $e) {
-            $errorMessage = $e->getMessage();
+            $errorMessage = $e->getMessage() . PHP_EOL;
+
+            if (!empty($e->getTraceAsString())) {
+                $errorMessage .= $e->getTraceAsString();
+            }
+
             include_once(ROOT . '/public/custom_errors/custom_50x.php');
         }
     }

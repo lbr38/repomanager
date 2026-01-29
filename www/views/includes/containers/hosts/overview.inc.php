@@ -19,7 +19,7 @@
             <div class="hosts-chart-sub-container div-generic-blue">
                 <h6 class="margin-top-0">KERNELS</h6>
             
-                <div class="grid grid-2 row-gap-5 column-gap-40 margin-15">
+                <div class="grid grid-rfr-1-2 row-gap-5 column-gap-40 margin-15">
                     <?php
                     foreach ($kernels as $kernel) :
                         if (empty($kernel['Kernel'])) {
@@ -43,7 +43,7 @@
 
             <div class="hosts-chart-sub-container div-generic-blue">
                 <h6 class="margin-top-0">PROFILES</h6>
-                <div class="grid grid-2 row-gap-5 column-gap-40 margin-15">
+                <div class="grid grid-rfr-1-2 row-gap-5 column-gap-40 margin-15">
                     <?php
                     foreach ($profiles as $profile) {
                         if (empty($profile['Profile'])) {

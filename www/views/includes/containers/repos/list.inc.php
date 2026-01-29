@@ -17,6 +17,10 @@ use \Controllers\User\Permission\Repo as RepoPermission; ?>
                 <div class="flex align-item-center column-gap-15" title="Used storage: <?= $diskUsedSpaceHuman ?> / Free storage: <?= $diskFreeSpaceHuman ?>">
                     <div class="flex align-item-center column-gap-6">
                         <div class="echart-container">
+                            <div id="repo-storage-chart-loading" class="echart-loading">
+                                <img src="/assets/icons/loading.svg" class="icon-np icon-medium" />
+                            </div>
+
                             <div id="repo-storage-chart" class="echart"></div>
                         </div>
 
@@ -25,7 +29,8 @@ use \Controllers\User\Permission\Repo as RepoPermission; ?>
                 </div>
 
                 <?php
-                if (!empty($lastScheduledTask) and !empty($lastScheduledTask['Date']) and !empty($lastScheduledTask['Time'])) :
+                // Print last scheduled task status, only if it was less than 15 days ago
+                if (!empty($lastScheduledTask) and !empty($lastScheduledTask['Date']) and !empty($lastScheduledTask['Time']) and (time() - strtotime($lastScheduledTask['Date'] . ' ' . $lastScheduledTask['Time']) <= 1296000)) :
                     if ($lastScheduledTask['Status'] == 'error' or $lastScheduledTask['Status'] == 'stopped') {
                         $icon = 'warning-red';
                         $message = 'Last sched. task failed';
@@ -46,6 +51,7 @@ use \Controllers\User\Permission\Repo as RepoPermission; ?>
                     <?php
                 endif;
 
+                // Print next scheduled task info
                 if (!empty($nextScheduledTasks)) : ?>
                     <p class="mediumopacity-cst">●</p>
 
@@ -97,8 +103,10 @@ use \Controllers\User\Permission\Repo as RepoPermission; ?>
         if (IS_ADMIN or (!empty(USER_PERMISSIONS['repositories']['view']['groups']) or in_array('all', USER_PERMISSIONS['repositories']['view']))) { ?>
             <input id="repo-search-input" class="margin-bottom-10" type="text" placeholder="Search" onkeyup="myrepo.search()" title="Search by repository name, distribution, section or release version" />
 
-            <div id="hide-all-repo-groups" class="flex justify-end column-gap-5 margin-bottom-10 margin-right-15 lowopacity pointer" state="visible">
-                <img src="/assets/icons/view.svg" class="icon" title="Hide/Show all repositories groups" />
+            <div class="flex justify-end column-gap-5 margin-bottom-10 margin-right-15">
+                <div id="hide-all-repo-groups" state="visible">
+                    <img src="/assets/icons/view.svg" class="icon lowopacity pointer" title="Hide/Show all repositories groups" />
+                </div>
             </div>
 
             <div id="repos-list-container">

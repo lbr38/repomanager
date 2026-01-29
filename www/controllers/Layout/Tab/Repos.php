@@ -2,10 +2,12 @@
 
 namespace Controllers\Layout\Tab;
 
+use \Controllers\Layout\Container\Render;
+
 class Repos
 {
     public static function render()
     {
-        \Controllers\Layout\Container\Render::render('repos/list');
+        Render::render('repos/list');
     }
 }

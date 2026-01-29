@@ -32,7 +32,7 @@ class ConfirmBox
         innerHtml += '</div>';
 
         // Container for buttons
-        innerHtml += '<div class="grid grid-2 column-gap-15 row-gap-15">';
+        innerHtml += '<div class="grid grid-rfr-1-2 column-gap-15 row-gap-15">';
 
         // Loop through data to print each button
         if (!empty(data.buttons)) {

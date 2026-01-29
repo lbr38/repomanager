@@ -3,6 +3,7 @@
 namespace Controllers;
 
 use Exception;
+use JsonException;
 use \Controllers\Utils\Validate;
 
 class Notification
@@ -17,7 +18,7 @@ class Notification
     /**
      *  Retrieve all notifications from github
      */
-    public function retrieve()
+    public function retrieve(): void
     {
         $notifications = file_get_contents('https://raw.githubusercontent.com/lbr38/repomanager/main/notifications/notifications.json');
 
@@ -25,7 +26,11 @@ class Notification
             throw new Exception('Unable to retrieve notifications from Github. Resource may be temporarily unavailable.');
         }
 
-        $notifications = json_decode($notifications, true);
+        try {
+            $notifications = json_decode($notifications, true);
+        } catch (JsonException $e) {
+            throw new Exception('Unable to decode notifications JSON data: ' . $e->getMessage());
+        }
 
         if (!empty($notifications)) {
             foreach ($notifications as $id => $notification) {

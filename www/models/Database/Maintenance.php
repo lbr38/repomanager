@@ -8,11 +8,11 @@ class Maintenance extends \Models\Model
 {
     private $database;
 
-    public function __construct(string $database)
+    public function __construct(string $database, int|null $hostId = null)
     {
         $this->database = $database;
 
-        $this->getConnection($database);
+        $this->getConnection($database, $hostId);
 
         // Overwrite default timeout and set a long timeout for maintenance operations, here 1 hour
         $this->db->busyTimeout(3600000);

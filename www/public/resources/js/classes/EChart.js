@@ -12,13 +12,17 @@ class EChart
     static instances = {};
 
     // If on mobile, default to 1 day range, otherwise 3 days
-    constructor(type, id, autoUpdate = true, autoUpdateInterval = 15000, days = window.innerWidth < 600 ? 1 : 3)
+    constructor(type, id, autoUpdate = true, autoUpdateInterval = 15000, days = window.innerWidth < 600 ? 1 : 3, wasInNaturalState = true, periodChanged = false)
     {
         this.id                 = id;
         this.type               = type;
+        this.currentType        = type; // Current type (can change with magicType)
+        this._preservedColors   = null; // Store colors when switching types
         this.autoUpdate         = autoUpdate;
         this.autoUpdateInterval = autoUpdateInterval;
         this.days               = days;
+        this._wasInNaturalState = wasInNaturalState;
+        this._periodChanged     = periodChanged;
         this.datasets           = [];
         this.labels             = [];
         this.chartOptions       = [];
@@ -118,10 +122,10 @@ class EChart
                     saveAsImage: {
                         show: true,
                     },
-                    // magicType: {
-                    //     show: true,
-                    //     type: ['line', 'bar']
-                    // }
+                    magicType: {
+                        show: false, // Disabled by default, enabled conditionally
+                        type: ['line', 'bar']
+                    }
                 },
                 iconStyle: {
                     borderColor: '#8A99AA',
@@ -341,11 +345,12 @@ class EChart
      */
     buildSeries()
     {
-        if (this.type === 'line') {
-            return this.datasets.map(dataset => {
+        if (this.currentType === 'line') {
+            return this.datasets.map((dataset, datasetIndex) => {
                 const data = dataset.data.map((v, i) => [this.labels[i], v]);
-                // Use dataset color if defined, otherwise use default green color
-                const lineColor = dataset.color || '#15bf7f';
+                // Use preserved color first, then dataset color, then default
+                const lineColor = (this._preservedColors && this._preservedColors[datasetIndex]) || 
+                                 dataset.color || '#15bf7f';
                 return {
                     name: dataset.name,
                     type: 'line',
@@ -365,8 +370,8 @@ class EChart
             });
         }
 
-        if (this.type === 'bar') {
-            return this.datasets.map(dataset => {
+        if (this.currentType === 'bar') {
+            return this.datasets.map((dataset, datasetIndex) => {
                 const data = dataset.data.map((v, i) => {
                     const item = [this.labels[i], v];
 
@@ -385,14 +390,18 @@ class EChart
                     return item;
                 });
 
+                // Use preserved color first, then dataset color, then default
+                const barColor = (this._preservedColors && this._preservedColors[datasetIndex]) || 
+                                dataset.color || '#15bf7f';
+
                 return {
                     name: dataset.name,
                     type: 'bar',
-                    color: dataset.color, // Default color if no individual colors
+                    color: barColor, // Use preserved/dataset/default color
                     barMaxWidth: 30, // Maximum width of each bar in pixels
                     itemStyle: {
                         borderRadius: [4, 4, 0, 0],
-                        color: dataset.color // Default color
+                        color: barColor // Use same color
                     },
                     emphasis: {
                         itemStyle: {
@@ -404,7 +413,7 @@ class EChart
             });
         }
 
-        if (this.type === 'barHorizontal') {
+        if (this.currentType === 'barHorizontal') {
             return this.datasets.map(dataset => {
                 const data = dataset.data.map((v, i) => {
                     // For horizontal bars, just use the value (not [label, value])
@@ -445,7 +454,7 @@ class EChart
             });
         }
 
-        if (this.type === 'pie') {
+        if (this.currentType === 'pie') {
             return this.datasets.map(dataset => {
                 const data = dataset.data.map((v, i) => {
                     const item = {
@@ -479,7 +488,7 @@ class EChart
             });
         }
 
-        if (this.type === 'nightingale') {
+        if (this.currentType === 'nightingale') {
             return this.datasets.map(dataset => {
                 const data = dataset.data.map((v, i) => {
                     const item = {
@@ -697,6 +706,7 @@ class EChart
             // Y axis: categories (instead of X for vertical bars)
             options.yAxis.type = 'category';
             options.yAxis.data = this.labels;
+            options.yAxis.inverse = true; // Invert Y-axis to show first data at top
             options.yAxis.axisLabel = {
                 color: '#8A99AA'
             };
@@ -775,6 +785,11 @@ class EChart
             options.toolbox.show = false;
         }
 
+        // Enable magicType only for line and bar charts
+        if (this.type === 'line' || this.type === 'bar') {
+            options.toolbox.feature.magicType.show = true;
+        }
+
         // Tooltip show / hide
         if (this.chartOptions.tooltip?.show === false) {
             options.tooltip.show = false;
@@ -792,7 +807,22 @@ class EChart
         if (this.type === 'line') {
             const visibleCount = this.chartOptions?.['init-zoom'] ?? 15;
             const totalPoints = this.labels.length;
-            if (totalPoints > visibleCount) {
+            
+            // If period changed, always show all data so user can see the new time range
+            if (this._periodChanged) {
+                options.dataZoom[0].start = 0;
+                options.dataZoom[0].end = 100;
+                options.dataZoom[1].start = 0;
+                options.dataZoom[1].end = 100;
+            }
+            // If the chart was previously zoomed/panned, show all data instead of applying initial zoom
+            else if (this._wasInNaturalState === false) {
+                options.dataZoom[0].start = 0;
+                options.dataZoom[0].end = 100;
+                options.dataZoom[1].start = 0;
+                options.dataZoom[1].end = 100;
+            } else if (totalPoints > visibleCount) {
+                // Apply normal initial zoom logic only if chart was in natural state
                 // Find the range that contains the most recent data with actual values
                 let hasDataInRange = false;
                 let startPercent = Math.max(0, ((totalPoints - visibleCount) / totalPoints) * 100);
@@ -838,6 +868,38 @@ class EChart
         $('#' + id + '-loading').hide();
 
         chartElement._chartInstance = chart;
+
+        // Listen for magicType changes to preserve chart type
+        chart.on('magictypechanged', (params) => {
+            // Store current colors before type change
+            const currentOption = chart.getOption();
+            if (currentOption.series && currentOption.series.length > 0) {
+                this._preservedColors = currentOption.series.map(serie => serie.color);
+                console.info('EChart: preserved colors:', this._preservedColors);
+            }
+            
+            this.currentType = params.currentType;
+            console.info('EChart: magicType changed to', params.currentType, 'for chart', this.id);
+        });
+
+        // Add click event if configured in chartOptions
+        if (this.chartOptions.clickCallback?.enabled === true) {
+            chart.on('click', (params) => {
+                if (params.componentType === 'series' && params.name) {
+                    // Build URL with the configured pattern
+                    let url = this.chartOptions.clickCallback.url;
+                    // Replace placeholder with the clicked item name
+                    url = url.replace('{value}', encodeURIComponent(params.name));
+                    
+                    // Open in new tab or same tab based on configuration
+                    if (this.chartOptions.clickCallback.newTab !== false) {
+                        window.open(url, '_blank');
+                    } else {
+                        window.location.href = url;
+                    }
+                }
+            });
+        }
 
         // Handle window resize
         window.addEventListener('resize', () => {
@@ -964,6 +1026,14 @@ EChart.destroyInstance = function(chartId) {
     const instance = EChart.instances[chartId];
     if (instance) {
         instance.stopAutoUpdate();
+        
+        // Clean up DOM element reference
+        const chartElement = document.querySelector("#" + chartId);
+        if (chartElement && chartElement._chartInstance) {
+            chartElement._chartInstance.dispose();
+            delete chartElement._chartInstance;
+        }
+        
         delete EChart.instances[chartId];
         return true;
     }
@@ -979,11 +1049,54 @@ EChart.destroyInstance = function(chartId) {
  * @param {*} days 
  */
 EChart.recreate = function(type, id, autoUpdate = true, autoUpdateInterval = 15000, days = window.innerWidth < 600 ? 1 : 3) {
+    // Check if existing chart was in natural state before destroying
+    let wasInNaturalState = true;
+    let periodChanged = false;
+    let preservedCurrentType = type; // Default to original type
+    let instance = null; // Declare instance variable
+
+    try {
+        const chartElement = document.querySelector("#" + id);
+        if (chartElement && chartElement._chartInstance) {
+            const currentOption = chartElement._chartInstance.getOption();
+            if (currentOption && currentOption.dataZoom) {
+                instance = EChart.instances[id];
+                if (instance && typeof instance.isInNaturalState === 'function') {
+                    wasInNaturalState = instance.isInNaturalState(currentOption.dataZoom);
+                    
+                    // Check if the period (days) has changed
+                    periodChanged = instance.days !== days;
+                    
+                    // Preserve the current chart type (may have been changed by magicType)
+                    preservedCurrentType = instance.currentType || instance.type;
+                    
+                    // Also preserve colors if they were changed by magicType
+                    if (instance._preservedColors) {
+                        // We'll pass preserved colors to the new instance
+                        console.info('EChart.recreate: preserving colors', instance._preservedColors);
+                    }
+                }
+            }
+        }
+    } catch (error) {
+        console.warn('EChart.recreate: Error checking zoom state, defaulting to natural state', error);
+        wasInNaturalState = true;
+        periodChanged = false;
+        preservedCurrentType = type;
+    }
+    
     if (EChart.destroyInstance(id)) {
         // Make spinner visible before creating new chart
         $('#' + id + '-loading').show();
 
-        new EChart(type, id, autoUpdate, autoUpdateInterval, days);
+        // Create new instance and restore the preserved type
+        const newInstance = new EChart(type, id, autoUpdate, autoUpdateInterval, days, wasInNaturalState, periodChanged);
+        newInstance.currentType = preservedCurrentType;
+        
+        // Also preserve colors if they existed
+        if (instance && instance._preservedColors) {
+            newInstance._preservedColors = instance._preservedColors;
+        }
     }
 }
 

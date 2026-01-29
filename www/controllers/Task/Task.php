@@ -343,9 +343,7 @@ class Task
          *  If task is 'create' then inject the name / dist / section into the repo-id field
          */
         if ($params['action'] == 'create') {
-            /**
-             *  Repo name is the alias if it exists, otherwise it is the source repository name
-             */
+            // Repo name is the alias if it exists, otherwise it is the source repository name
             if (!empty($params['alias'])) {
                 $name = $params['alias'];
             } else {

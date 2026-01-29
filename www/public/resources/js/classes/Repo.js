@@ -155,4 +155,53 @@ class Repo {
             });
         });
     }
+
+    /**
+     *  Print packages tree
+     */
+    printTree(path)
+    {
+        ajaxRequest(
+            // Controller:
+            'repo/browse',
+            // Action:
+            'tree',
+            // Data:
+            {
+                path: path
+            },
+            // Print success alert:
+            false,
+            // Print error alert:
+            true
+        ).then(function () {
+            // Replace loading icon with the tree structure
+            $('#packages-list').html(jsonValue.message);
+
+            // Hide all the sub-menus
+            $('div.explorer-toggle').next().hide();
+
+            // Set the cursor of the toggling span elements
+            $('div.explorer-toggle').css('cursor', 'pointer');
+
+            // Prepend a plus sign to signify that the sub-menus aren't expanded
+            $('div.explorer-toggle').prepend('+ ');
+
+            // Add a click function that toggles the sub-menu when the corresponding span element is clicked
+            $('div.explorer-toggle').click(function () {
+                $(this).next().toggle(100);
+
+                // Switch the plus to a minus sign or vice-versa
+                var v = $(this).html().substring(0, 1);
+                if (v == '+') {
+                    $(this).html('-' + $(this).html().substring(1));
+                } else if (v == '-') {
+                    $(this).html('+' + $(this).html().substring(1));
+                }
+            });
+
+            $('#loading-tree').remove();
+            $('#explorer').show();
+        });
+    }
 }

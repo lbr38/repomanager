@@ -1,4 +1,77 @@
 /**
+ *  Event: click on edit repository button
+ *  TODO: wait for repos list refactoring before implementing the repo-edit-btn
+ */
+// $(document).on('click','.repo-edit-btn',function (e) {
+//     e.preventDefault();
+
+//     const repoId = $(this).attr('repo-id');
+
+//     /**
+//      *  The buttons that will be displayed in the confirm box
+//      */
+//     var buttons = [];
+
+//     /**
+//      *  The list of allowed actions the user can execute on the selected repositories
+//      *  By default: all, unless the user has specific permissions
+//      *  Those permissions are later verified by the server so even if the user tries to execute an action he is not allowed to, it will not work
+//      */
+//     var allowedActions = ['update', 'duplicate', 'env', 'rebuild', 'rename', 'edit', 'install', 'delete'];
+
+//     /**
+//      *  Get permissions from cookie
+//      */
+//     if (mycookie.exists('user_permissions')) {
+//         var userPermissions = JSON.parse(mycookie.get('user_permissions'));
+
+//         // Reset allowed actions array
+//         var allowedActions = [];
+
+//         // Loop through all permissions and check if the user has the permission to execute the action
+//         if (userPermissions.repositories && userPermissions.repositories['allowed-actions']) {
+//             var allowedActions = userPermissions.repositories['allowed-actions'];
+//         }
+//     }
+
+//     /**
+//      *  Define confirm box buttons depending on the allowed actions
+//      */
+//     if (allowedActions.includes('rename')) {
+//         buttons.push(
+//             {
+//                 'text': 'Rename',
+//                 'color': 'blue-alt',
+//                 'callback': function () {
+//                     executeAction('rename');
+//                 }
+//             }
+//         );
+//     }
+
+//     if (allowedActions.includes('edit')) {
+//         buttons.push(
+//             {
+//                 'text': 'Edit',
+//                 'color': 'blue-alt',
+//                 'callback': function () {
+//                     executeAction('edit')
+//                 }
+//             }
+//         );
+//     }
+
+//     myconfirmbox.print(
+//         {
+//             'title': 'Edit repository',
+//             'message': '',
+//             'id': 'repo-edit-confirm-box',
+//             'buttons': buttons
+//         }
+//     );
+// });
+
+/**
  *  Event: submit repository edit form
  */
 $(document).on('submit','#edit-form',function () {

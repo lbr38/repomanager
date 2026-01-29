@@ -279,14 +279,6 @@ class Create extends \Controllers\Task\Execution
             $this->taskLogStepController->completed();
         }
 
-        $this->taskLogSubStepController->new('cleaning', 'CLEANING');
-
-        /**
-         *  Clean unused repos in groups
-         */
-        $this->repoController->cleanGroups();
-
-        $this->taskLogSubStepController->completed();
         $this->taskLogStepController->completed();
     }
 }

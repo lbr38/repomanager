@@ -1,36 +1,4 @@
 /**
- *  Print packages tree
- */
-function printTree()
-{
-    $('#loading-tree').remove();
-    $('#explorer').show();
-
-    // hide all the sub-menus
-    $("div.explorer-toggle").next().hide();
-
-    // set the cursor of the toggling span elements
-    $("div.explorer-toggle").css("cursor", "pointer");
-
-    // prepend a plus sign to signify that the sub-menus aren't expanded
-    $("div.explorer-toggle").prepend("+ ");
-
-    // add a click function that toggles the sub-menu when the corresponding
-    // span element is clicked
-    $("div.explorer-toggle").click(function () {
-        $(this).next().toggle(100);
-
-        // switch the plus to a minus sign or vice-versa
-        var v = $(this).html().substring(0, 1);
-        if ( v == "+" ) {
-            $(this).html("-" + $(this).html().substring(1));
-        } else if ( v == "-" ) {
-            $(this).html("+" + $(this).html().substring(1));
-        }
-    });
-}
-
-/**
  *  Download package
  */
 function downloadPackage()
@@ -84,7 +52,7 @@ function deletePackages(snapId)
 
     ajaxRequest(
         // Controller:
-        'browse',
+        'repo/browse',
         // Action:
         'deletePackage',
         {

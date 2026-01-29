@@ -290,11 +290,6 @@ class Duplicate extends \Controllers\Task\Execution
                 $this->repoController->addRepoIdToGroup($targetRepoId, $this->repoController->getGroup());
             }
 
-            /**
-             *  Clean unused repos in groups
-             */
-            $this->repoController->cleanGroups();
-
             $this->taskLogSubStepController->completed();
             $this->taskLogStepController->completed();
 

@@ -24,6 +24,8 @@
     } ?>
 </select>
 
+<input type="hidden" class="task-param" param-name="old-name" value="<?= $myrepo->getName() ?>" />
+
 <input type="hidden" class="task-param" param-name="gpg-sign" value="<?= $myrepo->getSigned() ?>" />
 
 <?php

@@ -40,22 +40,20 @@
             echo '<p class="yellowtext">Repository snapshot content has been modified. You have to rebuild metadata.<br><br></p>';
         } ?>
 
-        <div id="loading-tree" class="flex align-item-center column-gap-5"><p>Generating tree structure</p><img src="/assets/icons/loading.svg" class="icon" /></div>
+        <div id="loading-tree" class="flex align-item-center column-gap-5">
+            <img src="/assets/icons/loading.svg" class="icon" />
+            <p class="note">Generating tree structure...</p>
+        </div>
 
         <div id="explorer" class="hide">
             <form id="packages-list" snap-id="<?= $snapId ?>">
-                <?php
-                /**
-                 *  Print packages list
-                 */
-                \Controllers\Browse::tree($snapshotPath); ?>
             </form>
         </div>
     </div>
 
     <script>
         $(document).ready(function () {
-            printTree();
+            myrepo.printTree('<?= $snapshotPath ?>');
         });
     </script>
 </section>
