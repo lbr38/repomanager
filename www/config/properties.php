@@ -10,7 +10,7 @@ $config = [
     'version_file_url' => 'https://raw.githubusercontent.com/lbr38/repomanager/main/www/version',
 
     // RPM release versions default values
-    'rpm_releasevers' => ['9' => 'RHEL 9 and derivatives', '8' => 'RHEL 8 and derivatives', '7' => 'RHEL 7 and derivatives'],
+    'rpm_releasevers' => ['10' => 'RHEL 10 and derivatives', '9' => 'RHEL 9 and derivatives', '8' => 'RHEL 8 and derivatives', '7' => 'RHEL 7 and derivatives'],
 
     // DEB distributions default values
     'deb_distributions' => [

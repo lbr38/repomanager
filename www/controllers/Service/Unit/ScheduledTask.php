@@ -135,6 +135,19 @@ class ScheduledTask extends \Controllers\Service\Service
 
                     unset($dateObject, $taskDate);
                 }
+
+                /**
+                 *  Case where the frequency is 'cron'
+                 */
+                if ($taskRawParams['schedule']['schedule-frequency'] == 'cron' and !empty($taskRawParams['schedule']['schedule-cron'])) {
+                    try {
+                        if (\Controllers\Utils\Cron::matches($taskRawParams['schedule']['schedule-cron'], new DateTime(date('Y-m-d H:i')))) {
+                            $taskToExec[] = $task['Id'];
+                        }
+                    } catch (Exception $e) {
+                        parent::log('Invalid cron expression for task #' . $task['Id'] . ': ' . $e->getMessage());
+                    }
+                }
             }
         }
 
