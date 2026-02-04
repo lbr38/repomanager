@@ -142,6 +142,10 @@
                                     if ($taskRawParams['schedule']['schedule-frequency'] == 'monthly') {
                                         echo 'Monthly scheduled task';
                                     }
+
+                                    if ($taskRawParams['schedule']['schedule-frequency'] == 'cron') {
+                                        echo 'Cron scheduled task';
+                                    }
                                 } ?>
                             </span>
                             <?php
@@ -184,7 +188,7 @@
                          *  If task is a recurring task, add the possibility to disable/enable it
                          */
                         if ($taskRawParams['schedule']['schedule-type'] == 'recurring') {
-                            if (in_array($taskRawParams['schedule']['schedule-frequency'], ['hourly', 'daily', 'weekly', 'monthly'])) {
+                            if (in_array($taskRawParams['schedule']['schedule-frequency'], ['hourly', 'daily', 'weekly', 'monthly', 'cron'])) {
                                 if ($item['Status'] == 'scheduled') {
                                     if (IS_ADMIN or in_array('disable', USER_PERMISSIONS['tasks']['allowed-actions'])) {
                                         echo '<img class="icon-lowopacity disable-scheduled-task-btn" src="/assets/icons/disabled.svg" task-id="' . $item['Id'] . '" title="Disable scheduled task" />';
@@ -301,6 +305,10 @@
 
                                     if ($taskRawParams['schedule']['schedule-frequency'] == 'monthly') {
                                         echo 'Every ' . $taskRawParams['schedule']['schedule-monthly-day-position'] . ' ' . $taskRawParams['schedule']['schedule-monthly-day'] . ' of the month at ' . $taskRawParams['schedule']['schedule-time'] . ':00';
+                                    } ?>
+                                    <?php
+                                    if ($taskRawParams['schedule']['schedule-frequency'] == 'cron') {
+                                        echo 'Cron: ' . htmlspecialchars($taskRawParams['schedule']['schedule-cron'] ?? '', ENT_QUOTES, 'UTF-8');
                                     } ?>
                                 </p>
                                 <?php

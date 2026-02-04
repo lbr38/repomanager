@@ -310,6 +310,11 @@ class Notify extends Task
                     if ($taskRawParams['schedule']['schedule-frequency'] == 'monthly') {
                         $message .= '<p>Scheduled interval: <b>Every month on day ' . $taskRawParams['schedule']['schedule-day'] . ' at ' . $taskRawParams['schedule']['schedule-time'] . '<b></p>';
                     }
+
+                    // Cron
+                    if ($taskRawParams['schedule']['schedule-frequency'] == 'cron') {
+                        $message .= '<p>Scheduled interval: <b>Cron ' . htmlspecialchars($taskRawParams['schedule']['schedule-cron'] ?? '', ENT_QUOTES, 'UTF-8') . '<b></p>';
+                    }
                 }
             }
 
