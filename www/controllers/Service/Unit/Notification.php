@@ -22,8 +22,11 @@ class Notification extends \Controllers\Service\Service
     {
         parent::log('Getting notifications...');
 
-        $this->notificationController->retrieve();
-
-        parent::log('Notifications retrieved');
+        try {
+            $this->notificationController->retrieve();
+            parent::log('Notifications retrieved');
+        } catch (Exception $e) {
+            parent::logError('Error retrieving notifications: ' . $e->getMessage());
+        }
     }
 }

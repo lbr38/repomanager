@@ -18,7 +18,7 @@ class Step extends \Models\Model
     public function new(int $taskId, string $identifier, string $title) : void
     {
         try {
-            $stmt = $this->dedicatedDb->prepare("INSERT INTO steps ('Identifier', 'Title', 'Status', 'Start', 'Task_id') VALUES (:identifier, :title, 'running', :start, :taskId)");
+            $stmt = $this->db->prepare("INSERT INTO steps ('Identifier', 'Title', 'Status', 'Start', 'Task_id') VALUES (:identifier, :title, 'running', :start, :taskId)");
             $stmt->bindValue(':identifier', $identifier);
             $stmt->bindValue(':title', $title);
             $stmt->bindValue(':start', microtime(true));
@@ -40,7 +40,7 @@ class Step extends \Models\Model
             /**
              *  Get step start time
              */
-            $stmt = $this->dedicatedDb->prepare("SELECT Start FROM steps WHERE Id = :stepId");
+            $stmt = $this->db->prepare("SELECT Start FROM steps WHERE Id = :stepId");
             $stmt->bindValue(':stepId', $stepId);
             $result = $stmt->execute();
 
@@ -53,7 +53,7 @@ class Step extends \Models\Model
              */
             $duration = $end - $start;
 
-            $stmt = $this->dedicatedDb->prepare("UPDATE steps SET Status = :status, End = :end, Duration = :duration, Message = :message WHERE Id = :stepId");
+            $stmt = $this->db->prepare("UPDATE steps SET Status = :status, End = :end, Duration = :duration, Message = :message WHERE Id = :stepId");
             $stmt->bindValue(':status', $status);
             $stmt->bindValue(':end', $end);
             $stmt->bindValue(':duration', $duration);
@@ -73,7 +73,7 @@ class Step extends \Models\Model
         $data = [];
 
         try {
-            $stmt = $this->dedicatedDb->prepare("SELECT * FROM steps WHERE Task_id = :taskId");
+            $stmt = $this->db->prepare("SELECT * FROM steps WHERE Task_id = :taskId");
             $stmt->bindValue(':taskId', $taskId);
             $result = $stmt->execute();
 
@@ -95,7 +95,7 @@ class Step extends \Models\Model
         $data = null;
 
         try {
-            $stmt = $this->dedicatedDb->prepare("SELECT Id FROM steps WHERE Task_id = :taskId ORDER BY Id DESC LIMIT 1");
+            $stmt = $this->db->prepare("SELECT Id FROM steps WHERE Task_id = :taskId ORDER BY Id DESC LIMIT 1");
             $stmt->bindValue(':taskId', $taskId);
             $result = $stmt->execute();
 

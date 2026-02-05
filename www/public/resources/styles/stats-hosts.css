@@ -9,13 +9,15 @@
 }
 
 .hosts-compact-view {
-    grid-template-columns: 35% 60%;
+    grid-template-columns: 1fr 1fr;
     align-items: center;
+    column-gap: 20px;
 }
 
 .hosts-compact-view-subgrid {
-    grid-template-columns: 40% 25% 10%;
+    grid-template-columns: 150px 100px 10%;
     justify-content: space-evenly;
+    column-gap: 15px;
 }
 
 .host-available-packages-label {
@@ -228,6 +230,17 @@
     .groups-container {
         columns: 2;
         column-count: 2;
+    }
+
+    .hosts-compact-view {
+        grid-template-columns: 35% 60%;
+        align-items: center;
+        column-gap: 20px;
+    }
+
+    .hosts-compact-view-subgrid {
+        grid-template-columns: 40% 25% 10%;
+        justify-content: space-evenly;
     }
 
     .hosts-charts-container {

@@ -1,3 +1,7 @@
+<?php
+use \Controllers\User\Permission\Host as HostPermission;
+use \Controllers\User\Permission\Task as TaskPermission; ?>
+
 <header class="reloadable-container" container="header/menu">
     <nav id="menu">
         <div id="title">
@@ -31,115 +35,116 @@
                 </div>
 
                 <?php
-                /**
-                 *  TASKS tab
-                 */
-                if (__ACTUAL_URI__[1] == 'run') {
-                    $headerMenuClass = 'menu-sub-container-underline';
-                } else {
-                    $headerMenuClass = 'menu-sub-container';
-                } ?>
+                // TASKS tab
 
-                <div id="header-refresh-container" class="<?= $headerMenuClass ?>">
-                    <div>
-                        <a href="/run">
-                            <div class="flex align-item-center column-gap-10">
-                                <img src="/assets/icons/rocket.svg" class="icon" />
-                                <span class="menu-tab-title">TASKS</span>
-                            </div>
-                        </a>
+                // Check if the user has any permission on tasks
+                if (TaskPermission::allowed()) :
+                    if (__ACTUAL_URI__[1] == 'run') {
+                        $headerMenuClass = 'menu-sub-container-underline';
+                    } else {
+                        $headerMenuClass = 'menu-sub-container';
+                    } ?>
 
-                        <div id="header-refresh">
-                            <?php
-                            /**
-                             *  Print a notification badge according to the number of running tasks
-                             */
-                            if ($totalRunningTasks > 0) {
-                                echo '<span class="op-total-running">' . $totalRunningTasks . '</span>';
-                            }
+                    <div id="header-refresh-container" class="<?= $headerMenuClass ?>">
+                        <div>
+                            <a href="/run">
+                                <div class="flex align-item-center column-gap-10">
+                                    <img src="/assets/icons/rocket.svg" class="icon" />
+                                    <span class="menu-tab-title">TASKS</span>
+                                </div>
+                            </a>
 
-                            /**
-                             *  If at least 1 task is running then we display its details
-                             */
-                            if ($totalRunningTasks > 0) :
-                                echo '<div class="header-op-container">';
-                                /**
-                                 *  Print each running task
-                                 */
-                                foreach ($tasksRunning as $task) :
-                                    $taskParams = json_decode($task['Raw_params'], true); ?>
+                            <div id="header-refresh">
+                                <?php
+                                // Print a notification badge according to the number of running tasks
+                                if ($totalRunningTasks > 0) {
+                                    echo '<span class="op-total-running">' . $totalRunningTasks . '</span>';
+                                }
 
-                                    <div class="header-op-subdiv btn-large-red">
-                                        <a href="/run/<?= $task['Id'] ?>">
-                                            <span>
-                                                <?php
-                                                if ($taskParams['action'] == 'create') {
-                                                    if ($taskParams['repo-type'] == 'local') {
-                                                        echo 'New local repository ';
+                                // If at least 1 task is running then we display its details
+                                if ($totalRunningTasks > 0) :
+                                    echo '<div class="header-op-container">';
+
+                                    // Print each running task
+                                    foreach ($tasksRunning as $task) :
+                                        $taskParams = json_decode($task['Raw_params'], true); ?>
+
+                                        <div class="header-op-subdiv btn-large-red">
+                                            <a href="/run/<?= $task['Id'] ?>">
+                                                <span>
+                                                    <?php
+                                                    if ($taskParams['action'] == 'create') {
+                                                        if ($taskParams['repo-type'] == 'local') {
+                                                            echo 'New local repository ';
+                                                        }
+                                                        if ($taskParams['repo-type'] == 'mirror') {
+                                                            echo 'New mirror repository ';
+                                                        }
                                                     }
-                                                    if ($taskParams['repo-type'] == 'mirror') {
-                                                        echo 'New mirror repository ';
+                                                    if ($taskParams['action'] == 'update') {
+                                                        echo 'Update ';
                                                     }
-                                                }
-                                                if ($taskParams['action'] == 'update') {
-                                                    echo 'Update ';
-                                                }
-                                                if ($taskParams['action'] == 'env') {
-                                                    echo 'Point environment ';
-                                                }
-                                                if ($taskParams['action'] == 'removeEnv') {
-                                                    echo 'Remove environment ';
-                                                }
-                                                if ($taskParams['action'] == 'rebuild') {
-                                                    echo 'Rebuilding metadata ';
-                                                }
-                                                if ($taskParams['action'] == 'duplicate') {
-                                                    echo 'Duplicate ';
-                                                }
-                                                if ($taskParams['action'] == 'delete') {
-                                                    echo 'Delete ';
-                                                } ?>
-                                            </span>
+                                                    if ($taskParams['action'] == 'env') {
+                                                        echo 'Point environment ';
+                                                    }
+                                                    if ($taskParams['action'] == 'removeEnv') {
+                                                        echo 'Remove environment ';
+                                                    }
+                                                    if ($taskParams['action'] == 'rebuild') {
+                                                        echo 'Rebuilding metadata ';
+                                                    }
+                                                    if ($taskParams['action'] == 'rename') {
+                                                        echo 'Rename ';
+                                                    }
+                                                    if ($taskParams['action'] == 'duplicate') {
+                                                        echo 'Duplicate ';
+                                                    }
+                                                    if ($taskParams['action'] == 'delete') {
+                                                        echo 'Delete ';
+                                                    } ?>
+                                                </span>
 
-                                            <span class="label-white"><?= $myTask->getRepo($task['Id']); ?></span>
-                                        </a>
+                                                <span class="label-white"><?= $myTask->getRepo($task['Id']); ?></span>
+                                            </a>
 
-                                        <?php
-                                        if (IS_ADMIN or in_array('stop', USER_PERMISSIONS['tasks']['allowed-actions'])) : ?>
-                                                <img src="/assets/icons/stop.svg" class="icon-large stop-task-btn" task-id="<?= $task['Id'] ?>" title="Stop task">
                                             <?php
-                                        endif ?>
-                                    </div>
-                                    <?php
-                                endforeach;
-                                echo '</div>';
+                                            if (IS_ADMIN or in_array('stop', USER_PERMISSIONS['tasks']['allowed-actions'])) : ?>
+                                                    <img src="/assets/icons/stop.svg" class="icon-large stop-task-btn" task-id="<?= $task['Id'] ?>" title="Stop task">
+                                                <?php
+                                            endif ?>
+                                        </div>
+                                        <?php
+                                    endforeach;
+                                    echo '</div>';
 
-                                unset($tasksRunning);
-                            endif ?>
+                                    unset($tasksRunning);
+                                endif ?>
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <?php
-                /**
-                 *  HOSTS tab
-                 */
-                if (__ACTUAL_URI__[1] == 'hosts' or __ACTUAL_URI__[1] == 'host') {
-                    $headerMenuClass = 'menu-sub-container-underline';
-                } else {
-                    $headerMenuClass = 'menu-sub-container';
-                }
-
-                if (MANAGE_HOSTS == "true") : ?>
-                    <div class="<?= $headerMenuClass ?>">
-                        <a href="/hosts">
-                            <div class="flex align-item-center column-gap-10">
-                                <img src="/assets/icons/server.svg" class="icon" />
-                                <span class="menu-tab-title">HOSTS</span>
-                            </div>
-                        </a>
-                    </div>
                     <?php
+                endif;
+
+                // HOSTS tab
+                // Check if the user has any permission on hosts
+                if (HostPermission::allowed()) :
+                    if (__ACTUAL_URI__[1] == 'hosts' or __ACTUAL_URI__[1] == 'host') {
+                        $headerMenuClass = 'menu-sub-container-underline';
+                    } else {
+                        $headerMenuClass = 'menu-sub-container';
+                    }
+
+                    if (MANAGE_HOSTS == "true") : ?>
+                        <div class="<?= $headerMenuClass ?>">
+                            <a href="/hosts">
+                                <div class="flex align-item-center column-gap-10">
+                                    <img src="/assets/icons/server.svg" class="icon" />
+                                    <span class="menu-tab-title">HOSTS</span>
+                                </div>
+                            </a>
+                        </div>
+                        <?php
+                    endif;
                 endif ?>
             </div>
 

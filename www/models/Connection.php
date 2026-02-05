@@ -86,7 +86,7 @@ class Connection extends SQLite3
             /**
              *  Case where database is 'host', it is a host database 'properties.db', databaseId must be set
              */
-            } elseif ($database == 'host' and isset($databaseId)) {
+            } elseif ($database == 'host' and !empty($databaseId)) {
                 $this->open(HOSTS_DIR . '/' . $databaseId . '/properties.db');
                 $this->busyTimeout(30000);
                 $this->enableExceptions(true);
@@ -106,7 +106,7 @@ class Connection extends SQLite3
             /**
              *  Case where database is 'task-log', it is a task log database 'task-<databaseId>-log.db'
              */
-            } elseif ($database == 'task-log' and isset($databaseId)) {
+            } elseif ($database == 'task-log' and !empty($databaseId)) {
                 $this->open(MAIN_LOGS_DIR . '/repomanager-task-' . $databaseId . '-log.db');
                 $this->busyTimeout(30000);
                 $this->enableExceptions(true);
@@ -725,7 +725,7 @@ class Connection extends SQLite3
                 'true',
                 'repomanager-',
                 'Europe/Paris',
-                '1024',
+                '2048',
                 'false',
                 '3',
                 '730',

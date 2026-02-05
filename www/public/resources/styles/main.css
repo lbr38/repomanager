@@ -181,6 +181,7 @@ article {
     align-items: center;
     margin-left: 380px;
     column-gap: 8px;
+    overflow: auto;
 }
 
 .repos-list-group-select-all-btns input[type="checkbox"] {
@@ -190,8 +191,7 @@ article {
 
 .repos-list-group-flex-div {
     display: grid;
-    /* grid-template-columns: 350px 55px auto auto auto 55px 1fr; */
-    grid-template-columns: 100px 55px auto auto auto 55px;
+    grid-template-columns: 190px 55px auto auto 60px 55px 40px;
     row-gap: 25px;
     margin-bottom: 12px;
     background-color: #22384F;
@@ -199,6 +199,7 @@ article {
     border-radius: 20px;
     padding: 15px 4px 15px 4px;
     box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
+    overflow: auto;
 }
 
 .repos-list-group-flex-div [class^="item"] {
@@ -289,6 +290,11 @@ article {
     padding-bottom: 6px !important;
     -webkit-box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
     box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 .item-repo-version {
@@ -631,6 +637,6 @@ footer #github img { width: 25px; }
     }
 
     .repos-list-group-flex-div {
-        grid-template-columns: 350px 55px auto auto auto 55px 1fr;
+        grid-template-columns: 350px 55px auto auto auto 55px 1fr 40px;
     }
 }

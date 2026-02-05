@@ -62,19 +62,10 @@ class RemoveEnv extends \Controllers\Task\Execution
         $this->taskLogStepController->completed();
         $this->taskLogStepController->new('cleaning', 'CLEANING');
 
-        /**
-         *  Clean unused repos in groups
-         */
-        $this->repoController->cleanGroups();
+        // Clean unused snapshots
+        $this->taskLogSubStepController->new('cleaning-snapshots', 'CLEANING SNAPSHOTS');
+        $this->taskLogSubStepController->completed($this->repoSnapshotController->clean($this->repoController->getRepoId()));
 
-        /**
-         *  Clean unused snapshots
-         */
-        try {
-            $snapshotsRemoved = $this->repoSnapshotController->clean();
-            $this->taskLogStepController->completed($snapshotsRemoved);
-        } catch (Exception $e) {
-            $this->taskLogStepController->error($e->getMessage());
-        }
+        $this->taskLogStepController->completed();
     }
 }

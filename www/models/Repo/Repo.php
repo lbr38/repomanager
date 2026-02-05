@@ -561,13 +561,13 @@ class Repo extends \Models\Model
     }
 
     /**
-     *  Update release version in database
+     *  Update name in database
      */
-    public function updateReleasever(int $repoId, string $releasever)
+    public function updateName(int $repoId, string $name): void
     {
         try {
-            $stmt = $this->db->prepare("UPDATE repos SET Releasever = :releasever WHERE Id = :repoId");
-            $stmt->bindValue(':releasever', $releasever);
+            $stmt = $this->db->prepare("UPDATE repos SET Name = :name WHERE Id = :repoId");
+            $stmt->bindValue(':name', $name);
             $stmt->bindValue(':repoId', $repoId);
             $stmt->execute();
         } catch (Exception $e) {
@@ -580,7 +580,7 @@ class Repo extends \Models\Model
     /**
      *  Update dist in database
      */
-    public function updateDist(int $repoId, string $dist)
+    public function updateDist(int $repoId, string $dist): void
     {
         try {
             $stmt = $this->db->prepare("UPDATE repos SET Dist = :dist WHERE Id = :repoId");
@@ -597,7 +597,7 @@ class Repo extends \Models\Model
     /**
      *  Update section in database
      */
-    public function updateSection(int $repoId, string $section)
+    public function updateSection(int $repoId, string $section): void
     {
         try {
             $stmt = $this->db->prepare("UPDATE repos SET Section = :section WHERE Id = :repoId");
@@ -612,9 +612,26 @@ class Repo extends \Models\Model
     }
 
     /**
+     *  Update release version in database
+     */
+    public function updateReleasever(int $repoId, string $releasever): void
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE repos SET Releasever = :releasever WHERE Id = :repoId");
+            $stmt->bindValue(':releasever', $releasever);
+            $stmt->bindValue(':repoId', $repoId);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+
+        unset($stmt);
+    }
+
+    /**
      *  Update source repository in database
      */
-    public function updateSource(int $repoId, string $source)
+    public function updateSource(int $repoId, string $source): void
     {
         try {
             $stmt = $this->db->prepare("UPDATE repos SET Source = :source WHERE Id = :repoId");

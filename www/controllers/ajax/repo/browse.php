@@ -1,4 +1,47 @@
 <?php
+if ($action == 'view-file' and !empty($_POST['path'])) {
+    try {
+        /**
+         *  Check that the file path starts with REPOS_DIR
+         *  Prevents a malicious person from providing a path that has nothing to do with the repo directory (e.g. /etc/...)
+         */
+        if (!preg_match("#^" . REPOS_DIR . "#", realpath(REPOS_DIR . '/' . $_POST['path']))) {
+            throw new Exception('invalid path ' . REPOS_DIR . '/' . $_POST['path']);
+        }
+
+        $content = file_get_contents(REPOS_DIR . '/' . $_POST['path']);
+
+        if ($content === false) {
+            throw new Exception('could not read file ' . REPOS_DIR . '/' . $_POST['path']);
+        }
+    } catch (Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, $content);
+}
+
+/**
+ *  Return the repository tree structure
+ */
+if ($_POST['action'] == 'tree' and !empty($_POST['path'])) {
+    try {
+        /**
+         *  Check that the file path starts with REPOS_DIR
+         *  Prevents a malicious person from providing a path that has nothing to do with the repo directory (e.g. /etc/...)
+         */
+        if (!preg_match("#^" . REPOS_DIR . "#", realpath($_POST['path']))) {
+            throw new Exception('invalid path ' . $_POST['path']);
+        }
+
+        $result = \Controllers\Repo\Browse::render($_POST['path']);
+    } catch (Exception $e) {
+        response(HTTP_BAD_REQUEST, 'Could not generate repository tree: ' . $e->getMessage());
+    }
+
+    response(HTTP_OK, $result);
+}
+
 /**
  *  Delete packages from repo
  */

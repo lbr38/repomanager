@@ -66,6 +66,11 @@
                             $actionTitle = 'Rebuild metadata';
                         }
 
+                        if ($taskRawParams['action'] == 'rename') {
+                            $icon = 'edit';
+                            $actionTitle = 'Rename repository';
+                        }
+
                         if ($taskRawParams['action'] == 'env') {
                             $icon = 'link';
                             $actionTitle = 'Point an environment';
@@ -306,6 +311,12 @@
                     <?php
                     if ($taskRawParams['action'] == 'duplicate') : ?>
                         <h6>DUPLICATE TO</h6>
+                        <p><?= $taskRawParams['name'] ?></p>
+                        <?php
+                    endif;
+
+                    if ($taskRawParams['action'] == 'rename') : ?>
+                        <h6>RENAME TO</h6>
                         <p><?= $taskRawParams['name'] ?></p>
                         <?php
                     endif ?>

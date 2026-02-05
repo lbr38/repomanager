@@ -16,7 +16,7 @@ if (empty($item['repos'])) {
 /**
  *  Check that action is valid
  */
-if (!in_array($item['action'], ['update', 'env', 'duplicate', 'delete', 'rebuild'])) {
+if (!in_array($item['action'], ['update', 'env', 'duplicate', 'delete', 'rebuild', 'rename'])) {
     throw new Exception('Invalid action: ' . $item['action']);
 }
 
@@ -41,6 +41,9 @@ if ($item['action'] == 'delete') {
 }
 if ($item['action'] == 'rebuild') {
     $slidePanelTitle = 'REBUILD REPOSITORY';
+}
+if ($item['action'] == 'rename') {
+    $slidePanelTitle = 'RENAME REPOSITORY';
 }
 
 /**

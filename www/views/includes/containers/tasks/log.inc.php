@@ -9,14 +9,6 @@
         <div id="scroll-btns-container">
             <div id="scroll-btns">
                 <?php
-                // TODO : Remove this button in one year, was used to display the old log content
-                if ($legacyLog) : ?>
-                    <div id="display-log-btn" display="true" class="round-btn-green pointer margin-bottom-15" title="Show details">
-                        <img src="/assets/icons/view-off.svg" />
-                    </div>
-                    <?php
-                endif;
-
                 // Print the auto scroll button only if the task is running
                 if ($taskInfo['Status'] == 'running') : ?>
                     <div class="pointer margin-bottom-15">

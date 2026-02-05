@@ -21,7 +21,7 @@ class Event extends \Models\Model
         $data = [];
 
         try {
-            $stmt = $this->dedicatedDb->prepare("SELECT * FROM events WHERE Id = :id");
+            $stmt = $this->db->prepare("SELECT * FROM events WHERE Id = :id");
             $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
             $result = $stmt->execute();
         } catch (Exception $e) {
@@ -50,7 +50,7 @@ class Event extends \Models\Model
                 $query .= " LIMIT 10 OFFSET :offset";
             }
 
-            $stmt = $this->dedicatedDb->prepare($query);
+            $stmt = $this->db->prepare($query);
             $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
             $result = $stmt->execute();
         } catch (Exception $e) {
@@ -85,7 +85,7 @@ class Event extends \Models\Model
             /**
              *  Prepare query
              */
-            $stmt = $this->dedicatedDb->prepare($query);
+            $stmt = $this->db->prepare($query);
             $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
 
             $result = $stmt->execute();
@@ -110,7 +110,7 @@ class Event extends \Models\Model
     public function add(string $dateStart, string $dateEnd, string $timeStart, string $timeEnd, string $command) : void
     {
         try {
-            $stmt = $this->dedicatedDb->prepare("INSERT INTO events ('Date', 'Date_end', 'Time', 'Time_end', 'Command', 'Status') VALUES (:date_start, :date_end, :time_start, :time_end, :command, 'done')");
+            $stmt = $this->db->prepare("INSERT INTO events ('Date', 'Date_end', 'Time', 'Time_end', 'Command', 'Status') VALUES (:date_start, :date_end, :time_start, :time_end, :command, 'done')");
             $stmt->bindValue(':date_start', $dateStart);
             $stmt->bindValue(':date_end', $dateEnd);
             $stmt->bindValue(':time_start', $timeStart);
@@ -128,14 +128,14 @@ class Event extends \Models\Model
     public function exists(int $id) : bool
     {
         try {
-            $stmt = $this->dedicatedDb->prepare("SELECT Id FROM events WHERE Id = :id");
+            $stmt = $this->db->prepare("SELECT Id FROM events WHERE Id = :id");
             $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
             $result = $stmt->execute();
         } catch (Exception $e) {
             DbLog::error($e);
         }
 
-        if ($this->dedicatedDb->isempty($result) === true) {
+        if ($this->db->isempty($result) === true) {
             return false;
         }
 
@@ -148,7 +148,7 @@ class Event extends \Models\Model
     public function existsByDateTime(string $dateStart, string $timeStart) : bool
     {
         try {
-            $stmt = $this->dedicatedDb->prepare("SELECT Id FROM events WHERE Date = :date_start and Time = :time_start");
+            $stmt = $this->db->prepare("SELECT Id FROM events WHERE Date = :date_start and Time = :time_start");
             $stmt->bindValue(':date_start', $dateStart);
             $stmt->bindValue(':time_start', $timeStart);
             $result = $stmt->execute();
@@ -156,7 +156,7 @@ class Event extends \Models\Model
             DbLog::error($e);
         }
 
-        if ($this->dedicatedDb->isempty($result) === true) {
+        if ($this->db->isempty($result) === true) {
             return false;
         }
 
@@ -168,6 +168,6 @@ class Event extends \Models\Model
      */
     public function getHostLastInsertRowID()
     {
-        return $this->dedicatedDb->lastInsertRowID();
+        return $this->db->lastInsertRowID();
     }
 }

@@ -32,10 +32,11 @@ class Database extends \Controllers\Service\Service
         parent::log('Enabling maintenance page');
         Maintenance::set('on');
 
+        // Perform maintenance on main databases
         foreach ($databases as $database) {
             try {
                 parent::log('Starting maintenance on database ' . $database);
-                $databaseMaintenanceController = new \Controllers\Database\Maintenance($database);
+                $databaseMaintenanceController = new \Controllers\Database\Maintenance($database, null);
 
                 parent::log('Performing VACUUM on database ' . $database);
                 $databaseMaintenanceController->vacuum();
@@ -54,28 +55,41 @@ class Database extends \Controllers\Service\Service
             }
         }
 
-        // TODO
-        // foreach ($hosts as $host) {
-        //     try {
-        //         // Get host Id
-        //         $hostId = $host['Id'];
+        // Perform maintenance on hosts databases
+        foreach ($hosts as $host) {
+            try {
+                // Get host Id
+                $hostId = $host['Id'];
 
-        //         // Get hostname
-        //         $hostname = $host['Hostname'];
+                // Get hostname
+                $hostname = $host['Hostname'];
 
-        //         parent::log('Starting maintenance on host #' . $hostId . ' (' . $hostname . ') database');
+                parent::log('Starting maintenance on host #' . $hostId . ' (' . $hostname . ') database');
 
-        //         // Check if host has a dedicated database
-        //         if (!file_exists(DATA_DIR . '/hosts/' . $hostId . '/properties.db')) {
-        //             parent::log('Host #' . $hostId . ' does not have a dedicated database, skipping...');
-        //             continue;
-        //         }
+                // Check if host has a dedicated database
+                if (!file_exists(DATA_DIR . '/hosts/' . $hostId . '/properties.db')) {
+                    parent::log('Host #' . $hostId . ' does not have a dedicated database, skipping...');
+                    continue;
+                }
 
-        //         parent::log('Maintenance completed successfully on host #' . $hostId . ' (' . $hostname . ') database');
-        //     } catch (Exception $e) {
-        //         parent::logError('Error during host #' . $hostId . ' (' . $hostname . ') database maintenance: ' . $e->getMessage());
-        //     }
-        // }
+                $databaseMaintenanceController = new \Controllers\Database\Maintenance('host', $hostId);
+
+                parent::log('Performing VACUUM on host #' . $hostId . ' (' . $hostname . ') database');
+                $databaseMaintenanceController->vacuum();
+
+                parent::log('Performing ANALYZE on host #' . $hostId . ' (' . $hostname . ') database');
+                $databaseMaintenanceController->analyze();
+
+                parent::log('Performing integrity check on host #' . $hostId . ' (' . $hostname . ') database');
+                $databaseMaintenanceController->integrityCheck();
+
+                unset($databaseMaintenanceController);
+
+                parent::log('Maintenance completed successfully on host #' . $hostId . ' (' . $hostname . ') database');
+            } catch (Exception $e) {
+                parent::logError('Error during host #' . $hostId . ' (' . $hostname . ') database maintenance: ' . $e->getMessage());
+            }
+        }
 
         // Disable maintenance page
         parent::log('Disabling maintenance page');

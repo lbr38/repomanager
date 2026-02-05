@@ -12,11 +12,7 @@ abstract class Model
      */
     public function getConnection(string $database, int|null $databaseId = null)
     {
-        if (!empty($databaseId)) {
-            $this->dedicatedDb = new Connection($database, $databaseId);
-        } else {
-            $this->db = new Connection($database);
-        }
+        $this->db = new Connection($database, $databaseId);
     }
 
     /**
@@ -29,18 +25,8 @@ abstract class Model
 
     public function closeConnection()
     {
-        $this->db->close();
+        if (!is_null($this->db)) {
+            $this->db->close();
+        }
     }
-
-    // TODO: see if it is useful
-    // public function __destruct()
-    // {
-    //     if (isset($this->db)) {
-    //         $this->db->close();
-    //     }
-
-    //     if (isset($this->dedicatedDb)) {
-    //         $this->dedicatedDb->close();
-    //     }
-    // }
 }

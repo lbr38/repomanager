@@ -27,12 +27,13 @@
                 <p>GitHub</p>
             </a>
         </div>
-    </div> 
+    </div>
 
     <div class="flex flex-direction-column align-item-center row-gap-10 mediumopacity-cst">
         <img src="/assets/official-logo/repomanager-white.svg" class="icon-np" />
         <p>Repomanager - release version <?= VERSION ?></p>
         <p>Repomanager is a free and open source software, licensed under the <a target="_blank" rel="noopener noreferrer" href="https://www.gnu.org/licenses/gpl-3.0.en.html">GPLv3</a> license.</p>
+        <p>Support development, star me on <a href='https://github.com/lbr38/repomanager'><b>GitHub</b> ⭐</a></p>
     </div>
 </footer>
 
@@ -99,6 +100,7 @@ if (!empty(ENVS)) {
 if (__ACTUAL_URI__[1] == '') {
     $jsClasses = [
         'Environment',
+        'Repo'
     ];
 
     $jsFiles = [
@@ -109,6 +111,7 @@ if (__ACTUAL_URI__[1] == '') {
         'events/repo/source/distribution',
         'events/repo/source/releasever',
         'events/repo/source/source',
+        'events/repo/list',
         'events/repo/env',
         'events/repo/edit',
         'events/repo/install',
@@ -130,6 +133,10 @@ if (__ACTUAL_URI__[1] == 'hosts' or __ACTUAL_URI__[1] == 'host') {
     ];
 }
 if (__ACTUAL_URI__[1] == 'browse') {
+    $jsClasses = [
+        'Repo'
+    ];
+
     $jsFiles = [
         'functions/browse',
         'events/browse/repository',

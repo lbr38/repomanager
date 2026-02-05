@@ -98,7 +98,11 @@ class Delete extends \Controllers\Task\Execution
         }
 
         // Clean unused repos in groups
-        $this->repoController->cleanGroups();
+        try {
+            $this->repoController->cleanGroups();
+        } catch (Exception $e) {
+            throw new Exception('Error while cleaning groups: ' . $e->getMessage());
+        }
 
         // Delete any scheduled tasks that were using this snapshot
         $this->scheduledTaskController->deleteBySnapId($this->repoController->getSnapId());

@@ -24,7 +24,7 @@ class Repo
     private $dateFormatted;
     private $time;
     private $env;
-    private $envs;
+    // private $envs;
     private $description;
     private $group;
     private $packagesToInclude = [];
@@ -35,7 +35,7 @@ class Repo
     private $gpgCheck;
     private $gpgSign;
     private $releasever;
-    private $targetArch;
+    // private $targetArch;
 
     public function __construct()
     {
@@ -474,33 +474,25 @@ class Repo
     }
 
     /**
-     *  Retire des groupes les repos qui n'ont plus aucun snapshot actif
+     *  Clean repositories from groups when they have no active snapshot anymore
      */
-    public function cleanGroups()
+    public function cleanGroups(): void
     {
-        /**
-         *  D'abord on récupère tous les les Id de repos
-         */
         $repoIds = $this->model->getAllRepoId();
 
-        /**
-         *  Pour chaque Id on regarde si il y a au moins 1 snapshot actif
-         */
         foreach ($repoIds as $repoId) {
-            $id = $repoId['Id'];
-            $activeSnapshots = $this->model->getSnapByRepoId($id, 'active');
+            // Check if the repo has at least one active snapshot
+            $activeSnapshots = $this->model->getSnapByRepoId($repoId['Id'], 'active');
 
-            /**
-             *  Si le repo n'a plus aucun snapshot actif alors on le retire des groupes
-             */
+            // If the repo has no active snapshot, remove it from groups
             if (empty($activeSnapshots)) {
-                $this->model->removeFromGroup($id);
+                $this->model->removeFromGroup($repoId['Id']);
             }
         }
     }
 
     /**
-     *  Modification de l'état de rebuild des métadonnées du snapshot
+     *  Set snapshot rebuild status in database, to know if the snapshot has to be rebuilt or not
      */
     public function snapSetRebuild(string $snapId, string $status = '') : void
     {
@@ -569,17 +561,17 @@ class Repo
     }
 
     /**
-     *  Update release version in database
+     *  Update name in database
      */
-    public function updateReleasever(int $repoId, string $releasever)
+    public function updateName(int $repoId, string $name): void
     {
-        $this->model->updateReleasever($repoId, $releasever);
+        $this->model->updateName($repoId, $name);
     }
 
     /**
      *  Update dist in database
      */
-    public function updateDist(int $repoId, string $dist)
+    public function updateDist(int $repoId, string $dist): void
     {
         $this->model->updateDist($repoId, $dist);
     }
@@ -587,15 +579,23 @@ class Repo
     /**
      *  Update section in database
      */
-    public function updateSection(int $repoId, string $section)
+    public function updateSection(int $repoId, string $section): void
     {
         $this->model->updateSection($repoId, $section);
     }
 
     /**
+     *  Update release version in database
+     */
+    public function updateReleasever(int $repoId, string $releasever): void
+    {
+        $this->model->updateReleasever($repoId, $releasever);
+    }
+
+    /**
      *  Update source repository in database
      */
-    public function updateSource(int $repoId, string $source)
+    public function updateSource(int $repoId, string $source): void
     {
         $this->model->updateSource($repoId, $source);
     }

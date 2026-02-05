@@ -111,7 +111,7 @@ $(document).on('click',"input[name=checkbox-repo]",function () {
      *  By default: all, unless the user has specific permissions
      *  Those permissions are later verified by the server so even if the user tries to execute an action he is not allowed to, it will not work
      */
-    var allowedActions = ['update', 'duplicate', 'env', 'rebuild', 'edit', 'install', 'delete'];
+    var allowedActions = ['update', 'duplicate', 'env', 'rebuild', 'rename', 'edit', 'install', 'delete'];
 
     /**
      *  Retrieve checkbox's group id
@@ -194,6 +194,18 @@ $(document).on('click',"input[name=checkbox-repo]",function () {
                 'color': 'blue-alt',
                 'callback': function () {
                     executeAction('rebuild');
+                }
+            }
+        );
+    }
+
+    if (allowedActions.includes('rename')) {
+        buttons.push(
+            {
+                'text': 'Rename',
+                'color': 'blue-alt',
+                'callback': function () {
+                    executeAction('rename');
                 }
             }
         );

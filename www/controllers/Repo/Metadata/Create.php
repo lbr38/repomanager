@@ -31,7 +31,7 @@ trait Create
         }
 
         // If action is 'rebuild' or 'duplicate', set working dir to the existing snapshot path
-        if (in_array($this->action, ['rebuild', 'duplicate'])) {
+        if (in_array($this->action, ['rebuild', 'rename', 'duplicate'])) {
             $workingDir = $snapshotPath;
         }
 
