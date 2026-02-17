@@ -311,21 +311,33 @@ class Task
                     unset($params['schedule']['schedule-monthly-day-position']);
                     unset($params['schedule']['schedule-monthly-day']);
                     unset($params['schedule']['schedule-day']);
+                    unset($params['schedule']['schedule-time']);
+                    unset($params['schedule']['schedule-cron']);
                 }
 
                 if ($params['schedule']['schedule-frequency'] == 'daily') {
                     unset($params['schedule']['schedule-monthly-day-position']);
                     unset($params['schedule']['schedule-monthly-day']);
                     unset($params['schedule']['schedule-day']);
+                    unset($params['schedule']['schedule-cron']);
                 }
 
                 if ($params['schedule']['schedule-frequency'] == 'weekly') {
                     unset($params['schedule']['schedule-monthly-day-position']);
                     unset($params['schedule']['schedule-monthly-day']);
+                    unset($params['schedule']['schedule-cron']);
                 }
 
                 if ($params['schedule']['schedule-frequency'] == 'monthly') {
                     unset($params['schedule']['schedule-day']);
+                    unset($params['schedule']['schedule-cron']);
+                }
+
+                if ($params['schedule']['schedule-frequency'] == 'cron') {
+                    unset($params['schedule']['schedule-monthly-day-position']);
+                    unset($params['schedule']['schedule-monthly-day']);
+                    unset($params['schedule']['schedule-day']);
+                    unset($params['schedule']['schedule-time']);
                 }
             }
         }
@@ -892,11 +904,38 @@ class Task
                 $schedule['date'] = $taskDate->format('Y-m-d');
                 $schedule['time'] = $taskTime->format('H:i');
             }
+
+            /**
+             *  Cron
+             */
+            if ($taskRawParams['schedule']['schedule-frequency'] == 'cron') {
+                try {
+                    $nextOccurrence = \Controllers\Utils\Cron::nextOccurrence(
+                        $taskRawParams['schedule']['schedule-cron'] ?? '',
+                        new DateTime(date('Y-m-d H:i'))
+                    );
+
+                    if (!empty($nextOccurrence)) {
+                        $taskDate = new DateTime($nextOccurrence->format('Y-m-d'));
+                        $taskTime = new DateTime($nextOccurrence->format('H:i'));
+
+                        $schedule['date'] = $taskDate->format('Y-m-d');
+                        $schedule['time'] = $taskTime->format('H:i');
+                    }
+                } catch (Exception $e) {
+                    $schedule['date'] = '';
+                    $schedule['time'] = '';
+                }
+            }
         }
 
         /**
          *  Calculate number of days left
          */
+        if (!isset($taskDate) || !isset($taskTime)) {
+            return $schedule;
+        }
+
         $schedule['left']['days'] = $taskDate->diff($dateNow)->days;
 
         /**

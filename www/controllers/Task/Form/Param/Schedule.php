@@ -58,6 +58,14 @@ class Schedule
             self::checkFrequency($scheduleParams['schedule-frequency']);
 
             /**
+             *  If schedule frequency is 'cron'
+             *  Check that cron expression is set and valid
+             */
+            if ($scheduleParams['schedule-frequency'] == 'cron') {
+                self::checkCron($scheduleParams['schedule-cron'] ?? '');
+            }
+
+            /**
              *  If schedule frequency is 'daily'
              *  Check that schedule time is set and valid
              */
@@ -176,8 +184,17 @@ class Schedule
             throw new Exception('Schedule frequency must be specified');
         }
 
-        if (!in_array($frequency, ['hourly', 'daily', 'weekly', 'monthly'])) {
+        if (!in_array($frequency, ['hourly', 'daily', 'weekly', 'monthly', 'cron'])) {
             throw new Exception('Invalid schedule frequency ' . $frequency);
+        }
+    }
+
+    private static function checkCron(string $expression) : void
+    {
+        try {
+            \Controllers\Utils\Cron::validate($expression);
+        } catch (Exception $e) {
+            throw new Exception('Invalid cron expression: ' . $e->getMessage());
         }
     }
 
