@@ -42,73 +42,73 @@ class Repo
         $this->model = new \Models\Repo\Repo();
     }
 
-    public function setRepoId(string $id)
+    public function setRepoId(int $id): void
     {
-        $this->repoId = Validate::string($id);
+        $this->repoId = $id;
     }
 
-    public function setSnapId(int $id)
+    public function setSnapId(int $id): void
     {
         $this->snapId = $id;
     }
 
-    public function setEnvId(int $id)
+    public function setEnvId(int $id): void
     {
         $this->envId = $id;
     }
 
-    public function setName(string $name)
+    public function setName(string $name): void
     {
         $this->name = $name;
     }
 
-    public function setDist(string $dist)
+    public function setDist(string $dist): void
     {
         $this->dist = $dist;
     }
 
-    public function setSection(string $section)
+    public function setSection(string $section): void
     {
         $this->section = $section;
     }
 
-    public function setEnv(string|array $env)
+    public function setEnv(string|array $env): void
     {
         $this->env = $env;
     }
 
-    public function setDate(string $date)
+    public function setDate(string $date): void
     {
         $this->date = $date;
         $this->dateFormatted = DateTime::createFromFormat('Y-m-d', $date)->format('d-m-Y');
     }
 
-    public function setTime(string $time)
+    public function setTime(string $time): void
     {
         $this->time = $time;
     }
 
-    public function setType(string $type)
+    public function setType(string $type): void
     {
         $this->type = $type;
     }
 
-    public function setSigned(string $signed)
+    public function setSigned(string $signed): void
     {
         $this->signed = $signed;
     }
 
-    public function setRebuild(string $rebuild)
+    public function setRebuild(string $rebuild): void
     {
         $this->rebuild = $rebuild;
     }
 
-    public function setStatus(string $status)
+    public function setStatus(string $status): void
     {
         $this->status = $status;
     }
 
-    public function setDescription($description = '')
+    public function setDescription($description = ''): void
     {
         if ($description == 'nodescription') {
             $description = '';
@@ -117,17 +117,17 @@ class Repo
         $this->description = Validate::string($description);
     }
 
-    public function setSource(string $source)
+    public function setSource(string $source): void
     {
         $this->source = $source;
     }
 
-    public function setPackageType(string $type)
+    public function setPackageType(string $type): void
     {
         $this->packageType = $type;
     }
 
-    public function setGroup(string $group)
+    public function setGroup(string $group): void
     {
         if ($group == 'nogroup') {
             $this->group = '';
@@ -136,37 +136,37 @@ class Repo
         }
     }
 
-    public function setGpgCheck(string $gpgCheck)
+    public function setGpgCheck(string $gpgCheck): void
     {
         $this->gpgCheck = $gpgCheck;
     }
 
-    public function setGpgSign(string $gpgSign)
+    public function setGpgSign(string $gpgSign): void
     {
         $this->gpgSign = $gpgSign;
     }
 
-    public function setArch(array $arch)
+    public function setArch(array $arch): void
     {
         $this->arch = $arch;
     }
 
-    public function setPackagesToInclude(array $packages)
+    public function setPackagesToInclude(array $packages): void
     {
         $this->packagesToInclude = $packages;
     }
 
-    public function setPackagesToExclude(array $packages)
+    public function setPackagesToExclude(array $packages): void
     {
         $this->packagesToExclude = $packages;
     }
 
-    public function setReleasever(string $releasever)
+    public function setReleasever(string $releasever): void
     {
         $this->releasever = $releasever;
     }
 
-    public function setTaskId(string $taskId)
+    public function setTaskId(string $taskId): void
     {
         $this->taskId = $taskId;
     }
@@ -297,9 +297,17 @@ class Repo
     }
 
     /**
+     *  Return all snapshots of a repository
+     */
+    public function getSnapshots(int $repoId, string $status = 'active'): array
+    {
+        return $this->model->getSnapshots($repoId, $status);
+    }
+
+    /**
      *  Retrieve all informations from a repo, snapshot and env in database
      */
-    public function getAllById(string|null $repoId = null, string|null $snapId = null, string|null $envId = null) : void
+    public function getAllById(string|int|null $repoId = null, string|int|null $snapId = null, string|int|null $envId = null) : void
     {
         $data = $this->model->getAllById($repoId, $snapId, $envId);
 
@@ -314,14 +322,14 @@ class Repo
         }
         if (!empty($data['Dist'])) {
             $this->setDist($data['Dist']);
-        } else {
+        } /*else {
             $this->setDist('');
-        }
+        }*/
         if (!empty($data['Section'])) {
             $this->setSection($data['Section']);
-        } else {
+        } /*else {
             $this->setSection('');
-        }
+        }*/
         if (!empty($data['Package_type'])) {
             $this->setPackageType($data['Package_type']);
         }
@@ -482,7 +490,7 @@ class Repo
 
         foreach ($repoIds as $repoId) {
             // Check if the repo has at least one active snapshot
-            $activeSnapshots = $this->model->getSnapByRepoId($repoId['Id'], 'active');
+            $activeSnapshots = $this->getSnapshots($repoId['Id']);
 
             // If the repo has no active snapshot, remove it from groups
             if (empty($activeSnapshots)) {

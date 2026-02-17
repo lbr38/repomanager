@@ -334,10 +334,10 @@
                         if (!empty($taskRawParams['arch'])) : ?>
                             <div>
                                 <h6>ARCHITECTURE</h6>
-                                <div class="flex row-gap-5 column-gap-5">
+                                <div class="flex align-item-center row-gap-5 column-gap-5">
                                     <?php
                                     foreach ($taskRawParams['arch'] as $architecture) {
-                                        echo '<span class="label-black">' . $architecture . '</span>';
+                                        echo '<div><span class="label-black">' . $architecture . '</span></div>';
                                     } ?>
                                 </div>
                             </div>
@@ -347,10 +347,10 @@
                         if (!empty($taskRawParams['env'])) : ?>
                             <div>
                                 <h6>ENVIRONMENT</h6>
-                                <div class="flex row-gap-5 column-gap-5">
+                                <div class="flex align-item-center row-gap-5 column-gap-5">
                                     <?php
                                     foreach ($taskRawParams['env'] as $env) {
-                                        echo \Controllers\Utils\Generate\Html\Label::envtag($env);
+                                        echo '<div>' . \Controllers\Utils\Generate\Html\Label::envtag($env) . '</div>';
                                     } ?>
                                 </div>
                             </div>

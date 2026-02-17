@@ -49,6 +49,14 @@ class Layout {
     }
 
     /**
+     *  Print a veil on the whole page
+     */
+    veilBody()
+    {
+        $('body').append('<div class="body-veil"><img src="/assets/official-logo/logo.svg" /><img class="mediumopacity-cst" src="/assets/icons/loading.svg" /></div>');
+    }
+
+    /**
      *  Reload opened or closed elements that where opened/closed before reloading
      */
     reloadOpenedClosedElements()

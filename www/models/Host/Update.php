@@ -118,6 +118,21 @@ class Update extends \Models\Model
     }
 
     /**
+     *  Update network in database
+     */
+    public function updateNetwork(int $id, string $network) : void
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE hosts SET Network = :network WHERE Id = :id");
+            $stmt->bindValue(':network', $network);
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+    }
+
+    /**
      *  Update kernel version in database
      */
     public function updateKernel(int $id, string $kernel) : void

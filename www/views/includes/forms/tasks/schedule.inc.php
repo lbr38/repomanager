@@ -91,8 +91,8 @@
 
             <div class="task-schedule-recurring-cron-input hide">
                 <h6 class="required">CRON EXPRESSION</h6>
+                <p class="note">Format: minute hour day month weekday.</p>
                 <input type="text" class="task-param" param-name="schedule-cron" placeholder="*/15 * * * *" />
-                <p class="note">Format: minute hour day month weekday</p>
             </div>
             <?php
         endif;

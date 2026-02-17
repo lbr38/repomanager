@@ -133,14 +133,6 @@ class Connection extends SQLite3
     }
 
     /**
-     *  Disable WAL mode
-     */
-    private function disableWAL(): void
-    {
-        $this->exec('pragma journal_mode = DELETE;');
-    }
-
-    /**
      *
      *  Functions to check if all tables are present
      *
@@ -572,6 +564,7 @@ class Connection extends SQLite3
         REPO_CONF_FILES_PREFIX VARCHAR(255),
         /* Mirroring */
         MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT INTEGER,
+        MIRRORING_PACKAGE_DOWNLOAD_RETRIES INTEGER,
         MIRRORING_PACKAGE_CHECKSUM_FAILURE VARCHAR(20), /* error, ignore, keep */
         /* RPM */
         RPM_REPO CHAR(5),
@@ -677,6 +670,7 @@ class Connection extends SQLite3
                 TASK_QUEUING_MAX_SIMULTANEOUS,
                 TASK_CLEAN_OLDER_THAN,
                 MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT,
+                MIRRORING_PACKAGE_DOWNLOAD_RETRIES,
                 MIRRORING_PACKAGE_CHECKSUM_FAILURE,
                 RPM_REPO,
                 RPM_SIGN_PACKAGES,
@@ -730,6 +724,7 @@ class Connection extends SQLite3
                 '3',
                 '730',
                 '300',
+                '3',
                 'error',
                 'true',
                 'true',
@@ -745,10 +740,10 @@ class Connection extends SQLite3
                 'false',
                 'error',
                 '$gpgKeyId',
-                'false',
+                'true',
                 '3',
-                'false',
-                'false',
+                'true',
+                'true',
                 'false',
                 '00:00',
                 'false',
@@ -863,21 +858,20 @@ class Connection extends SQLite3
         /**
          *  stats table
          */
-        $this->exec("CREATE TABLE IF NOT EXISTS stats (
+        $this->exec("CREATE TABLE IF NOT EXISTS repo_stats (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        Date DATE NOT NULL,
-        Time TIME NOT NULL,
-        Size INTEGER NOT NULL,
-        Packages_count INTEGER NOT NULL,
-        Id_env INTEGER NOT NULL)");
+        Timestamp INTEGER NOT NULL,
+        Snapshot_date DATE NOT NULL,
+        Snapshot_size INTEGER NOT NULL,
+        Snapshot_packages_count INTEGER NOT NULL,
+        Id_repo INTEGER NOT NULL)");
 
         /**
          *  access_deb table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS access_deb (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        Date DATE NOT NULL,
-        Time TIME NOT NULL,
+        Timestamp INTEGER NOT NULL,
         Name VARCHAR(255) NOT NULL,
         Dist VARCHAR(255) NOT NULL,
         Section VARCHAR(255) NOT NULL,
@@ -892,8 +886,7 @@ class Connection extends SQLite3
          */
         $this->exec("CREATE TABLE IF NOT EXISTS access_rpm (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        Date DATE NOT NULL,
-        Time TIME NOT NULL,
+        Timestamp INTEGER NOT NULL,
         Name VARCHAR(255) NOT NULL,
         Releasever VARCHAR(255) NOT NULL,
         Env VARCHAR(255) NOT NULL,
@@ -912,14 +905,18 @@ class Connection extends SQLite3
         /**
          *  Create indexes
          */
-        // Indexes for access_deb:
-        $this->exec("CREATE INDEX IF NOT EXISTS access_deb_index ON access_deb (Date, Time, Name, Dist, Section, Env, Source, IP, Request, Request_result)");
-        $this->exec("CREATE INDEX IF NOT EXISTS access_deb_name_env_index ON access_deb (Name, Dist, Section, Env)"); // To optimize SELECT COUNT(*)
-        // Indexes for access_rpm:
-        $this->exec("CREATE INDEX IF NOT EXISTS access_rpm_index ON access_rpm (Date, Time, Name, Releasever, Env, Source, IP, Request, Request_result)");
-        $this->exec("CREATE INDEX IF NOT EXISTS access_rpm_name_env_index ON access_rpm (Name, Releasever, Env)"); // To optimize SELECT COUNT(*)
-        // Index for stats:
-        $this->exec("CREATE INDEX IF NOT EXISTS stats_index ON stats (Date, Time, Size, Packages_count, Id_env)");
+        // TODO: uncomment after 5.8.0
+        // $this->exec("CREATE INDEX IF NOT EXISTS idx_access_deb ON access_deb (Name, Dist, Section, Env, Source, IP, Request, Request_result, Timestamp)");
+        // $this->exec("CREATE INDEX IF NOT EXISTS idx_access_rpm ON access_rpm (Name, Releasever, Env, Source, IP, Request, Request_result, Timestamp)");
+        // $this->exec("CREATE INDEX IF NOT EXISTS idx_repo_stats ON repo_stats (Snapshot_date, Snapshot_size, Snapshot_packages_count, Id_repo, Timestamp)");
+        // $this->exec("CREATE INDEX IF NOT EXISTS idx_repo_stats_id_repo ON repo_stats (Id_repo)");
+        // $this->exec("CREATE INDEX IF NOT EXISTS idx_repo_stats_timestamp ON repo_stats (Timestamp)");
+        // $this->exec("CREATE INDEX IF NOT EXISTS idx_access_rpm_timestamp ON access_rpm (Timestamp)");
+        // $this->exec("CREATE INDEX IF NOT EXISTS idx_access_deb_timestamp ON access_deb (Timestamp)");
+        // $this->exec("CREATE INDEX IF NOT EXISTS idx_access_rpm_name_releasever_timestamp ON access_rpm (Name, Releasever, Timestamp)");
+        // $this->exec("CREATE INDEX IF NOT EXISTS idx_access_deb_name_dist_section_timestamp ON access_deb (Name, Dist, Section, Timestamp)");
+        // $this->exec("CREATE INDEX IF NOT EXISTS idx_access_rpm_name_releasever_env_timestamp ON access_rpm (Name, Releasever, Env, Timestamp)");
+        // $this->exec("CREATE INDEX IF NOT EXISTS idx_access_deb_name_dist_section_env_timestamp ON access_deb (Name, Dist, Section, Env, Timestamp)");
     }
 
     /**
@@ -955,6 +952,7 @@ class Connection extends SQLite3
         Os_family VARCHAR(255),
         Cpu VARCHAR(255),
         Ram VARCHAR(255),
+        Network VARCHAR(255),
         Kernel VARCHAR(255),
         Arch CHAR(10),
         Type VARCHAR(255),

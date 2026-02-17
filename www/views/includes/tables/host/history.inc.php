@@ -1,4 +1,4 @@
-<div class="reloadable-table" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
+<div class="reloadable-table margin-top-15" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
     <?php
     if (!empty($reloadableTableContent)) :
         foreach ($reloadableTableContent as $date => $packageState) : ?>

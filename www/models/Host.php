@@ -507,7 +507,21 @@ class Host extends Model
             /**
              *  Reset host general informations
              */
-            $stmt = $this->db->prepare("UPDATE hosts SET Os = null, Os_version = null, Profile = null, Env = null, Kernel = null, Arch = null WHERE id = :id");
+            $stmt = $this->db->prepare("UPDATE hosts SET
+            Os = null,
+            Os_version = null,
+            Os_family = null,
+            Cpu = null,
+            Ram = null,
+            Network = null,
+            Kernel = null,
+            Arch = null,
+            Type = null,
+            Profile = null,
+            Env = null
+
+            WHERE id = :id");
+
             $stmt->bindValue(':id', $hostId);
             $stmt->execute();
 

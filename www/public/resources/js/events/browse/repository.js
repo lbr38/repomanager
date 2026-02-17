@@ -4,6 +4,8 @@
 $(document).on('click','.view-file',function () {
     const name = $(this).attr('name');
     const path = $(this).attr('path');
+
+    mymodal.loading();
     
     ajaxRequest(
         // Controller:
@@ -27,7 +29,10 @@ $(document).on('click','.view-file',function () {
 /**
  *  Event: when we click on a checkbox, we show the 'Delete' and 'Download' buttons
  */
-$(document).on('click',".package-checkbox",function () {
+$(document).on('click',".package-checkbox",function (e) {
+    // Prevent parent to be triggered
+    e.stopPropagation();
+
     var snapId = $('#packages-list').attr('snap-id');
 
     /**

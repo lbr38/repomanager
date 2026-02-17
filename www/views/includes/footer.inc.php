@@ -56,6 +56,7 @@
 <script src="/resources/js/classes/Modal.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/Tooltip.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/Select2.js?<?= VERSION ?>"></script>
+<script src="/resources/js/classes/DateRangePicker.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/SessionStorage.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/EChart.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/System.js?<?= VERSION ?>"></script>
@@ -72,6 +73,7 @@
     const mymodal = new Modal();
     const mytooltip = new Tooltip();
     const myselect2 = new Select2();
+    const mydaterangepicker = new DateRangePicker();
     const mysessionstorage = new SessionStorage();
     const mysystem = new System();
 </script>
@@ -145,8 +147,7 @@ if (__ACTUAL_URI__[1] == 'browse') {
 }
 if (__ACTUAL_URI__[1] == 'stats') {
     $jsFiles = [
-        'stats',
-        'events/stats/chart',
+        'events/stats/input',
         'events/task/stop'
     ];
 }

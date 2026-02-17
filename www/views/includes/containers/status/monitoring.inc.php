@@ -8,8 +8,8 @@
         <div>
             <h6 class="margin-0">SELECT PERIOD</h6>
             <select id="monitoring-days-select" class="select-medium">
-                <option value="1">1 day</option>
-                <option value="3" selected>3 days</option>
+                <option value="1" selected>1 day</option>
+                <option value="3">3 days</option>
                 <option value="7">7 days</option>
                 <option value="15">15 days</option>
                 <option value="30">30 days</option>
@@ -23,7 +23,7 @@
                 <img src="/assets/icons/loading.svg" class="icon-np" />
             </div>
 
-            <div id="system-cpu-usage-chart" class="echart"></div>
+            <div id="system-cpu-usage-chart" class="echart" type="line" generate></div>
         </div>
 
         <div class="echart-container div-generic-blue">
@@ -31,7 +31,7 @@
                 <img src="/assets/icons/loading.svg" class="icon-np" />
             </div>
 
-            <div id="system-memory-usage-chart" class="echart"></div>
+            <div id="system-memory-usage-chart" class="echart" type="line" generate></div>
         </div>
 
         <div class="echart-container div-generic-blue">
@@ -39,15 +39,7 @@
                 <img src="/assets/icons/loading.svg" class="icon-np" />
             </div>
 
-            <div id="system-disk-usage-chart" class="echart"></div>
+            <div id="system-disk-usage-chart" class="echart" type="line" generate></div>
         </div>
     </div>
-
-    <script>
-        $(document).ready(function() {
-            new EChart('line', 'system-cpu-usage-chart');
-            new EChart('line', 'system-memory-usage-chart');
-            new EChart('line', 'system-disk-usage-chart');
-        });
-    </script>
 </section>

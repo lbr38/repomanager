@@ -1,5 +1,5 @@
 <section class="section-left reloadable-container" container="browse/list">
-    <h3>BROWSE</h3>
+    <h3>SNAPSHOT</h3>
 
     <?php
     if ($myrepo->getPackageType() == 'rpm') {

@@ -15,6 +15,14 @@ class Environment
     }
 
     /**
+     *  Return all environments name
+     */
+    public function getAllByName(): array
+    {
+        return $this->model->getAllByName();
+    }
+
+    /**
      *  Get environment color
      */
     public static function getEnvColor(string $name)

@@ -13,6 +13,29 @@ class Repo extends \Models\Model
     }
 
     /**
+     *  Return all snapshots of a repository
+     */
+    public function getSnapshots(int $repoId, string $status): array
+    {
+        $data = [];
+
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM repos_snap WHERE Id_repo = :repoId AND Status = :status");
+            $stmt->bindValue(':repoId', $repoId);
+            $stmt->bindValue(':status', $status);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return $data;
+    }
+
+    /**
      *  Retrieve all informations from a repo, snapshot and env in database
      */
     public function getAllById(string|null $repoId, string|null $snapId, string|null $envId) : array
@@ -85,7 +108,14 @@ class Repo extends \Models\Model
                 $stmt->bindValue(':repoId', $repoId);
                 $stmt->bindValue(':snapId', $snapId);
             } elseif (!empty($repoId)) {
-                $stmt = $this->db->prepare("SELECT *
+                $stmt = $this->db->prepare("SELECT
+                repos.Id AS repoId,
+                repos.Name,
+                repos.Releasever,
+                repos.Dist,
+                repos.Section,
+                repos.Source,
+                repos.Package_type
                 FROM repos
                 WHERE repos.Id = :repoId");
                 $stmt->bindValue(':repoId', $repoId);
@@ -155,7 +185,7 @@ class Repo extends \Models\Model
 
         // Throw an exception if no data found
         if ($this->db->isempty($result) === true) {
-            throw new Exception("Error: cannot find repo with specified Id");
+            throw new Exception('cannot find repository with specified Id');
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -224,36 +254,6 @@ class Repo extends \Models\Model
         }
 
         return $id;
-    }
-
-    /**
-     *  Retourne les snapshots d'un repos
-     */
-    public function getSnapByRepoId(string $repoId, string $status = '') : array
-    {
-        $snapshots = [];
-
-        try {
-            /**
-             *  Si un status a été spécifié
-             */
-            if (!empty($status)) {
-                $stmt = $this->db->prepare("SELECT * FROM repos_snap WHERE Id_repo = :repoId AND Status = :status");
-                $stmt->bindValue(':status', $status);
-            } else {
-                $stmt = $this->db->prepare("SELECT * FROM repos_snap WHERE Id_repo = :repoId");
-            }
-            $stmt->bindValue(':repoId', $repoId);
-            $result = $stmt->execute();
-        } catch (Exception $e) {
-            DbLog::error($e);
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $snapshots[] = $row;
-        }
-
-        return $snapshots;
     }
 
     /**

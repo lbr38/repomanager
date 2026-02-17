@@ -2,6 +2,7 @@
 
 namespace Controllers\Task;
 
+use \Controllers\Utils\Cron;
 use Exception;
 use JsonException;
 use Datetime;
@@ -683,6 +684,23 @@ class Task
     }
 
     /**
+     *  Return the HTML form to edit a task
+     *  TODO
+     */
+    // public function getEditForm(array $tasks)
+    // {
+    //     if (!IS_ADMIN and !in_array('edit', USER_PERMISSIONS['tasks']['allowed-actions'])) {
+    //         throw new Exception('You are not allowed to edit a task.');
+    //     }
+
+    //     $content = '';
+
+
+
+    //     return $content;
+    // }
+
+    /**
      *  Enable a recurrent task
      */
     public function enable(int $id) : void
@@ -910,7 +928,7 @@ class Task
              */
             if ($taskRawParams['schedule']['schedule-frequency'] == 'cron') {
                 try {
-                    $nextOccurrence = \Controllers\Utils\Cron::nextOccurrence(
+                    $nextOccurrence = Cron::nextOccurrence(
                         $taskRawParams['schedule']['schedule-cron'] ?? '',
                         new DateTime(date('Y-m-d H:i'))
                     );

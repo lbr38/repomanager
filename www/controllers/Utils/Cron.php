@@ -7,15 +7,20 @@ use Exception;
 
 class Cron
 {
-    public static function validate(string $expression) : void
+    /**
+     *  Validate a cron expression. Throws an exception if the expression is invalid.
+     */
+    public static function validate(string $expression): void
     {
         self::parse($expression);
     }
 
-    public static function matches(string $expression, DateTime $dateTime) : bool
+    /**
+     *  Return true if the given DateTime matches the cron expression, false otherwise.
+     */
+    public static function matches(string $expression, DateTime $dateTime): bool
     {
         $parsed = self::parse($expression);
-
         $minute = (int)$dateTime->format('i');
         $hour = (int)$dateTime->format('H');
         $dayOfMonth = (int)$dateTime->format('j');
@@ -44,7 +49,11 @@ class Cron
         return $domMatch && $dowMatch;
     }
 
-    public static function nextOccurrence(string $expression, DateTime $from, int $maxMinutes = 527040) : DateTime|null
+    /**
+     *  Return the next occurrence of the cron expression after the given DateTime.
+     *  Return null if no occurrence is found within the next $maxMinutes minutes (default: 1 year).
+     */
+    public static function nextOccurrence(string $expression, DateTime $from, int $maxMinutes = 527040): DateTime|null
     {
         $cursor = clone $from;
         $cursor->setTime((int)$cursor->format('H'), (int)$cursor->format('i'), 0);
@@ -64,7 +73,10 @@ class Cron
         return null;
     }
 
-    private static function parse(string $expression) : array
+    /**
+     *  Parse a cron expression and return an array with the allowed values for each field and whether the field is a star (*).
+     */
+    private static function parse(string $expression): array
     {
         $expression = trim($expression);
 
@@ -95,6 +107,9 @@ class Cron
         ];
     }
 
+    /**
+     *  Parse a single field of a cron expression and return an array of allowed values and whether the field is a star (*).
+     */
     private static function parseField(string $field, int $min, int $max, bool $dayOfWeek = false) : array
     {
         $field = trim($field);

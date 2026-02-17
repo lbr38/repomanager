@@ -3,6 +3,7 @@
 namespace Controllers\Host;
 
 use Exception;
+use JsonException;
 use \Controllers\Utils\Validate;
 
 class Update
@@ -68,6 +69,31 @@ class Update
     public function updateRam(int $id, string $ram) : void
     {
         $this->model->updateRam($id, Validate::string($ram));
+    }
+
+    /**
+     *  Update network in database
+     *  TODO: convert stdClass object to array in Api/Host/Host.php and remove object support from this method
+     */
+    public function updateNetwork(int $id, array|object $network) : void
+    {
+        $data = [];
+
+        // Validate network data
+        foreach ($network as $int => $intData) {
+            $data[$int]['ipv4'] = Validate::string($intData->ipv4 ?? '');
+            $data[$int]['ipv6'] = Validate::string($intData->ipv6 ?? '');
+            $data[$int]['mac'] = Validate::string($intData->mac ?? '');
+        }
+
+        // Encode to JSON for database storage
+        try {
+            $data = json_encode($data, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            throw new Exception('could not encode network data to JSON');
+        }
+
+        $this->model->updateNetwork($id, $data);
     }
 
     /**

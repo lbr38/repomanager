@@ -32,6 +32,12 @@ $agentVersion     = $hostProperties['Linupdate_version'];
 $rebootRequired   = $hostProperties['Reboot_required'];
 $uptime           = $hostProperties['Uptime'];
 
+try {
+    $network = json_decode($hostProperties['Network'], true, 512, JSON_THROW_ON_ERROR);
+} catch (JsonException $e) {
+    $network = [];
+}
+
 // Uptime value is in timestamp format, convert it to a more readable format if it's in seconds
 if (is_numeric($uptime)) {
     $boot = new DateTime('@' . $uptime); // @ tells PHP that $uptime is a timestamp value

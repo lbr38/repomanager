@@ -143,6 +143,14 @@ class Settings
             }
         }
 
+        if (!empty($sendSettings['mirror-package-download-retries'])) {
+            if (is_numeric($sendSettings['mirror-package-download-retries']) and $sendSettings['mirror-package-download-retries'] > 0) {
+                $settingsToApply['MIRRORING_PACKAGE_DOWNLOAD_RETRIES'] = $sendSettings['mirror-package-download-retries'];
+            } else {
+                $settingsToApply['MIRRORING_PACKAGE_DOWNLOAD_RETRIES'] = 3;
+            }
+        }
+
         if (!empty($sendSettings['mirrorPackageChecksumFailure'])) {
             if (in_array($sendSettings['mirrorPackageChecksumFailure'], ['error', 'ignore', 'keep'])) {
                 $settingsToApply['MIRRORING_PACKAGE_CHECKSUM_FAILURE'] = $sendSettings['mirrorPackageChecksumFailure'];

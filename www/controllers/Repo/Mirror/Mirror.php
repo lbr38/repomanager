@@ -158,7 +158,7 @@ class Mirror
     /**
      *  Download specified distant file
      */
-    public function download(string $url, string $savePath, int $retries = 0) : bool
+    public function download(string $url, string $savePath, int $retries = 3) : bool
     {
         $currentRetry = 0;
 

@@ -2,6 +2,7 @@
 
 namespace Controllers\Task\Form\Param;
 
+use \Controllers\Utils\Cron;
 use Exception;
 use DateTime;
 
@@ -62,7 +63,7 @@ class Schedule
              *  Check that cron expression is set and valid
              */
             if ($scheduleParams['schedule-frequency'] == 'cron') {
-                self::checkCron($scheduleParams['schedule-cron'] ?? '');
+                self::checkCron($scheduleParams['schedule-cron']);
             }
 
             /**
@@ -192,7 +193,7 @@ class Schedule
     private static function checkCron(string $expression) : void
     {
         try {
-            \Controllers\Utils\Cron::validate($expression);
+            Cron::validate($expression);
         } catch (Exception $e) {
             throw new Exception('Invalid cron expression: ' . $e->getMessage());
         }

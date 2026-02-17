@@ -728,7 +728,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             /**
              *  Download package if it does not already exist
              */
-            if (!$this->download($url . '/' . $rpmPackageLocation, $absoluteDir . '/' . $rpmPackageName, 3)) {
+            if (!$this->download($url . '/' . $rpmPackageLocation, $absoluteDir . '/' . $rpmPackageName, MIRRORING_PACKAGE_DOWNLOAD_RETRIES)) {
                 throw new Exception('Error while downloading package');
             }
 

@@ -81,8 +81,8 @@ function permissions
     find "$DATA_DIR" -type f -exec chmod 0660 {} \; > /dev/null 2>&1 &
 
     # Permissions on repos directory
-    find "$REPOS_DIR" -type d -exec chmod 0770 {} \; > /dev/null 2>&1 &
-    find "$REPOS_DIR" -type f -exec chmod 0660 {} \; > /dev/null 2>&1 &
+    # find "$REPOS_DIR" -type d -exec chmod 0770 {} \; > /dev/null 2>&1 &
+    # find "$REPOS_DIR" -type f -exec chmod 0660 {} \; > /dev/null 2>&1 &
 }
 
 echo '
