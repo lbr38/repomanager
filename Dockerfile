@@ -22,8 +22,8 @@ ENV BRANCH=${branch}
 ADD https://packages.repomanager.net/repo/gpgkeys/packages.repomanager.net.pub /tmp/packages.repomanager.net.gpg
 RUN apt-get update -y -qq && apt-get install -y -qq gnupg2 ca-certificates && rm -rf /var/lib/apt/lists/* && \
     cat /tmp/packages.repomanager.net.gpg | gpg --dearmor > /etc/apt/trusted.gpg.d/packages.repomanager.net.gpg && rm -f /tmp/packages.repomanager.net.gpg
-#RUN echo "deb https://packages.repomanager.net/repo/deb/repomanager-nginx/bookworm/nginx/prod bookworm nginx" > /etc/apt/sources.list.d/nginx.list && \
-#    echo "deb https://packages.repomanager.net/repo/deb/repomanager-php/bookworm/main/prod bookworm main" > /etc/apt/sources.list.d/php.list
+#RUN echo "deb https://packages.repomanager.net/repo/deb/repomanager-nginx/trixie/main/prod trixie nginx" > /etc/apt/sources.list.d/nginx.list && \
+#    echo "deb https://packages.repomanager.net/repo/deb/repomanager-php/trixie/main/prod trixie main" > /etc/apt/sources.list.d/php.list
 
 # Install dependencies
 RUN export DEBIAN_FRONTEND=noninteractive && \
