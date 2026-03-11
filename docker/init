@@ -3,6 +3,7 @@ set -e
 
 WWW_DIR="/var/www/repomanager"
 DATA_DIR="/var/lib/repomanager"
+PHP_VERSION="8.4"
 
 # Docker environment variables
 #  - FQDN=server.example.com
@@ -58,13 +59,13 @@ if [ ! -z "$MAX_UPLOAD_SIZE" ];then
     # Nginx configuration
     sed -i "s/client_max_body_size.*$/client_max_body_size ${MAX_UPLOAD_SIZE};/g" /etc/nginx/sites-enabled/repomanager.conf
     # PHP configuration
-    sed -i "s/^upload_max_filesize.*$/upload_max_filesize = ${MAX_UPLOAD_SIZE}/g" /etc/php/8.3/fpm/php.ini
-    sed -i "s/^post_max_size.*$/post_max_size = ${MAX_UPLOAD_SIZE}/g" /etc/php/8.3/fpm/php.ini
+    sed -i "s/^upload_max_filesize.*$/upload_max_filesize = ${MAX_UPLOAD_SIZE}/g" /etc/php/${PHP_VERSION}/fpm/php.ini
+    sed -i "s/^post_max_size.*$/post_max_size = ${MAX_UPLOAD_SIZE}/g" /etc/php/${PHP_VERSION}/fpm/php.ini
 fi
 
 # Set PHP memory limit
 if [ ! -z "$PHP_MEMORY_LIMIT" ];then
-    sed -i "s/^memory_limit.*$/memory_limit = ${PHP_MEMORY_LIMIT}/g" /etc/php/8.3/fpm/php.ini
+    sed -i "s/^memory_limit.*$/memory_limit = ${PHP_MEMORY_LIMIT}/g" /etc/php/${PHP_VERSION}/fpm/php.ini
 fi
 
 # Set Nginx listen port
@@ -100,7 +101,7 @@ fi
 
 # Start services
 echo "["$(date +"%a %b %-d %H:%M:%S")"][INF] Starting php-fpm..."
-/usr/sbin/service php8.3-fpm start > /dev/null
+/usr/sbin/service php${PHP_VERSION}-fpm start > /dev/null
 echo "["$(date +"%a %b %-d %H:%M:%S")"][INF] Starting nginx..."
 /usr/sbin/service nginx start > /dev/null
 echo "["$(date +"%a %b %-d %H:%M:%S")"][INF] Starting postfix..."
@@ -131,7 +132,7 @@ terminate() {
     /usr/sbin/service nginx stop > /dev/null
 
     echo "["$(date +"%a %b %-d %H:%M:%S")"][INF] Stopping php-fpm..."
-    /usr/sbin/service php8.3-fpm stop > /dev/null
+    /usr/sbin/service php${PHP_VERSION}-fpm stop > /dev/null
     exit
 }
 
