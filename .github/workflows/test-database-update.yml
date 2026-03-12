@@ -22,8 +22,8 @@ jobs:
 
       # Get all releases
       # Format them to a key-value array
-      # Start from release index which is 4.0.0
-      # Pull images starting from release 4.0.0
+      # Start from release index which is 5.1.0
+      # Pull images starting from release 5.1.0
       # Then pull the next image of the index, etc..
       - name: Test all release updates from lbr38/repomanager
         run: |
@@ -37,7 +37,7 @@ jobs:
           done
 
           for i in "${!RELEASES_ARRAY[@]}"; do
-              if [[ "${RELEASES_ARRAY[$i]}" == "4.0.0" ]]; then
+              if [[ "${RELEASES_ARRAY[$i]}" == "5.1.0" ]]; then
                   start_index="$i"
                   break
               fi

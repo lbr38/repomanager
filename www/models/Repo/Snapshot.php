@@ -13,6 +13,26 @@ class Snapshot extends \Models\Model
     }
 
     /**
+     *  Return the list of all active snapshots
+     */
+    public function get(): array
+    {
+        $data = [];
+
+        try {
+            $result = $this->db->query("SELECT * FROM repos_snap WHERE Status = 'active' ORDER BY Date DESC");
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return $data;
+    }
+
+    /**
      *  Return the list of unused snapshots for the specified repo Id and retention parameter
      */
     public function getUnused(string $repoId, string $retention) : array

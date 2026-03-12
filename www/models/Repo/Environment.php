@@ -13,9 +13,34 @@ class Environment extends \Models\Model
     }
 
     /**
+     *  Return all environments associated to a repository ID
+     */
+    public function getByRepoId(int $repoId): array
+    {
+        $data = [];
+
+        try {
+            $stmt = $this->db->prepare("SELECT Env FROM repos_env
+            INNER JOIN repos_snap ON repos_snap.Id = repos_env.Id_snap
+            INNER JOIN repos ON repos.Id = repos_snap.Id_repo
+            WHERE repos.Id = :repoId");
+            $stmt->bindValue(':repoId', $repoId);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row['Env'];
+        }
+
+        return $data;
+    }
+
+    /**
      *  Associate a new env to a snapshot
      */
-    public function add(string $env, string $description = null, int $snapId) : void
+    public function add(string $env, string $description, int $snapId) : void
     {
         try {
             $stmt = $this->db->prepare("INSERT INTO repos_env ('Env', 'Description', 'Id_snap') VALUES (:env, :description, :snapId)");

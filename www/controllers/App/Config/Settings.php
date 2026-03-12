@@ -177,7 +177,7 @@ class Settings
 
         if (!defined('RETENTION')) {
             if (isset($settings['RETENTION']) and $settings['RETENTION'] >= 0) {
-                define('RETENTION', intval($settings['RETENTION'], 8));
+                define('RETENTION', (int) $settings['RETENTION']);
             } else {
                 define('RETENTION', 3);
             }
@@ -186,9 +186,17 @@ class Settings
         // Mirroring settings
         if (!defined('MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT')) {
             if (!empty($settings['MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT'])) {
-                define('MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT', $settings['MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT']);
+                define('MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT', (int) $settings['MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT']);
             } else {
-                define('MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT', '300');
+                define('MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT', 300);
+            }
+        }
+
+        if (!defined('MIRRORING_PACKAGE_DOWNLOAD_RETRIES')) {
+            if (!empty($settings['MIRRORING_PACKAGE_DOWNLOAD_RETRIES'])) {
+                define('MIRRORING_PACKAGE_DOWNLOAD_RETRIES', (int) $settings['MIRRORING_PACKAGE_DOWNLOAD_RETRIES']);
+            } else {
+                define('MIRRORING_PACKAGE_DOWNLOAD_RETRIES', 3);
             }
         }
 

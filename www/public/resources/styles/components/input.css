@@ -102,6 +102,27 @@ input[type=checkbox].checkbox-warning:not(.onoff-switch-input) {
     }
 }
 
+.input-daterangepicker {
+    width: 250px;
+    height: 35px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    padding: 0 10px;
+    border: none;
+    border-radius: 20px;
+    box-sizing: border-box;
+    font-size: 14px;
+    color: white;
+    background-color:#22384F;
+}
+
+.input-daterangepicker p {
+    line-height: 35px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 /* Textarea */
 textarea {
     width: 100%;

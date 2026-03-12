@@ -49,6 +49,21 @@ if ($_POST['action'] == 'enableTask' and !empty($_POST['taskId'])) {
 }
 
 /**
+ *  Edit a scheduled task
+ *  TODO
+ */
+// if ($_POST['action'] == 'get-edit-form' and !empty($_POST['id'])) {
+//     try {
+//         $myTask->getEditForm($_POST['id']);
+//     } catch (Exception $e) {
+//         response(HTTP_BAD_REQUEST, $e->getMessage());
+//     }
+
+//     response(HTTP_OK, 'Task has been deleted');
+// }
+
+
+/**
  *  Delete a scheduled task
  */
 if ($_POST['action'] == 'deleteTask' and !empty($_POST['id'])) {

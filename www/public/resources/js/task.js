@@ -54,6 +54,9 @@ $(document).on('change','input:radio[name="task-schedule-type"]',function () {
         $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-recurring-frequency-input').hide();
         $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-recurring-day-input').hide();
         $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-recurring-monthly-input').hide();
+        $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-recurring-cron-input').hide();
+        $('input[type="checkbox"][param-name="schedule-notify-error"]').prop('checked', true);
+        $('input[type="checkbox"][param-name="schedule-notify-success"]').prop('checked', true);
     }
 
     /**
@@ -62,6 +65,10 @@ $(document).on('change','input:radio[name="task-schedule-type"]',function () {
     if ($('input:radio[name="task-schedule-type"][action="' + action + '"][value="recurring"]').is(":checked")) {
         $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-recurring-frequency-input').show();
         $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-unique-input').hide();
+        $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-recurring-cron-input').hide();
+        // Disable notification on success by default for recurring tasks to avoid spamming users with notifications
+        $('input[type="checkbox"][param-name="schedule-notify-error"]').prop('checked', true);
+        $('input[type="checkbox"][param-name="schedule-notify-success"]').prop('checked', false);
     }
 }).trigger('change');
 
@@ -75,18 +82,21 @@ $(document).on('change','select.task-param[param-name="schedule-frequency"]',fun
         $('.task-schedule-recurring-day-input').hide();
         $('.task-schedule-time-input').hide();
         $('.task-schedule-recurring-monthly-input').hide();
+        $('.task-schedule-recurring-cron-input').hide();
     }
 
     if (frequency == 'daily') {
         $('.task-schedule-recurring-day-input').hide();
         $('.task-schedule-time-input').show();
         $('.task-schedule-recurring-monthly-input').hide();
+        $('.task-schedule-recurring-cron-input').hide();
     }
 
     if (frequency == 'weekly') {
         $('.task-schedule-recurring-day-input').show();
         $('.task-schedule-time-input').show();
         $('.task-schedule-recurring-monthly-input').hide();
+        $('.task-schedule-recurring-cron-input').hide();
     }
 
     if (frequency == 'monthly') {
@@ -94,6 +104,14 @@ $(document).on('change','select.task-param[param-name="schedule-frequency"]',fun
         $('.task-schedule-time-input').show();
         $('.task-schedule-recurring-day-input').hide();
         $('task-schedule-recurring-day-input').hide();
+        $('.task-schedule-recurring-cron-input').hide();
+    }
+
+    if (frequency == 'cron') {
+        $('.task-schedule-recurring-cron-input').show();
+        $('.task-schedule-recurring-day-input').hide();
+        $('.task-schedule-time-input').hide();
+        $('.task-schedule-recurring-monthly-input').hide();
     }
 }).trigger('change');
 

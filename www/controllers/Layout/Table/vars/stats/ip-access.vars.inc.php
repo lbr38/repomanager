@@ -1,57 +1,59 @@
 <?php
-$mystats = new \Controllers\Stat();
-$myrepo = new \Controllers\Repo\Repo();
+$repoController = new \Controllers\Repo\Repo();
+$debRepoStatController = new \Controllers\Repo\Statistic\Deb();
+$rpmRepoStatController = new \Controllers\Repo\Statistic\Rpm();
 $reloadableTableOffset = 0;
-$envId = __ACTUAL_URI__[2];
-$date  = DATE_YMD;
+$timeStart = strtotime(DATE_YMD . ' 00:00:00');
+$timeEnd = strtotime(DATE_YMD . ' 23:59:59');
+$envs = [];
 
-/**
- *  Retrieve repo infos from DB
- */
-$myrepo->getAllById('', '', $envId);
-
-/**
- *  Retrieve date from cookie if exists
- */
-if (!empty($_COOKIE['tables/stats/ip-access/date'])) {
-    $date = $_COOKIE['tables/stats/ip-access/date'];
+if (empty(__ACTUAL_URI__[3])) {
+    throw new Exception('Error: missing repository ID.');
 }
 
-/**
- *  Retrieve offset from cookie if exists
- */
+if (!is_numeric(__ACTUAL_URI__[3])) {
+    throw new Exception('Error: invalid repository ID specified.');
+}
+
+// Get repository info
+$repoController->getAllById(__ACTUAL_URI__[3]);
+
+// Retrieve period from cookie if exists
+if (!empty($_COOKIE['tables/stats/ip-access/period'])) {
+    $timeStart = strtotime(explode(' - ', $_COOKIE['tables/stats/ip-access/period'])[0]);
+    $timeEnd = strtotime(explode(' - ', $_COOKIE['tables/stats/ip-access/period'])[1]);
+}
+
+// Retrieve envs from cookie if exists
+if (!empty($_COOKIE['tables/stats/ip-access/envs'])) {
+    $envs = json_decode($_COOKIE['tables/stats/ip-access/envs'], true);
+}
+
+// Retrieve offset from cookie if exists
 if (!empty($_COOKIE['tables/stats/ip-access/offset']) and is_numeric($_COOKIE['tables/stats/ip-access/offset'])) {
     $reloadableTableOffset = $_COOKIE['tables/stats/ip-access/offset'];
 }
 
-/**
- *  Retrieve last access logs, with offset
- */
-if ($myrepo->getPackageType() == 'rpm') {
-    $reloadableTableContent = $mystats->getAccessIpCount('rpm', $myrepo->getName(), '', '', $myrepo->getEnv(), $date, true, $reloadableTableOffset);
+// Get access by IP count for the specified date, with offset
+if ($repoController->getPackageType() == 'rpm') {
+    $reloadableTableContent = $rpmRepoStatController->getAccessByIpCount($repoController->getName(), $repoController->getReleasever(), $envs, $timeStart, $timeEnd, false, true, $reloadableTableOffset);
 }
-if ($myrepo->getPackageType() == 'deb') {
-    $reloadableTableContent = $mystats->getAccessIpCount('deb', $myrepo->getName(), $myrepo->getDist(), $myrepo->getSection(), $myrepo->getEnv(), $date, true, $reloadableTableOffset);
+if ($repoController->getPackageType() == 'deb') {
+    $reloadableTableContent = $debRepoStatController->getAccessByIpCount($repoController->getName(), $repoController->getDist(), $repoController->getSection(), $envs, $timeStart, $timeEnd, false, true, $reloadableTableOffset);
 }
 
-/**
- *  Retrieve last access logs, without offset, for the total count
- */
-if ($myrepo->getPackageType() == 'rpm') {
-    $reloadableTableTotalItems = count($mystats->getAccessIpCount('rpm', $myrepo->getName(), '', '', $myrepo->getEnv(), $date));
+// Get access by IP count for the specified date, without offset, for the total count
+if ($repoController->getPackageType() == 'rpm') {
+    $reloadableTableTotalItems = $rpmRepoStatController->getAccessByIpCount($repoController->getName(), $repoController->getReleasever(), $envs, $timeStart, $timeEnd, true);
 }
-if ($myrepo->getPackageType() == 'deb') {
-    $reloadableTableTotalItems = count($mystats->getAccessIpCount('deb', $myrepo->getName(), $myrepo->getDist(), $myrepo->getSection(), $myrepo->getEnv(), $date));
+if ($repoController->getPackageType() == 'deb') {
+    $reloadableTableTotalItems = $debRepoStatController->getAccessByIpCount($repoController->getName(), $repoController->getDist(), $repoController->getSection(), $envs, $timeStart, $timeEnd, true);
 }
 
-/**
- *  Count total pages for the pagination
- */
+// Count total pages for the pagination
 $reloadableTableTotalPages = ceil($reloadableTableTotalItems / 10);
 
-/**
- *  Calculate current page number
- */
+// Calculate current page number
 $reloadableTableCurrentPage = ceil($reloadableTableOffset / 10) + 1;
 
-unset($myrepo, $mystats);
+unset($repoController, $debRepoStatController, $rpmRepoStatController, $timeStart, $timeEnd, $envs);

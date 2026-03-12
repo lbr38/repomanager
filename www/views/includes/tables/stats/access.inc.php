@@ -1,10 +1,14 @@
 <div class="reloadable-table" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
-    <?php
-    if (!empty($reloadableTableContent)) : ?>
-        <div class="div-generic-blue">
-            <h6 class="margin-top-0">ACCESS REQUESTS (<?= $reloadableTableTotalItems ?>)</h6>
-            <p class="note">This table shows the details of the access requests to the repository snapshot.</p>
+    <!-- <h6 class="margin-top-0">ACCESS REQUESTS (<?= $reloadableTableTotalItems ?>)</h6> -->
+    <!-- <p class="note">Access requests to the repository.</p> -->
 
+    <?php
+    if (empty($reloadableTableContent)) {
+        echo '<p class="note">Nothing for now!</p>';
+    }
+
+    if (!empty($reloadableTableContent)) : ?>
+        <div class="margin-top-15">
             <?php
             foreach ($reloadableTableContent as $item) :
                 /**
@@ -22,33 +26,37 @@
                 preg_match('#/[a-zA-Z0-9\%_\.-]+[[:space:]]#i', $item['Request'], $accessTarget);
                 $accessTarget[0] = str_replace('/', '', $accessTarget[0]); ?>
 
-                <div class="table-container bck-blue-alt column-gap-15 stats-access-request">
-                    <div>
-                        <?php
-                        if ($item['Request_result'] == '200' or $item['Request_result'] == '304') {
-                            echo '<img src="/assets/icons/check.svg" class="icon-np" title="' . $item['Request_result'] . '" />';
-                        } else {
-                            echo '<img src="/assets/icons/warning-red.svg" class="icon-np" title="' . $item['Request_result'] . '" />';
-                        } ?>
-                    </div>
-                    
-                    <div>
-                        <p><?= DateTime::createFromFormat('Y-m-d', $item['Date'])->format('d-m-Y') . ' ' . $item['Time'] ?></p>
-                        <p class="lowopacity-cst">
-                            <?php
-                            if ($item['Request_result'] == '200') {
-                                echo 'Request OK - Status code 200';
-                            } elseif ($item['Request_result'] == '304') {
-                                echo 'OK - Status code 304';
-                            } else {
-                                echo 'KO - Status code ' . $item['Request_result'];
-                            } ?>
-                        </p>
-                    </div>
+                <div class="table-container grid-rfr-1-2 bck-blue-alt column-gap-15 row-gap-15 stats-access-request">
+                    <div class="flex flex-wrap align-item-center column-gap-100 row-gap-15">
+                        <div class="flex column-gap-15 align-item-center">
+                            <div>
+                                <?php
+                                if ($item['Request_result'] == '200' or $item['Request_result'] == '304') {
+                                    echo '<img src="/assets/icons/check.svg" class="icon-np" title="' . $item['Request_result'] . '" />';
+                                } else {
+                                    echo '<img src="/assets/icons/warning-red.svg" class="icon-np" title="' . $item['Request_result'] . '" />';
+                                } ?>
+                            </div>
+                            
+                            <div>
+                                <p><?= date('d-m-Y H:i:s', $item['Timestamp']); ?></p>
+                                <p class="lowopacity-cst">
+                                    <?php
+                                    if ($item['Request_result'] == '200') {
+                                        echo 'Status code 200';
+                                    } elseif ($item['Request_result'] == '304') {
+                                        echo 'Status code 304';
+                                    } else {
+                                        echo 'Status code ' . $item['Request_result'];
+                                    } ?>
+                                </p>
+                            </div>
+                        </div>
 
-                    <div>
-                        <p class="copy" title="Source host"><?= $item['Source'] ?></p>
-                        <p class="lowopacity-cst copy" title="Source IP"><?= $item['IP'] ?></p>
+                        <div>
+                            <p class="copy" title="Source host"><?= $item['Source'] ?></p>
+                            <p class="lowopacity-cst copy" title="Source IP"><?= $item['IP'] ?></p>
+                        </div>
                     </div>
 
                     <div>

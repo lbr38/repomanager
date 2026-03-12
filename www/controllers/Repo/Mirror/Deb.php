@@ -839,7 +839,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                 /**
                  *  Download
                  */
-                if (!$this->download($url . '/' . $debPackageLocation, $absoluteDir . '/' . $debPackageName, 3)) {
+                if (!$this->download($url . '/' . $debPackageLocation, $absoluteDir . '/' . $debPackageName, MIRRORING_PACKAGE_DOWNLOAD_RETRIES)) {
                     throw new Exception('Error while downloading package');
                 }
 

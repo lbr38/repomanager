@@ -34,9 +34,17 @@ class Gzip
         // Keep repeating until the end of the input file
         while (!gzeof($fileOpen)) {
             // Read buffer-size bytes
-            // Both fwrite and gzread and binary-safe
-            if (!fwrite($fileOut, gzread($fileOpen, $bufferSize))) {
+            $data = gzread($fileOpen, $bufferSize);
+
+            // Check for gzread error
+            if ($data === false) {
                 throw new Exception('Error while reading gziped file content: ' . $filename);
+            }
+
+            // Write data (can be empty string for empty files)
+            $bytesWritten = fwrite($fileOut, $data);
+            if ($bytesWritten === false) {
+                throw new Exception('Error while writing decompressed content to: ' . $filenameOut);
             }
         }
 

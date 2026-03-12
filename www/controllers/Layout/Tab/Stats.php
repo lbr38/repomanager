@@ -14,6 +14,8 @@ class Stats
             header('Location: /');
         }
 
-        Render::render('stats/list');
+        if (__ACTUAL_URI__[2] == 'repo') {
+            Render::render('stats/repo');
+        }
     }
 }

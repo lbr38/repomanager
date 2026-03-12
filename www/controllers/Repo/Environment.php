@@ -15,6 +15,14 @@ class Environment
     }
 
     /**
+     *  Return all environments associated to a repository ID
+     */
+    public function getByRepoId(int $repoId): array
+    {
+        return $this->model->getByRepoId($repoId);
+    }
+
+    /**
      *  Associate a new environment to a snapshot
      */
     public function add(string $env, string $description = '', int $snapId) : void

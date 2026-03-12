@@ -63,6 +63,5 @@ foreach ($labels as $date) {
 }
 
 $options['legend']['show'] = true;
-$options['title']['text'] = 'Packages';
 
 unset($hostController, $hostPackageController, $period, $dateStart, $dateEnd, $dates, $lastInstalledPackagesArray, $lastUpgradedPackagesArray, $lastRemovedPackagesArray, $date, $key, $value);

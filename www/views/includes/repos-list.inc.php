@@ -1,5 +1,7 @@
 <?php
 use \Controllers\User\Permission\Repo as RepoPermission;
+use \Controllers\Utils\Generate\Html\Label;
+use \Controllers\Utils\Array\Sort;
 
 /**
  *  Print groups and repos
@@ -54,9 +56,7 @@ if (!empty($groupsList)) {
             </div>
 
             <?php
-            /**
-             *  If the group is empty, move to the next group
-             */
+            // If the group is empty, move to the next group
             if (empty($reposList)) {
                 // close div.repos-list-group:
                 echo '</div>';
@@ -66,14 +66,10 @@ if (!empty($groupsList)) {
             <!-- div only used to the show / hide group feature -->
             <div class="repo-list-group-container margin-top-20" group-id="<?= $group['Id'] ?>">
                 <?php
-                /**
-                 *  Grouping repos by name
-                 */
-                $reposList = \Controllers\Utils\Array\Sort::byKey('Name', $reposList);
+                // Sort repos by name
+                $reposList = Sort::byKey('Name', $reposList);
 
-                /**
-                 *  Declaration of variables used to compare values between two repos
-                 */
+                // Variables to keep the previous values in the loop and decide if we need to print or not some values (to avoid duplicates)
                 $previousName = null;
                 $previousDist = null;
                 $previousSection = null;
@@ -203,20 +199,37 @@ if (!empty($groupsList)) {
 
                                 if ($packageType == 'deb') {
                                     if ($printRepoDist or $printRepoSection) {
-                                        if ($printRepoDist) : ?>
-                                            <div class="flex align-item-center column-gap-5">
-                                                <p class="mediumopacity-cst font-size-13" title="<?= $dist ?>"><?= (DEB_DISTRIBUTIONS[$dist] ?? $dist) ?></p>
-                                                <p class="mediumopacity-cst">●</p>
-                                                <p class="mediumopacity-cst font-size-13"><?= $section ?></p>
-                                            </div>
-                                            <?php
+                                        if ($printRepoDist) :
+                                            if (STATS_ENABLED == "true" and RepoPermission::allowedAction('view-stats')) : ?>
+                                                <a href="/stats/repo/<?= $repoId ?>">
+                                                    <div class="flex align-item-center column-gap-5" title="<?= (DEB_DISTRIBUTIONS[$dist] ?? $dist) ?> - <?= $section ?> - See stats">
+                                                        <p class="mediumopacity-cst font-size-13"><?= (DEB_DISTRIBUTIONS[$dist] ?? $dist) ?></p>
+                                                        <p class="mediumopacity-cst dot">●</p>
+                                                        <p class="mediumopacity-cst font-size-13"><?= $section ?></p>
+                                                    </div>
+                                                </a>
+                                                <?php
+                                            else : ?>
+                                                <div class="flex align-item-center column-gap-5" title="<?= (DEB_DISTRIBUTIONS[$dist] ?? $dist) ?> - <?= $section ?> - See stats">
+                                                    <p class="mediumopacity-cst font-size-13"><?= (DEB_DISTRIBUTIONS[$dist] ?? $dist) ?></p>
+                                                    <p class="mediumopacity-cst dot">●</p>
+                                                    <p class="mediumopacity-cst font-size-13"><?= $section ?></p>
+                                                </div>
+                                                <?php
+                                            endif;
                                         endif;
                                     }
                                 }
 
                                 if ($packageType == 'rpm') {
                                     if ($printReleaseVersion) {
-                                        echo '<p class="lowopacity-cst font-size-13" title="Release version">Release version ' . $releaseVersion . '</p>';
+                                        if (STATS_ENABLED == "true" and RepoPermission::allowedAction('view-stats')) {
+                                            echo '<a href="/stats/repo/' . $repoId . '">';
+                                            echo '<p class="lowopacity-cst font-size-13" title="Release version - See stats">Release version ' . $releaseVersion . '</p>';
+                                            echo '</a>';
+                                        } else {
+                                            echo '<p class="lowopacity-cst font-size-13" title="Release version">Release version ' . $releaseVersion . '</p>';
+                                        }
                                     }
                                 } ?>
                             </div>
@@ -340,20 +353,10 @@ if (!empty($groupsList)) {
                             }
                             echo '</div>'; ?>
 
-                            <div class="item-env" env-id="<?= $envId ?>">
+                            <div class="item-env" env-id="<?= $envId ?>" title="<?= !empty($env) ? "Environment: $env" : "" ?>">
                                 <?php
                                 if (!empty($env)) {
-                                    /**
-                                     *  Print env with a link to stats page if enabled
-                                     */
-                                    if (STATS_ENABLED == "true" and RepoPermission::allowedAction('view-stats')) {
-                                        echo '<a href="/stats/' . $envId . '" title="Visualize stats and metrics">';
-                                        echo \Controllers\Utils\Generate\Html\Label::envtag($env, 'fit');
-                                        echo '</a>';
-                                    } else {
-                                        echo \Controllers\Utils\Generate\Html\Label::envtag($env, 'fit');
-                                    }
-
+                                    echo Label::envtag($env, 'fit');
                                     $envCounter++;
                                 } ?>
                             </div>
@@ -389,7 +392,7 @@ if (!empty($groupsList)) {
                             // Description input
                             echo '<div class="item-desc hide-mobile">';
                             if (!empty($env)) {
-                                echo '<input type="text" class="repo-description-input" env-id="' . $envId . '" placeholder="🖉 add a description" value=\'' . htmlspecialchars_decode($description) . '\' />';
+                                echo '<input type="text" class="repo-description-input" env-id="' . $envId . '" value=\'' . htmlspecialchars_decode($description) . '\' />';
                             }
                             echo '</div>'; ?>
 

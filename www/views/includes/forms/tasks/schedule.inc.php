@@ -48,6 +48,7 @@
                     <option value="daily">Daily</option>
                     <option value="weekly">Weekly</option>
                     <option value="monthly">Monthly</option>
+                    <option value="cron">Cron</option>
                 </select>
             </div>
 
@@ -86,6 +87,12 @@
 
                 </div>
                 <p class="note">of the month</p>
+            </div>
+
+            <div class="task-schedule-recurring-cron-input hide">
+                <h6 class="required">CRON EXPRESSION</h6>
+                <p class="note">Format: minute hour day month weekday.</p>
+                <input type="text" class="task-param" param-name="schedule-cron" placeholder="*/15 * * * *" />
             </div>
             <?php
         endif;

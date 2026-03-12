@@ -1,6 +1,6 @@
 <article class="reloadable-container" container="header/debug-mode">
     <?php
-    if (\Controllers\App\DebugMode::enabled()) : ?>
+    if (IS_ADMIN && \Controllers\App\DebugMode::enabled()) : ?>
         <section class="section-main">
             <div class="div-generic-blue">
                 <div class="flex align-item-center column-gap-5">
@@ -9,6 +9,12 @@
                 </div>
 
                 <?php
+                if (!empty($_SESSION)) {
+                    echo '<h6>SESSION data</h6>';
+                    echo '<pre class="codeblock copy">';
+                    print_r($_SESSION);
+                    echo '</pre>';
+                }
                 if (!empty($_POST)) {
                     echo '<h6>POST data</h6>';
                     echo '<pre class="codeblock copy">';

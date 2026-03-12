@@ -16,6 +16,22 @@ class Environment extends Model
     }
 
     /**
+     *  Return all environments name
+     */
+    public function getAllByName(): array
+    {
+        $data = [];
+
+        $result = $this->db->query("SELECT Name FROM env");
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row['Name'];
+        }
+
+        return $data;
+    }
+
+    /**
      *  Add new environment in database
      */
     public function add(string $name, string $color) : void
