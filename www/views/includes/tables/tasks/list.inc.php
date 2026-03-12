@@ -142,6 +142,10 @@
                                     if ($taskRawParams['schedule']['schedule-frequency'] == 'monthly') {
                                         echo 'Monthly scheduled task';
                                     }
+
+                                    if ($taskRawParams['schedule']['schedule-frequency'] == 'cron') {
+                                        echo 'Cron scheduled task';
+                                    }
                                 } ?>
                             </span>
                             <?php
@@ -184,7 +188,7 @@
                          *  If task is a recurring task, add the possibility to disable/enable it
                          */
                         if ($taskRawParams['schedule']['schedule-type'] == 'recurring') {
-                            if (in_array($taskRawParams['schedule']['schedule-frequency'], ['hourly', 'daily', 'weekly', 'monthly'])) {
+                            if (in_array($taskRawParams['schedule']['schedule-frequency'], ['hourly', 'daily', 'weekly', 'monthly', 'cron'])) {
                                 if ($item['Status'] == 'scheduled') {
                                     if (IS_ADMIN or in_array('disable', USER_PERMISSIONS['tasks']['allowed-actions'])) {
                                         echo '<img class="icon-lowopacity disable-scheduled-task-btn" src="/assets/icons/disabled.svg" task-id="' . $item['Id'] . '" title="Disable scheduled task" />';
@@ -302,6 +306,10 @@
                                     if ($taskRawParams['schedule']['schedule-frequency'] == 'monthly') {
                                         echo 'Every ' . $taskRawParams['schedule']['schedule-monthly-day-position'] . ' ' . $taskRawParams['schedule']['schedule-monthly-day'] . ' of the month at ' . $taskRawParams['schedule']['schedule-time'] . ':00';
                                     } ?>
+                                    <?php
+                                    if ($taskRawParams['schedule']['schedule-frequency'] == 'cron') {
+                                        echo 'Cron: ' . htmlspecialchars($taskRawParams['schedule']['schedule-cron'] ?? '', ENT_QUOTES, 'UTF-8');
+                                    } ?>
                                 </p>
                                 <?php
                             endif ?>
@@ -326,10 +334,10 @@
                         if (!empty($taskRawParams['arch'])) : ?>
                             <div>
                                 <h6>ARCHITECTURE</h6>
-                                <div class="flex row-gap-5 column-gap-5">
+                                <div class="flex align-item-center row-gap-5 column-gap-5">
                                     <?php
                                     foreach ($taskRawParams['arch'] as $architecture) {
-                                        echo '<span class="label-black">' . $architecture . '</span>';
+                                        echo '<div><span class="label-black">' . $architecture . '</span></div>';
                                     } ?>
                                 </div>
                             </div>
@@ -339,10 +347,10 @@
                         if (!empty($taskRawParams['env'])) : ?>
                             <div>
                                 <h6>ENVIRONMENT</h6>
-                                <div class="flex row-gap-5 column-gap-5">
+                                <div class="flex align-item-center row-gap-5 column-gap-5">
                                     <?php
                                     foreach ($taskRawParams['env'] as $env) {
-                                        echo \Controllers\Utils\Generate\Html\Label::envtag($env);
+                                        echo '<div>' . \Controllers\Utils\Generate\Html\Label::envtag($env) . '</div>';
                                     } ?>
                                 </div>
                             </div>

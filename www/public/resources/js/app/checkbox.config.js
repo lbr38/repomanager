@@ -194,6 +194,29 @@ const checkboxesCallback = {
             'message': count.length + ' task' + (count.length > 1 ? 's' : '') + ' selected',
             'id': 'scheduled-task-confirm-box',
             'buttons': [
+            // TODO
+            /*{
+                'text': 'Edit',
+                'color': 'blue',
+                'callback': function () {
+                    ajaxRequest(
+                        // Controller:
+                        'task',
+                        // Action:
+                        'get-edit-form',
+                        // Data:
+                        {
+                            id: id
+                        },
+                        // Print success alert:
+                        true,
+                        // Print error alert:
+                        true
+                    ).then(function () {
+                        mycontainer.reload('tasks/list');
+                    });
+                }
+            },*/
             {
                 'text': 'Cancel and delete',
                 'color': 'red',

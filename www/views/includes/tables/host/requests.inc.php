@@ -121,14 +121,22 @@
                 $requestString = 'Request to install a list of package(s)';
                 $requestTitle = 'Requested the host to install a list of package(s)';
 
-                if (!empty($requestJson['packages'])) {
-                    $requestDetails = count($requestJson['packages']) . ' package(s) to install';
-                }
 
-                /**
-                 *  If there was packages to update, retrieve the number of packages updated
-                 */
                 if (!empty($responseJson)) {
+                    if (!empty($requestJson['packages'])) {
+                        $requestDetails = count($requestJson['packages']) . ' package(s) to install';
+                    }
+
+                    /**
+                     *  If there was no packages to update
+                     */
+                    if ($responseJson['update']['status'] == 'nothing-to-do') {
+                        $responseDetails = 'No packages to update';
+                    }
+
+                    /**
+                     *  If there was packages to update, retrieve the number of packages updated
+                     */
                     if ($responseJson['update']['status'] == 'done' or $responseJson['update']['status'] == 'failed') {
                         $successCount = $responseJson['update']['success']['count'];
                         $failedCount  = $responseJson['update']['failed']['count'];
@@ -197,6 +205,18 @@
                         // If the update failed
                         if ($responseJson['update']['status'] == 'failed') {
                             $requestStatus = 'Failed with errors';
+                            $requestStatusIcon = 'error.svg';
+                        }
+
+                        // If there was packages updated AND packages failed
+                        if ($successCount >= 1 and $failedCount >= 1) {
+                            $requestStatus = 'Partial success';
+                            $requestStatusIcon = 'warning.svg';
+                        }
+
+                        // If there was no packages updated AND packages failed
+                        if ($successCount == 0 and $failedCount >= 1) {
+                            $requestStatus = 'Failed';
                             $requestStatusIcon = 'error.svg';
                         }
 
@@ -328,7 +348,7 @@
                             } ?>
                         </div>
                     </div>
-                    <br><br>
+                    <br>
                     <?php
                 endif;
 
@@ -337,10 +357,10 @@
                  */
                 if (!empty($successPackages)) :
                     $icon = 'update-yellow.svg';
-                    $title = count($successPackages) . ' packages updated';
+                    $title = count($successPackages) . ' package' . (count($successPackages) > 1 ? 's' : '') . ' updated';
                     include(ROOT . '/views/includes/labels/label-icon-tr.inc.php'); ?>
 
-                    <div class="grid grid-3 row-gap-10 justify-space-between margin-top-10">
+                    <div class="grid grid-3 row-gap-10 justify-space-between margin-top-15 margin-bottom-15 margin-left-10">
                         <?php
                         // Print each package with its version and log
                         foreach ($successPackages as $package => $details) : ?>
@@ -369,10 +389,10 @@
                  */
                 if (!empty($failedPackages)) :
                     $icon = 'warning-red.svg';
-                    $title = count($failedPackages) . ' packages failed';
+                    $title = count($failedPackages) . ' package' . (count($failedPackages) > 1 ? 's' : '') . ' failed';
                     include(ROOT . '/views/includes/labels/label-icon-tr.inc.php'); ?>
 
-                    <div class="grid grid-3 row-gap-10 justify-space-between margin-top-10">
+                    <div class="grid grid-3 row-gap-10 justify-space-between margin-top-15 margin-bottom-15 margin-left-10">
                         <?php
                         // Print each package with its version and log
                         foreach ($failedPackages as $package => $details) : ?>

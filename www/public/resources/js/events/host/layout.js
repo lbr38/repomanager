@@ -61,10 +61,10 @@ $(document).on('mouseenter', '.search-host-tooltip', function (e) {
     content += '<p><code>os=ubuntu 192.168</code></p>';
 
     content += '<div class="flex flex-direction-column row-gap-5 margin-top-10">';
-    content += '<p>● Main search is performed on all fields, use filters to narrow down results</p>';
-    content += '<p>● You can combine multiple filters</p>';
-    content += '<p>● Use quotes when filter contains spaces, e.g os="Linux Mint"</p>';
-    content += '<p>● Search and filters are case-insensitive</p>';
+    content += '<p>- Main search is performed on all fields, use filters to narrow down results</p>';
+    content += '<p>- You can combine multiple filters</p>';
+    content += '<p>- Use quotes when filter contains spaces, e.g os="Linux Mint"</p>';
+    content += '<p>- Search and filters are case-insensitive</p>';
     content += '</div>';
 
     // Print tooltip

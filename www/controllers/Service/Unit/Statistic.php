@@ -11,15 +11,23 @@ use DateTime;
 
 class Statistic extends \Controllers\Service\Service
 {
-    private $statController;
+    private $repoController;
+    private $repoStatController;
+    private $debRepoStatController;
+    private $rpmRepoStatController;
     private $repoListingController;
+    private $repoSnapshotController;
 
     public function __construct(string $unit)
     {
         parent::__construct($unit);
 
-        $this->statController = new \Controllers\Stat();
+        $this->repoController = new \Controllers\Repo\Repo();
+        $this->repoStatController = new \Controllers\Repo\Statistic\Statistic();
+        $this->debRepoStatController = new \Controllers\Repo\Statistic\Deb();
+        $this->rpmRepoStatController = new \Controllers\Repo\Statistic\Rpm();
         $this->repoListingController = new \Controllers\Repo\Listing();
+        $this->repoSnapshotController = new \Controllers\Repo\Snapshot();
     }
 
     /**
@@ -29,7 +37,7 @@ class Statistic extends \Controllers\Service\Service
     {
         parent::log('Starting statistics cleaning task...');
 
-        $this->statController->clean();
+        $this->repoStatController->clean(366);
 
         parent::log('Statistics cleaning task completed');
     }
@@ -41,58 +49,44 @@ class Statistic extends \Controllers\Service\Service
     {
         parent::log('Starting repositories statistics generation task...');
 
-        /**
-         *  Get all repos
-         */
-        $reposList = $this->repoListingController->list();
+        // Get the list of all snapshots
+        $snapshots = $this->repoSnapshotController->get();
 
-        if (empty($reposList)) {
+        if (empty($snapshots)) {
             parent::log('No repository found, nothing to do');
             return;
         }
 
         try {
-            foreach ($reposList as $repo) {
-                /**
-                 *  Continue if the repo snapshot has no environment, because stats are only generated for snapshots environments
-                 */
-                if (empty($repo['envId'])) {
-                    continue;
-                }
+            $time = time();
 
-                if ($repo['Package_type'] == 'rpm') {
-                    if (file_exists(REPOS_DIR . '/rpm/' . $repo['Name'] . '/' . $repo['Releasever'] . '/' . $repo['Env'])) {
-                        /**
-                         *  Calculate repo size in bytes
-                         */
-                        $repoSize = Directory::getSize(REPOS_DIR . '/rpm/' . $repo['Name'] . '/' . $repo['Releasever'] . '/' . $repo['Env']);
+            foreach ($snapshots as $snap) {
+                // Get repository info
+                $this->repoController->getAllById($snap['Id_repo'], $snap['Id'], '');
 
-                        /**
-                         *  Calculate number of packages in the repo
-                         */
-                        $packagesCount = count(File::findRecursive(REPOS_DIR . '/rpm/' . $repo['Name'] . '/' . $repo['Releasever'] . '/' . $repo['Env'], ['rpm']));
+                if ($this->repoController->getPackageType() == 'rpm') {
+                    if (file_exists(REPOS_DIR . '/rpm/' . $this->repoController->getName() . '/' . $this->repoController->getReleasever() . '/' . $snap['Date'])) {
+                        // Calculate repo size in bytes
+                        $snapSize = Directory::getSize(REPOS_DIR . '/rpm/' . $this->repoController->getName() . '/' . $this->repoController->getReleasever() . '/' . $snap['Date']);
+
+                        // Calculate number of packages in the repo
+                        $packagesCount = count(File::findRecursive(REPOS_DIR . '/rpm/' . $this->repoController->getName() . '/' . $this->repoController->getReleasever() . '/' . $snap['Date'], ['rpm']));
                     }
                 }
 
-                if ($repo['Package_type'] == 'deb') {
-                    if (file_exists(REPOS_DIR . '/deb/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '/' . $repo['Env'])) {
-                        /**
-                         *  Calculate repo size in bytes
-                         */
-                        $repoSize = Directory::getSize(REPOS_DIR . '/deb/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '/' . $repo['Env']);
+                if ($this->repoController->getPackageType() == 'deb') {
+                    if (file_exists(REPOS_DIR . '/deb/' . $this->repoController->getName() . '/' . $this->repoController->getDist() . '/' . $this->repoController->getSection() . '/' . $snap['Date'])) {
+                        // Calculate repo size in bytes
+                        $snapSize = Directory::getSize(REPOS_DIR . '/deb/' . $this->repoController->getName() . '/' . $this->repoController->getDist() . '/' . $this->repoController->getSection() . '/' . $snap['Date']);
 
-                        /**
-                         *  Calculate number of packages in the repo
-                         */
-                        $packagesCount = count(File::findRecursive(REPOS_DIR . '/deb/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '/' . $repo['Env'], ['deb']));
+                        // Calculate number of packages in the repo
+                        $packagesCount = count(File::findRecursive(REPOS_DIR . '/deb/' . $this->repoController->getName() . '/' . $this->repoController->getDist() . '/' . $this->repoController->getSection() . '/' . $snap['Date'], ['deb']));
                     }
                 }
 
-                /**
-                 *  Add repo size and package count to stats database
-                 */
-                if (!empty($repoSize)) {
-                    $this->statController->add(date('Y-m-d'), date('H:i:s'), $repoSize, $packagesCount, $repo['envId']);
+                // Add repo size and package count to stats database
+                if (!empty($snapSize)) {
+                    $this->repoStatController->add($time, $snap['Date'], $snapSize, $packagesCount, $snap['Id_repo']);
                 }
             }
 
@@ -215,7 +209,7 @@ class Statistic extends \Controllers\Service\Service
                     parent::logDebug('Adding access log line to the queue: ' . trim($line));
 
                     // Add full log line to the queue in database
-                    $this->statController->addAccessToQueue($line);
+                    $this->repoStatController->addAccessToQueue($line);
 
                     unset($line);
                 }
@@ -256,7 +250,7 @@ class Statistic extends \Controllers\Service\Service
             /**
              *  Retrieve access log entries from the queue (100 entries max)
              */
-            $queue = $this->statController->getAccessQueue();
+            $queue = $this->repoStatController->getAccessQueue();
 
             /**
              *  Get all repos
@@ -302,12 +296,13 @@ class Statistic extends \Controllers\Service\Service
                     /**
                      *  Delete the log line from the queue
                      */
-                    $this->statController->deleteFromQueue($id);
+                    $this->repoStatController->deleteFromQueue($id);
                     continue;
                 }
 
                 $date = DateTime::createFromFormat('d/M/Y', $dateExplode[0])->format('Y-m-d');
                 $time = $dateExplode[1] . ':' . $dateExplode[2] . ':' . $dateExplode[3];
+                $timestamp = strtotime($date . ' ' . $time);
 
                 /**
                  *  Source IP
@@ -403,21 +398,21 @@ class Statistic extends \Controllers\Service\Service
                          *  Add repo access log to database
                          */
                         if ($repo['Package_type'] == 'rpm') {
-                            if (!empty($date) and !empty($time) and !empty($name) and !empty($releasever) and !empty($env) and !empty($sourceHost) and !empty($sourceIp) and !empty($fullRequest) and !empty($requestResult)) {
-                                $this->statController->addRpmAccess($date, $time, $name, $releasever, $env, $sourceHost, $sourceIp, $fullRequest, $requestResult);
+                            if (!empty($timestamp) and !empty($name) and !empty($releasever) and !empty($env) and !empty($sourceHost) and !empty($sourceIp) and !empty($fullRequest) and !empty($requestResult)) {
+                                $this->rpmRepoStatController->addAccess($timestamp, $name, $releasever, $env, $sourceHost, $sourceIp, $fullRequest, $requestResult);
                             }
                         }
 
                         if ($repo['Package_type'] == 'deb') {
-                            if (!empty($date) and !empty($time) and !empty($name) and !empty($dist) and !empty($section) and !empty($env) and !empty($sourceHost) and !empty($sourceIp) and !empty($fullRequest) and !empty($requestResult)) {
-                                $this->statController->addDebAccess($date, $time, $name, $dist, $section, $env, $sourceHost, $sourceIp, $fullRequest, $requestResult);
+                            if (!empty($timestamp) and !empty($name) and !empty($dist) and !empty($section) and !empty($env) and !empty($sourceHost) and !empty($sourceIp) and !empty($fullRequest) and !empty($requestResult)) {
+                                $this->debRepoStatController->addAccess($timestamp, $name, $dist, $section, $env, $sourceHost, $sourceIp, $fullRequest, $requestResult);
                             }
                         }
 
                         /**
                          *  Delete the log line from the queue now that it has been processed
                          */
-                        $this->statController->deleteFromQueue($id);
+                        $this->repoStatController->deleteFromQueue($id);
 
                         /**
                          *  Process the next log line
@@ -434,7 +429,7 @@ class Statistic extends \Controllers\Service\Service
                 /**
                  *  Delete the log line from the queue
                  */
-                $this->statController->deleteFromQueue($id);
+                $this->repoStatController->deleteFromQueue($id);
             }
 
             parent::log('Access log queue processing completed');

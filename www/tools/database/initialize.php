@@ -11,7 +11,7 @@ new \Controllers\App\Main('minimal');
 use \Controllers\Log\Cli as CliLog;
 
 try {
-    $databases = array('main', 'stats', 'hosts', 'ws');
+    $databases = ['main', 'stats', 'hosts', 'ws'];
 
     /**
      *  Open a connection to each database and create tables if they do not exist
@@ -21,7 +21,7 @@ try {
         $myconn->close();
     }
 } catch (Exception $e) {
-    CliLog::error('There was an error while initializing ' . $database . ' database', $e->getMessage());
+    CliLog::error('There was an error while initializing ' . $database . ' database', $e->getTraceAsString());
     exit(1);
 }
 

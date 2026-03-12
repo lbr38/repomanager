@@ -12,7 +12,7 @@ use \Controllers\User\Permission\Repo as RepoPermission; ?>
                     <p class="font-size-14"><?= $totalRepos ?></p>
                 </div>
 
-                <p class="mediumopacity-cst">●</p>
+                <p class="mediumopacity-cst dot">●</p>
 
                 <div class="flex align-item-center column-gap-15" title="Used storage: <?= $diskUsedSpaceHuman ?> / Free storage: <?= $diskFreeSpaceHuman ?>">
                     <div class="flex align-item-center column-gap-6">
@@ -39,7 +39,7 @@ use \Controllers\User\Permission\Repo as RepoPermission; ?>
                         $message = 'Last sched. task successful';
                     } ?>
 
-                    <p class="mediumopacity-cst">●</p>
+                    <p class="mediumopacity-cst dot">●</p>
 
                     <div class="flex align-item-center column-gap-5" title="Last scheduled task: <?= DateTime::createFromFormat('Y-m-d', $lastScheduledTask['Date'])->format('d-m-Y') . ' ' . $lastScheduledTask['Time'] ?>">
                         <img src="/assets/icons/<?= $icon ?>.svg" class="icon-np icon-medium" />
@@ -53,7 +53,7 @@ use \Controllers\User\Permission\Repo as RepoPermission; ?>
 
                 // Print next scheduled task info
                 if (!empty($nextScheduledTasks)) : ?>
-                    <p class="mediumopacity-cst">●</p>
+                    <p class="mediumopacity-cst dot">●</p>
 
                     <div class="flex align-item-center column-gap-5" title="Next scheduled task: <?= DateTime::createFromFormat('Y-m-d', $nextScheduledTasks[0]['date'])->format('d-m-Y') . ' ' . $nextScheduledTasks[0]['time'] ?>">
                         <img src="/assets/icons/time.svg" class="icon-np icon-medium mediumopacity-cst" />

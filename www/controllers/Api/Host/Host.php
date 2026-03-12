@@ -216,6 +216,16 @@ class Host extends \Controllers\Api\Controller
                         }
                     }
 
+                    // If network has been specified then update it in database
+                    if (!empty($this->data->network)) {
+                        try {
+                            $hostUpdateController->updateNetwork($this->hostId, $this->data->network);
+                            $message[] = 'Network updated successfully.';
+                        } catch (Exception $e) {
+                            throw new Exception('Network update has failed.');
+                        }
+                    }
+
                     /**
                      *  If kernel has been specified then update it in database
                      */

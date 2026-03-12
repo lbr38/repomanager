@@ -191,7 +191,21 @@ class Listing extends \Models\Model
         $data = [];
 
         try {
-            $stmt = $this->db->prepare("SELECT * FROM repos_snap WHERE Id_repo = :repoId AND Status = 'active' ORDER BY Date DESC");
+            $stmt = $this->db->prepare("SELECT
+                repos_snap.*,
+                COALESCE(
+                    (
+                        SELECT GROUP_CONCAT(Env, ',')
+                        FROM repos_env
+                        WHERE Id_snap = repos_snap.Id
+                        ORDER BY Env
+                    ),
+                    ''
+                ) AS Environments
+            FROM repos_snap
+            WHERE repos_snap.Id_repo = :repoId
+            AND repos_snap.Status = 'active'
+            ORDER BY repos_snap.Date DESC");
             $stmt->bindValue(':repoId', $repoId);
             $result = $stmt->execute();
         } catch (Exception $e) {

@@ -174,6 +174,22 @@ $(document).on('submit','#edit-form',function () {
 });
 
 /**
+ *  Event: add placeholder to description input on mouse enter
+ *  This is to prevent Firefox from always displaying the placeholder
+ */
+$(document).on('mouseenter','input[type="text"].repo-description-input',function () {
+    $(this).attr('placeholder', '🖉 add a description');
+});
+
+/**
+ *  Event: remove placeholder on mouse leave
+ *  This is to prevent Firefox from always displaying the placeholder
+ */
+$(document).on('mouseleave','input[type="text"].repo-description-input',function () {
+    $(this).attr('placeholder', '');
+});
+
+/**
  *  Event: edit repository description when pressing 'Enter' key
  */
 $(document).on('keypress','input[type="text"].repo-description-input',function (e) {

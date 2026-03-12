@@ -12,11 +12,11 @@ class EChart
     static instances = {};
 
     // If on mobile, default to 1 day range, otherwise 3 days
-    constructor(type, id, autoUpdate = true, autoUpdateInterval = 15000, days = window.innerWidth < 600 ? 1 : 3, wasInNaturalState = true, periodChanged = false)
+    constructor(type, id, autoUpdate = true, autoUpdateInterval = 15000, days = 1, wasInNaturalState = true, periodChanged = false, preservedCurrentType = null)
     {
         this.id                 = id;
         this.type               = type;
-        this.currentType        = type; // Current type (can change with magicType)
+        this.currentType        = preservedCurrentType || type; // Current type (can change with magicType)
         this._preservedColors   = null; // Store colors when switching types
         this.autoUpdate         = autoUpdate;
         this.autoUpdateInterval = autoUpdateInterval;
@@ -184,14 +184,14 @@ class EChart
                     show: false,
                     start: 80,
                     end: 100,
-                    height: 40,
-                    bottom: 30,
+                    height: 32,
+                    bottom: 0,
                     showPlayBtn: false,
                     textStyle: {
                         color: '#8A99AA'
                     },
-                    borderColor: '#8A99AA',
-                    borderRadius: 6,
+                    borderColor: '#8a99aa54',
+                    borderRadius: 4,
                     brushSelect: false
                 }
             ],
@@ -302,41 +302,49 @@ class EChart
     get(id)
     {
         return new Promise((resolve, reject) => {
-            try {
-                ajaxRequest(
-                    // Controller:
-                    'chart',
-                    // Action:
-                    'get',
-                    // Data:
-                    {
-                        id: id,
-                        days: this.days,
-                        sourceGetParameters: getGetParams()
-                    },
-                    // Print success alert:
-                    false,
-                    // Print error alert:
-                    true
-                ).then(() => {
-                    // Parse the response and store it in the class properties
-                    this.datasets     = jsonValue.message.datasets;
-                    this.labels       = jsonValue.message.labels;
-                    this.chartOptions = jsonValue.message.options;
+            ajaxRequest(
+                // Controller:
+                'chart',
+                // Action:
+                'get',
+                // Data:
+                {
+                    id: id,
+                    days: this.days,
+                    sourceGetParameters: getGetParams()
+                },
+                // Print success alert:
+                false,
+                // Print error alert:
+                true
+            ).then(() => {
+                // Parse the response and store it in the class properties
+                this.datasets     = jsonValue.message.datasets;
+                this.labels       = jsonValue.message.labels;
+                this.chartOptions = jsonValue.message.options;
 
-                    // For debugging purposes only
-                    // console.log("datasets: " + JSON.stringify(this.datasets));
-                    // console.log("labels: " + JSON.stringify(this.labels));
-                    // console.log("options: " + JSON.stringify(this.chartOptions));
+                // For debugging purposes only
+                // console.log("datasets: " + JSON.stringify(this.datasets));
+                // console.log("labels: " + JSON.stringify(this.labels));
+                // console.log("options: " + JSON.stringify(this.chartOptions));
 
-                    // Resolve promise
-                    resolve('Chart data retrieved');
-                });
+                // Resolve promise
+                resolve('Chart data retrieved');
+            }).catch(error => {
+                // Stop auto-update to prevent further errors
+                this.stopAutoUpdate();
 
-            } catch (error) {
+                // Remove loading spinner
+                $('#' + id + '-loading').remove();
+
+                // Replace chart with error message
+                $('#' + id).html('<div class="flex align-item-center justify-center height-100"><p>Failed to get chart data: ' + error.toLowerCase() + '</p></div>');
+
                 // Reject promise
                 reject('Failed to get chart data: ' + error);
-            }
+
+                return;                
+            });
         });
     }
 
@@ -351,12 +359,17 @@ class EChart
                 // Use preserved color first, then dataset color, then default
                 const lineColor = (this._preservedColors && this._preservedColors[datasetIndex]) || 
                                  dataset.color || '#15bf7f';
+                
+                // Determine if we have large dataset
+                const isLargeDataset = this.days > 3; // Consider large if showing more than 3 days of data (configurable threshold)
+                
                 return {
                     name: dataset.name,
                     type: 'line',
                     color: lineColor,
                     smooth: true,
                     symbol: 'none',
+                    sampling: isLargeDataset ? 'lttb' : undefined, // Use LTTB sampling for large datasets
                     lineStyle: {
                         width: 2,
                         color: lineColor
@@ -611,6 +624,215 @@ class EChart
                 return seriesConfig;
             });
         }
+
+        if (this.currentType === 'points' || this.currentType === 'scatter') {
+            // Check if labels should be displayed instead of or with points
+            const showAsLabels = this.chartOptions?.showAsLabels || false;
+            const showBothLabelsAndPoints = this.chartOptions?.showBothLabelsAndPoints || false;
+            
+            if (showAsLabels && !showBothLabelsAndPoints) {
+                // Using individual series approach for adaptive positioning
+                
+                // Create a separate series for each point to control individual label positioning
+                const allSeries = [];
+                
+                this.datasets.forEach((dataset, datasetIndex) => {
+                    const pointColor = (this._preservedColors && this._preservedColors[datasetIndex]) || dataset.color || '#15bf7f';
+                    
+                    dataset.data.forEach((value, pointIndex) => {
+                        // Determine position for this specific point
+                        let position = 'top';
+                        if (pointIndex === 0) {
+                            position = 'right';
+                        } else if (pointIndex === dataset.data.length - 1) {
+                            position = 'left'; // Last point: completely to the left
+                        }
+                        
+                        // Point positioning: first=insideTopRight, last=left, others=top
+                        const seriesConfig = {
+                            name: dataset.name,
+                            type: 'scatter',
+                            color: pointColor,
+                            symbol: 'circle',
+                            symbolSize: 8,
+                            itemStyle: {
+                                color: pointColor,
+                                opacity: 1,
+                                // borderColor: '#ffffff',
+                                borderWidth: 1
+                            },
+                            emphasis: {
+                                itemStyle: {
+                                    opacity: 1,
+                                    borderWidth: 2
+                                }
+                            },
+                            data: [{
+                                value: [this.labels[pointIndex], value],
+                                snapshotId: dataset.snapshotIds ? dataset.snapshotIds[pointIndex] : null
+                            }],
+                            label: {
+                                show: true,
+                                position: position,
+                                color: this.chartOptions?.labelColor || '#FFFFFF',
+                                fontSize: this.chartOptions?.labelFontSize || 16,
+                                fontWeight: this.chartOptions?.labelFontWeight || 'bold',
+                                fontFamily: this.chartOptions?.labelFontFamily || 'Arial, sans-serif',
+                                backgroundColor: this.chartOptions?.labelBackground || '#000000',
+                                borderRadius: this.chartOptions?.labelBorderRadius || 8,
+                                padding: this.chartOptions?.labelPadding || [10, 15],
+                                formatter: (params) => {
+                                    const timestamp = params.value[0];
+                                    const date = new Date(Number(timestamp));
+                                    
+                                    const dateFormat = this.chartOptions?.labelDateFormat || 'fr-FR';
+                                    const dateOptions = this.chartOptions?.labelDateOptions || {
+                                        day: '2-digit',
+                                        month: '2-digit',
+                                        year: 'numeric'
+                                    };
+                                    
+                                    let formattedDate = date.toLocaleDateString(dateFormat, dateOptions);
+                                    
+                                    // Remplacer le séparateur par celui configuré (défaut: tiret)
+                                    const separator = this.chartOptions?.labelDateSeparator || '-';
+                                    if (separator !== '/') {
+                                        formattedDate = formattedDate.replace(/\//g, separator);
+                                    }
+                                    
+                                    return formattedDate;
+                                }
+                            },
+                            // Hide from legend since we're creating multiple series for one dataset
+                            legendHoverLink: false
+                        };
+
+                        // Add borders and shadows if enabled
+                        if (this.chartOptions?.labelBorder !== false && this.chartOptions?.labelBorderWidth !== 0) {
+                            seriesConfig.label.borderColor = this.chartOptions?.labelBorderColor || '#FFFFFF';
+                            seriesConfig.label.borderWidth = this.chartOptions?.labelBorderWidth || 2;
+                        }
+
+                        if (this.chartOptions?.labelShadow !== false) {
+                            seriesConfig.label.shadowColor = this.chartOptions?.labelShadowColor || 'rgba(0, 0, 0, 0.8)';
+                            seriesConfig.label.shadowBlur = this.chartOptions?.labelShadowBlur || 5;
+                            seriesConfig.label.shadowOffsetX = this.chartOptions?.labelShadowOffsetX || 2;
+                            seriesConfig.label.shadowOffsetY = this.chartOptions?.labelShadowOffsetY || 2;
+                        }
+                        
+                        allSeries.push(seriesConfig);
+                    });
+                });
+                
+                return allSeries;
+            }
+            
+            // Original logic for non-labels mode and labels+points mode
+            return this.datasets.map((dataset, datasetIndex) => {
+                const data = dataset.data.map((v, i) => ({
+                    value: [this.labels[i], v],
+                    snapshotId: dataset.snapshotIds ? dataset.snapshotIds[i] : null
+                }));
+                // Use preserved color first, then dataset color, then default
+                const pointColor = (this._preservedColors && this._preservedColors[datasetIndex]) || dataset.color || '#15bf7f';
+                
+                // Get symbol size from chartOptions if defined, otherwise use default
+                const symbolSize = this.chartOptions?.symbolSize || 8;
+                
+                // const labelFormat = this.chartOptions?.labelFormat || 'date'; // 'date', 'value', 'name', 'custom'
+                
+                // Configure the series
+                const seriesConfig = {
+                    name: dataset.name,
+                    type: 'scatter',
+                    color: pointColor,
+                    symbol: 'circle',
+                    data: data
+                };
+
+                // Configuration spécifique selon le mode d'affichage
+                if (showBothLabelsAndPoints) {
+                    // Mode points + labels
+                    seriesConfig.symbolSize = symbolSize;
+                    seriesConfig.itemStyle = {
+                        color: pointColor,
+                        opacity: 1,
+                        // borderColor: '#ffffff',
+                        borderWidth: 1
+                    };
+                    seriesConfig.emphasis = {
+                        itemStyle: {
+                            opacity: 1,
+                            borderWidth: 2
+                        }
+                    };
+                    
+                    seriesConfig.label = {
+                        show: true,
+                        position: this.chartOptions?.labelPosition || 'top',
+                        color: this.chartOptions?.labelColor || '#000000',
+                        fontSize: this.chartOptions?.labelFontSize || 12,
+                        fontWeight: this.chartOptions?.labelFontWeight || 'bold',
+                        fontFamily: this.chartOptions?.labelFontFamily || 'Arial, sans-serif',
+                        backgroundColor: this.chartOptions?.labelBackground || 'rgba(255, 255, 255, 0.9)',
+                        borderRadius: this.chartOptions?.labelBorderRadius || 4,
+                        padding: this.chartOptions?.labelPadding || [6, 10],
+                        formatter: (params) => {
+                            const timestamp = params.value[0];
+                            const date = new Date(Number(timestamp));
+                            
+                            // Format de date configurable via PHP
+                            const dateFormat = this.chartOptions?.labelDateFormat || 'fr-FR';
+                            const dateOptions = this.chartOptions?.labelDateOptions || {
+                                day: '2-digit',
+                                month: '2-digit'
+                            };
+                            
+                            let formattedDate = date.toLocaleDateString(dateFormat, dateOptions);
+                            
+                            // Remplacer le séparateur par celui configuré (défaut: tiret)
+                            const separator = this.chartOptions?.labelDateSeparator || '-';
+                            if (separator !== '/') {
+                                formattedDate = formattedDate.replace(/\//g, separator);
+                            }
+                            
+                            return formattedDate;
+                        }
+                    };
+
+                    // Ajouter les bordures seulement si activées
+                    if (this.chartOptions?.labelBorder !== false && this.chartOptions?.labelBorderWidth !== 0) {
+                        seriesConfig.label.borderColor = this.chartOptions?.labelBorderColor || '#333333';
+                        seriesConfig.label.borderWidth = this.chartOptions?.labelBorderWidth || 1;
+                    }
+
+                    // Ajouter l'ombre seulement si activée
+                    if (this.chartOptions?.labelShadow !== false) {
+                        seriesConfig.label.shadowColor = this.chartOptions?.labelShadowColor || 'rgba(0, 0, 0, 0.3)';
+                        seriesConfig.label.shadowBlur = this.chartOptions?.labelShadowBlur || 3;
+                        seriesConfig.label.shadowOffsetX = this.chartOptions?.labelShadowOffsetX || 1;
+                        seriesConfig.label.shadowOffsetY = this.chartOptions?.labelShadowOffsetY || 1;
+                    }
+                } else {
+                    // Mode points uniquement (défaut)
+                    seriesConfig.symbolSize = symbolSize;
+                    seriesConfig.itemStyle = {
+                        color: pointColor,
+                        opacity: 0.9,
+                        borderColor: '#ffffff',
+                        borderWidth: 1
+                    };
+                    seriesConfig.emphasis = {
+                        itemStyle: {
+                            opacity: 1,
+                            borderWidth: 2
+                        }
+                    };
+                }
+                
+                return seriesConfig;
+            });
+        }
     }
 
     /**
@@ -680,9 +902,58 @@ class EChart
             options.dataZoom = [];
         }
 
-        // For line charts, adjust tooltip trigger
+        // For line charts, adjust tooltip trigger and add axis pointer
         if (this.type === 'line') {
             options.tooltip.trigger = 'axis';
+            options.tooltip.axisPointer = {
+                type: 'line',
+                animation: false,
+                label: {
+                    backgroundColor: '#505765'
+                }
+            };
+        }
+
+        // For points/scatter charts, adjust tooltip trigger and axis configuration
+        if (this.type === 'points' || this.type === 'scatter') {
+            options.tooltip.trigger = 'item';
+            options.tooltip.formatter = (params) => {
+                if (!params) return '';
+                
+                const timestamp = params.value[0];
+                const value = params.value[1];
+                const d = new Date(Number(timestamp));
+                
+                // Skip generic series names like 'series0', 'series1', etc.
+                const shouldShowSeriesName = params.seriesName && 
+                    !params.seriesName.match(/^series\d+$/i) &&
+                    !params.seriesName.toLowerCase().includes('series');
+                
+                let result = '';
+                if (shouldShowSeriesName) {
+                    result += '<b>' + params.seriesName + '</b><br/>';
+                }
+
+                // result += 'Time: ' + d.toLocaleString(undefined, {
+                //     year: 'numeric', month: 'short', day: '2-digit',
+                //     hour: '2-digit', minute: '2-digit', second: '2-digit',
+                //     hour12: false
+                // }) + '<br/>';
+                
+                // Configurable unit and precision from PHP options
+                const unit = this.chartOptions?.tooltip?.valueUnit || '';
+                const precision = this.chartOptions?.tooltip?.valuePrecision || 2;
+                const formattedValue = value.toFixed(precision);
+                
+                result += unit ? `${formattedValue} ${unit}` : formattedValue;
+                
+                return result;
+            };
+
+            // Ajuster les marges si des labels sont affichés pour éviter le débordement
+            if (this.chartOptions?.showAsLabels || this.chartOptions?.showBothLabelsAndPoints) {
+                options.grid.containLabel = true; // ECharts ajuste automatiquement pour contenir les labels
+            }
         }
 
         // For bar charts, adjust axis configuration
@@ -697,8 +968,6 @@ class EChart
             options.xAxis.axisLabel.textStyle = {
                 color: '#8A99AA'
             };
-            // Disable dataZoom to avoid conflicts with page scroll
-            options.dataZoom = [];
         }
 
         // For horizontal bar charts, just swap the axes (same as vertical but inverted)
@@ -785,12 +1054,32 @@ class EChart
             options.toolbox.show = false;
         }
 
-        // Enable magicType only for line and bar charts
-        if (this.type === 'line' || this.type === 'bar') {
+        // Enable magicType only for line, bar and scatter/points charts
+        if (this.type === 'line' || this.type === 'bar' || this.type === 'points' || this.type === 'scatter') {
             options.toolbox.feature.magicType.show = true;
+            // Add scatter to the available types if it's a points chart
+            if (this.type === 'points' || this.type === 'scatter') {
+                options.toolbox.feature.magicType.type = ['line', 'bar', 'scatter'];
+            }
         }
 
-        // Tooltip show / hide
+        // Enable dataZoom only for line and bar charts
+        if (this.type === 'line' || this.type === 'bar') {
+            options.toolbox.feature.dataZoom.show = true;
+        }
+
+        // Merge tooltip options from server configuration (deep merge for nested properties like axisPointer)
+        if (this.chartOptions.tooltip) {
+            for (const key in this.chartOptions.tooltip) {
+                if (this.chartOptions.tooltip[key] && typeof this.chartOptions.tooltip[key] === 'object' && !Array.isArray(this.chartOptions.tooltip[key])) {
+                    options.tooltip[key] = { ...options.tooltip[key], ...this.chartOptions.tooltip[key] };
+                } else {
+                    options.tooltip[key] = this.chartOptions.tooltip[key];
+                }
+            }
+        }
+        
+        // Tooltip show / hide (explicit override if needed)
         if (this.chartOptions.tooltip?.show === false) {
             options.tooltip.show = false;
         }
@@ -803,10 +1092,21 @@ class EChart
             options.grid.bottom = '30px';
         }
 
-        // Window size for initial zoom (default 15 points) - only for line charts
-        if (this.type === 'line') {
+        // Determine if we have large dataset (used for slider and other optimizations)
+        const totalPoints = this.labels.length;
+        const isLargeDataset = this.days > 3;
+
+        // DataZoom slider show / hide (auto-enable for large datasets on line/bar charts)
+        if (this.chartOptions.dataZoom?.slider?.show === true || 
+            (isLargeDataset && totalPoints > 1 && (this.type === 'line' || this.type === 'bar'))) {
+            options.dataZoom[1].show = true;
+            // Adjust grid bottom to make room for the slider
+            options.grid.bottom = '45px';
+        }
+
+        // Window size for initial zoom (default 15 points) - only for line and points/scatter charts
+        if (this.type === 'line' || this.type === 'points' || this.type === 'scatter') {
             const visibleCount = this.chartOptions?.['init-zoom'] ?? 15;
-            const totalPoints = this.labels.length;
             
             // If period changed, always show all data so user can see the new time range
             if (this._periodChanged) {
@@ -820,6 +1120,13 @@ class EChart
                 options.dataZoom[0].start = 0;
                 options.dataZoom[0].end = 100;
                 options.dataZoom[1].start = 0;
+                options.dataZoom[1].end = 100;
+            } else if (isLargeDataset) {
+                // For large datasets (> 100 points), show only a percentage initially (about 15-20 days for 6 months)
+                const endPercentage = Math.max(10, Math.min(20, (visibleCount / totalPoints) * 100));
+                options.dataZoom[0].start = 100 - endPercentage;
+                options.dataZoom[0].end = 100;
+                options.dataZoom[1].start = 100 - endPercentage;
                 options.dataZoom[1].end = 100;
             } else if (totalPoints > visibleCount) {
                 // Apply normal initial zoom logic only if chart was in natural state
@@ -864,6 +1171,18 @@ class EChart
         // Set options and render
         chart.setOption(options);
 
+        // Force zoom reset if period changed - this ensures consistent behavior
+        if (this._periodChanged) {
+            // Add a small delay to ensure the chart is fully rendered
+            setTimeout(() => {
+                chart.dispatchAction({
+                    type: 'dataZoom',
+                    start: 0,
+                    end: 100
+                });
+            }, 50);
+        }
+
         // Remove spinner
         $('#' + id + '-loading').hide();
 
@@ -885,11 +1204,25 @@ class EChart
         // Add click event if configured in chartOptions
         if (this.chartOptions.clickCallback?.enabled === true) {
             chart.on('click', (params) => {
-                if (params.componentType === 'series' && params.name) {
+                let urlValue = null;
+                
+                // For points/scatter charts with snapshotId data
+                if ((this.type === 'points' || this.type === 'scatter') && 
+                    params.componentType === 'series' && 
+                    params.data && 
+                    params.data.snapshotId) {
+                    urlValue = params.data.snapshotId;
+                }
+                // Fallback to original behavior for other chart types
+                else if (params.componentType === 'series' && params.name) {
+                    urlValue = params.name;
+                }
+                
+                if (urlValue) {
                     // Build URL with the configured pattern
                     let url = this.chartOptions.clickCallback.url;
-                    // Replace placeholder with the clicked item name
-                    url = url.replace('{value}', encodeURIComponent(params.name));
+                    // Replace placeholder with the value
+                    url = url.replace('{value}', encodeURIComponent(urlValue));
                     
                     // Open in new tab or same tab based on configuration
                     if (this.chartOptions.clickCallback.newTab !== false) {
@@ -1046,36 +1379,48 @@ EChart.destroyInstance = function(chartId) {
  * @param {*} id 
  * @param {*} autoUpdate 
  * @param {*} autoUpdateInterval 
- * @param {*} days 
+ * @param {*} providedDays - Number of days for the chart. If null, preserves the current chart's days value.
  */
-EChart.recreate = function(type, id, autoUpdate = true, autoUpdateInterval = 15000, days = window.innerWidth < 600 ? 1 : 3) {
+EChart.recreate = function(type, id, autoUpdate = true, autoUpdateInterval = 15000, providedDays = null) {
     // Check if existing chart was in natural state before destroying
     let wasInNaturalState = true;
     let periodChanged = false;
     let preservedCurrentType = type; // Default to original type
     let instance = null; // Declare instance variable
+    let days = providedDays; // The final days value to use
 
     try {
+        instance = EChart.instances[id];
+        
+        // If no days specified, try to preserve current chart's days value
+        if (providedDays === null && instance) {
+            days = instance.days;
+            console.info('EChart.recreate: preserving current days value:', days);
+        } else if (providedDays === null) {
+            // Fallback if no instance exists
+            days = 1;
+        }
+        
+        // Get current chart element for zoom state check
         const chartElement = document.querySelector("#" + id);
-        if (chartElement && chartElement._chartInstance) {
+        if (chartElement && chartElement._chartInstance && instance) {
             const currentOption = chartElement._chartInstance.getOption();
             if (currentOption && currentOption.dataZoom) {
-                instance = EChart.instances[id];
-                if (instance && typeof instance.isInNaturalState === 'function') {
-                    wasInNaturalState = instance.isInNaturalState(currentOption.dataZoom);
-                    
-                    // Check if the period (days) has changed
-                    periodChanged = instance.days !== days;
-                    
-                    // Preserve the current chart type (may have been changed by magicType)
-                    preservedCurrentType = instance.currentType || instance.type;
-                    
-                    // Also preserve colors if they were changed by magicType
-                    if (instance._preservedColors) {
-                        // We'll pass preserved colors to the new instance
-                        console.info('EChart.recreate: preserving colors', instance._preservedColors);
-                    }
-                }
+                wasInNaturalState = instance.isInNaturalState(currentOption.dataZoom);
+            }
+            
+            // Preserve the current chart type (may have been changed by magicType)
+            preservedCurrentType = instance.currentType || instance.type;
+        }
+        
+        // Check if period has changed - do this after days value is determined
+        if (instance) {
+            const oldDays = Number(instance.days);
+            const newDays = Number(days);
+            periodChanged = oldDays !== newDays;
+            
+            if (periodChanged) {
+                console.info('EChart.recreate: period changed from', oldDays, 'to', newDays, '- will reset zoom');
             }
         }
     } catch (error) {
@@ -1083,15 +1428,18 @@ EChart.recreate = function(type, id, autoUpdate = true, autoUpdateInterval = 150
         wasInNaturalState = true;
         periodChanged = false;
         preservedCurrentType = type;
+        // Ensure we have a fallback days value
+        if (days === null) {
+            days = 1;
+        }
     }
     
     if (EChart.destroyInstance(id)) {
         // Make spinner visible before creating new chart
         $('#' + id + '-loading').show();
 
-        // Create new instance and restore the preserved type
-        const newInstance = new EChart(type, id, autoUpdate, autoUpdateInterval, days, wasInNaturalState, periodChanged);
-        newInstance.currentType = preservedCurrentType;
+        // Create new instance and pass the preserved type directly to constructor
+        const newInstance = new EChart(type, id, autoUpdate, autoUpdateInterval, days, wasInNaturalState, periodChanged, preservedCurrentType);
         
         // Also preserve colors if they existed
         if (instance && instance._preservedColors) {
@@ -1107,3 +1455,53 @@ EChart.formatters = {
     // Example usage: formatterName: "activeState"
     activeState: (val) => val === 1 ? "active" : "inactive",
 };
+
+/**
+ * Event: when the period (days) selection is changed for any chart with class 'echart-period'
+ */
+$(document).ready(function () {
+    // Initialize charts for all elements with class 'echart'
+    $('.echart').each(function() {
+        const id = $(this).attr('id');
+        const type = $(this).attr('type');
+        const autoUpdate = $(this).attr('autoupdate') || true;
+        const autoUpdateInterval = $(this).attr('interval') || 15000;
+        const days = $(this).attr('days') || 1; // Default days based on screen size
+        const generate = $(this).attr('generate') !== undefined; // Check if 'generate' attribute is present
+
+        // Initialize charts that have the 'generate' attribute to avoid unnecessary instances
+        if (id && type && generate) {
+            new EChart(type, id, autoUpdate, autoUpdateInterval, days);
+        }
+    });
+
+    // Listen for changes on any select element with class 'echart-period'
+    $('select.echart-period').on('change', function() {
+        // Get chart Id
+        const chartId = $(this).attr('chart-id');
+        // Get selected value - convert to number to match internal storage
+        const days = Number($(this).val());
+
+        // Get chart type from 'type' or 'chart-type' attribute, default to 'line' if not specified
+        const type = $('#' + chartId).attr('type') || $('#' + chartId).attr('chart-type') || 'line';
+
+        // Destroy and recreate chart with new days value (pass as number)
+        EChart.recreate(type, chartId, true, 15000, days);
+    });
+
+    // Listen for changes on any select element with class 'echart-range'
+    // TODO: ranges
+    // $('select.echart-range').on('change', function() {
+    //     // Get chart Id
+    //     const chartId = $(this).attr('chart-id');
+
+    //     // Get selected value - convert to number to match internal storage
+    //     const range = Number($(this).val());
+
+    //     // Get chart type from 'type' or 'chart-type' attribute, default to 'line' if not specified
+    //     const type = $('#' + chartId).attr('type') || $('#' + chartId).attr('chart-type') || 'line';
+
+    //     // Destroy and recreate chart with new days value (pass as number)
+    //     EChart.recreate(type, chartId, true, 15000, days);
+    // });
+});

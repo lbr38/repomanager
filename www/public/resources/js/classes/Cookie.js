@@ -53,4 +53,13 @@ class Cookie {
 
         return true;
     }
+
+    /**
+     * Delete cookie by name
+     * @param {*} cname
+     */
+    delete(cname)
+    {
+        this.set(cname, "", -1);
+    }
 }

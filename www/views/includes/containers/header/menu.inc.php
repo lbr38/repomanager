@@ -19,7 +19,7 @@ use \Controllers\User\Permission\Task as TaskPermission; ?>
                 /**
                  *  REPOS tab
                  */
-                if (__ACTUAL_URI__[1] == '' or __ACTUAL_URI__[1] == 'browse' or __ACTUAL_URI__[1] == 'stats') {
+                if (in_array(__ACTUAL_URI__[1], ['', 'browse', 'stat', 'stats'])) {
                     $headerMenuClass = 'menu-sub-container-underline';
                 } else {
                     $headerMenuClass = 'menu-sub-container';

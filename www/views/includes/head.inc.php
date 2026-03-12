@@ -18,6 +18,7 @@
     <link rel="stylesheet" type="text/css" href="/resources/styles/components/tooltip.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/components/scrollbar.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/components/echart.css?<?= VERSION ?>">
+    <link rel="stylesheet" type="text/css" href="/resources/styles/components/daterangepicker.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/components/hide.css?<?= VERSION ?>">
     <link rel="stylesheet" type='text/css' href="/resources/styles/select2.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/main.css?<?= VERSION ?>">
@@ -32,6 +33,7 @@
     $additionalCss = [
         "run"      => "run.css",
         "browse"   => "browse.css",
+        "stat"     => "stats-hosts.css",
         "stats"    => "stats-hosts.css",
         "hosts"    => "stats-hosts.css",
         "host"     => "stats-hosts.css",
@@ -47,25 +49,28 @@
     } ?>
 
     <!-- Load pre JS -->
-    <script src="/resources/js/pre/functions/global.js?<?= VERSION ?>"></script>
-    <script src="/resources/js/pre/pre.js?<?= VERSION ?>"></script>
+    <script type="text/javascript" src="/resources/js/pre/functions/global.js?<?= VERSION ?>"></script>
+    <script type="text/javascript" src="/resources/js/pre/pre.js?<?= VERSION ?>"></script>
     <!-- jQuery -->
-    <script src="/resources/js/libs/jquery-3.7.1.min.js?<?= VERSION ?>"></script>
+    <script type="text/javascript" src="/resources/js/libs/jquery-3.7.1.min.js?<?= VERSION ?>"></script>
     <!-- Select2 https://select2.org/ -->
-    <script src="/resources/js/libs/select2.js?<?= VERSION ?>"></script>
+    <script type="text/javascript" src="/resources/js/libs/select2.js?<?= VERSION ?>"></script>
     <!-- ECharts -->
-    <script src="/resources/js/libs/echarts.min.js?<?= VERSION ?>"></script>
+    <script type="text/javascript" src="/resources/js/libs/echarts.min.js?<?= VERSION ?>"></script>
     <!-- Morhpdom -->
-    <script src="/resources/js/libs/morphdom-umd.min.js?<?= VERSION ?>"></script>
+    <script type="text/javascript" src="/resources/js/libs/morphdom-umd.min.js?<?= VERSION ?>"></script>
+    <!-- Moment & Daterangepicker -->
+    <script type="text/javascript" src="/resources/js/libs/moment.min.js"></script>
+    <script type="text/javascript" src="/resources/js/libs/daterangepicker.min.js"></script>
     <!-- App config files -->
-     <script src="/resources/js/app/container.config.js?<?= VERSION ?>"></script>
-    <script src="/resources/js/app/checkbox.config.js?<?= VERSION ?>"></script>
+    <script type="text/javascript" src="/resources/js/app/container.config.js?<?= VERSION ?>"></script>
+    <script type="text/javascript" src="/resources/js/app/checkbox.config.js?<?= VERSION ?>"></script>
 
     <?php
     $title = 'Repomanager';
 
     if (__ACTUAL_URI__[1] == "") {
-        $title .= ' - Repos';
+        $title .= ' - Repositories';
     } elseif (__ACTUAL_URI__[1] == "run") {
         $title .= ' - Tasks';
     } elseif (__ACTUAL_URI__[1] == "browse") {
@@ -80,8 +85,8 @@
         $title .= ' - Settings';
     } elseif (__ACTUAL_URI__[1] == "history") {
         $title .= ' - History';
-    } elseif (__ACTUAL_URI__[1] == "userspace") {
-        $title .= ' - Userspace';
+    } elseif (__ACTUAL_URI__[1] == "status") {
+        $title .= ' - Status';
     } ?>
 
     <title><?= $title ?></title>

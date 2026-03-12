@@ -16,6 +16,14 @@ class Snapshot
     }
 
     /**
+     *  Return the list of all active snapshots
+     */
+    public function get(): array
+    {
+        return $this->model->get();
+    }
+
+    /**
      *  Return the list of unused snapshots for the specified repo Id and retention parameter
      */
     private function getUnused(string $repoId, string $retention) : array
