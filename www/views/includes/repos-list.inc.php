@@ -6,68 +6,48 @@ use \Controllers\Utils\Array\Sort;
 /**
  *  Print groups and repos
  */
-if (!empty($groupsList)) {
-    foreach ($groupsList as $group) :
-        /**
-         *  Permissions
-         *  If the user is not an admin, check if the group is in the user permissions
-         */
-        if (!IS_ADMIN) {
-            // If 'all' is not in the user permissions, then it means the user has specific permissions and cannot view all groups
-            if (!in_array('all', USER_PERMISSIONS['repositories']['view'])) {
-                // Check if the current group Id is in the user permissions, if not then skip to the next group
-                if (!in_array($group['Id'], USER_PERMISSIONS['repositories']['view']['groups'])) {
-                    continue;
-                }
-            }
+if (!empty($groups)) {
+    foreach ($groups as $groupId => $group) :
+        if (!$group['show']) {
+            continue;
         }
 
-        /**
-         *  Getting repos list of the group
-         */
-        $reposList = $myrepoListing->listByGroup($group['Name']);
+        include(ROOT . '/views/includes/containers/repos/includes-temp/group.inc.php');
+
+        continue;
+
+
+
+
+
+
+
+        
 
         /**
          *  Count repositories
          *  To have the exact number of repos, count by their repoId (to avoid duplicate repos)
          */
-        $reposCount = count(array_unique(array_column($reposList, 'repoId')));
+        // $reposCount = count($finalReposList[$group['Repos']]); ?>
 
-        /**
-         *  Generate count message
-         */
-        if ($reposCount < 2) {
-            $countMessage = $reposCount . ' repository';
-        } else {
-            $countMessage = $reposCount . ' repositories';
-        } ?>
-
-        <div class="repos-list-group div-generic-blue veil-on-reload" group-id="<?= $group['Id'] ?>" group="<?= $group['Name'] ?>">
+        <div class="repos-list-group veil-on-reload" group-id="<?= 'toto' //$groupId ?>" group="<?= 'toto' //$group['Name'] ?>">
             <div class="flex justify-space-between">
                 <div>
-                    <p class="font-size-16"><?= $group['Name'] ?></p>
-                    <p class="lowopacity-cst"><?= $countMessage ?></p>
+                    <p class="font-size-16"><?= $group ?></p>
+                    <p class="lowopacity-cst"><?= $reposCount . ' repositor' . ($reposCount > 1 ? 'ies' : 'y') ?></p>
                 </div>
-                <img src="/assets/icons/view.svg" class="hide-repo-group pointer icon-lowopacity" group-id="<?= $group['Id'] ?>" state="visible" title="Hide/Show group">
+                <img src="/assets/icons/view.svg" class="hide-repo-group pointer icon-lowopacity" group-id="<?= 'toto' //$group['Id'] ?>" state="visible" title="Hide/Show group">
             </div>
 
-            <div class="repos-list-group-select-all-btns mediumopacity pointer hide" group-id="<?= $group['Id'] ?>">
-                <input type="checkbox" group-id="<?= $group['Id'] ?>"><p>Select latest snapshots</p>
+            <div class="repos-list-group-select-all-btns mediumopacity pointer hide" group-id="<?= 'toto' //$group['Id'] ?>">
+                <input type="checkbox" group-id="<?= 'toto' //$group['Id'] ?>"><p>Select latest snapshots</p>
             </div>
-
-            <?php
-            // If the group is empty, move to the next group
-            if (empty($reposList)) {
-                // close div.repos-list-group:
-                echo '</div>';
-                continue;
-            } ?>
 
             <!-- div only used to the show / hide group feature -->
-            <div class="repo-list-group-container margin-top-20" group-id="<?= $group['Id'] ?>">
+            <div class="repo-list-group-container margin-top-20" group-id="<?= 'toto' //$group['Id'] ?>">
                 <?php
                 // Sort repos by name
-                $reposList = Sort::byKey('Name', $reposList);
+                // $reposList = Sort::byKey('Name', $reposList);
 
                 // Variables to keep the previous values in the loop and decide if we need to print or not some values (to avoid duplicates)
                 $previousName = null;
@@ -84,336 +64,164 @@ if (!empty($groupsList)) {
                  */
                 $envCounter = 1;
 
-                foreach ($reposList as $repoArray) : ?>
-                    <div class="repos-list-group-flex-div" group-id="<?= $group['Id'] ?>" group="<?= $group['Name'] ?>">
+                foreach ($group['Repos'] as $key => $repo) : ?>
+                    <!-- <div class="repos-list-group-flex-div" group-id="<?= 'toto' //$group['Id'] ?>" group="<?= 'toto' //$group['Name'] ?>"> -->
+                    
+                    <?php
+                    // foreach ($repoArray as $repo) :
+                    // Retrieve values from database
+                    $name           = $repo['Name'];
+                    $dist           = $repo['Dist'];
+                    $section        = $repo['Section'];
+                    $releaseVersion = $repo['Releasever'];
+                    $source         = $repo['Source'];
+                    $rebuild        = $repo['Reconstruct'];
+                    $status         = $repo['Status'];
+                    $packageType    = $repo['Package_type'];
+                    $date           = $repo['Date'];
+                    $dateFormatted  = DateTime::createFromFormat('Y-m-d', $repo['Date'])->format('d-m-Y');
+                    $time           = $repo['Time'];
+                    $type           = $repo['Type'];
+                    $signed         = $repo['Signed'];
+                    $arch           = $repo['Arch'];
+                    $env            = $repo['Env'];
+                    $description    = $repo['Description'];
+                    $repoId         = $repo['repoId'];
+                    $snapId         = $repo['snapId'];
+                    $envId          = $repo['envId'];
+
+                    // Conditional variables to print or not some informations
+                    $printRepoName        = true;
+                    $printRepoDist        = true;
+                    $printRepoSection     = true;
+                    $printReleaseVersion  = true;
+                    $printEmptyLine       = false;
+                    $printDoubleEmptyLine = false;
+
+                    if ($name == $previousName) {
+                        $printRepoName = false;
+                    }
+
+                    if ($packageType != $previousPackageType) {
+                        $printRepoName = true;
+                        $envCounter    = 1;
+                    }
+
+                    if ($packageType == 'rpm') {
+                        $snapshotPath = REPOS_DIR . '/rpm/' . $name . '/' . $releaseVersion . '/' . $date;
+
+                        if ($name == $previousName and $snapId != $previousSnapId) {
+                            $printEmptyLine = true;
+                            $envCounter = 1;
+                        }
+                        if ($name == $previousName and $releaseVersion === $previousReleaseVersion) {
+                            $printReleaseVersion = false;
+                        }
+                        if ($name == $previousName and $releaseVersion !== $previousReleaseVersion) {
+                            $printDoubleEmptyLine = true;
+                            $envCounter = 1;
+                        }
+
+                        // Reset previous dist and section values to avoid some display bugs with deb repos having the same name as rpm repos
+                        $previousDist = '';
+                        $previousSection = '';
+                    }
+
+                    if ($packageType == 'deb') {
+                        $snapshotPath = REPOS_DIR . '/deb/' . $name . '/' . $dist . '/' . $section . '/' . $date;
+
+                        if ($name == $previousName and $dist == $previousDist and $section == $previousSection) {
+                            $printRepoName    = false;
+                            $printRepoDist    = false;
+                            $printRepoSection = false;
+                        }
+                        if ($name == $previousName and $previousDist != $dist) {
+                            $printDoubleEmptyLine = true;
+                            $envCounter = 1;
+                        }
+                        if ($name == $previousName and $previousDist == $dist and $section != $previousSection) {
+                            $printDoubleEmptyLine = true;
+                            $envCounter = 1;
+                        }
+                        if ($name == $previousName and $dist == $previousDist and $section == $previousSection and $snapId != $previousSnapId) {
+                            $printEmptyLine = true;
+                            $envCounter = 1;
+                        }
+                        if ($previousPackageType == 'deb' and $packageType == 'deb' and $name == $previousName) {
+                            $printRepoName = false;
+                        }
+
+                        // Reset previous release version value to avoid some display bugs with rpm repos having the same name as deb repos
+                        $previousReleaseVersion = '';
+                    }
+
+                    // If the current env is the third to be print for the current repo, then print an empty line before to let a space between the previous env
+                    if ($envCounter >= 3) {
+                        $printEmptyLine = true;
+                    }
+
+                    if ($repo['Type'] == 'mirror') {
+                        $typeIcon = 'internet';
+                    }
+                    if ($repo['Type'] == 'local') {
+                        $typeIcon = 'pin';
+                    }
+
+                    // Check if a task is running on the snapshot
+                    $taskRunning = $repoSnapshotController->taskRunning($snapId);
+
+                    // Print double empty line
+                    if ($printDoubleEmptyLine) {
+                        echo '<div class="item-empty-line"></div>';
+                    } ?>
+
+                    <?php
+                    if ($printRepoName) : ?>
+                        <h1 class="copy"><?= $repo['Name'] ?></h1>
                         <?php
-                        foreach ($repoArray as $repo) :
-                            // Retrieve values from database
-                            $name           = $repo['Name'];
-                            $dist           = $repo['Dist'];
-                            $section        = $repo['Section'];
-                            $releaseVersion = $repo['Releasever'];
-                            $source         = $repo['Source'];
-                            $rebuild        = $repo['Reconstruct'];
-                            $status         = $repo['Status'];
-                            $packageType    = $repo['Package_type'];
-                            $date           = $repo['Date'];
-                            $dateFormatted  = DateTime::createFromFormat('Y-m-d', $repo['Date'])->format('d-m-Y');
-                            $time           = $repo['Time'];
-                            $type           = $repo['Type'];
-                            $signed         = $repo['Signed'];
-                            $arch           = $repo['Arch'];
-                            $env            = $repo['Env'];
-                            $description    = $repo['Description'];
-                            $repoId         = $repo['repoId'];
-                            $snapId         = $repo['snapId'];
-                            $envId          = $repo['envId'];
+                    endif ?>
 
-                            // Conditional variables to print or not some informations
-                            $printRepoName        = true;
-                            $printRepoDist        = true;
-                            $printRepoSection     = true;
-                            $printReleaseVersion  = true;
-                            $printEmptyLine       = false;
-                            $printDoubleEmptyLine = false;
+                        
 
-                            if ($name == $previousName) {
-                                $printRepoName = false;
-                            }
 
-                            if ($packageType != $previousPackageType) {
-                                $printRepoName = true;
-                                $envCounter    = 1;
-                            }
 
-                            if ($packageType == 'rpm') {
-                                $snapshotPath = REPOS_DIR . '/rpm/' . $name . '/' . $releaseVersion . '/' . $date;
 
-                                if ($name == $previousName and $snapId != $previousSnapId) {
-                                    $printEmptyLine = true;
-                                    $envCounter = 1;
-                                }
-                                if ($name == $previousName and $releaseVersion === $previousReleaseVersion) {
-                                    $printReleaseVersion = false;
-                                }
-                                if ($name == $previousName and $releaseVersion !== $previousReleaseVersion) {
-                                    $printDoubleEmptyLine = true;
-                                    $envCounter = 1;
-                                }
 
-                                // Reset previous dist and section values to avoid some display bugs with deb repos having the same name as rpm repos
-                                $previousDist = '';
-                                $previousSection = '';
-                            }
 
-                            if ($packageType == 'deb') {
-                                $snapshotPath = REPOS_DIR . '/deb/' . $name . '/' . $dist . '/' . $section . '/' . $date;
 
-                                if ($name == $previousName and $dist == $previousDist and $section == $previousSection) {
-                                    $printRepoName    = false;
-                                    $printRepoDist    = false;
-                                    $printRepoSection = false;
-                                }
-                                if ($name == $previousName and $previousDist != $dist) {
-                                    $printDoubleEmptyLine = true;
-                                    $envCounter = 1;
-                                }
-                                if ($name == $previousName and $previousDist == $dist and $section != $previousSection) {
-                                    $printDoubleEmptyLine = true;
-                                    $envCounter = 1;
-                                }
-                                if ($name == $previousName and $dist == $previousDist and $section == $previousSection and $snapId != $previousSnapId) {
-                                    $printEmptyLine = true;
-                                    $envCounter = 1;
-                                }
-                                if ($previousPackageType == 'deb' and $packageType == 'deb' and $name == $previousName) {
-                                    $printRepoName = false;
-                                }
 
-                                // Reset previous release version value to avoid some display bugs with rpm repos having the same name as deb repos
-                                $previousReleaseVersion = '';
-                            }
 
-                            // If the current env is the third to be print for the current repo, then print an empty line before to let a space between the previous env
-                            if ($envCounter >= 3) {
-                                $printEmptyLine = true;
-                            }
 
-                            // Check if a task is running on the snapshot
-                            $taskRunning = $repoSnapshotController->taskRunning($snapId);
 
-                            // Print double empty line
-                            if ($printDoubleEmptyLine) {
-                                echo '<div class="item-empty-line"></div>';
-                            } ?>
 
-                            <div class="item-repo" name="<?= $name ?>" dist="<?= $dist ?>" section="<?= $section ?>" releasever="<?= $releaseVersion ?>">
-                                <?php
-                                if ($printRepoName) : ?>
-                                    <div class="flex align-item-center column-gap-8">
-                                        <span class="copy bold wordbreakall"><?= $name ?></span>
-                                        <span class="label-pkg-<?= $packageType ?>" title="This repository contains <?= $packageType ?> packages"><?= strtoupper($packageType) ?></span>
-                                    </div>
-                                    <?php
-                                endif;
 
-                                if ($packageType == 'deb') {
-                                    if ($printRepoDist or $printRepoSection) {
-                                        if ($printRepoDist) :
-                                            if (STATS_ENABLED == "true" and RepoPermission::allowedAction('view-stats')) : ?>
-                                                <a href="/stats/repo/<?= $repoId ?>">
-                                                    <div class="flex align-item-center column-gap-5" title="<?= (DEB_DISTRIBUTIONS[$dist] ?? $dist) ?> - <?= $section ?> - See stats">
-                                                        <p class="mediumopacity-cst font-size-13"><?= (DEB_DISTRIBUTIONS[$dist] ?? $dist) ?></p>
-                                                        <p class="mediumopacity-cst dot">●</p>
-                                                        <p class="mediumopacity-cst font-size-13"><?= $section ?></p>
-                                                    </div>
-                                                </a>
-                                                <?php
-                                            else : ?>
-                                                <div class="flex align-item-center column-gap-5" title="<?= (DEB_DISTRIBUTIONS[$dist] ?? $dist) ?> - <?= $section ?> - See stats">
-                                                    <p class="mediumopacity-cst font-size-13"><?= (DEB_DISTRIBUTIONS[$dist] ?? $dist) ?></p>
-                                                    <p class="mediumopacity-cst dot">●</p>
-                                                    <p class="mediumopacity-cst font-size-13"><?= $section ?></p>
-                                                </div>
-                                                <?php
-                                            endif;
-                                        endif;
-                                    }
-                                }
 
-                                if ($packageType == 'rpm') {
-                                    if ($printReleaseVersion) {
-                                        if (STATS_ENABLED == "true" and RepoPermission::allowedAction('view-stats')) {
-                                            echo '<a href="/stats/repo/' . $repoId . '">';
-                                            echo '<p class="lowopacity-cst font-size-13" title="Release version - See stats">Release version ' . $releaseVersion . '</p>';
-                                            echo '</a>';
-                                        } else {
-                                            echo '<p class="lowopacity-cst font-size-13" title="Release version">Release version ' . $releaseVersion . '</p>';
-                                        }
-                                    }
-                                } ?>
-                            </div>
 
-                            <div class="item-checkbox">
-                                <?php
-                                if ($snapId != $previousSnapId) {
-                                    // Print a warning icon if repo snapshot needs to be rebuild
-                                    if (!empty($rebuild)) {
-                                        if ($rebuild == 'needed') {
-                                            echo '<img class="icon-np" src="/assets/icons/warning.svg" title="Repository snapshot content has been modified. You have to rebuild metadata." />';
-                                        }
 
-                                        /**
-                                         *  Print a failed icon if repo snapshot rebuild has failed
-                                         */
-                                        if ($rebuild == 'failed') {
-                                            echo '<img class="icon-np" src="/assets/icons/error.svg" title="Metadata building has failed." />';
-                                        }
-                                    }
 
-                                    /**
-                                     *  Print a warning icon if snapshot directory does not exist on the server
-                                     *  Only print it if there is no task running on the snapshot because some tasks like rename can temporarily remove the snapshot directory
-                                     */
-                                    if (!$taskRunning) {
-                                        if ($packageType == 'rpm') {
-                                            if (!is_dir($snapshotPath)) {
-                                                echo '<img class="icon-np" src="/assets/icons/warning.svg" title="This snapshot directory is missing on the server." />';
-                                            }
-                                        }
-                                        if ($packageType == 'deb') {
-                                            if (!is_dir($snapshotPath)) {
-                                                echo '<img class="icon-np" src="/assets/icons/warning.svg" title="This snapshot directory is missing on the server." />';
-                                            }
-                                        }
-                                    }
-                                }
 
-                                /**
-                                 *  Checkbox are printed for all users
-                                 *  Admins can execute all actions
-                                 *  Regular users can execute actions only if they have the permission to do so (but they can at least 'Install' the repository)
-                                 */
-                                // Print checkbox only if the snapshot is different from the previous one and there is no operation running on the snapshot
-                                if ($snapId != $previousSnapId) :
-                                    if ($taskRunning) : ?>
-                                        <img src="/assets/icons/loading.svg" class="icon-np" title="A task is running on this repository snaphot." />
-                                        <?php
-                                    else : ?>
-                                        <input type="checkbox" cid="<?= $repoId . $snapId ?>" class="icon-lowopacity" name="checkbox-repo" repo-id="<?= $repoId ?>" snap-id="<?= $snapId ?>" <?php echo !empty($envId) ? 'env-id="' . $envId . '"' : ''; ?> env-name="<?= $env ?>" repo-type="<?= $type ?>" group-id="<?= $group['Id'] ?>" title="Select and execute an action.">
-                                        <?php
-                                    endif;
-                                endif ?>
-                            </div>
-        
-                            <?php
-                            // Generate repo relative path
-                            if ($packageType == 'rpm') {
-                                $repoRelativePath = 'rpm/' .$name . '/' . $releaseVersion . '/' . $date;
-                            }
 
-                            if ($packageType == 'deb') {
-                                $repoRelativePath = 'deb/' . $name . '/' . $dist . '/' . $section . '/' . $date;
-                            } ?>
 
-                            <div class="item-snapshot">
-                                <?php
-                                if ($snapId != $previousSnapId) : ?>
-                                    <div class="item-date">
-                                        <?php
-                                        if (RepoPermission::allowedAction('browse')) : ?>
-                                            <a href="/browse/<?= $snapId ?>" title="<?= "Browse snapshot ($dateFormatted $time) content" ?>">
-                                                <span><?= $dateFormatted ?></span>
-                                            </a>
-                                            <?php
-                                        else : ?>
-                                            <span><?= $dateFormatted ?></span>
-                                            <?php
-                                        endif ?>
-                                    </div>
 
-                                    <div class="item-info">
-                                        <span>
-                                            <?php
-                                            if ($type == "mirror") {
-                                                echo '<img class="icon-np lowopacity-cst" src="/assets/icons/internet.svg" title="Type: mirror (source repository: ' . $source . ')&#10;Arch: ' . $arch . '" />';
-                                            }
-                                            if ($type == "local") {
-                                                echo '<img class="icon-np lowopacity-cst" src="/assets/icons/pin.svg" title="Type: local&#10;Arch: ' . $arch . '" />';
-                                            } ?>
-                                        </span>
-                                        
-                                        <span>
-                                            <?php
-                                            if ($signed == "true") {
-                                                echo '<img class="icon-np lowopacity-cst" src="/assets/icons/key.svg" title="Signed with GPG" />';
-                                            }
-                                            if ($signed == "false") {
-                                                echo '<img class="icon-np" src="/assets/icons/key2.svg" title="Not signed with GPG" />';
-                                            } ?>
-                                        </span>
 
-                                        <span class="item-size lowopacity-cst" title="Repository snapshot size" repo-id="<?= $repoId ?>" snap-id="<?= $snapId ?>" repo-relative-path="<?= $repoRelativePath ?>">Calc.</span>
-                                    </div>
-                                    <?php
-                                endif ?>
-                            </div>
-                            
-                            <?php
-                            /**
-                             *  Print an arrow only if an environment points to the snapshot
-                             */
-                            if ($snapId == $previousSnapId) {
-                                echo '<div class="item-arrow-up">';
-                            } else {
-                                echo '<div class="item-arrow">';
-                            }
-                            if (!empty($env)) {
-                                echo '<span></span>';
-                            }
-                            echo '</div>'; ?>
 
-                            <div class="item-env" env-id="<?= $envId ?>" title="<?= !empty($env) ? "Environment: $env" : "" ?>">
-                                <?php
-                                if (!empty($env)) {
-                                    echo Label::envtag($env, 'fit');
-                                    $envCounter++;
-                                } ?>
-                            </div>
 
-                            <div class="item-env-info" env-id="<?= $envId ?>">
-                                <?php
-                                // Environment checkbox
-                                if (!empty($env)) {
-                                    // Print a warning icon if the env link is broken (target environment link does not exist). Only print it if there is no task running on the snapshot.
-                                    if (!$taskRunning) {
-                                        if ($packageType == 'rpm') {
-                                            if (!is_link(REPOS_DIR . '/rpm/' . $name . '/' . $releaseVersion . '/' . $env)) {
-                                                echo '<img class="icon-np" src="/assets/icons/warning.svg" title="This environment link is broken." />';
-                                            }
-                                        }
 
-                                        if ($packageType == 'deb') {
-                                            if (!is_link(REPOS_DIR . '/deb/' . $name . '/' . $dist . '/' . $section . '/' . $env)) {
-                                                echo '<img class="icon-np" src="/assets/icons/warning.svg" title="This environment link is broken." />';
-                                            }
-                                        }
-                                    }
+                    <div>
+                        <?php
+                        $previousName = $name;
 
-                                    // If the user is an admin or is a regular user with the 'removeEnv' permission
-                                    if (RepoPermission::allowedAction('removeEnv')) { ?>
-                                        <input type="checkbox" cid="<?= $repoId . $snapId . $envId ?>" class="select-env-checkbox icon-lowopacity" name="env-checkbox" repo-id="<?= $repoId ?>" snap-id="<?= $snapId ?>" env-id="<?= $envId ?>" env="<?= $env ?>" title="Select environment">
-                                        <?php
-                                    }
-                                } ?>
-                            </div>
-
-                            <?php
-                            // Description input
-                            echo '<div class="item-desc hide-mobile">';
-                            if (!empty($env)) {
-                                echo '<input type="text" class="repo-description-input" env-id="' . $envId . '" value=\'' . htmlspecialchars_decode($description) . '\' />';
-                            }
-                            echo '</div>'; ?>
-
-                            <div class="item-task-status" snap-id="<?= $snapId ?>">
-                            </div>
-
-                            <?php
-                            $previousName = $name;
-
-                            if (!empty($dist)) {
-                                $previousDist = $dist;
-                            }
-                            if (!empty($section)) {
-                                $previousSection = $section;
-                            }
-                            if (!empty($releaseVersion)) {
-                                $previousReleaseVersion = $releaseVersion;
-                            }
-                            $previousSnapId = $snapId;
-                            $previousPackageType = $packageType;
-                        endforeach ?>
+                        if (!empty($dist)) {
+                            $previousDist = $dist;
+                        }
+                        if (!empty($section)) {
+                            $previousSection = $section;
+                        }
+                        if (!empty($releaseVersion)) {
+                            $previousReleaseVersion = $releaseVersion;
+                        }
+                        $previousSnapId = $snapId;
+                        $previousPackageType = $packageType; ?>
                     </div>
                     <?php
                 endforeach ?>

@@ -90,8 +90,8 @@ $(document).on('mouseenter', '.search-package-tooltip', function (e) {
     content += '<p><code>name=apache2 version=2.4 strict-name=true</code></p>';
 
     content += '<div class="flex flex-direction-column row-gap-5 margin-top-10">';
-    content += '<p>● Use scrict filters to search for exact package name and/or version</p>';
-    content += '<p>● Search and filters are case-insensitive</p>';
+    content += '<p>- Use scrict filters to search for exact package name and/or version</p>';
+    content += '<p>- Search and filters are case-insensitive</p>';
     content += '</div>';
 
     // Print tooltip

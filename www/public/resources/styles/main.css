@@ -388,11 +388,41 @@ article {
     column-gap: 10px;
 }
 
-input::placeholder {
-    color: #ffffff9e;
+/* new ui */
+.snap-container {
+    height: 30px;
 }
 
-/* Etiquettes d'environnements */
+.snap-label {
+    padding: 12px 30px 12px 30px;
+    color: #BDBFD0;
+    background-color: #182b3e;
+    font-size: 16px;
+    border-radius: 60px;
+    border: 0.5px solid #BDBFD0;
+    z-index: 999999999;
+}
+
+.snap-size {
+    padding: 12px 30px 12px 30px;
+    background-color: #BDBFD0;
+    color: #141C33;
+    font-size: 16px;
+    font-weight: bold;
+    border-top-right-radius: 60px;
+    border-bottom-right-radius: 60px;
+    border-top: 0.5px solid #BDBFD0;
+    border-right: 0.5px solid #BDBFD0;
+    border-bottom: 0.5px solid #BDBFD0;
+    margin-left: -25px;
+}
+
+
+
+
+
+
+/* Env labels */
 .env, .last-env, .env-fit, .last-env-fit {
     font-size: 13px;
     padding-left: 10px;

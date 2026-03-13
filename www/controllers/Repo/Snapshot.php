@@ -42,9 +42,9 @@ class Snapshot
     /**
      *  Add a snapshot in database
      */
-    public function add(string $date, string $time, string $gpgSignature, array $arch, array $includeTranslation, array $packagesIncluded, array $packagesExcluded, string $type, string $status, int $repoId) : void
+    public function add(string $date, string $time, string $gpgSignature, array $arch, array $packagesIncluded, array $packagesExcluded, string $type, string $status, int $repoId) : void
     {
-        $this->model->add($date, $time, $gpgSignature, $arch, $includeTranslation, $packagesIncluded, $packagesExcluded, $type, $status, $repoId);
+        $this->model->add($date, $time, $gpgSignature, $arch, $packagesIncluded, $packagesExcluded, $type, $status, $repoId);
     }
 
     /**

@@ -18,12 +18,7 @@
             <?= $content ?>
         </article>
 
-        <?php
-            /**
-             *  Footer
-             */
-            include_once(ROOT . '/views/includes/footer.inc.php');
-        ?>
+        <?php include_once(ROOT . '/views/includes/footer.inc.php'); ?>
 
         <div id="bottom"></div> <!-- to go to the bottom of the page -->
     </body>
