@@ -8,12 +8,12 @@ namespace Controllers\Repo\Mirror;
  */
 
 use Exception;
-use \Controllers\Process;
-use \Controllers\App\DebugMode;
-use \Controllers\Utils\Validate;
-use \Controllers\Utils\Compress\Bzip2;
-use \Controllers\Utils\Compress\Gzip;
-use \Controllers\Utils\Compress\Xz;
+use Controllers\Process;
+use Controllers\App\DebugMode;
+use Controllers\Utils\Validate;
+use Controllers\Utils\Compress\Bzip2;
+use Controllers\Utils\Compress\Gzip;
+use Controllers\Utils\Compress\Xz;
 
 class Deb extends \Controllers\Repo\Mirror\Mirror
 {

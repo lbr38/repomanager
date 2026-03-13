@@ -49,7 +49,7 @@ class Host
         if (allowedActions.includes('request-general-infos')) {
             buttons.push(
                 {
-                    'text': 'Request general informations',
+                    'text': 'Request general information',
                     'color': 'blue-alt',
                     'callback': function () {
                         executeAction('request-general-infos', hosts);
@@ -61,7 +61,7 @@ class Host
         if (allowedActions.includes('request-packages-infos')) {
             buttons.push(
                 {
-                    'text': 'Request packages informations',
+                    'text': 'Request packages information',
                     'color': 'blue-alt',
                     'callback': function () {
                         executeAction('request-packages-infos', hosts);

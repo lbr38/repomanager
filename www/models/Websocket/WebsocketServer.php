@@ -3,7 +3,7 @@
 namespace Models\Websocket;
 
 use Exception;
-use \Controllers\Database\Log as DbLog;
+use Controllers\Database\Log as DbLog;
 
 class WebsocketServer extends \Models\Model
 {

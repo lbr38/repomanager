@@ -3,7 +3,7 @@
 namespace Models\Log;
 
 use Exception;
-use \Controllers\Database\Log as DbLog;
+use Controllers\Database\Log as DbLog;
 
 class Log extends \Models\Model
 {

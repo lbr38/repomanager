@@ -2,9 +2,9 @@
 
 namespace Controllers\Cve\Tools;
 
-use \Exception;
-use \Controllers\Utils\Validate;
-use \Controllers\Utils\Compress\Gzip;
+use Exception;
+use Controllers\Utils\Validate;
+use Controllers\Utils\Compress\Gzip;
 
 class Import
 {

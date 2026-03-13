@@ -2,8 +2,8 @@
 
 namespace Controllers\Layout\Tab;
 
-use \Controllers\User\Permission\Repo as RepoPermission;
-use \Controllers\Layout\Container\Render;
+use Controllers\User\Permission\Repo as RepoPermission;
+use Controllers\Layout\Container\Render;
 
 class Stats
 {

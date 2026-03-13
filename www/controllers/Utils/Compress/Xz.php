@@ -2,7 +2,7 @@
 
 namespace Controllers\Utils\Compress;
 
-use \Controllers\Process;
+use Controllers\Process;
 use Exception;
 
 class Xz

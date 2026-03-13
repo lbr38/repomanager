@@ -29,8 +29,5 @@
 <input type="hidden" class="task-param" param-name="gpg-sign" value="<?= $myrepo->getSigned() ?>" />
 
 <?php
-/**
- *  Define schedule form action and allowed type(s)
- */
+// Define schedule form action (useful for the schedule form)
 $scheduleForm['action'] = 'rename';
-$scheduleForm['type'] = ['unique'];

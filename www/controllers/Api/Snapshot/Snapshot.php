@@ -2,7 +2,8 @@
 
 namespace Controllers\Api\Snapshot;
 
-use \Controllers\User\Permission\Repo as RepoPermission;
+use Controllers\User\Permission\Repo as RepoPermission;
+use Controllers\Utils\Convert;
 use Exception;
 
 class Snapshot extends \Controllers\Api\Controller
@@ -49,7 +50,14 @@ class Snapshot extends \Controllers\Api\Controller
                  *  https://repomanager.mydomain.net/api/v2/snapshot/$this->snapId/upload
                  */
                 if ($this->action == 'upload' and !empty($this->postFiles)) {
-                    $mypackage->upload($this->snapId, $this->postFiles);
+                    $overwrite = false;
+
+                    // If a null value is returned, it means that the value provided by the user is not a valid boolean string
+                    if (isset($_POST['overwrite']) && is_null($overwrite = Convert::toBool($_POST['overwrite']))) {
+                        throw new Exception('Invalid overwrite value');
+                    }
+
+                    $mypackage->upload($this->snapId, $this->postFiles, $overwrite);
 
                     return ['results' => 'Packages uploaded successfully'];
                 }

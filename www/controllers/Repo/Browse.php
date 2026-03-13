@@ -130,23 +130,4 @@ class Browse
         </li>
         <?php
     }
-
-    /**
-     *  Function to rebuild the $_FILES['packages'] array which is quite badly done and therefore complicated to browse
-     *  https://www.php.net/manual/fr/features.file-upload.multiple.php
-     */
-    public static function reArrayFiles(&$file_post): array
-    {
-        $file_array = [];
-        $file_count = count($file_post['name']);
-        $file_keys = array_keys($file_post);
-
-        for ($i = 0; $i < $file_count; $i++) {
-            foreach ($file_keys as $key) {
-                $file_array[$i][$key] = $file_post[$key][$i];
-            }
-        }
-
-        return $file_array;
-    }
 }

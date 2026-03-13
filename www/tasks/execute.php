@@ -174,8 +174,9 @@ try {
  *  Catch exceptions
  */
 } catch (Exception $e) {
-    $mylog->log('error', 'An exception error occurred while running task #' . $taskId, $e->getMessage(), $e->getTraceAsString());
+    // $mylog->log('error', 'An exception error occurred while running task #' . $taskId, $e->getMessage(), $e->getTraceAsString());
     echo 'Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine() . PHP_EOL;
+    echo 'Task #' . $taskId . ' failed' . PHP_EOL;
     exit(1);
 
 /**
@@ -184,6 +185,7 @@ try {
 } catch (Error $e) {
     $mylog->log('error', 'A fatal error occurred while running task #' . $taskId, $e->getMessage(), $e->getTraceAsString());
     echo 'Fatal error: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine() . PHP_EOL;
+    echo 'Task #' . $taskId . ' failed' . PHP_EOL;
     exit(1);
 }
 

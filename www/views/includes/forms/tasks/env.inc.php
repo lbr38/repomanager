@@ -41,11 +41,8 @@
 <input type="text" class="task-param" param-name="description" />
 
 <?php
-/**
- *  Define schedule form action and allowed type(s)
- */
-$scheduleForm['action'] = 'env';
-$scheduleForm['type'] = ['unique']; ?>
+// Define schedule form action (useful for the schedule form)
+$scheduleForm['action'] = 'env'; ?>
 
 <script>
 $(document).ready(function() {

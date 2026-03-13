@@ -5,7 +5,7 @@ namespace Controllers\User;
 require_once ROOT . '/libs/vendor/autoload.php';
 
 use Exception;
-use \Controllers\Utils\Validate;
+use Controllers\Utils\Validate;
 
 class User
 {

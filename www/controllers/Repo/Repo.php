@@ -3,8 +3,8 @@
 namespace Controllers\Repo;
 
 use Exception;
-use Datetime;
-use \Controllers\Utils\Validate;
+use DateTime;
+use Controllers\Utils\Validate;
 
 class Repo
 {
@@ -24,7 +24,6 @@ class Repo
     private $dateFormatted;
     private $time;
     private $env;
-    // private $envs;
     private $description;
     private $group;
     private $packagesToInclude = [];
@@ -35,7 +34,6 @@ class Repo
     private $gpgCheck;
     private $gpgSign;
     private $releasever;
-    // private $targetArch;
 
     public function __construct()
     {
@@ -166,17 +164,17 @@ class Repo
         $this->releasever = $releasever;
     }
 
-    public function setTaskId(string $taskId): void
+    public function setTaskId(int $taskId): void
     {
         $this->taskId = $taskId;
     }
 
-    public function getRepoId()
+    public function getRepoId(): int
     {
         return $this->repoId;
     }
 
-    public function getSnapId()
+    public function getSnapId(): int
     {
         return $this->snapId;
     }
@@ -186,22 +184,22 @@ class Repo
         return $this->envId;
     }
 
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function getDist()
+    public function getDist(): string
     {
         return $this->dist;
     }
 
-    public function getSection()
+    public function getSection(): string
     {
         return $this->section;
     }
 
-    public function getPackageType() : string
+    public function getPackageType(): string
     {
         return $this->packageType;
     }
@@ -211,17 +209,17 @@ class Repo
         return $this->env;
     }
 
-    public function getDate()
+    public function getDate(): string
     {
         return $this->date;
     }
 
-    public function getDateFormatted()
+    public function getDateFormatted(): string
     {
         return DateTime::createFromFormat('Y-m-d', $this->date)->format('d-m-Y');
     }
 
-    public function getTime()
+    public function getTime(): string
     {
         return $this->time;
     }
@@ -236,7 +234,7 @@ class Repo
         return $this->status;
     }
 
-    public function getSource()
+    public function getSource(): string
     {
         return $this->source;
     }
@@ -271,7 +269,7 @@ class Repo
         return $this->releasever;
     }
 
-    public function getDescription()
+    public function getDescription(): string|null
     {
         return $this->description;
     }
@@ -291,7 +289,7 @@ class Repo
         return $this->gpgSign;
     }
 
-    public function getTaskId()
+    public function getTaskId(): int
     {
         return $this->taskId;
     }
@@ -322,14 +320,10 @@ class Repo
         }
         if (!empty($data['Dist'])) {
             $this->setDist($data['Dist']);
-        } /*else {
-            $this->setDist('');
-        }*/
+        }
         if (!empty($data['Section'])) {
             $this->setSection($data['Section']);
-        } /*else {
-            $this->setSection('');
-        }*/
+        }
         if (!empty($data['Package_type'])) {
             $this->setPackageType($data['Package_type']);
         }

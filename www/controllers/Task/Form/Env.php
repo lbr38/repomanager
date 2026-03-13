@@ -2,8 +2,8 @@
 
 namespace Controllers\Task\Form;
 
-use \Controllers\Utils\Generate\Html\Label;
-use \Controllers\History\Save as History;
+use Controllers\Utils\Generate\Html\Label;
+use Controllers\History\Save as History;
 
 class Env
 {

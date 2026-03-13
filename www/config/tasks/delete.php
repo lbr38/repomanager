@@ -11,3 +11,9 @@ $taskConfig = [
         'snap-id'
     ]
 ];
+
+// Form configuration
+$formConfig = [
+    // Allowed schedule types for this task
+    'allowed-schedule-types' => ['unique']
+];

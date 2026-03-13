@@ -3,7 +3,7 @@
 namespace Models;
 
 use Exception;
-use \Controllers\Database\Log as DbLog;
+use Controllers\Database\Log as DbLog;
 
 class Notification extends Model
 {

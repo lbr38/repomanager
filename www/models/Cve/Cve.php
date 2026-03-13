@@ -2,7 +2,7 @@
 
 namespace Models\Cve;
 
-use \Controllers\Database\Log as DbLog;
+use Controllers\Database\Log as DbLog;
 use Exception;
 
 class Cve extends \Models\Model

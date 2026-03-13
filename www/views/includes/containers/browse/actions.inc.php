@@ -4,9 +4,7 @@ use \Controllers\User\Permission\Repo as RepoPermission; ?>
 <section class="section-right reloadable-container" container="browse/actions">
     <?php
     try {
-        /**
-         *  If the user does not have permission to upload packages, prevent access to this panel.
-         */
+        // If the user does not have permission to upload packages, prevent access to this panel.
         if (!RepoPermission::allowedAction('upload-package')) {
             throw new Exception('You are not allowed to upload packages');
         } ?>
@@ -14,9 +12,7 @@ use \Controllers\User\Permission\Repo as RepoPermission; ?>
         <h3>UPLOAD PACKAGES</h3>
 
         <?php
-        /**
-         *  If a task is already running on this repo then print a message
-         */
+        // If a task is already running on this repo then print a message
         if (!empty($rebuild) and $rebuild == 'running') : ?>
             <div class="div-generic-blue">
                 <h6 class="margin-top-0">TASK RUNNING</h6>
@@ -28,9 +24,7 @@ use \Controllers\User\Permission\Repo as RepoPermission; ?>
             <?php
         endif;
 
-        /**
-         *  If there is no task running on this repo then print action buttons
-         */
+        // If there is no task running on this repo then print action buttons
         if (empty($rebuild) or (!empty($rebuild) and $rebuild != 'running')) : ?>
             <div class="div-generic-blue">
                 <form action="" method="post" enctype="multipart/form-data">
@@ -44,22 +38,34 @@ use \Controllers\User\Permission\Repo as RepoPermission; ?>
                     <br>
                     <input type="file" name="packages[]" accept="application/vnd.debian.binary-package" multiple />
                     
+                    <h6 class="">OVERWRITE EXISTING PACKAGES</h6>
+                    <p class="note">If a package with the same name already exists in the snapshot, it will be overwritten.</p>
+                    <label class="onoff-switch-label">
+                        <input name="overwrite" type="checkbox" class="onoff-switch-input">
+                        <span class="onoff-switch-slider"></span>
+                    </label>
+
                     <br><br>
                     <button type="submit" class="btn-large-green">Upload package</button>
                 </form>
 
                 <div class="margin-top-10">
                     <?php
-                    /**
-                     *  Print success messages from uploading packages if there are
-                     */
+                    // Print success messages from uploading packages if there are
                     if (!empty($uploadSuccessMessage)) {
                         echo '<p class="greentext">' . $uploadSuccessMessage . '</p>';
                     }
 
-                    /**
-                     *  Print error messages from uploading packages if there are
-                     */
+                    // Print error messages from uploading packages if there are
+                    if (!empty($uploadErrorDetails)) {
+                        foreach ($uploadErrorDetails as $errorTitle => $errorPackages) {
+                            echo '<p class="redtext">' . htmlspecialchars($errorTitle) . ':</p>';
+                            foreach ($errorPackages as $pkg) {
+                                echo '<p class="redtext">' . htmlspecialchars($pkg) . '</p>';
+                            }
+                        }
+                    }
+
                     if (!empty($uploadErrorMessage)) {
                         echo '<p class="redtext">' . $uploadErrorMessage . '</p>';
                     } ?>
@@ -74,9 +80,7 @@ use \Controllers\User\Permission\Repo as RepoPermission; ?>
     }
 
     try {
-        /**
-         *  If the user does not have permission to rebuild repositories, prevent access to this panel.
-         */
+        // If the user does not have permission to rebuild repositories, prevent access to this panel.
         if (!RepoPermission::allowedAction('rebuild')) {
             throw new Exception('You are not allowed to rebuild repositories');
         } ?>
@@ -84,16 +88,14 @@ use \Controllers\User\Permission\Repo as RepoPermission; ?>
         <h3>REBUILD REPOSITORY</h3>
 
         <?php
-        /**
-         *  If there is no task running on this repo then print action buttons
-         */
+        // If there is no task running on this repo then print action buttons
         if (empty($rebuild) or (!empty($rebuild) and $rebuild != 'running')) :
             $gpgSignChecked = '';
 
-            if ($myrepo->getPackageType() == 'rpm' && RPM_SIGN_PACKAGES == 'true') {
+            if ($repoController->getPackageType() == 'rpm' && RPM_SIGN_PACKAGES == 'true') {
                 $gpgSignChecked = 'checked';
             }
-            if ($myrepo->getPackageType() == 'deb' && DEB_SIGN_REPO == 'true') {
+            if ($repoController->getPackageType() == 'deb' && DEB_SIGN_REPO == 'true') {
                 $gpgSignChecked = 'checked';
             } ?>
 

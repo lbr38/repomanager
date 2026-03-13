@@ -2,7 +2,7 @@
 
 namespace Controllers\Repo\Task;
 
-use \Controllers\Filesystem\File;
+use Controllers\Filesystem\File;
 use Exception;
 
 trait Finalize
