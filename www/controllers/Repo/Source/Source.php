@@ -4,7 +4,7 @@ namespace Controllers\Repo\Source;
 
 use Exception;
 use JsonException;
-use \Controllers\Utils\Validate;
+use Controllers\Utils\Validate;
 
 class Source
 {

@@ -1,0 +1,123 @@
+# 
+# Material icons: https://squidfunk.github.io/mkdocs-material/reference/icons-emojis/
+#
+
+# -- Site settings --
+site_name: Repomanager
+site_description: A web UI to mirror rpm and deb repositories
+site_url: https://docs.repomanager.net
+
+# -- Theme --
+theme:
+  name: material
+  language: en
+  logo: assets/logo.svg
+  palette:
+    # Light mode
+    - scheme: default
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Dark mode
+    - scheme: slate
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+  features:
+    - navigation.instant          # Instant navigation (fetch + replace)
+    - navigation.instant.prefetch # Prefetch pages on hover
+    - navigation.tracking         # URL reflects the visible section
+    - navigation.tabs             # Main navigation tabs
+    - navigation.sections         # Sections in the sidebar
+    - navigation.expand
+    - navigation.top              # Back to top button
+    - navigation.indexes          # Section index pages
+    - search.suggest              # Search suggestions
+    - search.highlight            # Search result highlighting
+    - content.code.copy           # Copy button on code blocks
+    - content.code.annotate       # Annotations in code
+    - content.tabs.link           # Linked tabs between sections
+    - content.tooltips            # Enhanced tooltips on links
+    - toc.follow                  # Table of contents follows scroll
+    - toc.integrate
+
+# -- Plugins --
+plugins:
+  - search
+
+# -- Markdown Extensions --
+markdown_extensions:
+  - admonition                              # Admonitions (note, tip, warning...)
+  - pymdownx.details                        # Collapsible admonitions
+  - pymdownx.superfences                    # Advanced code blocks
+    
+  - pymdownx.tabbed:                        # Content tabs
+      alternate_style: true
+  - pymdownx.highlight:                     # Syntax highlighting
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite                   # Inline code highlighting
+  - pymdownx.snippets                       # File inclusion
+  - pymdownx.emoji:                         # Emojis and icons
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - attr_list                               # HTML attributes on elements
+  - md_in_html                              # Markdown inside HTML
+  - tables                                  # Tables
+  - footnotes                               # Footnotes
+  - pymdownx.critic                         # Change tracking
+  - pymdownx.caret                          # Superscript and insertion
+  - pymdownx.keys                           # Keyboard shortcuts
+  - pymdownx.mark                           # Text highlighting
+  - pymdownx.tilde                          # Subscript and strikethrough
+  - toc:                                    # Table of contents
+      permalink: true
+  - pymdownx.tasklist:                      # Task lists
+      custom_checkbox: true
+  - def_list                                # Definition lists
+  - abbr                                    # Abbreviations
+
+# -- Navigation --
+nav:
+  - Overview: index.md
+  - Getting Started:
+    - Requirements: getting-started/requirements.md
+    - Standard installation: getting-started/installation.md
+    - Reverse proxy: getting-started/reverseproxy.md
+    - Alternative installation methods: getting-started/alternative-installation.md
+  - Configuration:
+    - Environments: configuration/environments.md
+    - Source repositories: configuration/source-repositories.md
+    - Settings: configuration/settings.md
+  - Usage:
+    - Operations on repositories: usage/operations.md
+    - Scheduling tasks: usage/scheduling.md
+    - Hosts: usage/hosts.md
+    - Stats and monitoring: usage/stats-monitoring.md
+  - Administration:
+    - Update Repomanager: administration/update.md
+    - Backup and restore: administration/backup-restore.md
+    - Migrations: administration/migrations.md
+    - Troubleshooting: administration/troubleshooting.md
+  - Reference:
+    - API: reference/api.md
+    - Miscellaneous and tips: reference/miscellaneous.md
+
+
+# -- Custom CSS --
+extra_css:
+  - https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap
+  - assets/extra.css
+
+# -- Footer --
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/lbr38/repomanager

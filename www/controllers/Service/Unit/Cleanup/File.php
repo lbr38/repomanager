@@ -2,8 +2,8 @@
 
 namespace Controllers\Service\Unit\Cleanup;
 
-use \Controllers\Filesystem\Directory;
-use \Controllers\Filesystem\File as FsFile;
+use Controllers\Filesystem\Directory;
+use Controllers\Filesystem\File as FsFile;
 use Exception;
 
 class File extends \Controllers\Service\Service

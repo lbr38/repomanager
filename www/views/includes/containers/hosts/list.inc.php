@@ -448,11 +448,11 @@
                                                                     // Request title
                                                                     if ($request == 'request-general-infos') {
                                                                         $requestTitle = 'Requested the host to send its general informations';
-                                                                        $requestTitleShort = 'Request general informations';
+                                                                        $requestTitleShort = 'Request general information';
                                                                     }
                                                                     if ($request == 'request-packages-infos') {
                                                                         $requestTitle = 'Requested the host to send its packages informations';
-                                                                        $requestTitleShort = 'Request packages informations';
+                                                                        $requestTitleShort = 'Request packages information';
                                                                     }
                                                                     if ($request == 'request-packages-update') {
                                                                         $requestTitle = 'Request to install a list of package(s)';

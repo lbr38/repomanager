@@ -5,7 +5,7 @@
     <div class="div-generic-blue">
         <form class="settings-form" autocomplete="off">
             <h6 class="margin-top-0">HOSTNAME</h6>
-            <p class="note">Repomanager FQDN, defined during the creation of the Docker container.</p>
+            <p class="note">Repomanager FQDN, defined when pulling the Docker image.</p>
             <input type="text" value="<?= WWW_HOSTNAME ?>" readonly />
     
             <h6 class="required">TIMEZONE</h6>
@@ -23,7 +23,7 @@
             </select>
 
             <h6>DEFAULT CONTACT</h6>
-            <p class="note">Default contact for receiving emails. Currently, only scheduled tasks and their reminders are sending emails. You can specify multiple recipients.</p>
+            <p class="note">Default contact for receiving emails. Currently, only scheduled tasks and their reminders send emails. You can specify multiple recipients.</p>
             <select id="emailRecipientSelect" class="settings-param" param-name="emailRecipient" multiple>
                 <?php
                 if (!empty(EMAIL_RECIPIENT)) {
@@ -46,7 +46,7 @@
             } ?>
 
             <h6>SESSION TIMEOUT</h6>
-            <p class="note">User session timeout in seconds.</p>
+            <p class="note">User session timeout in seconds. After this time of inactivity, the user will be logged out and will have to log in again to access the web interface.</p>
             <input class="settings-param" param-name="session-timeout" type="number" min="15" value="<?= SESSION_TIMEOUT ?>" placeholder="Default is 3600 (1 hour)">
 
             <h6>USE A PROXY</h6>
@@ -84,7 +84,7 @@
             <h5>TASK CLEANUP</h5>
 
             <h6 class="required">CLEAN TASKS OLDER THAN (in days)</h6>
-            <p class="note">Tasks and their logs older than this value will be definitely deleted. This is useful to free up some space.</p>
+            <p class="note">Tasks and their logs older than this value will be permanently deleted. This helps free up disk space.</p>
             <input class="settings-param" param-name="task-clean-older-than" type="number" min="1" value="<?= TASK_CLEAN_OLDER_THAN ?>" placeholder="Default is 730 (2 years)">
 
             <button class="hide" type="submit"></button>
@@ -98,12 +98,12 @@
             <h5>GLOBAL SETTINGS</h5>
 
             <h6>REPOSITORIES URL</h6>
-            <p class="note">Root URL for accessing repositories. This URL is not browseable for security reasons. To explore the content of a repository snapshot, use the snapshot browsing system.</p>
+            <p class="note">Root URL for accessing repositories. This URL is not browsable for security reasons. To explore the content of a repository snapshot, use the snapshot browsing system.</p>
             <input type="text" value="<?= WWW_REPOS_DIR_URL ?>" readonly />
 
             <h6 class="required">DEDUPLICATION</h6>
             <p class="note">Enable or disable deduplication of packages in snapshots. When enabled, identical packages in snapshots will be stored only once, saving disk space. Default: enabled.</p>
-            <p class="note">Note: deduplication is using hard links, disable it if your repositories are stored on a filesystem that does not support hard links (e.g., S3 bucket).</p>
+            <p class="note">Note: deduplication uses hard links. Disable this feature if your repositories are stored on a filesystem that does not support hard links (e.g. S3 buckets).</p>
             <label class="onoff-switch-label">
                 <input class="settings-param onoff-switch-input" param-name="repo-deduplication" type="checkbox" value="true" <?php echo (REPO_DEDUPLICATION) ? 'checked' : ''; ?>>
                 <span class="onoff-switch-slider"></span>
@@ -167,7 +167,7 @@
             <?php
             if (RPM_REPO == 'true') : ?>
                 <h6>SIGN PACKAGES WITH GPG</h6>
-                <p class="note">Enable the signing of RPM packages when creating a RPM package repository (mirror or local repository). Packages will be signed using the GPG signing key specified by the GPG KEY ID parameter.</p>
+                <p class="note">Enable the signing of RPM packages when creating a RPM package repository (mirror or local repository). Packages will be signed using the GPG signing key specified by the <code>GPG KEY ID</code> parameter.</p>
                 <label class="onoff-switch-label">
                     <input class="settings-param onoff-switch-input" param-name="rpmSignPackages" type="checkbox" value="true" <?php echo (RPM_SIGN_PACKAGES == "true") ? 'checked' : ''; ?>>
                     <span class="onoff-switch-slider"></span>
@@ -207,7 +207,7 @@
                 <h5 title="RPM mirroring settings">RPM MIRRORING SETTINGS</h5>
 
                 <h6 class="required">WHEN PACKAGE SIGNATURE IS MISSING</h6>
-                <p class="note">Package retrieved from a remote repository may not be signed at all (for example, the publisher released the package forgetting to sign it). This parameter allows you to choose what to do in this case.</p>
+                <p class="note">A package retrieved from a remote repository may not be signed at all (for example, the publisher released the package forgetting to sign it). This parameter allows you to choose what to do in this case.</p>
                 <select class="settings-param" param-name="rpm-missing-signature">
                     <option value="download" <?php echo (RPM_MISSING_SIGNATURE == 'download') ? 'selected' : '' ?>>Download package anyway</option>
                     <option value="ignore" <?php echo (RPM_MISSING_SIGNATURE == 'ignore') ? 'selected' : '' ?>>Ignore package (do not download)</option>
@@ -215,7 +215,7 @@
                 </select>
 
                 <h6 class="required">WHEN PACKAGE SIGNATURE IS INVALID</h6>
-                <p class="note">Package retrieved from a remote repository may have invalid signature (because the GPG key used to sign the package was not imported, or because the publisher signed the package with a different GPG key, or because the package's signature is corrupted or somehow broken). This parameter allows you to choose what to do in this case.</p>
+                <p class="note">A package retrieved from a remote repository may have an invalid signature (because the GPG key used to sign the package was not imported, or because the publisher signed the package with a different GPG key, or because the package's signature is corrupted or somehow broken). This parameter allows you to choose what to do in this case.</p>
                 <select class="settings-param" param-name="rpm-invalid-signature">
                     <option value="download" <?php echo (RPM_INVALID_SIGNATURE == 'download') ? 'selected' : '' ?>>Download package anyway</option>
                     <option value="ignore" <?php echo (RPM_INVALID_SIGNATURE == 'ignore') ? 'selected' : '' ?>>Ignore package (do not download)</option>
@@ -223,7 +223,7 @@
                 </select>
 
                 <h6 class="required">WHEN PACKAGE SIGNATURE FAILS</h6>
-                <p class="note">Package retrieved from a remote repository may fail to be signed (for example, the package is not a valid RPM package or it is corrupted). This parameter allows you to choose what to do in this case.</p>
+                <p class="note">A package retrieved from a remote repository may fail to be processed for signing (for example, the package is not a valid RPM package or it is corrupted). This parameter allows you to choose what to do in this case.</p>
                 <select class="settings-param" param-name="rpm-signature-fail">
                     <option value="keep" <?php echo (RPM_SIGNATURE_FAIL == 'keep') ? 'selected' : '' ?>>Keep the package anyway (not recommended)</option>
                     <option value="ignore" <?php echo (RPM_SIGNATURE_FAIL == 'ignore') ? 'selected' : '' ?>>Ignore package (delete it) and continue</option>
@@ -246,7 +246,7 @@
             <?php
             if (DEB_REPO == 'true') : ?>
                 <h6>SIGN REPOSITORIES WITH GPG</h6>
-                <p class="note">Enable the signing of DEB repositories when creating a DEB package repository (mirror or local repository). The repository metadata will be signed using the GPG signing key specified by the GPG key Id parameter.</p>
+                <p class="note">Enable the signing of DEB repositories when creating a DEB package repository (mirror or local repository). The repository metadata will be signed using the GPG signing key specified by the <code>GPG KEY ID</code> parameter.</p>
                 <label class="onoff-switch-label">
                     <input class="settings-param onoff-switch-input" param-name="debSignRepo" type="checkbox" value="true" <?php echo (DEB_SIGN_REPO == 'true') ? 'checked' : ''; ?>>
                     <span class="onoff-switch-slider"></span>
@@ -281,7 +281,7 @@
                 </label>
 
                 <h6 class="required">WHEN RELEASE FILE SIGNATURE IS INVALID</h6>
-                <p class="note">InRelease / Release file retrieved from a remote repository may have invalid signature (because the GPG key used to sign the file was not imported, or because the publisher signed the file with a different GPG key, or because the file's signature is corrupted or somehow broken). This parameter allows you to choose what to do in this case.</p>
+                <p class="note">The InRelease / Release file retrieved from a remote repository may have an invalid signature (because the GPG key used to sign the file was not imported, or because the publisher signed the file with a different GPG key, or because the file's signature is corrupted or somehow broken). This parameter allows you to choose what to do in this case.</p>
                 <select class="settings-param" param-name="deb-invalid-signature">
                     <option value="ignore" <?php echo (DEB_INVALID_SIGNATURE == 'ignore') ? 'selected' : '' ?>>Ignore and try another Release file if possible</option>
                     <option value="error" <?php echo (DEB_INVALID_SIGNATURE == 'error') ? 'selected' : '' ?>>End mirroring task with error</option>
@@ -372,7 +372,7 @@
 
         <form class="settings-form" autocomplete="off">
             <h6>ENABLE REPOSITORIES STATISTICS</h6>
-            <p class="note">Enable logging and statistics on repositories access, repositories size and repositories packages count.</p>
+            <p class="note">Enable logging and statistics on repositories access.</p>
             <label class="onoff-switch-label">
                 <input class="settings-param onoff-switch-input" param-name="statsEnable" type="checkbox" value="true" <?php echo (STATS_ENABLED == "true") ? 'checked' : ''; ?>>
                 <span class="onoff-switch-slider"></span>

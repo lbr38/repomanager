@@ -2,11 +2,13 @@
 namespace Controllers\User;
 
 use Exception;
-use \Controllers\History\Save as History;
-use \Controllers\Utils\Validate;
+use Controllers\History\Save as History;
+use Controllers\Utils\Validate;
 
 class Create extends User
 {
+    private $userPermissionController;
+
     public function __construct()
     {
         parent::__construct();
@@ -89,23 +91,30 @@ class Create extends User
     /**
      *  Add a new SSO user in database
      */
-    public function createSSO(string $username, ?string $firstName, ?string $lastName, ?string $email, string $role): void
+    public function createSSO(string $username, string $firstName = '', string $lastName = '', string $email = '', ?string $role): void
     {
         $userEditController = new \Controllers\User\Edit();
         $username  = Validate::string($username);
-        $firstName = Validate::string($firstName);
-        $lastName  = Validate::string($lastName);
         $email     = Validate::string($email);
 
-        if ($firstName == null) {
-            $firstName = $username;
+        if (!empty($firstName)) {
+            $firstName = Validate::string($firstName);
+        }
+
+        if (!empty($lastName)) {
+            $lastName = Validate::string($lastName);
+        }
+
+        // If no role is provided, we set it to 'usage' by default
+        if (empty($role)) {
+            $role = 'usage';
         }
 
         /**
          *  Check that email is a valid email address
          */
-        if (Validate::email($email) === false) {
-            $email = null;
+        if (!empty($email) && !Validate::email($email)) {
+            throw new Exception('Email address is invalid');
         }
 
         /**

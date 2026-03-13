@@ -28,7 +28,7 @@ $rawParams['schedule'] = [
 
 try {
     $rawParams = json_encode($rawParams, JSON_THROW_ON_ERROR);
-} catch (Exception $e) {
+} catch (JsonException $e) {
     throw new Exception('Error while encoding raw params to JSON: ' . $e->getMessage());
 }
 

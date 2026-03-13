@@ -8,9 +8,9 @@ require ROOT . '/libs/vendor/autoload.php';
 
 use Exception;
 use Jumbojett\OpenIDConnectClient;
-use \Controllers\App\DebugMode;
-use \Controllers\History\Save as History;
-use \Controllers\Utils\Validate;
+use Controllers\App\DebugMode;
+use Controllers\History\Save as History;
+use Controllers\Utils\Validate;
 
 class Login extends User
 {

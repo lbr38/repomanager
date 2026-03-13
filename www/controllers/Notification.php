@@ -4,7 +4,7 @@ namespace Controllers;
 
 use Exception;
 use JsonException;
-use \Controllers\Utils\Validate;
+use Controllers\Utils\Validate;
 
 class Notification
 {
@@ -27,7 +27,7 @@ class Notification
         }
 
         try {
-            $notifications = json_decode($notifications, true);
+            $notifications = json_decode($notifications, true, 512, JSON_THROW_ON_ERROR);
         } catch (JsonException $e) {
             throw new Exception('Unable to decode notifications JSON data: ' . $e->getMessage());
         }

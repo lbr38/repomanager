@@ -2,8 +2,8 @@
 namespace Controllers\User;
 
 use Exception;
-use \Controllers\History\Save as History;
-use \Controllers\Utils\Validate;
+use Controllers\History\Save as History;
+use Controllers\Utils\Validate;
 
 class Edit extends User
 {

@@ -6,9 +6,14 @@ $myTask = new \Controllers\Task\Task();
  */
 if ($_POST['action'] == 'validateForm' and !empty($_POST['taskParams'])) {
     $myTaskForm = new \Controllers\Task\Form\Form();
-    $taskRawParams = json_decode($_POST['taskParams'], true);
 
     try {
+        try {
+            $taskRawParams = json_decode($_POST['taskParams'], true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            throw new Exception('Could not decode task parameters: ' . $e->getMessage());
+        }
+
         $myTaskForm->validate($taskRawParams);
         $myTask->execute($taskRawParams);
     } catch (Exception $e) {
@@ -23,11 +28,32 @@ if ($_POST['action'] == 'validateForm' and !empty($_POST['taskParams'])) {
 }
 
 /**
+ *  Edit a scheduled task
+ */
+if ($_POST['action'] == 'edit-scheduled-tasks' and !empty($_POST['tasks'])) {
+    $scheduledTaskController = new \Controllers\Task\Scheduled();
+
+    try {
+        try {
+            $tasks = json_decode($_POST['tasks'], true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            throw new Exception('Could not decode task parameters: ' . $e->getMessage());
+        }
+
+        $scheduledTaskController->edit($tasks);
+    } catch (Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, 'Task' . (count($tasks) > 1 ? 's have' : ' has') . ' been updated');
+}
+
+/**
  *  Disable task execution
  */
-if ($_POST['action'] == 'disableTask' and !empty($_POST['taskId'])) {
+if ($_POST['action'] == 'disable' and !empty($_POST['id'])) {
     try {
-        $myTask->disable($_POST['taskId']);
+        $myTask->disable($_POST['id']);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
@@ -38,9 +64,9 @@ if ($_POST['action'] == 'disableTask' and !empty($_POST['taskId'])) {
 /**
  *  Enable task execution
  */
-if ($_POST['action'] == 'enableTask' and !empty($_POST['taskId'])) {
+if ($_POST['action'] == 'enable' and !empty($_POST['id'])) {
     try {
-        $myTask->enable($_POST['taskId']);
+        $myTask->enable($_POST['id']);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
@@ -49,24 +75,9 @@ if ($_POST['action'] == 'enableTask' and !empty($_POST['taskId'])) {
 }
 
 /**
- *  Edit a scheduled task
- *  TODO
- */
-// if ($_POST['action'] == 'get-edit-form' and !empty($_POST['id'])) {
-//     try {
-//         $myTask->getEditForm($_POST['id']);
-//     } catch (Exception $e) {
-//         response(HTTP_BAD_REQUEST, $e->getMessage());
-//     }
-
-//     response(HTTP_OK, 'Task has been deleted');
-// }
-
-
-/**
  *  Delete a scheduled task
  */
-if ($_POST['action'] == 'deleteTask' and !empty($_POST['id'])) {
+if ($_POST['action'] == 'delete' and !empty($_POST['id'])) {
     try {
         $myTask->delete($_POST['id']);
     } catch (Exception $e) {
@@ -79,9 +90,9 @@ if ($_POST['action'] == 'deleteTask' and !empty($_POST['id'])) {
 /**
  *  Relaunch a task
  */
-if ($_POST['action'] == 'relaunchTask' and !empty($_POST['taskId'])) {
+if ($_POST['action'] == 'relaunch' and !empty($_POST['id'])) {
     try {
-        $myTask->relaunch($_POST['taskId']);
+        $myTask->relaunch($_POST['id']);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
@@ -92,9 +103,9 @@ if ($_POST['action'] == 'relaunchTask' and !empty($_POST['taskId'])) {
 /**
  *  Stop a task
  */
-if ($_POST['action'] == 'stopTask' and !empty($_POST['taskId'])) {
+if ($_POST['action'] == 'stop' and !empty($_POST['id'])) {
     try {
-        $myTask->kill($_POST['taskId']);
+        $myTask->kill($_POST['id']);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }

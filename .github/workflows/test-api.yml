@@ -14,7 +14,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install curl
         run: sudo apt-get install curl jq wget -y
@@ -33,11 +33,14 @@ jobs:
             
       - name: Check if API is reachable
         run: |
-          RESULT=$(curl -s -q --fail-with-body ${{ secrets.API_TEST_HOST }})
+          RESULT=$(curl --fail-with-body -L -s ${{ secrets.API_TEST_HOST }})
           if [ $? -ne 0 ]; then
               echo "API is not unreachable"
               exit 1
           fi
+
+      - name: Generate a random number to avoid conflicts when multiple pipelines run at the same time
+        run: echo "RANDOM=$(date +%s)" >> $GITHUB_ENV
 
       #
       # Download rpm and deb packages from https://packages.repomanager.net that will be used for upload testing
@@ -56,7 +59,7 @@ jobs:
       # Then retrieve and export the host ID and token as environment variables for later steps
       - name: (admin) Try to register a host with an admin API key
         run: |
-          RESULT=$(curl --fail-with-body --post301 -s -q -L -X POST -H "Authorization: Bearer ${{ secrets.API_TEST_ADMIN_API_KEY }}" -H "Content-Type: application/json" -d '{"hostname":"test.local","ip":"1.2.3.4"}' ${{ secrets.API_TEST_HOST }}/api/v2/host/registering)
+          RESULT=$(curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer ${{ secrets.API_TEST_ADMIN_API_KEY }}" -H "Content-Type: application/json" -d '{"hostname":"test.local","ip":"1.2.3.4"}' ${{ secrets.API_TEST_HOST }}/api/v2/host/registering)
           if [ $? -ne 0 ]; then
               echo "Failed to register host"
               exit 1
@@ -76,7 +79,7 @@ jobs:
       # Unregister the host using the retrieved host ID and token
       - name: (admin) Try to unregister a host with an admin API key
         run: |
-          curl --fail-with-body -L -s -q -X DELETE -H "Authorization: Host $HOST_ID:$HOST_TOKEN" -H "Content-Type: application/json" ${{ secrets.API_TEST_HOST }}/api/v2/host/registering
+          curl --fail-with-body --post301 -L -s -X DELETE -H "Authorization: Host $HOST_ID:$HOST_TOKEN" -H "Content-Type: application/json" ${{ secrets.API_TEST_HOST }}/api/v2/host/registering
           if [ $? -ne 0 ]; then
               echo "Failed to unregister host"
               exit 1
@@ -86,11 +89,10 @@ jobs:
       # Generate a unique package name to avoid conflicts when multiple pipelines run at the same time
       - name: (admin) Try to upload a deb package with an admin API key
         run: |
-          RANDOM=$(date +%s)
-          PACKAGE_NAME="${RANDOM}-${HOSTNAME}-admin_nginx_1.26.0-1~bookworm_amd64.deb"
+          PACKAGE_NAME="${{ env.RANDOM }}-${HOSTNAME}-admin_nginx_1.26.0-1~bookworm_amd64.deb"
 
           cp ${HOSTNAME}_nginx_1.26.0-1~bookworm_amd64.deb $PACKAGE_NAME
-          curl --fail-with-body -L --post301 -s -q -X POST -H "Authorization: Bearer ${{ secrets.API_TEST_ADMIN_API_KEY }}" -F "files=@${PACKAGE_NAME}" ${{ secrets.API_TEST_HOST }}/api/v2/snapshot/1/upload
+          curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer ${{ secrets.API_TEST_ADMIN_API_KEY }}" -F "file=@${PACKAGE_NAME}" ${{ secrets.API_TEST_HOST }}/api/v2/snapshot/1/upload
           if [ $? -ne 0 ]; then
               echo "Failed to upload deb package"
               exit 1
@@ -98,22 +100,48 @@ jobs:
 
       # Upload a rpm package using the admin API key
       # Generate a unique package name to avoid conflicts when multiple pipelines run at the same time
-      - name: (admin) Try to upload an rpm package with an admin API key
+      - name: (admin) Try to upload a rpm package with an admin API key
         run: |
-          RANDOM=$(date +%s)
-          PACKAGE_NAME="${RANDOM}-${HOSTNAME}-admin_nginx-1.26.0-1.el7.ngx.x86_64.rpm"
+          PACKAGE_NAME="${{ env.RANDOM }}-${HOSTNAME}-admin_nginx-1.26.0-1.el7.ngx.x86_64.rpm"
   
           cp ${HOSTNAME}_nginx-1.26.0-1.el7.ngx.x86_64.rpm $PACKAGE_NAME
-          curl --fail-with-body -L --post301 -s -q -X POST -H "Authorization: Bearer ${{ secrets.API_TEST_ADMIN_API_KEY }}" -F "files=@${PACKAGE_NAME}" ${{ secrets.API_TEST_HOST }}/api/v2/snapshot/2/upload
+          curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer ${{ secrets.API_TEST_ADMIN_API_KEY }}" -F "file=@${PACKAGE_NAME}" ${{ secrets.API_TEST_HOST }}/api/v2/snapshot/2/upload
           if [ $? -ne 0 ]; then
               echo "Failed to upload rpm package"
+              exit 1
+          fi
+
+      # Try to upload again the same deb package without overwrite flag, it should fail
+      - name: (admin) Try to upload the same deb package again with overwrite=false
+        run: |
+          PACKAGE_NAME="${{ env.RANDOM }}-${HOSTNAME}-admin_nginx_1.26.0-1~bookworm_amd64.deb"
+
+          cp ${HOSTNAME}_nginx_1.26.0-1~bookworm_amd64.deb $PACKAGE_NAME
+          OUTPUT=$(curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer ${{ secrets.API_TEST_ADMIN_API_KEY }}" -F "file=@${PACKAGE_NAME}" -F "overwrite=false" ${{ secrets.API_TEST_HOST }}/api/v2/snapshot/1/upload) || true
+    
+          if echo "$OUTPUT" | grep -q "Following packages already exist and have not been uploaded"; then
+              echo "Correctly failed to upload the same deb package again (overwrite=false)"
+          else
+              echo "Failed to fail the upload of the same deb package again (overwrite=false)"
+              exit 1
+          fi
+        
+      # Try to upload again the same deb package with overwrite=true, it should succeed
+      - name: (admin) Try to upload the same deb package again with overwrite=true
+        run: |
+          PACKAGE_NAME="${{ env.RANDOM }}-${HOSTNAME}-admin_nginx_1.26.0-1~bookworm_amd64.deb"
+
+          cp ${HOSTNAME}_nginx_1.26.0-1~bookworm_amd64.deb $PACKAGE_NAME
+          curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer ${{ secrets.API_TEST_ADMIN_API_KEY }}" -F "file=@${PACKAGE_NAME}" -F "overwrite=true" ${{ secrets.API_TEST_HOST }}/api/v2/snapshot/1/upload
+          if [ $? -ne 0 ]; then
+              echo "Failed to upload the same deb package again with overwrite=true"
               exit 1
           fi
 
       # Launch a rebuild of the snapshot metadata for the deb repository
       - name: (admin) Try to rebuild deb snapshot metadata with an admin API key
         run: |
-          curl --fail-with-body -L -s -q -X PUT -H "Authorization: Bearer ${{ secrets.API_TEST_ADMIN_API_KEY }}" -d '{"gpgSign":"true"}' ${{ secrets.API_TEST_HOST }}/api/v2/snapshot/1/rebuild
+          curl --fail-with-body --post301 -L -s -X PUT -H "Authorization: Bearer ${{ secrets.API_TEST_ADMIN_API_KEY }}" -d '{"gpgSign":"true"}' ${{ secrets.API_TEST_HOST }}/api/v2/snapshot/1/rebuild
           if [ $? -ne 0 ]; then
               echo "Failed to rebuild deb snapshot metadata"
               exit 1
@@ -122,7 +150,7 @@ jobs:
       # Launch a rebuild of the snapshot metadata for the rpm repository
       - name: (admin) Try to rebuild rpm snapshot metadata with an admin API key
         run: |
-          curl --fail-with-body -L -s -q -X PUT -H "Authorization: Bearer ${{ secrets.API_TEST_ADMIN_API_KEY }}" -d '{"gpgSign":"true"}' ${{ secrets.API_TEST_HOST }}/api/v2/snapshot/2/rebuild
+          curl --fail-with-body --post301 -L -s -X PUT -H "Authorization: Bearer ${{ secrets.API_TEST_ADMIN_API_KEY }}" -d '{"gpgSign":"true"}' ${{ secrets.API_TEST_HOST }}/api/v2/snapshot/2/rebuild
           if [ $? -ne 0 ]; then
               echo "Failed to rebuild rpm snapshot metadata"
               exit 1
@@ -138,11 +166,10 @@ jobs:
       # Generate a unique package name to avoid conflicts when multiple pipelines run at the same time
       - name: (test-user1) Try to upload a deb package with test-user1 API key
         run: |
-          RANDOM=$(date +%s)
-          PACKAGE_NAME="${RANDOM}-${HOSTNAME}-test-user1_nginx_1.26.0-1~bookworm_amd64.deb"
+          PACKAGE_NAME="${{ env.RANDOM }}-${HOSTNAME}-test-user1_nginx_1.26.0-1~bookworm_amd64.deb"
 
           cp ${HOSTNAME}_nginx_1.26.0-1~bookworm_amd64.deb $PACKAGE_NAME
-          OUTPUT=$(curl --fail-with-body -L --post301 -s -q -X POST -H "Authorization: Bearer ${{ secrets.API_TEST_TEST_USER1_API_KEY }}" -F "files=@${PACKAGE_NAME}" ${{ secrets.API_TEST_HOST }}/api/v2/snapshot/3/upload) || true
+          OUTPUT=$(curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer ${{ secrets.API_TEST_TEST_USER1_API_KEY }}" -F "file=@${PACKAGE_NAME}" ${{ secrets.API_TEST_HOST }}/api/v2/snapshot/3/upload) || true
     
           if echo "$OUTPUT" | grep -q "You are not allowed to upload packages"; then
               echo "Correctly failed to upload deb package with test-user1 API key"
@@ -153,13 +180,12 @@ jobs:
 
       # Upload a rpm package using the test-user1 API key
       # Generate a unique package name to avoid conflicts when multiple pipelines run at the same time
-      - name: (test-user1) Try to upload an rpm package with test-user1 API key
+      - name: (test-user1) Try to upload a rpm package with test-user1 API key
         run: |
-          RANDOM=$(date +%s)
-          PACKAGE_NAME="${RANDOM}-${HOSTNAME}-test-user1_nginx-1.26.0-1.el7.ngx.x86_64.rpm"
+          PACKAGE_NAME="${{ env.RANDOM }}-${HOSTNAME}-test-user1_nginx-1.26.0-1.el7.ngx.x86_64.rpm"
   
           cp ${HOSTNAME}_nginx-1.26.0-1.el7.ngx.x86_64.rpm $PACKAGE_NAME
-          OUTPUT=$(curl --fail-with-body -L --post301 -s -q -X POST -H "Authorization: Bearer ${{ secrets.API_TEST_TEST_USER1_API_KEY }}" -F "files=@${PACKAGE_NAME}" ${{ secrets.API_TEST_HOST }}/api/v2/snapshot/4/upload) || true
+          OUTPUT=$(curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer ${{ secrets.API_TEST_TEST_USER1_API_KEY }}" -F "file=@${PACKAGE_NAME}" ${{ secrets.API_TEST_HOST }}/api/v2/snapshot/4/upload) || true
     
           if echo "$OUTPUT" | grep -q "You are not allowed to upload packages"; then
               echo "Correctly failed to upload deb package with test-user1 API key"
@@ -171,7 +197,7 @@ jobs:
       # Launch a rebuild of the snapshot metadata for the deb repository
       - name: (test-user1) Try to rebuild deb snapshot metadata with test-user1 API key
         run: |
-          OUTPUT=$(curl --fail-with-body -L -s -q -X PUT -H "Authorization: Bearer ${{ secrets.API_TEST_TEST_USER1_API_KEY }}" -d '{"gpgSign":"true"}' ${{ secrets.API_TEST_HOST }}/api/v2/snapshot/3/rebuild) || true
+          OUTPUT=$(curl --fail-with-body --post301 -L -s -X PUT -H "Authorization: Bearer ${{ secrets.API_TEST_TEST_USER1_API_KEY }}" -d '{"gpgSign":"true"}' ${{ secrets.API_TEST_HOST }}/api/v2/snapshot/3/rebuild) || true
           if echo "$OUTPUT" | grep -q "You are not allowed to rebuild a repository snapshot"; then
               echo "Correctly failed to rebuild deb snapshot metadata with test-user1 API key"
           else
@@ -182,7 +208,7 @@ jobs:
       # Launch a rebuild of the snapshot metadata for the rpm repository
       - name: (test-user1) Try to rebuild rpm snapshot metadata with test-user1 API key
         run: |
-          OUTPUT=$(curl --fail-with-body -L -s -q -X PUT -H "Authorization: Bearer ${{ secrets.API_TEST_TEST_USER1_API_KEY }}" -d '{"gpgSign":"true"}' ${{ secrets.API_TEST_HOST }}/api/v2/snapshot/4/rebuild) || true
+          OUTPUT=$(curl --fail-with-body --post301 -L -s -X PUT -H "Authorization: Bearer ${{ secrets.API_TEST_TEST_USER1_API_KEY }}" -d '{"gpgSign":"true"}' ${{ secrets.API_TEST_HOST }}/api/v2/snapshot/4/rebuild) || true
           if echo "$OUTPUT" | grep -q "You are not allowed to rebuild a repository snapshot"; then
               echo "Correctly failed to rebuild rpm snapshot metadata with test-user1 API key"
           else
@@ -200,11 +226,10 @@ jobs:
       # Generate a unique package name to avoid conflicts when multiple pipelines run at the same time
       - name: (test-user2) Try to upload a deb package with test-user2 API key
         run: |
-          RANDOM=$(date +%s)
-          PACKAGE_NAME="${RANDOM}-${HOSTNAME}-test-user2_nginx_1.26.0-1~bookworm_amd64.deb"
+          PACKAGE_NAME="${{ env.RANDOM }}-${HOSTNAME}-test-user2_nginx_1.26.0-1~bookworm_amd64.deb"
 
           cp ${HOSTNAME}_nginx_1.26.0-1~bookworm_amd64.deb $PACKAGE_NAME
-          curl --fail-with-body -L --post301 -s -q -X POST -H "Authorization: Bearer ${{ secrets.API_TEST_TEST_USER2_API_KEY }}" -F "files=@${PACKAGE_NAME}" ${{ secrets.API_TEST_HOST }}/api/v2/snapshot/5/upload
+          curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer ${{ secrets.API_TEST_TEST_USER2_API_KEY }}" -F "file=@${PACKAGE_NAME}" ${{ secrets.API_TEST_HOST }}/api/v2/snapshot/5/upload
           if [ $? -ne 0 ]; then
               echo "Failed to upload deb package"
               exit 1
@@ -212,13 +237,12 @@ jobs:
 
       # Upload a rpm package using the test-user2 API key
       # Generate a unique package name to avoid conflicts when multiple pipelines run at the same time
-      - name: (test-user2) Try to upload an rpm package with test-user2 API key
+      - name: (test-user2) Try to upload a rpm package with test-user2 API key
         run: |
-          RANDOM=$(date +%s)
-          PACKAGE_NAME="${RANDOM}-${HOSTNAME}-test-user2_nginx-1.26.0-1.el7.ngx.x86_64.rpm"
+          PACKAGE_NAME="${{ env.RANDOM }}-${HOSTNAME}-test-user2_nginx-1.26.0-1.el7.ngx.x86_64.rpm"
   
           cp ${HOSTNAME}_nginx-1.26.0-1.el7.ngx.x86_64.rpm $PACKAGE_NAME
-          curl --fail-with-body -L --post301 -s -q -X POST -H "Authorization: Bearer ${{ secrets.API_TEST_TEST_USER2_API_KEY }}" -F "files=@${PACKAGE_NAME}" ${{ secrets.API_TEST_HOST }}/api/v2/snapshot/6/upload
+          curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer ${{ secrets.API_TEST_TEST_USER2_API_KEY }}" -F "file=@${PACKAGE_NAME}" ${{ secrets.API_TEST_HOST }}/api/v2/snapshot/6/upload
           if [ $? -ne 0 ]; then
               echo "Failed to upload rpm package"
               exit 1
@@ -227,7 +251,7 @@ jobs:
       # Launch a rebuild of the snapshot metadata for the deb repository
       - name: (test-user2) Try to rebuild deb snapshot metadata with test-user2 API key
         run: |
-          curl --fail-with-body -L -s -q -X PUT -H "Authorization: Bearer ${{ secrets.API_TEST_TEST_USER2_API_KEY }}" -d '{"gpgSign":"true"}' ${{ secrets.API_TEST_HOST }}/api/v2/snapshot/5/rebuild
+          curl --fail-with-body --post301 -L -s -X PUT -H "Authorization: Bearer ${{ secrets.API_TEST_TEST_USER2_API_KEY }}" -d '{"gpgSign":"true"}' ${{ secrets.API_TEST_HOST }}/api/v2/snapshot/5/rebuild
           if [ $? -ne 0 ]; then
               echo "Failed to rebuild deb snapshot metadata"
               exit 1
@@ -236,7 +260,7 @@ jobs:
       # Launch a rebuild of the snapshot metadata for the rpm repository
       - name: (test-user2) Try to rebuild rpm snapshot metadata with test-user2 API key
         run: |
-          curl --fail-with-body -L -s -q -X PUT -H "Authorization: Bearer ${{ secrets.API_TEST_TEST_USER2_API_KEY }}" -d '{"gpgSign":"true"}' ${{ secrets.API_TEST_HOST }}/api/v2/snapshot/6/rebuild
+          curl --fail-with-body --post301 -L -s -X PUT -H "Authorization: Bearer ${{ secrets.API_TEST_TEST_USER2_API_KEY }}" -d '{"gpgSign":"true"}' ${{ secrets.API_TEST_HOST }}/api/v2/snapshot/6/rebuild
           if [ $? -ne 0 ]; then
               echo "Failed to rebuild rpm snapshot metadata"
               exit 1
@@ -250,9 +274,9 @@ jobs:
       # List all repositories
       - name: List all repositories
         run: |
-          curl --fail-with-body -s -q -X GET -H "Authorization: Bearer ${{ secrets.API_TEST_ADMIN_API_KEY }}" ${{ secrets.API_TEST_HOST }}/api/v2/repo/ | jq
+          curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ secrets.API_TEST_ADMIN_API_KEY }}" ${{ secrets.API_TEST_HOST }}/api/v2/repo/ | jq
 
       # List all repositories with name "local-deb-for-admin"
       - name: List repositories with specific name
         run: |
-          curl --fail-with-body -s -q -X GET -H "Authorization: Bearer ${{ secrets.API_TEST_ADMIN_API_KEY }}" ${{ secrets.API_TEST_HOST }}/api/v2/repo/ | jq -r '.results[] | select(.Name == "local-deb-for-admin")'
+          curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ secrets.API_TEST_ADMIN_API_KEY }}" ${{ secrets.API_TEST_HOST }}/api/v2/repo/ | jq -r '.results[] | select(.Name == "local-deb-for-admin")'

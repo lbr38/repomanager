@@ -2,7 +2,7 @@
 namespace Controllers\User;
 
 use Exception;
-use \Controllers\History\Save as History;
+use Controllers\History\Save as History;
 
 class Delete extends User
 {

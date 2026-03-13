@@ -2,7 +2,7 @@
 
 namespace Models\Host;
 
-use \Controllers\Database\Log as DbLog;
+use Controllers\Database\Log as DbLog;
 use Exception;
 
 class Update extends \Models\Model

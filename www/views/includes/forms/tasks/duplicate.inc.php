@@ -66,21 +66,18 @@ if (!empty($groupList)) : ?>
     <?php
 endif;
 
-/**
- *  Define schedule form action and allowed type(s)
- */
-$scheduleForm['action'] = 'duplicate';
-$scheduleForm['type'] = ['unique']; ?>
+// Define schedule form action (useful for the schedule form)
+$scheduleForm['action'] = 'duplicate'; ?>
 
 <script>
 $(document).ready(function(){
-    myselect2.convert('#duplicate-repo-target-env-select-<?=$myrepo->getSnapId()?>');
+    myselect2.convert('#duplicate-repo-target-env-select-<?= $myrepo->getSnapId()?> ');
 
     /**
      *  Print description field only if an environment is specified
      */
-    $(document).on('change','#duplicate-repo-target-env-select-<?=$myrepo->getSnapId()?>',function(){
-        if ($('#duplicate-repo-target-env-select-<?=$myrepo->getSnapId()?>').val() == "") {
+    $(document).on('change','#duplicate-repo-target-env-select-<?= $myrepo->getSnapId() ?>',function(){
+        if ($('#duplicate-repo-target-env-select-<?= $myrepo->getSnapId() ?>').val() == "") {
             $('#duplicate-repo-target-description-div').hide();
         } else {
             $('#duplicate-repo-target-description-div').show();

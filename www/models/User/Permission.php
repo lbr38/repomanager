@@ -3,7 +3,7 @@
 namespace Models\User;
 
 use Exception;
-use \Controllers\Database\Log as DbLog;
+use Controllers\Database\Log as DbLog;
 
 class Permission extends \Models\Model
 {

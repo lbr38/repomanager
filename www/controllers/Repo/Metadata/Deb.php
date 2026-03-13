@@ -2,7 +2,7 @@
 
 namespace Controllers\Repo\Metadata;
 
-use \Controllers\Filesystem\Directory;
+use Controllers\Filesystem\Directory;
 use Exception;
 
 class Deb extends Metadata

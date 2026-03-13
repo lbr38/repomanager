@@ -2,7 +2,7 @@
     <div class="flex flex-direction-column row-gap-10">
         <div class="flex align-item-center column-gap-5 max-width-fit mediumopacity">
             <img src="/assets/icons/file.svg" class="icon-np" />
-            <a target="_blank" rel="noopener noreferrer" href="https://github.com/lbr38/repomanager/wiki">
+            <a target="_blank" rel="noopener noreferrer" href="https://docs.repomanager.net">
                 <p>Documentation</p>
             </a>
         </div>
@@ -165,7 +165,8 @@ if (__ACTUAL_URI__[1] == 'run') {
     $jsFiles = [
         'functions/task',
         'events/task/actions',
-        'events/task/stop'
+        'events/task/stop',
+        'task'
     ];
 }
 if (__ACTUAL_URI__[1] == 'history') {

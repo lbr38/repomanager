@@ -16,3 +16,9 @@ $taskConfig = [
     // Conditional params must be compared with form values
     'conditional-compare-with' => 'form'
 ];
+
+// Form configuration
+$formConfig = [
+    // Allowed schedule types for this task
+    'allowed-schedule-types' => ['unique']
+];

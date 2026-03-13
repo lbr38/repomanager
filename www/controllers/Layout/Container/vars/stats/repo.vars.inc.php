@@ -1,8 +1,4 @@
 <?php
-use \Controllers\Filesystem\Directory;
-use \Controllers\Filesystem\File;
-use \Controllers\Utils\Convert;
-
 $repoController = new \Controllers\Repo\Repo();
 $debRepoStatController = new \Controllers\Repo\Statistic\Deb();
 $rpmRepoStatController = new \Controllers\Repo\Statistic\Rpm();

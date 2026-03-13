@@ -3,8 +3,8 @@
 namespace Controllers\Task\Form;
 
 use Exception;
-use \Controllers\Utils\Validate;
-use \Controllers\User\Permission\Repo as RepoPermission;
+use Controllers\Utils\Validate;
+use Controllers\User\Permission\Repo as RepoPermission;
 
 class Form
 {

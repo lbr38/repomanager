@@ -15,7 +15,7 @@
                     <img src="/assets/icons/external-link.svg" class="icon-small icon-np" />
                 </div>
                 <div class="flex align-item-center column-gap-5 lowopacity-cst">
-                    <p class="note">- You can create your own custom lists. See documentation <a href="https://github.com/lbr38/repomanager/wiki/05.-Manage-sources-repositories#create-custom-source-repositories-list" target="_blank" class="font-size-13"><b>here</b></a></p>
+                    <p class="note">- You can create your own custom lists. See documentation <a href="https://docs.repomanager.net/configuration/source-repositories/#create-custom-source-repositories-list" target="_blank" class="font-size-13"><b>here</b></a></p>
                     <img src="/assets/icons/external-link.svg" class="icon-small icon-np" />
                 </div>
 

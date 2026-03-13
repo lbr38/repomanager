@@ -3,7 +3,7 @@
 namespace Controllers\Repo;
 
 use Exception;
-use \Controllers\Utils\Validate;
+use Controllers\Utils\Validate;
 
 class Environment
 {

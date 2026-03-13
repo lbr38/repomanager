@@ -2,7 +2,7 @@
 
 namespace Controllers\Layout\Tab;
 
-use \Controllers\User\Permission\Host as HostPermission;
+use Controllers\User\Permission\Host as HostPermission;
 
 class Host
 {

@@ -2,7 +2,7 @@
 
 namespace Controllers\App\Config;
 
-use \Controllers\Utils\Validate;
+use Controllers\Utils\Validate;
 
 class Settings
 {

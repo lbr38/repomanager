@@ -2,7 +2,7 @@
 
 namespace Models\History;
 
-use \Controllers\Database\Log as DbLog;
+use Controllers\Database\Log as DbLog;
 use Exception;
 
 class History extends \Models\Model

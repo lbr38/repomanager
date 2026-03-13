@@ -3,8 +3,8 @@
 namespace Controllers\Group;
 
 use Exception;
-use \Controllers\History\Save as History;
-use \Controllers\Utils\Validate;
+use Controllers\History\Save as History;
+use Controllers\Utils\Validate;
 
 class Group
 {

@@ -20,8 +20,8 @@ if ($action == "applySettings" and !empty($_POST['settings_params'])) {
     $mysettings = new \Controllers\Settings();
 
     try {
-        $mysettings->apply(json_decode($_POST['settings_params'], true));
-    } catch (Exception $e) {
+        $mysettings->apply(json_decode($_POST['settings_params'], true, 512, JSON_THROW_ON_ERROR));
+    } catch (JsonException $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
