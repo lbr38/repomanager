@@ -20,7 +20,7 @@ class HttpRequest
     public function __destruct()
     {
         // Close curl handle
-        if (is_resource($this->ch)) {
+        if ($this->ch !== null) {
             curl_close($this->ch);
         }
     }
@@ -30,6 +30,8 @@ class HttpRequest
      */
     public function reachable(array $params) : string|array|null
     {
+        $params['headRequest'] = true;
+
         return $this->get($params);
     }
 
@@ -39,7 +41,21 @@ class HttpRequest
      */
     public function get(array $params, bool $parseJson = false, string $jsonExtract = '') : string|array|null
     {
+        $fp = null;
+
         try {
+            // Enable HEAD mode when requested (check URL reachability without downloading the response body)
+            $headRequest = !empty($params['headRequest']);
+            
+            // If the target must be saved as a file directly
+            $saveToFile = !empty($params['save']);
+
+            // If the output must be returned directly, parsed as JSON, or saved to a file, then capture the output
+            $shouldCaptureOutput = (isset($params['returnOutput']) && $params['returnOutput'] === true) || $parseJson || !empty($params['outputToFile']);
+
+            // Reset the handle to avoid leaking options between requests when the instance is reused.
+            curl_reset($this->ch);
+
             // Set verbose output if debug mode is enabled
             if (DebugMode::enabled()) {
                 curl_setopt($this->ch, CURLOPT_VERBOSE, true);
@@ -63,8 +79,12 @@ class HttpRequest
             // Follow redirects
             curl_setopt($this->ch, CURLOPT_FOLLOWLOCATION, true);
 
-            // Return the result as a string instead of outputting it directly
-            curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, true);
+            // Stream by default unless the caller explicitly needs the response body in memory.
+            curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, !$saveToFile && !$headRequest && $shouldCaptureOutput);
+
+            // Keep headers out of the body and allow HEAD requests for reachability checks.
+            curl_setopt($this->ch, CURLOPT_HEADER, false);
+            curl_setopt($this->ch, CURLOPT_NOBODY, $headRequest);
 
             // Set proxy if specified
             if (!empty($params['proxy'])) {
@@ -97,9 +117,10 @@ class HttpRequest
             }
 
             // If the target must be saved as a file directly
-            if (isset($params['save'])) {
-                // Disable return transfer option in this case
-                curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, false);
+            if ($saveToFile) {
+                if ($headRequest) {
+                    throw new Exception('save cannot be used with headRequest');
+                }
 
                 // Open the file for writing
                 $fp = fopen($params['save'], "w");
@@ -117,7 +138,7 @@ class HttpRequest
              */
 
             // If the output must be returned directly, parsed as JSON, or saved to a file, then capture the output
-            if ((isset($params['returnOutput']) && $params['returnOutput'] === true) or $parseJson or !empty($params['outputToFile'])) {
+            if ($shouldCaptureOutput) {
                 if (!$output = curl_exec($this->ch)) {
                     throw new Exception('curl failed: ' . curl_error($this->ch));
                 }
@@ -189,12 +210,7 @@ class HttpRequest
             }
 
             // Case the target must be saved as a file directly
-            if (!empty($params['save'])) {
-                // If raw output to file was requested, close the file
-                if (isset($fp) && is_resource($fp)) {
-                    fclose($fp);
-                }
-
+            if ($saveToFile) {
                 // Reset option for next calls if handle is reused
                 curl_setopt($this->ch, CURLOPT_FILE, null);
             }
@@ -210,6 +226,10 @@ class HttpRequest
             return null;
         } catch (Exception $e) {
             throw new Exception('HTTP request error: ' . $e->getMessage());
+        } finally {
+            if (is_resource($fp)) {
+                fclose($fp);
+            }
         }
     }
 }
