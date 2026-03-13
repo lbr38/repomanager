@@ -165,7 +165,8 @@ if (__ACTUAL_URI__[1] == 'run') {
     $jsFiles = [
         'functions/task',
         'events/task/actions',
-        'events/task/stop'
+        'events/task/stop',
+        'task'
     ];
 }
 if (__ACTUAL_URI__[1] == 'history') {

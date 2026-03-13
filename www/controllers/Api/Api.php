@@ -3,8 +3,9 @@
 namespace Controllers\Api;
 
 use Exception;
-use \Controllers\App\Maintenance;
-use \Controllers\Update;
+use Controllers\Exception\AppException;
+use Controllers\App\Maintenance;
+use Controllers\Update;
 
 class Api
 {
@@ -111,7 +112,7 @@ class Api
     /**
      *  Run API
      */
-    public function run()
+    public function run(): void
     {
         try {
             /**
@@ -149,6 +150,8 @@ class Api
              */
             $resultArray = $myapiController->execute();
             self::returnSuccess($resultArray);
+        } catch (AppException $e) {
+            self::returnError(400, $e->getDetails());
         } catch (Exception $e) {
             self::returnError(400, $e->getMessage());
             exit;
@@ -158,7 +161,7 @@ class Api
     /**
      *  Return 201 with specified results
      */
-    private static function returnSuccess(array $results)
+    private static function returnSuccess(array $results): void
     {
         $returnArray = ['return' => 201];
         $returnArray = array_merge($returnArray, $results);
@@ -171,10 +174,10 @@ class Api
     /**
      *  Return error
      */
-    private static function returnError(int $code, string $message)
+    private static function returnError(int $code, string|array $message): void
     {
         http_response_code($code);
-        echo json_encode(['return' => $code, 'message_error' => array($message)]);
+        echo json_encode(['return' => $code, 'message_error' => [$message]]);
         exit(1);
     }
 }

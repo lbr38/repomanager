@@ -152,7 +152,7 @@ const checkboxesCallback = {
         );
     },
 
-    // Checkboxes with checkbox-id 'repo-group'
+    // Checkboxes with checkbox-id 'profile'
     'profile': function (id, count) {
         myconfirmbox.print(
             {
@@ -194,16 +194,24 @@ const checkboxesCallback = {
             'message': count.length + ' task' + (count.length > 1 ? 's' : '') + ' selected',
             'id': 'scheduled-task-confirm-box',
             'buttons': [
-            // TODO
-            /*{
+            {
                 'text': 'Edit',
-                'color': 'blue',
+                'color': 'blue-alt',
+                'callback': function () {
+                    mypanel.get('tasks/edit', {
+                        tasks: id
+                    });
+                }
+            },
+            {
+                'text': 'Enable',
+                'color': 'blue-alt',
                 'callback': function () {
                     ajaxRequest(
                         // Controller:
                         'task',
                         // Action:
-                        'get-edit-form',
+                        'enable',
                         // Data:
                         {
                             id: id
@@ -216,7 +224,29 @@ const checkboxesCallback = {
                         mycontainer.reload('tasks/list');
                     });
                 }
-            },*/
+            },
+            {
+                'text': 'Disable',
+                'color': 'blue-alt',
+                'callback': function () {
+                    ajaxRequest(
+                        // Controller:
+                        'task',
+                        // Action:
+                        'disable',
+                        // Data:
+                        {
+                            id: id
+                        },
+                        // Print success alert:
+                        true,
+                        // Print error alert:
+                        true
+                    ).then(function () {
+                        mycontainer.reload('tasks/list');
+                    });
+                }
+            },
             {
                 'text': 'Cancel and delete',
                 'color': 'red',
@@ -225,7 +255,7 @@ const checkboxesCallback = {
                         // Controller:
                         'task',
                         // Action:
-                        'deleteTask',
+                        'delete',
                         // Data:
                         {
                             id: id
@@ -258,7 +288,7 @@ const checkboxesCallback = {
                         // Controller:
                         'task',
                         // Action:
-                        'deleteTask',
+                        'delete',
                         // Data:
                         {
                             id: id

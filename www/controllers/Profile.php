@@ -3,9 +3,8 @@
 namespace Controllers;
 
 use Exception;
-use Datetime;
-use \Controllers\History\Save as History;
-use \Controllers\Utils\Validate;
+use Controllers\History\Save as History;
+use Controllers\Utils\Validate;
 
 class Profile
 {

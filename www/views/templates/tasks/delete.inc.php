@@ -22,9 +22,10 @@
             <p>
                 <span class="label-white">
                     <?php
-                    if (!empty($repoController->getDist()) and !empty($repoController->getSection())) {
+                    if ($repoController->getPackageType() == 'deb') {
                         echo $repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection();
-                    } else {
+                    }
+                    if ($repoController->getPackageType() == 'rpm') {
                         echo $repoController->getName() . ' ❯ ' . $repoController->getReleasever();
                     } ?>
                 </span>

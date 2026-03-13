@@ -3,7 +3,7 @@
 namespace Controllers\Task\Form\Param;
 
 use Exception;
-use \Controllers\Utils\Validate;
+use Controllers\Utils\Validate;
 
 class PackageExclude
 {

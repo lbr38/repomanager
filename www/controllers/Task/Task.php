@@ -2,26 +2,21 @@
 
 namespace Controllers\Task;
 
-use \Controllers\Utils\Cron;
+use Controllers\Task\Form\Param\Schedule;
+use Controllers\Utils\Cron;
 use Exception;
 use JsonException;
-use Datetime;
+use DateTime;
 
 class Task
 {
     private $id;
-    // private $pid;
-    // private $action;
     private $status;
     private $error;
     private $type;
     private $date;
     private $time;
-    // private $repoName;
-    // private $gpgCheck;
-    // private $gpgSign;
     private $timeStart;
-    // private $timeEnd;
     protected $model;
     private $profileController;
     private $layoutContainerReloadController;
@@ -221,66 +216,86 @@ class Task
     /**
      *  Return repository from task Id
      */
-    public function getRepo(string $id)
+    public function getRepo(int $id): string
     {
-        $myrepo = new \Controllers\Repo\Repo();
+        $repoController = new \Controllers\Repo\Repo();
 
-        /**
-         *  Retrieve all informations about the task from the database
-         */
-        $taskInfo = $this->getById($id);
-        $taskRawParams = json_decode($taskInfo['Raw_params'], true);
+        try {
+            // Retrieve task informations
+            $taskInfo = $this->getById($id);
 
-        if (!empty($taskRawParams['source-snap-id'])) {
-            if (is_numeric($taskRawParams['source-snap-id'])) {
-                $myrepo->getAllById('', $taskRawParams['source-snap-id'], '');
-                $name       = $myrepo->getName();
-                $dist       = $myrepo->getDist();
-                $component  = $myrepo->getSection();
-                $releasever = $myrepo->getReleasever();
+            try {
+                $taskRawParams = json_decode($taskInfo['Raw_params'], true, 512, JSON_THROW_ON_ERROR);
+            } catch (JsonException $e) {
+                throw new Exception('could not decode task parameters: ' . $e->getMessage());
             }
-        } else if (!empty($taskRawParams['repo-id'])) {
-            if (is_numeric($taskRawParams['repo-id'])) {
-                $myrepo->getAllById($taskRawParams['repo-id'], '', '');
-                $name       = $myrepo->getName();
-                $dist       = $myrepo->getDist();
-                $component  = $myrepo->getSection();
-                $releasever = $myrepo->getReleasever();
-            } else {
-                if ($taskRawParams['package-type'] == 'rpm') {
-                    $name = $taskRawParams['repo-id'];
-                    $releasever = $taskRawParams['releasever'];
+
+            if (!empty($taskRawParams['source-snap-id'])) {
+                if (is_numeric($taskRawParams['source-snap-id'])) {
+                    $repoController->getAllById('', $taskRawParams['source-snap-id'], '');
+                    $name = $repoController->getName();
+
+                    if ($repoController->getPackageType() == 'deb') {
+                        $dist       = $repoController->getDist();
+                        $component  = $repoController->getSection();
+                    }
+                    if ($repoController->getPackageType() == 'rpm') {
+                        $releasever = $repoController->getReleasever();
+                    }
                 }
-                if ($taskRawParams['package-type'] == 'deb') {
-                    $repo = explode('|', $taskRawParams['repo-id']);
-                    $name = $repo[0];
-                    if (!empty($repo[1]) and !empty($repo[2])) {
-                        $dist      = $repo[1];
-                        $component = $repo[2];
+            } else if (!empty($taskRawParams['repo-id'])) {
+                if (is_numeric($taskRawParams['repo-id'])) {
+                    $repoController->getAllById($taskRawParams['repo-id'], '', '');
+                    $name = $repoController->getName();
+
+                    if ($repoController->getPackageType() == 'deb') {
+                        $dist       = $repoController->getDist();
+                        $component  = $repoController->getSection();
+                    }
+                    if ($repoController->getPackageType() == 'rpm') {
+                        $releasever = $repoController->getReleasever();
+                    }
+                } else {
+                    if ($taskRawParams['package-type'] == 'rpm') {
+                        $name = $taskRawParams['repo-id'];
+                        $releasever = $taskRawParams['releasever'];
+                    }
+                    if ($taskRawParams['package-type'] == 'deb') {
+                        $repo = explode('|', $taskRawParams['repo-id']);
+                        $name = $repo[0];
+                        if (!empty($repo[1]) and !empty($repo[2])) {
+                            $dist      = $repo[1];
+                            $component = $repo[2];
+                        }
+                    }
+                }
+            } else if (!empty($taskRawParams['snap-id'])) {
+                if (is_numeric($taskRawParams['snap-id'])) {
+                    $repoController->getAllById('', $taskRawParams['snap-id'], '');
+                    $name = $repoController->getName();
+
+                    if ($repoController->getPackageType() == 'deb') {
+                        $dist       = $repoController->getDist();
+                        $component  = $repoController->getSection();
+                    }
+                    if ($repoController->getPackageType() == 'rpm') {
+                        $releasever = $repoController->getReleasever();
                     }
                 }
             }
-        } else if (!empty($taskRawParams['snap-id'])) {
-            if (is_numeric($taskRawParams['snap-id'])) {
-                $myrepo->getAllById('', $taskRawParams['snap-id'], '');
-                $name       = $myrepo->getName();
-                $dist       = $myrepo->getDist();
-                $component  = $myrepo->getSection();
-                $releasever = $myrepo->getReleasever();
+
+            if (!empty($dist) and !empty($component)) {
+                return $name . ' ❯ ' . $dist . ' ❯ ' . $component;
             }
+
+            if (!empty($releasever)) {
+                return $name . ' ❯ ' . $releasever;
+            }
+
+            throw new Exception('unknown repository');
+        } catch (Exception $e) {
+            return 'Error retrieving repository: ' . strtolower($e->getMessage());
         }
-
-        unset($myrepo);
-
-        if (!empty($dist) and !empty($component)) {
-            return $name . ' ❯ ' . $dist . ' ❯ ' . $component;
-        }
-
-        if (!empty($releasever)) {
-            return $name . ' ❯ ' . $releasever;
-        }
-
-        return 'unknown';
     }
 
     /**
@@ -303,54 +318,10 @@ class Task
         if ($params['schedule']['scheduled'] == 'true') {
             $type = 'scheduled';
             $status = 'scheduled';
-
-            /**
-             *  Clean some parameters captured in the form as they are not needed for some scheduled tasks
-             */
-            if (isset($params['schedule']['schedule-frequency'])) {
-                if ($params['schedule']['schedule-frequency'] == 'hourly') {
-                    unset($params['schedule']['schedule-monthly-day-position']);
-                    unset($params['schedule']['schedule-monthly-day']);
-                    unset($params['schedule']['schedule-day']);
-                    unset($params['schedule']['schedule-time']);
-                    unset($params['schedule']['schedule-cron']);
-                }
-
-                if ($params['schedule']['schedule-frequency'] == 'daily') {
-                    unset($params['schedule']['schedule-monthly-day-position']);
-                    unset($params['schedule']['schedule-monthly-day']);
-                    unset($params['schedule']['schedule-day']);
-                    unset($params['schedule']['schedule-cron']);
-                }
-
-                if ($params['schedule']['schedule-frequency'] == 'weekly') {
-                    unset($params['schedule']['schedule-monthly-day-position']);
-                    unset($params['schedule']['schedule-monthly-day']);
-                    unset($params['schedule']['schedule-cron']);
-                }
-
-                if ($params['schedule']['schedule-frequency'] == 'monthly') {
-                    unset($params['schedule']['schedule-day']);
-                    unset($params['schedule']['schedule-cron']);
-                }
-
-                if ($params['schedule']['schedule-frequency'] == 'cron') {
-                    unset($params['schedule']['schedule-monthly-day-position']);
-                    unset($params['schedule']['schedule-monthly-day']);
-                    unset($params['schedule']['schedule-day']);
-                    unset($params['schedule']['schedule-time']);
-                }
-            }
         }
 
-        /**
-         *  If task is not scheduled, overwrite the schedule parameters to clear them and only keep the 'scheduled' field
-         */
-        if ($params['schedule']['scheduled'] == 'false') {
-            $params['schedule'] = [
-                'scheduled' => 'false'
-            ];
-        }
+        // Clean the schedule parameters (remove unnecessary parameters depending on the schedule type)
+        $params = Schedule::clean($params);
 
         /**
          *  If task is 'create' then inject the name / dist / section into the repo-id field
@@ -684,44 +655,43 @@ class Task
     }
 
     /**
-     *  Return the HTML form to edit a task
-     *  TODO
-     */
-    // public function getEditForm(array $tasks)
-    // {
-    //     if (!IS_ADMIN and !in_array('edit', USER_PERMISSIONS['tasks']['allowed-actions'])) {
-    //         throw new Exception('You are not allowed to edit a task.');
-    //     }
-
-    //     $content = '';
-
-
-
-    //     return $content;
-    // }
-
-    /**
      *  Enable a recurrent task
      */
-    public function enable(int $id) : void
+    public function enable(array $tasksId) : void
     {
         if (!IS_ADMIN and !in_array('enable', USER_PERMISSIONS['tasks']['allowed-actions'])) {
             throw new Exception('You are not allowed to enable a task.');
         }
 
-        $this->model->enable($id);
+        foreach ($tasksId as $id) {
+            // Check if task exists
+            if (!$this->exists($id)) {
+                throw new Exception('Task #' . $id . ' does not exist.');
+            }
+
+            // Enable task
+            $this->model->enable($id);
+        }
     }
 
     /**
      *  Disable a recurrent task
      */
-    public function disable(int $id) : void
+    public function disable(array $tasksId) : void
     {
         if (!IS_ADMIN and !in_array('disable', USER_PERMISSIONS['tasks']['allowed-actions'])) {
             throw new Exception('You are not allowed to disable a task.');
         }
 
-        $this->model->disable($id);
+        foreach ($tasksId as $id) {
+            // Check if task exists
+            if (!$this->exists($id)) {
+                throw new Exception('Task #' . $id . ' does not exist.');
+            }
+
+            // Disable task
+            $this->model->disable($id);
+        }
     }
 
     /**

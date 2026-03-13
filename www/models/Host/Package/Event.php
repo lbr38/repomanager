@@ -2,7 +2,7 @@
 
 namespace Models\Host\Package;
 
-use \Controllers\Database\Log as DbLog;
+use Controllers\Database\Log as DbLog;
 use Exception;
 
 class Event extends \Models\Model

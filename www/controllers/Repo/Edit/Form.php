@@ -3,8 +3,8 @@
 namespace Controllers\Repo\Edit;
 
 use Exception;
-use \Controllers\History\Save as History;
-use \Controllers\Utils\Validate;
+use Controllers\History\Save as History;
+use Controllers\Utils\Validate;
 
 class Form
 {

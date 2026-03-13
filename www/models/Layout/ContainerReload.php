@@ -2,7 +2,7 @@
 
 namespace Models\Layout;
 
-use \Controllers\Database\Log as DbLog;
+use Controllers\Database\Log as DbLog;
 use Exception;
 
 class ContainerReload extends \Models\Model

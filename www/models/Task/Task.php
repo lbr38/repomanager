@@ -3,7 +3,7 @@
 namespace Models\Task;
 
 use Exception;
-use \Controllers\Database\Log as DbLog;
+use Controllers\Database\Log as DbLog;
 
 class Task extends \Models\Model
 {

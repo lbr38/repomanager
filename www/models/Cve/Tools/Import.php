@@ -2,7 +2,7 @@
 
 namespace Models\Cve\Tools;
 
-use \Controllers\Database\Log as DbLog;
+use Controllers\Database\Log as DbLog;
 use Exception;
 
 class Import extends \Models\Model

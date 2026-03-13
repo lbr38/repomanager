@@ -3,7 +3,7 @@
 namespace Controllers\Repo\Task;
 
 use Exception;
-use \Controllers\Utils\Generate\Html\Label;
+use Controllers\Utils\Generate\Html\Label;
 
 class Env extends \Controllers\Task\Execution
 {
@@ -17,10 +17,13 @@ class Env extends \Controllers\Task\Execution
         } catch (Exception $e) {
             $this->status = 'error';
             $this->error = $e->getMessage();
-        }
 
-        // End the task
-        $this->end();
+            // Throw back the exception to be caught by the main script
+            throw new Exception($e->getMessage());
+        } finally {
+            // End the task
+            $this->end();
+        }
     }
 
     /**

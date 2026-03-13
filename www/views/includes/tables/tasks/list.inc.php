@@ -26,7 +26,7 @@
             /**
              *  If the current task item was made in a scheduled task, we display the scheduled task header
              */
-            if (in_array($item['Status'], ['scheduled', 'queued'])) {
+            if (in_array($item['Status'], ['scheduled', 'queued', 'disabled'])) {
                 $headerColor = 'header-blue-min';
                 $actionBtn = 'show-scheduled-task-info-btn';
             }
@@ -180,40 +180,12 @@
 
                 <div class="flex align-item-center justify-end column-gap-10 row-gap-10 flex-wrap">
                     <?php
-                    /**
-                     *  If task is a scheduled task
-                     */
-                    if ($item['Type'] == 'scheduled') {
-                        /**
-                         *  If task is a recurring task, add the possibility to disable/enable it
-                         */
-                        if ($taskRawParams['schedule']['schedule-type'] == 'recurring') {
-                            if (in_array($taskRawParams['schedule']['schedule-frequency'], ['hourly', 'daily', 'weekly', 'monthly', 'cron'])) {
-                                if ($item['Status'] == 'scheduled') {
-                                    if (IS_ADMIN or in_array('disable', USER_PERMISSIONS['tasks']['allowed-actions'])) {
-                                        echo '<img class="icon-lowopacity disable-scheduled-task-btn" src="/assets/icons/disabled.svg" task-id="' . $item['Id'] . '" title="Disable scheduled task" />';
-                                    }
-                                }
-
-                                if ($item['Status'] == 'disabled') {
-                                    if (IS_ADMIN or in_array('enable', USER_PERMISSIONS['tasks']['allowed-actions'])) {
-                                        echo '<img class="icon-lowopacity enable-scheduled-task-btn" src="/assets/icons/enabled.svg" task-id="' . $item['Id'] . '" title="Enable scheduled task" />';
-                                    }
-                                }
-                            }
-                        }
-
-                        /**
-                         *  Task status icon
-                         */
-                        if ($item['Status'] == 'disabled') {
-                            echo '<img class="icon-np" src="/assets/icons/warning.svg" title="Task execution is disabled" />';
-                        }
+                    // If task is a scheduled task and is disabled
+                    if ($item['Type'] == 'scheduled' and $item['Status'] == 'disabled') {
+                            echo '<img class="icon-np mediumopacity-cst" src="/assets/icons/pause.svg" title="Task execution is disabled" />';
                     }
 
-                    /**
-                     *  Print relaunch button if task has failed
-                     */
+                    // Print relaunch button if task has failed
                     if (($item['Status'] == 'error' or $item['Status'] == 'stopped') and !empty($item['Id'])) {
                         if (IS_ADMIN or in_array('relaunch', USER_PERMISSIONS['tasks']['allowed-actions'])) {
                             echo '<img class="icon-lowopacity relaunch-task-btn" src="/assets/icons/update.svg" task-id="' . $item['Id'] . '" title="Relaunch this task with the same parameters." />';
@@ -246,9 +218,9 @@
                     /**
                      *  Delete task button, only for scheduled and queued tasks
                      */
-                    if (in_array($item['Status'], ['scheduled', 'queued'])) {
+                    if (in_array($item['Status'], ['scheduled', 'queued', 'disabled'])) {
                         if (IS_ADMIN or in_array('delete', USER_PERMISSIONS['tasks']['allowed-actions'])) {
-                            echo '<input type="checkbox" class="child-checkbox lowopacity" checkbox-id="' . $taskTableType . '-task" checkbox-data-attribute="task-id" task-id="' . $item['Id'] . '" title="Cancel and delete scheduled task" />';
+                            echo '<input type="checkbox" class="child-checkbox lowopacity" checkbox-id="' . $taskTableType . '-task" checkbox-data-attribute="task-id" task-id="' . $item['Id'] . '" title="Select scheduled task" />';
                         }
                     } ?>
                 </div>

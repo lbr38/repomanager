@@ -2,7 +2,7 @@
 
 namespace Controllers\Repo;
 
-use \Controllers\Filesystem\Directory;
+use Controllers\Filesystem\Directory;
 use Exception;
 use DateTime;
 
@@ -70,10 +70,16 @@ class Snapshot
         // Get repository details
         $repoController->getAllById($repoId);
         $repoName       = $repoController->getName();
-        $repoReleasever = $repoController->getReleasever();
-        $repoDist       = $repoController->getDist();
-        $repoSection    = $repoController->getSection();
         $packageType    = $repoController->getPackageType();
+
+        if ($packageType == 'deb') {
+            $repoDist       = $repoController->getDist();
+            $repoSection    = $repoController->getSection();
+        }
+
+        if ($packageType == 'rpm') {
+            $repoReleasever = $repoController->getReleasever();
+        }
 
         // Get the list of unused snapshots for this repository
         $unusedSnapshots = $this->getUnused($repoId, RETENTION);
@@ -99,6 +105,7 @@ class Snapshot
                     Directory::deleteRecursive(REPOS_DIR . '/rpm/' . $repoName);
                 }
             }
+
             if ($packageType == 'deb') {
                 if (is_dir(REPOS_DIR . '/deb/' . $repoName . '/' . $repoDist . '/' . $repoSection . '/' . $snapDate)) {
                     $successful = Directory::deleteRecursive(REPOS_DIR . '/deb/' . $repoName . '/' . $repoDist . '/' . $repoSection . '/' . $snapDate);
@@ -135,6 +142,7 @@ class Snapshot
             if ($packageType == 'rpm') {
                 $removedSnaps[] = '<span class="label-white">' . $repoName . ' ❯ ' . $repoReleasever . '</span>⸺<span class="label-black">' . $snapDateFormatted . '</span> snapshot has been deleted';
             }
+
             if ($packageType == 'deb') {
                 $removedSnaps[] = '<span class="label-white">' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</span>⸺<span class="label-black">' . $snapDateFormatted . '</span> snapshot has been deleted';
             }

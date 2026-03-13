@@ -2,9 +2,9 @@
 
 namespace Controllers\Repo\Metadata;
 
-use \Controllers\Repo\Metadata\Rpm as RpmMetadata;
-use \Controllers\Repo\Metadata\Deb as DebMetadata;
-use \Controllers\Filesystem\Directory;
+use Controllers\Repo\Metadata\Rpm as RpmMetadata;
+use Controllers\Repo\Metadata\Deb as DebMetadata;
+use Controllers\Filesystem\Directory;
 use Exception;
 
 trait Create

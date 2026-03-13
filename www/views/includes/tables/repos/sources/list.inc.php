@@ -31,8 +31,8 @@
 
             // Decode JSON definition
             try {
-                $definition = json_decode($item['Definition'], true);
-            } catch (Exception $e) {
+                $definition = json_decode($item['Definition'], true, 512, JSON_THROW_ON_ERROR);
+            } catch (JsonException $e) {
                 echo '<p>Error: could not decode JSON definition for source repository #' . $item['Id'] . '</p>';
                 continue;
             }

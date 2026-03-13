@@ -2,7 +2,7 @@
 
 namespace Controllers\Repo\Task;
 
-use \Controllers\Filesystem\Directory;
+use Controllers\Filesystem\Directory;
 use Exception;
 
 class Delete extends \Controllers\Task\Execution
@@ -21,10 +21,13 @@ class Delete extends \Controllers\Task\Execution
         } catch (Exception $e) {
             $this->status = 'error';
             $this->error = $e->getMessage();
-        }
 
-        // End the task
-        $this->end();
+            // Throw back the exception to be caught by the main script
+            throw new Exception($e->getMessage());
+        } finally {
+            // End the task
+            $this->end();
+        }
     }
 
     /**

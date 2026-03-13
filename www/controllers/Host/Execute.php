@@ -3,8 +3,8 @@
 namespace Controllers\Host;
 
 use Exception;
-use \Controllers\Utils\Validate;
-use \Controllers\User\Permission\Host as HostPermission;
+use Controllers\Utils\Validate;
+use Controllers\User\Permission\Host as HostPermission;
 
 class Execute extends \Controllers\Host
 {

@@ -115,17 +115,11 @@ if ($myrepo->getType() == 'mirror') : ?>
     <?php
 endif;
 
-/**
- *  Define schedule form action and allowed type(s)
- */
-$scheduleForm['action'] = 'update';
-$scheduleForm['type'] = ['unique', 'recurring']; ?>
+// Define schedule form action (useful for the schedule form)
+$scheduleForm['action'] = 'update'; ?>
 
 <script>
 $(document).ready(function(){
-    /**
-     *  Convert select to select2
-     */
     myselect2.convert('#update-repo-target-env-select-<?= $myrepo->getSnapId() ?>');
     myselect2.convert('select.task-param[param-name="arch"]', 'Select architecture(s)', true);
     myselect2.convert('select.task-param[param-name="package-include"]', 'Specify package(s)', true);
