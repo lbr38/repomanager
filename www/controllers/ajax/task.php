@@ -25,9 +25,9 @@ if ($_POST['action'] == 'validateForm' and !empty($_POST['taskParams'])) {
 /**
  *  Disable task execution
  */
-if ($_POST['action'] == 'disableTask' and !empty($_POST['taskId'])) {
+if ($_POST['action'] == 'disable' and !empty($_POST['id'])) {
     try {
-        $myTask->disable($_POST['taskId']);
+        $myTask->disable($_POST['id']);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
@@ -38,9 +38,9 @@ if ($_POST['action'] == 'disableTask' and !empty($_POST['taskId'])) {
 /**
  *  Enable task execution
  */
-if ($_POST['action'] == 'enableTask' and !empty($_POST['taskId'])) {
+if ($_POST['action'] == 'enable' and !empty($_POST['id'])) {
     try {
-        $myTask->enable($_POST['taskId']);
+        $myTask->enable($_POST['id']);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
@@ -49,24 +49,9 @@ if ($_POST['action'] == 'enableTask' and !empty($_POST['taskId'])) {
 }
 
 /**
- *  Edit a scheduled task
- *  TODO
- */
-// if ($_POST['action'] == 'get-edit-form' and !empty($_POST['id'])) {
-//     try {
-//         $myTask->getEditForm($_POST['id']);
-//     } catch (Exception $e) {
-//         response(HTTP_BAD_REQUEST, $e->getMessage());
-//     }
-
-//     response(HTTP_OK, 'Task has been deleted');
-// }
-
-
-/**
  *  Delete a scheduled task
  */
-if ($_POST['action'] == 'deleteTask' and !empty($_POST['id'])) {
+if ($_POST['action'] == 'delete' and !empty($_POST['id'])) {
     try {
         $myTask->delete($_POST['id']);
     } catch (Exception $e) {

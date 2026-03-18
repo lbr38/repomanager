@@ -684,44 +684,43 @@ class Task
     }
 
     /**
-     *  Return the HTML form to edit a task
-     *  TODO
-     */
-    // public function getEditForm(array $tasks)
-    // {
-    //     if (!IS_ADMIN and !in_array('edit', USER_PERMISSIONS['tasks']['allowed-actions'])) {
-    //         throw new Exception('You are not allowed to edit a task.');
-    //     }
-
-    //     $content = '';
-
-
-
-    //     return $content;
-    // }
-
-    /**
      *  Enable a recurrent task
      */
-    public function enable(int $id) : void
+    public function enable(array $tasksId) : void
     {
         if (!IS_ADMIN and !in_array('enable', USER_PERMISSIONS['tasks']['allowed-actions'])) {
             throw new Exception('You are not allowed to enable a task.');
         }
 
-        $this->model->enable($id);
+        foreach ($tasksId as $id) {
+            // Check if task exists
+            if (!$this->exists($id)) {
+                throw new Exception('Task #' . $id . ' does not exist.');
+            }
+
+            // Enable task
+            $this->model->enable($id);
+        }
     }
 
     /**
      *  Disable a recurrent task
      */
-    public function disable(int $id) : void
+    public function disable(array $tasksId) : void
     {
         if (!IS_ADMIN and !in_array('disable', USER_PERMISSIONS['tasks']['allowed-actions'])) {
             throw new Exception('You are not allowed to disable a task.');
         }
 
-        $this->model->disable($id);
+        foreach ($tasksId as $id) {
+            // Check if task exists
+            if (!$this->exists($id)) {
+                throw new Exception('Task #' . $id . ' does not exist.');
+            }
+
+            // Disable task
+            $this->model->disable($id);
+        }
     }
 
     /**

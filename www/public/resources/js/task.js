@@ -39,36 +39,41 @@ $(document).on('change','input:radio[name="repo-type"], input:radio[name="packag
 /**
  *  Event: show / hide task inputs depending on the selected schedule type
  */
-$(document).on('change','input:radio[name="task-schedule-type"]',function () {
-    /**
-     *  Retrieve task action
-     */
-    var action = $(this).attr('action');
+$(document).on('change','input:radio[param-name="schedule-type"]',function () {
+    // Get task id if a task-id attribute is defined in the form (it's the case with scheduled tasks edit form)
+    const taskId = $(this).attr('task-id') ? $(this).attr('task-id') : null;
 
-    /**
-     *  Case it is a unique task
-     */
-    if ($('input:radio[name="task-schedule-type"][action="' + action + '"][value="unique"]').is(":checked")) {
-        $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-unique-input').show();
-        $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-time-input').show();
-        $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-recurring-frequency-input').hide();
-        $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-recurring-day-input').hide();
-        $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-recurring-monthly-input').hide();
-        $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-recurring-cron-input').hide();
-        $('input[type="checkbox"][param-name="schedule-notify-error"]').prop('checked', true);
-        $('input[type="checkbox"][param-name="schedule-notify-success"]').prop('checked', true);
+    // If a task id is defined, then target only the form with this task id
+    if (taskId != null) {
+        var form = '.task-schedule-form-params[task-id="' + taskId + '"]';
+        var uniqueInput = 'input:radio[param-name="schedule-type"][value="unique"][task-id="' + taskId + '"]';
+        var recurringInput = 'input:radio[param-name="schedule-type"][value="recurring"][task-id="' + taskId + '"]';
+    } else {
+        var form = '.task-schedule-form-params';
+        var uniqueInput = 'input:radio[param-name="schedule-type"][value="unique"]';
+        var recurringInput = 'input:radio[param-name="schedule-type"][value="recurring"]';
     }
 
-    /**
-     *  Case it is a recurring task
-     */
-    if ($('input:radio[name="task-schedule-type"][action="' + action + '"][value="recurring"]').is(":checked")) {
-        $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-recurring-frequency-input').show();
-        $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-unique-input').hide();
-        $('.task-schedule-form-params[action="' + action + '"]').find('.task-schedule-recurring-cron-input').hide();
+    // Case it is a unique task
+    if ($(uniqueInput).is(":checked")) {
+        $(form).find('.task-schedule-unique-input').show();
+        $(form).find('.task-schedule-time-input').show();
+        $(form).find('.task-schedule-recurring-frequency-input').hide();
+        $(form).find('.task-schedule-recurring-day-input').hide();
+        $(form).find('.task-schedule-recurring-monthly-input').hide();
+        $(form).find('.task-schedule-recurring-cron-input').hide();
+        $(form).find('input[type="checkbox"][param-name="schedule-notify-error"]').prop('checked', true);
+        $(form).find('input[type="checkbox"][param-name="schedule-notify-success"]').prop('checked', true);
+    }
+
+    // Case it is a recurring task
+    if ($(recurringInput).is(":checked")) {
+        $(form).find('.task-schedule-recurring-frequency-input').show();
+        $(form).find('.task-schedule-unique-input').hide();
+        $(form).find('.task-schedule-recurring-cron-input').hide();
         // Disable notification on success by default for recurring tasks to avoid spamming users with notifications
-        $('input[type="checkbox"][param-name="schedule-notify-error"]').prop('checked', true);
-        $('input[type="checkbox"][param-name="schedule-notify-success"]').prop('checked', false);
+        $(form).find('input[type="checkbox"][param-name="schedule-notify-error"]').prop('checked', true);
+        $(form).find('input[type="checkbox"][param-name="schedule-notify-success"]').prop('checked', false);
     }
 }).trigger('change');
 
@@ -76,42 +81,52 @@ $(document).on('change','input:radio[name="task-schedule-type"]',function () {
  *  Event: show / hide task inputs depending on the schedule frequency
  */
 $(document).on('change','select.task-param[param-name="schedule-frequency"]',function () {
-    var frequency = $(this).val();
+    const frequency = $(this).val();
+
+    // Get task id if a task-id attribute is defined in the form (it's the case with scheduled tasks edit form)
+    const taskId = $(this).attr('task-id') ? $(this).attr('task-id') : null;
+
+    // If a task id is defined, then target only the form with this task id
+    if (taskId != null) {
+        var form = '.task-schedule-form-params[task-id="' + taskId + '"]';
+    } else {
+        var form = '.task-schedule-form-params';
+    }
 
     if (frequency == 'hourly') {
-        $('.task-schedule-recurring-day-input').hide();
-        $('.task-schedule-time-input').hide();
-        $('.task-schedule-recurring-monthly-input').hide();
-        $('.task-schedule-recurring-cron-input').hide();
+        $(form).find('.task-schedule-recurring-day-input').hide();
+        $(form).find('.task-schedule-time-input').hide();
+        $(form).find('.task-schedule-recurring-monthly-input').hide();
+        $(form).find('.task-schedule-recurring-cron-input').hide();
     }
 
     if (frequency == 'daily') {
-        $('.task-schedule-recurring-day-input').hide();
-        $('.task-schedule-time-input').show();
-        $('.task-schedule-recurring-monthly-input').hide();
-        $('.task-schedule-recurring-cron-input').hide();
+        $(form).find('.task-schedule-recurring-day-input').hide();
+        $(form).find('.task-schedule-time-input').show();
+        $(form).find('.task-schedule-recurring-monthly-input').hide();
+        $(form).find('.task-schedule-recurring-cron-input').hide();
     }
 
     if (frequency == 'weekly') {
-        $('.task-schedule-recurring-day-input').show();
-        $('.task-schedule-time-input').show();
-        $('.task-schedule-recurring-monthly-input').hide();
-        $('.task-schedule-recurring-cron-input').hide();
+        $(form).find('.task-schedule-recurring-day-input').show();
+        $(form).find('.task-schedule-time-input').show();
+        $(form).find('.task-schedule-recurring-monthly-input').hide();
+        $(form).find('.task-schedule-recurring-cron-input').hide();
     }
 
     if (frequency == 'monthly') {
-        $('.task-schedule-recurring-monthly-input').show();
-        $('.task-schedule-time-input').show();
-        $('.task-schedule-recurring-day-input').hide();
-        $('task-schedule-recurring-day-input').hide();
-        $('.task-schedule-recurring-cron-input').hide();
+        $(form).find('.task-schedule-recurring-monthly-input').show();
+        $(form).find('.task-schedule-time-input').show();
+        $(form).find('.task-schedule-recurring-day-input').hide();
+        $(form).find('task-schedule-recurring-day-input').hide();
+        $(form).find('.task-schedule-recurring-cron-input').hide();
     }
 
     if (frequency == 'cron') {
-        $('.task-schedule-recurring-cron-input').show();
-        $('.task-schedule-recurring-day-input').hide();
-        $('.task-schedule-time-input').hide();
-        $('.task-schedule-recurring-monthly-input').hide();
+        $(form).find('.task-schedule-recurring-cron-input').show();
+        $(form).find('.task-schedule-recurring-day-input').hide();
+        $(form).find('.task-schedule-time-input').hide();
+        $(form).find('.task-schedule-recurring-monthly-input').hide();
     }
 }).trigger('change');
 
@@ -449,7 +464,7 @@ $(document).on('submit','#task-form',function () {
     /**
      *  Retrieve the schedule parameters
      */
-    $(this).find('.task-schedule-form-params').each(function () {
+    $(this).find(identifier).each(function () {
         /**
          *  Retrieve the schedule parameters entered by the user and push them into the object
          *  There is no associative array in js so we push an object.

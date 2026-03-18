@@ -50,5 +50,11 @@ $taskConfig = [
     ],
 
     // Conditional params must be compared with current repository values
-    'conditional-compare-with' => 'current-repo'
+    'conditional-compare-with' => 'current-repo',    
+];
+
+// Form configuration
+$formConfig = [
+    // Allowed schedule types for this task
+    'allowed-schedule-types' => ['unique', 'recurring']
 ];

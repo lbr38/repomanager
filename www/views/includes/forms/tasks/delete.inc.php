@@ -16,8 +16,5 @@ if ($scheduledTasksCount > 0) : ?>
     <?php
 endif;
 
-/**
- *  Define schedule form action and allowed type(s)
- */
-$scheduleForm['action'] = 'delete';
-$scheduleForm['type'] = ['unique']; ?>
+// Define schedule form action (useful for the schedule form)
+$scheduleForm['action'] = 'delete'; ?>

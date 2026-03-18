@@ -250,60 +250,6 @@ $(document).on('click','.show-scheduled-task-info-btn',function (e) {
 });
 
 /**
- *  Event: disable scheduled task execution
- */
-$(document).on('click','.disable-scheduled-task-btn',function (e) {
-    // Prevent parent to be triggered
-    e.stopPropagation();
-
-    var taskId = $(this).attr('task-id');
-
-    ajaxRequest(
-        // Controller:
-        'task',
-        // Action:
-        'disableTask',
-        // Data:
-        {
-            taskId: taskId,
-        },
-        // Print success alert:
-        true,
-        // Print error alert:
-        true,
-        // Reload containers:
-        ['tasks/list']
-    );
-});
-
-/**
- *  Event: enable scheduled task execution
- */
-$(document).on('click','.enable-scheduled-task-btn',function (e) {
-    // Prevent parent to be triggered
-    e.stopPropagation();
-
-    var taskId = $(this).attr('task-id');
-
-    ajaxRequest(
-        // Controller:
-        'task',
-        // Action:
-        'enableTask',
-        // Data:
-        {
-            taskId: taskId,
-        },
-        // Print success alert:
-        true,
-        // Print error alert:
-        true,
-        // Reload containers:
-        ['tasks/list']
-    );
-});
-
-/**
  *  Event: relaunch task
  */
 $(document).on('click','.relaunch-task-btn',function (e) {
