@@ -7,8 +7,7 @@ site_url: https://docs.repomanager.net
 theme:
   name: material
   language: en
-  theme:
-    logo: assets/logo.svg
+  logo: assets/logo.svg
   palette:
     # Light mode
     - scheme: default
