@@ -84,7 +84,7 @@ Two persistent volumes will be created on your local host:
 - ``repomanager-data`` (default path: ``/var/lib/docker/volumes/repomanager-data/``): contains database and log files
 - ``repomanager-repo`` (default path: ``/var/lib/docker/volumes/repomanager-repo/``): contains repositories packages (deb/rpm), this directory might grow large depending on your usage
 
-4. Check that the container is running:
+Check that the container is running:
 
 ```
 docker ps
@@ -95,7 +95,7 @@ CONTAINER ID   IMAGE                      COMMAND                CREATED        
 61088656e1bd   lbr38/repomanager:latest   "/tmp/entrypoint.sh"   12 seconds ago   Up 10 seconds   0.0.0.0:8080->8080/tcp   repomanager
 ```
 
-5. Once the container is up and running, Repomanager will be accessible through a web browser on ``http://localhost:8080``. It is recommended to configure a reverse proxy to access the web interface through a dedicated FQDN and port ``443`` (you will need to have a valid SSL certificate). See an example below.
+Once the container is up and running, Repomanager will be accessible through a web browser on ``http://localhost:8080``. It is recommended to configure a reverse proxy to access the web interface through a dedicated FQDN and port ``443`` (you will need to have a valid SSL certificate). See an example below.
 
 Default credentials to access the web interface:
 

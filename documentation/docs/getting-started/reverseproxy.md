@@ -2,7 +2,7 @@
 
 Here is an example of a nginx reverse proxy.
 
-1. Create a new vhost and replace the following values:
+Create a new vhost and replace the following values:
 
 - ``<SERVER-IP>``
 - ``<FQDN>``
@@ -69,6 +69,10 @@ server {
 }
 ```
 
-2. Reload nginx to apply.
+Reload nginx to apply.
 
-3. Open your web browser and connect to ``http://<FQDN>``.
+```
+systemctl reload nginx
+```
+
+Open your web browser and connect to ``http://<FQDN>``.
