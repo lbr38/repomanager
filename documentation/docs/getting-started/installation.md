@@ -1,14 +1,15 @@
 ## Standard installation
 
 **The standard installation** is done by simply:
-- pulling the docker image from Docker Hub
-- creating a reverse proxy to access the web interface (optional but recommended)
+
+- Pulling the docker image from Docker Hub
+- Creating a reverse proxy to access the web interface (optional but recommended)
 
 This is the most common way to install a production-ready Repomanager instance on a host with docker.
 
 ### Pull and run the docker image
 
-1. You will have to pass the following environment variables to the container:
+You will have to pass the following environment variables to the container:
 
 - ``FQDN`` Fully Qualified Domain Name of the Repomanager server.
 - ``MAX_UPLOAD_SIZE`` Max upload size in MB (default 32). Increase this value if you want to upload large packages to your repos.
@@ -24,7 +25,7 @@ This is the most common way to install a production-ready Repomanager instance o
 
 </details>
 
-2. Choose the proper docker **network mode** for your use case:
+Choose the proper docker **network mode** for your use case:
 
 - ``bridge`` This is docker default network mode, but not necessarily the best choice. Be aware that in this mode, docker will bypass the firewall rules of your host by creating its own iptables rules, leading to a potential world access to the web interface. This mode is not recommanded for public hosts (for example VPS or dedicated servers).
 - ``host`` Docker will bind port to the host. This mode is recommanded for public hosts (for example VPS or dedicated servers) as it will use the host firewall rules.
