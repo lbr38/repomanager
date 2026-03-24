@@ -83,9 +83,9 @@ nav:
   - Home: index.md
   - Getting Started:
     - Requirements: getting-started/requirements.md
-    - Installation: getting-started/installation.md
+    - Standard installation: getting-started/installation.md
     - Reverse proxy: getting-started/reverseproxy.md
-    - Alternative installation: getting-started/alternative-installation.md
+    - Alternative installation methods: getting-started/alternative-installation.md
   - Guides:
     - Update Repomanager: guides/update.md
     - Backup and restore: guides/backup-restore.md

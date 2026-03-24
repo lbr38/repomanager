@@ -1,5 +1,3 @@
-## Standard installation
-
 **The standard installation** is done by simply:
 
 - Pulling the docker image from Docker Hub
