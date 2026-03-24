@@ -1,7 +1,7 @@
 # -- Site settings --
 site_name: Repomanager
 site_description: A web UI to mirror rpm and deb repositories
-site_url: https://github.com/lbr38/repomanager
+site_url: https://docs.repomanager.net
 
 # -- Theme --
 theme:
