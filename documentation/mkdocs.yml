@@ -1,0 +1,93 @@
+# -- Site settings --
+site_name: Repomanager
+site_description: A web UI to mirror rpm and deb repositories
+site_url: https://github.com/lbr38/repomanager
+
+# -- Theme --
+theme:
+  name: material
+  language: en
+  theme:
+    logo: assets/logo.svg
+  palette:
+    # Light mode
+    - scheme: default
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Dark mode
+    - scheme: slate
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+  features:
+    - navigation.instant          # Navigation instantanée (fetch + replace)
+    - navigation.instant.prefetch # Préchargement des pages au survol
+    - navigation.tracking         # URL reflète la section visible
+    - navigation.tabs             # Onglets de navigation principaux
+    - navigation.sections         # Sections dans la sidebar
+    - navigation.top              # Bouton retour en haut
+    - navigation.indexes          # Pages d'index de section
+    - search.suggest              # Suggestions de recherche
+    - search.highlight            # Surlignage des résultats
+    - content.code.copy           # Bouton copier sur les blocs de code
+    - content.code.annotate       # Annotations dans le code
+    - content.tabs.link           # Onglets liés entre sections
+    - content.tooltips            # Tooltips améliorés sur les liens
+    - toc.follow                  # Table des matières suit le scroll
+
+# -- Plugins --
+plugins:
+  - search
+
+# -- Markdown Extensions --
+markdown_extensions:
+  - admonition                              # Encadrés (note, tip, warning...)
+  - pymdownx.details                        # Encadrés dépliables
+  - pymdownx.superfences                    # Blocs de code avancés
+    
+  - pymdownx.tabbed:                        # Onglets de contenu
+      alternate_style: true
+  - pymdownx.highlight:                     # Coloration syntaxique
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite                   # Code inline coloré
+  - pymdownx.snippets                       # Inclusion de fichiers
+  - pymdownx.emoji:                         # Emojis et icônes
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - attr_list                               # Attributs HTML sur éléments
+  - md_in_html                              # Markdown dans le HTML
+  - tables                                  # Tableaux
+  - footnotes                               # Notes de bas de page
+  - pymdownx.critic                         # Suivi des modifications
+  - pymdownx.caret                          # Superscript et insertion
+  - pymdownx.keys                           # Raccourcis clavier
+  - pymdownx.mark                           # Surlignage de texte
+  - pymdownx.tilde                          # Subscript et barré
+  - toc:                                    # Table des matières
+      permalink: true
+  - pymdownx.tasklist:                      # Listes de tâches
+      custom_checkbox: true
+  - def_list                                # Listes de définitions
+  - abbr                                    # Abréviations
+
+# -- Navigation --
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      # - Configuration: getting-started/configuration.md
+
+# -- Footer --
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/lbr38/repomanager
