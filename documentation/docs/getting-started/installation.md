@@ -5,7 +5,7 @@
 
 This is the most common way to install a production-ready Repomanager instance on a host with docker.
 
-### Prepare the environment variables
+## Prepare the environment variables
 
 You will have to pass the following environment variables to the container:
 
@@ -21,20 +21,20 @@ You will have to pass the following environment variables to the container:
 
     - ``PGID`` (Optional) GID for the main group inside the container (default 33). This can be useful to avoid permissions issues between the host and the container when using persistent volumes.
 
-### Choose the network mode
+## Choose the network mode
 
 Choose the proper docker **network mode** for your use case:
 
 - ``bridge`` This is docker default network mode, but not necessarily the best choice. Be aware that in this mode, docker will bypass the firewall rules of your host by creating its own iptables rules, leading to a potential world access to the web interface. This mode is not recommanded for public hosts (for example VPS or dedicated servers).
 - ``host`` Docker will bind port to the host. This mode is recommanded for public hosts (for example VPS or dedicated servers) as it will use the host firewall rules.
 
-### Pull and run the docker image
+## Pull and run the docker image
 
 Once everything is ready, pull and run the docker image with the environment variables and the persistent volumes:
 
 <div class="grid cards" markdown>
 
--   :material-clock-fast: ``bridge`` network mode
+-   :material-network: ``bridge`` network mode
 
     ---
 
@@ -49,7 +49,7 @@ Once everything is ready, pull and run the docker image with the environment var
         lbr38/repomanager:latest
     ```
 
--   :fontawesome-brands-markdown: ``host`` network mode
+-   :material-server-network-outline: ``host`` network mode
 
     ---
 
@@ -70,7 +70,7 @@ Two persistent volumes will be created on your local host:
 - ``repomanager-data`` (default path: ``/var/lib/docker/volumes/repomanager-data/``): contains database and log files
 - ``repomanager-repo`` (default path: ``/var/lib/docker/volumes/repomanager-repo/``): contains repositories packages (deb/rpm), this directory might grow large depending on your usage
 
-### Check that the container is running
+## Check that the container is running
 
 ```
 docker ps
@@ -81,7 +81,32 @@ CONTAINER ID   IMAGE                      COMMAND                CREATED        
 61088656e1bd   lbr38/repomanager:latest   "/tmp/entrypoint.sh"   12 seconds ago   Up 10 seconds   0.0.0.0:8080->8080/tcp   repomanager
 ```
 
-### First login
+Eventually check that there is no error in the container logs:
+
+```
+docker logs repomanager
+```
+
+```
+ ______  ____ ______   ____   _____ _____   ____  _____    ____   ___________
+ \_  _ \/ __ \\____ \ /  _ \ /     \\__  \ /     \\__  \  / ___\_/ __ \_  __ \
+ |  | \|  ___/|  |_> )  (_) )  Y Y  \/ __ \|   |  \/ __ \/ /_/  >  ___/|  | \/
+ |__|   \___  >   __/ \____/|__|_|  (____  /___|  (____  |___  / \___  >__|
+            \/|__|                \/     \/     \/     \/_____/      \/
+           
+
+[Wed Mar 25 09:04:24][INF] Setting permissions... 
+[Wed Mar 25 09:04:24][INF] Starting php-fpm...
+[Wed Mar 25 09:04:24][INF] Starting nginx...
+[Wed Mar 25 09:04:24][INF] Starting postfix...
+[Wed Mar 25 09:04:26][INF] Databases check and initialization successful
+[Wed Mar 25 09:04:26][INF] Enabling maintenance page
+[Wed Mar 25 09:04:26][INF] Updating database
+[Wed Mar 25 09:04:26][INF] Disabling maintenance page
+[Wed Mar 25 09:04:26][INF] Starting repomanager service...
+```
+
+## First login
 
 Once the container is up and running, Repomanager will be accessible through a web browser on ``http://localhost:8080``.
 

@@ -1,3 +1,7 @@
+# 
+# Material icons: https://squidfunk.github.io/mkdocs-material/reference/icons-emojis/
+#
+
 # -- Site settings --
 site_name: Repomanager
 site_description: A web UI to mirror rpm and deb repositories
@@ -26,20 +30,32 @@ theme:
         name: Switch to light mode
 
   features:
-    - navigation.instant          # Navigation instantanée (fetch + replace)
-    - navigation.instant.prefetch # Préchargement des pages au survol
-    - navigation.tracking         # URL reflète la section visible
-    - navigation.tabs             # Onglets de navigation principaux
-    - navigation.sections         # Sections dans la sidebar
-    - navigation.top              # Bouton retour en haut
-    - navigation.indexes          # Pages d'index de section
-    - search.suggest              # Suggestions de recherche
-    - search.highlight            # Surlignage des résultats
-    - content.code.copy           # Bouton copier sur les blocs de code
-    - content.code.annotate       # Annotations dans le code
-    - content.tabs.link           # Onglets liés entre sections
-    - content.tooltips            # Tooltips améliorés sur les liens
-    - toc.follow                  # Table des matières suit le scroll
+    # - navigation.instant          # Navigation instantanée (fetch + replace)
+    # - navigation.instant.prefetch # Préchargement des pages au survol
+    # - navigation.tracking         # URL reflète la section visible
+    # - navigation.tabs             # Onglets de navigation principaux
+    # - navigation.sections         # Sections dans la sidebar
+    # - navigation.expand
+    # - navigation.top              # Bouton retour en haut
+    # - navigation.indexes          # Pages d'index de section
+    # - search.suggest              # Suggestions de recherche
+    # - search.highlight            # Surlignage des résultats
+    # - content.code.copy           # Bouton copier sur les blocs de code
+    # - content.code.annotate       # Annotations dans le code
+    # - content.tabs.link           # Onglets liés entre sections
+    # - content.tooltips            # Tooltips améliorés sur les liens
+    # - toc.follow                  # Table des matières suit le scroll
+
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tabs.link
+    - toc.integrate
 
 # -- Plugins --
 plugins:
@@ -87,8 +103,20 @@ nav:
     - Reverse proxy: getting-started/reverseproxy.md
     - Alternative installation methods: getting-started/alternative-installation.md
   - Guides:
+    - Operations on repositories: guides/operations.md
+
+
+
     - Update Repomanager: guides/update.md
     - Backup and restore: guides/backup-restore.md
+    - API: guides/api.md
+    - Migrations: guides/migrations.md
+    - Miscellaneous and tips: guides/miscellaneous.md
+    - Troubleshooting: guides/troubleshooting.md
+
+# -- Custom CSS --
+extra_css:
+  - assets/extra.css
 
 # -- Footer --
 extra:

@@ -1,4 +1,4 @@
-### Reverse proxy
+## :simple-nginx: nginx
 
 Here is an example of a nginx reverse proxy.
 
