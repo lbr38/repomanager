@@ -104,9 +104,12 @@ nav:
     - Alternative installation methods: getting-started/alternative-installation.md
   - Guides:
     - Operations on repositories: guides/operations.md
-
-
-
+    - Scheduling tasks: guides/scheduling.md
+    - Environments: guides/environments.md
+    - Source repositories: guides/source-repositories.md
+    - Manage hosts: guides/hosts.md
+    - Stats and monitoring: guides/stats-monitoring.md
+    - Settings: guides/settings.md
     - Update Repomanager: guides/update.md
     - Backup and restore: guides/backup-restore.md
     - API: guides/api.md
@@ -116,6 +119,7 @@ nav:
 
 # -- Custom CSS --
 extra_css:
+  - https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap
   - assets/extra.css
 
 # -- Footer --
