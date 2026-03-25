@@ -17,8 +17,8 @@ jobs:
         with:
           python-version: '3.12'
 
-      # - run: pip install -r requirements.txt
-      - run: pip install mkdocs-material
+      - run: pip install -r documentation/requirements.txt
+      # - run: pip install mkdocs-material
 
       - run: |
           cd documentation
