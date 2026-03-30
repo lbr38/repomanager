@@ -73,6 +73,9 @@ jobs:
               exit 1
           fi
 
+          # Mask sensitive values in logs before exporting them
+          echo "::add-mask::$HOST_ID"
+          echo "::add-mask::$HOST_TOKEN"
           echo "HOST_ID=$HOST_ID" >> $GITHUB_ENV
           echo "HOST_TOKEN=$HOST_TOKEN" >> $GITHUB_ENV
 
