@@ -29,7 +29,22 @@ class HttpRequest
      */
     public function reachable(array $params) : string|array|null
     {
-        return $this->get($params);
+        // Perform a HEAD request to check URL reachability without downloading the response body
+        try {
+            $params['headRequest'] = true;
+
+            return $this->get($params);
+        } catch (Exception $e) {
+            // Some servers don't support HEAD requests and return 405 Method Not Allowed, fall back to a standard GET request
+            if (str_contains($e->getMessage(), '405')) {
+                unset($params['headRequest']);
+                $params['returnOutput'] = true;
+
+                return $this->get($params);
+            }
+
+            throw $e;
+        }
     }
 
     /**
@@ -38,7 +53,21 @@ class HttpRequest
      */
     public function get(array $params, bool $parseJson = false, string $jsonExtract = '') : string|array|null
     {
+        $fp = null;
+
         try {
+            // Enable HEAD mode when requested (check URL reachability without downloading the response body)
+            $headRequest = !empty($params['headRequest']);
+
+            // If the target must be saved as a file directly
+            $saveToFile = !empty($params['save']);
+
+            // If the output must be returned directly, parsed as JSON, or saved to a file, then capture the output
+            $shouldCaptureOutput = (isset($params['returnOutput']) && $params['returnOutput'] === true) || $parseJson || !empty($params['outputToFile']);
+
+            // Reset the handle to avoid leaking options between requests when the instance is reused.
+            curl_reset($this->ch);
+
             // Set verbose output if debug mode is enabled
             if (DebugMode::enabled()) {
                 curl_setopt($this->ch, CURLOPT_VERBOSE, true);
@@ -100,9 +129,10 @@ class HttpRequest
             }
 
             // If the target must be saved as a file directly
-            if (isset($params['save'])) {
-                // Disable return transfer option in this case
-                curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, false);
+            if ($saveToFile) {
+                if ($headRequest) {
+                    throw new Exception('save cannot be used with headRequest');
+                }
 
                 // Open the file for writing
                 $fp = fopen($params['save'], "w");
@@ -120,7 +150,7 @@ class HttpRequest
              */
 
             // If the output must be returned directly, parsed as JSON, or saved to a file, then capture the output
-            if ((isset($params['returnOutput']) && $params['returnOutput'] === true) or $parseJson or !empty($params['outputToFile'])) {
+            if ($shouldCaptureOutput) {
                 if (!$output = curl_exec($this->ch)) {
                     throw new Exception('curl failed: ' . curl_error($this->ch));
                 }
@@ -192,12 +222,7 @@ class HttpRequest
             }
 
             // Case the target must be saved as a file directly
-            if (!empty($params['save'])) {
-                // If raw output to file was requested, close the file
-                if (isset($fp) && is_resource($fp)) {
-                    fclose($fp);
-                }
-
+            if ($saveToFile) {
                 // Reset option for next calls if handle is reused
                 curl_setopt($this->ch, CURLOPT_FILE, null);
             }
@@ -213,6 +238,10 @@ class HttpRequest
             return null;
         } catch (Exception $e) {
             throw new Exception('HTTP request error: ' . $e->getMessage());
+        } finally {
+            if (is_resource($fp)) {
+                fclose($fp);
+            }
         }
     }
 }
