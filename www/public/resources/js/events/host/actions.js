@@ -485,7 +485,7 @@ $(document).on('click','#host-request-btn',function () {
     if (allowedActions.includes('request-general-infos')) {
         buttons.push(
             {
-                'text': 'Request general informations',
+                'text': 'Request general information',
                 'color': 'blue-alt',
                 'callback': function () {
                     executeAction('request-general-infos', [id]);
@@ -497,7 +497,7 @@ $(document).on('click','#host-request-btn',function () {
     if (allowedActions.includes('request-packages-infos')) {
         buttons.push(
             {
-                'text': 'Request packages informations',
+                'text': 'Request packages information',
                 'color': 'blue-alt',
                 'callback': function () {
                     executeAction('request-packages-infos', [id]);

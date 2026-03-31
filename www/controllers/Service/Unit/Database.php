@@ -2,7 +2,7 @@
 
 namespace Controllers\Service\Unit;
 
-use \Controllers\App\Maintenance;
+use Controllers\App\Maintenance;
 use Exception;
 
 class Database extends \Controllers\Service\Service

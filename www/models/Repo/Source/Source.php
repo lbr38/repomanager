@@ -3,7 +3,7 @@
 namespace Models\Repo\Source;
 
 use Exception;
-use \Controllers\Database\Log as DbLog;
+use Controllers\Database\Log as DbLog;
 
 class Source extends \Models\Model
 {

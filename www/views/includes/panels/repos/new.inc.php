@@ -229,11 +229,8 @@
     <hr>
 
     <?php
-    /**
-     *  Define schedule form action and allowed type(s)
-     */
+    // Define schedule form action (useful for the schedule form)
     $scheduleForm['action'] = 'create';
-    $scheduleForm['type'] = ['unique'];
 
     /**
      *  Include schedule task template

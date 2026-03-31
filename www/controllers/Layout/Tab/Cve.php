@@ -2,7 +2,7 @@
 
 namespace Controllers\Layout\Tab;
 
-use \Controllers\Utils\Validate;
+use Controllers\Utils\Validate;
 
 class Cve
 {

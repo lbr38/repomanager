@@ -3,8 +3,8 @@
 namespace Models\Repo\Statistic;
 
 use Exception;
-use \Controllers\Utils\Validate;
-use \Controllers\Database\Log as DbLog;
+use Controllers\Utils\Validate;
+use Controllers\Database\Log as DbLog;
 
 class Deb extends \Models\Model
 {

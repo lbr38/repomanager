@@ -2,7 +2,7 @@
 
 namespace Models\Group;
 
-use \Controllers\Database\Log as DbLog;
+use Controllers\Database\Log as DbLog;
 use Exception;
 
 class Group extends \Models\Model

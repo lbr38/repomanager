@@ -4,7 +4,7 @@ namespace Controllers\Host;
 
 use Exception;
 use JsonException;
-use \Controllers\Utils\Validate;
+use Controllers\Utils\Validate;
 
 class Update
 {

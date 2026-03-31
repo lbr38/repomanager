@@ -2,7 +2,7 @@
 
 namespace Controllers\Task\Form\Param;
 
-use \Controllers\Utils\Cron;
+use Controllers\Utils\Cron;
 use Exception;
 use DateTime;
 
@@ -25,6 +25,10 @@ class Schedule
          */
         if ($scheduleParams['scheduled'] == 'false') {
             return;
+        }
+
+        if (empty($scheduleParams['schedule-type'])) {
+            throw new Exception('Schedule type must be specified');
         }
 
         /**
@@ -249,5 +253,77 @@ class Schedule
                 throw new Exception('Invalid recipient email');
             }
         }
+    }
+
+    /**
+     *  Clean schedule parameters by keeping only the relevant ones according to the schedule frequency
+     */
+    public static function clean(array $params): array
+    {
+        // If task is not scheduled, overwrite the schedule parameters to clear them and only keep the 'scheduled' field
+        if ($params['schedule']['scheduled'] == 'false') {
+            $params['schedule'] = [
+                'scheduled' => 'false'
+            ];
+
+            return $params;
+        }
+
+        if (isset($params['schedule']['schedule-type']) && $params['schedule']['schedule-type'] == 'unique') {
+            unset($params['schedule']['schedule-frequency']);
+            unset($params['schedule']['schedule-monthly-day-position']);
+            unset($params['schedule']['schedule-monthly-day']);
+            unset($params['schedule']['schedule-day']);
+            unset($params['schedule']['schedule-cron']);
+        }
+
+        if (isset($params['schedule']['schedule-type']) && $params['schedule']['schedule-type'] == 'recurring') {
+            if (isset($params['schedule']['schedule-frequency'])) {
+                if ($params['schedule']['schedule-frequency'] == 'hourly') {
+                    unset($params['schedule']['schedule-monthly-day-position']);
+                    unset($params['schedule']['schedule-monthly-day']);
+                    unset($params['schedule']['schedule-day']);
+                    unset($params['schedule']['schedule-date']);
+                    unset($params['schedule']['schedule-time']);
+                    unset($params['schedule']['schedule-cron']);
+                }
+
+                if ($params['schedule']['schedule-frequency'] == 'daily') {
+                    unset($params['schedule']['schedule-monthly-day-position']);
+                    unset($params['schedule']['schedule-monthly-day']);
+                    unset($params['schedule']['schedule-day']);
+                    unset($params['schedule']['schedule-date']);
+                    unset($params['schedule']['schedule-cron']);
+                }
+
+                if ($params['schedule']['schedule-frequency'] == 'weekly') {
+                    unset($params['schedule']['schedule-monthly-day-position']);
+                    unset($params['schedule']['schedule-monthly-day']);
+                    unset($params['schedule']['schedule-cron']);
+                    unset($params['schedule']['schedule-date']);
+                }
+
+                if ($params['schedule']['schedule-frequency'] == 'monthly') {
+                    unset($params['schedule']['schedule-day']);
+                    unset($params['schedule']['schedule-cron']);
+                    unset($params['schedule']['schedule-date']);
+                }
+
+                if ($params['schedule']['schedule-frequency'] == 'cron') {
+                    unset($params['schedule']['schedule-monthly-day-position']);
+                    unset($params['schedule']['schedule-monthly-day']);
+                    unset($params['schedule']['schedule-day']);
+                    unset($params['schedule']['schedule-date']);
+                    unset($params['schedule']['schedule-time']);
+                }
+            }
+        }
+
+        // Remove recipient if no alert or reminder is set
+        if ($params['schedule']['schedule-notify-error'] == 'false' && $params['schedule']['schedule-notify-success'] == 'false' && empty($params['schedule']['schedule-reminder'])) {
+            unset($params['schedule']['schedule-recipient']);
+        }
+
+        return $params;
     }
 }

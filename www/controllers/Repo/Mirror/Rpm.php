@@ -5,12 +5,12 @@ namespace Controllers\Repo\Mirror;
 use Exception;
 use SimpleXMLElement;
 use XMLReader;
-use \Controllers\Gpg;
-use \Controllers\Process;
-use \Controllers\Utils\Compress\Bzip2;
-use \Controllers\Utils\Compress\Gzip;
-use \Controllers\Utils\Compress\Xz;
-use \Controllers\Utils\Compress\Zstd;
+use Controllers\Gpg;
+use Controllers\Process;
+use Controllers\Utils\Compress\Bzip2;
+use Controllers\Utils\Compress\Gzip;
+use Controllers\Utils\Compress\Xz;
+use Controllers\Utils\Compress\Zstd;
 
 class Rpm extends \Controllers\Repo\Mirror\Mirror
 {

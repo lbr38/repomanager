@@ -12,3 +12,9 @@ $taskConfig = [
         'gpg-sign'
     ]
 ];
+
+// Form configuration
+$formConfig = [
+    // Allowed schedule types for this task
+    'allowed-schedule-types' => ['unique', 'recurring']
+];

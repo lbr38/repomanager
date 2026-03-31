@@ -2,7 +2,7 @@
 
 namespace Controllers\Layout\Tab;
 
-use \Controllers\Layout\Container\Render;
+use Controllers\Layout\Container\Render;
 
 class Status
 {

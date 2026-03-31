@@ -3,16 +3,30 @@
 namespace Controllers\Repo;
 
 use Exception;
-use \Controllers\Utils\Validate;
-use \Controllers\User\Permission\Repo as RepoPermission;
+use Controllers\Exception\AppException;
+use Controllers\Utils\Validate;
+use Controllers\User\Permission\Repo as RepoPermission;
 
 class Package
 {
+    private $repoController;
+
+    public function __construct()
+    {
+        $this->repoController = new \Controllers\Repo\Repo();
+    }
+
     /**
      *  Upload package to repo
      */
-    public function upload(int $snapId, $packages)
+    public function upload(int $snapId, array $packages, bool $overwrite = false): void
     {
+        $packageInvalidName = []; // will contain the list of packages whose name is invalid
+        $packageInvalid     = []; // will contain the list of packages whose format is invalid
+        $packageExists      = []; // will contain the list of packages that already exist
+        $packagesError      = []; // will contain the list of packages uploaded with an error
+        $packageEmpty       = []; // will contain the list of empty packages
+
         /**
          *  If the user does not have permission to upload packages, prevent access to this action.
          */
@@ -20,27 +34,25 @@ class Package
             throw new Exception('You are not allowed to upload packages');
         }
 
-        $myrepo = new \Controllers\Repo\Repo();
-
         /**
          *  Retrieve repo infos from DB
          */
-        $myrepo->getAllById('', $snapId, '');
+        $this->repoController->getAllById('', $snapId, '');
 
         /**
          *  Retrieve current repo architectures
          *  We will need this to update the repo architectures list if new packages are uploaded
          */
-        $currentArchs = $myrepo->getArch($snapId);
+        $currentArchs = $this->repoController->getArch();
 
         /**
          *  Define snapshot path
          */
-        if ($myrepo->getPackageType() == 'rpm') {
-            $snapshotPath = REPOS_DIR .'/rpm/'. $myrepo->getName() . '/' . $myrepo->getReleasever() . '/' . $myrepo->getDate();
+        if ($this->repoController->getPackageType() == 'rpm') {
+            $snapshotPath = REPOS_DIR .'/rpm/'. $this->repoController->getName() . '/' . $this->repoController->getReleasever() . '/' . $this->repoController->getDate();
         }
-        if ($myrepo->getPackageType() == 'deb') {
-            $snapshotPath = REPOS_DIR .'/deb/'. $myrepo->getName() . '/'. $myrepo->getDist() . '/' . $myrepo->getSection() . '/' . $myrepo->getDate();
+        if ($this->repoController->getPackageType() == 'deb') {
+            $snapshotPath = REPOS_DIR .'/deb/'. $this->repoController->getName() . '/'. $this->repoController->getDist() . '/' . $this->repoController->getSection() . '/' . $this->repoController->getDate();
         }
 
         /**
@@ -58,12 +70,6 @@ class Package
                 throw new Exception('You must upload a file.');
             }
         }
-
-        $packageExists = [];      // will contain the list of packages that already exist
-        $packagesError = [];      // will contain the list of packages uploaded with an error
-        $packageEmpty = [];       // will contain the list of empty packages
-        $packageInvalidName = []; // will contain the list of packages whose name is invalid
-        $packageInvalid = [];     // will contain the list of packages whose format is invalid
 
         foreach ($packages as $package) {
             $uploadError    = 0;
@@ -86,7 +92,7 @@ class Package
             /**
              *  If the package is a .deb package, check that it contains the architecture in its name
              */
-            if ($myrepo->getPackageType() == 'deb') {
+            if ($this->repoController->getPackageType() == 'deb') {
                 if (!preg_match('/(amd64|arm64|armel|armhf|i386|mips|mips64el|mipsel|ppc64el|s390x|all).deb$/', $packageName)) {
                     throw new Exception('Package(s) name must contain the architecture in its name (e.g. package_amd64.deb).');
                 }
@@ -113,15 +119,15 @@ class Package
             /**
              *  For DEB, package will be uploaded to the pool/<section> directory
              */
-            if ($myrepo->getPackageType() == 'deb') {
-                $targetDir = $snapshotPath . '/pool/' . $myrepo->getSection();
+            if ($this->repoController->getPackageType() == 'deb') {
+                $targetDir = $snapshotPath . '/pool/' . $this->repoController->getSection();
             }
 
             /**
              *  For RPM, package will be uploaded to the correct architecture subfolder
              *  Try to determine package architecture to move it to the correct subfolder
              */
-            if ($myrepo->getPackageType() == 'rpm') {
+            if ($this->repoController->getPackageType() == 'rpm') {
                 foreach (RPM_ARCHS as $arch) {
                     if (preg_match("#\.$arch\.#", $packageName)) {
                         $targetDir = $snapshotPath . '/packages/' . $arch;
@@ -170,16 +176,22 @@ class Package
              *  Check that the package does not already exist, otherwise we ignore it and add it to a list of packages that already exist that we will display afterwards
              */
             if (file_exists($targetDir . '/' . $packageName)) {
-                $uploadError++;
-                $packageExists[] = $packageName;
-                continue;
+                // If overwrite is disabled, skip the package and add it to the list of packages that already exist
+                if (!$overwrite) {
+                    $uploadError++;
+                    $packageExists[] = $packageName;
+                    continue;
+                }
+
+                // If overwrite is allowed, delete the existing package
+                unlink($targetDir . '/' . $packageName);
             }
 
             /**
              *  Check that the file has a valid mime type and said mime type matches the repo type
              */
-            if (!($packageType == 'application/x-rpm' && $myrepo->getPackageType() == 'rpm') &&
-                !($packageType == 'application/vnd.debian.binary-package' && $myrepo->getPackageType() == 'deb')) {
+            if (!($packageType == 'application/x-rpm' && $this->repoController->getPackageType() == 'rpm') &&
+                !($packageType == 'application/vnd.debian.binary-package' && $this->repoController->getPackageType() == 'deb')) {
                 $uploadError++;
                 $packageInvalid[] = $packageName;
             }
@@ -193,7 +205,7 @@ class Package
                  */
                 if (!is_dir($targetDir)) {
                     if (!mkdir($targetDir, 0770, true)) {
-                        throw new Exception('Error: cannot create upload directory <b>' . $targetDir . '</b>');
+                        throw new Exception('Error: cannot create upload directory ' . $targetDir);
                     }
                 }
 
@@ -205,61 +217,49 @@ class Package
          *  If there was error during upload then we throw an exception
          */
         if ($uploadError != 0) {
-            $errorMessage = '';
+            $errorMessage = [];
+
             if (!empty($packageInvalidName)) {
-                $errorMessage .= '<br>Following packages have invalid name and have not been uploaded:';
-                foreach ($packageInvalidName as $package) {
-                    $errorMessage .= '<br><b>' . $package . '</b>';
-                }
+                $errorMessage['Following packages have invalid name and have not been uploaded'] = $packageInvalidName;
             }
 
             if (!empty($packageInvalid)) {
-                $errorMessage .= '<br>Following files are not considered valid packages and have not been uploaded:';
-                foreach ($packageInvalid as $package) {
-                    $errorMessage .= '<br><b>' . $package . '</b>';
-                }
+                $errorMessage['Following files are not considered valid packages and have not been uploaded'] = $packageInvalid;
             }
 
             if (!empty($packagesError)) {
-                $errorMessage .= '<br>Following packages encountered error and have not been uploaded:';
-                foreach ($packagesError as $package) {
-                    $errorMessage .= '<br><b>' . $package . '</b>';
-                }
+                $errorMessage['Following packages encountered error and have not been uploaded'] = $packagesError;
             }
 
             if (!empty($packageEmpty)) {
-                $errorMessage .= '<br>Following packages are empty and have not been uploaded:';
-                foreach ($packageEmpty as $package) {
-                    $errorMessage .= '<br><b>' . $package . '</b>';
-                }
+                $errorMessage['Following packages are empty and have not been uploaded'] = $packageEmpty;
             }
 
             if (!empty($packageExists)) {
-                $errorMessage .= '<br>Following packages already exist and have not been uploaded:';
-                foreach ($packageExists as $package) {
-                    $errorMessage .= '<br><b>' . $package . '</b>';
-                }
+                $errorMessage['Following packages already exist and have not been uploaded'] = $packageExists;
             }
 
-            throw new Exception($errorMessage);
+            throw new AppException($errorMessage);
         }
 
         /**
          *  Set repo rebuild status to 'needed'
          */
-        $myrepo->snapSetRebuild($snapId, 'needed');
+        $this->repoController->snapSetRebuild($snapId, 'needed');
 
         /**
          *  Set new repo architectures
          */
-        $myrepo->snapSetArch($snapId, $currentArchs);
+        $this->repoController->snapSetArch($snapId, $currentArchs);
     }
 
     /**
      *  Delete packages from repo
      */
-    public function delete(int $snapId, array $packages)
+    public function delete(int $snapId, array $packages): array
     {
+        $deletedPackages = [];
+
         /**
          *  If the user does not have permission to delete packages, prevent access to this action.
          */
@@ -267,22 +267,19 @@ class Package
             throw new Exception('You are not allowed to delete packages.');
         }
 
-        $myrepo = new \Controllers\Repo\Repo();
-        $deletedPackages = [];
-
         /**
          *  Retrieve repo infos from DB
          */
-        $myrepo->getAllById('', $snapId, '');
+        $this->repoController->getAllById('', $snapId, '');
 
         /**
          *  Define snapshot path
          */
-        if ($myrepo->getPackageType() == 'rpm') {
-            $snapshotPath = REPOS_DIR .'/rpm/'. $myrepo->getName() . '/' . $myrepo->getReleasever() . '/' . $myrepo->getDate();
+        if ($this->repoController->getPackageType() == 'rpm') {
+            $snapshotPath = REPOS_DIR .'/rpm/'. $this->repoController->getName() . '/' . $this->repoController->getReleasever() . '/' . $this->repoController->getDate();
         }
-        if ($myrepo->getPackageType() == 'deb') {
-            $snapshotPath = REPOS_DIR .'/deb/'. $myrepo->getName() . '/'. $myrepo->getDist() . '/' . $myrepo->getSection() . '/' . $myrepo->getDate();
+        if ($this->repoController->getPackageType() == 'deb') {
+            $snapshotPath = REPOS_DIR .'/deb/'. $this->repoController->getName() . '/'. $this->repoController->getDist() . '/' . $this->repoController->getSection() . '/' . $this->repoController->getDate();
         }
 
         /**
@@ -339,7 +336,7 @@ class Package
             /**
              *  Set repo rebuild status to 'needed'
              */
-            $myrepo->snapSetRebuild($snapId, 'needed');
+            $this->repoController->snapSetRebuild($snapId, 'needed');
         }
 
         return $deletedPackages;

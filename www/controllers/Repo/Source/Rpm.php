@@ -3,7 +3,7 @@
 namespace Controllers\Repo\Source;
 
 use Exception;
-use \Controllers\Utils\Validate;
+use Controllers\Utils\Validate;
 
 class Rpm extends \Controllers\Repo\Source\Source
 {

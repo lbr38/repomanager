@@ -3,7 +3,7 @@
 namespace Models\Repo;
 
 use Exception;
-use \Controllers\Database\Log as DbLog;
+use Controllers\Database\Log as DbLog;
 
 class Deb extends \Models\Model
 {

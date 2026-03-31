@@ -905,18 +905,17 @@ class Connection extends SQLite3
         /**
          *  Create indexes
          */
-        // TODO: uncomment after 5.8.0
-        // $this->exec("CREATE INDEX IF NOT EXISTS idx_access_deb ON access_deb (Name, Dist, Section, Env, Source, IP, Request, Request_result, Timestamp)");
-        // $this->exec("CREATE INDEX IF NOT EXISTS idx_access_rpm ON access_rpm (Name, Releasever, Env, Source, IP, Request, Request_result, Timestamp)");
-        // $this->exec("CREATE INDEX IF NOT EXISTS idx_repo_stats ON repo_stats (Snapshot_date, Snapshot_size, Snapshot_packages_count, Id_repo, Timestamp)");
-        // $this->exec("CREATE INDEX IF NOT EXISTS idx_repo_stats_id_repo ON repo_stats (Id_repo)");
-        // $this->exec("CREATE INDEX IF NOT EXISTS idx_repo_stats_timestamp ON repo_stats (Timestamp)");
-        // $this->exec("CREATE INDEX IF NOT EXISTS idx_access_rpm_timestamp ON access_rpm (Timestamp)");
-        // $this->exec("CREATE INDEX IF NOT EXISTS idx_access_deb_timestamp ON access_deb (Timestamp)");
-        // $this->exec("CREATE INDEX IF NOT EXISTS idx_access_rpm_name_releasever_timestamp ON access_rpm (Name, Releasever, Timestamp)");
-        // $this->exec("CREATE INDEX IF NOT EXISTS idx_access_deb_name_dist_section_timestamp ON access_deb (Name, Dist, Section, Timestamp)");
-        // $this->exec("CREATE INDEX IF NOT EXISTS idx_access_rpm_name_releasever_env_timestamp ON access_rpm (Name, Releasever, Env, Timestamp)");
-        // $this->exec("CREATE INDEX IF NOT EXISTS idx_access_deb_name_dist_section_env_timestamp ON access_deb (Name, Dist, Section, Env, Timestamp)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_access_deb ON access_deb (Name, Dist, Section, Env, Source, IP, Request, Request_result, Timestamp)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_access_rpm ON access_rpm (Name, Releasever, Env, Source, IP, Request, Request_result, Timestamp)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_repo_stats ON repo_stats (Snapshot_date, Snapshot_size, Snapshot_packages_count, Id_repo, Timestamp)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_repo_stats_id_repo ON repo_stats (Id_repo)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_repo_stats_timestamp ON repo_stats (Timestamp)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_access_rpm_timestamp ON access_rpm (Timestamp)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_access_deb_timestamp ON access_deb (Timestamp)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_access_rpm_name_releasever_timestamp ON access_rpm (Name, Releasever, Timestamp)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_access_deb_name_dist_section_timestamp ON access_deb (Name, Dist, Section, Timestamp)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_access_rpm_name_releasever_env_timestamp ON access_rpm (Name, Releasever, Env, Timestamp)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_access_deb_name_dist_section_env_timestamp ON access_deb (Name, Dist, Section, Env, Timestamp)");
     }
 
     /**

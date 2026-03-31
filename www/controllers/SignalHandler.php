@@ -2,7 +2,7 @@
 
 namespace Controllers;
 
-use \Controllers\Log\Cli as LogCli;
+use Controllers\Log\Cli as LogCli;
 
 class SignalHandler
 {

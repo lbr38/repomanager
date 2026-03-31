@@ -2,7 +2,7 @@
 
 namespace Controllers\Task;
 
-use \Controllers\Utils\Convert;
+use Controllers\Utils\Convert;
 use Exception;
 use JsonException;
 

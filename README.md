@@ -8,47 +8,46 @@
 
 <br><br>
 
-**Repomanager** is a web mirroring tool for ``rpm`` and ``deb`` packages repositories.
+**Repomanager** is a web mirroring tool for `rpm` and `deb` package repositories.
 
-<h2>Main features</h2>
 
-- Create ``deb`` and ``rpm`` mirror repositories
-- Sign packages/repositories with GPG
+## Main features
+
+- Create `deb` and `rpm` mirror repositories
+- Sign packages and repositories with GPG
 - Upload packages into repositories
-- Create environments (eg. ``preprod``, ``prod``) and make mirrors only available for specific environments
-- Manage hosts packages updates
+- Create environments (e.g., `preprod`, `prod`) and make mirrors available only for specific environments
+- Manage host package updates
 - Schedule tasks
 
-![alt text](https://raw.githubusercontent.com/lbr38/repomanager/refs/heads/devel/images/readme/demo.gif)
-![alt text](https://raw.githubusercontent.com/lbr38/repomanager/refs/heads/devel/images/readme/screenshot01.png)
-![alt text](https://raw.githubusercontent.com/lbr38/repomanager/refs/heads/devel/images/readme/screenshot02.png)
-![alt text](https://raw.githubusercontent.com/lbr38/repomanager/refs/heads/devel/images/readme/screenshot03.png)
-![alt text](https://raw.githubusercontent.com/lbr38/repomanager/refs/heads/devel/images/readme/screenshot04.png)
 
-<h2>Requirements</h2>
+## Demo
 
-<h3>Hardware</h3>
+[![Demo](https://github.com/user-attachments/assets/c6604e74-febb-4530-8839-26bbb1095b3c)](https://github.com/user-attachments/assets/c6604e74-febb-4530-8839-26bbb1095b3c)
 
-This is the minimum hardware requirements to run Repomanager smoothly: 
 
-- 4 vCPU
-- 4 GB of RAM
-- Please use a SSD disk to avoid disk I/O and latency issues
+## Screenshots
 
-<h3>Software and configuration</h3>
+[![Repositories](https://github.com/user-attachments/assets/6f561a84-d8f3-480e-90fa-df73a8f071c6)](https://github.com/user-attachments/assets/6f561a84-d8f3-480e-90fa-df73a8f071c6)
 
-- **Docker** (service must be up and running)
-- **A fully qualified domain name** (FQDN) and a valid SSL certificate for this FQDN if you want to access the web interface through a secure connection (https)
-- A least a **SPF record** configured for your FQDN, to be able to send emails from Repomanager
+[![Repository statistics](https://github.com/user-attachments/assets/af6df87d-8498-4c85-a64d-85a30472f4b9)](https://github.com/user-attachments/assets/af6df87d-8498-4c85-a64d-85a30472f4b9)
 
-<h2>Installation and usage</h2>
+[![Browse packages](https://github.com/user-attachments/assets/07a96fa6-97e3-4235-9547-10489b5bdbdc)](https://github.com/user-attachments/assets/07a96fa6-97e3-4235-9547-10489b5bdbdc)
 
-Official documentation is available <a href="https://github.com/lbr38/repomanager/wiki">here</a>.
+[![Overview](https://github.com/user-attachments/assets/5d9de814-cb96-405d-ab18-41bc8d1715e7)](https://github.com/user-attachments/assets/5d9de814-cb96-405d-ab18-41bc8d1715e7)
 
-It should help you **installing** and starting using Repomanager.
+[![Host dashboard](https://github.com/user-attachments/assets/95fe8023-f02c-4aa8-98e0-d5e154dff9a8)](https://github.com/user-attachments/assets/95fe8023-f02c-4aa8-98e0-d5e154dff9a8)
 
-<h2>Contact</h2>
 
-- For bug reports, issues or features requests, please open a new issue in the Github ``Issues`` section
-- A Discord channel is available <a href="https://discord.gg/34yeNsMmkQ">here</a> for any questions or quick help/debugging (English or French spoken)
-- You can also contact me at <a href="mailto:repomanager@protonmail.com">repomanager@protonmail.com</a> (English or French spoken)
+## Installation and usage
+
+Check the [Getting Started](https://docs.repomanager.net/getting-started/requirements/) section for requirements and installation instructions.
+
+This will help you with **installing** and getting started with Repomanager.
+
+
+## Contact
+
+- For bug reports, issues, or feature requests, please open a new issue in the GitHub [Issues](https://github.com/lbr38/repomanager/issues) section
+- A Discord channel is available [here](https://discord.gg/34yeNsMmkQ) for questions or quick help/debugging (English and French spoken)
+- You can also contact me at [repomanager@protonmail.com](mailto:repomanager@protonmail.com) (English or French spoken)

@@ -31,8 +31,8 @@
 
             // Decode JSON definition
             try {
-                $definition = json_decode($item['Definition'], true);
-            } catch (Exception $e) {
+                $definition = json_decode($item['Definition'], true, 512, JSON_THROW_ON_ERROR);
+            } catch (JsonException $e) {
                 echo '<p>Error: could not decode JSON definition for source repository #' . $item['Id'] . '</p>';
                 continue;
             }
@@ -119,7 +119,7 @@
                     <?php
                     if ($type == 'deb') : ?>
                         <h6 class="required">NON-COMPLIANT REPOSITORY</h6>
-                        <p class="note">The repository does not follow the standard Debian repository structure. <b><a href="https://github.com/lbr38/repomanager/wiki/05.-Manage-sources-repositories#non-compliant-deb-source-repositories" target="_blank" rel="noopener noreferrer" class="font-size-13">Learn more.</a></b></p>
+                        <p class="note">The repository does not follow the standard Debian repository structure. <b><a href="https://docs.repomanager.net/configuration/source-repositories/#non-compliant-deb-source-repositories" target="_blank" rel="noopener noreferrer" class="font-size-13">Learn more.</a></b></p>
                         <label class="onoff-switch-label">
                             <input type="checkbox" class="onoff-switch-input source-param" value="true" param-name="non-compliant" <?= isset($definition['non-compliant']) && $definition['non-compliant'] == 'true' ? 'checked' : '' ?> />
                             <span class="onoff-switch-slider"></span>

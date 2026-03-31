@@ -1,3 +1,6 @@
+<?php
+use Controllers\Utils\Random; ?>
+
 <div class="task-schedule-form-params" action="<?= $scheduleForm['action'] ?>">
     <h6>TASK SCHEDULING</h6>
     <p class="note">Don't want to execute the task immediately? Schedule it!</p>
@@ -12,56 +15,53 @@
     <div class="task-schedule-params hide">
         <h6 class="required">SCHEDULE TYPE</h6>
         <?php
-        /**
-         *  Generate a random string to make radio Id unique and avoid conflicts with other forms
-         */
-        $randomId = \Controllers\Utils\Random::string(32);
+        // Generate a random string to make radio Id unique and avoid conflicts with other forms
+        $randomId = Random::string(32);
 
-        if (in_array('unique', $scheduleForm['type']) and in_array('recurring', $scheduleForm['type'])) : ?>
+        // Include task configuration file
+        include(ROOT . '/config/tasks/' . $scheduleForm['action'] . '.php');
+
+        if (in_array('unique', $formConfig['allowed-schedule-types']) and in_array('recurring', $formConfig['allowed-schedule-types'])) : ?>
             <div class="switch-field">
-                <input type="radio" id="<?= $randomId ?>-task-schedule-type-unique" class="task-param" action="<?= $scheduleForm['action'] ?>" param-name="schedule-type" name="task-schedule-type" value="unique" checked />
+                <input type="radio" id="<?= $randomId ?>-task-schedule-type-unique" class="task-param" param-name="schedule-type" name="task-schedule-type" value="unique" checked />
                 <label for="<?= $randomId ?>-task-schedule-type-unique">Unique task</label>
-                <input type="radio" id="<?= $randomId ?>-task-schedule-type-recurring" class="task-param" action="<?= $scheduleForm['action'] ?>" param-name="schedule-type" name="task-schedule-type" value="recurring" />
+                <input type="radio" id="<?= $randomId ?>-task-schedule-type-recurring" class="task-param" param-name="schedule-type" name="task-schedule-type" value="recurring" />
                 <label for="<?= $randomId ?>-task-schedule-type-recurring">Recurrent task</label>
             </div>
             <?php
-        elseif (in_array('unique', $scheduleForm['type'])) : ?>
+        elseif (in_array('unique', $formConfig['allowed-schedule-types'])) : ?>
             <div class="single-switch-field">
-                <input type="radio" id="<?= $randomId ?>-task-schedule-type-unique" class="task-param" action="<?= $scheduleForm['action'] ?>" param-name="schedule-type" name="task-schedule-type" value="unique" checked />
+                <input type="radio" id="<?= $randomId ?>-task-schedule-type-unique" class="task-param" param-name="schedule-type" name="task-schedule-type" value="unique" checked />
                 <label for="<?= $randomId ?>-task-schedule-type-unique">Unique task</label>
             </div>
             <?php
-        elseif (in_array('recurring', $scheduleForm['type'])) : ?>
+        elseif (in_array('recurring', $formConfig['allowed-schedule-types'])) : ?>
             <div class="single-switch-field">
-                <input type="radio" id="<?= $randomId ?>-task-schedule-type-recurring" class="task-param" action="<?= $scheduleForm['action'] ?>" param-name="schedule-type" name="task-schedule-type" value="recurring" checked />
+                <input type="radio" id="<?= $randomId ?>-task-schedule-type-recurring" class="task-param" param-name="schedule-type" name="task-schedule-type" value="recurring" checked />
                 <label for="<?= $randomId ?>-task-schedule-type-recurring">Recurrent task</label>
             </div>
             <?php
         endif;
 
-        if (in_array('recurring', $scheduleForm['type'])) : ?>
+        if (in_array('recurring', $formConfig['allowed-schedule-types'])) : ?>
             <div class="task-schedule-recurring-frequency-input hide">
                 <h6 class="required">FREQUENCY</h6>
                 <select class="task-param" param-name="schedule-frequency">
                     <option value="">Select...</option>
-                    <option value="hourly">Hourly</option>
-                    <option value="daily">Daily</option>
-                    <option value="weekly">Weekly</option>
-                    <option value="monthly">Monthly</option>
-                    <option value="cron">Cron</option>
+                    <?php
+                    foreach (['hourly', 'daily', 'weekly', 'monthly', 'cron'] as $frequency) {
+                        echo '<option value="' . $frequency . '">' . ucfirst($frequency) . '</option>';
+                    } ?>
                 </select>
             </div>
 
             <div class="task-schedule-recurring-day-input hide">
                 <h6 class="required">DAY(S)</h6>
                 <select class="task-param" param-name="schedule-day" multiple>
-                    <option value="monday">Monday</option>
-                    <option value="tuesday">Tuesday</option>
-                    <option value="wednesday">Wednesday</option>
-                    <option value="thursday">Thursday</option>
-                    <option value="friday">Friday</option>
-                    <option value="saturday">Saturday</option>
-                    <option value="sunday">Sunday</option>
+                    <?php
+                    foreach (['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as $day) {
+                        echo '<option value="' . $day . '">' . ucfirst($day) . '</option>';
+                    } ?>
                 </select>
             </div>
 
@@ -69,20 +69,17 @@
                 <h6 class="required">ON THE</h6>
                 <div class="flex justify-space-between column-gap-15">
                     <select class="task-param" param-name="schedule-monthly-day-position">
-                        <option value="first">First</option>
-                        <option value="second">Second</option>
-                        <option value="third">Third</option>
-                        <option value="last">Last</option>
+                        <?php
+                        foreach (['first', 'second', 'third', 'last'] as $position) {
+                            echo '<option value="' . $position . '">' . ucfirst($position) . '</option>';
+                        } ?>
                     </select>
 
                     <select class="task-param" param-name="schedule-monthly-day">
-                        <option value="monday">Monday</option>
-                        <option value="tuesday">Tuesday</option>
-                        <option value="wednesday">Wednesday</option>
-                        <option value="thursday">Thursday</option>
-                        <option value="friday">Friday</option>
-                        <option value="saturday">Saturday</option>
-                        <option value="sunday">Sunday</option>
+                        <?php
+                        foreach (['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as $day) {
+                            echo '<option value="' . $day . '">' . ucfirst($day) . '</option>';
+                        } ?>
                     </select>
 
                 </div>
@@ -97,7 +94,7 @@
             <?php
         endif;
 
-        if (in_array('unique', $scheduleForm['type'])) : ?>
+        if (in_array('unique', $formConfig['allowed-schedule-types'])) : ?>
             <div class="task-schedule-unique-input">
                 <h6 class="required">DATE</h6>
                 <input type="date" class="task-param" param-name="schedule-date" />
