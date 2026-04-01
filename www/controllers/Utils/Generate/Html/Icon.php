@@ -7,7 +7,7 @@ class Icon
     /**
      *  Generate OS icon image
      */
-    public static function os(string $os = '') : string
+    public static function os(string|null $os) : string
     {
         if (preg_match('/centos/i', $os)) {
             return '<img src="/assets/icons/products/centos.png" class="icon-np" title="' . $os . '" />';

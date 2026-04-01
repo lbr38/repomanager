@@ -1,3 +1,6 @@
+<?php
+use \Controllers\User\Permission\Host as HostPermission; ?>
+
 <section class="section-main reloadable-container" container="hosts/list">
     <div class="flex justify-space-between margin-top-50 margin-bottom-40">
         <h3 class="margin-0">HOSTS</h3>
@@ -23,7 +26,7 @@
                 endif;
             endif;
 
-            if (IS_ADMIN) : ?>
+            if (HostPermission::allowedAction('edit-profiles')) : ?>
                 <div class="slide-btn get-panel-btn mediumopacity" panel="hosts/profiles" title="Manage hosts profiles">
                     <img src="/assets/icons/profile.svg" />
                     <span>Profiles</span>
@@ -31,20 +34,21 @@
                 <?php
             endif;
 
-            if ($totalHosts > 0) :
-                if (IS_ADMIN) : ?>
-                    <div class="slide-btn get-panel-btn mediumopacity" panel="hosts/groups/list" title="Manage hosts groups">
-                        <img src="/assets/icons/folder.svg" />
-                        <span>Groups</span>
-                    </div>
+            if (HostPermission::allowedAction('edit-groups')) : ?>
+                <div class="slide-btn get-panel-btn mediumopacity" panel="hosts/groups/list" title="Manage hosts groups">
+                    <img src="/assets/icons/folder.svg" />
+                    <span>Groups</span>
+                </div>
+                <?php
+            endif;
 
-                    <div class="slide-btn get-panel-btn mediumopacity" panel="hosts/settings" title="Edit display settings">
-                        <img src="/assets/icons/cog.svg" />
-                        <span>Settings</span>
-                    </div>
-                    <?php
-                endif;
-            endif ?>
+            if (HostPermission::allowedAction('edit-settings')) : ?>
+                <div class="slide-btn get-panel-btn mediumopacity" panel="hosts/settings" title="Edit display settings">
+                    <img src="/assets/icons/cog.svg" />
+                    <span>Settings</span>
+                </div>
+                <?php
+            endif ?>      
         </div>
     </div>
 
@@ -452,7 +456,7 @@
                                                                     }
                                                                     if ($request == 'request-packages-infos') {
                                                                         $requestTitle = 'Requested the host to send its packages informations';
-                                                                        $requestTitleShort = 'Request packages information';
+                                                                        $requestTitleShort = 'Request package information';
                                                                     }
                                                                     if ($request == 'request-packages-update') {
                                                                         $requestTitle = 'Request to install a list of package(s)';

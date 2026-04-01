@@ -74,8 +74,15 @@ foreach ($repos as $repo) {
         <span class="label-pkg-<?= $packageType ?>"><?= strtoupper($packageType) ?></span>
     </div>
 
-    <pre class="repository-install-commands codeblock margin-top-10 margin-bottom-10 copy" url="<?= WWW_REPOS_DIR_URL ?>" hostname="<?= WWW_HOSTNAME ?>" prefix="<?= REPO_CONF_FILES_PREFIX ?>" package-type="<?= $packageType ?>" name="<?= $repoController->getName() ?>" dist="<?= $repoController->getDist() ?>" component="<?= $repoController->getSection() ?>" releasever="<?= $repoController->getReleasever() ?>"></pre>
     <?php
+    if ($packageType == 'deb') : ?>
+        <pre class="repository-install-commands codeblock margin-top-10 margin-bottom-10 copy" url="<?= WWW_REPOS_DIR_URL ?>" hostname="<?= WWW_HOSTNAME ?>" prefix="<?= REPO_CONF_FILES_PREFIX ?>" package-type="<?= $packageType ?>" name="<?= $repoController->getName() ?>" dist="<?= $repoController->getDist() ?>" component="<?= $repoController->getSection() ?>"></pre>
+        <?php
+    endif;
+    if ($packageType == 'rpm') : ?>
+        <pre class="repository-install-commands codeblock margin-top-10 margin-bottom-10 copy" url="<?= WWW_REPOS_DIR_URL ?>" hostname="<?= WWW_HOSTNAME ?>" prefix="<?= REPO_CONF_FILES_PREFIX ?>" package-type="<?= $packageType ?>" name="<?= $repoController->getName() ?>" releasever="<?= $repoController->getReleasever() ?>"></pre>
+        <?php
+    endif;
 }
 
 $commands = ob_get_clean();

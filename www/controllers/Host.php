@@ -2,6 +2,7 @@
 
 namespace Controllers;
 
+use Controllers\User\Permission\Host as HostPermission;
 use Controllers\Host\Package\Package as HostPackage;
 use Controllers\Host\Request as HostRequest;
 use Controllers\Group\Host as HostGroup;
@@ -102,8 +103,12 @@ class Host
     /**
      *  Edit the display settings on the hosts page
      */
-    public function setSettings(string $packagesConsideredOutdated, string $packagesConsideredCritical) : void
+    public function setSettings(int $packagesConsideredOutdated, int $packagesConsideredCritical) : void
     {
+        if (!HostPermission::allowedAction('edit-settings')) {
+            throw new Exception('You are not allowed to perform this action');
+        }
+
         if (!is_numeric($packagesConsideredOutdated) or !is_numeric($packagesConsideredCritical)) {
             throw new Exception('Parameters must be numeric');
         }

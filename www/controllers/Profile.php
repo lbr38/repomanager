@@ -3,6 +3,7 @@
 namespace Controllers;
 
 use Exception;
+use Controllers\User\Permission\Host as HostPermission;
 use Controllers\History\Save as History;
 use Controllers\Utils\Validate;
 
@@ -202,7 +203,7 @@ class Profile
      */
     public function new(string $name)
     {
-        if (!IS_ADMIN) {
+        if (!HostPermission::allowedAction('edit-profiles')) {
             throw new Exception('You are not allowed to perform this action');
         }
 
@@ -232,7 +233,7 @@ class Profile
      */
     public function duplicate(string $id)
     {
-        if (!IS_ADMIN) {
+        if (!HostPermission::allowedAction('edit-profiles')) {
             throw new Exception('You are not allowed to perform this action');
         }
 
@@ -303,7 +304,7 @@ class Profile
      */
     public function delete(array $profilesId) : void
     {
-        if (!IS_ADMIN) {
+        if (!HostPermission::allowedAction('edit-profiles')) {
             throw new Exception('You are not allowed to perform this action');
         }
 
@@ -328,7 +329,7 @@ class Profile
      */
     public function configure(int $id, string $name, array $reposIds, array $packagesExcluded, array $packagesMajorExcluded, array $serviceNeedReload, array $serviceNeedRestart, string $notes)
     {
-        if (!IS_ADMIN) {
+        if (!HostPermission::allowedAction('edit-profiles')) {
             throw new Exception('You are not allowed to perform this action');
         }
 

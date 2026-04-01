@@ -497,7 +497,7 @@ $(document).on('click','#host-request-btn',function () {
     if (allowedActions.includes('request-packages-infos')) {
         buttons.push(
             {
-                'text': 'Request packages information',
+                'text': 'Request package information',
                 'color': 'blue-alt',
                 'callback': function () {
                     executeAction('request-packages-infos', [id]);

@@ -69,6 +69,11 @@ class Source
         $url = trim($params['url']);
         $url = stripslashes($url);
 
+        // Remove latest slash from URL if exists
+        if (substr($url, -1) == '/') {
+            $url = substr($url, 0, -1);
+        }
+
         /**
          *  Check that source repo name is valid
          */
@@ -302,6 +307,11 @@ class Source
          */
         $url = trim($params['url']);
         $url = stripslashes($url);
+
+        // Remove latest slash from URL if exists
+        if (substr($url, -1) == '/') {
+            $url = substr($url, 0, -1);
+        }
 
         /**
          *  Check that URL is valid

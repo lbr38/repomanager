@@ -137,7 +137,7 @@ class Permission extends User
         if (!empty($reposActions)) {
             foreach (array_filter($reposActions) as $action) {
                 // Check that action is valid
-                if (!in_array($action, ['create', 'update', 'duplicate', 'rebuild', 'rename', 'edit', 'delete', 'env', 'removeEnv', 'browse', 'upload-package', 'delete-package', 'view-stats'])) {
+                if (!in_array($action, ['create', 'update', 'duplicate', 'rebuild', 'rename', 'edit', 'delete', 'env', 'removeEnv', 'browse', 'edit-source', 'edit-groups', 'upload-package', 'delete-package', 'view-stats'])) {
                     throw new Exception('Invalid action: ' . $action);
                 }
 
@@ -167,7 +167,7 @@ class Permission extends User
         if (!empty($hostsActions)) {
             foreach (array_filter($hostsActions) as $action) {
                 // Check that action is valid
-                if (!in_array($action, ['request-general-infos', 'request-packages-infos', 'update-packages', 'reset', 'delete'])) {
+                if (!in_array($action, ['request-general-infos', 'request-packages-infos', 'update-packages', 'reset', 'delete', 'edit-profiles', 'edit-groups', 'edit-settings'])) {
                     throw new Exception('Invalid action: ' . $action);
                 }
 

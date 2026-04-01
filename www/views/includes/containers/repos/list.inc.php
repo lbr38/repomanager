@@ -76,12 +76,15 @@ use \Controllers\User\Permission\Repo as RepoPermission; ?>
 
             <div class="flex align-item-center">
                 <?php
-                if (IS_ADMIN) : ?>
+                if (RepoPermission::allowedAction('edit-groups')) : ?>
                     <div class="slide-btn get-panel-btn mediumopacity" panel="repos/groups/list" title="Manage repos groups">
                         <img src="/assets/icons/folder.svg" />
                         <span>Groups</span>
                     </div>
+                    <?php
+                endif ;
 
+                if (RepoPermission::allowedAction('edit-source')) : ?>
                     <div class="slide-btn get-panel-btn mediumopacity" panel="repos/sources/list" title="Manage source repositories">
                         <img src="/assets/icons/internet.svg" />
                         <span>Source repositories</span>
