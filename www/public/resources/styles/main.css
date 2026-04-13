@@ -390,25 +390,32 @@ article {
 
 /* new ui */
 .snap-container {
-    height: 30px;
+    display: flex;
+    align-items: center;
 }
 
-.snap-label {
-    padding: 12px 30px 12px 30px;
+.snap-date {
+    position: relative;
+    display: grid;
+    grid-template-columns: 20px auto 20px;
+    align-items: center;
+    column-gap: 8px;
+    /* padding: 5px 30px 5px 30px; */
+    padding: 5px 7px;
     color: #BDBFD0;
     background-color: #182b3e;
-    font-size: 16px;
+    font-size: 13px;
     border-radius: 60px;
-    border: 0.5px solid #BDBFD0;
-    z-index: 999999999;
+    border: 0.5px solid #4a5a6e;
 }
 
 .snap-size {
-    padding: 12px 30px 12px 30px;
+    position: relative;
+    padding: 7px 25px 7px 40px;
     background-color: #BDBFD0;
     color: #141C33;
-    font-size: 16px;
-    font-weight: bold;
+    font-size: 13px;
+    font-weight: 700;
     border-top-right-radius: 60px;
     border-bottom-right-radius: 60px;
     border-top: 0.5px solid #BDBFD0;
@@ -417,6 +424,16 @@ article {
     margin-left: -25px;
 }
 
+.snap-env {
+    position: relative;
+    padding: 7px 25px 7px 40px !important;
+    color: #141C33;
+    font-size: 13px;
+    font-weight: 700;
+    border-top-right-radius: 60px;
+    border-bottom-right-radius: 60px;
+    margin-left: -25px;
+}
 
 
 

@@ -7,7 +7,7 @@ class Label
     /**
      *  Generate environment tag
      */
-    public static function envtag(string $name, string|null $css = null) : string
+    public static function envtag(string $name, string|null $css = null, string|null $additionalCssClasses = null, string|null $additionalStyle = null) : string
     {
         // Default class and colors
         $class = 'env';
@@ -36,7 +36,17 @@ class Label
             $class = 'env-fit';
         }
 
-        return '<span class="' . $class . '" style="background-color: ' . $background . '; color: ' . $color . '; border: ' . $border . '">' . $name . '</span>';
+        if (!empty($additionalCssClasses)) {
+            $class .= ' ' . $additionalCssClasses;
+        }
+
+        $style = 'background-color: ' . $background . '; color: ' . $color . '; border: ' . $border;
+
+        if (!empty($additionalStyle)) {
+            $style .= '; ' . $additionalStyle;
+        }
+
+        return '<span class="' . $class . '" style="' . $style . '">' . $name . '</span>';
     }
 
     /**
