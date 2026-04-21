@@ -120,8 +120,13 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
     <tr>
       <td>/snapshot/<code>&lt;SNAPSHOT_ID&gt;</code>/upload<br><code>POST</code></td>
       <td><code>&lt;APIKEY&gt;</code></td>
-      <td><code>file</code> (required)</td>
-      <td>Upload one or more packages to a repository snapshot.</td>
+      <td>
+        <code>file</code> (required)
+        <code>overwrite</code> (optional, default: <code>false</code>)
+      </td>
+      <td>
+        Upload one or more packages to a repository snapshot. Overwrite the package if it already exists in the snapshot if <code>overwrite</code> is set to <code>true</code>.
+      </td>
       <td markdown="block">
         Single file example:
         ```bash
@@ -130,6 +135,10 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
         Multiple files example:
         ```bash
         curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer <APIKEY>" -F "file1=@/tmp/mypackage1.deb" -F "file2=@/tmp/mypackage2.deb" https://repomanager.mydomain.net/api/v2/snapshot/<SNAPSHOT_ID>/upload
+        ```
+        Overwrite example:
+        ```bash
+        curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer <APIKEY>" -F "file1=@/tmp/mypackage.deb" -F "overwrite=true" https://repomanager.mydomain.net/api/v2/snapshot/<SNAPSHOT_ID>/upload
         ```
       </td>
     </tr>

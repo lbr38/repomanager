@@ -76,7 +76,7 @@ From the **HOSTS** tab:
 
 [![Select host](https://assets.repomanager.net/repomanager/usage/hosts/select-host.png)](https://assets.repomanager.net/repomanager/usage/hosts/select-host.png)
 
-**Step 2:** Use the `Request packages information` button.
+**Step 2:** Use the `Request package information` button.
 
 It can take some minutes to be sent depending on the number of packages installed on the host.
 

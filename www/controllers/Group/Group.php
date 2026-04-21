@@ -95,10 +95,6 @@ class Group
      */
     public function new(string $name) : void
     {
-        if (!IS_ADMIN) {
-            throw new Exception('You are not allowed to perform this action');
-        }
-
         $name = Validate::string($name);
 
         /**
@@ -141,10 +137,6 @@ class Group
      */
     public function edit(int $id, string $name, array $data) : void
     {
-        if (!IS_ADMIN) {
-            throw new Exception('You are not allowed to perform this action');
-        }
-
         /**
          *  Check if group exists
          */
@@ -197,10 +189,6 @@ class Group
      */
     public function delete(array $groups) : void
     {
-        if (!IS_ADMIN) {
-            throw new Exception('You are not allowed to perform this action');
-        }
-
         foreach ($groups as $id) {
             // Check if group exists
             if (!$this->existsId($id)) {

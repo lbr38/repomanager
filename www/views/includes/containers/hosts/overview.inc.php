@@ -1,6 +1,7 @@
 <section class="section-main reloadable-container" container="hosts/overview">
     <?php
     use \Controllers\Utils\Generate\Html\Color;
+    use \Controllers\Utils\Generate\Html\Icon;
 
     if ($totalHosts >= 1) : ?>
         <h3>OVERVIEW</h3>
@@ -140,7 +141,7 @@
                             foreach ($rebootRequiredList as $rebootRequiredHost) : ?>
                                 <div class="flex align-item-center column-gap-10 div-generic-blue margin-bottom-0">
                                     <div>
-                                        <?= \Controllers\Utils\Generate\Html\Icon::os($rebootRequiredHost['Os']) ?>
+                                        <?= Icon::os($rebootRequiredHost['Os']) ?>
                                     </div>
 
                                     <div class="flex flex-direction-column row-gap-4">

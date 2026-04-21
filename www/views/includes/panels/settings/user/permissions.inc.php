@@ -35,6 +35,8 @@
         <option value="rename" <?= isset($permissions['repositories']['allowed-actions']) && in_array('rename', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Rename repositories</option>
         <option value="edit" <?= isset($permissions['repositories']['allowed-actions']) && in_array('edit', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Edit repositories</option>
         <option value="browse" <?= isset($permissions['repositories']['allowed-actions']) && in_array('browse', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Browse repositories</option>
+        <option value="edit-source" <?= isset($permissions['repositories']['allowed-actions']) && in_array('edit-source', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Edit source repositories</option>
+        <option value="edit-groups" <?= isset($permissions['repositories']['allowed-actions']) && in_array('edit-groups', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Edit repository groups</option>
         <option value="upload-package" <?= isset($permissions['repositories']['allowed-actions']) && in_array('upload-package', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Upload packages to repositories</option> 
         <option value="delete-package" <?= isset($permissions['repositories']['allowed-actions']) && in_array('delete-package', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Delete packages from repositories</option>
         <option value="env" <?= isset($permissions['repositories']['allowed-actions']) && in_array('env', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Point environment to repository</option>
@@ -59,10 +61,13 @@
     <h6>ALLOW ACTIONS ON HOSTS</h6>
     <select id="user-permissions-hosts-actions" user-id="<?= $userId ?>" multiple>
         <option value="request-general-infos" <?= isset($permissions['hosts']['allowed-actions']) && in_array('request-general-infos', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Request general information</option>
-        <option value="request-packages-infos" <?= isset($permissions['hosts']['allowed-actions']) && in_array('request-packages-infos', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Request packages information</option>
+        <option value="request-packages-infos" <?= isset($permissions['hosts']['allowed-actions']) && in_array('request-packages-infos', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Request package information</option>
         <option value="update-packages" <?= isset($permissions['hosts']['allowed-actions']) && in_array('update-packages', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Update packages on hosts</option>
         <option value="reset" <?= isset($permissions['hosts']['allowed-actions']) && in_array('reset', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Reset hosts</option>
         <option value="delete" <?= isset($permissions['hosts']['allowed-actions']) && in_array('delete', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Delete hosts</option>
+        <option value="edit-profiles" <?= isset($permissions['hosts']['allowed-actions']) && in_array('edit-profiles', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Edit host profiles</option>
+        <option value="edit-groups" <?= isset($permissions['hosts']['allowed-actions']) && in_array('edit-groups', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Edit host groups</option>
+        <option value="edit-settings" <?= isset($permissions['hosts']['allowed-actions']) && in_array('edit-settings', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Edit display settings</option>
     </select>
 
     <br><br>
