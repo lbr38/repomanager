@@ -8,13 +8,13 @@ if (!is_numeric(__ACTUAL_URI__[2])) {
 }
 
 $id = __ACTUAL_URI__[2];
-$myhost = new \Controllers\Host();
+$myhost = new \Controllers\Host\Host();
 $hostPackageController = new \Controllers\Host\Package\Package($id);
 
 /**
  *  Getting all informations about this host
  */
-$hostProperties = $myhost->getAll($id);
+$hostProperties = $myhost->get($id);
 
 $hostname         = $hostProperties['Hostname'];
 $ip               = $hostProperties['Ip'];

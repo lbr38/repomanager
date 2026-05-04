@@ -22,20 +22,14 @@
             
                 <div class="grid grid-rfr-1-2 row-gap-5 column-gap-40 margin-15">
                     <?php
-                    foreach ($kernels as $kernel) :
-                        if (empty($kernel['Kernel'])) {
-                            $kernelName = 'Unknown';
-                        } else {
-                            $kernelName = $kernel['Kernel'];
-                        } ?>
-
-                        <div class="hosts-charts-list-label flex justify-space-between align-item-center" chart-type="kernel" kernel="<?= $kernelName ?>">
+                    foreach ($kernels as $kernel) : ?>
+                        <div class="hosts-charts-list-label flex justify-space-between align-item-center" chart-type="kernel" kernel="<?= $kernel['Kernel'] ?>">
                             <div class="flex column-gap-5 align-item-center">
                                 <!-- square figure -->
                                 <span style="background-color: <?= Color::random() ?>"></span>
-                                <p class="font-size-14"><?= $kernelName ?></p>
+                                <p class="font-size-14"><?= $kernel['Kernel'] ? $kernel['Kernel'] : 'Unknown' ?></p>
                             </div>
-                            <p class="font-size-14"><?= $kernel['Kernel_count'] ?></p>
+                            <p class="font-size-14"><?= $kernel['Count'] ?></p>
                         </div>
                         <?php
                     endforeach ?>
@@ -46,23 +40,17 @@
                 <h6 class="margin-top-0">PROFILES</h6>
                 <div class="grid grid-rfr-1-2 row-gap-5 column-gap-40 margin-15">
                     <?php
-                    foreach ($profiles as $profile) {
-                        if (empty($profile['Profile'])) {
-                            $profileName = 'Unknown';
-                        } else {
-                            $profileName = $profile['Profile'];
-                        } ?>
-                        
-                        <div class="hosts-charts-list-label flex justify-space-between align-item-center" chart-type="profile" profile="<?= $profileName ?>">
+                    foreach ($profiles as $profile) : ?>
+                        <div class="hosts-charts-list-label flex justify-space-between align-item-center" chart-type="profile" profile="<?= $profile['Profile'] ?>">
                             <div class="flex column-gap-5 align-item-center">
                                 <!-- square figure -->
                                 <span style="background-color: <?= Color::random() ?>"></span>
-                                <p class="font-size-14"><?= $profileName ?></p>
+                                <p class="font-size-14"><?= $profile['Profile'] ? $profile['Profile'] : 'Unknown' ?></p>
                             </div>
-                            <p class="font-size-14"><?= $profile['Profile_count'] ?></p>
+                            <p class="font-size-14"><?= $profile['Count'] ?></p>
                         </div>
                         <?php
-                    } ?>
+                    endforeach ?>
                 </div>
             </div>
 

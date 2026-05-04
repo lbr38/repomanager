@@ -99,32 +99,32 @@ trait Finalize
                 /**
                  *  Update GPG signature state
                  */
-                $this->repoController->snapSetSigned($this->repoController->getSnapId(), $this->repoController->getGpgSign());
+                $this->repoSnapshotController->updateGpgSignature($this->repoController->getSnapId(), $this->repoController->getGpgSign());
 
                 /**
                  *  Update architecture (it could be different from the previous one)
                  */
-                $this->repoController->snapSetArch($this->repoController->getSnapId(), $this->repoController->getArch());
+                $this->repoSnapshotController->updateArch($this->repoController->getSnapId(), $this->repoController->getArch());
 
                 /**
                  *  Update packages to include (it could be different from the previous one)
                  */
-                $this->repoController->snapSetPackagesIncluded($this->repoController->getSnapId(), $this->repoController->getPackagesToInclude());
+                $this->repoSnapshotController->updatePackagesIncluded($this->repoController->getSnapId(), $this->repoController->getPackagesToInclude());
 
                 /**
                  *  Update packages to exclude (it could be different from the previous one)
                  */
-                $this->repoController->snapSetPackagesExcluded($this->repoController->getSnapId(), $this->repoController->getPackagesToExclude());
+                $this->repoSnapshotController->updatePackagesExcluded($this->repoController->getSnapId(), $this->repoController->getPackagesToExclude());
 
                 /**
                  *  Update date
                  */
-                $this->repoController->snapSetDate($this->repoController->getSnapId(), $this->repoController->getDate());
+                $this->repoSnapshotController->updateDate($this->repoController->getSnapId(), $this->repoController->getDate());
 
                 /**
                  *  Update time
                  */
-                $this->repoController->snapSetTime($this->repoController->getSnapId(), $this->repoController->getTime());
+                $this->repoSnapshotController->updateTime($this->repoController->getSnapId(), $this->repoController->getTime());
 
             /**
              *  Otherwise we add a new snapshot in the database with today's date
@@ -148,11 +148,11 @@ trait Finalize
              *  Set repo signature state in database
              *  As we have rebuilt the repo files, it is possible that we have switched from a signed repo to an unsigned repo, or vice versa, we must therefore modify the state in the database
              */
-            $this->repoController->snapSetSigned($this->repoController->getSnapId(), $this->repoController->getGpgSign());
+            $this->repoSnapshotController->updateGpgSignature($this->repoController->getSnapId(), $this->repoController->getGpgSign());
 
 
             // Set snapshot metadata rebuild state in database
-            $this->repoController->snapSetRebuild($this->repoController->getSnapId(), '');
+            $this->repoSnapshotController->updateRebuild($this->repoController->getSnapId(), '');
         }
 
         $this->taskLogSubStepController->completed();
@@ -248,8 +248,8 @@ trait Finalize
         $this->taskLogSubStepController->new('cleaning-temp-files', 'CLEANING TEMPORARY FILES');
 
         try {
-            $completedFiles = File::findRecursive($snapshotPath, ['completed'], true);
-            $signedFiles = File::findRecursive($snapshotPath, ['signed'], true);
+            $completedFiles = File::findRecursive($snapshotPath, [], ['completed'], true);
+            $signedFiles = File::findRecursive($snapshotPath, [], ['signed'], true);
 
             foreach (array_merge($completedFiles, $signedFiles) as $file) {
                 if (!unlink($file)) {

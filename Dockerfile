@@ -1,16 +1,16 @@
 # Dockerfile for Repomanager
 
 # Base image
-FROM debian:12-slim AS base
+FROM debian:13-slim AS base
 
 # Metadata
-LABEL version="1.2" maintainer="lbr38 <repomanager@protonmail.com>"
+LABEL version="2.0" maintainer="lbr38 <repomanager@protonmail.com>"
 
 # Variables
 ARG WWW_DIR="/var/www/repomanager"
 ARG DATA_DIR="/var/lib/repomanager"
 ARG REPOS_DIR="/home/repo"
-ARG PHP_VERSION="8.3"
+ARG PHP_VERSION="8.4"
 ARG DEBIAN_FRONTEND=noninteractive
 ARG branch=main
 
@@ -18,19 +18,20 @@ ARG branch=main
 ENV BRANCH=${branch}
 
 # PACKAGES INSTALL
-# Add nginx and PHP 8.3 repositories
+# Add nginx and PHP 8.4 repositories
 ADD https://packages.repomanager.net/repo/gpgkeys/packages.repomanager.net.pub /tmp/packages.repomanager.net.gpg
 RUN apt-get update -y -qq && apt-get install -y -qq gnupg2 ca-certificates && rm -rf /var/lib/apt/lists/* && \
     cat /tmp/packages.repomanager.net.gpg | gpg --dearmor > /etc/apt/trusted.gpg.d/packages.repomanager.net.gpg && rm -f /tmp/packages.repomanager.net.gpg
-RUN echo "deb https://packages.repomanager.net/repo/deb/repomanager-nginx/bookworm/nginx/prod bookworm nginx" > /etc/apt/sources.list.d/nginx.list && \
-    echo "deb https://packages.repomanager.net/repo/deb/repomanager-php/bookworm/main/prod bookworm main" > /etc/apt/sources.list.d/php.list
+RUN echo "deb https://packages.repomanager.net/repo/deb/repomanager-nginx/trixie/nginx/prod trixie nginx" > /etc/apt/sources.list.d/nginx.list && \
+   echo "deb https://packages.repomanager.net/repo/deb/repomanager-php/trixie/main/prod trixie main" > /etc/apt/sources.list.d/php.list
 
 # Install dependencies
-RUN apt-get update -y -qq && \
-    apt-get install -y -qq findutils iputils-ping git rpm librpmsign9 createrepo-c apt-utils curl apt-transport-https dnsutils xz-utils bzip2 zstd vim python3-psutil \
+RUN export DEBIAN_FRONTEND=noninteractive && \
+    apt-get update -y -qq && \
+    apt-get install -y -qq findutils iputils-ping git rpm librpmsign10 createrepo-c apt-utils curl apt-transport-https dnsutils xz-utils bzip2 zstd vim python3-psutil \
     # Install postfix
     postfix \
-    # Install nginx and PHP 8.3
+    # Install nginx and PHP 8.4
     nginx php${PHP_VERSION}-fpm php${PHP_VERSION}-cli php${PHP_VERSION}-sqlite3 php${PHP_VERSION}-xml php${PHP_VERSION}-curl php${PHP_VERSION}-yaml php${PHP_VERSION}-opcache sqlite3 \
     # Install xdebug if branch is devel
     $(if [ "$branch" = "devel" ]; then echo "php${PHP_VERSION}-xdebug"; fi) && \

@@ -38,7 +38,7 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
     [![Retrieve snapshot ID](https://github.com/lbr38/repomanager/assets/54670129/d849e588-d4c9-459a-9e5c-98f3d5b37b19)](https://github.com/lbr38/repomanager/assets/54670129/d849e588-d4c9-459a-9e5c-98f3d5b37b19)
 
 
-### Repositories & snapshots
+### Repositories
 
 <table>
   <thead>
@@ -58,7 +58,7 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
       <td>List all repositories</td>
       <td markdown="block">
         ```bash
-        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <API_KEY>" https://repomanager.mydomain.net/api/v2/repo/ | jq
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/repo/
         ```
       </td>
     </tr>
@@ -69,7 +69,7 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
       <td>List all repositories whose name is <code>nginx</code></td>
       <td markdown="block">
         ```bash
-        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <API_KEY>" https://repomanager.mydomain.net/api/v2/repo/ | jq -r '.results[] | select(.Name == "nginx")'
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/repo/ | jq -r '.results[] | select(.Name == "nginx")'
         ```
       </td>
     </tr>
@@ -80,7 +80,7 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
       <td>(RPM repos) List all repositories whose name is <code>nginx</code> and the release version is <code>8</code></td>
       <td markdown="block">
         ```bash
-        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <API_KEY>" https://repomanager.mydomain.net/api/v2/repo/ | jq -r '.results[] | select(.Name == "nginx")'
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/repo/ | jq -r '.results[] | select(.Name == "nginx")'
         ```
       </td>
     </tr>
@@ -91,7 +91,7 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
       <td>(DEB repos) List all repositories whose name is <code>nginx</code>, the distribution is <code>bookworm</code> and the section/component is <code>nginx</code></td>
       <td markdown="block">
         ```bash
-        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <API_KEY>" https://repomanager.mydomain.net/api/v2/repo/ | jq -r '.results[] | select(.Name == "nginx" and .Dist == "bookworm" and .Section == "nginx")'
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/repo/ | jq -r '.results[] | select(.Name == "nginx" and .Dist == "bookworm" and .Section == "nginx")'
         ```
       </td>
     </tr>
@@ -102,7 +102,7 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
       <td>List all snapshots of a repository whose ID is <code>12</code></td>
       <td markdown="block">
         ```bash
-        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <API_KEY>" https://repomanager.mydomain.net/api/v2/repo/12/ | jq -r
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/repo/12/
         ```
       </td>
     </tr>
@@ -113,7 +113,45 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
       <td>Get the ID of the most recent snapshot of a repository whose ID is <code>12</code></td>
       <td markdown="block">
         ```bash
-        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <API_KEY>" https://repomanager.mydomain.net/api/v2/repo/12/ | jq -r .results[].Id | head -n1
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/repo/12/ | jq -r .results[].Id | head -n1
+        ```
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+### Snapshots
+
+<table>
+  <thead>
+    <tr>
+      <th style="min-width: 250px">Endpoint and method</th>
+      <th style="min-width: 150px">Authentication</th>
+      <th style="min-width: 200px">Parameter(s)</th>
+      <th style="min-width: 300px">Description</th>
+      <th>Example</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>/snapshot/<code>&lt;SNAPSHOT_ID&gt;</code>/<br><code>GET</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td></td>
+      <td>List snapshot details</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/snapshot/<SNAPSHOT_ID>/
+        ```
+      </td>
+    </tr>
+    <tr>
+      <td>/snapshot/<code>&lt;SNAPSHOT_ID&gt;</code>/packages<br><code>GET</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td></td>
+      <td>List all packages of a snapshot</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/snapshot/<SNAPSHOT_ID>/packages
         ```
       </td>
     </tr>
@@ -123,9 +161,10 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
       <td>
         <code>file</code> (required)
         <code>overwrite</code> (optional, default: <code>false</code>)
+        <code>ignore-if-exists</code> (optional, default: <code>false</code>)
       </td>
       <td>
-        Upload one or more packages to a repository snapshot. Overwrite the package if it already exists in the snapshot if <code>overwrite</code> is set to <code>true</code>.
+        Upload one or more packages to a repository snapshot. Overwrite the package if it already exists in the snapshot if <code>overwrite</code> is set to <code>true</code>. Ignore the upload if the package already exists if <code>ignore-if-exists</code> is set to <code>true</code>.
       </td>
       <td markdown="block">
         Single file example:
@@ -140,6 +179,10 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
         ```bash
         curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer <APIKEY>" -F "file1=@/tmp/mypackage.deb" -F "overwrite=true" https://repomanager.mydomain.net/api/v2/snapshot/<SNAPSHOT_ID>/upload
         ```
+        Ignore if exists example:
+        ```bash
+        curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer <APIKEY>" -F "file1=@/tmp/mypackage.deb" -F "ignore-if-exists=true" https://repomanager.mydomain.net/api/v2/snapshot/<SNAPSHOT_ID>/upload
+        ```
       </td>
     </tr>
     <tr>
@@ -150,6 +193,17 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
       <td markdown="block">
         ```bash
         curl --fail-with-body --post301 -L -s -X PUT -H "Authorization: Bearer <APIKEY>" -H "Content-Type: application/json" -d '{"gpgSign":"true"}' https://repomanager.mydomain.net/api/v2/snapshot/<SNAPSHOT_ID>/rebuild
+        ```
+      </td>
+    </tr>
+    <tr>
+      <td>/snapshot/<code>&lt;SNAPSHOT_ID&gt;</code>/packages<br><code>DELETE</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td><code>packages</code> (required, JSON array of package names)</td>
+      <td>Delete one or more packages from a snapshot</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X DELETE -H "Authorization: Bearer <APIKEY>" -H "Content-Type: application/json" -d '{"packages":["mypackage1.deb", "mypackage2.deb"]}' https://repomanager.mydomain.net/api/v2/snapshot/<SNAPSHOT_ID>/packages
         ```
       </td>
     </tr>
@@ -294,7 +348,7 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
       <td>Retrieve all available profile configurations</td>
       <td markdown="block">
         ```bash
-        curl --fail-with-body -L -s -X GET -H "Authorization: Host <HOST_ID>:<HOST_TOKEN>" https://repomanager.mydomain.net/api/v2/profile | jq
+        curl --fail-with-body -L -s -X GET -H "Authorization: Host <HOST_ID>:<HOST_TOKEN>" https://repomanager.mydomain.net/api/v2/profile
         ```
       </td>
     </tr>
@@ -305,7 +359,7 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
       <td>Retrieve profile's global configuration</td>
       <td markdown="block">
         ```bash
-        curl --fail-with-body -L -s -X GET -H "Authorization: Host <HOST_ID>:<HOST_TOKEN>" https://repomanager.mydomain.net/api/v2/profile/app_server | jq
+        curl --fail-with-body -L -s -X GET -H "Authorization: Host <HOST_ID>:<HOST_TOKEN>" https://repomanager.mydomain.net/api/v2/profile/app_server
         ```
       </td>
     </tr>
@@ -316,7 +370,7 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
       <td>Retrieve profile's package exclusion configuration</td>
       <td markdown="block">
         ```bash
-        curl --fail-with-body -L -s -X GET -H "Authorization: Host <HOST_ID>:<HOST_TOKEN>" https://repomanager.mydomain.net/api/v2/profile/app_server/excludes | jq
+        curl --fail-with-body -L -s -X GET -H "Authorization: Host <HOST_ID>:<HOST_TOKEN>" https://repomanager.mydomain.net/api/v2/profile/app_server/excludes
         ```
       </td>
     </tr>
@@ -327,7 +381,131 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
       <td>Retrieve profile's repository configuration</td>
       <td markdown="block">
         ```bash
-        curl --fail-with-body -L -s -X GET -H "Authorization: Host <HOST_ID>:<HOST_TOKEN>" https://repomanager.mydomain.net/api/v2/profile/app_server/repos | jq
+        curl --fail-with-body -L -s -X GET -H "Authorization: Host <HOST_ID>:<HOST_TOKEN>" https://repomanager.mydomain.net/api/v2/profile/app_server/repos
+        ```
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+### Hosts listing
+
+<table>
+  <thead>
+    <tr>
+      <th style="min-width: 250px">Endpoint and method</th>
+      <th style="min-width: 150px">Authentication</th>
+      <th style="min-width: 200px">Parameter(s)</th>
+      <th style="min-width: 300px">Description</th>
+      <th>Example</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>/hosts/<br><code>GET</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td></td>
+      <td>List all hosts</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/hosts/
+        ```
+      </td>
+    </tr>
+    <tr>
+      <td>/hosts/os/<code>&lt;OS&gt;</code>/<code>&lt;OS_VERSION?&gt;</code><br><code>GET</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td><code>os</code> (required, in URL)<br><code>os_version</code> (optional, in URL)</td>
+      <td>List hosts by OS name and optionally by OS version. Use <code>%20</code> to encode spaces in OS names (e.g. <code>linux%20mint</code>).</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/hosts/os/ubuntu/
+        ```
+        With OS version:
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/hosts/os/ubuntu/26.04
+        ```
+      </td>
+    </tr>
+    <tr>
+      <td>/hosts/kernel/<code>&lt;KERNEL&gt;</code><br><code>GET</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td><code>kernel</code> (required, in URL)</td>
+      <td>List hosts by kernel version</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/hosts/kernel/5.15.0-89-generic
+        ```
+      </td>
+    </tr>
+    <tr>
+      <td>/hosts/arch/<code>&lt;ARCH&gt;</code><br><code>GET</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td><code>arch</code> (required, in URL)</td>
+      <td>List hosts by architecture</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/hosts/arch/x86_64
+        ```
+      </td>
+    </tr>
+    <tr>
+      <td>/hosts/profile/<code>&lt;PROFILE&gt;</code><br><code>GET</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td><code>profile</code> (required, in URL)</td>
+      <td>List hosts by profile name</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/hosts/profile/app_server
+        ```
+      </td>
+    </tr>
+    <tr>
+      <td>/hosts/environment/<code>&lt;ENV&gt;</code><br><code>GET</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td><code>environment</code> (required, in URL)</td>
+      <td>List hosts by environment</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/hosts/environment/prod
+        ```
+      </td>
+    </tr>
+    <tr>
+      <td>/hosts/package/<code>&lt;PACKAGE&gt;</code>/<code>&lt;VERSION?&gt;</code><br><code>GET</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td><code>package</code> (required, in URL)<br><code>version</code> (optional, in URL)</td>
+      <td>List hosts that have the specified package installed, optionally filtered by version</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/hosts/package/nginx
+        ```
+        With version:
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/hosts/package/nginx/1.24.0-1
+        ```
+      </td>
+    </tr>
+    <tr>
+      <td>/hosts/uptodate<br><code>GET</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td></td>
+      <td>List all up-to-date hosts (hosts with no or few available updates based on configured threshold)</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/hosts/uptodate
+        ```
+      </td>
+    </tr>
+    <tr>
+      <td>/hosts/outdated<br><code>GET</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td></td>
+      <td>List all outdated hosts (hosts with available updates exceeding the configured threshold)</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/hosts/outdated
         ```
       </td>
     </tr>

@@ -54,16 +54,27 @@ function deletePackages(snapId)
         // Controller:
         'repo/browse',
         // Action:
-        'deletePackage',
+        'delete-package',
         {
             snapId: snapId,
             packages: packages
         },
         // Print success alert:
-        true,
+        false,
         // Print error alert:
-        true,
-        // Reload containers:
-        ['browse/list', 'browse/actions']
-    );
+        true
+    ).then(function () {
+        // Reload packages list and actions
+        mycontainer.reload('browse/list');
+        mycontainer.reload('browse/actions');
+
+        // Print packages that have been deleted
+        var deletedNames = jsonValue.message.map(function (pkg) { return pkg.name; });
+        var maxDisplay = 10;
+        var message = 'Packages deleted: <br>' + deletedNames.slice(0, maxDisplay).join('<br>');
+        if (deletedNames.length > maxDisplay) {
+            message += '<br>+' + (deletedNames.length - maxDisplay) + ' more...';
+        }
+        myalert.print(message, 'success');
+    });
 }

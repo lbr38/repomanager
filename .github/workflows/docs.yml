@@ -2,7 +2,7 @@ name: Deploy documentation
 on:
   push:
     branches:
-      - devel
+      - main
 
 permissions:
   contents: write

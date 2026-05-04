@@ -64,7 +64,7 @@ trait Sign
          *  If all packages must be signed, retrieve all RPM files recursively
          */
         if (!is_array($this->packagesToSign) and $this->packagesToSign == 'all') {
-            $rpmFiles = File::findRecursive($workingDir . '/packages', ['rpm'], true);
+            $rpmFiles = File::findRecursive($workingDir . '/packages', [], ['rpm'], true);
         }
 
         /**

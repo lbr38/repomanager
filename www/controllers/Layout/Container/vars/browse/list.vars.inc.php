@@ -1,6 +1,6 @@
 <?php
 $myrepo = new \Controllers\Repo\Repo();
-$repoSnapshotController = new \Controllers\Repo\Snapshot();
+$repoSnapshotController = new \Controllers\Repo\Snapshot\Snapshot();
 
 if (empty(__ACTUAL_URI__[2])) {
     throw new Exception('Error: no repository snapshot ID specified.');
@@ -47,11 +47,11 @@ if (!is_dir($snapshotPath)) {
  */
 if ($myrepo->getPackageType() == 'rpm') {
     $repoSize = \Controllers\Filesystem\Directory::getSize($snapshotPath);
-    $packagesCount = count(\Controllers\Filesystem\File::findRecursive($snapshotPath, ['rpm']));
+    $packagesCount = count(\Controllers\Filesystem\File::findRecursive($snapshotPath, [], ['rpm']));
 }
 if ($myrepo->getPackageType() == 'deb') {
     $repoSize = \Controllers\Filesystem\Directory::getSize($snapshotPath);
-    $packagesCount = count(\Controllers\Filesystem\File::findRecursive($snapshotPath, ['deb']));
+    $packagesCount = count(\Controllers\Filesystem\File::findRecursive($snapshotPath, [], ['deb']));
 }
 
 /**

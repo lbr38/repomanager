@@ -6,7 +6,7 @@ use Exception;
 use Controllers\Utils\Validate;
 use Controllers\User\Permission\Host as HostPermission;
 
-class Execute extends \Controllers\Host
+class Execute extends Host
 {
     private $hostRequestController;
 
@@ -58,8 +58,12 @@ class Execute extends \Controllers\Host
             /**
              *  Retrieve the IP and hostname of the host to be processed
              */
-            $ip       = $this->getIpById($hostId);
+            $ip       = $this->getIp($hostId);
             $hostname = $this->getHostnameById($hostId);
+
+            if (empty($hostname)) {
+                $hostname = 'unknown';
+            }
 
             /**
              *  If the retrieved ip is empty, we move on to the next host

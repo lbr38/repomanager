@@ -92,7 +92,7 @@ function slide(name)
  */
 function printOsIcon(os = '', os_family = '')
 {
-    if (os != '') {
+    if (!empty(os)) {
         if (os.toLowerCase() == 'centos') {
             return '<img src="/assets/icons/products/centos.png" class="icon-np" title="' + os + '">';
         } else if (os.toLowerCase().match(/rocky/i)) {
@@ -115,7 +115,7 @@ function printOsIcon(os = '', os_family = '')
     /**
      *  If OS could not be found and OS family is specified
      */
-    if (os_family != '') {
+    if (!empty(os_family)) {
         if (os_family.toLowerCase().match(/debian|ubuntu|kubuntu|xubuntu|armbian|mint/i)) {
             return '<img src="/assets/icons/products/debian.png" class="icon-np" title="' + os + '">';
         } else if (os_family.toLowerCase().match(/rhel|centos|fedora/i)) {

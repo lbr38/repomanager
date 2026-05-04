@@ -37,7 +37,7 @@ class Rebuild extends \Controllers\Task\Execution
         /**
          *  Set snapshot metadata rebuild state in database
          */
-        $this->repoController->snapSetRebuild($this->repoController->getSnapId(), 'running');
+        $this->repoSnapshotController->updateRebuild($this->repoController->getSnapId(), 'running');
 
         /**
          *  Sign repository / packages

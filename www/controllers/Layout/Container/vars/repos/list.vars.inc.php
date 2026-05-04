@@ -1,5 +1,5 @@
 <?php
-$repoSnapshotController = new \Controllers\Repo\Snapshot();
+$repoSnapshotController = new \Controllers\Repo\Snapshot\Snapshot();
 $groupController = new \Controllers\Group\Repo();
 $repoController = new \Controllers\Repo\Repo();
 $myrepoListing = new \Controllers\Repo\Listing();

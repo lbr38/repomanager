@@ -2,8 +2,6 @@
 
 namespace Controllers\Api;
 
-use Exception;
-
 class Controller
 {
     protected $method;
@@ -20,7 +18,7 @@ class Controller
     /**
      *  Set retrieved JSON data from request
      */
-    public function setJsonData(object $data)
+    public function setJsonData(array $data)
     {
         $this->data = $data;
     }

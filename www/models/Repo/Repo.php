@@ -257,26 +257,6 @@ class Repo extends \Models\Model
     }
 
     /**
-     *  Retourne la date d'un snapshot en base de données, à partir de son Id
-     */
-    public function getSnapDateById(string $snapId)
-    {
-        try {
-            $stmt = $this->db->prepare("SELECT Date FROM repos_snap WHERE Id = :snapId");
-            $stmt->bindValue(':snapId', $snapId);
-            $result = $stmt->execute();
-        } catch (Exception $e) {
-            DbLog::error($e);
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $date = $row['Date'];
-        }
-
-        return $date;
-    }
-
-    /**
      *  Get unused repos Id (repos that have no active snapshot and so are not visible from web UI)
      */
     public function getUnused() : array
@@ -308,111 +288,6 @@ class Repo extends \Models\Model
         }
 
         return $data;
-    }
-
-    /**
-     *  Modification de l'état de signature GPG
-     */
-    public function snapSetSigned(string $snapId, string $signed)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE repos_snap SET Signed = :signed WHERE Id = :snapId");
-            $stmt->bindValue(':signed', $signed);
-            $stmt->bindValue(':snapId', $snapId);
-            $stmt->execute();
-        } catch (Exception $e) {
-            DbLog::error($e);
-        }
-    }
-
-    /**
-     *  Set snapshot date
-     */
-    public function snapSetDate(string $snapId, string $date)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE repos_snap SET Date = :date WHERE Id = :snapId");
-            $stmt->bindValue(':date', $date);
-            $stmt->bindValue(':snapId', $snapId);
-            $stmt->execute();
-        } catch (Exception $e) {
-            DbLog::error($e);
-        }
-    }
-
-    /**
-     *  Set snapshot time
-     */
-    public function snapSetTime(string $snapId, string $time)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE repos_snap SET Time = :time WHERE Id = :snapId");
-            $stmt->bindValue(':time', $time);
-            $stmt->bindValue(':snapId', $snapId);
-            $stmt->execute();
-        } catch (Exception $e) {
-            DbLog::error($e);
-        }
-    }
-
-    /**
-     *  Set snapshot metadata rebuild state
-     */
-    public function snapSetRebuild(string $snapId, string $status = '') : void
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE repos_snap SET Reconstruct = :status WHERE Id = :snapId");
-            $stmt->bindValue(':status', $status);
-            $stmt->bindValue(':snapId', $snapId);
-            $stmt->execute();
-        } catch (Exception $e) {
-            DbLog::error($e);
-        }
-    }
-
-    /**
-     *  Set snapshot architectures
-     */
-    public function snapSetArch(string $snapId, string $arch)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE repos_snap SET Arch = :arch WHERE Id = :snapId");
-            $stmt->bindValue(':arch', $arch);
-            $stmt->bindValue(':snapId', $snapId);
-            $stmt->execute();
-        } catch (Exception $e) {
-            DbLog::error($e);
-        }
-    }
-
-    /**
-     *  Set packages included
-     */
-    public function snapSetPackagesIncluded(int $snapId, string $packages)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE repos_snap SET Pkg_included = :pkgIncluded WHERE Id = :snapId");
-            $stmt->bindValue(':pkgIncluded', $packages);
-            $stmt->bindValue(':snapId', $snapId);
-            $stmt->execute();
-        } catch (Exception $e) {
-            DbLog::error($e);
-        }
-    }
-
-    /**
-     *  Set packages excluded
-     */
-    public function snapSetPackagesExcluded(int $snapId, string $packages)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE repos_snap SET Pkg_excluded = :pkgExcluded WHERE Id = :snapId");
-            $stmt->bindValue(':pkgExcluded', $packages);
-            $stmt->bindValue(':snapId', $snapId);
-            $stmt->execute();
-        } catch (Exception $e) {
-            DbLog::error($e);
-        }
     }
 
     /**

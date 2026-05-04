@@ -1,15 +1,18 @@
 <?php
 $myprofile = new \Controllers\Profile();
-$myrepo = new \Controllers\Repo\Repo();
 $myrepoListing = new \Controllers\Repo\Listing();
-$myhost = new \Controllers\Host();
+$hostListingController = new \Controllers\Host\Listing();
 
-/**
- *  Getting all profiles names
- */
+// Get all profiles names
 $profiles = $myprofile->list();
 
-/**
- *  Retrieve all active repos names
- */
+// Selectables packages in the list of packages to exclude
+$listPackages = $myprofile->getPackages();
+
+// Get all services names
+$services = $myprofile->getServices();
+
+// Retrieve all active repos names
 $reposList = $myrepoListing->listNameOnly(true);
+
+unset($myrepoListing);

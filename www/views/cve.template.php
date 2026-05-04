@@ -118,7 +118,7 @@
                     $lastHostId = '';
 
                     foreach ($affectedHosts as $affectedHost) :
-                        $hostDetails = $myhost->getAll($affectedHost['Host_id']);
+                        $hostDetails = $myhost->get($affectedHost['Host_id']);
 
                         if ($lastHostId != $hostDetails['Id']) : ?>
                             <tr>
@@ -146,7 +146,7 @@
                     $lastHostId = '';
 
                     foreach ($possibleAffectedHosts as $possibleAffectedHost) :
-                        $hostDetails = $myhost->getAll($possibleAffectedHost['Host_id']);
+                        $hostDetails = $myhost->get($possibleAffectedHost['Host_id']);
 
                         if ($lastHostId != $hostDetails['Id']) : ?>
                             <tr>

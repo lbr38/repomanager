@@ -136,7 +136,7 @@ class File
     /**
      *  Return an array with the list of founded files in specified directory path
      */
-    public static function findRecursive(string $path, array $fileExtension = [], bool $absolute = true) : array
+    public static function findRecursive(string $path, array $filenames = [], array $extensions = [], bool $absolute = true) : array
     {
         $foundedFiles = [];
 
@@ -146,36 +146,34 @@ class File
             \RecursiveIteratorIterator::CATCH_GET_CHILD // Ignore "Permission denied"
         );
 
-        /**
-         *  Find files with specified extension
-         */
         if (!empty($iterator)) {
             foreach ($iterator as $file) {
-                /**
-                 *  Skip if the current file is a directory
-                 */
+                // Skip if the current file is a directory
                 if ($file->isDir()) {
                     continue;
                 }
 
-                /**
-                 *  If one or more extension(s) have been specified, then check that the file has correct extension
-                 *  Otherwise, ignore it
-                 */
-                if (!empty($fileExtension)) {
-                    if (!in_array($file->getExtension(), $fileExtension)) {
+                // If one or more filename(s) have been specified, then check that the file has correct filename
+                if (!empty($filenames)) {
+                    // Otherwise, ignore it
+                    if (!in_array($file->getFilename(), $filenames)) {
                         continue;
                     }
                 }
 
-                /**
-                 *  By default, return file's fullpath (absolute path)
-                 */
+                // If one or more extension(s) have been specified, then check that the file has correct extension
+                if (!empty($extensions)) {
+                    // Otherwise, ignore it
+                    if (!in_array($file->getExtension(), $extensions)) {
+                        continue;
+                    }
+                }
+
+                // By default, return file's fullpath (absolute path)
                 if ($absolute) {
                     $foundedFiles[] = $file->getPathname();
-                /**
-                 *  Else only return filename
-                 */
+
+                // Else only return filename
                 } else {
                     $foundedFiles[] = $file->getFilename();
                 }

@@ -1,6 +1,7 @@
 <?php
 $mygroup = new \Controllers\Group\Host();
-$myhost = new \Controllers\Host();
+$myhost = new \Controllers\Host\Host();
+$hostListingController = new \Controllers\Host\Listing();
 $hostRequestController = new \Controllers\Host\Request();
 $compactView = true;
 
@@ -13,7 +14,7 @@ $totalNotUptodate = 0;
 /**
  *  Getting total hosts
  */
-$totalHosts = count($myhost->listAll());
+$totalHosts = count($hostListingController->get());
 
 /**
  *  Get hosts groups list
@@ -49,3 +50,5 @@ if ($compactView) {
     $layoutPackagesTitle = 'PACKAGES';
     $layoutGridClass = 'grid-4';
 }
+
+unset($myhost, $mygroup);

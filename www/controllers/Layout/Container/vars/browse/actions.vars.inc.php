@@ -4,8 +4,6 @@ use \Controllers\Utils\Array\Sort;
 use \Controllers\Utils\Convert;
 
 $repoController = new \Controllers\Repo\Repo();
-$repoSnapshotController = new \Controllers\Repo\Snapshot();
-$repoPackageController = new \Controllers\Repo\Package();
 
 if (empty(__ACTUAL_URI__[2])) {
     throw new Exception('Error: no repository snapshot ID specified.');
@@ -17,12 +15,8 @@ if (!is_numeric(__ACTUAL_URI__[2])) {
 
 $snapId = __ACTUAL_URI__[2];
 
-/**
- *  Check if the snapshot exists
- */
-if (!$repoSnapshotController->exists($snapId)) {
-    throw new Exception('Error: repository snapshot #' . $snapId . ' does not exist.');
-}
+// Instanciate repo snapshot package controller (it will also check if the snapshot exists)
+$repoPackageController = new \Controllers\Repo\Snapshot\Package($snapId);
 
 /**
  *  Retrieve repo infos from DB
@@ -62,7 +56,7 @@ if (!empty($_POST['action']) and $_POST['action'] == 'uploadPackage' and !empty(
             throw new Exception('Invalid overwrite value');
         }
 
-        $repoPackageController->upload($_POST['snapId'], Sort::byPostFiles($_FILES['packages']), $overwrite ?? false);
+        $repoPackageController->upload(Sort::byPostFiles($_FILES['packages']), $overwrite ?? false);
         $uploadSuccessMessage = 'Packages uploaded successfully';
     } catch (AppException $e) {
         $uploadErrorDetails = $e->getDetails();
@@ -72,5 +66,3 @@ if (!empty($_POST['action']) and $_POST['action'] == 'uploadPackage' and !empty(
 
     unset($repoPackageController);
 }
-
-unset($repoSnapshotController);
