@@ -45,16 +45,16 @@ if ($_POST['action'] == 'tree' and !empty($_POST['path'])) {
 /**
  *  Delete packages from repo
  */
-if ($action == 'deletePackage' and !empty($_POST['snapId']) and !empty($_POST['packages'])) {
-    $myrepoPackage = new \Controllers\Repo\Package();
+if ($action == 'delete-package' and !empty($_POST['snapId']) and !empty($_POST['packages'])) {
+    $repoSnapshotPackageController = new \Controllers\Repo\Snapshot\Package($_POST['snapId']);
 
     try {
-        $deletedPackages = $myrepoPackage->delete($_POST['snapId'], $_POST['packages']);
+        $deleted = $repoSnapshotPackageController->delete($_POST['packages']);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, 'Packages deleted: <br>' . implode('<br>', $deletedPackages));
+    response(HTTP_OK, $deleted);
 }
 
 /**

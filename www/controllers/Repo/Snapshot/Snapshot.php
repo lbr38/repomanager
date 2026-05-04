@@ -1,6 +1,6 @@
 <?php
 
-namespace Controllers\Repo;
+namespace Controllers\Repo\Snapshot;
 
 use Controllers\Filesystem\Directory;
 use Exception;
@@ -12,7 +12,7 @@ class Snapshot
 
     public function __construct()
     {
-        $this->model = new \Models\Repo\Snapshot();
+        $this->model = new \Models\Repo\Snapshot\Snapshot();
     }
 
     /**
@@ -21,6 +21,28 @@ class Snapshot
     public function get(): array
     {
         return $this->model->get();
+    }
+
+    /**
+     *  Return snapshot details by ID
+      */
+    public function getById(int $id): array
+    {
+        return $this->model->getById($id);
+    }
+
+    /**
+     *  Return snapshot date by ID
+     */
+    public function getDateById(int $id): string
+    {
+        if (!$this->exists($id)) {
+            throw new Exception('Unknown snapshot ID #' . $id);
+        }
+
+        $snapshot = $this->getById($id);
+
+        return $snapshot['Date'];
     }
 
     /**
@@ -42,17 +64,73 @@ class Snapshot
     /**
      *  Add a snapshot in database
      */
-    public function add(string $date, string $time, string $gpgSignature, array $arch, array $includeTranslation, array $packagesIncluded, array $packagesExcluded, string $type, string $status, int $repoId) : void
+    public function add(string $date, string $time, string $gpgSignature, array $arch, array $includeTranslation, array $packagesIncluded, array $packagesExcluded, string $type, string $status, int $repoId): void
     {
         $this->model->add($date, $time, $gpgSignature, $arch, $includeTranslation, $packagesIncluded, $packagesExcluded, $type, $status, $repoId);
     }
 
     /**
+     *  Update snapshot date in the database
+     */
+    public function updateDate(int $snapId, string $date): void
+    {
+        $this->model->updateDate($snapId, $date);
+    }
+
+    /**
+     *  Update snapshot time in the database
+     */
+    public function updateTime(int $snapId, string $time): void
+    {
+        $this->model->updateTime($snapId, $time);
+    }
+
+    /**
+     *  Update snapshot GPG signature in the database
+     */
+    public function updateGpgSignature(int $snapId, string $gpgSignature): void
+    {
+        $this->model->updateGpgSignature($snapId, $gpgSignature);
+    }
+
+    /**
+     *  Update snapshot included packages in the database
+     */
+    public function updatePackagesIncluded(int $snapId, array $packagesIncluded): void
+    {
+        $this->model->updatePackagesIncluded($snapId, implode(',', $packagesIncluded));
+    }
+
+    /**
+     *  Update snapshot excluded packages in the database
+     */
+    public function updatePackagesExcluded(int $snapId, array $packagesExcluded): void
+    {
+        $this->model->updatePackagesExcluded($snapId, implode(',', $packagesExcluded));
+    }
+
+    /**
      *  Update snapshot status in the database
      */
-    public function updateStatus(string $snapId, string $status) : void
+    public function updateStatus(int $snapId, string $status): void
     {
         $this->model->updateStatus($snapId, $status);
+    }
+
+    /**
+     *  Update snapshot rebuild status in the database
+     */
+    public function updateRebuild(int $snapId, string $status): void
+    {
+        $this->model->updateRebuild($snapId, $status);
+    }
+
+    /**
+     *  Update snapshot architectures in the database
+     */
+    public function updateArch(int $snapId, array $arch): void
+    {
+        $this->model->updateArch($snapId, $arch);
     }
 
     /**

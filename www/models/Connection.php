@@ -1000,24 +1000,27 @@ class Connection extends SQLite3
          *  Create indexes
          */
         // hosts table indexes:
-        $this->exec("CREATE INDEX IF NOT EXISTS hosts_index ON hosts (Ip, Hostname, Os, Os_version, Os_family, Kernel, Arch, Type, Profile, Env, AuthId, Token, Online_status, Online_status_date, Online_status_time, Reboot_required, Linupdate_version)");
-        $this->exec("CREATE INDEX IF NOT EXISTS hosts_authid_index ON hosts (AuthId)");
-        $this->exec("CREATE INDEX IF NOT EXISTS hosts_token_index ON hosts (Token)");
-        $this->exec("CREATE INDEX IF NOT EXISTS hosts_authid_token_index ON hosts (AuthId, Token)");
-        $this->exec("CREATE INDEX IF NOT EXISTS hosts_hostname_index ON hosts (Hostname)");
-        $this->exec("CREATE INDEX IF NOT EXISTS hosts_kernel_index ON hosts (Kernel)");
-        $this->exec("CREATE INDEX IF NOT EXISTS hosts_profile_index ON hosts (Profile)");
-        $this->exec("CREATE INDEX IF NOT EXISTS hosts_status_online_date_time ON hosts (Online_status, Online_status_date, Online_status_time)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_hosts ON hosts (Ip, Hostname, Os, Os_version, Os_family, Kernel, Arch, Type, Profile, Env, AuthId, Token, Online_status, Online_status_date, Online_status_time, Reboot_required, Linupdate_version)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_hosts_authid ON hosts (AuthId)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_hosts_token ON hosts (Token)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_hosts_authid_token ON hosts (AuthId, Token)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_hosts_hostname ON hosts (Hostname)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_hosts_os_version ON hosts (Os, Os_version)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_hosts_kernel ON hosts (Kernel)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_hosts_arch ON hosts (Arch)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_hosts_profile ON hosts (Profile)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_hosts_env ON hosts (Env)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_hosts_status_online_date_time ON hosts (Online_status, Online_status_date, Online_status_time)");
         // groups table indexes:
-        $this->exec("CREATE INDEX IF NOT EXISTS groups_index ON groups (Name)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_groups ON groups (Name)");
         // group_members table indexes:
-        $this->exec("CREATE INDEX IF NOT EXISTS group_members_index ON group_members (Id_host, Id_group)");
-        $this->exec("CREATE INDEX IF NOT EXISTS group_members_id_host_index ON group_members (Id_host)");
-        $this->exec("CREATE INDEX IF NOT EXISTS group_members_id_group_index ON group_members (Id_group)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_group_members ON group_members (Id_host, Id_group)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_group_members_id_host ON group_members (Id_host)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_group_members_id_group ON group_members (Id_group)");
         // requests table indexes:
-        $this->exec("CREATE INDEX IF NOT EXISTS requests_id_host ON requests (Id_host)");
-        $this->exec("CREATE INDEX IF NOT EXISTS requests_status ON requests (Status)");
-        $this->exec("CREATE INDEX IF NOT EXISTS requests_date_time ON requests (Date, Time)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_requests_id_host ON requests (Id_host)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_requests_status ON requests (Status)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_requests_date_time ON requests (Date, Time)");
     }
 
     /**

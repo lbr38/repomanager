@@ -1,0 +1,25 @@
+name: API - admin - package listing tests
+description: Run package listing tests as admin user
+
+inputs:
+  api-host:
+    description: API test host URL
+    required: true
+  api-key:
+    description: Admin API key
+    required: true
+
+runs:
+  using: composite
+  steps:
+    # List snapshots packages
+    - name: (admin) List snapshot packages
+      shell: bash
+      run: |
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/snapshot/1/packages
+        if [ $? -ne 0 ]; then
+            echo "Failed to list snapshot packages"
+            exit 1
+        fi
+
+    

@@ -1,7 +1,7 @@
 <?php
 $id = __ACTUAL_URI__[2];
 $hostPackageController = new \Controllers\Host\Package\Package($id);
-$myhost = new \Controllers\Host();
+$myhost = new \Controllers\Host\Host();
 
 /**
  *  Getting hosts general threshold settings

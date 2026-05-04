@@ -333,8 +333,8 @@ class Profile
             throw new Exception('You are not allowed to perform this action');
         }
 
-        $myHost = new \Controllers\Host();
-        $myHostRequest = new \Controllers\Host\Request();
+        $hostListingController = new \Controllers\Host\Listing();
+        $hostRequestController = new \Controllers\Host\Request();
         $name = Validate::string($name);
 
         /**
@@ -494,13 +494,13 @@ class Profile
         /**
          *  Get all hosts using this profile
          */
-        $hosts = $myHost->getHostWithProfile($name);
+        $hosts = $hostListingController->getByProfile($name);
 
         /**
          *  For each host, add a new request to apply the new profile configuration
          */
         foreach ($hosts as $host) {
-            $myHostRequest->new($host['Id'], 'update-profile');
+            $hostRequestController->new($host['Id'], 'update-profile');
         }
 
         History::set('<code>' . $name . '</code> host profile configuration edited');

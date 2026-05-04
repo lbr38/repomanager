@@ -1,13 +1,13 @@
 <?php
 use \Controllers\Utils\Generate\Html\Color;
 
-$hostController = new \Controllers\Host();
+$hostListingController = new \Controllers\Host\Listing();
 $datasets = [];
 $labels = [];
 $options = [];
 
 // Getting a list of all hosts arch
-$archs = $hostController->listCountArch();
+$archs = $hostListingController->getArch();
 
 foreach ($archs as $arch) {
     if (empty($arch['Arch'])) {
@@ -16,8 +16,8 @@ foreach ($archs as $arch) {
         $labels[] = $arch['Arch'];
     }
 
-    $datasets[0]['data'][] = $arch['Arch_count'];
+    $datasets[0]['data'][] = $arch['Count'];
     $datasets[0]['colors'][] = Color::random();
 }
 
-unset($hostController, $archs, $arch);
+unset($hostListingController, $archs, $arch);

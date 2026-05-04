@@ -153,11 +153,11 @@ class Update extends \Controllers\Task\Execution
          */
         try {
             if ($this->repoController->getPackageType() == 'deb') {
-                $packages = File::findRecursive($previousSnapshotDir . '/pool/' . $this->sourceRepoController->getSection(), ['deb', 'dsc', 'gz', 'xz']);
+                $packages = File::findRecursive($previousSnapshotDir . '/pool/' . $this->sourceRepoController->getSection(), [], ['deb', 'dsc', 'gz', 'xz']);
             }
 
             if ($this->repoController->getPackageType() == 'rpm') {
-                $packages = File::findRecursive($previousSnapshotDir . '/packages', ['rpm']);
+                $packages = File::findRecursive($previousSnapshotDir . '/packages', [], ['rpm']);
             }
         } catch (Exception $e) {
             throw new Exception('Error while retrieving previous snapshot packages: ' . $e->getMessage());

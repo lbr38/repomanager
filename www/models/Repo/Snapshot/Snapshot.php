@@ -1,6 +1,6 @@
 <?php
 
-namespace Models\Repo;
+namespace Models\Repo\Snapshot;
 
 use Exception;
 use Controllers\Database\Log as DbLog;
@@ -27,6 +27,28 @@ class Snapshot extends \Models\Model
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $data[] = $row;
+        }
+
+        return $data;
+    }
+
+    /**
+     *  Return snapshot details by ID
+      */
+    public function getById(int $id): array
+    {
+        $data = [];
+
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM repos_snap WHERE Id = :id");
+            $stmt->bindValue(':id', $id);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+
+        if ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data = $row;
         }
 
         return $data;
@@ -69,7 +91,7 @@ class Snapshot extends \Models\Model
     /**
      *  Add a snapshot in database
      */
-    public function add(string $date, string $time, string $gpgSignature, array $arch, array $includeTranslation, array $packagesIncluded, array $packagesExcluded, string $type, string $status, int $repoId) : void
+    public function add(string $date, string $time, string $gpgSignature, array $arch, array $includeTranslation, array $packagesIncluded, array $packagesExcluded, string $type, string $status, int $repoId): void
     {
         try {
             $stmt = $this->db->prepare("INSERT INTO repos_snap ('Date', 'Time', 'Signed', 'Arch', 'Pkg_translation', 'Pkg_included', 'Pkg_excluded', 'Type', 'Status', 'Id_repo') VALUES (:date, :time, :signed, :arch, :includeTranslation, :packagesIncluded, :packagesExcluded, :type, :status, :repoId)");
@@ -90,13 +112,118 @@ class Snapshot extends \Models\Model
     }
 
     /**
+     *  Update snapshot date in the database
+     */
+    public function updateDate(int $snapId, string $date): void
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE repos_snap SET Date = :date WHERE Id = :snapId");
+            $stmt->bindValue(':date', $date);
+            $stmt->bindValue(':snapId', $snapId);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+    }
+
+    /**
+     *  Update snapshot time in the database
+     */
+    public function updateTime(int $snapId, string $time): void
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE repos_snap SET Time = :time WHERE Id = :snapId");
+            $stmt->bindValue(':time', $time);
+            $stmt->bindValue(':snapId', $snapId);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+    }
+
+    /**
+     *  Update snapshot GPG signature in the database
+     */
+    public function updateGpgSignature(int $snapId, string $gpgSignature): void
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE repos_snap SET Signed = :gpgSignature WHERE Id = :snapId");
+            $stmt->bindValue(':gpgSignature', $gpgSignature);
+            $stmt->bindValue(':snapId', $snapId);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+    }
+
+    /**
+     *  Update snapshot included packages in the database
+     */
+    public function updatePackagesIncluded(int $snapId, string $packages): void
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE repos_snap SET Pkg_included = :packagesIncluded WHERE Id = :snapId");
+            $stmt->bindValue(':packagesIncluded', $packages);
+            $stmt->bindValue(':snapId', $snapId);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+    }
+
+    /**
+     *  Update snapshot excluded packages in the database
+     */
+    public function updatePackagesExcluded(int $snapId, string $packages): void
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE repos_snap SET Pkg_excluded = :packagesExcluded WHERE Id = :snapId");
+            $stmt->bindValue(':packagesExcluded', $packages);
+            $stmt->bindValue(':snapId', $snapId);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+    }
+
+    /**
      *  Update snapshot status in the database
      */
-    public function updateStatus(string $snapId, string $status) : void
+    public function updateStatus(string $snapId, string $status): void
     {
         try {
             $stmt = $this->db->prepare("UPDATE repos_snap SET Status = :status WHERE Id = :snapId");
             $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':snapId', $snapId);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+    }
+
+    /**
+     *  Update snapshot rebuild status in the database
+     */
+    public function updateRebuild(int $snapId, string $status): void
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE repos_snap SET Reconstruct = :status WHERE Id = :snapId");
+            $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':snapId', $snapId);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+    }
+
+    /**
+     *  Update snapshot architectures in the database
+     */
+    public function updateArch(int $snapId, array $arch): void
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE repos_snap SET Arch = :arch WHERE Id = :snapId");
+            $stmt->bindValue(':arch', implode(',', $arch));
             $stmt->bindValue(':snapId', $snapId);
             $stmt->execute();
         } catch (Exception $e) {

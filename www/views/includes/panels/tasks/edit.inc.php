@@ -47,7 +47,7 @@ foreach ($tasks as $task) :
                     <option value="">Select...</option>
                     <?php
                     foreach (['hourly', 'daily', 'weekly', 'monthly', 'cron'] as $frequency) {
-                        $selected = isset($params['schedule']['schedule-frequency']) && $params['schedule']['schedule-frequency'] == $frequency ? 'selected' : ''; // toto
+                        $selected = isset($params['schedule']['schedule-frequency']) && $params['schedule']['schedule-frequency'] == $frequency ? 'selected' : '';
                         echo '<option value="' . $frequency . '" ' . $selected . '>' . ucfirst($frequency) . '</option>';
                     } ?>
                 </select>

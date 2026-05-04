@@ -344,14 +344,14 @@ class Import
      */
     public function importAffectedHosts()
     {
-        $myhost = new \Controllers\Host();
+        $hostListingController = new \Controllers\Host\Listing();
         $mycve = new \Controllers\Cve\Cve();
 
         try {
             /**
              *  Get all active hosts
              */
-            $hosts = $myhost->listAll();
+            $hosts = $hostListingController->get();
 
             /**
              *  Quit if there is no active host

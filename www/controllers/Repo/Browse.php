@@ -63,7 +63,6 @@ class Browse
         ksort($files);
 
         foreach ($files as $file => $path) {
-            // Browse::printFile($file, $path);
             $title = 'File';
             $icon = 'file';
             $extension = pathinfo($file, PATHINFO_EXTENSION);
@@ -104,7 +103,7 @@ class Browse
                     
                     <div class="flex align-item-center column-gap-15">
                         <span class="mediumopacity-cst"><?= $size ?></span>
-                        <input type="checkbox" class="package-checkbox pointer lowopacity" name="packageName[]" filename="<?= $file ?>" path="<?= $path ?>" />
+                        <input type="checkbox" class="package-checkbox pointer lowopacity" name="packageName[]" filename="<?= $file ?>" path="<?= REPOS_DIR . '/' . $path ?>" />
                     </div>
                 </div>
             </li>

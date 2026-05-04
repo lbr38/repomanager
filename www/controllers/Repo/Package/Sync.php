@@ -55,7 +55,7 @@ trait Sync
              *  So if the snapshot date being updated == today's date ($this->repoController->getDate()) then the task can continue
              *  Else we check that another snapshot at the current date does not already exist, if it does we quit
              */
-            if ($this->repoController->getSnapDateById($this->repoController->getSnapId()) != $this->repoController->getDate()) {
+            if ($this->repoSnapshotController->getDateById($this->repoController->getSnapId()) != $this->repoController->getDate()) {
                 if ($this->repoController->getPackageType() == 'rpm') {
                     if ($this->rpmRepoController->existsSnapDate($this->repoController->getName(), $this->repoController->getReleasever(), $this->repoController->getDate())) {
                         throw new Exception('A snapshot already exists on the ' . Label::black($this->repoController->getDateFormatted()));

@@ -4,7 +4,7 @@
  *  Edit hosts settings
  */
 if ($action == 'editSettings' and isset($_POST['packagesConsideredOutdated']) and isset($_POST['packagesConsideredCritical'])) {
-    $myhost = new \Controllers\Host();
+    $myhost = new \Controllers\Host\Host();
 
     try {
         $myhost->setSettings($_POST['packagesConsideredOutdated'], $_POST['packagesConsideredCritical']);
@@ -18,11 +18,11 @@ if ($action == 'editSettings' and isset($_POST['packagesConsideredOutdated']) an
 /**
  *  Get all hosts that have the specified kernel
  */
-if ($action == "getHostWithKernel" and !empty($_POST['kernel'])) {
-    $myhost = new \Controllers\Host();
+if ($action == 'get-by-kernel' and isset($_POST['kernel'])) {
+    $hostListingController = new \Controllers\Host\Listing();
 
     try {
-        $content = json_encode($myhost->getHostWithKernel($_POST['kernel']));
+        $content = json_encode($hostListingController->getByKernel($_POST['kernel']));
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
@@ -33,11 +33,11 @@ if ($action == "getHostWithKernel" and !empty($_POST['kernel'])) {
 /**
  *  Get all hosts that have the specified profile
  */
-if ($action == "getHostWithProfile" and !empty($_POST['profile'])) {
-    $myhost = new \Controllers\Host();
+if ($action == 'get-by-profile' and isset($_POST['profile'])) {
+    $hostListingController = new \Controllers\Host\Listing();
 
     try {
-        $content = json_encode($myhost->getHostWithProfile($_POST['profile']));
+        $content = json_encode($hostListingController->getByProfile($_POST['profile']));
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
@@ -48,11 +48,11 @@ if ($action == "getHostWithProfile" and !empty($_POST['profile'])) {
 /**
  *  Search if a package is installed on a host (from Search package form)
  */
-if ($action == "getHostsWithPackage" and !empty($_POST['hosts']) and !empty($_POST['package']) and isset($_POST['version']) and isset($_POST['strictName']) and isset($_POST['strictVersion'])) {
-    $myhost = new \Controllers\Host();
+if ($action == 'get-by-package' and !empty($_POST['package']) and isset($_POST['version']) and isset($_POST['strictName']) and isset($_POST['strictVersion'])) {
+    $hostListingController = new \Controllers\Host\Listing();
 
     try {
-        $result = $myhost->getHostsWithPackage($_POST['hosts'], $_POST['package'], $_POST['version'], $_POST['strictName'], $_POST['strictVersion']);
+        $result = $hostListingController->getByPackage($_POST['package'], $_POST['version'], $_POST['strictName'], $_POST['strictVersion']);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }

@@ -35,7 +35,7 @@ class Execution
     {
         $this->repoController = new \Controllers\Repo\Repo();
         $this->sourceRepoController = new \Controllers\Repo\Repo();
-        $this->repoSnapshotController = new \Controllers\Repo\Snapshot();
+        $this->repoSnapshotController = new \Controllers\Repo\Snapshot\Snapshot();
         $this->repoEnvController = new \Controllers\Repo\Environment();
         $this->rpmRepoController = new \Controllers\Repo\Rpm();
         $this->debRepoController = new \Controllers\Repo\Deb();

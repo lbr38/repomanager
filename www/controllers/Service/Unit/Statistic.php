@@ -27,7 +27,7 @@ class Statistic extends \Controllers\Service\Service
         $this->debRepoStatController = new \Controllers\Repo\Statistic\Deb();
         $this->rpmRepoStatController = new \Controllers\Repo\Statistic\Rpm();
         $this->repoListingController = new \Controllers\Repo\Listing();
-        $this->repoSnapshotController = new \Controllers\Repo\Snapshot();
+        $this->repoSnapshotController = new \Controllers\Repo\Snapshot\Snapshot();
     }
 
     /**
@@ -70,7 +70,7 @@ class Statistic extends \Controllers\Service\Service
                         $snapSize = Directory::getSize(REPOS_DIR . '/rpm/' . $this->repoController->getName() . '/' . $this->repoController->getReleasever() . '/' . $snap['Date']);
 
                         // Calculate number of packages in the repo
-                        $packagesCount = count(File::findRecursive(REPOS_DIR . '/rpm/' . $this->repoController->getName() . '/' . $this->repoController->getReleasever() . '/' . $snap['Date'], ['rpm']));
+                        $packagesCount = count(File::findRecursive(REPOS_DIR . '/rpm/' . $this->repoController->getName() . '/' . $this->repoController->getReleasever() . '/' . $snap['Date'], [], ['rpm']));
                     }
                 }
 
@@ -80,7 +80,7 @@ class Statistic extends \Controllers\Service\Service
                         $snapSize = Directory::getSize(REPOS_DIR . '/deb/' . $this->repoController->getName() . '/' . $this->repoController->getDist() . '/' . $this->repoController->getSection() . '/' . $snap['Date']);
 
                         // Calculate number of packages in the repo
-                        $packagesCount = count(File::findRecursive(REPOS_DIR . '/deb/' . $this->repoController->getName() . '/' . $this->repoController->getDist() . '/' . $this->repoController->getSection() . '/' . $snap['Date'], ['deb']));
+                        $packagesCount = count(File::findRecursive(REPOS_DIR . '/deb/' . $this->repoController->getName() . '/' . $this->repoController->getDist() . '/' . $this->repoController->getSection() . '/' . $snap['Date'], [], ['deb']));
                     }
                 }
 

@@ -5,7 +5,7 @@ if (!HostPermission::allowedAction('edit-settings')) {
     throw new Exception('You are not allowed to access this panel');
 }
 
-$myhost = new \Controllers\Host();
+$myhost = new \Controllers\Host\Host();
 
 /**
  *  Getting general hosts threshold settings

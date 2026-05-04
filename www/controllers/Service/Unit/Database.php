@@ -8,14 +8,14 @@ use Exception;
 class Database extends \Controllers\Service\Service
 {
     private $monitoringController;
-    private $hostController;
+    private $hostListingController;
 
     public function __construct(string $unit)
     {
         parent::__construct($unit);
 
         $this->monitoringController = new \Controllers\System\Monitoring\Monitoring();
-        $this->hostController = new \Controllers\Host();
+        $this->hostListingController = new \Controllers\Host\Listing();
     }
 
     /**
@@ -26,7 +26,7 @@ class Database extends \Controllers\Service\Service
         $databases = ['main', 'stats', 'hosts', 'ws'];
 
         // Get all hosts
-        $hosts = $this->hostController->listAll();
+        $hosts = $this->hostListingController->get();
 
         // Enable maintenance page, this will avoid any write operation during the maintenance
         parent::log('Enabling maintenance page');

@@ -172,7 +172,7 @@ class Group
          *  If group type is 'host'
          */
         if ($this->type == 'host') {
-            $myhost = new \Controllers\Host();
+            $myhost = new \Controllers\Host\Host();
             $myhost->addHostsIdToGroup($data, $id);
         }
 

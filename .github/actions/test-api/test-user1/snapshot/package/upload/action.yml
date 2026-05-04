@@ -1,0 +1,69 @@
+name: API - test-user1 - snapshot upload tests
+description: Run package upload and rebuild as test-user1 user (no permissions - all tests must fail)
+
+inputs:
+  api-host:
+    description: API test host URL
+    required: true
+  api-key:
+    description: test-user1 API key
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: (test-user1) Get package names
+      shell: bash
+      run: |
+        echo "DEB_PACKAGE=$(ls -A1 $HOSTNAME/*nginx_1.26.0-1~bookworm_amd64.deb)" >> $GITHUB_ENV
+        echo "RPM_PACKAGE=$(ls -A1 $HOSTNAME/*nginx-1.26.0-1.el7.ngx.x86_64.rpm)" >> $GITHUB_ENV
+
+    # Upload a deb package using the test-user1 API key
+    - name: (test-user1) Try to upload a deb package with test-user1 API key
+      shell: bash
+      run: |
+        OUTPUT=$(curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer ${{ inputs.api-key }}" -F "file=@${DEB_PACKAGE}" ${{ inputs.api-host }}/api/v2/snapshot/3/upload) || true
+
+        if echo "$OUTPUT" | grep -q "You are not allowed to upload packages"; then
+            echo "Correctly failed to upload deb package with test-user1 API key"
+        else
+            echo "Failed to fail the upload deb package with test-user1 API key"
+            exit 1
+        fi
+
+    # Upload a rpm package using the test-user1 API key
+    - name: (test-user1) Try to upload a rpm package with test-user1 API key
+      shell: bash
+      run: |
+        OUTPUT=$(curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer ${{ inputs.api-key }}" -F "file=@${RPM_PACKAGE}" ${{ inputs.api-host }}/api/v2/snapshot/4/upload) || true
+
+        if echo "$OUTPUT" | grep -q "You are not allowed to upload packages"; then
+            echo "Correctly failed to upload rpm package with test-user1 API key"
+        else
+            echo "Failed to fail the upload rpm package with test-user1 API key"
+            exit 1
+        fi
+
+    # Launch a rebuild of the snapshot metadata for the deb repository
+    - name: (test-user1) Try to rebuild deb snapshot metadata with test-user1 API key
+      shell: bash
+      run: |
+        OUTPUT=$(curl --fail-with-body --post301 -L -s -X PUT -H "Authorization: Bearer ${{ inputs.api-key }}" -d '{"gpgSign":"true"}' ${{ inputs.api-host }}/api/v2/snapshot/3/rebuild) || true
+        if echo "$OUTPUT" | grep -q "You are not allowed to rebuild a repository snapshot"; then
+            echo "Correctly failed to rebuild deb snapshot metadata with test-user1 API key"
+        else
+            echo "Failed to fail the rebuild deb snapshot metadata with test-user1 API key"
+            exit 1
+        fi
+
+    # Launch a rebuild of the snapshot metadata for the rpm repository
+    - name: (test-user1) Try to rebuild rpm snapshot metadata with test-user1 API key
+      shell: bash
+      run: |
+        OUTPUT=$(curl --fail-with-body --post301 -L -s -X PUT -H "Authorization: Bearer ${{ inputs.api-key }}" -d '{"gpgSign":"true"}' ${{ inputs.api-host }}/api/v2/snapshot/4/rebuild) || true
+        if echo "$OUTPUT" | grep -q "You are not allowed to rebuild a repository snapshot"; then
+            echo "Correctly failed to rebuild rpm snapshot metadata with test-user1 API key"
+        else
+            echo "Failed to fail the rebuild rpm snapshot metadata with test-user1 API key"
+            exit 1
+        fi

@@ -1,13 +1,13 @@
 <?php
 use \Controllers\Utils\Generate\Html\Color;
 
-$hostController = new \Controllers\Host();
+$hostListingController = new \Controllers\Host\Listing();
 $datasets = [];
 $labels = [];
 $options = [];
 
 // Getting a list of all hosts agent release version
-$agents = $hostController->listCountAgentVersion();
+$agents = $hostListingController->getAgentVersion();
 
 foreach ($agents as $agent) {
     if (empty($agent['Linupdate_version'])) {
