@@ -1,0 +1,127 @@
+name: API - admin - snapshot upload tests
+description: Run package upload and rebuild as admin user
+
+inputs:
+  api-host:
+    description: API test host URL
+    required: true
+  api-key:
+    description: Admin API key
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: (admin) Get package names
+      shell: bash
+      run: |
+        echo "DEB_PACKAGE=$(ls -A1 $HOSTNAME/*nginx_1.26.0-1~bookworm_amd64.deb)" >> $GITHUB_ENV
+        echo "RPM_PACKAGE=$(ls -A1 $HOSTNAME/*nginx-1.26.0-1.el7.ngx.x86_64.rpm)" >> $GITHUB_ENV
+
+    #
+    # Upload
+    #
+
+    # Upload a deb package using the admin API key
+    - name: (admin) Try to upload a deb package with an admin API key
+      shell: bash
+      run: |
+        curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer ${{ inputs.api-key }}" -F "file=@${DEB_PACKAGE}" ${{ inputs.api-host }}/api/v2/snapshot/1/upload
+        if [ $? -ne 0 ]; then
+            echo "Failed to upload deb package"
+            exit 1
+        fi
+
+    # Upload a rpm package using the admin API key
+    - name: (admin) Try to upload a rpm package with an admin API key
+      shell: bash
+      run: |
+        curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer ${{ inputs.api-key }}" -F "file=@${RPM_PACKAGE}" ${{ inputs.api-host }}/api/v2/snapshot/2/upload
+        if [ $? -ne 0 ]; then
+            echo "Failed to upload rpm package"
+            exit 1
+        fi
+
+    #
+    # Re-upload (overwrite=false)
+    #
+
+    # Try to upload again the same deb package without overwrite flag, it should fail
+    - name: (admin) Try to upload the same deb package again with overwrite=false
+      shell: bash
+      run: |
+        OUTPUT=$(curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer ${{ inputs.api-key }}" -F "file=@${DEB_PACKAGE}" -F "overwrite=false" ${{ inputs.api-host }}/api/v2/snapshot/1/upload) || true
+
+        if echo "$OUTPUT" | grep -q "Following packages already exist and have not been uploaded"; then
+            echo "Correctly failed to upload the same deb package again (overwrite=false)"
+        else
+            echo "Failed to fail the upload of the same deb package again (overwrite=false): $OUTPUT"
+            exit 1
+        fi
+    
+    #
+    # Re-upload (overwrite=true)
+    #
+
+    # Try to upload again the same deb package with overwrite=true, it should succeed
+    - name: (admin) Try to upload the same deb package again with overwrite=true
+      shell: bash
+      run: |
+        curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer ${{ inputs.api-key }}" -F "file=@${DEB_PACKAGE}" -F "overwrite=true" ${{ inputs.api-host }}/api/v2/snapshot/1/upload
+        if [ $? -ne 0 ]; then
+            echo "Failed to upload the same deb package again with overwrite=true"
+            exit 1
+        fi
+
+    #
+    # Re-upload (ignore-if-exists=false)
+    #
+
+    - name: (admin) Try to upload the same deb package again with ignore-if-exists=false
+      shell: bash
+      run: |
+        OUTPUT=$(curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer ${{ inputs.api-key }}" -F "file=@${DEB_PACKAGE}" -F "ignore-if-exists=false" ${{ inputs.api-host }}/api/v2/snapshot/1/upload) || true
+
+        if echo "$OUTPUT" | grep -q "Following packages already exist and have not been uploaded"; then
+            echo "Correctly failed to upload the same deb package again (ignore-if-exists=false)"
+        else
+            echo "Failed to fail the upload of the same deb package again (ignore-if-exists=false): $OUTPUT"
+            exit 1
+        fi
+
+    #
+    # Re-upload (ignore-if-exists=true)
+    #
+
+    - name: (admin) Try to upload the same deb package again with ignore-if-exists=true
+      shell: bash
+      run: |
+        curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer ${{ inputs.api-key }}" -F "file=@${DEB_PACKAGE}" -F "ignore-if-exists=true" ${{ inputs.api-host }}/api/v2/snapshot/1/upload 
+        if [ $? -ne 0 ]; then
+            echo "Failed to upload the same deb package again with ignore-if-exists=true"
+            exit 1
+        fi
+
+    #
+    # Rebuild
+    #
+
+    # Launch a rebuild of the snapshot metadata for the deb repository
+    - name: (admin) Try to rebuild deb snapshot metadata with an admin API key
+      shell: bash
+      run: |
+        curl --fail-with-body --post301 -L -s -X PUT -H "Authorization: Bearer ${{ inputs.api-key }}" -d '{"gpgSign":"true"}' ${{ inputs.api-host }}/api/v2/snapshot/1/rebuild
+        if [ $? -ne 0 ]; then
+            echo "Failed to rebuild deb snapshot metadata"
+            exit 1
+        fi
+
+    # Launch a rebuild of the snapshot metadata for the rpm repository
+    - name: (admin) Try to rebuild rpm snapshot metadata with an admin API key
+      shell: bash
+      run: |
+        curl --fail-with-body --post301 -L -s -X PUT -H "Authorization: Bearer ${{ inputs.api-key }}" -d '{"gpgSign":"true"}' ${{ inputs.api-host }}/api/v2/snapshot/2/rebuild
+        if [ $? -ne 0 ]; then
+            echo "Failed to rebuild rpm snapshot metadata"
+            exit 1
+        fi

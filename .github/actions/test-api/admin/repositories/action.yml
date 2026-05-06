@@ -1,0 +1,31 @@
+name: API - admin - repository listing tests
+description: Run repository listing tests as admin user
+
+inputs:
+  api-host:
+    description: API test host URL
+    required: true
+  api-key:
+    description: Admin API key
+    required: true
+
+runs:
+  using: composite
+  steps:
+    # List all repositories
+    - name: List all repositories
+      shell: bash
+      run: |
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/repo/ | jq
+
+    # List all repositories with name "local-deb-for-admin"
+    - name: List repositories with specific name
+      shell: bash
+      run: |
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/repo/ | jq -r '.results[] | select(.Name == "local-deb-for-admin")'
+
+    # List all snapshots of repository whose ID is 1
+    - name: List snapshots of a repository
+      shell: bash
+      run: |
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/repo/1

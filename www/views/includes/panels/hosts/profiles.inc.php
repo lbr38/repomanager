@@ -1,9 +1,9 @@
 <?php ob_start(); ?>
 
-<p class="note">You can create and manage configuration profiles for your client host(s), including:<br>
-- The repositories the host(s) will have access to.<br>
-- Packages to exclude from updates.<br>
-- Services to restart after updates.<br>
+<p class="note">Create and manage configuration profiles for your hosts, including:<br>
+- The repositories the host will have access to<br>
+- Packages to exclude from updates<br>
+- Services to restart after updates<br>
 </p>
 
 <h6>CREATE A NEW PROFILE</h6>
@@ -16,13 +16,7 @@
 if (!empty($profiles)) :
     echo '<h6 class="margin-bottom-5">CURRENT PROFILES</h6>';
 
-    /**
-     *  Print all profiles and their configuration
-     */
     foreach ($profiles as $profile) :
-        /**
-         *  Retrieve profile configuration
-         */
         $packageExclude         = explode(',', $profile['Package_exclude']);
         $packageExcludeMajor    = explode(',', $profile['Package_exclude_major']);
         $serviceRestart         = explode(',', $profile['Service_restart']);
@@ -33,7 +27,7 @@ if (!empty($profiles)) :
          *  Retrieve hosts count using this profile, if any, and if hosts management is enabled
          */
         if (MANAGE_HOSTS == 'true') {
-            $hostsCount = $myhost->countByProfile($profile['Name']);
+            $hostsCount = count($hostListingController->getByProfile($profile['Name']));
         } ?>
 
         <div>
@@ -71,8 +65,6 @@ if (!empty($profiles)) :
                         /**
                          *  For each repo, we check if it's already present in the profile, if so it will be displayed as selected in the dropdown list, if not it will be available in the dropdown list
                          */
-                        $reposList = $myrepoListing->listNameOnly(true);
-
                         foreach ($reposList as $repo) :
                             if (in_array($repo['Id'], $profileReposMembersIds)) {
                                 if ($repo['Package_type'] == 'rpm') {
@@ -91,12 +83,6 @@ if (!empty($profiles)) :
                             }
                         endforeach ?>
                     </select>
-
-                    <?php
-                    /**
-                     *  List selectables packages in the list of packages to exclude
-                     */
-                    $listPackages = $myprofile->getPackages(); ?>
 
                     <h6>PACKAGE EXCLUSION</h6>
                     
@@ -117,7 +103,7 @@ if (!empty($profiles)) :
                             /**
                              *  Do the same thing for this same package followed by a wildcard (ex: apache.*)
                              */
-                            if (in_array("${package}.*", $packageExcludeMajor)) {
+                            if (in_array($package . '.*', $packageExcludeMajor)) {
                                 echo '<option value="' . $package . '.*" selected>' . $package . '.*</option>';
                             } else {
                                 echo '<option value="' . $package . '.*">' . $package . '.*</option>';
@@ -139,7 +125,7 @@ if (!empty($profiles)) :
                             /**
                              *  Do the same thing for this same package followed by a wildcard (ex: apache.*)
                              */
-                            if (in_array("${package}.*", $packageExclude)) {
+                            if (in_array($package . '.*', $packageExclude)) {
                                 echo '<option value="' . $package . '.*" selected>' . $package . '.*</option>';
                             } else {
                                 echo '<option value="' . $package . '.*">' . $package . '.*</option>';
@@ -159,12 +145,11 @@ if (!empty($profiles)) :
                      *  array_unique: Remove duplicates entries
                      *  array_filter: Remove empty values (in case $serviceReload is empty)
                      */
-                    $servicesList = $myprofile->getServices();
-                    $services = array_filter(array_unique(array_merge($servicesList, $serviceReload))); ?>
+                    $servicesToReload = array_filter(array_unique(array_merge($services, $serviceReload))); ?>
 
                     <select name="profile-service-reload" multiple>
                         <?php
-                        foreach ($services as $service) {
+                        foreach ($servicesToReload as $service) {
                             if (in_array($service, $serviceReload)) {
                                 echo '<option value="' . $service . '" selected>' . $service . '</option>';
                             } else {
@@ -185,12 +170,11 @@ if (!empty($profiles)) :
                      *  array_unique: Remove duplicates entries
                      *  array_filter: Remove empty values (in case $serviceRestart is empty)
                      */
-                    $servicesList = $myprofile->getServices();
-                    $services = array_filter(array_unique(array_merge($servicesList, $serviceRestart))); ?>
+                    $servicesToRestart = array_filter(array_unique(array_merge($services, $serviceRestart))); ?>
 
                     <select name="profile-service-restart" multiple>
                         <?php
-                        foreach ($services as $service) {
+                        foreach ($servicesToRestart as $service) {
                             if (in_array($service, $serviceRestart)) {
                                 echo '<option value="' . $service . '" selected>' . $service . '</option>';
                             } else {
@@ -210,7 +194,6 @@ if (!empty($profiles)) :
         <?php
     endforeach ?>
     
-
     <script>
         $(document).ready(function() {
             myselect2.convert('select[name=profile-repos]', 'Select repo 🖉');

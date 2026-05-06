@@ -195,7 +195,7 @@ class Duplicate extends \Controllers\Task\Execution
              *  Cleaning completed files now that the temporary directory has been renamed
              *  Search for all file with '.completed' extension and remove them
              */
-            $files = File::findRecursive($targetSnapshotPath, ['completed'], true);
+            $files = File::findRecursive($targetSnapshotPath, [], ['completed'], true);
 
             foreach ($files as $file) {
                 if (!unlink($file)) {

@@ -5,7 +5,7 @@ if (!HostPermission::allowedAction('update-packages')) {
     throw new Exception('You are not allowed to access this panel');
 }
 
-$myhostController = new \Controllers\Host();
+$myhostController = new \Controllers\Host\Host();
 
 $hosts = [];
 
@@ -19,6 +19,11 @@ $hosts = [];
 if (!empty($item['hostId'])) {
     if ($myhostController->existsId($item['hostId'])) {
         $hostname = $myhostController->getHostnameById($item['hostId']);
+
+        if (empty($hostname)) {
+            throw new Exception('Could not retrieve hostname for host Id #' . $hostId);
+        }
+
         $hosts[] = [
             'id' => $item['hostId'],
             'hostname' => $hostname
@@ -33,6 +38,11 @@ if (!empty($item['hostsId'])) {
     foreach ($item['hostsId'] as $hostId) {
         if ($myhostController->existsId($hostId)) {
             $hostname = $myhostController->getHostnameById($hostId);
+
+            if (empty($hostname)) {
+                throw new Exception('Could not retrieve hostname for host Id #' . $hostId);
+            }
+
             $hosts[] = [
                 'id' => $hostId,
                 'hostname' => $hostname

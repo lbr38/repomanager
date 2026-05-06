@@ -1,6 +1,6 @@
 <?php
 $id = __ACTUAL_URI__[2];
-$hostController = new \Controllers\Host();
+$hostController = new \Controllers\Host\Host();
 $hostPackageController = new \Controllers\Host\Package\Package($id);
 $hostRequestController = new \Controllers\Host\Request();
 $profileController = new \Controllers\Profile();
@@ -18,7 +18,7 @@ if (!empty($_COOKIE['tables/host/available-packages/offset']) and is_numeric($_C
 /**
  *  Get host informations
  */
-$host = $hostController->getAll($id);
+$host = $hostController->get($id);
 
 /**
  *  Get list of available packages updates, with offset

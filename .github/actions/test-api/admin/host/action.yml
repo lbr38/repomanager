@@ -1,0 +1,48 @@
+name: API - admin - host API tests
+description: Run host register/unregister tests as admin user
+
+inputs:
+  api-host:
+    description: API test host URL
+    required: true
+  api-key:
+    description: Admin API key
+    required: true
+
+runs:
+  using: composite
+  steps:
+    # Register a host and retrieve the host Id and token from results
+    # Then retrieve and export the host ID and token as environment variables for later steps
+    - name: (admin) Try to register a host with an admin API key
+      shell: bash
+      run: |
+        RESULT=$(curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer ${{ inputs.api-key }}" -H "Content-Type: application/json" -d '{"hostname":"test.local","ip":"1.2.3.4"}' ${{ inputs.api-host }}/api/v2/host/registering)
+        if [ $? -ne 0 ]; then
+            echo "Failed to register host"
+            exit 1
+        fi
+
+        HOST_ID=$(echo "$RESULT" | jq .results.id | tr -d '"')
+        HOST_TOKEN=$(echo "$RESULT" | jq -r .results.token | tr -d '"')
+
+        if [ -z "$HOST_ID" ] || [ -z "$HOST_TOKEN" ]; then
+            echo "Failed to retrieve host ID or token"
+            exit 1
+        fi
+
+        # Mask sensitive values in logs before exporting them
+        echo "::add-mask::$HOST_ID"
+        echo "::add-mask::$HOST_TOKEN"
+        echo "HOST_ID=$HOST_ID" >> $GITHUB_ENV
+        echo "HOST_TOKEN=$HOST_TOKEN" >> $GITHUB_ENV
+
+    # Unregister the host using the retrieved host ID and token
+    - name: (admin) Try to unregister a host with an admin API key
+      shell: bash
+      run: |
+        curl --fail-with-body --post301 -L -s -X DELETE -H "Authorization: Host $HOST_ID:$HOST_TOKEN" -H "Content-Type: application/json" ${{ inputs.api-host }}/api/v2/host/registering
+        if [ $? -ne 0 ]; then
+            echo "Failed to unregister host"
+            exit 1
+        fi

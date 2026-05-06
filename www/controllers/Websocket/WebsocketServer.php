@@ -25,7 +25,7 @@ class WebsocketServer
     public function __construct()
     {
         $this->model = new \Models\Websocket\WebsocketServer();
-        $this->hostController = new \Controllers\Host();
+        $this->hostController = new \Controllers\Host\Host();
         $this->layoutContainerReloadController = new \Controllers\Layout\ContainerReload();
     }
 

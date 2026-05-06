@@ -3,7 +3,7 @@
  *  5.3.3 update
  */
 
-$hostController = new \Controllers\Host();
+$hostController = new \Controllers\Host\Host();
 
 /**
  *  Get all hosts

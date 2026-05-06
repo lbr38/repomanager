@@ -1,5 +1,6 @@
 <?php
-$hostController = new \Controllers\Host();
+$hostController = new \Controllers\Host\Host();
+$hostListingController = new \Controllers\Host\Listing();
 $datasets = [];
 $labels = [];
 $options = [];
@@ -7,7 +8,7 @@ $totalNotUptodate = 0;
 $totalUptodate = 0;
 
 // Getting hosts list
-$hosts = $hostController->listAll();
+$hosts = $hostListingController->get();
 
 // Getting general hosts threshold settings
 $hostsSettings = $hostController->getSettings();
@@ -43,4 +44,4 @@ $datasets[0]['data'][] = $totalUptodate;
 $datasets[0]['data'][] = $totalNotUptodate;
 $datasets[0]['colors'] = ['#24d794', '#F32F63'];
 
-unset($hostController, $hostPackageController, $hosts, $hostsSettings, $totalUptodate, $totalNotUptodate, $packagesCountConsideredOutdated, $packagesAvailableTotal, $packagesInstalledTotal);
+unset($hostController, $hostListingController, $hostPackageController, $hosts, $hostsSettings, $totalUptodate, $totalNotUptodate, $packagesCountConsideredOutdated, $packagesAvailableTotal, $packagesInstalledTotal);

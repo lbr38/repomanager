@@ -1,0 +1,31 @@
+name: API - test-user1 - repository listing tests
+description: Run repository listing tests as test-user1 user
+
+inputs:
+  api-host:
+    description: API test host URL
+    required: true
+  api-key:
+    description: test-user1 API key
+    required: true
+
+runs:
+  using: composite
+  steps:
+    # List all repositories
+    - name: List all repositories
+      shell: bash
+      run: |
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/repo/ | jq
+
+    # List all repositories with name "local-deb-for-test-user1"
+    - name: List repositories with specific name
+      shell: bash
+      run: |
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/repo/ | jq -r '.results[] | select(.Name == "local-deb-for-test-user1")'
+
+    # List all snapshots of repository whose ID is 3
+    - name: List snapshots of a repository
+      shell: bash
+      run: |
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/repo/3

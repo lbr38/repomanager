@@ -3,6 +3,7 @@
 namespace Controllers\Api;
 
 use Exception;
+use JsonException;
 use Controllers\Exception\AppException;
 use Controllers\App\Maintenance;
 use Controllers\Update;
@@ -39,7 +40,11 @@ class Api
             $this->data = file_get_contents("php://input");
 
             if (!empty($this->data)) {
-                $this->data = json_decode($this->data);
+                try {
+                    $this->data = json_decode($this->data, true, 512, JSON_THROW_ON_ERROR);
+                } catch (JsonException $e) {
+                    self::returnError(400, 'Could not parse JSON data: ' . $e->getMessage());
+                }
 
                 if ($this->data == null) {
                     self::returnError(400, 'Invalid JSON data');
@@ -120,7 +125,7 @@ class Api
              */
             if ($this->route == 'status') {
                 http_response_code(201);
-                echo json_encode(["return" => "201", "status" => 'OK']);
+                echo json_encode(['return' => '200', 'status' => 'OK']);
                 exit;
             }
 
@@ -159,15 +164,22 @@ class Api
     }
 
     /**
-     *  Return 201 with specified results
+     *  Return 20x with specified results
      */
     private static function returnSuccess(array $results): void
     {
-        $returnArray = ['return' => 201];
-        $returnArray = array_merge($returnArray, $results);
+        // If no specific return code is set in results, set it to 200
+        if (!array_key_exists('rc', $results)) {
+            $results['rc'] = 200;
+        }
 
-        http_response_code(201);
-        echo json_encode($returnArray);
+        // Also keep 'return' key for backward compatibility
+        // TODO: remove 'return' key in favor of 'rc' key in future major release
+        $results['return'] = $results['rc'];
+        $results['note'] = "The 'return' key is deprecated and will be removed in a future major release. Please use the 'rc' key instead.";
+
+        http_response_code((int) $results['rc']);
+        echo json_encode($results);
         exit;
     }
 

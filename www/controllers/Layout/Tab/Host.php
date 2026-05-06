@@ -14,7 +14,7 @@ class Host
             exit;
         }
 
-        $myhost = new \Controllers\Host();
+        $myhost = new \Controllers\Host\Host();
 
         include_once(ROOT . '/views/host.template.php');
     }
