@@ -1,13 +1,13 @@
 <?php
 use \Controllers\Environment;
 
-$hostController = new \Controllers\Host();
+$hostListingController = new \Controllers\Host\Listing();
 $datasets = [];
 $labels = [];
 $options = [];
 
 // Getting a list of all hosts environments
-$envs = $hostController->listCountEnv();
+$envs = $hostListingController->getEnvironment();
 
 foreach ($envs as $env) {
     if (empty($env['Env'])) {
@@ -17,8 +17,8 @@ foreach ($envs as $env) {
     }
 
     $labels[] = $name;
-    $datasets[0]['data'][] = $env['Env_count'];
+    $datasets[0]['data'][] = $env['Count'];
     $datasets[0]['colors'][] = Environment::getEnvColor($name);
 }
 
-unset($hostController, $envs, $env, $name);
+unset($hostListingController, $envs, $env, $name);

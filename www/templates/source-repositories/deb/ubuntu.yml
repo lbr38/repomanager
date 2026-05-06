@@ -7,6 +7,17 @@ repositories:
     description: Ubuntu official repositories
     url: http://archive.ubuntu.com/ubuntu
     distributions:
+      # Ubuntu 26.04
+      - name: resolute
+        description: Ubuntu 26.04
+        components:
+          - name: main
+          - name: restricted
+          - name: universe
+          - name: multiverse
+        gpgkeys:
+          - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
+
       # Ubuntu 24.04
       - name: noble
         description: Ubuntu 24.04
@@ -46,6 +57,28 @@ repositories:
     url: http://security.ubuntu.com/ubuntu
     description: Ubuntu security repositories
     distributions:
+      # Ubuntu 26.04
+      - name: resolute-security
+        description: Ubuntu 26.04 Security Updates
+        components:
+          - name: main
+          - name: restricted
+          - name: universe
+          - name: multiverse
+        gpgkeys:
+          - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
+
+      # Ubuntu 26.04
+      - name: resolute-updates
+        description: Ubuntu 26.04 Updates
+        components:
+          - name: main
+          - name: restricted
+          - name: universe
+          - name: multiverse
+        gpgkeys:
+          - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
+
       # Ubuntu 24.04
       - name: noble-updates
         description: Ubuntu 24.04 Security Updates

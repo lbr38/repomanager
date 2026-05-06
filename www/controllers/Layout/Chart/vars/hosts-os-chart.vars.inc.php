@@ -1,13 +1,13 @@
 <?php
 use \Controllers\Utils\Generate\Html\Color;
 
-$hostController = new \Controllers\Host();
+$hostListingController = new \Controllers\Host\Listing();
 $datasets = [];
 $labels = [];
 $options = [];
 
 // Getting a list of all hosts OS
-$oss = $hostController->listCountOS();
+$oss = $hostListingController->getOs();
 
 foreach ($oss as $os) {
     if (empty($os['Os'])) {
@@ -16,8 +16,8 @@ foreach ($oss as $os) {
         $labels[] = ucfirst($os['Os']) . ' ' . $os['Os_version'];
     }
 
-    $datasets[0]['data'][] = $os['Os_count'];
+    $datasets[0]['data'][] = $os['Count'];
     $datasets[0]['colors'][] = Color::random();
 }
 
-unset($hostController, $oss, $os);
+unset($hostListingController, $oss, $os);

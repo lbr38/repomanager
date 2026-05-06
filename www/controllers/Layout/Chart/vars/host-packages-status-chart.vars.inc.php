@@ -10,7 +10,7 @@ if (!is_numeric(__ACTUAL_URI__[2])) {
 }
 
 $id = __ACTUAL_URI__[2];
-$hostController = new \Controllers\Host();
+$hostController = new \Controllers\Host\Host();
 $hostPackageController = new \Controllers\Host\Package\Package($id);
 $labels = [];
 $options = [];

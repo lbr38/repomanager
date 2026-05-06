@@ -101,7 +101,7 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
                     <?php
                     foreach ($hostGroupsList as $group) :
                         // Retrieve the list of hosts in the group
-                        $hostsList = $myhost->listByGroup($group['Name']);
+                        $hostsList = $hostListingController->getByGroup($group['Name']);
 
                         // If it's the default group 'Default' and it has no host then we ignore its display
                         if ($group['Name'] == "Default" and empty($hostsList)) {

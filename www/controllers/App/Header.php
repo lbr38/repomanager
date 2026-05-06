@@ -12,7 +12,7 @@ class Header
     public static function authenticate()
     {
         $userController = new \Controllers\User\User();
-        $hostController = new \Controllers\Host();
+        $hostController = new \Controllers\Host\Host();
 
         try {
             if (empty($_SERVER['HTTP_AUTHORIZATION'])) {

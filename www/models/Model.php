@@ -5,7 +5,7 @@ namespace Models;
 abstract class Model
 {
     protected $db;
-    protected $dedicatedDb;
+    // protected $dedicatedDb;
 
     /**
      *  Open a new connection to the database

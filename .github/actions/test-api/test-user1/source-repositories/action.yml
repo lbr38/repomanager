@@ -1,0 +1,78 @@
+name: API - test-user1 - source repository tests
+description: Run source repository tests as test-user1 user (no permissions - edit tests must fail)
+
+inputs:
+  api-host:
+    description: API test host URL
+    required: true
+  api-key:
+    description: test-user1 API key
+    required: true
+
+runs:
+  using: composite
+  steps:
+    # List all source repositories (must fail, no permissions)
+    - name: (test-user1) Try to list all source repositories
+      shell: bash
+      run: |
+        OUTPUT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/source/) || true
+
+        if echo "$OUTPUT" | grep -q "You are not allowed to edit source repositories"; then
+          echo "Correctly failed to list source repositories with test-user1 API key"
+        else
+          echo "Failed to fail the list source repositories operation with test-user1 API key: $OUTPUT"
+          exit 1
+        fi
+
+    # List all deb source repositories (must fail, no permissions)
+    - name: (test-user1) Try to list all deb source repositories
+      shell: bash
+      run: |
+        OUTPUT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/source/deb/) || true
+
+        if echo "$OUTPUT" | grep -q "You are not allowed to edit source repositories"; then
+          echo "Correctly failed to list deb source repositories with test-user1 API key"
+        else
+          echo "Failed to fail the list deb source repositories operation with test-user1 API key: $OUTPUT"
+          exit 1
+        fi
+
+    # Get a specific deb source repository by name (must fail, no permissions)
+    - name: (test-user1) Try to get deb source repository by name
+      shell: bash
+      run: |
+        OUTPUT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/source/deb/nginx) || true
+
+        if echo "$OUTPUT" | grep -q "You are not allowed to edit source repositories"; then
+          echo "Correctly failed to get deb source repository with test-user1 API key"
+        else
+          echo "Failed to fail the get deb source repository operation with test-user1 API key: $OUTPUT"
+          exit 1
+        fi
+
+    # Import deb source repositories from template (must fail, no permissions)
+    - name: (test-user1) Try to import deb source repositories from template
+      shell: bash
+      run: |
+        OUTPUT=$(curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer ${{ inputs.api-key }}" -F "template=@${{ github.workspace }}/www/templates/source-repositories/deb/nginx.yml" ${{ inputs.api-host }}/api/v2/source/deb/import) || true
+
+        if echo "$OUTPUT" | grep -q "You are not allowed to edit source repositories"; then
+          echo "Correctly failed to import deb source repositories with test-user1 API key"
+        else
+          echo "Failed to fail the import deb source repositories operation with test-user1 API key: $OUTPUT"
+          exit 1
+        fi
+
+    # Import rpm source repositories from template (must fail, no permissions)
+    - name: (test-user1) Try to import rpm source repositories from template
+      shell: bash
+      run: |
+        OUTPUT=$(curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer ${{ inputs.api-key }}" -F "template=@${{ github.workspace }}/www/templates/source-repositories/rpm/nginx.yml" ${{ inputs.api-host }}/api/v2/source/rpm/import) || true
+
+        if echo "$OUTPUT" | grep -q "You are not allowed to edit source repositories"; then
+          echo "Correctly failed to import rpm source repositories with test-user1 API key"
+        else
+          echo "Failed to fail the import rpm source repositories operation with test-user1 API key: $OUTPUT"
+          exit 1
+        fi

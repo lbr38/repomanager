@@ -1,0 +1,23 @@
+name: API - admin - snapshot details tests
+description: Run snapshot details tests as admin user
+
+inputs:
+  api-host:
+    description: API test host URL
+    required: true
+  api-key:
+    description: Admin API key
+    required: true
+
+runs:
+  using: composite
+  steps:
+    # List snapshot details
+    - name: (admin) List snapshot details
+      shell: bash
+      run: |
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/snapshot/1
+        if [ $? -ne 0 ]; then
+            echo "Failed to list snapshot details"
+            exit 1
+        fi

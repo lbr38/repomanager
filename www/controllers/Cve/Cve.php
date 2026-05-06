@@ -148,7 +148,7 @@ class Cve
      */
     public function searchAffectedHosts()
     {
-        $myhost = new \Controllers\Host();
+        $myhost = new \Controllers\Host\Host();
 
         /**
          *  Read list of all hosts and their installed packages

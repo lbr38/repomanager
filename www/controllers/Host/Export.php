@@ -5,12 +5,12 @@ namespace Controllers\Host;
 use Exception;
 use JsonException;
 
-class Export extends \Controllers\Host
+class Export extends Host
 {
     /**
      *  Export a list of hosts to a CSV format
      */
-    public function export(array $hosts)
+    public function export(array $hosts): string
     {
         $csv = [];
 
@@ -57,7 +57,7 @@ class Export extends \Controllers\Host
          *  For each host, get its information and add it to the CSV array
          */
         foreach ($hosts as $id) {
-            $data = $this->getAll($id);
+            $data = $this->get($id);
 
             $csv[] = [
                 $data['Id'],

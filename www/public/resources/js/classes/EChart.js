@@ -11,7 +11,6 @@ class EChart
     // Static registry to store all chart instances for external access
     static instances = {};
 
-    // If on mobile, default to 1 day range, otherwise 3 days
     constructor(type, id, autoUpdate = true, autoUpdateInterval = 15000, days = 1, wasInNaturalState = true, periodChanged = false, preservedCurrentType = null)
     {
         this.id                 = id;
@@ -25,8 +24,8 @@ class EChart
         this._periodChanged     = periodChanged;
         this.datasets           = [];
         this.labels             = [];
-        this.chartOptions       = [];
-        this.animate            = '';
+        this.chartOptions       = {};
+        this._resizeHandler     = null;
 
         // Default options (will be cloned before use)
         this.baseOptions = {
@@ -556,7 +555,7 @@ class EChart
             });
         }
 
-        if (this.type === 'doughnut') {
+        if (this.currentType === 'doughnut') {
             return this.datasets.map(dataset => {
                 const data = dataset.data.map((v, i) => {
                     const item = {
@@ -968,6 +967,12 @@ class EChart
             options.xAxis.axisLabel.textStyle = {
                 color: '#8A99AA'
             };
+
+            // Show all bars by default (override the 80-100% default zoom)
+            options.dataZoom[0].start = 0;
+            options.dataZoom[0].end = 100;
+            options.dataZoom[1].start = 0;
+            options.dataZoom[1].end = 100;
         }
 
         // For horizontal bar charts, just swap the axes (same as vertical but inverted)
@@ -1235,9 +1240,8 @@ class EChart
         }
 
         // Handle window resize
-        window.addEventListener('resize', () => {
-            chart.resize();
-        });
+        this._resizeHandler = () => { chart.resize(); };
+        window.addEventListener('resize', this._resizeHandler);
     }
 
     // helper local formatter (use user's locale and local timezone)
@@ -1359,6 +1363,12 @@ EChart.destroyInstance = function(chartId) {
     const instance = EChart.instances[chartId];
     if (instance) {
         instance.stopAutoUpdate();
+        
+        // Remove resize listener
+        if (instance._resizeHandler) {
+            window.removeEventListener('resize', instance._resizeHandler);
+            instance._resizeHandler = null;
+        }
         
         // Clean up DOM element reference
         const chartElement = document.querySelector("#" + chartId);

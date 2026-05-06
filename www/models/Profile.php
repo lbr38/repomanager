@@ -457,7 +457,7 @@ class Profile extends Model
      */
     public function countHosts(string $profile)
     {
-        $myhost = new \Controllers\Host();
+        $myhost = new \Controllers\Host\Host();
 
         $hosts = [];
 

@@ -52,7 +52,7 @@ function filterPackage()
  *  Event: Search hosts on 'kernel' mouse hover
  */
 $(document).on('mouseenter',".hosts-charts-list-label[chart-type=kernel]",function (e) {
-    var kernel = $(this).attr('kernel');
+    const kernel = $(this).attr('kernel');
 
     // Print tooltip loading
     mytooltip.loading(e);
@@ -61,7 +61,7 @@ $(document).on('mouseenter',".hosts-charts-list-label[chart-type=kernel]",functi
         // Controller:
         'host',
         // Action:
-        'getHostWithKernel',
+        'get-by-kernel',
         // Data:
         {
             kernel: kernel
@@ -71,7 +71,12 @@ $(document).on('mouseenter',".hosts-charts-list-label[chart-type=kernel]",functi
         // Print error alert:
         true
     ).then(function () {
-        content = '<p class="margin-bottom-10">Hosts with kernel <code>' + kernel + '</code></p>';
+        if (empty(kernel)) {
+            var content = '<p class="margin-bottom-10">Hosts with unknown kernel</p>';
+        } else {
+            var content = '<p class="margin-bottom-10">Hosts with kernel <code>' + kernel + '</code></p>';
+        }
+
         hosts = jQuery.parseJSON(jsonValue.message);
 
         /**
@@ -122,7 +127,7 @@ $(document).on('mouseenter',".hosts-charts-list-label[chart-type=profile]",funct
         // Controller:
         'host',
         // Action:
-        'getHostWithProfile',
+        'get-by-profile',
         // Data:
         {
             profile: profile
@@ -132,8 +137,13 @@ $(document).on('mouseenter',".hosts-charts-list-label[chart-type=profile]",funct
         // Print error alert:
         true
     ).then(function () {
+        if (empty(profile)) {
+            var content = '<p class="margin-bottom-10">Hosts with unknown profile</p>';
+        } else {
+            var content = '<p class="margin-bottom-10">Hosts with profile <code>' + profile + '</code></p>';
+        }
+
         hosts = jQuery.parseJSON(jsonValue.message);
-        content = '<p class="margin-bottom-10">Hosts with profile <code>' + profile + '</code></p>';
 
         /**
          *  Loop through each host
