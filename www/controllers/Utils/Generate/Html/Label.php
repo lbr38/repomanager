@@ -7,7 +7,7 @@ class Label
     /**
      *  Generate environment tag
      */
-    public static function envtag(string $name, string|null $css = null) : string
+    public static function envtag(string $name, string|null $css = null, string|null $additionalCssClasses = null, string|null $additionalStyle = null) : string
     {
         // Default class and colors
         $class = 'env';
@@ -26,7 +26,19 @@ class Label
             }
         }
 
-        if ($background == '#ffffff') {
+        // For snap-env context: outlined style (transparent bg, colored border and text)
+        if (!empty($additionalCssClasses) && str_contains($additionalCssClasses, 'snap-env')) {
+            if ($background == '#ffffff') {
+                // No color configured: use a subtle gray outline
+                $color = '#a0b0c0';
+                $border = '1.5px solid #a0b0c0';
+            } else {
+                // Use the configured color for border and text
+                $color = $background;
+                $border = '1.5px solid ' . $background;
+            }
+            $background = 'transparent';
+        } elseif ($background == '#ffffff') {
             $border = '1px solid #949494';
         } else {
             $border = '1px solid ' . $background;
@@ -36,7 +48,17 @@ class Label
             $class = 'env-fit';
         }
 
-        return '<span class="' . $class . '" style="background-color: ' . $background . '; color: ' . $color . '; border: ' . $border . '">' . $name . '</span>';
+        if (!empty($additionalCssClasses)) {
+            $class .= ' ' . $additionalCssClasses;
+        }
+
+        $style = 'background-color: ' . $background . '; color: ' . $color . '; border: ' . $border;
+
+        if (!empty($additionalStyle)) {
+            $style .= '; ' . $additionalStyle;
+        }
+
+        return '<span class="' . $class . '" style="' . $style . '">' . $name . '</span>';
     }
 
     /**

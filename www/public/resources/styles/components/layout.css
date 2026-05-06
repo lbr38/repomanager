@@ -18,6 +18,15 @@ body {
     border-radius: 20px;
     background-color: #182b3e;
     box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
+    border: 1px solid #1a4a6a;
+}
+
+.div-generic-blue.repo-accent-deb {
+    border-left: 2px solid #F32F63;
+}
+
+.div-generic-blue.repo-accent-rpm {
+    border-left: 2px solid #5473e8;
 }
 
 .div-generic-blue h3 {

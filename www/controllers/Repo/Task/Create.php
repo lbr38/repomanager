@@ -245,7 +245,7 @@ class Create extends \Controllers\Task\Execution
         /**
          *  Add snapshot to database
          */
-        $this->repoSnapshotController->add($this->repoController->getDate(), $this->repoController->getTime(), 'false', $this->repoController->getArch(), array(), array(), array(), $this->repoController->getType(), 'active', $this->repoController->getRepoId());
+        $this->repoSnapshotController->add($this->repoController->getDate(), $this->repoController->getTime(), 'false', $this->repoController->getArch(), [], [], $this->repoController->getType(), 'active', $this->repoController->getRepoId());
 
         /**
          *  Retrieve snapshot Id from the last insert row

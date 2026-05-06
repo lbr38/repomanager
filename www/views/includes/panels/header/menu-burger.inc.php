@@ -12,7 +12,7 @@
     </div>
 
     <div class="flex column-gap-10">
-        <img src="/assets/icons/server.svg" class="icon" />
+        <img src="/assets/icons/disk.svg" class="icon" />
         <a href="/hosts"><h5 class="margin-0">HOSTS</h5></a>
     </div>
 

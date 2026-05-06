@@ -130,6 +130,37 @@ $(document).on('change','select.task-param[param-name="schedule-frequency"]',fun
 }).trigger('change');
 
 /**
+ *  Event: click on a snap-container to select the snapshot
+ *  Do not trigger if the user clicked on a link (<a>) or an environment tag (.snap-env)
+ */
+$(document).on('click', '.snap-container', function (e) {
+    // Ignore clicks on links, environment tags, or the checkbox itself
+    if ($(e.target).closest('a, .snap-env, input[name="checkbox-repo"]').length) {
+        return;
+    }
+
+    // Find the checkbox inside this container and toggle it
+    var checkbox = $(this).find('input[name="checkbox-repo"]');
+
+    if (checkbox.length) {
+        checkbox.click();
+    }
+});
+
+/**
+ *  Event: toggle selected state on snap-container when checkbox is checked/unchecked
+ */
+$(document).on('change', 'input[name="checkbox-repo"]', function () {
+    var container = $(this).closest('.snap-container');
+
+    if ($(this).is(':checked')) {
+        container.addClass('snap-selected');
+    } else {
+        container.removeClass('snap-selected');
+    }
+});
+
+/**
  *  Event: when a checkbox is checked/unchecked
  */
 $(document).on('click',"input[name=checkbox-repo]",function () {
@@ -161,6 +192,7 @@ $(document).on('click',"input[name=checkbox-repo]",function () {
     if (count_checked == 0) {
         myconfirmbox.close();
         $('.reposList').find('input[name=checkbox-repo]').removeAttr('style');
+        $('.reposList').find('.snap-container').removeClass('snap-selected');
         $('.repos-list-group[group-id=' + groupId + ']').find('.repos-list-group-select-all-btns').hide();
         return;
     }
@@ -355,25 +387,23 @@ function executeAction(action)
  *  Event: Click on 'select all latest snapshots' button
  */
 $(document).on('click',".repos-list-group-select-all-btns",function () {
-    /**
-     *  Retrieve group Id
-     */
-    var groupId = $(this).attr('group-id');
+    // Retrieve group Id
+    const groupId = $(this).attr('group-id');
 
     /**
      *  Retrieve all repos in the group
      */
-    var reposCheckboxes = $('.repos-list-group[group-id=' + groupId + ']').find('input[name=checkbox-repo]');
+    const reposCheckboxes = $('.repos-list-group[group-id=' + groupId + ']').find('input[name=checkbox-repo]');
 
     /**
      *  Retrieve select status
      */
-    var selectStatus = $(this).attr('status');
+    const status = $(this).attr('status');
 
     /**
      *  If current status is not 'selected', then select all the latest snaps
      */
-    if (selectStatus != 'selected') {
+    if (status != 'selected') {
         /**
          *  Loop through all checkboxes and check the latest snap
          *  The latest snap is the first snap in the list (the first checkbox of each repo)

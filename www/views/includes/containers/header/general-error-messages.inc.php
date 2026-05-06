@@ -1,4 +1,4 @@
-<article class="reloadable-container" container="header/general-error-messages">
+<div class="reloadable-container width-100" container="header/general-error-messages">
     <?php
     /**
      *  Print missing parameters alert if any
@@ -30,4 +30,4 @@
         </section>
         <?php
     endif ?>
-</article>
+</div>
