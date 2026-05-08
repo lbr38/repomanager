@@ -284,12 +284,9 @@ class Package
         }
 
         foreach ($packages as $package) {
-            $name = $package->name;
-            $version = $package->version;
-
             // If the package does not exist in database, add it
-            if (!$this->exists($name)) {
-                $this->addPackage($name, $version, 'inventored', 'package', date('Y-m-d'), date('H:i:s'));
+            if (!$this->exists($package['name'])) {
+                $this->addPackage($package['name'], $package['version'], 'inventored', 'package', date('Y-m-d'), date('H:i:s'));
                 continue;
             }
 
@@ -297,14 +294,14 @@ class Package
              *  If the package exists, perform different actions depending on its state in the database
              *  First, retrieve the current state of the package in the database
              */
-            $state = $this->getPackageState($name);
+            $state = $this->getPackageState($package['name']);
 
             /**
              *  If the package is in 'installed' or 'inventored' state, do nothing
              *  Otherwise, if the package is in 'removed' state, update the information in the database
              */
             if ($state == 'removed') {
-                $this->setPackageState($name, $version, 'inventored', date('Y-m-d'), date('H:i:s'));
+                $this->setPackageState($package['name'], $package['version'], 'inventored', date('Y-m-d'), date('H:i:s'));
             }
         }
     }
@@ -323,30 +320,26 @@ class Package
         }
 
         foreach ($packages as $package) {
-            $name = $package->name;
-            $version = $package->version;
-            $repository = $package->repository;
-
             // If name is empty, we skip this package
-            if (empty($name)) {
+            if (empty($package['name'])) {
                 continue;
             }
 
             // If version is empty, throw an exception
-            if (empty($version)) {
-                throw new Exception('Package version is empty for package: ' . $name);
+            if (empty($package['version'])) {
+                throw new Exception('Package version is empty for package: ' . $package['name']);
             }
 
             // If the package does not exist in available packages list, add it
-            if (!$this->packageAvailableExists($name)) {
-                $this->addPackageAvailable($name, $version, $repository);
+            if (!$this->packageAvailableExists($package['name'])) {
+                $this->addPackageAvailable($package['name'], $package['version'], $package['repository']);
                 continue;
             }
 
             // If it exists in the database, also check the version present in the database
             // If the version in the database is different then we update the package in the database, otherwise we do nothing
-            if ($this->packageVersionAvailableExists($name, $version)) {
-                $this->updatePackageAvailable($name, $version, $repository);
+            if ($this->packageVersionAvailableExists($package['name'], $package['version'])) {
+                $this->updatePackageAvailable($package['name'], $package['version'], $package['repository']);
             }
         }
     }
@@ -354,7 +347,7 @@ class Package
     /**
      *  Search for package(s) in the database of the host
      */
-    public function searchPackage(string $name, string|null $version, bool $strictName = false, $strictVersion = false) : array
+    public function searchPackage(string $name, string $version = '', bool $strictName = false, $strictVersion = false) : array
     {
         return $this->model->searchPackage($name, $version, $strictName, $strictVersion);
     }

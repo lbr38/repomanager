@@ -8,7 +8,7 @@
 
 <br><br>
 
-**Repomanager** is a web mirroring tool for `rpm` and `deb` package repositories.
+# Repomanager - A web mirroring tool for `rpm` and `deb` package repositories
 
 
 ## Main features

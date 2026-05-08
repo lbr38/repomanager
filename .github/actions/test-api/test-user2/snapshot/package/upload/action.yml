@@ -1,0 +1,59 @@
+name: API - test-user2 - snapshot upload tests
+description: Run package upload and rebuild as test-user2 user (has upload and rebuild permissions)
+
+inputs:
+  api-host:
+    description: API test host URL
+    required: true
+  api-key:
+    description: test-user2 API key
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: (test-user2) Get package names
+      shell: bash
+      run: |
+        echo "DEB_PACKAGE=$(ls -A1 $HOSTNAME/*nginx_1.26.0-1~bookworm_amd64.deb)" >> $GITHUB_ENV
+        echo "RPM_PACKAGE=$(ls -A1 $HOSTNAME/*nginx-1.26.0-1.el7.ngx.x86_64.rpm)" >> $GITHUB_ENV
+
+    # Upload a deb package using the test-user2 API key
+    - name: (test-user2) Try to upload a deb package with test-user2 API key
+      shell: bash
+      run: |
+        curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer ${{ inputs.api-key }}" -F "file=@${DEB_PACKAGE}" ${{ inputs.api-host }}/api/v2/snapshot/5/upload
+        if [ $? -ne 0 ]; then
+            echo "Failed to upload deb package"
+            exit 1
+        fi
+
+    # Upload a rpm package using the test-user2 API key
+    - name: (test-user2) Try to upload a rpm package with test-user2 API key
+      shell: bash
+      run: |
+        curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer ${{ inputs.api-key }}" -F "file=@${RPM_PACKAGE}" ${{ inputs.api-host }}/api/v2/snapshot/6/upload
+        if [ $? -ne 0 ]; then
+            echo "Failed to upload rpm package"
+            exit 1
+        fi
+
+    # Launch a rebuild of the snapshot metadata for the deb repository
+    - name: (test-user2) Try to rebuild deb snapshot metadata with test-user2 API key
+      shell: bash
+      run: |
+        curl --fail-with-body --post301 -L -s -X PUT -H "Authorization: Bearer ${{ inputs.api-key }}" -d '{"gpgSign":"true"}' ${{ inputs.api-host }}/api/v2/snapshot/5/rebuild
+        if [ $? -ne 0 ]; then
+            echo "Failed to rebuild deb snapshot metadata"
+            exit 1
+        fi
+
+    # Launch a rebuild of the snapshot metadata for the rpm repository
+    - name: (test-user2) Try to rebuild rpm snapshot metadata with test-user2 API key
+      shell: bash
+      run: |
+        curl --fail-with-body --post301 -L -s -X PUT -H "Authorization: Bearer ${{ inputs.api-key }}" -d '{"gpgSign":"true"}' ${{ inputs.api-host }}/api/v2/snapshot/6/rebuild
+        if [ $? -ne 0 ]; then
+            echo "Failed to rebuild rpm snapshot metadata"
+            exit 1
+        fi

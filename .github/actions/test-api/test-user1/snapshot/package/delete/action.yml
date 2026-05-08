@@ -1,0 +1,31 @@
+name: API - test-user1 - package delete
+description: Run package delete as test-user1 user (no permissions - all tests must fail)
+
+inputs:
+  api-host:
+    description: API test host URL
+    required: true
+  api-key:
+    description: test-user1 API key
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: (test-user1) Get package name
+      shell: bash
+      run: |
+        echo "DEB_PACKAGE=$(ls -A1 $HOSTNAME/*nginx_1.26.0-1~bookworm_amd64.deb | cut -d'/' -f2)" >> $GITHUB_ENV
+
+    # Delete a deb package using the test-user1 API key
+    - name: (test-user1) Try to delete a deb package with test-user1 API key
+      shell: bash
+      run: |
+        OUTPUT=$(curl --fail-with-body -L -s -X DELETE -H "Authorization: Bearer ${{ inputs.api-key }}" -d "{\"packages\":[\"${DEB_PACKAGE}\"]}" ${{ inputs.api-host }}/api/v2/snapshot/1/packages) || true
+
+        if echo "$OUTPUT" | grep -q "You are not allowed to delete packages"; then
+            echo "Correctly failed to delete a deb package with test-user1 API key"
+        else
+            echo "Failed to fail the delete deb package operation with test-user1 API key"
+            exit 1
+        fi

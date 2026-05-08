@@ -6,7 +6,7 @@ if (!HostPermission::allowedAction('edit-groups')) {
     throw new Exception('You are not allowed to access this panel');
 }
 
-$myhost = new \Controllers\Host();
+$myhost = new \Controllers\Host\Host();
 $mygroup = new \Controllers\Group\Host();
 
 /**

@@ -195,7 +195,6 @@ class HostSearch
      */
     static searchPackage()
     {
-        var hosts = [];
         var name;
         var version = null;
         var strictName = false;
@@ -262,25 +261,16 @@ class HostSearch
             $('div.host-additionnal-info').html('');
             $('div.host-additionnal-info').hide();
 
-            // $('#hosts-search').css('display', 'flex');
-            // $('#hosts').hide();
             HostSearch.showSearchSpinner();
-
-            // For each Id, get the hostid and add it to the hosts array
-            $('.hosts-table').find('.host-line').each(function () {
-                var hostid = $(this).attr('hostid');
-                hosts.push(hostid);
-            });
 
             // Get hosts with the package
             ajaxRequest(
                 // Controller:
                 'host',
                 // Action:
-                'getHostsWithPackage',
+                'get-by-package',
                 // Data:
                 {
-                    hosts: hosts,
                     package: name,
                     version: version,
                     strictName: strictName ? 1 : 0, // Convert strict to PHP-compatible boolean (1 or 0)
@@ -291,27 +281,30 @@ class HostSearch
                 // Print error alert:
                 true
             ).then(() => {
-                const hosts = jQuery.parseJSON(jsonValue.message);
+                const results = jQuery.parseJSON(jsonValue.message);
 
-                for (const [hostId, subArray] of Object.entries(hosts)) {
+                // Get all host IDs that have matching packages
+                const matchingHostIds = results.map(host => host.id.toString());
+
+                // Hide all hosts that don't have matching packages
+                $('.host-line').each(function () {
+                    if (!matchingHostIds.includes($(this).attr('hostid'))) {
+                        $(this).removeClass('flex').hide();
+                    }
+                });
+
+                // Show hosts with matching packages and display results
+                results.forEach(function (host) {
                     var packagesFound = '';
 
-                    // If one or multiple packages are found on the host
-                    if (Object.keys(subArray).length > 0) {
-                        for (const [packageName, packageVersion] of Object.entries(subArray)) {
-                            // Build package list
-                            packagesFound += '<div class="flex align-item-center column-gap-5"><img src="/assets/icons/package.svg" class="icon-np">   <span>' + packageName + ' (' + packageVersion + ')</span></div>';
-                        }
-
-                        // Display the host and print the package(s) found
-                        $('.host-line[hostid=' + hostId + ']').find('div.host-additionnal-info').html('<h6>RESULTS</h6>' + packagesFound);
-                        $('.host-line[hostid=' + hostId + ']').find('div.host-additionnal-info').css('display', 'flex');
-                        $('.host-line[hostid=' + hostId + ']').show();
-                    // If no package is found on the host, hide it
-                    } else {
-                        $('.host-line[hostid=' + hostId + ']').removeClass('flex').hide();
+                    for (const [packageName, packageVersion] of Object.entries(host.packages)) {
+                        packagesFound += '<div class="flex align-item-center column-gap-5"><img src="/assets/icons/package.svg" class="icon-np">   <span>' + packageName + ' (' + packageVersion + ')</span></div>';
                     }
-                }
+
+                    $('.host-line[hostid=' + host.id + ']').find('div.host-additionnal-info').html('<h6>RESULTS</h6>' + packagesFound);
+                    $('.host-line[hostid=' + host.id + ']').find('div.host-additionnal-info').css('display', 'flex');
+                    $('.host-line[hostid=' + host.id + ']').show();
+                });
 
                 // Finally, hide the search spinner and show the hosts container
                 HostSearch.hideSearchSpinner();

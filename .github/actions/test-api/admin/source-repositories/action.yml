@@ -1,0 +1,79 @@
+name: API - admin - source repository tests
+description: Run source repository tests as admin user
+
+inputs:
+  api-host:
+    description: API test host URL
+    required: true
+  api-key:
+    description: Admin API key
+    required: true
+
+runs:
+  using: composite
+  steps:
+    # List all source repositories
+    - name: (admin) List all source repositories
+      shell: bash
+      run: |
+        RESULT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/source/)
+        if [ $? -ne 0 ]; then
+          echo "Failed to list all source repositories"
+          exit 1
+        fi
+        echo "$RESULT" | jq
+
+    # List all deb source repositories
+    - name: (admin) List all deb source repositories
+      shell: bash
+      run: |
+        RESULT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/source/deb/)
+        if [ $? -ne 0 ]; then
+          echo "Failed to list deb source repositories"
+          exit 1
+        fi
+        echo "$RESULT" | jq
+
+    # List all rpm source repositories
+    - name: (admin) List all rpm source repositories
+      shell: bash
+      run: |
+        RESULT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/source/rpm/)
+        if [ $? -ne 0 ]; then
+          echo "Failed to list rpm source repositories"
+          exit 1
+        fi
+        echo "$RESULT" | jq
+
+    # Get a specific deb source repository by name
+    - name: (admin) Get deb source repository by name
+      shell: bash
+      run: |
+        RESULT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/source/deb/nginx)
+        if [ $? -ne 0 ]; then
+          echo "Failed to get deb source repository by name"
+          exit 1
+        fi
+        echo "$RESULT" | jq
+
+    # Import source repositories from a YAML template file
+    - name: (admin) Import deb source repositories from template
+      shell: bash
+      run: |
+        RESULT=$(curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer ${{ inputs.api-key }}" -F "template=@${{ github.workspace }}/www/templates/source-repositories/deb/nginx.yml" ${{ inputs.api-host }}/api/v2/source/deb/import)
+        if [ $? -ne 0 ]; then
+          echo "Failed to import deb source repositories from template"
+          exit 1
+        fi
+        echo "$RESULT" | jq
+
+    # Import rpm source repositories from a YAML template file
+    - name: (admin) Import rpm source repositories from template
+      shell: bash
+      run: |
+        RESULT=$(curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer ${{ inputs.api-key }}" -F "template=@${{ github.workspace }}/www/templates/source-repositories/rpm/nginx.yml" ${{ inputs.api-host }}/api/v2/source/rpm/import)
+        if [ $? -ne 0 ]; then
+          echo "Failed to import rpm source repositories from template"
+          exit 1
+        fi
+        echo "$RESULT" | jq

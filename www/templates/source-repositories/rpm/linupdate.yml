@@ -1,5 +1,5 @@
 ---
-description: Linudpate official repositories
+description: Linupdate official repositories
 type: rpm
 repositories:
   - name: linupdate

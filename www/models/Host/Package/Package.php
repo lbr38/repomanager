@@ -316,7 +316,7 @@ class Package extends \Models\Model
     /**
      *  Search for package(s) in the database of the host
      */
-    public function searchPackage(string $name, string|null $version, bool $strictName, bool $strictVersion) : array
+    public function searchPackage(string $name, string $version, bool $strictName, bool $strictVersion) : array
     {
         $packages = [];
 

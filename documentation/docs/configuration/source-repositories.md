@@ -214,6 +214,67 @@ cat /etc/pki/entitlement/733946906105629479-key.pem
 cat /etc/pki/entitlement/733946906105629479.pem
 ```
 
-You can now import the certificate, private key and CA certificate content into Repomanager (see the **Notes** under [Edit a source repository](#edit-a-source-repository))
+You can now manually import the certificate, private key and CA certificate content into Repomanager (see the **Notes** under [Edit a source repository](#edit-a-source-repository))
+
+
+## Import source repository through API
+
+You can use the following Python script to import source repository through the Repomanager API. This can be useful to automate the import or the update of source repositories.
+
+This can be useful for repositories that frequently update their authentication certificates, like Red Hat official repositories. You can schedule this script to run periodically (e.g. with a cron job) to keep the source repository up to date with the latest certificates and private keys, which is required to be able to sync repositories that require SSL authentication.
+
+**Step 1:** Install python3 dependencies on the host where you will run the script.
+
+```bash
+apt install python3-yaml python3-requests
+```
+
+**Step 2:** Download the script.
+
+```bash
+wget https://raw.githubusercontent.com/lbr38/repomanager/devel/www/bin/api-import-from-template.py
+```
+
+**Step 3:** Prepare your own YAML template or use an existing one (for example [Redhat template](https://github.com/lbr38/repomanager/blob/main/www/templates/source-repositories/rpm/redhat.yml)).
+
+If you intend to update the SSL certificate and private key:
+- Make sure the ``ssl-authentication`` section exists and is uncommented in the template, otherwise certificates and private key will not be updated.
+- Prepare the certificate and private key files on your host.
+
+**Step 4:** Run the script with the required arguments. You will find below the usage and some examples.
+
+```
+Usage: api-import-from-template.py [OPTIONS]
+Options:
+
+  Repomanager:
+  --url                          URL to Repomanager. e.g. https://repomanager.example.com
+  --api-token                    API token to authenticate to Repomanager
+
+  Template:
+  --template-path                Path to the source repository template to import
+  --repository-type              Type of repository included in the template (rpm or deb)
+
+  Certificates and private key paths. You can provide direct paths to the files, specify a directory and patterns to match the files or a combination of both
+  --certs-dir                    Directory where the certificates are stored
+  --certificate-pattern          Pattern to match the certificate in the certs directory. Pattern can be a regular expression (e.g. "*.crt$")
+  --private-key-pattern          Pattern to match the private key in the certs directory. Pattern can be a regular expression (e.g. "*.key$")
+  --ca-certificate-pattern       Pattern to match the CA certificate in the certs directory. Pattern can be a regular expression (e.g. "*.crt$")
+  --certificate-path             Direct path to the certificate
+  --private-key-path             Direct path to the private key
+  --ca-certificate-path          Direct path to the CA certificate
+```
+
+**Example 1:** Update the ubuntu source repositories by using a template file:
+
+```bash
+python3 api-import-from-template.py --url https://repomanager.example.com --api-token <API_KEY> --template-path /tmp/templates/ubuntu.yml --repository-type deb
+```
+
+**Example 2:** Update the redhat source repositories by using a custom template file and providing a directory with the new certificate and private key, using patterns to match them:
+
+```bash
+python3 api-import-from-template.py --url https://repomanager.example.com --api-token <API_KEY> --template-path /tmp/templates/redhat.yml --repository-type rpm --certs-dir /tmp/certs/ --certificate-pattern ".crt$" --private-key-pattern ".key$" --ca-certificate-pattern ".ca$"
+```
 
 <script data-goatcounter="https://repomanager.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>

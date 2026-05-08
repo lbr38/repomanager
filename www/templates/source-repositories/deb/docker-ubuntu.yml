@@ -7,6 +7,14 @@ repositories:
     description: Docker repository
     url: https://download.docker.com/linux/ubuntu
     distributions:
+      # Ubuntu 26.04
+      - name: resolute
+        description: Ubuntu 26.04
+        components:
+          - name: stable
+        gpgkeys:
+          - link: https://download.docker.com/linux/ubuntu/gpg
+
       # Ubuntu 24.04
       - name: noble
         description: Ubuntu 24.04

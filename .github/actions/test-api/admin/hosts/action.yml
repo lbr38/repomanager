@@ -1,0 +1,134 @@
+name: API - admin - hosts listing tests
+description: Run hosts listing tests as admin user
+
+inputs:
+  api-host:
+    description: API test host URL
+    required: true
+  api-key:
+    description: Admin API key
+    required: true
+
+runs:
+  using: composite
+  steps:
+    # List all hosts
+    - name: (admin) List all hosts
+      shell: bash
+      run: |
+        RESULT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/hosts/)
+        if [ $? -ne 0 ]; then
+            echo "Failed to list all hosts"
+            exit 1
+        fi
+        echo "$RESULT" | jq
+
+    # List hosts by OS
+    - name: (admin) List hosts by OS
+      shell: bash
+      run: |
+        RESULT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/hosts/os/ubuntu/)
+        if [ $? -ne 0 ]; then
+            echo "Failed to list hosts by OS"
+            exit 1
+        fi
+        echo "$RESULT" | jq
+
+    # List hosts by OS and version
+    - name: (admin) List hosts by OS and version
+      shell: bash
+      run: |
+        RESULT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/hosts/os/ubuntu/22.04)
+        if [ $? -ne 0 ]; then
+            echo "Failed to list hosts by OS and version"
+            exit 1
+        fi
+        echo "$RESULT" | jq
+
+    # List hosts by kernel
+    - name: (admin) List hosts by kernel
+      shell: bash
+      run: |
+        RESULT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/hosts/kernel/5.15.0-89-generic)
+        if [ $? -ne 0 ]; then
+            echo "Failed to list hosts by kernel"
+            exit 1
+        fi
+        echo "$RESULT" | jq
+
+    # List hosts by architecture
+    - name: (admin) List hosts by architecture
+      shell: bash
+      run: |
+        RESULT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/hosts/arch/x86_64)
+        if [ $? -ne 0 ]; then
+            echo "Failed to list hosts by architecture"
+            exit 1
+        fi
+        echo "$RESULT" | jq
+
+    # List hosts by profile
+    - name: (admin) List hosts by profile
+      shell: bash
+      run: |
+        RESULT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/hosts/profile/app_server)
+        if [ $? -ne 0 ]; then
+            echo "Failed to list hosts by profile"
+            exit 1
+        fi
+        echo "$RESULT" | jq
+
+    # List hosts by environment
+    - name: (admin) List hosts by environment
+      shell: bash
+      run: |
+        RESULT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/hosts/environment/prod)
+        if [ $? -ne 0 ]; then
+            echo "Failed to list hosts by environment"
+            exit 1
+        fi
+        echo "$RESULT" | jq
+
+    # List hosts by package
+    - name: (admin) List hosts by package
+      shell: bash
+      run: |
+        RESULT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/hosts/package/nginx)
+        if [ $? -ne 0 ]; then
+            echo "Failed to list hosts by package"
+            exit 1
+        fi
+        echo "$RESULT" | jq
+
+    # List hosts by package and version
+    - name: (admin) List hosts by package and version
+      shell: bash
+      run: |
+        RESULT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/hosts/package/nginx/1.24.0-1)
+        if [ $? -ne 0 ]; then
+            echo "Failed to list hosts by package and version"
+            exit 1
+        fi
+        echo "$RESULT" | jq
+
+    # List up-to-date hosts
+    - name: (admin) List up-to-date hosts
+      shell: bash
+      run: |
+        RESULT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/hosts/uptodate)
+        if [ $? -ne 0 ]; then
+            echo "Failed to list up-to-date hosts"
+            exit 1
+        fi
+        echo "$RESULT" | jq
+
+    # List outdated hosts
+    - name: (admin) List outdated hosts
+      shell: bash
+      run: |
+        RESULT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/hosts/outdated)
+        if [ $? -ne 0 ]; then
+            echo "Failed to list outdated hosts"
+            exit 1
+        fi
+        echo "$RESULT" | jq
