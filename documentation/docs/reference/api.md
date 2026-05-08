@@ -33,7 +33,8 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
 ## Endpoints
 
 !!! info
-    ``<REPO_ID>` can be retrieved from the URL when you browse repository statistics or from the API when you list repositories from the API.
+    ``<REPO_ID>`` can be retrieved from the URL when you browse repository statistics or from the API when you list repositories from the API.
+
     ``<SNAPSHOT_ID>`` can be retrieved from the URL when you browse a snapshot from the repositories list or from the API when you list snapshots of a repository.
 
 
@@ -90,7 +91,7 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
       <td>Import source repositories from a YAML template file</td>
       <td markdown="block">
         ```bash
-        curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer <APIKEY>" -F "template=@/tmp/sources.yml" https://repomanager.mydomain.net/api/v2/source/deb/import
+        curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer <APIKEY>" -F "template=@/tmp/template.yml" https://repomanager.mydomain.net/api/v2/source/deb/import
         ```
       </td>
     </tr>
