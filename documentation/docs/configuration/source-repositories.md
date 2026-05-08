@@ -214,10 +214,10 @@ cat /etc/pki/entitlement/733946906105629479-key.pem
 cat /etc/pki/entitlement/733946906105629479.pem
 ```
 
-You can now manually import the certificate, private key and CA certificate content into Repomanager (see the **Notes** under [Edit a source repository](#edit-a-source-repository))
+You can now manually import the certificate, private key and CA certificate content into Repomanager (see the **Notes** under [Edit a source repository](#edit-a-source-repository)) or automate the import with the API, see [Import source repository through the API](#import-source-repository-through-the-api).
 
 
-## Import source repository through API
+## Import source repository through the API
 
 You can use the following Python script to import source repository through the Repomanager API. This can be useful to automate the import or the update of source repositories.
 
@@ -232,7 +232,7 @@ apt install python3-yaml python3-requests
 **Step 2:** Download the script.
 
 ```bash
-wget https://raw.githubusercontent.com/lbr38/repomanager/devel/www/bin/api-import-from-template.py
+wget https://raw.githubusercontent.com/lbr38/repomanager/main/www/bin/api-import-from-template.py
 ```
 
 **Step 3:** Prepare your own YAML template or use an existing one (for example [Redhat template](https://github.com/lbr38/repomanager/blob/main/www/templates/source-repositories/rpm/redhat.yml)).
@@ -268,13 +268,13 @@ Options:
 **Example 1:** Update the ubuntu source repositories by using a template file:
 
 ```bash
-python3 api-import-from-template.py --url https://repomanager.example.com --api-token <API_KEY> --template-path /tmp/templates/ubuntu.yml --repository-type deb
+python3 api-import-from-template.py --url https://repomanager.example.com --api-token ak_xxxxxxxxxxxxxxxxx --template-path /tmp/templates/ubuntu.yml --repository-type deb
 ```
 
 **Example 2:** Update the redhat source repositories by using a custom template file and providing a directory with the new certificate and private key, using patterns to match them:
 
 ```bash
-python3 api-import-from-template.py --url https://repomanager.example.com --api-token <API_KEY> --template-path /tmp/templates/redhat.yml --repository-type rpm --certs-dir /tmp/certs/ --certificate-pattern ".crt$" --private-key-pattern ".key$" --ca-certificate-pattern ".ca$"
+python3 api-import-from-template.py --url https://repomanager.example.com --api-token ak_xxxxxxxxxxxxxxxxx --template-path /tmp/templates/redhat.yml --repository-type rpm --certs-dir /tmp/certs/ --certificate-pattern ".crt$" --private-key-pattern ".key$" --ca-certificate-pattern ".ca$"
 ```
 
 <script data-goatcounter="https://repomanager.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
