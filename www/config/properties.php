@@ -21,6 +21,7 @@ $config = [
         'stretch' => 'Debian 9',
         'jessie' => 'Debian 8',
         'wheezy' => 'Debian 7',
+        'resolute' => 'Ubuntu 26.04',
         'noble' => 'Ubuntu 24.04',
         'jammy' => 'Ubuntu 22.04',
         'hirsute' => 'Ubuntu 21.04',
