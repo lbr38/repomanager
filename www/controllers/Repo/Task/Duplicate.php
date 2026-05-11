@@ -270,7 +270,7 @@ class Duplicate extends \Controllers\Task\Execution
             /**
              *  Add the new repo snapshot in database
              */
-            $this->repoSnapshotController->add($this->repoController->getDate(), $this->repoController->getTime(), $this->repoController->getSigned(), $this->repoController->getArch(), array(), $this->repoController->getPackagesToInclude(), $this->repoController->getPackagesToExclude(), $this->repoController->getType(), $this->repoController->getStatus(), $targetRepoId);
+            $this->repoSnapshotController->add($this->repoController->getDate(), $this->repoController->getTime(), $this->repoController->getSigned(), $this->repoController->getArch(), $this->repoController->getPackagesToInclude(), $this->repoController->getPackagesToExclude(), $this->repoController->getType(), $this->repoController->getStatus(), $targetRepoId);
 
             /**
              *  Retrieve the Id of the new repo snapshot in database

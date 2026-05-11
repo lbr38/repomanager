@@ -1,21 +1,35 @@
 /**
- *  Event: select one or multiple snapshot environment(s) to delete
+ *  Event: click on a snap-env-container to toggle the environment checkbox
  */
-$(document).on('click','.select-env-checkbox',function (e) {
+$(document).on('click', '.snap-env-container', function (e) {
+    // Prevent triggering the parent snap-container click
+    e.stopPropagation();
+
+    // Toggle the hidden checkbox
+    var checkbox = $(this).find('.select-env-checkbox');
+    checkbox.prop('checked', !checkbox.prop('checked')).trigger('change');
+});
+
+/**
+ *  Event: toggle selected state and confirmbox when env checkbox changes
+ */
+$(document).on('change', '.select-env-checkbox', function (e) {
     // Prevent parent to be triggered
     e.stopPropagation();
 
-    var actions = [];
+    var container = $(this).closest('.snap-env-container');
 
-    // If the checkbox is checked, make it visible, else remove any custom visibility so it returns to default
+    // Toggle visual state
     if ($(this).is(':checked')) {
-        $(this).css('visibility', 'visible');
+        container.addClass('env-selected');
     } else {
-        $(this).css('visibility', '');
+        container.removeClass('env-selected');
     }
 
+    var actions = [];
+
     // Get all checked checkboxes
-    const checked = $('.reposList').find('input[type="checkbox"].select-env-checkbox:checked');
+    const checked = $('#repositories-list').find('input[type="checkbox"].select-env-checkbox:checked');
 
     if (checked.length == 0) {
         myconfirmbox.close();

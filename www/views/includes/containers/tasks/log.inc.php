@@ -1,5 +1,55 @@
-<section class="section-left reloadable-container" container="tasks/log">
-    <h3>LOG</h3>
+<?php
+use \Controllers\Task\Task; 
+use DateTime; ?>
+
+<section class="section-main reloadable-container" container="tasks/log">
+    <h3>TASK #<?= $taskId ?></h3>
+
+    <div class="flex flex-wrap align-item-center column-gap-10 row-gap-15 margin-bottom-10 kpi-container">
+        <div class="kpi-card">
+            <img src="/assets/icons/package.svg" class="icon-np icon-medium" />
+            <div>
+                <p class="kpi-value"><?= DateTime::createFromFormat('Y-m-d', $taskInfo['Date'])->format('d-m-Y') ?> <?= $taskInfo['Time'] ?></p>
+                <p class="mediumopacity-cst">Date</p>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <img src="/assets/icons/package.svg" class="icon-np icon-medium" />
+            <div>
+                <p class="kpi-value"><?= Task::generateLiteralAction($rawParams['action']) ?></p>
+                <p class="mediumopacity-cst">Action</p>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <?php
+            if ($taskInfo['Status'] == 'done') {
+                $icon = 'check';
+            } elseif ($taskInfo['Status'] == 'error' or $taskInfo['Status'] == 'stopped') {
+                $icon = 'warning-red';
+            } elseif ($taskInfo['Status'] == 'scheduled') {
+                $icon = 'time';
+            } elseif ($taskInfo['Status'] == 'running') {
+                $icon = 'loading';
+            } ?>
+
+            <img src="/assets/icons/<?= $icon ?>.svg" class="icon-np icon-medium" />
+            <div>
+                <p class="kpi-value"><?= ucfirst($taskInfo['Status']) ?></p>
+                <p class="mediumopacity-cst">Status</p>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+
 
     <div class="flex justify-space-between">
         <div id="log-refresh-container" task-id="<?= $taskId ?>" task-status="<?= $taskInfo['Status'] ?>" <?php echo ($legacyLog === true) ? 'legacy="true"' : '' ?>>

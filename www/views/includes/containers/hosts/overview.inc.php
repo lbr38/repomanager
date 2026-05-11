@@ -6,6 +6,45 @@
     if ($totalHosts >= 1) : ?>
         <h3>OVERVIEW</h3>
 
+        <div class="grid grid-rfr-1-4 column-gap-20 row-gap-20 margin-bottom-20">
+            <div class="kpi-card">
+                <img src="/assets/icons/server.svg" class="icon-np icon-medium" />
+                <div>
+                    <p class="kpi-value"><?= $totalHosts ?></p>
+                    <p class="mediumopacity-cst">Hosts</p>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <img src="/assets/icons/warning.svg" class="icon-np icon-medium" />
+                <div>
+                    <p class="kpi-value"><?= $totalOutdated ?></p>
+                    <p class="mediumopacity-cst">Need update</p>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <img src="/assets/icons/check.svg" class="icon-np icon-medium" />
+                <div>
+                    <p class="kpi-value"><?= $totalUptodate ?></p>
+                    <p class="mediumopacity-cst">Up to date</p>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <img src="/assets/icons/enabled.svg" class="icon-np icon-medium" />
+                <div>
+                    <p class="kpi-value"><?= $compliancePercent ?>%</p>
+                    <p class="mediumopacity-cst">Hosts compliance</p>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
         <div class="hosts-charts-container">
             <div class="echart-container div-generic-blue">
                 <h6 class="margin-top-0">HOSTS (<?= $totalHosts ?>)</h6>

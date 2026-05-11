@@ -277,7 +277,6 @@ class Connection extends SQLite3
         Time TIME NOT NULL,
         Signed CHAR(5) NOT NULL, /* true, false */
         Arch VARCHAR(255),
-        Pkg_translation VARCHAR(255),
         Pkg_included VARCHAR(255),
         Pkg_excluded VARCHAR(255),
         Type CHAR(6) NOT NULL,
@@ -288,7 +287,7 @@ class Connection extends SQLite3
         /**
          *  Create indexes
          */
-        $this->exec("CREATE INDEX IF NOT EXISTS repos_snap_index ON repos_snap (Date, Time, Signed, Arch, Pkg_translation, Pkg_included, Pkg_excluded, Type, Reconstruct, Status, Id_repo)");
+        $this->exec("CREATE INDEX IF NOT EXISTS repos_snap_index ON repos_snap (Date, Time, Signed, Arch, Pkg_included, Pkg_excluded, Type, Reconstruct, Status, Id_repo)");
         $this->exec("CREATE INDEX IF NOT EXISTS repos_snap_status_id_repo_index ON repos_snap (Status, Id_repo)");
         $this->exec("CREATE INDEX IF NOT EXISTS repos_snap_id_repo_index ON repos_snap (Id_repo)");
 

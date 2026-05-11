@@ -34,6 +34,12 @@ class Rebuild extends \Controllers\Task\Execution
      */
     public function execute()
     {
+        // TODO debug
+        while (true) {
+            sleep(5);
+        }
+
+
         /**
          *  Set snapshot metadata rebuild state in database
          */

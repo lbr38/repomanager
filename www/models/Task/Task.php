@@ -13,6 +13,26 @@ class Task extends \Models\Model
     }
 
     /**
+     *  Get all tasks
+     */
+    public function get(): array
+    {
+        $data = [];
+
+        try {
+            $result = $this->db->query("SELECT * FROM tasks ORDER BY Date DESC, Time DESC");
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return $data;
+    }
+
+    /**
      *  Get task details by Id
      *  @param int $id
      *  @return array
@@ -158,7 +178,7 @@ class Task extends \Models\Model
      *  List all newest tasks
      *  It is possible to add an offset to the request
      */
-    public function listQueued(string $type, bool $withOffset, int $offset)
+    public function listQueued(string $type, bool $withOffset, int $offset): array
     {
         $data = [];
 
@@ -212,7 +232,7 @@ class Task extends \Models\Model
      *  It is possible to filter the type of task ('immediate' or 'scheduled')
      *  It is possible to add an offset to the request
      */
-    public function listRunning(string $type, bool $withOffset, int $offset)
+    public function listRunning(string $type, bool $withOffset, int $offset): array
     {
         $data = [];
 
@@ -264,7 +284,7 @@ class Task extends \Models\Model
      *  List all scheduled tasks
      *  It is possible to add an offset to the request
      */
-    public function listScheduled(bool $withOffset, int $offset)
+    public function listScheduled(bool $withOffset, int $offset): array
     {
         $data = [];
 
@@ -304,7 +324,7 @@ class Task extends \Models\Model
      *  It is possible to filter the type of task ('immediate' or 'scheduled')
      *  It is possible to add an offset to the request
      */
-    public function listDone(string $type, bool $withOffset, int $offset)
+    public function listDone(string $type, bool $withOffset, int $offset): array
     {
         $data = [];
 

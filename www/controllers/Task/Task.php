@@ -94,9 +94,17 @@ class Task
     }
 
     /**
+     *  Get all tasks
+     */
+    public function get(): array
+    {
+        return $this->model->get();
+    }
+
+    /**
      *  Get task details by Id
      */
-    public function getById(int $id)
+    public function getById(int $id): array
     {
         return $this->model->getById($id);
     }
@@ -146,7 +154,7 @@ class Task
      *  It is possible to filter the type of task ('immediate' or 'scheduled')
      *  It is possible to add an offset to the request
      */
-    public function listQueued(string $type = '', bool $withOffset = false, int $offset = 0)
+    public function listQueued(string $type = '', bool $withOffset = false, int $offset = 0): array
     {
         return $this->model->listQueued($type, $withOffset, $offset);
     }
@@ -156,7 +164,7 @@ class Task
      *  It is possible to filter the type of task ('immediate' or 'scheduled')
      *  It is possible to add an offset to the request
      */
-    public function listRunning(string $type = '', bool $withOffset = false, int $offset = 0)
+    public function listRunning(string $type = '', bool $withOffset = false, int $offset = 0): array
     {
         return $this->model->listRunning($type, $withOffset, $offset);
     }
@@ -165,7 +173,7 @@ class Task
      *  List all scheduled tasks
      *  It is possible to add an offset to the request
      */
-    public function listScheduled(bool $withOffset = false, int $offset = 0)
+    public function listScheduled(bool $withOffset = false, int $offset = 0): array
     {
         return $this->model->listScheduled($withOffset, $offset);
     }
@@ -175,7 +183,7 @@ class Task
      *  It is possible to filter the type of task ('immediate' or 'scheduled')
      *  It is possible to add an offset to the request
      */
-    public function listDone(string $type = 'immediate', bool $withOffset = false, int $offset = 0)
+    public function listDone(string $type = 'immediate', bool $withOffset = false, int $offset = 0): array
     {
         return $this->model->listDone($type, $withOffset, $offset);
     }
@@ -1000,5 +1008,38 @@ class Task
     public function getLatestStatus(string $snapId) : array
     {
         return $this->model->getLatestStatus($snapId);
+    }
+
+    /**
+     *  Generate a human readable literal action from the technical action name
+     */
+    public static function generateLiteralAction(string $action): string
+    {
+        if ($action == 'create') {
+            return 'Create repository';
+        }
+        if ($action == 'update') {
+            return 'Update repository';
+        }
+        if ($action == 'env') {
+            return 'Point an environment';
+        }
+        if ($action == 'removeEnv') {
+            return 'Remove an environment';
+        }
+        if ($action == 'rebuild') {
+            return 'Rebuild repository metadata';
+        }
+        if ($action == 'rename') {
+            return 'Rename repository';
+        }
+        if ($action == 'duplicate') {
+            return 'Duplicate repository';
+        }
+        if ($action == 'delete') {
+            return 'Delete repository';
+        }
+
+        return ucfirst($action);
     }
 }

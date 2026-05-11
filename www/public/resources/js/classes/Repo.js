@@ -93,10 +93,12 @@ class Repo {
     getSize()
     {
         // Loop through all repos and get their size
-        $('#repos-list-container').find('.item-size').each(function () {
+        // item-size is the legacy class for snap-size
+        $('#repos-list-container').find('.snap-size, .item-size').each(function () {
             var repoId = $(this).attr('repo-id');
             var snapId = $(this).attr('snap-id');
             var path = $(this).attr('repo-relative-path');
+            let element = $(this);
 
             ajaxRequest(
                 // Controller:
@@ -112,9 +114,9 @@ class Repo {
                 // Print error alert:
                 false
             ).then(function () {
-                $("#repos-list-container").find('.item-size[repo-id="' + repoId + '"][snap-id="' + snapId + '"]').html(jsonValue.message);
+                $(element).html(jsonValue.message);
             }).catch(function () {
-                $("#repos-list-container").find('.item-size[repo-id="' + repoId + '"][snap-id="' + snapId + '"]').replaceWith('<img src="/assets/icons/warning.svg" class="icon" title="' + jsonValue.message + '"/>');
+                $(element).replaceWith('<img src="/assets/icons/warning.svg" class="icon" title="' + jsonValue.message + '"/>');
             });
         });
     }
