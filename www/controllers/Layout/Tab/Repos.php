@@ -9,5 +9,6 @@ class Repos
     public static function render()
     {
         Render::render('repos/list');
+        Render::render('repos/properties');
     }
 }

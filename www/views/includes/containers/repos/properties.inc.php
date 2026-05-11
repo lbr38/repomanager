@@ -1,124 +1,123 @@
-<section class="section-right reloadable-container" container="repos/properties">
-    <h3>PROPERTIES</h3>
+<?php
+use \Controllers\User\Permission\Repo as RepoPermission; ?>
 
-    <div class="grid grid-2 column-gap-15 align-item-center justify-space-between div-generic-blue padding-right-40">
-        <div>
-            <div class="flex column-gap-15 align-item-center">
-                <div class="circle-div-container-count-green">
-                    <span>
-                        <?= $totalRepos ?>
-                    </span>
-                </div>
-                <div>
-                    <span>
-                        <?php
-                        if ($totalRepos <= 1) {
-                            echo 'Repository';
-                        } else {
-                            echo 'Repositories';
-                        } ?>
-                    </span>
-                </div>
+<section class="section-right reloadable-container repo-side-workspace" container="repos/properties">
+    <h3>WORKSPACE</h3>
+
+    <div class="repo-kpi-grid">
+        <div class="repo-kpi-card">
+            <img src="/assets/icons/package.svg" class="icon-np icon-medium" />
+            <div>
+                <p class="repo-kpi-value"><?= $totalRepos ?></p>
+                <p class="mediumopacity-cst"><?= $totalRepos <= 1 ? 'Repository' : 'Repositories' ?></p>
             </div>
         </div>
 
-        <!-- <div class="echart-container width-100">
-            <div id="repo-storage-chart-loading" class="echart-loading">
-                <img src="/assets/icons/loading.svg" class="icon-np" />
+        <div class="repo-kpi-card">
+            <img src="/assets/icons/server.svg" class="icon-np icon-medium" />
+            <div>
+                <p class="repo-kpi-value"><?= $diskUsedSpacePercent ?>%</p>
+                <p class="mediumopacity-cst">Storage used</p>
             </div>
-
-            <p class="donut-legend-title lowopacity-cst">Storage</p>
-            <span class="donut-legend-content"><?= $diskUsedSpacePercent . '%' ?></span>
-
-            <div id="repo-storage-chart" class="echart min-height-120"></div>
-        </div> -->
+        </div>
     </div>
 
-    <?php
-    if (!empty($lastScheduledTask) or !empty($nextScheduledTasks)) : ?>
-        <div class="div-generic-blue flex-direction-column flex row-gap-20">
-            <?php
-            if (!empty($lastScheduledTask) and !empty($lastScheduledTask['Date']) and !empty($lastScheduledTask['Time'])) : ?>
-                <div>
-                    <?php
-                    if ($lastScheduledTask['Status'] == 'error' or $lastScheduledTask['Status'] == 'stopped') {
-                        $taskStatus = 'Error';
-                        $borderColor = 'red';
-                    } else {
-                        $taskStatus = 'OK';
-                        $borderColor = 'green';
-                    } ?>
-
-                    <h6 class="margin-top-0">LAST SCHEDULED TASK</h6>
-                    <br>
-                    <div class="flex column-gap-15 align-item-center">
-                        <div class="circle-div-container-count-<?= $borderColor ?>">
-                            <span>
-                                <?= $taskStatus ?>
-                            </span>
-                        </div>
-                        <div>
-                            <span>
-                                <a href="/run/<?= $lastScheduledTask['Id'] ?>"><?= DateTime::createFromFormat('Y-m-d', $lastScheduledTask['Date'])->format('d-m-Y') . ' ' . $lastScheduledTask['Time'] ?></a>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <?php
-            endif ?>
-
-            <?php
-            if (!empty($nextScheduledTasks)) : ?>
-                <div>
-                    <h6 class="margin-top-0">NEXT SCHEDULED TASKS</h6>
-                    <br>
-
-                    <div class="flex flex-direction-column row-gap-15">
-                        <?php
-                        foreach ($nextScheduledTasks as $scheduledTask) : ?>
-                            <div class="flex column-gap-15 align-item-center">
-                                <div class="circle-div-container-count-yellow">
-                                    <span>
-                                        <?php
-                                        /**
-                                         *  If days left = 0 (current day) then print hours left instead
-                                         */
-                                        if ($scheduledTask['left']['days'] > 0) {
-                                            echo $scheduledTask['left']['days'] . 'd';
-                                        } else {
-                                            echo $scheduledTask['left']['time'];
-                                        } ?>
-                                    </span>
-                                </div>
-
-                                <div>
-                                    <p>
-                                        <a href="/run"> 
-                                            <?php
-                                            if (!empty($scheduledTask['date'])) {
-                                                echo DateTime::createFromFormat('Y-m-d', $scheduledTask['date'])->format('d-m-Y') . ' ';
-                                            }
-
-                                            if (!empty($scheduledTask['time'])) {
-                                                echo $scheduledTask['time'];
-                                            } ?>
-                                        </a>
-                                    </p>
-                                </div>
-                            </div>
-                            <?php
-                        endforeach ?>
-                    </div>
-                </div>
-                <?php
-            endif ?>
+    <div class="div-generic-blue repo-storage-card">
+        <div class="flex justify-space-between align-item-center margin-bottom-10">
+            <h6 class="margin-top-0">STORAGE</h6>
+            <p class="mediumopacity-cst"><?= $diskUsedSpaceHuman ?> / <?= $diskFreeSpaceHuman ?> free</p>
         </div>
-        <?php
-    endif ?>
+        <div class="repo-storage-meter" title="<?= $diskUsedSpacePercent ?>% used storage">
+            <span style="width: <?= $diskUsedSpacePercent ?>%"></span>
+        </div>
+    </div>
 
-    <script>
-        // $(document).ready(function() {
-        //     new EChart('doughnut', 'repo-storage-chart');
-        // });
-    </script>
+    <div class="div-generic-blue repo-task-card">
+        <div class="flex justify-space-between align-item-center margin-bottom-15">
+            <h6 class="margin-top-0">SCHEDULE</h6>
+            <a href="/run" class="mediumopacity-cst">All tasks</a>
+        </div>
+
+        <?php
+        if (!empty($lastScheduledTask) and !empty($lastScheduledTask['Date']) and !empty($lastScheduledTask['Time'])) :
+            if ($lastScheduledTask['Status'] == 'error' or $lastScheduledTask['Status'] == 'stopped') {
+                $icon = 'warning-red';
+                $label = 'Failed';
+            } else {
+                $icon = 'check';
+                $label = 'Successful';
+            } ?>
+            <a href="/run/<?= $lastScheduledTask['Id'] ?>" class="repo-timeline-item">
+                <img src="/assets/icons/<?= $icon ?>.svg" class="icon-np icon-medium" />
+                <div>
+                    <p><?= $label ?></p>
+                    <p class="mediumopacity-cst"><?= DateTime::createFromFormat('Y-m-d', $lastScheduledTask['Date'])->format('d-m-Y') . ' ' . $lastScheduledTask['Time'] ?></p>
+                </div>
+            </a>
+            <?php
+        endif;
+
+        if (!empty($nextScheduledTasks)) :
+            foreach (array_slice($nextScheduledTasks, 0, 3) as $scheduledTask) : ?>
+                <a href="/run" class="repo-timeline-item">
+                    <img src="/assets/icons/time.svg" class="icon-np icon-medium mediumopacity-cst" />
+                    <div>
+                        <p>
+                            <?php
+                            if ($scheduledTask['left']['days'] > 0) {
+                                echo $scheduledTask['left']['days'] . ' days left';
+                            } else {
+                                echo $scheduledTask['left']['time'] . ' left';
+                            } ?>
+                        </p>
+                        <p class="mediumopacity-cst">
+                            <?php
+                            if (!empty($scheduledTask['date'])) {
+                                echo DateTime::createFromFormat('Y-m-d', $scheduledTask['date'])->format('d-m-Y') . ' ';
+                            }
+
+                            if (!empty($scheduledTask['time'])) {
+                                echo $scheduledTask['time'];
+                            } ?>
+                        </p>
+                    </div>
+                </a>
+                <?php
+            endforeach;
+        endif;
+
+        if (empty($lastScheduledTask) and empty($nextScheduledTasks)) : ?>
+            <p class="note">No scheduled task</p>
+            <?php
+        endif ?>
+    </div>
+
+    <div class="div-generic-blue repo-quick-actions">
+        <h6 class="margin-top-0 margin-bottom-15">QUICK ACCESS</h6>
+
+        <?php
+        if (RepoPermission::allowedAction('create')) : ?>
+            <div class="repo-action-row get-panel-btn" panel="repos/new">
+                <img src="/assets/icons/plus.svg" class="icon-np icon-medium" />
+                <span>Create repository</span>
+            </div>
+            <?php
+        endif;
+
+        if (RepoPermission::allowedAction('edit-source')) : ?>
+            <div class="repo-action-row get-panel-btn" panel="repos/sources/list">
+                <img src="/assets/icons/internet.svg" class="icon-np icon-medium" />
+                <span>Source repositories</span>
+            </div>
+            <?php
+        endif;
+
+        if (RepoPermission::allowedAction('edit-groups')) : ?>
+            <div class="repo-action-row get-panel-btn" panel="repos/groups/list">
+                <img src="/assets/icons/folder.svg" class="icon-np icon-medium" />
+                <span>Repository groups</span>
+            </div>
+            <?php
+        endif ?>
+    </div>
 </section>

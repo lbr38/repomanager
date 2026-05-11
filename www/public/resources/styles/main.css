@@ -177,6 +177,117 @@ article {
     font-size: 14px;
 }
 
+.repo-workspace-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.repo-workspace-title h3 {
+    margin-bottom: 6px;
+}
+
+.repo-command-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 14px;
+    background-color: #182b3e;
+    border: 1px solid #24405c;
+    border-radius: 20px;
+    box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
+}
+
+.repo-command-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    row-gap: 8px;
+}
+
+.repo-list-toolbar {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: 12px;
+    align-items: center;
+}
+
+.repo-side-workspace {
+    position: sticky;
+    top: 20px;
+    align-self: flex-start;
+}
+
+.repo-kpi-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 12px;
+    margin-bottom: 20px;
+}
+
+.repo-kpi-card {
+    display: flex;
+    align-items: center;
+    column-gap: 12px;
+    min-width: 0;
+    padding: 14px;
+    background-color: #182b3e;
+    border: 1px solid #24405c;
+    border-radius: 20px;
+    box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
+}
+
+.repo-kpi-value {
+    font-family: 'Archivo';
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.repo-storage-meter {
+    width: 100%;
+    height: 9px;
+    overflow: hidden;
+    background-color: #0e1e2f;
+    border: 1px solid #24405c;
+    border-radius: 20px;
+}
+
+.repo-storage-meter span {
+    display: block;
+    height: 100%;
+    min-width: 3px;
+    background-color: #15bf7f;
+    border-radius: 20px;
+}
+
+.repo-timeline-item,
+.repo-action-row {
+    display: flex;
+    align-items: center;
+    column-gap: 12px;
+    min-height: 38px;
+    padding: 8px 0;
+    color: white;
+    text-decoration: none;
+}
+
+.repo-timeline-item + .repo-timeline-item,
+.repo-action-row + .repo-action-row {
+    border-top: 1px solid #24405c;
+}
+
+.repo-action-row {
+    cursor: pointer;
+}
+
+.repo-action-row:hover span,
+.repo-timeline-item:hover p:first-child {
+    text-decoration: underline;
+}
+
 .repos-list-group-select-all-btns {
     align-items: center;
     margin-left: 380px;
@@ -638,5 +749,26 @@ footer #github img { width: 25px; }
 
     .repos-list-group-flex-div {
         grid-template-columns: 350px 55px auto auto auto 55px 1fr 40px;
+    }
+}
+
+@media (max-width:1499px) {
+    .repo-command-bar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .repo-command-actions {
+        justify-content: flex-start;
+    }
+
+    .repo-list-toolbar,
+    .repo-kpi-grid {
+        grid-template-columns: 1fr;
+        row-gap: 10px;
+    }
+
+    .repo-side-workspace {
+        position: static;
     }
 }
