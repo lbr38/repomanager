@@ -116,9 +116,9 @@ class Form
      *  Validate the task form filled by the user
      *  @param array $tasksParams
      */
-    public function validate(array $tasksParams) : void
+    public function validate(array &$tasksParams) : void
     {
-        foreach ($tasksParams as $task) {
+        foreach ($tasksParams as &$task) {
             /**
              *  Retrieve action
              */
@@ -150,10 +150,19 @@ class Form
             }
 
             /**
+             *  Normalize known DEB distribution aliases before validation and task execution.
+             */
+            if ($task['action'] == 'create' and ($task['package-type'] ?? '') == 'deb' and !empty($task['dist'])) {
+                $task['dist'] = Param\Dist::normalize($task['dist']);
+            }
+
+            /**
              *  Validate form by calling the controller
              */
             $controller = new $controllerPath();
             $controller->validate($task);
         }
+
+        unset($task);
     }
 }
