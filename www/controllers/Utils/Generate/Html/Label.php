@@ -26,23 +26,17 @@ class Label
             }
         }
 
-        // For snap-env context: outlined style (transparent bg, colored border and text)
-        if (!empty($additionalCssClasses) && str_contains($additionalCssClasses, 'snap-env')) {
-            if ($background == '#ffffff') {
-                // No color configured: use a subtle gray outline
-                $color = '#a0b0c0';
-                $border = '1.5px solid #a0b0c0';
-            } else {
-                // Use the configured color for border and text
-                $color = $background;
-                $border = '1.5px solid ' . $background;
-            }
-            $background = 'transparent';
-        } elseif ($background == '#ffffff') {
-            $border = '1px solid #949494';
+        // Outlined style: transparent bg, colored border and text
+        if ($background == '#ffffff') {
+            // No color configured: use a subtle gray outline
+            $color = '#c0d0e2';
+            $border = '1.5px solid #c0d0e2';
         } else {
-            $border = '1px solid ' . $background;
+            // Use the configured color for border and text
+            $color = $background;
+            $border = '1.5px solid ' . $background;
         }
+        $background = 'transparent';
 
         if ($css == 'fit') {
             $class = 'env-fit';
@@ -67,13 +61,5 @@ class Label
     public static function white(string $string): string
     {
         return '<span class="label-white">' . $string . '</span>';
-    }
-
-    /**
-     *  Generate black label
-     */
-    public static function black(string $string): string
-    {
-        return '<span class="label-black">' . $string . '</span>';
     }
 }

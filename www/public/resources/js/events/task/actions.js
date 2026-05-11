@@ -235,6 +235,24 @@ $(document).on('click','.step-down-btn',function () {
 });
 
 /**
+ *  Event: click on a selectable task item to toggle its hidden checkbox
+ */
+$(document).on('click', '.task-item-selectable', function (e) {
+    // Ignore clicks on action icons and the details button
+    if ($(e.target).closest('.show-scheduled-task-info-btn, .relaunch-task-btn, .stop-task-btn, .task-checkbox-input').length) {
+        return;
+    }
+
+    // Find the hidden checkbox inside this task item and toggle it
+    var checkbox = $(this).find('.task-checkbox-input');
+
+    if (checkbox.length) {
+        // click() toggles the native checked state + fires click and change events
+        checkbox.click();
+    }
+});
+
+/**
  *  Event: show or hide scheduled task informations
  */
 $(document).on('click','.show-scheduled-task-info-btn',function (e) {
@@ -247,6 +265,19 @@ $(document).on('click','.show-scheduled-task-info-btn',function (e) {
      *  Show or hide task informations
      */
     $('.scheduled-task-info[task-id="' + taskId + '"]').toggle();
+});
+
+/**
+ *  Event: toggle selected state on task-item when its hidden checkbox is toggled
+ */
+$(document).on('change', '.task-checkbox-input', function () {
+    var container = $(this).closest('.task-item');
+
+    if ($(this).is(':checked')) {
+        container.addClass('task-selected');
+    } else {
+        container.removeClass('task-selected');
+    }
 });
 
 /**

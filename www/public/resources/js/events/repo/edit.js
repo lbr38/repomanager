@@ -166,8 +166,8 @@ $(document).on('submit','#edit-form',function () {
         true
     ).then(function () {
         // Uncheck all checkboxes and remove all styles JQuery could have applied
-        $('.reposList').find('input[name=checkbox-repo]').prop('checked', false);
-        $('.reposList').find('input[name=checkbox-repo]').removeAttr('style');
+        $('#repositories-list').find('input[name=checkbox-repo]').prop('checked', false);
+        $('#repositories-list').find('input[name=checkbox-repo]').removeAttr('style');
     });
 
     return false;

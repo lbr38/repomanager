@@ -134,8 +134,8 @@ $(document).on('change','select.task-param[param-name="schedule-frequency"]',fun
  *  Do not trigger if the user clicked on a link (<a>) or an environment tag (.snap-env)
  */
 $(document).on('click', '.snap-container', function (e) {
-    // Ignore clicks on links, environment tags, or the checkbox itself
-    if ($(e.target).closest('a, .snap-env, input[name="checkbox-repo"]').length) {
+    // Ignore clicks on links, environment tags/containers, or the checkbox itself
+    if ($(e.target).closest('a, .snap-env-container, .snap-env, input[name="checkbox-repo"]').length) {
         return;
     }
 
@@ -184,15 +184,15 @@ $(document).on('click',"input[name=checkbox-repo]",function () {
     /**
      *  Count the number of checked checkboxes
      */
-    var count_checked = $('.reposList').find('input[name=checkbox-repo]:checked').length;
+    var count_checked = $('#repositories-list').find('input[name=checkbox-repo]:checked').length;
 
     /**
      *  If all checkboxes are unchecked then we hide all action buttons
      */
     if (count_checked == 0) {
         myconfirmbox.close();
-        $('.reposList').find('input[name=checkbox-repo]').removeAttr('style');
-        $('.reposList').find('.snap-container').removeClass('snap-selected');
+        $('#repositories-list').find('input[name=checkbox-repo]').removeAttr('style');
+        $('#repositories-list').find('.snap-container').removeClass('snap-selected');
         $('.repos-list-group[group-id=' + groupId + ']').find('.repos-list-group-select-all-btns').hide();
         return;
     }
@@ -328,8 +328,8 @@ $(document).on('click',"input[name=checkbox-repo]",function () {
      *  If there is at least 1 checkbox checked then we display all the other checkboxes
      *  All checked checkboxes are set to opacity = 1
      */
-    $('.reposList').find('input[name=checkbox-repo]').css("visibility", "visible");
-    $('.reposList').find('input[name=checkbox-repo]:checked').css("opacity", "1");
+    $('#repositories-list').find('input[name=checkbox-repo]').css("visibility", "visible");
+    $('#repositories-list').find('input[name=checkbox-repo]:checked').css("opacity", "1");
 });
 
 function executeAction(action)
@@ -339,7 +339,7 @@ function executeAction(action)
     /**
      *  Loop through all checked repos and retrieve their id
      */
-    $('.reposList').find('input[name=checkbox-repo]:checked').each(function () {
+    $('#repositories-list').find('input[name=checkbox-repo]:checked').each(function () {
         var obj = {};
 
         /**
@@ -660,8 +660,8 @@ $(document).on('submit','#task-form',function (e) {
         mypanel.close();
 
         // Uncheck all checkboxes and remove all styles JQuery could have applied
-        $('.reposList').find('input[name=checkbox-repo]').prop('checked', false);
-        $('.reposList').find('input[name=checkbox-repo]').removeAttr('style');
+        $('#repositories-list').find('input[name=checkbox-repo]').prop('checked', false);
+        $('#repositories-list').find('input[name=checkbox-repo]').removeAttr('style');
     });
 
     return false;

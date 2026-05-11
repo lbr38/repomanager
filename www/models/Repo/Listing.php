@@ -198,7 +198,16 @@ class Listing extends \Models\Model
                         ORDER BY Env
                     ),
                     ''
-                ) AS Environments
+                ) AS Environments,
+                COALESCE(
+                    (
+                        SELECT GROUP_CONCAT(Id, ',')
+                        FROM repos_env
+                        WHERE Id_snap = repos_snap.Id
+                        ORDER BY Env
+                    ),
+                    ''
+                ) AS EnvironmentIds
             FROM repos_snap
             WHERE repos_snap.Id_repo = :repoId
             AND repos_snap.Status = 'active'

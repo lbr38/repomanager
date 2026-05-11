@@ -159,7 +159,7 @@ if (__ACTUAL_URI__[1] == 'settings') {
         'settings'
     ];
 }
-if (__ACTUAL_URI__[1] == 'run') {
+if (in_array(__ACTUAL_URI__[1], ['tasks', 'task', 'run'])) {
     $jsFiles = [
         'functions/task',
         'events/task/actions',

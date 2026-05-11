@@ -1,16 +1,3 @@
-<?php
-/**
- *  Count repositories
- *  To have the exact number of repos, count by their repoId (to avoid duplicate repos)
- */
-
-// echo '<pre>';
-// print_r($group);
-// echo '</pre>';
-
-
-?>
-
 <div class="repos-list-group veil-on-reload" group-id="<?= $groupId ?>" group="<?= $group['name'] ?>">
     <div class="group-header">
         <div class="group-header-left">
@@ -18,6 +5,7 @@
             <span class="group-header-name"><?= $group['name'] ?></span>
             <span class="group-header-count"><?= $group['count'] ?></span>
         </div>
+
         <div class="group-header-right">
             <img src="/assets/icons/view.svg" class="hide-repo-group pointer icon-lowopacity" group-id="<?= $groupId ?>" state="visible" title="Hide/Show group">
         </div>

@@ -7,7 +7,7 @@ use \Controllers\Utils\Generate\Html\Label; ?>
             <p class="font-size-16 mediumopacity-cst">
                 <?php
                 if ($repo['Package_type'] == 'deb') : ?>
-                    <?= $repo['Dist'] ?> ● <?= $repo['Section'] ?>
+                    <?= $repo['Dist'] ?> <span class="dot">●</span> <?= $repo['Section'] ?>
                     <?php
                 endif;
 
@@ -48,10 +48,6 @@ use \Controllers\Utils\Generate\Html\Label; ?>
     <div class="flex flex-direction-column row-gap-10 margin-top-20 overflowx-auto">
         <?php
         foreach ($myrepoListing->listSnapshots($repo['repoId']) as $snapshot) : 
-            // TODO debug
-            // print_r($repo);
-            // print_r($snapshot);
-
             // Generate repo relative path
             if ($repo['Package_type'] == 'rpm') {
                 $repoRelativePath = 'rpm/' .$repo['Name'] . '/' . $repo['Releasever'] . '/' . $snapshot['Date'];
@@ -75,7 +71,7 @@ use \Controllers\Utils\Generate\Html\Label; ?>
                         <?php
                     endif ?>
 
-                    <div class="flex align-item-center column-gap-10">
+                    <div class="flex align-item-center column-gap-10" title="Browse snapshot content">
                         <img src="/assets/icons/calendar.svg" class="snap-icon icon-np lowopacity-cst" />
                         <a href="/browse/<?= $snapshot['Id'] ?>"><span class="snap-date"><?= DateTime::createFromFormat('Y-m-d', $snapshot['Date'])->format('d-m-Y') ?></span></a>
                     </div>
@@ -83,20 +79,20 @@ use \Controllers\Utils\Generate\Html\Label; ?>
                     <div class="snap-separator"></div>
 
                     <div class="flex flex-wrap column-gap-20 row-gap-10">
-                        <div class="flex align-item-center column-gap-6">
-                                <img src="/assets/icons/package.svg" class="icon-medium icon-np mediumopacity-cst" />
-                            <span class="snap-size mediumopacity-cst" title="Repository snapshot size" repo-id="<?= $repo['repoId'] ?>" snap-id="<?= $snapshot['Id'] ?>" repo-relative-path="<?= $repoRelativePath ?>">Calc.</span>
+                        <div class="flex align-item-center column-gap-6" title="Repository snapshot size">
+                            <img src="/assets/icons/package.svg" class="icon-medium icon-np mediumopacity-cst" />
+                            <span class="snap-size mediumopacity-cst" repo-id="<?= $repo['repoId'] ?>" snap-id="<?= $snapshot['Id'] ?>" repo-relative-path="<?= $repoRelativePath ?>">Calc.</span>
                         </div>
 
                         <div class="flex align-item-center column-gap-6">
                             <?php
                             if ($snapshot['Signed'] == 'true') : ?>
                                 <img src="/assets/icons/check.svg" class="icon-medium icon-np" />
-                                <span class="snap-signed mediumopacity-cst">Signed</span>
+                                <span class="snap-signed mediumopacity-cst" title="This snapshot is signed with GPG">Signed</span>
                                 <?php
                             else : ?>
                                 <img src="/assets/icons/error.svg" class="icon-medium icon-np" />
-                                <span class="snap-signed mediumopacity-cst">Unsigned</span>
+                                <span class="snap-signed mediumopacity-cst" title="This snapshot is not signed with GPG">Unsigned</span>
                                 <?php
                             endif ?>
                         </div>
@@ -107,7 +103,6 @@ use \Controllers\Utils\Generate\Html\Label; ?>
                                 <img src="/assets/icons/warning.svg" class="icon-np" title="Snapshot content has been modified. Metadata rebuild is needed." />
                                 <?php
                             endif ?>
-                            
                         </div>
                     </div>
                 </div>
@@ -115,8 +110,16 @@ use \Controllers\Utils\Generate\Html\Label; ?>
                 <div class="snap-envs">
                     <?php
                     if (!empty($snapshot['Environments'])) {
-                        foreach (explode(',', $snapshot['Environments']) as $env) {
-                            echo Label::envtag($env, null, 'snap-env');
+                        $envNames = explode(',', $snapshot['Environments']);
+                        $envIds = explode(',', $snapshot['EnvironmentIds']);
+
+                        foreach ($envNames as $index => $env) {
+                            $envId = $envIds[$index] ?? ''; ?>
+                            <div class="snap-env-container" repo-id="<?= $repo['repoId'] ?>" snap-id="<?= $snapshot['Id'] ?>" env-id="<?= $envId ?>" env="<?= $env ?>">
+                                <input type="checkbox" class="select-env-checkbox" name="env-checkbox" repo-id="<?= $repo['repoId'] ?>" snap-id="<?= $snapshot['Id'] ?>" env-id="<?= $envId ?>" env="<?= $env ?>">
+                                <?= Label::envtag($env, null, 'snap-env') ?>
+                            </div>
+                            <?php
                         }
                     } ?>
                 </div>
@@ -128,7 +131,7 @@ use \Controllers\Utils\Generate\Html\Label; ?>
             <p class="mediumopacity font-size-13">#deb</p>
             <p class="mediumopacity font-size-13">#apache</p>
             <p class="mediumopacity font-size-13">#tag3</p>
-            <p class="mediumopacity font-size-13 ">#tag4</p>
+            <p class="mediumopacity font-size-13">#tag4</p>
             <p class="mediumopacity font-size-13">#tag5</p>
         </div>
     </div>

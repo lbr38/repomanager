@@ -3,14 +3,15 @@
     font-size: 13px;
     vertical-align: middle;
     display: inline-block;
-    padding: 6px;
+    padding: 6px 10px;
     min-width: 12px;
     min-height: 12px;
     line-height: 12px !important;
     text-align: center;
-    border-radius: 60px;
-    color: white;
-    box-shadow: rgb(12 18 20 / 67%) 0px 0px 0px 1px;
+    border-radius: 20px;
+    background: transparent;
+    border: 1.5px solid currentColor;
+    box-shadow: none;
 }
 .label-icon-tr {
     display: grid;
@@ -28,29 +29,33 @@
     border: 1px solid #24405c;
     color: white;
     text-align: left;
-    box-shadow: rgb(12 18 20 / 67%) 0px 0px 0px 1px;
+    box-shadow: none;
 }
-.label-black {
-    background-color: rgb(46, 54, 58);
-    box-shadow: rgb(12 18 20 / 67%) 0px 0px 0px 1px;
-}
-.label-white {
-    background-color: white;
-    color: #000000d9;
+/* .label-black {
+    color: #a0b0c0;
+    border-color: #a0b0c0;
+} */
+.label-white, .label-black {
+    color: #c0d0e2;
+    border-color: #c0d0e2;
 }
 .label-green {
-    background-color: #15bf7f;
+    color: #15bf7f;
+    border-color: #15bf7f;
 }
 .label-blue {
-    background-color: #5473e8;
+    color: #5473e8;
+    border-color: #5473e8;
 }
 .label-red {
-    background-color: #F32F63;
+    color: #F32F63;
+    border-color: #F32F63;
 }
 .label-yellow {
-    background-color: #ffb536;
+    color: #ffb536;
+    border-color: #ffb536;
 }
 .label-tr {
-    background-color: initial;
-    border: 1px solid #24405c;
+    color: #8A99AA;
+    border-color: #24405c;
 }

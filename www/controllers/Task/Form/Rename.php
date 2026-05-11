@@ -48,10 +48,10 @@ class Rename
 
         // Add history
         if ($repoController->getPackageType() == 'rpm') {
-            History::set('Running task: renaming repository ' . Label::white($repoController->getName()) . '⸺' . Label::black($repoController->getDateFormatted()) . ' ➡ ' . Label::white($formParams['name']));
+            History::set('Running task: renaming repository ' . Label::white($repoController->getName()) . '⸺' . Label::white($repoController->getDateFormatted()) . ' ➡ ' . Label::white($formParams['name']));
         }
         if ($repoController->getPackageType() == 'deb') {
-            History::set('Running task: renaming repository ' . Label::white($repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection()) . '⸺' . Label::black($repoController->getDateFormatted()) . ' ➡ ' . Label::white($formParams['name'] . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection()));
+            History::set('Running task: renaming repository ' . Label::white($repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection()) . '⸺' . Label::white($repoController->getDateFormatted()) . ' ➡ ' . Label::white($formParams['name'] . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection()));
         }
 
         unset($repoController, $rpmRepoController, $debRepoController);

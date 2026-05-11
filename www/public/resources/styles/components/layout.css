@@ -12,7 +12,7 @@ body {
 }
 
 .div-generic-blue {
-    position: relative;
+    /* position: relative; */
     padding: 15px;
     margin-bottom: 30px;
     border-radius: 20px;

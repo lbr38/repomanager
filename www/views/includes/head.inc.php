@@ -33,6 +33,8 @@
      */
     $additionalCss = [
         "run"      => "run.css",
+        "tasks"    => "run.css",
+        "task"     => "run.css",
         "browse"   => "browse.css",
         "stat"     => "stats-hosts.css",
         "stats"    => "stats-hosts.css",

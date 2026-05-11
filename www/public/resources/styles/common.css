@@ -270,40 +270,48 @@ code {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 35px;
+    min-width: 32px;
     height: 30px;
-    border: none;
-    border-radius: 60px;
-    color: white;
+    border: 1px solid #2d5575;
+    border-radius: 6px;
+    color: #97a5b4;
     text-align: center;
     text-decoration: none;
-    font-size: 14px;
+    font-size: 13px;
     cursor: pointer;
-    background-color: #15bf7f;
-    border-radius: 0;
+    background-color: transparent;
+    margin: 0 2px;
+    transition: all 0.15s ease;
 }
 
 [class*=' pagination-btn']:hover,[class^='pagination-btn']:hover {
-    background-color: #12a16a;
+    background-color: rgba(34, 56, 79, 0.6);
+    border-color: #3d7aab;
+    color: #ffffff;
 }
 
 .pagination-btn-current {
-    background-color: #12a16a;
-    border: 1px solid #10885a;
+    background-color: rgba(21, 191, 127, 0.15);
+    border-color: #15bf7f;
+    color: #15bf7f;
+}
+
+.pagination-btn-current:hover {
+    background-color: rgba(21, 191, 127, 0.25);
+    border-color: #15bf7f;
+    color: #15bf7f;
 }
 
 .pagination-btn-first {
-    border-top-left-radius: 60px;
-    border-bottom-left-radius: 60px;
+    border-radius: 6px;
 }
 
 .pagination-btn-last {
-    border-top-right-radius: 60px;
-    border-bottom-right-radius: 60px;
+    border-radius: 6px;
 }
 
 .pagination-btn-previous, .pagination-btn-next {
-    width: 40px;
+    width: 35px;
 }
 
 .round-item {
