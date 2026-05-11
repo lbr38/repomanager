@@ -31,10 +31,7 @@
     text-align: left;
     box-shadow: none;
 }
-/* .label-black {
-    color: #a0b0c0;
-    border-color: #a0b0c0;
-} */
+
 .label-white, .label-black {
     color: #c0d0e2;
     border-color: #c0d0e2;

@@ -1009,4 +1009,37 @@ class Task
     {
         return $this->model->getLatestStatus($snapId);
     }
+
+    /**
+     *  Generate a human readable literal action from the technical action name
+     */
+    public static function generateLiteralAction(string $action): string
+    {
+        if ($action == 'create') {
+            return 'Create repository';
+        }
+        if ($action == 'update') {
+            return 'Update repository';
+        }
+        if ($action == 'env') {
+            return 'Point an environment';
+        }
+        if ($action == 'removeEnv') {
+            return 'Remove an environment';
+        }
+        if ($action == 'rebuild') {
+            return 'Rebuild repository metadata';
+        }
+        if ($action == 'rename') {
+            return 'Rename repository';
+        }
+        if ($action == 'duplicate') {
+            return 'Duplicate repository';
+        }
+        if ($action == 'delete') {
+            return 'Delete repository';
+        }
+
+        return ucfirst($action);
+    }
 }

@@ -26,7 +26,7 @@ $(document).on('click','.show-step-content-btn',function () {
 });
 
 /**
- *  Event: show logfile
+ *  Event: show logfile (restore AJAX navigation)
  */
 $(document).on('click','.show-task-btn',function () {
     var taskId = $(this).attr('task-id');
@@ -35,7 +35,7 @@ $(document).on('click','.show-task-btn',function () {
     $('#log-refresh-container').html('<div class="absolute min-height-50vh flex align-item-center justify-center"><img src="/assets/icons/loading.svg" class="icon" /></div>');
 
     // Change URL without reloading the page
-    history.pushState(null, null, '/run/' + taskId);
+    history.pushState(null, null, '/task/' + taskId);
 
     // Reload task container to print the new task log
     mycontainer.reload('tasks/log').then(function () {

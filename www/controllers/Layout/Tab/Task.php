@@ -5,7 +5,7 @@ namespace Controllers\Layout\Tab;
 use Controllers\User\Permission\Task as TaskPermission;
 use Controllers\Layout\Container\Render;
 
-class Tasks
+class Task
 {
     public static function render()
     {
@@ -15,6 +15,6 @@ class Tasks
             exit;
         }
 
-        Render::render('tasks/tasks');
+        Render::render('tasks/log');
     }
 }

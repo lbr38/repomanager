@@ -1,5 +1,8 @@
 <?php
-use \Controllers\Utils\Generate\Html\Label; ?>
+use \Controllers\Layout\Table\Render as TableRender;
+use \Controllers\Utils\Generate\Html\Label;
+use \Controllers\Task\Task;
+use JsonException; ?>
 
 <div class="reloadable-table" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
     <?php
@@ -20,14 +23,17 @@ use \Controllers\Utils\Generate\Html\Label; ?>
         <div class="flex flex-direction-column row-gap-10">
             <?php
             foreach ($reloadableTableContent as $item) :
-                /**
-                 *  Retrieve task parameters
-                 */
-                $taskRawParams = json_decode($item['Raw_params'], true);
+                $taskAccent = '';
 
-                /**
-                 *  Determine status accent color
-                 */
+                // Retrieve task parameters
+                try {
+                    $taskRawParams = json_decode($item['Raw_params'], true, 512, JSON_THROW_ON_ERROR);
+                } catch (JsonException $e) {
+                    echo '<p class="note">Error decoding task #' . $item['Id'] . ' parameters: ' . $e->getMessage() . '</p>';
+                    continue;
+                }
+
+                // Determine status accent color
                 if ($item['Status'] == 'done') {
                     $taskAccent = 'task-accent-green';
                 } elseif ($item['Status'] == 'error' or $item['Status'] == 'stopped') {
@@ -38,17 +44,11 @@ use \Controllers\Utils\Generate\Html\Label; ?>
                     $taskAccent = 'task-accent-yellow';
                 } elseif ($item['Status'] == 'scheduled') {
                     $taskAccent = 'task-accent-orange';
-                } elseif ($item['Status'] == 'disabled') {
-                    $taskAccent = '';
-                } else {
-                    $taskAccent = '';
                 }
 
-                /**
-                 *  Determine action title and icon
-                 */
+                // Determine action title and icon
                 $icon = 'plus';
-                $actionTitle = '';
+                $actionTitle = Task::generateLiteralAction($taskRawParams['action']);
 
                 if ($taskRawParams['action'] == 'create') {
                     $icon = 'plus';
@@ -60,44 +60,36 @@ use \Controllers\Utils\Generate\Html\Label; ?>
                 }
                 if ($taskRawParams['action'] == 'update') {
                     $icon = 'update';
-                    $actionTitle = 'Update repository';
                 }
                 if ($taskRawParams['action'] == 'rebuild') {
                     $icon = 'update';
-                    $actionTitle = 'Rebuild metadata';
                 }
                 if ($taskRawParams['action'] == 'rename') {
                     $icon = 'edit';
-                    $actionTitle = 'Rename repository';
                 }
                 if ($taskRawParams['action'] == 'env') {
                     $icon = 'link';
-                    $actionTitle = 'Point an environment';
                 }
                 if ($taskRawParams['action'] == 'duplicate') {
                     $icon = 'duplicate';
-                    $actionTitle = 'Duplicate repository';
                 }
                 if ($taskRawParams['action'] == 'delete') {
                     $icon = 'delete';
-                    $actionTitle = 'Delete repository';
                 }
                 if ($taskRawParams['action'] == 'removeEnv') {
                     $icon = 'delete';
-                    $actionTitle = 'Remove environment';
+                }
+                if ($item['Status'] == 'running') {
+                    $icon = 'loading';
                 }
 
-                /**
-                 *  Determine click behavior class
-                 */
+                // Determine click behavior class
                 $actionBtn = in_array($item['Status'], ['scheduled', 'queued', 'disabled']) ? 'task-item-selectable' : 'show-task-btn'; ?>
 
                 <div class="task-item <?= $taskAccent ?> <?= $actionBtn ?> pointer" task-id="<?= $item['Id'] ?>" title="<?= in_array($item['Status'], ['scheduled', 'queued', 'disabled']) ? 'Click to select' : 'View task details' ?>">
                     <div class="flex align-item-center column-gap-20">
                         <?php
-                        /**
-                         *  Checkbox for scheduled/queued tasks (hidden like snap checkboxes)
-                         */
+                        // Checkbox for scheduled/queued tasks (hidden like snap checkboxes)
                         if (in_array($item['Status'], ['scheduled', 'queued', 'disabled'])) :
                             if (IS_ADMIN or in_array('delete', USER_PERMISSIONS['tasks']['allowed-actions'])) : ?>
                                 <input type="checkbox" class="task-checkbox-input child-checkbox" checkbox-id="<?= $taskTableType ?>-task" checkbox-data-attribute="task-id" task-id="<?= $item['Id'] ?>" title="Select task" />
@@ -105,21 +97,17 @@ use \Controllers\Utils\Generate\Html\Label; ?>
                             endif;
                         endif ?>
 
-                        <img class="task-item-icon" src="/assets/icons/<?= $icon ?>.svg" title="<?= $actionTitle ?>" />
+                        <img class="icon-np <?= $item['Status'] != 'running' ? 'icon-lowopacity' : '' ?>" src="/assets/icons/<?= $icon ?>.svg" title="<?= $actionTitle ?>" />
 
                         <div class="flex flex-direction-column row-gap-2">
                             <?php
-                            /**
-                             *  Date and time for immediate tasks
-                             */
+                            // Date and time for immediate tasks
                             if (!empty($item['Date']) and !empty($item['Time'])) : ?>
                                 <span class="task-item-date"><?= DateTime::createFromFormat('Y-m-d', $item['Date'])->format('d-m-Y') ?> <?= $item['Time'] ?></span>
                                 <?php
                             endif;
 
-                            /**
-                             *  Schedule info for scheduled tasks
-                             */
+                            // Schedule info for scheduled tasks
                             if ($item['Type'] == 'scheduled') : ?>
                                 <span class="task-item-schedule mediumopacity-cst flex align-item-center column-gap-8">
                                     <span>
@@ -182,15 +170,12 @@ use \Controllers\Utils\Generate\Html\Label; ?>
                             if (IS_ADMIN or in_array('stop', USER_PERMISSIONS['tasks']['allowed-actions'])) {
                                 echo '<span title="Stop task" class="stop-task-btn" task-id="' . $item['Id'] . '"><img src="/assets/icons/stop.svg" class="icon-lowopacity"></span>';
                             }
-                            echo '<img src="/assets/icons/loading.svg" class="icon-np" title="Running" />';
                         } ?>
                     </div>
                 </div>
 
                 <?php
-                /**
-                 *  If task is scheduled, print task info div
-                 */
+                // If task is scheduled, print task info div
                 if ($item['Type'] == 'scheduled') : ?>
                     <div class="scheduled-task-info div-generic-blue margin-bottom-10 hide" task-id="<?= $item['Id'] ?>">
                         <div class="grid grid-2">
@@ -378,7 +363,7 @@ use \Controllers\Utils\Generate\Html\Label; ?>
         </div>
 
         <div class="flex justify-end margin-top-10">
-            <?php \Controllers\Layout\Table\Render::paginationBtn($reloadableTableCurrentPage, $reloadableTableTotalPages); ?>
+            <?php TableRender::paginationBtn($reloadableTableCurrentPage, $reloadableTableTotalPages); ?>
         </div>
 
         <br><br>

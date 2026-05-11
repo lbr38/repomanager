@@ -32,7 +32,7 @@ $currentSection = explode('/', trim($currentPath, '/'))[0] ?? '';
                             <?php
                             foreach ($tasksRunning as $task) :
                                 $taskParams = json_decode($task['Raw_params'], true); ?>
-                                <a href="/run/<?= $task['Id'] ?>" class="menu-task-popup-item">
+                                <a href="/task/<?= $task['Id'] ?>" class="menu-task-popup-item">
                                     <span>
                                         <?php
                                         if ($taskParams['action'] == 'create') {

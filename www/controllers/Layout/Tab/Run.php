@@ -2,9 +2,6 @@
 
 namespace Controllers\Layout\Tab;
 
-use Controllers\User\Permission\Task as TaskPermission;
-use Controllers\Layout\Container\Render;
-
 class Run
 {
     public static function render()
