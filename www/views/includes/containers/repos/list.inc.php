@@ -1,11 +1,16 @@
 <?php
 use \Controllers\User\Permission\Repo as RepoPermission; ?>
 
-<section class="section-main reloadable-container" container="repos/list">
+<section class="section-left reloadable-container" container="repos/list">
     <div class="reposList">
-        <h3 class="margin-bottom-40">REPOSITORIES</h3>
+        <div class="repo-workspace-title margin-bottom-20">
+            <div>
+                <h3>REPOSITORIES</h3>
+                <p class="mediumopacity-cst">Mirrors, snapshots and environments</p>
+            </div>
+        </div>
 
-        <div class="flex align-item-center justify-space-between column-gap-10 margin-bottom-10">
+        <div class="repo-command-bar margin-bottom-20">
             <div class="flex flex-wrap align-item-center column-gap-10 row-gap-5">
                 <div class="flex align-item-center column-gap-5 mediumopacity-cst" title="Total repositories">
                     <img src="/assets/icons/package.svg" class="icon-np icon-medium" />
@@ -74,7 +79,7 @@ use \Controllers\User\Permission\Repo as RepoPermission; ?>
                 endif ?>
             </div>
 
-            <div class="flex align-item-center">
+            <div class="repo-command-actions">
                 <?php
                 if (RepoPermission::allowedAction('edit-groups')) : ?>
                     <div class="slide-btn get-panel-btn mediumopacity" panel="repos/groups/list" title="Manage repos groups">
@@ -104,11 +109,13 @@ use \Controllers\User\Permission\Repo as RepoPermission; ?>
 
         <?php
         if (IS_ADMIN or (!empty(USER_PERMISSIONS['repositories']['view']['groups']) or in_array('all', USER_PERMISSIONS['repositories']['view']))) { ?>
-            <input id="repo-search-input" class="margin-bottom-10" type="text" placeholder="Search" onkeyup="myrepo.search()" title="Search by repository name, distribution, section or release version" />
+            <div class="repo-list-toolbar margin-bottom-10">
+                <input id="repo-search-input" type="text" placeholder="Search repositories, snapshots, environments" onkeyup="myrepo.search()" title="Search by repository name, distribution, section, release version, environment or description" />
 
-            <div class="flex justify-end column-gap-5 margin-bottom-10 margin-right-15">
-                <div id="hide-all-repo-groups" state="visible">
-                    <img src="/assets/icons/view.svg" class="icon lowopacity pointer" title="Hide/Show all repositories groups" />
+                <div class="flex align-item-center column-gap-5">
+                    <div id="hide-all-repo-groups" state="visible">
+                        <img src="/assets/icons/view.svg" class="icon lowopacity pointer" title="Hide/Show all repositories groups" />
+                    </div>
                 </div>
             </div>
 
