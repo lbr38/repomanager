@@ -5,7 +5,13 @@
 
     <?php
     if (empty($reloadableTableContent)) : ?>
-        <p class="note">Nothing for now!</p>
+        <div class="empty-state">
+            <p class="empty-state-title">No GPG key imported yet.</p>
+            <p class="note">Keys are imported automatically when source repository lists define fingerprints or key URLs.</p>
+            <div class="empty-state-actions">
+                <button type="button" class="btn-medium-blue get-panel-btn" panel="repos/sources/import">Import sources</button>
+            </div>
+        </div>
         <?php
     endif;
 

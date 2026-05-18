@@ -12,7 +12,14 @@
 
     <?php
     if (empty($reloadableTableContent)) {
-        echo '<p class="note">Nothing for now!</p>';
+        echo '<div class="empty-state">';
+        echo '<p class="empty-state-title">No source repository configured yet.</p>';
+        echo '<p class="note">Import a predefined list to get started quickly, or add a custom source repository manually.</p>';
+        echo '<div class="empty-state-actions">';
+        echo '<button type="button" class="btn-medium-blue get-panel-btn" panel="repos/sources/import">Import</button>';
+        echo '<button type="button" class="btn-medium-tr get-panel-btn" panel="repos/sources/new">Manually add</button>';
+        echo '</div>';
+        echo '</div>';
     } ?>
 
     <?php

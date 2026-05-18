@@ -88,6 +88,35 @@ h6 {
     word-break: break-all;
 }
 
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    row-gap: 8px;
+    padding: 18px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    border: 1px dashed #5473e8;
+    border-radius: 20px;
+    background-color: #13263a;
+}
+
+.empty-state p {
+    margin: 0;
+}
+
+.empty-state-title {
+    font-weight: bold;
+}
+
+.empty-state-actions {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 10px;
+    row-gap: 8px;
+    margin-top: 4px;
+}
+
 .required::after {
     content: ' *';
     font-size: 12px;
