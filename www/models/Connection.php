@@ -280,6 +280,7 @@ class Connection extends SQLite3
         Pkg_translation VARCHAR(255),
         Pkg_included VARCHAR(255),
         Pkg_excluded VARCHAR(255),
+        Advanced_params TEXT,
         Type CHAR(6) NOT NULL,
         Reconstruct CHAR(8), /* needed, running, failed */
         Status CHAR(8) NOT NULL,

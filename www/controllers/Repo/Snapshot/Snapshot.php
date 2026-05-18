@@ -3,6 +3,7 @@
 namespace Controllers\Repo\Snapshot;
 
 use Controllers\Filesystem\Directory;
+use JsonException;
 use Exception;
 use DateTime;
 
@@ -64,9 +65,16 @@ class Snapshot
     /**
      *  Add a snapshot in database
      */
-    public function add(string $date, string $time, string $gpgSignature, array $arch, array $includeTranslation, array $packagesIncluded, array $packagesExcluded, string $type, string $status, int $repoId): void
+    public function add(string $date, string $time, string $gpgSignature, array $arch, array $advancedParams, string $type, string $status, int $repoId): void
     {
-        $this->model->add($date, $time, $gpgSignature, $arch, $includeTranslation, $packagesIncluded, $packagesExcluded, $type, $status, $repoId);
+        // Convert advanced params to JSON string
+        try {
+            $advancedParams = json_encode($advancedParams, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            throw new Exception('Error while encoding advanced parameters to JSON: ' . $e->getMessage());
+        }
+
+        $this->model->add($date, $time, $gpgSignature, $arch, $advancedParams, $type, $status, $repoId);
     }
 
     /**
@@ -96,18 +104,18 @@ class Snapshot
     /**
      *  Update snapshot included packages in the database
      */
-    public function updatePackagesIncluded(int $snapId, array $packagesIncluded): void
-    {
-        $this->model->updatePackagesIncluded($snapId, implode(',', $packagesIncluded));
-    }
+    // public function updatePackagesIncluded(int $snapId, array $packagesIncluded): void
+    // {
+    //     $this->model->updatePackagesIncluded($snapId, implode(',', $packagesIncluded));
+    // }
 
-    /**
-     *  Update snapshot excluded packages in the database
-     */
-    public function updatePackagesExcluded(int $snapId, array $packagesExcluded): void
-    {
-        $this->model->updatePackagesExcluded($snapId, implode(',', $packagesExcluded));
-    }
+    // /**
+    //  *  Update snapshot excluded packages in the database
+    //  */
+    // public function updatePackagesExcluded(int $snapId, array $packagesExcluded): void
+    // {
+    //     $this->model->updatePackagesExcluded($snapId, implode(',', $packagesExcluded));
+    // }
 
     /**
      *  Update snapshot status in the database
@@ -131,6 +139,21 @@ class Snapshot
     public function updateArch(int $snapId, array $arch): void
     {
         $this->model->updateArch($snapId, $arch);
+    }
+
+    /**
+     *  Update snapshot advanced parameters in the database
+     */
+    public function updateAdvancedParams(int $snapId, array $advancedParams): void
+    {
+        // Convert advanced params to JSON string
+        try {
+            $advancedParams = json_encode($advancedParams, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            throw new Exception('Error while encoding advanced parameters to JSON: ' . $e->getMessage());
+        }
+
+        $this->model->updateAdvancedParams($snapId, $advancedParams);
     }
 
     /**

@@ -18,7 +18,8 @@ $taskConfig = [
 
     // Optional params
     'optional-params' => [
-        'env'
+        'env',
+        'advanced-params' // Advanced params include package include/exclude and metadata custom fields, it is optional
     ],
 
     // Some required params are conditional
@@ -35,17 +36,6 @@ $taskConfig = [
                 'gpg-sign'
             ]
 
-        ]
-    ],
-
-    // Some optional params are conditional
-    'conditional-optional-params' => [
-        // Based on repo type
-        'repo-type' => [
-            'mirror' => [
-                'package-include',
-                'package-exclude'
-            ]
         ]
     ],
 

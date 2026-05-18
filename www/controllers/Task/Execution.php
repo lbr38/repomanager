@@ -229,9 +229,7 @@ class Execution
      */
     public function paramsSet($requiredParams = [], $optionalParams = [])
     {
-        /**
-         *  Repo controller setter functions depending on parameters
-         */
+        // Repo controller setter functions depending on parameters
         $setters = [
             'repo-id' => 'setRepoId',
             'snap-id' => 'setSnapId',
@@ -250,13 +248,10 @@ class Execution
             'env' => 'setEnv',
             'description' => 'setDescription',
             'group' => 'setGroup',
-            'package-include' => 'setPackagesToInclude',
-            'package-exclude' => 'setPackagesToExclude'
+            'advanced-params' => 'setAdvancedParams'
         ];
 
-        /**
-         *  Set required parameters, using the appropriate setter function
-         */
+        // Set required parameters, using the appropriate setter function
         if (!empty($requiredParams)) {
             foreach ($requiredParams as $param) {
                 $setterFunction = $setters[$param];
@@ -264,9 +259,7 @@ class Execution
             }
         }
 
-        /**
-         *  Set optional parameters if defined, using the appropriate setter function
-         */
+        // Set optional parameters if defined, using the appropriate setter function
         if (!empty($optionalParams)) {
             foreach ($optionalParams as $param) {
                 if (isset($this->params[$param])) {

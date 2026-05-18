@@ -3,6 +3,7 @@
 namespace Controllers\Repo\Metadata;
 
 use Controllers\Filesystem\Directory;
+use Controllers\Process;
 use Exception;
 
 class Deb extends Metadata
@@ -14,69 +15,66 @@ class Deb extends Metadata
     private $arch;
     private $gpgSign = false;
     private $aptftparchive = '/usr/bin/apt-ftparchive';
-    private $task;
+    private $customFields = [];
 
-    public function setRoot(string $root)
+    public function setRoot(string $root): void
     {
         $this->root = $root;
     }
 
-    public function setRepo(string $repo)
+    public function setRepo(string $repo): void
     {
         $this->repo = $repo;
     }
 
-    public function setDist(string $dist)
+    public function setDist(string $dist): void
     {
         $this->dist = $dist;
     }
 
-    public function setSection(string $section)
+    public function setSection(string $section): void
     {
         $this->section = $section;
     }
 
-    public function setArch(array $arch)
+    public function setArch(array $arch): void
     {
         $this->arch = $arch;
     }
 
-    public function setGpgSign(string $gpgSign)
+    public function setGpgSign(string $gpgSign): void
     {
         $this->gpgSign = $gpgSign;
+    }
+
+    public function setMetadataCustomFields(array $fields): void
+    {
+        $this->customFields = $fields;
     }
 
     /**
      *  Create metadata files
      */
-    public function create()
+    public function create(): void
     {
-        /**
-         *  Check which of apt-ftparchive is present on the system
-         */
+        // Check if apt-ftparchive is present on the system
         if (!file_exists($this->aptftparchive)) {
             throw new Exception('Could not find apt-ftparchive on the system');
         }
 
-        /**
-         *  Check if root path exists
-         */
+        // Check if root path exists
         if (!is_dir($this->root)) {
             throw new Exception("Repository root directory '" . $this->root . "' does not exist");
         }
 
-        /**
-         *  Target arch must be specified
-         */
+        // Target arch must be specified
         if (empty($this->arch)) {
             throw new Exception('Packages architecture(s) must be specified');
         }
 
         $this->taskLogSubStepController->new('create-metadata', 'GENERATING REPOSITORY METADATA');
 
-        /**
-         *  Define directory to create for the repository
-         */
+        // Define directory to create for the repository
         $dirs = [
             'dists',
             'dists/' . $this->dist,
@@ -85,9 +83,7 @@ class Deb extends Metadata
             'cache'
         ];
 
-        /**
-         *  Append binary arch directories to the list of directories to create
-         */
+        // Append binary arch directories to the list of directories to create
         foreach ($this->arch as $arch) {
             if ($arch == 'src') {
                 $dirs[] = 'dists/' . $this->dist . '/' . $this->section . '/source';
@@ -101,16 +97,12 @@ class Deb extends Metadata
          *  Clean all but 'pool' directory, because it might contain packages to add to the repository (e.g. if the repository is being rebuilt or it is a duplicate of another one)
          */
         foreach ($dirs as $dir) {
-            /**
-             *  Skip pool directory
-             */
+            // Skip pool directory
             if ($dir == 'pool') {
                 continue;
             }
 
-            /**
-             *  Clean directory if it exists
-             */
+            // Clean directory if it exists
             if (is_dir($this->root . '/' . $dir)) {
                 if (!Directory::deleteRecursive($this->root . '/' . $dir)) {
                     throw new Exception('Cannot delete existing directory: ' . $this->root . '/' . $dir);
@@ -118,9 +110,7 @@ class Deb extends Metadata
             }
         }
 
-        /**
-         *  Then create directory structure
-         */
+        // Then create directory structure
         foreach ($dirs as $dir) {
             if (!is_dir($this->root . '/' . $dir)) {
                 if (!mkdir($this->root . '/' . $dir, 0770, true)) {
@@ -129,36 +119,25 @@ class Deb extends Metadata
             }
         }
 
-        /**
-         *  Create apt-ftparchive.conf file
-         */
+        // Create apt-ftparchive.conf file
         if (!file_put_contents($this->root . '/apt-ftparchive.conf', $this->generateAptFtpArchiveConf())) {
             throw new Exception('Failed to create apt-ftparchive.conf file');
         }
 
-        /**
-         *  Create dist.conf file
-         */
+        // Create dist.conf file
         if (!file_put_contents($this->root . '/dist.conf', $this->generateDistConf())) {
             throw new Exception('Failed to create dist.conf file');
         }
 
-        /**
-         *  Create Packages file
-         */
-        $myprocess = new \Controllers\Process($this->aptftparchive . ' generate ' . $this->root . '/apt-ftparchive.conf');
+        // Create Packages file
+        $myprocess = new Process($this->aptftparchive . ' generate ' . $this->root . '/apt-ftparchive.conf');
         $myprocess->setBackground(true);
         $myprocess->execute();
 
-        /**
-         *  Retrieve PID of the launched process
-         *  Then write PID to main PID file
-         */
+        // Retrieve PID of the launched process, then write PID to main PID file
         $this->taskController->addsubpid($myprocess->getPid());
 
-        /**
-         *  Retrieve output from process
-         */
+        // Retrieve output from process
         $output = $myprocess->getOutput();
 
         $this->taskLogSubStepController->output($output, 'pre');
@@ -169,22 +148,15 @@ class Deb extends Metadata
 
         $myprocess->close();
 
-        /**
-         *  Generate Release file
-         */
-        $myprocess = new \Controllers\Process($this->aptftparchive . ' -c ' . $this->root . '/dist.conf release ' . $this->root . '/dists/' . $this->dist . ' > ' . $this->root . '/dists/' . $this->dist . '/Release');
+        // Generate Release file
+        $myprocess = new Process($this->aptftparchive . ' -c ' . $this->root . '/dist.conf release ' . $this->root . '/dists/' . $this->dist . ' > ' . $this->root . '/dists/' . $this->dist . '/Release');
         $myprocess->setBackground(true);
         $myprocess->execute();
 
-        /**
-         *  Retrieve PID of the launched process
-         *  Then write PID to main PID file
-         */
+        // Retrieve PID of the launched process, then write PID to main PID file
         $this->taskController->addsubpid($myprocess->getPid());
 
-        /**
-         *  Retrieve output from process
-         */
+        // Retrieve output from process
         $output = $myprocess->getOutput();
 
         $this->taskLogSubStepController->output($output, 'pre');
@@ -195,38 +167,29 @@ class Deb extends Metadata
 
         $myprocess->close();
 
-        /**
-         *  Clean configuration files
-         */
+        // Clean configuration files
         if (file_exists($this->root . '/apt-ftparchive.conf')) {
             if (!unlink($this->root . '/apt-ftparchive.conf')) {
-                throw new Exception("Failed to clean '" . $this->root . "/apt-ftparchive.conf' file");
+                throw new Exception("Failed to remove '" . $this->root . "/apt-ftparchive.conf' file");
             }
         }
         if (file_exists($this->root . '/dist.conf')) {
             if (!unlink($this->root . '/dist.conf')) {
-                throw new Exception("Failed to clean '" . $this->root . "/dist.conf' file");
+                throw new Exception("Failed to remove '" . $this->root . "/dist.conf' file");
             }
         }
 
-        /**
-         *  Quit here if GPG signature is not enabled
-         */
+        // Quit here if GPG signature is not enabled
         if ($this->gpgSign != 'true') {
             $this->taskLogSubStepController->completed();
             return;
         }
 
-        /**
-         *  Sign Release file with GPG key
-         */
-        $myprocess = new \Controllers\Process('/usr/bin/gpg --homedir ' . GPGHOME . ' -u ' . GPG_SIGNING_KEYID . ' --output ' . $this->root . '/dists/' . $this->dist . '/Release.gpg -ba ' . $this->root . '/dists/' . $this->dist . '/Release');
+        // Sign Release file with GPG key
+        $myprocess = new Process('/usr/bin/gpg --homedir ' . GPGHOME . ' -u ' . GPG_SIGNING_KEYID . ' --output ' . $this->root . '/dists/' . $this->dist . '/Release.gpg -ba ' . $this->root . '/dists/' . $this->dist . '/Release');
         $myprocess->execute();
 
-        /**
-         *  Retrieve PID of the launched process
-         *  Then write PID to main PID file
-         */
+        // Retrieve PID of the launched process, then write PID to main PID file
         $this->taskController->addsubpid($myprocess->getPid());
 
         if ($myprocess->getExitCode() != 0) {
@@ -241,13 +204,11 @@ class Deb extends Metadata
     /**
      *  Generate apt-ftparchive.conf file
      */
-    private function generateAptFtpArchiveConf()
+    private function generateAptFtpArchiveConf(): string
     {
         $architectures = '';
 
-        /**
-         *  Generate architectures string
-         */
+        // Generate architectures string
         foreach ($this->arch as $arch) {
             if ($arch == 'src') {
                 $architectures .= 'source ';
@@ -296,13 +257,27 @@ class Deb extends Metadata
     /**
      *  Generate dist.conf file
      */
-    private function generateDistConf()
+    private function generateDistConf(): string
     {
         $architectures = '';
 
-        /**
-         *  Generate architectures string
-         */
+        // Default values for Release fields
+        $origin        = $this->repo . ' > ' . $this->dist . ' > ' . $this->section . ' repository';
+        $label         = 'deb packages repository';
+        $description   = $this->repo . ' > ' . $this->dist . ' > ' . $this->section . ' repository';
+
+        // Overwrite with custom fields if defined
+        if (!empty($this->customFields['origin'])) {
+            $origin = $this->customFields['origin'];
+        }
+        if (!empty($this->customFields['label'])) {
+            $label = $this->customFields['label'];
+        }
+        if (!empty($this->customFields['description'])) {
+            $description = $this->customFields['description'];
+        }
+
+        // Generate architectures string
         foreach ($this->arch as $arch) {
             if ($arch == 'src') {
                 $architectures .= 'source ';
@@ -320,13 +295,13 @@ class Deb extends Metadata
         $template = <<<EOT
         APT::FTPArchive::Release {
             Version        "1.0";
-            Origin         "$this->repo > $this->dist > $this->section repository";
-            Label          "deb packages repository";
+            Origin         "$origin";
+            Label          "$label";
             Suite          "$this->dist";
             Codename       "$this->dist";
             Architectures  "$architectures";
             Components     "$this->section";
-            Description    "$this->repo > $this->dist > $this->section repository";
+            Description    "$description";
         }
         EOT;
 

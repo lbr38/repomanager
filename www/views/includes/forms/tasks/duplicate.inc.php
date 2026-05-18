@@ -4,15 +4,15 @@
 <div class="flex align-item-center">
     <p class="label-white">
         <?php
-        if ($myrepo->getPackageType() == 'rpm') {
-            echo $myrepo->getName() . ' ❯ ' . $myrepo->getReleasever();
+        if ($repoController->getPackageType() == 'rpm') {
+            echo $repoController->getName() . ' ❯ ' . $repoController->getReleasever();
         }
-        if ($myrepo->getPackageType() == 'deb') {
-            echo $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection();
+        if ($repoController->getPackageType() == 'deb') {
+            echo $repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection();
         } ?>
     </p>
 
-    <p>⸺<span class="label-black"><?= $myrepo->getDateFormatted() ?></span></p>
+    <p>⸺<span class="label-black"><?= $repoController->getDateFormatted() ?></span></p>
 </div>
   
 <h6 class="required">NEW REPOSITORY NAME</h6>
@@ -21,7 +21,7 @@
 
 <h6>POINT AN ENVIRONMENT</h6>
 <p class="note">Select one or multiple environments to point to the new repository snapshot.</p>
-<select id="duplicate-repo-target-env-select-<?= $myrepo->getSnapId() ?>" class="task-param" param-name="env" multiple>
+<select id="duplicate-repo-target-env-select-<?= $repoController->getSnapId() ?>" class="task-param" param-name="env" multiple>
     <option value=""></option>
     <?php
     foreach (ENVS as $env) {
@@ -40,12 +40,12 @@
 
 <select class="task-param hide" param-name="arch" multiple>
     <?php
-    foreach ($myrepo->getArch() as $arch) {
+    foreach ($repoController->getArch() as $arch) {
         echo '<option value="' . $arch . '" selected>' . $arch . '</option>';
     } ?>
 </select>
 
-<input type="hidden" class="task-param" param-name="gpg-sign" value="<?= $myrepo->getSigned() ?>" />
+<input type="hidden" class="task-param" param-name="gpg-sign" value="<?= $repoController->getSigned() ?>" />
 
 <?php
 /**
@@ -71,13 +71,13 @@ $scheduleForm['action'] = 'duplicate'; ?>
 
 <script>
 $(document).ready(function(){
-    myselect2.convert('#duplicate-repo-target-env-select-<?= $myrepo->getSnapId()?> ');
+    myselect2.convert('#duplicate-repo-target-env-select-<?= $repoController->getSnapId()?> ');
 
     /**
      *  Print description field only if an environment is specified
      */
-    $(document).on('change','#duplicate-repo-target-env-select-<?= $myrepo->getSnapId() ?>',function(){
-        if ($('#duplicate-repo-target-env-select-<?= $myrepo->getSnapId() ?>').val() == "") {
+    $(document).on('change','#duplicate-repo-target-env-select-<?= $repoController->getSnapId() ?>',function(){
+        if ($('#duplicate-repo-target-env-select-<?= $repoController->getSnapId() ?>').val() == "") {
             $('#duplicate-repo-target-description-div').hide();
         } else {
             $('#duplicate-repo-target-description-div').show();
