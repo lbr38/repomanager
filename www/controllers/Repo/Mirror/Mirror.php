@@ -13,14 +13,12 @@ class Mirror
     protected $section;
     protected $releasever;
     protected $arch;
-    protected $translation;
     protected $checkSignature = 'true';
     protected $gpgKeyUrl;
     protected $primaryLocation;
     protected $primaryChecksum;
     protected $packagesIndicesLocation = [];
     protected $sourcesIndicesLocation = [];
-    protected $translationsLocation = [];
     protected $debPackagesLocation = [];
     protected $sourcesPackagesLocation = [];
     protected $rpmPackagesLocation = [];
@@ -93,11 +91,6 @@ class Mirror
     public function setGpgKeyUrl(string $url) : void
     {
         $this->gpgKeyUrl = $url;
-    }
-
-    public function setTranslation(array $translation) : void
-    {
-        $this->translation = $translation;
     }
 
     public function setSslCustomCertificate(string $path) : void
