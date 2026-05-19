@@ -38,7 +38,7 @@ class Create extends \Controllers\Task\Execution
         // Set repo type for the task to be executed
         $this->type = $this->params['repo-type'];
 
-        // Set 
+        // Set
         // $this->repoController->setAdvancedParams($this->params['advanced-params']);
 
         // Execute the task
