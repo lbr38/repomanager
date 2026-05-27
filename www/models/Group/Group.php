@@ -219,6 +219,28 @@ class Group extends \Models\Model
     }
 
     /**
+     *  Return the list of group Ids the specified repo is member of
+     */
+    public function getRepoGroupsIds(int $repoId): array
+    {
+        $data = [];
+
+        try {
+            $stmt = $this->db->prepare("SELECT Id_group FROM group_members WHERE Id_repo = :repoId");
+            $stmt->bindValue(':repoId', $repoId);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row['Id_group'];
+        }
+
+        return $data;
+    }
+
+    /**
      *  Return the list of repos not in any group
      */
     public function getReposNotMembers()

@@ -36,6 +36,8 @@ class HostSearch
 
             // Show all group containers (in case they were hidden during a previous search)
             $('.hosts-group-container').show();
+
+            //  Hide all host lines, only those corresponding to the search will be re-displayed
             $('.host-line').removeClass('flex').hide();
 
             /**
@@ -75,7 +77,7 @@ class HostSearch
             hosts.each(function () {
                 const textContent = $(this).text().toUpperCase();
                 if (textContent.indexOf(search) > -1) {
-                    $(this).addClass('flex').show();
+                    $(this).removeClass('flex').css('display', '');
                 }
             });
 
@@ -243,7 +245,6 @@ class HostSearch
         $('#hosts-search').addClass('hide');
 
         $('.hosts-group-container, .host-line').show();
-        $('.host-line').addClass('flex');
         $('#hosts').show();
     }
 

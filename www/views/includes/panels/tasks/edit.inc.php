@@ -14,7 +14,7 @@ foreach ($tasks as $task) :
     // Include task configuration file
     include(ROOT . '/config/tasks/' . $params['action'] . '.php'); ?>
 
-    <div class="task-schedule-form-params" task-id="<?= $task['Id'] ?>">
+    <div class="task-schedule-form-params form-block" task-id="<?= $task['Id'] ?>">
         <h5 class="margin-top-0">TASK #<?= strtoupper($task['Id']) ?></h5>
 
         <h6>ACTION</h6>
@@ -133,22 +133,18 @@ foreach ($tasks as $task) :
         <h6>RECIPIENT(S)</h6>
         <select class="task-param" param-name="schedule-recipient" multiple>
             <?php
-            if (!empty(EMAIL_RECIPIENT)) {
-                foreach (EMAIL_RECIPIENT as $email) {
-                    echo '<option value="' . $email . '" selected>' . $email . '</option>';
-                }
-            }
-            if (!empty($usersEmail)) {
-                foreach ($usersEmail as $email) {
-                    if (!in_array($email, EMAIL_RECIPIENT)) {
-                        echo '<option value="' . $email . '">' . $email . '</option>';
-                    }
-                }
+            // Prepare the list of schedule recipients and recipient options for the task edit form
+            // Get the list of recipients already selected for the schedule and merge it with the
+            // default email recipients and users' emails to create the recipient options list.
+            $scheduleRecipients = $params['schedule']['schedule-recipient'] ?? [];
+            $recipientOptions = array_unique(array_merge(EMAIL_RECIPIENT ?? [], $usersEmail ?? [], $scheduleRecipients));
+
+            foreach ($recipientOptions as $email) {
+                $selected = in_array($email, $scheduleRecipients) ? 'selected' : '';
+                echo '<option value="' . $email . '" ' . $selected . '>' . $email . '</option>';
             } ?>
         </select>
     </div>
-
-    <hr class="margin-top-30 margin-bottom-20">
     <?php
 endforeach ?>
 

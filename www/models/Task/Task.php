@@ -282,14 +282,17 @@ class Task extends \Models\Model
 
     /**
      *  Add a new task to the database
+     *  If $parentTaskId is provided, the task is linked to the task that generated it
+     *  (e.g. a scheduled task targeting a group of repositories)
      */
-    public function new(string $type, string $rawParams, string $status) : int
+    public function new(string $type, string $rawParams, string $status, int|null $parentTaskId = null) : int
     {
         try {
-            $stmt = $this->db->prepare("INSERT INTO tasks (Type, Raw_params, Status) VALUES (:type, :rawParams, :status)");
+            $stmt = $this->db->prepare("INSERT INTO tasks (Type, Raw_params, Status, Parent_task_id) VALUES (:type, :rawParams, :status, :parentTaskId)");
             $stmt->bindValue(':type', $type);
             $stmt->bindValue(':rawParams', $rawParams);
             $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':parentTaskId', $parentTaskId);
             $stmt->execute();
         } catch (Exception $e) {
             DbLog::error($e);
@@ -303,11 +306,13 @@ class Task extends \Models\Model
 
     /**
      *  Duplicate a task in database from its Id and return the new task Id
+     *  The status of the copy is set on insert, so that it never appears in the queue by mistake
      */
-    public function duplicate(int $id) : int
+    public function duplicate(int $id, string $status) : int
     {
         try {
-            $stmt = $this->db->prepare("INSERT INTO tasks (Type, Raw_params, Status) SELECT Type, Raw_params, 'queued' FROM tasks WHERE Id = :id");
+            $stmt = $this->db->prepare("INSERT INTO tasks (Type, Raw_params, Status) SELECT Type, Raw_params, :status FROM tasks WHERE Id = :id");
+            $stmt->bindValue(':status', $status);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (Exception $e) {
@@ -334,6 +339,28 @@ class Task extends \Models\Model
         } catch (Exception $e) {
             DbLog::error($e);
         }
+    }
+
+    /**
+     *  Close a task only if it is still running, and return true if this call is the one that closed it
+     *  Sub-tasks run in parallel and can all try to close their parent task at the same time, so the
+     *  status is part of the update condition to make sure only one of them succeeds
+     */
+    public function closeIfRunning(int $id, string $status, string $duration): bool
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE tasks SET Status = :status, Duration = :duration WHERE Id = :id AND Status = 'running'");
+            $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':duration', $duration);
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+
+            return false;
+        }
+
+        return $this->db->changes() === 1;
     }
 
     /**

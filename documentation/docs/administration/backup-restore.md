@@ -10,6 +10,14 @@ You should back up this volume to ensure you can restore your data in case of a 
 
 The `repomanager-data` volume also contains the `version` file which contains the version of the application. This can be useful to know which version of the application was running when the backup was made and to restore the same version when restoring the backup.
 
+!!! warning
+
+    Make sure the container is stopped before backing up `repomanager-data` volume to avoid database write while the backup is being made. Otherwise you could end up with a corrupted backup and will not be able to restore your data correctly.
+
+    ```bash
+    docker stop repomanager
+    ```
+
 ### Repositories
 
 Repositories are stored in a dedicated Docker volume named `repomanager-repo` which is located in `/var/lib/docker/volumes/repomanager-repo` on the host (unless you have changed the default location). 

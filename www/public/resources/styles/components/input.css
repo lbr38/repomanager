@@ -7,12 +7,18 @@ input[type=text], input[type=date], input[type=time], input[type=number], input[
     margin-top: 4px;
     margin-bottom: 4px;
     padding-left: 10px;
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 20px;
     box-sizing: border-box;
     font-size: 14px;
     color: white;
     background-color:#22384F;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+input[type=text]:focus, input[type=date]:focus, input[type=time]:focus, input[type=number]:focus, input[type=email]:focus, input[type=password]:focus, select:focus {
+    outline: none;
+    border-color: rgba(84, 115, 232, 0.8);
+    box-shadow: 0 0 10px rgba(84, 115, 232, 0.25);
 }
 input[type=file] {
     background: none !important;
@@ -133,8 +139,43 @@ textarea {
     color: white;
     background-color:#22384F;
     border-radius: 16px;
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+textarea:focus {
+    outline: none;
+    border-color: rgba(84, 115, 232, 0.8);
+    box-shadow: 0 0 10px rgba(84, 115, 232, 0.25);
 }
 .textarea-100 {
     min-height: 100px;
+}
+
+/**
+ *  Form block
+ *  Groups the parameters of a same item (e.g. a repository snapshot) into a distinct section of a form
+ */
+.form-block {
+    padding: 14px 18px 14px 18px;
+    margin-bottom: 24px;
+    background-color: #15273ae3;
+    border: 1px solid #24405c;
+    border-left: 3px solid #24405c;
+    border-radius: 16px;
+}
+
+.form-block > *:first-child {
+    margin-top: 0;
+}
+
+.form-block-accent-red {
+    border-left-color: #F32F63;
+}
+
+.form-block-accent-blue {
+    border-left-color: #5473e8;
+}
+
+.form-block-accent-green {
+    border-left-color: #15bf7f;
 }

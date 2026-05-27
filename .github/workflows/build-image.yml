@@ -3,8 +3,6 @@ name: Build Docker image
 on:
   release:
     types: [ published ]
-  # push:
-  #   branches: [ devel ]
 
 jobs:
   push_to_registry:

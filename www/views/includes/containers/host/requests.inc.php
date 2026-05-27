@@ -16,8 +16,6 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
     </div>
 
     <?php
-    /**
-     *  Print requests
-     */
+    // Print requests
     \Controllers\Layout\Table\Render::render('host/requests'); ?>
 </section>

@@ -1,18 +1,31 @@
 <?php
-use Controllers\Utils\Random; ?>
+use Controllers\Utils\Random;
 
-<div class="task-schedule-form-params" action="<?= $scheduleForm['action'] ?>">
+$showScheduleIntro = $scheduleForm['show-intro'] ?? true;
+$showScheduleToggle = $scheduleForm['show-toggle'] ?? true; ?>
+
+<div class="task-schedule-form-params form-block form-block-accent-green margin-top-15" action="<?= $scheduleForm['action'] ?>">
     <h6>TASK SCHEDULING</h6>
-    <p class="note">Don't want to execute the task immediately? Schedule it!</p>
+    <?php
+    if ($showScheduleIntro) : ?>
+        <p class="note">Don't want to execute the task immediately? Schedule it!</p>
+        <?php
+    endif;
 
-    <h6>SCHEDULE IT</h6>
-    <label class="onoff-switch-label">
-        <input type="checkbox" class="task-schedule-btn onoff-switch-input task-param" param-name="scheduled" value="true" />
-        <span class="onoff-switch-slider"></span>
-    </label>
+    if ($showScheduleToggle) : ?>
+        <h6>SCHEDULE IT</h6>
+        <label class="onoff-switch-label">
+            <input type="checkbox" class="task-schedule-btn onoff-switch-input task-param" param-name="scheduled" value="true" />
+            <span class="onoff-switch-slider"></span>
+        </label>
+        <?php
+    else : ?>
+        <input type="hidden" class="task-param" param-name="scheduled" value="true" />
+        <?php
+    endif; ?>
 
     <!-- Scheduling params -->
-    <div class="task-schedule-params hide">
+    <div class="task-schedule-params<?= $showScheduleToggle ? ' hide' : '' ?>">
         <h6 class="required">SCHEDULE TYPE</h6>
         <?php
         // Generate a random string to make radio Id unique and avoid conflicts with other forms

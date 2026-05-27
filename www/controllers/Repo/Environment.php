@@ -2,8 +2,7 @@
 
 namespace Controllers\Repo;
 
-use Exception;
-use Controllers\Utils\Validate;
+use \Controllers\Environment as GlobalEnvironment;
 
 class Environment
 {
@@ -15,19 +14,19 @@ class Environment
     }
 
     /**
-     *  Return all environments associated to a repository ID
+     *  Return all environments associated to a snapshot Id
      */
-    public function getByRepoId(int $repoId): array
+    public function getBySnapId(int $snapId): array
     {
-        return $this->model->getByRepoId($repoId);
+        return $this->model->getBySnapId($snapId);
     }
 
     /**
      *  Associate a new environment to a snapshot
      */
-    public function add(int $snapId, string $env, string $description = '') : void
+    public function add(int $snapId, string $env) : void
     {
-        $this->model->add($snapId, $env, $description);
+        $this->model->add($snapId, $env);
     }
 
     /**
@@ -36,19 +35,6 @@ class Environment
     public function remove(int $id) : void
     {
         $this->model->remove($id);
-    }
-
-    /**
-     *  Update environment description
-     */
-    public function updateDescription(int $id, string $description) : void
-    {
-        // Description should not contain single quotes or backslashes
-        if (str_contains($description, "'") || str_contains($description, "\\") || str_contains($description, '<?') || str_contains($description, '?>')) {
-            throw new Exception('Description contains invalid characters');
-        }
-
-        $this->model->updateDescription($id, Validate::string($description));
     }
 
     /**

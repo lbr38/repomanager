@@ -19,6 +19,7 @@ $taskConfig = [
         'env',
         'group',
         'description',
+        'tags'
     ],
 
     // Conditional params must be compared with form values

@@ -24,7 +24,7 @@ An API key must be retrieved from userspace.
 
 Once generated, copy the key and keep it safe. This key is used to authenticate with the API and to perform certain actions when there is no host Id+token pair available.
 
-[![Generate API key](https://assets.repomanager.net/repomanager/reference/api/generate-api-key.png)](https://assets.repomanager.net/repomanager/reference/api/generate-api-key.png)
+[![Generate API key](https://assets.repomanager.net/repomanager/6.0.0/reference/api/generate-api-key.png)](https://assets.repomanager.net/repomanager/6.0.0/reference/api/generate-api-key.png)
 
 !!! info
     If a new API key is generated, the old key becomes invalid and unusable.

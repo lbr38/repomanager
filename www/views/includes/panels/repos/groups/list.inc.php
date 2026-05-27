@@ -2,27 +2,23 @@
 
 <h6>CREATE A NEW GROUP</h6>
 
-<form id="newGroupForm" autocomplete="off">
-    <input id="newGroupInput" type="text" class="input-medium" placeholder="Group name" />
-    <button type="submit" class="btn-xxsmall-green" title="Add">+</button>
+<form id="new-group" autocomplete="off">
+    <input name="group-name" type="text" placeholder="Group name" />
+    <button type="submit" class="btn-small-green margin-top-5" title="Create">Create</button>
 </form>
-
-<br>
 
 <?php
 if (!empty($repoGroupsList)) : ?>
-    <h6>CURRENT GROUPS</h6>
+    <h6 class="margin-top-30 margin-bottom-5">CURRENT GROUPS</h6>
 
     <?php
     foreach ($repoGroupsList as $group) :
-        /**
-         *  Retrieve repos members and repos not members of the group
-         */
+        // Retrieve repos members and repos not members of the group
         $reposIn = $mygroup->getReposMembers($group['Id']);
         $reposNotIn = $mygroup->getReposNotMembers();
         $reposInCount = count($reposIn); ?>
 
-        <div class="table-container grid-fr-4-1 bck-blue-alt group-config-btn pointer veil-on-reload" group-id="<?= $group['Id'] ?>">
+        <div class="table-container-2 panel-list-item group-config-btn pointer veil-on-reload" group-id="<?= $group['Id'] ?>">
             <div>
                 <p><?= $group['Name'] ?></p>
                 <p class="lowopacity-cst"><?= $reposInCount ?> <?= $reposInCount > 1 ? 'repositories' : 'repository' ?></p>
@@ -41,9 +37,7 @@ if (!empty($repoGroupsList)) : ?>
                 <h6>REPOSITORIES</h6>
                 <select class="group-repos-list" group-id="<?= $group['Id'] ?>" name="group-repos[]" multiple>
                     <?php
-                    /**
-                     *  Repos members of the group will be selected by default in the list
-                     */
+                    // Repos members of the group will be selected by default in the list
                     if (!empty($reposIn)) {
                         foreach ($reposIn as $repo) {
                             if ($repo['Package_type'] == 'rpm') {
@@ -55,9 +49,7 @@ if (!empty($repoGroupsList)) : ?>
                         }
                     }
 
-                    /**
-                     *  Repos not members of the group will be unselected in the list
-                     */
+                    // Repos not members of the group will be unselected in the list
                     if (!empty($reposNotIn)) {
                         foreach ($reposNotIn as $repo) {
                             if ($repo['Package_type'] == 'rpm') {

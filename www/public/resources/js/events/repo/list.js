@@ -11,18 +11,18 @@ $(document).on('click','#hide-all-repo-groups',function () {
         $(this).find('img').attr('src', 'assets/icons/view-off.svg');
 
         // Retrieve all groups and hide them if they are visible
-        $('.repo-list-group-container').each(function () {
-            // Retrieve group id
-            var id = $(this).attr('group-id');
+        $('.repos-list-group').each(function () {
+            var content = $(this).children('.group-content');
 
-            // If the group is visible then hide it, else do nothing
-            if ($(this).is(":visible")) {
-                slide('.repo-list-group-container[group-id="' + id + '"]');
+            // If the group content is visible then hide it, else do nothing
+            if (content.is(":visible")) {
+                content.slideUp(200);
             }
         });
 
         // Change all up/down icons to 'down'
         $('img.hide-repo-group').attr('src', 'assets/icons/view-off.svg');
+        $('img.hide-repo-group').attr('state', 'hidden');
     }
 
     // If actual state is 'hidden' then show all groups
@@ -32,18 +32,18 @@ $(document).on('click','#hide-all-repo-groups',function () {
         $(this).find('img').attr('src', 'assets/icons/view.svg');
 
         // Retrieve all groups and show them if they are hidden
-        $('.repo-list-group-container').each(function () {
-            // Retrieve group id
-            var id = $(this).attr('group-id');
+        $('.repos-list-group').each(function () {
+            var content = $(this).children('.group-content');
 
-            // If the group is hidden then show it, else do nothing
-            if ($(this).is(":hidden")) {
-                slide('.repo-list-group-container[group-id="' + id + '"]');
+            // If the group content is hidden then show it, else do nothing
+            if (content.is(":hidden")) {
+                content.slideDown(200);
             }
         });
 
         // Change all up/down icons to 'up'
         $('img.hide-repo-group').attr('src', 'assets/icons/view.svg');
+        $('img.hide-repo-group').attr('state', 'visible');
     }
 });
 
@@ -51,7 +51,6 @@ $(document).on('click','#hide-all-repo-groups',function () {
  *  Event: show / hide repos group content
  */
 $(document).on('click','.hide-repo-group',function () {
-    var id = $(this).attr('group-id');
     var state = $(this).attr('state');
 
     if (state == 'visible') {
@@ -64,5 +63,5 @@ $(document).on('click','.hide-repo-group',function () {
         $(this).attr('src', 'assets/icons/view.svg');
     }
 
-    slide('.repo-list-group-container[group-id="' + id + '"]');
+    $(this).closest('.repos-list-group').children('.group-content').slideToggle(200);
 });

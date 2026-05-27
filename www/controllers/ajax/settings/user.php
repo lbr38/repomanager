@@ -46,7 +46,7 @@ if ($action == 'delete' and !empty($_POST['id'])) {
  */
 if ($action == 'edit-permissions' and !empty($_POST['id']) and isset($_POST['reposView']) and isset($_POST['reposActions']) and isset($_POST['tasksActions']) and isset($_POST['hostsActions'])) {
     try {
-        $userPermissionController = new \Controllers\User\Permission();
+        $userPermissionController = new \Controllers\User\Permission\Permission();
         $userPermissionController->set($_POST['id'], $_POST['reposView'], $_POST['reposActions'], $_POST['tasksActions'], $_POST['hostsActions']);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());

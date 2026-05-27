@@ -123,12 +123,13 @@ class Host extends \Models\Model
     /**
      *  Edit the display settings on the hosts page
      */
-    public function setSettings(int $complianceThresholdCount, int $complianceThresholdDays, int $complianceRebootRequired): void
+    public function setSettings(int $complianceThresholdCount, int $complianceThresholdDays, int $complianceSecurityUpdate, int $complianceRebootRequired): void
     {
         try {
-            $stmt = $this->db->prepare("UPDATE settings SET compliance_threshold_count = :compliance_threshold_count, compliance_threshold_days = :compliance_threshold_days, compliance_reboot_required = :compliance_reboot_required");
+            $stmt = $this->db->prepare("UPDATE settings SET compliance_threshold_count = :compliance_threshold_count, compliance_threshold_days = :compliance_threshold_days, compliance_security_update = :compliance_security_update, compliance_reboot_required = :compliance_reboot_required");
             $stmt->bindValue(':compliance_threshold_count', $complianceThresholdCount, SQLITE3_INTEGER);
             $stmt->bindValue(':compliance_threshold_days', $complianceThresholdDays, SQLITE3_INTEGER);
+            $stmt->bindValue(':compliance_security_update', $complianceSecurityUpdate, SQLITE3_INTEGER);
             $stmt->bindValue(':compliance_reboot_required', $complianceRebootRequired, SQLITE3_INTEGER);
             $stmt->execute();
         } catch (Exception $e) {

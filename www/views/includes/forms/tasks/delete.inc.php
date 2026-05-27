@@ -1,5 +1,3 @@
-<h6>DELETE</h6>
-<p class="note">The repository snapshot to delete.</p>
 <?php
 if ($repoController->getPackageType() == 'rpm') {
     echo '<span class="label-white">' . $repoController->getName() . ' ❯ ' . $repoController->getReleasever() . '</span>⸺<span class="label-black">' . $repoController->getDateFormatted() . '</span>';

@@ -1,4 +1,6 @@
-name: Database update tests
+# TODO debug
+# Crash en boucle - à corriger une fois 6.0.0 mergé dans devel
+# name: Database update tests
 
 on:
   push:
@@ -91,7 +93,9 @@ jobs:
 
           cd ${GITHUB_WORKSPACE}
 
-          sed -i 's/branch:.*/branch: devel/g' docker-compose.yml
+          # TODO debug
+          # sed -i 's/branch:.*/branch: devel/g' docker-compose.yml
+          sed -i 's/branch:.*/branch: ui/g' docker-compose.yml
           sed -i 's/FQDN:.*/FQDN: repomanager.test.com/g' docker-compose.yml
 
           docker-compose -f docker-compose.yml up -d

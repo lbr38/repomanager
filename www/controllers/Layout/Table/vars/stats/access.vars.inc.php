@@ -7,20 +7,18 @@ $timeStart = strtotime(DATE_YMD . ' 00:00:00');
 $timeEnd = strtotime(DATE_YMD . ' 23:59:59');
 $envs = [];
 
-if (__ACTUAL_URI__[2] != 'repo') {
-    throw new Exception('Error: invalid URI specified.');
+// Check that repository Id is specified
+if (empty(__ACTUAL_URI__[2])) {
+    throw new Exception('no repository ID specified');
 }
 
-if (empty(__ACTUAL_URI__[3])) {
-    throw new Exception('Error: missing repository ID.');
-}
-
-if (!is_numeric(__ACTUAL_URI__[3])) {
-    throw new Exception('Error: invalid repository ID specified.');
+// Check that repository Id is valid
+if (!is_numeric(__ACTUAL_URI__[2])) {
+    throw new Exception('invalid repository ID');
 }
 
 // Get repository info
-$repoController->getAllById(__ACTUAL_URI__[3]);
+$repoController->getAllById(__ACTUAL_URI__[2]);
 
 // Retrieve period from cookie if exists
 if (!empty($_COOKIE['tables/stats/access/period'])) {

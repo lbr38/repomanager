@@ -1,17 +1,19 @@
 <?php ob_start(); ?>
 
 <?php
-if (NOTIFICATION == 0) :
-    echo '<p class="note">Nothing for now!</p>';
+if (NOTIFICATION == 0) : ?>
+    <div class="empty-state">
+        <p class="empty-state-title">Nothing for now!</p>
+        <p class="note">You have no notifications at the moment. Repomanager will notify you when an update is available or if there are any important messages to read.</p>
+    </div>
+    <?php
 else :
-    /**
-     *  If an update is available, generate the update notification
-     */
+    // If an update is available, generate the update notification
     if (IS_ADMIN && UPDATE_AVAILABLE) : ?>
-        <div class="margin-bottom-50">
+        <div class="form-block">
             <h5 class="margin-top-10 margin-bottom-0"><?= strtoupper('Update available: ' . GIT_VERSION) ?></h5>
 
-            <div class="flex column-gap-10 margin-bottom-10">
+            <div class="flex align-item-center column-gap-10 margin-bottom-10">
                 <?php
                 // Case its a major release
                 if ($currentVersionDigit != $newVersionDigit) : ?>
@@ -19,6 +21,7 @@ else :
                         <p class="yellowtext"><b>Major release</b></p>
                         <img src="/assets/icons/warning.svg" class="icon-medium icon-np" />
                     </div>
+                    <span class="dot mediumopacity-cst">●</span>
                     <?php
                 endif ?>
 
@@ -26,6 +29,8 @@ else :
                     <a href="<?= PROJECT_GIT_REPO ?>/releases/latest" target="_blank" rel="noopener noreferrer" title="See changelog"><p class="mediumopacity">Changelog</p></a>
                     <img src="/assets/icons/external-link.svg" class="mediumopacity-cst icon-small icon-np" />
                 </div>
+
+                <span class="dot mediumopacity-cst">●</span>
                 
                 <div class="flex align-item-center column-gap-5">
                     <a href="<?= PROJECT_UPDATE_DOC_URL ?>" target="_blank" rel="noopener noreferrer"><p class="mediumopacity">Update instructions</p></a>
@@ -56,26 +61,21 @@ else :
         <?php
     endif;
 
-    /**
-     *  All other notifications
-     */
+    // All other notifications
     foreach (NOTIFICATION_MESSAGES as $notification) : ?>
-        <div class="margin-bottom-50">
+        <div class="form-block">
             <?php
             if (!empty($notification['Title'])) : ?>
                 <h5 class="margin-top-10 margin-bottom-10"><?= strtoupper($notification['Title']) ?></h5>
                 <?php
             endif ?>
 
-            <div class="flex flex-direction-column margin-bottom-40">
+            <div class="flex flex-direction-column">
                 <p><?= htmlspecialchars_decode($notification['Message']) ?></p>
             
                 <?php
                 if (!empty($notification['Id'])) : ?>
-                    <div class="flex align-item-center column-gap-5 mediumopacity acquit-notification-btn margin-top-10" notification-id="<?= $notification['Id'] ?>" title="Mark as read">
-                        <img src="/assets/icons/enabled.svg" class="icon" />
-                        <p class="pointer">Mark as read</p>
-                    </div>
+                    <button type="button" class="btn-fit-tr acquit-notification-btn margin-top-10" notification-id="<?= $notification['Id'] ?>" title="Mark as read">Mark as read</button>
                     <?php
                 endif ?>
             </div>
