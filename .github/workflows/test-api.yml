@@ -54,6 +54,18 @@ jobs:
       #
       # Run tests as admin user
       #
+      - name: Run admin tasks tests
+        uses: ./.github/actions/test-api/admin/tasks
+        with:
+          api-host: ${{ secrets.API_TEST_HOST }}
+          api-key: ${{ secrets.API_TEST_ADMIN_API_KEY }}
+
+      - name: Run admin environment point test
+        uses: ./.github/actions/test-api/admin/environment/point
+        with:
+          api-host: ${{ secrets.API_TEST_HOST }}
+          api-key: ${{ secrets.API_TEST_ADMIN_API_KEY }}
+
       - name: Run admin repositories tests
         uses: ./.github/actions/test-api/admin/repositories
         with:
@@ -68,6 +80,12 @@ jobs:
 
       - name: Run admin snapshot details tests
         uses: ./.github/actions/test-api/admin/snapshot/details
+        with:
+          api-host: ${{ secrets.API_TEST_HOST }}
+          api-key: ${{ secrets.API_TEST_ADMIN_API_KEY }}
+
+      - name: Run admin snapshot diff tests
+        uses: ./.github/actions/test-api/admin/snapshot/diff
         with:
           api-host: ${{ secrets.API_TEST_HOST }}
           api-key: ${{ secrets.API_TEST_ADMIN_API_KEY }}
@@ -90,7 +108,7 @@ jobs:
           api-host: ${{ secrets.API_TEST_HOST }}
           api-key: ${{ secrets.API_TEST_ADMIN_API_KEY }}
 
-      - name: Run admin host tests
+      - name: Run admin single host tests
         uses: ./.github/actions/test-api/admin/host
         with:
           api-host: ${{ secrets.API_TEST_HOST }}
@@ -123,6 +141,7 @@ jobs:
         with:
           api-host: ${{ secrets.API_TEST_HOST }}
           api-key: ${{ secrets.API_TEST_TEST_USER1_API_KEY }}
+
 
       #
       # Run tests as a regular user: test-user2

@@ -146,8 +146,7 @@ trait Sync
         $mymirror->setUrl($sourceUrl);
         $mymirror->setArch($this->repoController->getArch());
         $mymirror->setCheckSignature($this->repoController->getGpgCheck());
-        $mymirror->setPackagesToInclude($this->repoController->getPackagesToInclude());
-        $mymirror->setPackagesToExclude($this->repoController->getPackagesToExclude());
+        $mymirror->setAdvancedParams($this->repoController->getAdvancedParams());
 
         /**
          *  If the task is an update, set the previous repo directory path

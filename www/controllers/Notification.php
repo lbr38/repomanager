@@ -37,9 +37,7 @@ class Notification
                 $title = Validate::string($notification['title']);
                 $message = Validate::string($notification['message']);
 
-                /**
-                 *  Insert notficiation in database if not already exists
-                 */
+                // Insert notification in database if not already exists
                 if (!$this->exists($id)) {
                     $this->add($id, $title, $message);
                 }

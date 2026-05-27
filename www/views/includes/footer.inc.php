@@ -9,7 +9,7 @@
 
         <div class="flex align-item-center column-gap-5 max-width-fit mediumopacity">
             <img src="/assets/icons/chatbubble.svg" class="icon-np" />
-            <a target="_blank" rel="noopener noreferrer" href="https://discord.gg/34yeNsMmkQ">
+            <a target="_blank" rel="noopener noreferrer" href="https://discord.gg/xuNxGv9U9">
                 <p>Discord</p>
             </a>
         </div>
@@ -43,6 +43,7 @@
 <script src="/resources/js/notification.js?<?= VERSION ?>"></script>
 <script src="/resources/js/events/checkbox.js?<?= VERSION ?>"></script>
 <script src="/resources/js/events/tooltip.js?<?= VERSION ?>"></script>
+<script src="/resources/js/events/toggle.js?<?= VERSION ?>"></script>
 
 <!-- Import some classes -->
 <script src="/resources/js/classes/Layout.js?<?= VERSION ?>"></script>

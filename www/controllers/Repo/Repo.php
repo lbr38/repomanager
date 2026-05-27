@@ -4,7 +4,9 @@ namespace Controllers\Repo;
 
 use Exception;
 use DateTime;
+use JsonException;
 use Controllers\Utils\Validate;
+use Controllers\Group\Repo as RepoGroup;
 
 class Repo
 {
@@ -26,8 +28,7 @@ class Repo
     private $env;
     private $description;
     private $group;
-    private $packagesToInclude = [];
-    private $packagesToExclude = [];
+    private $advancedParams = [];
     private $signed;
     private $status;
     private $rebuild;
@@ -70,6 +71,11 @@ class Repo
         $this->section = $section;
     }
 
+    public function setReleasever(string $releasever): void
+    {
+        $this->releasever = $releasever;
+    }
+
     public function setEnv(string|array $env): void
     {
         $this->env = $env;
@@ -108,10 +114,6 @@ class Repo
 
     public function setDescription($description = ''): void
     {
-        if ($description == 'nodescription') {
-            $description = '';
-        }
-
         $this->description = Validate::string($description);
     }
 
@@ -125,13 +127,9 @@ class Repo
         $this->packageType = $type;
     }
 
-    public function setGroup(string $group): void
+    public function setGroup(string $group = ''): void
     {
-        if ($group == 'nogroup') {
-            $this->group = '';
-        } else {
-            $this->group = $group;
-        }
+        $this->group = Validate::string($group);
     }
 
     public function setGpgCheck(string $gpgCheck): void
@@ -149,19 +147,9 @@ class Repo
         $this->arch = $arch;
     }
 
-    public function setPackagesToInclude(array $packages): void
+    public function setAdvancedParams(array $advancedParams): void
     {
-        $this->packagesToInclude = $packages;
-    }
-
-    public function setPackagesToExclude(array $packages): void
-    {
-        $this->packagesToExclude = $packages;
-    }
-
-    public function setReleasever(string $releasever): void
-    {
-        $this->releasever = $releasever;
+        $this->advancedParams = $advancedParams;
     }
 
     public function setTaskId(int $taskId): void
@@ -179,7 +167,7 @@ class Repo
         return $this->snapId;
     }
 
-    public function getEnvId()
+    public function getEnvId(): int
     {
         return $this->envId;
     }
@@ -199,12 +187,17 @@ class Repo
         return $this->section;
     }
 
+    public function getReleasever()
+    {
+        return $this->releasever;
+    }
+
     public function getPackageType(): string
     {
         return $this->packageType;
     }
 
-    public function getEnv()
+    public function getEnv(): string|array
     {
         return $this->env;
     }
@@ -224,12 +217,12 @@ class Repo
         return $this->time;
     }
 
-    public function getRebuild()
+    public function getRebuild(): string|null
     {
         return $this->rebuild;
     }
 
-    public function getStatus()
+    public function getStatus(): string
     {
         return $this->status;
     }
@@ -239,34 +232,24 @@ class Repo
         return $this->source;
     }
 
-    public function getType()
+    public function getType(): string
     {
         return $this->type;
     }
 
-    public function getSigned()
+    public function getSigned(): string
     {
         return $this->signed;
     }
 
-    public function getArch()
+    public function getArch(): array
     {
         return $this->arch;
     }
 
-    public function getPackagesToInclude()
+    public function getAdvancedParams(): array
     {
-        return $this->packagesToInclude;
-    }
-
-    public function getPackagesToExclude()
-    {
-        return $this->packagesToExclude;
-    }
-
-    public function getReleasever()
-    {
-        return $this->releasever;
+        return $this->advancedParams;
     }
 
     public function getDescription(): string|null
@@ -274,17 +257,17 @@ class Repo
         return $this->description;
     }
 
-    public function getGroup()
+    public function getGroup(): string|null
     {
         return $this->group;
     }
 
-    public function getGpgCheck()
+    public function getGpgCheck(): string
     {
         return $this->gpgCheck;
     }
 
-    public function getGpgSign()
+    public function getGpgSign(): string
     {
         return $this->gpgSign;
     }
@@ -309,6 +292,15 @@ class Repo
     {
         $data = $this->model->getAllById($repoId, $snapId, $envId);
 
+        if (!empty($data['repoId'])) {
+            $this->setRepoId($data['repoId']);
+        }
+        if (!empty($data['snapId'])) {
+            $this->setSnapId($data['snapId']);
+        }
+        if (!empty($data['envId'])) {
+            $this->setEnvId($data['envId']);
+        }
         if (!empty($data['Source'])) {
             $this->setSource($data['Source']);
         }
@@ -351,30 +343,30 @@ class Repo
         if (!empty($data['Description'])) {
             $this->setDescription($data['Description']);
         }
-        if (!empty($data['repoId'])) {
-            $this->setRepoId($data['repoId']);
-        }
-        if (!empty($data['snapId'])) {
-            $this->setSnapId($data['snapId']);
-        }
-        if (!empty($data['envId'])) {
-            $this->setEnvId($data['envId']);
-        }
         if (!empty($data['Arch'])) {
             $this->setArch(explode(',', $data['Arch']));
         }
-        if (!empty($data['Pkg_included'])) {
-            $this->setPackagesToInclude(explode(',', $data['Pkg_included']));
-        }
-        if (!empty($data['Pkg_excluded'])) {
-            $this->setPackagesToExclude(explode(',', $data['Pkg_excluded']));
+
+        /**
+         *  Extract Advanced_params JSON
+         *  This includes package include/exclude, metadata custom fields and potentially other parameters in the future
+         *  It is optional and can be empty
+         */
+        if (!empty($data['Advanced_params'])) {
+            try {
+                $advancedParams = json_decode($data['Advanced_params'], true, 512, JSON_THROW_ON_ERROR);
+            } catch (JsonException $e) {
+                throw new Exception('Failed to decode advanced parameters JSON: ' . $e->getMessage());
+            }
+
+            $this->setAdvancedParams($advancedParams);
         }
     }
 
     /**
      *  Get unused repos Id (repos that have no active snapshot and so are not visible from web UI)
      */
-    public function getUnused() : array
+    public function getUnused(): array
     {
         return $this->model->getUnused();
     }
@@ -382,7 +374,7 @@ class Repo
     /**
      *  Return true if a repo Id exists in database
      */
-    public function existsId(string $repoId) : bool
+    public function existsId(string $repoId): bool
     {
         return $this->model->existsId($repoId);
     }
@@ -390,7 +382,7 @@ class Repo
     /**
      *  Return true if a snapshot Id exists in database
      */
-    public function existsSnapId(string $snapId) : bool
+    public function existsSnapId(string $snapId): bool
     {
         return $this->model->existsSnapId($snapId);
     }
@@ -398,7 +390,7 @@ class Repo
     /**
      *  Return true if env exists, based on its name and the snapshot Id it points to
      */
-    public function existsSnapIdEnv(string $snapId, string $env)
+    public function existsSnapIdEnv(string $snapId, string $env): bool
     {
         return $this->model->existsSnapIdEnv($snapId, $env);
     }
@@ -406,7 +398,7 @@ class Repo
     /**
      *  Return the total number of repositories
      */
-    public function count()
+    public function count(): int
     {
         return $this->model->count();
     }
@@ -414,9 +406,9 @@ class Repo
     /**
      *  Add / remove repositories to/from a group
      */
-    public function addReposIdToGroup(array $reposId = [], int $groupId)
+    public function addReposIdToGroup(int $groupId, array $reposId = []): void
     {
-        $mygroup = new \Controllers\Group\Repo();
+        $groupController = new RepoGroup();
 
         if (!empty($reposId)) {
             foreach ($reposId as $repoId) {
@@ -431,7 +423,7 @@ class Repo
         }
 
         // Retrieve the list of repositories currently in the group in order to remove those that were not specified by the user
-        $actualReposMembers = $mygroup->getReposMembers($groupId);
+        $actualReposMembers = $groupController->getReposMembers($groupId);
 
         // Among this list, only retrieve the Ids of the currently member repositories
         $actualReposId = [];
@@ -446,17 +438,21 @@ class Repo
                 $this->model->removeFromGroup($actualRepoId, $groupId);
             }
         }
+
+        unset($groupController);
     }
 
     /**
      *  Add a repository to a group
      */
-    public function addRepoIdToGroup(string $repoId, string $groupName)
+    public function addRepoIdToGroup(int $repoId, string $groupName): void
     {
-        $mygroup = new \Controllers\Group\Repo();
-        $groupId = $mygroup->getIdByName($groupName);
+        $groupController = new RepoGroup();
+        $groupId = $groupController->getIdByName($groupName);
 
         $this->model->addToGroup($repoId, $groupId);
+
+        unset($groupController);
     }
 
     /**
@@ -493,7 +489,7 @@ class Repo
         }
     }
 
-    public function getLastInsertRowID()
+    public function getLastInsertRowID(): int
     {
         return $this->model->getLastInsertRowID();
     }

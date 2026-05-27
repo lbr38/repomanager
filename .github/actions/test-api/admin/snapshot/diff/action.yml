@@ -1,0 +1,23 @@
+name: API - admin - snapshot diff tests
+description: Run snapshot diff tests as admin user
+
+inputs:
+  api-host:
+    description: API test host URL
+    required: true
+  api-key:
+    description: Admin API key
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: (admin) Snapshot diff
+      shell: bash
+      run: |
+        RESULT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/snapshot/1/diff/3)
+        if [ $? -ne 0 ]; then
+            echo "Failed to get snapshot diff"
+            exit 1
+        fi
+        echo "$RESULT" | jq

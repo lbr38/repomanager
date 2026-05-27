@@ -2,8 +2,6 @@
 
 namespace Controllers\Websocket\BrowserClient;
 
-use Exception;
-
 /**
  *  Class Process extends WebsocketServer to gain access to its methods
  */

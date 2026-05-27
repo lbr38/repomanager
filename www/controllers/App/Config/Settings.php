@@ -35,7 +35,7 @@ class Settings
             /**
              *  Following parameters can be empty (or equal to 0), we don't increment the error counter in their case
              */
-            $ignoreEmptyParam = ['EMAIL_RECIPIENT', 'PROXY', 'LOGIN_BANNER', 'RPM_DEFAULT_ARCH', 'DEB_DEFAULT_ARCH', 'DEB_DEFAULT_TRANSLATION', 'REPO_CONF_FILES_PREFIX', 'RETENTION', 'OIDC_PROVIDER_URL', 'OIDC_AUTHORIZATION_ENDPOINT', 'OIDC_TOKEN_ENDPOINT', 'OIDC_USERINFO_ENDPOINT', 'OIDC_SCOPES', 'OIDC_CLIENT_ID', 'OIDC_CLIENT_SECRET', 'OIDC_HTTP_PROXY', 'OIDC_CERT_PATH'];
+            $ignoreEmptyParam = ['EMAIL_RECIPIENT', 'PROXY', 'LOGIN_BANNER', 'RPM_DEFAULT_ARCH', 'DEB_DEFAULT_ARCH', 'REPO_CONF_FILES_PREFIX', 'RETENTION', 'OIDC_PROVIDER_URL', 'OIDC_AUTHORIZATION_ENDPOINT', 'OIDC_TOKEN_ENDPOINT', 'OIDC_USERINFO_ENDPOINT', 'OIDC_SCOPES', 'OIDC_CLIENT_ID', 'OIDC_CLIENT_SECRET', 'OIDC_HTTP_PROXY', 'OIDC_CERT_PATH'];
 
             if (in_array($key, $ignoreEmptyParam)) {
                 continue;
@@ -294,14 +294,6 @@ class Settings
                 define('DEB_DEFAULT_ARCH', explode(',', $settings['DEB_DEFAULT_ARCH']));
             } else {
                 define('DEB_DEFAULT_ARCH', array());
-            }
-        }
-
-        if (!defined('DEB_DEFAULT_TRANSLATION')) {
-            if (!empty($settings['DEB_DEFAULT_TRANSLATION'])) {
-                define('DEB_DEFAULT_TRANSLATION', explode(',', $settings['DEB_DEFAULT_TRANSLATION']));
-            } else {
-                define('DEB_DEFAULT_TRANSLATION', array());
             }
         }
 

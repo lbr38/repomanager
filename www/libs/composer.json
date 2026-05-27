@@ -1,6 +1,10 @@
 {
     "require": {
         "cboden/ratchet": "^0.4.4",
-        "jumbojett/openid-connect-php": "^1.0"
+        "jumbojett/openid-connect-php": "^1.0",
+        "phpmailer/phpmailer": "^7.1"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.2"
     }
 }

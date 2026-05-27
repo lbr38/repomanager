@@ -17,6 +17,11 @@ class Duplicate extends \Controllers\Task\Execution
         // Get source repository details from its snapshot Id
         $this->sourceRepoController->getAllById(null, $this->params['snap-id'], null);
 
+        // Reset some params for the new repo, to avoid carrying over values that are not relevant for the new repo (e.g. metadata custom fields)
+        $advancedParams = $this->sourceRepoController->getAdvancedParams();
+        unset($advancedParams['metadata-custom-fields']);
+        $this->repoController->setAdvancedParams($advancedParams);
+
         // Execute the task
         try {
             $this->execute();
@@ -270,7 +275,7 @@ class Duplicate extends \Controllers\Task\Execution
             /**
              *  Add the new repo snapshot in database
              */
-            $this->repoSnapshotController->add($this->repoController->getDate(), $this->repoController->getTime(), $this->repoController->getSigned(), $this->repoController->getArch(), array(), $this->repoController->getPackagesToInclude(), $this->repoController->getPackagesToExclude(), $this->repoController->getType(), $this->repoController->getStatus(), $targetRepoId);
+            $this->repoSnapshotController->add($this->repoController->getDate(), $this->repoController->getTime(), $this->repoController->getSigned(), $this->repoController->getArch(), $this->repoController->getAdvancedParams(), $this->repoController->getType(), $this->repoController->getStatus(), $targetRepoId);
 
             /**
              *  Retrieve the Id of the new repo snapshot in database
@@ -282,7 +287,7 @@ class Duplicate extends \Controllers\Task\Execution
              */
             if (!empty($this->repoController->getEnv())) {
                 foreach ($this->repoController->getEnv() as $env) {
-                    $this->repoEnvController->add($env, $this->repoController->getDescription(), $targetSnapId);
+                    $this->repoEnvController->add($targetSnapId, $env, $this->repoController->getDescription());
                 }
             }
 

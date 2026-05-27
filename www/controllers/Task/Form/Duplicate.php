@@ -3,82 +3,65 @@
 namespace Controllers\Task\Form;
 
 use Exception;
+use Controllers\Repo\Repo;
 use Controllers\History\Save as History;
 
 class Duplicate
 {
-    public function validate(array $formParams)
+    public function validate(array $formParams): void
     {
-        $myrepo = new \Controllers\Repo\Repo();
+        $repoController = new Repo();
         $rpmRepoController = new \Controllers\Repo\Rpm();
         $debRepoController = new \Controllers\Repo\Deb();
 
-        /**
-         *  Check that the snapshot id is valid
-         */
+        // Check that the snapshot id is valid
         Param\Snapshot::checkId($formParams['snap-id']);
 
-        /**
-         *  Retrieve all repo data from the Ids,
-         */
-        $myrepo->setSnapId($formParams['snap-id']);
-        $myrepo->getAllById('', $formParams['snap-id'], '');
+        // Retrieve all repo data from the Id
+        $repoController->setSnapId($formParams['snap-id']);
+        $repoController->getAllById('', $formParams['snap-id'], '');
 
-        /**
-         *  Check name
-         */
+        // Check name
         Param\Name::check($formParams['name']);
 
-        /**
-         *  Check env
-         */
+        // Check env
         if (!empty($formParams['env'])) {
             Param\Environment::check($formParams['env']);
         }
 
-        /**
-         *  Check description
-         */
+        // Check description
         if (!empty($formParams['description'])) {
             Param\Description::check($formParams['description']);
         }
 
-        /**
-         *  Check group
-         */
+        // Check group
         if (!empty($formParams['group'])) {
             Param\Group::check($formParams['group']);
         }
 
-        /**
-         *  Check that a repo with the same name does not already exist
-         */
-        if ($myrepo->getPackageType() == 'rpm') {
-            if ($rpmRepoController->isActive($formParams['name'], $myrepo->getReleasever())) {
-                throw new Exception('<span class="label-white">' . $formParams['name'] . ' ❯ ' . $myrepo->getReleasever() . '</span> repository already exists');
+        // Check that a repo with the same name does not already exist
+        if ($repoController->getPackageType() == 'rpm') {
+            if ($rpmRepoController->isActive($formParams['name'], $repoController->getReleasever())) {
+                throw new Exception('<span class="label-white">' . $formParams['name'] . ' ❯ ' . $repoController->getReleasever() . '</span> repository already exists');
             }
         }
-        if ($myrepo->getPackageType() == 'deb') {
-            if ($debRepoController->isActive($formParams['name'], $myrepo->getDist(), $myrepo->getSection())) {
-                throw new Exception('<span class="label-white">' . $formParams['name'] . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span> repo already exists');
+        if ($repoController->getPackageType() == 'deb') {
+            if ($debRepoController->isActive($formParams['name'], $repoController->getDist(), $repoController->getSection())) {
+                throw new Exception('<span class="label-white">' . $formParams['name'] . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection() . '</span> repo already exists');
             }
         }
 
-        /**
-         *  Check scheduling parameters
-         */
+        // Check scheduling parameters
         Param\Schedule::check($formParams['schedule']);
 
-        /**
-         *  Add history
-         */
-        if ($myrepo->getPackageType() == 'rpm') {
-            History::set('Running task: duplicate repository <span class="label-white">' . $myrepo->getName() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span> ➡ <span class="label-white">' . $formParams['name'] . '</span>');
+        // Add history
+        if ($repoController->getPackageType() == 'rpm') {
+            History::set('Running task: duplicate repository <span class="label-white">' . $repoController->getName() . '</span>⸺<span class="label-black">' . $repoController->getDateFormatted() . '</span> ➡ <span class="label-white">' . $formParams['name'] . '</span>');
         }
-        if ($myrepo->getPackageType() == 'deb') {
-            History::set('Running task: duplicate repository <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span> ➡ <span class="label-white">' . $formParams['name'] . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>');
+        if ($repoController->getPackageType() == 'deb') {
+            History::set('Running task: duplicate repository <span class="label-white">' . $repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection() . '</span>⸺<span class="label-black">' . $repoController->getDateFormatted() . '</span> ➡ <span class="label-white">' . $formParams['name'] . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection() . '</span>');
         }
 
-        unset($myrepo, $rpmRepoController, $debRepoController);
+        unset($repoController, $rpmRepoController, $debRepoController);
     }
 }

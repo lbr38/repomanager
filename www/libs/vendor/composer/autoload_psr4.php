@@ -21,6 +21,7 @@ return array(
     'Ratchet\\' => array($vendorDir . '/cboden/ratchet/src/Ratchet'),
     'Psr\\Http\\Message\\' => array($vendorDir . '/psr/http-factory/src', $vendorDir . '/psr/http-message/src'),
     'ParagonIE\\ConstantTime\\' => array($vendorDir . '/paragonie/constant_time_encoding/src'),
+    'PHPMailer\\PHPMailer\\' => array($vendorDir . '/phpmailer/phpmailer/src'),
     'GuzzleHttp\\Psr7\\' => array($vendorDir . '/guzzlehttp/psr7/src'),
     'Evenement\\' => array($vendorDir . '/evenement/evenement/src'),
 );

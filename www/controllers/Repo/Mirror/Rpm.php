@@ -115,11 +115,11 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          *  We'll give this modules file a temporary name, to avoid it being included automatically by createrepo_c (it fails every time with modules.yaml file)
          *  It will be renamed and imported by modifyrepo_c later
          */
-        $modulesFileExtension == 'gz' ? $modulesFileTargetName = 'modules-temp.yaml.gz' : null;
-        $modulesFileExtension == 'bz2' ? $modulesFileTargetName = 'modules-temp.yaml.bz2' : null;
-        $modulesFileExtension == 'xz' ? $modulesFileTargetName = 'modules-temp.yaml.xz' : null;
-        $modulesFileExtension == 'zst' ? $modulesFileTargetName = 'modules-temp.yaml.zst' : null;
-        $modulesFileExtension == 'yaml' ? $modulesFileTargetName = 'modules-temp.yaml' : null;
+        $modulesFileExtension == 'gz' ? $modulesFileTargetName = 'modules.yaml.gz' : null;
+        $modulesFileExtension == 'xz' ? $modulesFileTargetName = 'modules.yaml.xz' : null;
+        $modulesFileExtension == 'bz2' ? $modulesFileTargetName = 'modules.yaml.bz2' : null;
+        $modulesFileExtension == 'zst' ? $modulesFileTargetName = 'modules.yaml.zst' : null;
+        $modulesFileExtension == 'yaml' ? $modulesFileTargetName = 'modules.yaml' : null;
 
         /**
          *  Download modules file
@@ -158,9 +158,11 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             throw new Exception('Error while uncompressing <code>' . $modulesFileTargetName . '</code><br><pre class="codeblock">' . $e->getMessage() . '</pre>');
         }
 
-        // Delete original (uncompressed) file
-        if (!unlink($this->workingDir . '/' . $modulesFileTargetName)) {
-            throw new Exception('Could not delete <code>' . $this->workingDir . '/' . $modulesFileTargetName . '</code>');
+        // Delete original file (only if it was compressed and not already a plain .yaml file)
+        if ($modulesFileExtension != 'yaml') {
+            if (!unlink($this->workingDir . '/' . $modulesFileTargetName)) {
+                throw new Exception('Could not delete <code>' . $this->workingDir . '/' . $modulesFileTargetName . '</code>');
+            }
         }
 
         $this->taskLogSubStepController->completed();
@@ -196,10 +198,10 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          *  We'll give this updateinfo file a target name according to its file extension
          */
         $updateInfoFileExtension == 'gz' ? $updateInfoFileTargetName = 'updateinfo.xml.gz' : null;
-        $updateInfoFileExtension == 'bz2' ? $updateInfoFileTargetName = 'updateinfo.xml.bz2' : null;
         $updateInfoFileExtension == 'xz' ? $updateInfoFileTargetName = 'updateinfo.xml.xz' : null;
-        $updateInfoFileExtension == 'xml' ? $updateInfoFileTargetName = 'updateinfo.xml' : null;
+        $updateInfoFileExtension == 'bz2' ? $updateInfoFileTargetName = 'updateinfo.xml.bz2' : null;
         $updateInfoFileExtension == 'zst' ? $updateInfoFileTargetName = 'updateinfo.xml.zst' : null;
+        $updateInfoFileExtension == 'xml' ? $updateInfoFileTargetName = 'updateinfo.xml' : null;
 
         /**
          *  Download updateinfo file
@@ -238,9 +240,11 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             throw new Exception('Error while uncompressing <code>' . $updateInfoFileTargetName . '</code><br><pre class="codeblock">' . $e->getMessage() . '</pre>');
         }
 
-        // Delete original (uncompressed) file
-        if (!unlink($this->workingDir . '/' . $updateInfoFileTargetName)) {
-            throw new Exception('Could not delete <code>' . $this->workingDir . '/' . $updateInfoFileTargetName . '</code>');
+        // Delete original file (only if it was compressed and not already a plain .xml file)
+        if ($updateInfoFileExtension != 'xml') {
+            if (!unlink($this->workingDir . '/' . $updateInfoFileTargetName)) {
+                throw new Exception('Could not delete <code>' . $this->workingDir . '/' . $updateInfoFileTargetName . '</code>');
+            }
         }
 
         $this->taskLogSubStepController->completed();
@@ -539,8 +543,6 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         if ($error == 0) {
             $this->taskLogSubStepController->completed();
         }
-
-        unset($jsonArray, $data);
     }
 
     /**
@@ -594,10 +596,10 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              *  If a list of package(s) to include has been provided, check if the package is in the list
              *  If not, skip the package
              */
-            if (!empty($this->packagesToInclude)) {
+            if (!empty($this->advancedParams['packages']['include'])) {
                 $isIn = false;
 
-                foreach ($this->packagesToInclude as $packageToInclude) {
+                foreach ($this->advancedParams['packages']['include'] as $packageToInclude) {
                     if (preg_match('/' . $packageToInclude . '/', $rpmPackageName)) {
                         $isIn = true;
                     }
@@ -616,10 +618,10 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              *  If a list of package(s) to exclude has been provided, check if the package is in the list
              *  If so, skip the package
              */
-            if (!empty($this->packagesToExclude)) {
+            if (!empty($this->advancedParams['packages']['exclude'])) {
                 $isIn = false;
 
-                foreach ($this->packagesToExclude as $packageToExclude) {
+                foreach ($this->advancedParams['packages']['exclude'] as $packageToExclude) {
                     if (preg_match('/' . $packageToExclude . '/', $rpmPackageName)) {
                         $isIn = true;
                     }

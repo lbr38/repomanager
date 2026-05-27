@@ -3,6 +3,8 @@
 namespace Controllers\Repo\Snapshot;
 
 use Controllers\Filesystem\Directory;
+use Controllers\Repo\Repo;
+use JsonException;
 use Exception;
 use DateTime;
 
@@ -64,9 +66,16 @@ class Snapshot
     /**
      *  Add a snapshot in database
      */
-    public function add(string $date, string $time, string $gpgSignature, array $arch, array $includeTranslation, array $packagesIncluded, array $packagesExcluded, string $type, string $status, int $repoId): void
+    public function add(string $date, string $time, string $gpgSignature, array $arch, array $advancedParams, string $type, string $status, int $repoId): void
     {
-        $this->model->add($date, $time, $gpgSignature, $arch, $includeTranslation, $packagesIncluded, $packagesExcluded, $type, $status, $repoId);
+        // Convert advanced params to JSON string
+        try {
+            $advancedParams = json_encode($advancedParams, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            throw new Exception('Error while encoding advanced parameters to JSON: ' . $e->getMessage());
+        }
+
+        $this->model->add($date, $time, $gpgSignature, $arch, $advancedParams, $type, $status, $repoId);
     }
 
     /**
@@ -94,22 +103,6 @@ class Snapshot
     }
 
     /**
-     *  Update snapshot included packages in the database
-     */
-    public function updatePackagesIncluded(int $snapId, array $packagesIncluded): void
-    {
-        $this->model->updatePackagesIncluded($snapId, implode(',', $packagesIncluded));
-    }
-
-    /**
-     *  Update snapshot excluded packages in the database
-     */
-    public function updatePackagesExcluded(int $snapId, array $packagesExcluded): void
-    {
-        $this->model->updatePackagesExcluded($snapId, implode(',', $packagesExcluded));
-    }
-
-    /**
      *  Update snapshot status in the database
      */
     public function updateStatus(int $snapId, string $status): void
@@ -131,6 +124,21 @@ class Snapshot
     public function updateArch(int $snapId, array $arch): void
     {
         $this->model->updateArch($snapId, $arch);
+    }
+
+    /**
+     *  Update snapshot advanced parameters in the database
+     */
+    public function updateAdvancedParams(int $snapId, array $advancedParams): void
+    {
+        // Convert advanced params to JSON string
+        try {
+            $advancedParams = json_encode($advancedParams, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            throw new Exception('Error while encoding advanced parameters to JSON: ' . $e->getMessage());
+        }
+
+        $this->model->updateAdvancedParams($snapId, $advancedParams);
     }
 
     /**
@@ -277,5 +285,60 @@ class Snapshot
     public function taskRunning(int $snapId) : bool
     {
         return $this->model->taskRunning($snapId);
+    }
+
+    /**
+     *  Return the difference between two snapshots (list of added, removed and common packages)
+     */
+    public function diff(int $snapId1, int $snapId2): array
+    {
+        $repoController = new Repo();
+        $diff = [
+            'added' => [],
+            'removed' => []
+        ];
+
+        // Check if both snapshots exist
+        if (!$this->exists($snapId1)) {
+            throw new Exception('Unknown snapshot ID #' . $snapId1);
+        }
+
+        if (!$this->exists($snapId2)) {
+            throw new Exception('Unknown snapshot ID #' . $snapId2);
+        }
+
+        // Get snapshot #1 package type
+        $repoController->getAllById(null, $snapId1);
+        $packageType1 = $repoController->getPackageType();
+
+        // Get snapshot #2 package type
+        $repoController->getAllById(null, $snapId2);
+        $packageType2 = $repoController->getPackageType();
+
+        // Quit if the two snapshots do not have the same package type
+        if ($packageType1 != $packageType2) {
+            throw new Exception('Cannot compare snapshots with different package types');
+        }
+
+        // Get snapshot #1 packages list
+        $snapshotPackageController1 = new Package($snapId1);
+        $packagesList1 = $snapshotPackageController1->list();
+
+        // Get snapshot #2 packages list
+        $snapshotPackageController2 = new Package($snapId2);
+        $packagesList2 = $snapshotPackageController2->list();
+
+        unset($repoController, $snapshotPackageController1, $snapshotPackageController2);
+
+        // Compare the two snapshots packages list to get the list of added, removed and common packages
+        $diff['added'] = array_values(array_udiff($packagesList2, $packagesList1, function ($a, $b) {
+            return strcmp($a['relative-path'], $b['relative-path']);
+        }));
+
+        $diff['removed'] = array_values(array_udiff($packagesList1, $packagesList2, function ($a, $b) {
+            return strcmp($a['relative-path'], $b['relative-path']);
+        }));
+
+        return $diff;
     }
 }

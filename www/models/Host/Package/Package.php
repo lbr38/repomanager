@@ -185,18 +185,17 @@ class Package extends \Models\Model
         $data = [];
 
         try {
-            $query = "SELECT * FROM packages_available";
+            $query = "SELECT packages_available.Name, packages.Version as Current_version, packages_available.Version, packages_available.Repository FROM packages_available";
 
-            /**
-             *  Add offset if needed
-             */
+            // Join with packages table to also get the current version of the package installed on the host
+            $query .= " LEFT JOIN packages ON packages_available.Name = packages.Name AND (packages.State = 'inventored' or packages.State = 'installed' or packages.State = 'dep-installed' or packages.State = 'upgraded' or packages.State = 'downgraded')";
+
+            // Add offset if needed
             if ($withOffset === true) {
                 $query .= " LIMIT 10 OFFSET :offset";
             }
 
-            /**
-             *  Prepare query
-             */
+            // Prepare query
             $stmt = $this->db->prepare($query);
             $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
 

@@ -171,7 +171,7 @@ class Env extends \Controllers\Task\Execution
              *  Add environment to database
              */
             $this->taskLogSubStepController->new('update-database', 'UPDATING DATABASE');
-            $this->repoEnvController->add($env, $this->repoController->getDescription(), $this->repoController->getSnapId());
+            $this->repoEnvController->add($this->repoController->getSnapId(), $env, $this->repoController->getDescription());
             $this->taskLogSubStepController->completed();
             $this->taskLogStepController->completed();
         }

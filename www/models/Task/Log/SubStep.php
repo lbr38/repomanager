@@ -76,15 +76,15 @@ class SubStep extends \Models\Model
             $stmt = $this->db->prepare("SELECT * FROM substeps WHERE Step_id = :stepId");
             $stmt->bindValue(':stepId', $stepId);
             $result = $stmt->execute();
-
-            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-                $data[] = $row;
-            }
-
-            return $data;
         } catch (Exception $e) {
             DbLog::error($e);
         }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return $data;
     }
 
     /**
@@ -98,15 +98,15 @@ class SubStep extends \Models\Model
             $stmt = $this->db->prepare("SELECT Id FROM substeps WHERE Step_id = :stepId ORDER BY Id DESC LIMIT 1");
             $stmt->bindValue(':stepId', $stepId);
             $result = $stmt->execute();
-
-            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-                $data = $row['Id'];
-            }
-
-            return $data;
         } catch (Exception $e) {
             DbLog::error($e);
         }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data = $row['Id'];
+        }
+
+        return $data;
     }
 
     /**
@@ -121,15 +121,15 @@ class SubStep extends \Models\Model
             $stmt->bindValue(':stepId', $stepId);
             $stmt->bindValue(':identifier', $identifier);
             $result = $stmt->execute();
-
-            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-                $data = $row['Id'];
-            }
-
-            return $data;
         } catch (Exception $e) {
             DbLog::error($e);
         }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data = $row['Id'];
+        }
+
+        return $data;
     }
 
     /**
@@ -137,21 +137,21 @@ class SubStep extends \Models\Model
      */
     public function getOutput(int $substepId) : string|null
     {
-        $data = '';
+        $data = null;
 
         try {
             $stmt = $this->db->prepare("SELECT Output FROM substeps WHERE Id = :substepId");
             $stmt->bindValue(':substepId', $substepId);
             $result = $stmt->execute();
-
-            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-                $data = $row['Output'];
-            }
-
-            return $data;
         } catch (Exception $e) {
             DbLog::error($e);
         }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data = $row['Output'];
+        }
+
+        return $data;
     }
 
     /**

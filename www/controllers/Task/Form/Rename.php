@@ -3,16 +3,19 @@
 namespace Controllers\Task\Form;
 
 use Exception;
+use Controllers\Repo\Rpm;
+use Controllers\Repo\Deb;
+use Controllers\Repo\Repo;
 use Controllers\History\Save as History;
 use Controllers\Utils\Generate\Html\Label;
 
 class Rename
 {
-    public function validate(array $formParams)
+    public function validate(array $formParams): void
     {
-        $repoController = new \Controllers\Repo\Repo();
-        $rpmRepoController = new \Controllers\Repo\Rpm();
-        $debRepoController = new \Controllers\Repo\Deb();
+        $repoController = new Repo();
+        $rpmRepoController = new Rpm();
+        $debRepoController = new Deb();
 
         // Check that the snapshot id is valid
         Param\Snapshot::checkId($formParams['snap-id']);

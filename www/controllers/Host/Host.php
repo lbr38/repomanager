@@ -184,7 +184,7 @@ class Host
     /**
      *  Add/delete hosts to/from a group
      */
-    public function addHostsIdToGroup(array $hostsId = [], int $groupId): void
+    public function addHostsIdToGroup(int $groupId, array $hostsId = []): void
     {
         $mygroup = new HostGroup();
 

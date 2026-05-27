@@ -49,7 +49,7 @@ This will help you with **installing** and getting started with Repomanager.
 ## Contact
 
 - For bug reports, issues, or feature requests, please open a new issue in the GitHub [Issues](https://github.com/lbr38/repomanager/issues) section
-- A Discord channel is available [here](https://discord.gg/34yeNsMmkQ) for questions or quick help/debugging (English and French spoken)
+- A Discord channel is available [here](https://discord.gg/xuNxGv9U9) for questions or quick help/debugging (English and French spoken)
 - You can also contact me at [repomanager@protonmail.com](mailto:repomanager@protonmail.com) (English or French spoken)
 
 <script data-goatcounter="https://repomanager.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>

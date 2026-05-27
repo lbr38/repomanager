@@ -35,7 +35,6 @@ class Listing extends \Models\Model
             repos_snap.Time,
             repos_snap.Signed,
             repos_snap.Arch,
-            repos_snap.Pkg_translation,
             repos_snap.Type,
             repos_env.Description
             FROM repos 
@@ -81,7 +80,6 @@ class Listing extends \Models\Model
                 repos_snap.Time,
                 repos_snap.Signed,
                 repos_snap.Arch,
-                repos_snap.Pkg_translation,
                 repos_snap.Type,
                 repos_snap.Reconstruct,
                 repos_snap.Status,
@@ -109,7 +107,6 @@ class Listing extends \Models\Model
                 repos_snap.Time,
                 repos_snap.Signed,
                 repos_snap.Arch,
-                repos_snap.Pkg_translation,
                 repos_snap.Type,
                 repos_snap.Reconstruct,
                 repos_snap.Status,

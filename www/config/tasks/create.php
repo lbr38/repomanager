@@ -18,8 +18,7 @@ $taskConfig = [
         'env',
         'group',
         'description',
-        'package-include',
-        'package-exclude'
+        'advanced-params' // Advanced params include package include/exclude and metadata custom fields, it is optional
     ],
 
     // Some required params are conditional

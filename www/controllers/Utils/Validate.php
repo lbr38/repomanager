@@ -6,6 +6,11 @@ use DateTime;
 
 class Validate
 {
+    public static function int(int $int) : int
+    {
+        return filter_var($int, FILTER_VALIDATE_INT);
+    }
+
     /**
      *  Validate a string and return it
      */

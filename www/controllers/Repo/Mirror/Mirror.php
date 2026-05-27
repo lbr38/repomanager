@@ -13,14 +13,12 @@ class Mirror
     protected $section;
     protected $releasever;
     protected $arch;
-    protected $translation;
     protected $checkSignature = 'true';
     protected $gpgKeyUrl;
     protected $primaryLocation;
     protected $primaryChecksum;
     protected $packagesIndicesLocation = [];
     protected $sourcesIndicesLocation = [];
-    protected $translationsLocation = [];
     protected $debPackagesLocation = [];
     protected $sourcesPackagesLocation = [];
     protected $rpmPackagesLocation = [];
@@ -32,8 +30,7 @@ class Mirror
     protected $sslCustomCaCertificate;
     protected $curlHandle;
     protected $previousSnapshotDirPath;
-    protected $packagesToInclude = [];
-    protected $packagesToExclude = [];
+    protected $advancedParams = [];
 
     protected $taskLogStepController;
     protected $taskLogSubStepController;
@@ -95,11 +92,6 @@ class Mirror
         $this->gpgKeyUrl = $url;
     }
 
-    public function setTranslation(array $translation) : void
-    {
-        $this->translation = $translation;
-    }
-
     public function setSslCustomCertificate(string $path) : void
     {
         $this->sslCustomCertificate = $path;
@@ -120,14 +112,9 @@ class Mirror
         $this->previousSnapshotDirPath = $path;
     }
 
-    public function setPackagesToInclude(array $packages) : void
+    public function setAdvancedParams(array $advancedParams): void
     {
-        $this->packagesToInclude = $packages;
-    }
-
-    public function setPackagesToExclude(array $packages) : void
-    {
-        $this->packagesToExclude = $packages;
+        $this->advancedParams = $advancedParams;
     }
 
     public function getPackagesToSign() : array

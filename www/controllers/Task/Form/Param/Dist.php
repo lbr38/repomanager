@@ -15,7 +15,7 @@ class Dist
 
         foreach ($dists as $dist) {
             if (!Validate::alphaNumeric($dist, ['-', '_', '.', '/'])) {
-                throw new Exception('Distribution name cannot contain special characters except hyphen');
+                throw new Exception('Distribution name cannot contain special characters except hyphen, underscore, dot, slash');
             }
         }
     }

@@ -4,9 +4,7 @@
     <div class="task-form-params" repo-id="none" action="create">
         <h6 class="required">PACKAGE TYPE</h6>
         <?php
-        /**
-         *  Case where the server manages several different types of repo
-         */
+        // Case where the server manages several different types of repo
         if (RPM_REPO == 'true' and DEB_REPO == 'true') : ?>
             <div class="switch-field">
                 <input type="radio" id="package-type-rpm" class="task-param" param-name="package-type" name="package-type" value="rpm" checked />
@@ -173,9 +171,7 @@
         </div>
 
         <?php
-        /**
-         *  Possibility to add to a group, if there is at least one group
-         */
+        // Possibility to add to a group, if there is at least one group
         if (!empty($newRepoFormGroupList)) : ?>
             <h6>ADD TO GROUP</h6>
             <select class="task-param" param-name="group" package-type="all" >
@@ -210,18 +206,39 @@
             </label>
         </div>
 
-        <h6>ADDITIONAL PARAMETERS</h6>
+        <div class="flex align-item-center column-gap-5 toggle-btn pointer margin-top-20 mediumopacity" toggle="div#advanced-params">
+            <h6 class="margin-top-0">ADVANCED PARAMETERS</h6>
+            <img src="/assets/icons/next.svg" class="icon toggle-icon" />
+        </div>
 
-        <div field-type="mirror rpm deb">
-            <h6>ONLY INCLUDE PACKAGE(S)</h6>
-            <p class="note">Specify packages names to include. All other packages will be ignored from sync.</p>
-            <p class="note">You can use <code>.*</code> as a wildcard. e.g <code>nginx_1.24.*</code></p>
-            <select class="task-param" param-name="package-include" package-type="all" multiple></select>
+        <div id="advanced-params" class="hide">
+            <div field-type="mirror rpm deb">
+                <h6>ONLY INCLUDE PACKAGE(S)</h6>
+                <p class="note">Specify packages names to include. All other packages will be ignored from sync.</p>
+                <p class="note">You can use <code>.*</code> as a wildcard. e.g <code>nginx_1.24.*</code></p>
+                <select class="task-param" param-name="advanced-params.packages.include" package-type="all" multiple></select>
 
-            <h6>EXCLUDE PACKAGE(S)</h6>
-            <p class="note">Specify packages names to exclude from sync.</p>
-            <p class="note">You can use <code>.*</code> as a wildcard. e.g <code>nginx_1.24.*</code></p>
-            <select class="task-param" param-name="package-exclude" package-type="all" multiple></select>
+                <h6>EXCLUDE PACKAGE(S)</h6>
+                <p class="note">Specify packages names to exclude from sync.</p>
+                <p class="note">You can use <code>.*</code> as a wildcard. e.g <code>nginx_1.24.*</code></p>
+                <select class="task-param" param-name="advanced-params.packages.exclude" package-type="all" multiple></select>
+            </div>
+
+            <div field-type="mirror local deb">
+                <h6>METADATA CUSTOM FIELDS</h6>
+
+                <h6>ORIGIN</h6>
+                <p class="note">Optional. Configure the <code>Origin</code> value in <code>Release</code> metadata file for this repository.</p>
+                <input type="text" class="task-param" param-name="advanced-params.metadata-custom-fields.origin" package-type="deb" placeholder="e.g. repository > distribution > component" />
+
+                <h6>LABEL</h6>
+                <p class="note">Optional. Configure the <code>Label</code> value in <code>Release</code> metadata file for this repository.</p>
+                <input type="text" class="task-param" param-name="advanced-params.metadata-custom-fields.label" package-type="deb" placeholder="e.g. deb packages repository" />
+
+                <h6>DESCRIPTION</h6>
+                <p class="note">Optional. Configure the <code>Description</code> value in <code>Release</code> metadata file for this repository.</p>
+                <input type="text" class="task-param" param-name="advanced-params.metadata-custom-fields.description" package-type="deb" placeholder="e.g. repository > distribution > component" />
+            </div>
         </div>
     </div>
 
@@ -232,9 +249,7 @@
     // Define schedule form action (useful for the schedule form)
     $scheduleForm['action'] = 'create';
 
-    /**
-     *  Include schedule task template
-     */
+    // Include schedule task template
     include_once(ROOT . '/views/includes/forms/tasks/schedule.inc.php'); ?>
     
     <br>
@@ -243,23 +258,19 @@
 
 <script>
 $(document).ready(function(){
-    /**
-     *  Convert select to select2
-     */
+    // Convert select to select2
     myselect2.convert('select.task-param[param-name="releasever"]', 'Select release version', true);
     myselect2.convert('select.task-param[param-name="dist"]', 'Select distribution', true);
     myselect2.convert('select.task-param[param-name="section"]', 'Select component', true);
     myselect2.convert('select.task-param[param-name="arch"]', 'Select architecture', true);
     myselect2.convert('select#new-repo-target-env-select', 'Select environment(s)', true);
-    myselect2.convert('select.task-param[param-name="package-include"]', 'Specify package(s)', true);
-    myselect2.convert('select.task-param[param-name="package-exclude"]', 'Specify package(s)', true);
+    myselect2.convert('select.task-param[param-name="advanced-params.packages.include"]', 'Specify package(s)', true);
+    myselect2.convert('select.task-param[param-name="advanced-params.packages.exclude"]', 'Specify package(s)', true);
     myselect2.convert('select.task-param[param-name="schedule-day"]', 'Select day(s)', true);
     myselect2.convert('select.task-param[param-name="schedule-reminder"]', 'Select reminder(s)', true);
     myselect2.convert('select.task-param[param-name="schedule-recipient"]', 'Select or add recipient(s)', true);
 
-    /**
-     *  Show / hide the necessary fields
-     */
+    // Show / hide the necessary fields
     newRepoFormPrintFields();
 });
 </script>

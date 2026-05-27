@@ -1,27 +1,43 @@
 <div class="reloadable-table" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
-    <h6>ADD</h6>
-    <p class="note">Add a new source repository manually or import from a predefined or custom list.</p>
-
-    <div class="flex column-gap-10 margin-top-5 margin-bottom-30">
-        <button type="button" class="btn-medium-blue get-panel-btn" panel="repos/sources/new">Manually add</button>
-        <button type="button" class="btn-medium-blue get-panel-btn" panel="repos/sources/import">Import</button>
-    </div>
-
-    <h6>CURRENT SOURCE REPOSITORIES</h6>
-    <p class="note">Source repositories to be mirrored.</p>
-
-    <?php
-    if (empty($reloadableTableContent)) {
-        echo '<p class="note">Nothing for now!</p>';
-    } ?>
-
     <?php
     if (!empty($reloadableTableContent)) : ?>
-        <div class="flex justify-end margin-bottom-10 margin-right-15">
-            <input type="checkbox" class="select-all-checkbox lowopacity" checkbox-id="source-repo" title="Select all source repositories" />
+        <h6>ADD</h6>
+        <p class="note">Import a predefined list or add a source repository manually.</p>
+
+        <div class="flex column-gap-10 margin-top-5 margin-bottom-30">
+            <button type="button" class="btn-medium-blue get-panel-btn" panel="repos/sources/import">Import</button>
+            <button type="button" class="btn-medium-tr get-panel-btn" panel="repos/sources/new">Manually add</button>
+        </div>
+        <?php
+    endif; ?>
+
+    <div class="flex justify-space-between align-flex-end margin-top-40 margin-bottom-15 margin-right-15">
+        <div>
+            <h6 class="margin-top-0">CURRENT SOURCE REPOSITORIES</h6>
+            <p class="note">Source repositories to be mirrored.</p>
         </div>
 
         <?php
+        if (!empty($reloadableTableContent)) : ?>
+            <input type="checkbox" class="select-all-checkbox lowopacity" checkbox-id="source-repo" title="Select all source repositories" />
+            <?php
+        endif ?>
+    </div>
+
+    <?php
+    if (empty($reloadableTableContent)) : ?>
+        <div class="empty-state">
+            <p class="empty-state-title">No source repository configured yet.</p>
+            <p class="note">Import a predefined list to get started quickly, or add a source repository manually.</p>
+            <div class="empty-state-actions">
+                <button type="button" class="btn-medium-blue get-panel-btn" panel="repos/sources/import">Import</button>
+                <button type="button" class="btn-medium-tr get-panel-btn" panel="repos/sources/new">Manually add</button>
+            </div>
+        </div>
+        <?php
+    endif;
+
+    if (!empty($reloadableTableContent)) :
         foreach ($reloadableTableContent as $item) :
             $distAndComponent = null;
             $releasevers = null;

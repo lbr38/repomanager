@@ -91,7 +91,7 @@ class Create extends User
     /**
      *  Add a new SSO user in database
      */
-    public function createSSO(string $username, string $firstName = '', string $lastName = '', string $email = '', ?string $role): void
+    public function createSSO(string $username, string $firstName = '', string $lastName = '', string $email = '', string $role = ''): void
     {
         $userEditController = new \Controllers\User\Edit();
         $username  = Validate::string($username);

@@ -24,7 +24,10 @@
 
     <?php
     if (empty($reloadableTableContent)) {
-        echo '<p class="note margin-top-15">No entries found!</p>';
+        echo '<div class="empty-state">';
+        echo '<p class="empty-state-title">No history entries found.</p>';
+        echo '<p class="note">Actions such as creating repositories, scheduling tasks, or changing settings will appear here.</p>';
+        echo '</div>';
     }
 
     if (!empty($reloadableTableContent)) :
