@@ -1,5 +1,5 @@
 <footer>
-    <div class="flex flex-direction-column row-gap-10">
+    <div class="flex align-item-center flex-wrap column-gap-20 row-gap-10">
         <div class="flex align-item-center column-gap-5 max-width-fit mediumopacity">
             <img src="/assets/icons/file.svg" class="icon-np" />
             <a target="_blank" rel="noopener noreferrer" href="https://docs.repomanager.net">
@@ -29,11 +29,9 @@
         </div>
     </div>
 
-    <div class="flex flex-direction-column align-item-center row-gap-10 mediumopacity-cst">
-        <img src="/assets/official-logo/repomanager-white.svg" class="icon-np" />
-        <p>Repomanager - release version <?= VERSION ?></p>
-        <p>Repomanager is a free and open source software, licensed under the <a target="_blank" rel="noopener noreferrer" href="https://www.gnu.org/licenses/gpl-3.0.en.html">GPLv3</a> license.</p>
-        <p>Support development, star me on <a href='https://github.com/lbr38/repomanager'><b>GitHub</b> ⭐</a></p>
+    <div class="flex align-item-center column-gap-20 mediumopacity-cst">
+        <p>Version <?= VERSION ?></p>
+        <p>Star me on <a href='https://github.com/lbr38/repomanager'><b>GitHub</b> ⭐</a></p>
     </div>
 </footer>
 
@@ -102,7 +100,6 @@ if (!empty(ENVS)) {
  */
 if (__ACTUAL_URI__[1] == '') {
     $jsClasses = [
-        'Environment',
         'Repo'
     ];
 
@@ -162,7 +159,7 @@ if (__ACTUAL_URI__[1] == 'settings') {
         'settings'
     ];
 }
-if (__ACTUAL_URI__[1] == 'run') {
+if (in_array(__ACTUAL_URI__[1], ['tasks', 'task', 'run'])) {
     $jsFiles = [
         'functions/task',
         'events/task/actions',

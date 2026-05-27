@@ -1,5 +1,20 @@
 <?php
 /**
+ *  Edit repository description
+ */
+if ($_POST['action'] == 'description' and !empty($_POST['repoId']) and isset($_POST['description'])) {
+    $repoController = new \Controllers\Repo\Repo();
+
+    try {
+        $repoController->updateDescription($_POST['repoId'], $_POST['description']);
+    } catch (Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, 'Description has been saved');
+}
+
+/**
  *  Validate form and edit repositories
  */
 if ($_POST['action'] == 'validateForm' and !empty($_POST['params'])) {

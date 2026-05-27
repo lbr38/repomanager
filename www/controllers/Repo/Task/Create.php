@@ -257,7 +257,7 @@ class Create extends \Controllers\Task\Execution
          */
         if (!empty($this->repoController->getEnv())) {
             foreach ($this->repoController->getEnv() as $env) {
-                $this->repoEnvController->add($this->repoController->getSnapId(), $env, $this->repoController->getDescription());
+                $this->repoEnvController->add($this->repoController->getSnapId(), $env);
             }
         }
 

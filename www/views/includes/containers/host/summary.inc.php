@@ -5,21 +5,15 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
     <div id="title-button-div">
         <h3><?= strtoupper($hostname) ?></h3>
 
-        <div class="flex justify-space-between">
+        <div class="flex column-gap-10 justify-space-between">
             <?php
             if (HostPermission::allowedAction('reset')) : ?>
-                <div id="host-reset-btn" class="slide-btn-yellow" host-id="<?= $id ?>" title="Reset host informations">
-                    <img src="/assets/icons/update.svg">
-                    <span>Reset</span>
-                </div>
+                <p id="host-reset-btn" class="label-yellow pointer" host-id="<?= $id ?>" title="Reset host informations">Reset</p>
                 <?php
             endif;
 
             if (HostPermission::allowedAction('delete')) : ?>
-                <div id="host-delete-btn" class="slide-btn-red" host-id="<?= $id ?>" title="Delete host">
-                    <img src="/assets/icons/delete.svg">
-                    <span>Delete</span>
-                </div>
+                <p id="host-delete-btn" class="label-red pointer" host-id="<?= $id ?>" title="Delete host">Delete</p>
                 <?php
             endif ?>
         </div>
@@ -66,7 +60,7 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
                             $tooltip = 'No network information available';
                         }
 
-                        echo '<code class="tooltip" tooltip="' . $tooltip . '">' . $interface . '</code>';
+                        echo '<span class="label-white tooltip" tooltip="' . $tooltip . '">' . $interface . '</span>';
                     }
                 } else {
                     echo '<p class="mediumopacity-cst">Unknown</p>';

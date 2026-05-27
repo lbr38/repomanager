@@ -30,13 +30,14 @@ class Listing extends \Models\Model
             repos.Releasever,
             repos.Source,
             repos.Package_type,
+            repos.Description,
+            repos.Tags,
             repos_env.Env,
             repos_snap.Date,
             repos_snap.Time,
             repos_snap.Signed,
             repos_snap.Arch,
-            repos_snap.Type,
-            repos_env.Description
+            repos_snap.Type
             FROM repos 
             LEFT JOIN repos_snap
                 ON repos.Id = repos_snap.Id_repo
@@ -75,6 +76,8 @@ class Listing extends \Models\Model
                 repos.Releasever,
                 repos.Source,
                 repos.Package_type,
+                repos.Description,
+                repos.Tags,
                 repos_env.Env,
                 repos_snap.Date,
                 repos_snap.Time,
@@ -82,8 +85,7 @@ class Listing extends \Models\Model
                 repos_snap.Arch,
                 repos_snap.Type,
                 repos_snap.Reconstruct,
-                repos_snap.Status,
-                repos_env.Description
+                repos_snap.Status
                 FROM repos
                 LEFT JOIN repos_snap
                     ON repos.Id = repos_snap.Id_repo
@@ -102,6 +104,8 @@ class Listing extends \Models\Model
                 repos.Releasever,
                 repos.Source,
                 repos.Package_type,
+                repos.Description,
+                repos.Tags,
                 repos_env.Env,
                 repos_snap.Date,
                 repos_snap.Time,
@@ -109,8 +113,7 @@ class Listing extends \Models\Model
                 repos_snap.Arch,
                 repos_snap.Type,
                 repos_snap.Reconstruct,
-                repos_snap.Status,
-                repos_env.Description
+                repos_snap.Status
                 FROM repos
                 LEFT JOIN repos_snap
                     ON repos.Id = repos_snap.Id_repo
@@ -161,7 +164,9 @@ class Listing extends \Models\Model
                 repos.Dist,
                 repos.Section,
                 repos.Source,
-                repos.Package_type
+                repos.Package_type,
+                repos.Description,
+                repos.Tags
                 FROM repos
                 INNER JOIN repos_snap
                     ON repos_snap.Id_repo = repos.Id
@@ -198,7 +203,16 @@ class Listing extends \Models\Model
                         ORDER BY Env
                     ),
                     ''
-                ) AS Environments
+                ) AS Environments,
+                COALESCE(
+                    (
+                        SELECT GROUP_CONCAT(Id, ',')
+                        FROM repos_env
+                        WHERE Id_snap = repos_snap.Id
+                        ORDER BY Env
+                    ),
+                    ''
+                ) AS EnvironmentIds
             FROM repos_snap
             WHERE repos_snap.Id_repo = :repoId
             AND repos_snap.Status = 'active'

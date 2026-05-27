@@ -25,9 +25,9 @@ class Environment
     /**
      *  Associate a new environment to a snapshot
      */
-    public function add(int $snapId, string $env, string $description = '') : void
+    public function add(int $snapId, string $env) : void
     {
-        $this->model->add($snapId, $env, $description);
+        $this->model->add($snapId, $env);
     }
 
     /**
@@ -36,19 +36,6 @@ class Environment
     public function remove(int $id) : void
     {
         $this->model->remove($id);
-    }
-
-    /**
-     *  Update environment description
-     */
-    public function updateDescription(int $id, string $description) : void
-    {
-        // Description should not contain single quotes or backslashes
-        if (str_contains($description, "'") || str_contains($description, "\\") || str_contains($description, '<?') || str_contains($description, '?>')) {
-            throw new Exception('Description contains invalid characters');
-        }
-
-        $this->model->updateDescription($id, Validate::string($description));
     }
 
     /**

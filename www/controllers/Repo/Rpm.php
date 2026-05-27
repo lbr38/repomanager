@@ -2,8 +2,6 @@
 
 namespace Controllers\Repo;
 
-use Exception;
-
 class Rpm extends \Controllers\Repo\Repo
 {
     public function __construct()
@@ -18,14 +16,6 @@ class Rpm extends \Controllers\Repo\Repo
     public function getIdByNameReleasever(string $name, string $releaseVersion) : int|null
     {
         return $this->model->getIdByNameReleasever($name, $releaseVersion);
-    }
-
-    /**
-     *  Return repository environment description
-     */
-    public function getDescriptionByName(string $name, string $releaseVersion, string $env) : string|null
-    {
-        return $this->model->getDescriptionByName($name, $releaseVersion, $env);
     }
 
     /**
@@ -63,9 +53,9 @@ class Rpm extends \Controllers\Repo\Repo
     /**
      *  Add a new RPM repository
      */
-    public function add(string $name, string $releaseVersion, string $source = '') : void
+    public function add(string $name, string $releaseVersion, string $source = '', string $description = '', array $tags = []) : void
     {
-        $this->model->add($name, $releaseVersion, $source);
+        $this->model->add($name, $releaseVersion, $source, $description, implode(',', $tags));
     }
 
     /**

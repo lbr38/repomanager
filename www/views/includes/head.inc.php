@@ -8,6 +8,7 @@
     <link rel="stylesheet" type="text/css" href="/resources/styles/normalize.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/common.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/components/layout.css?<?= VERSION ?>">
+    <link rel="stylesheet" type="text/css" href="/resources/styles/components/card.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/components/alert.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/components/icon.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/components/input.css?<?= VERSION ?>">
@@ -32,6 +33,8 @@
      */
     $additionalCss = [
         "run"      => "run.css",
+        "tasks"    => "run.css",
+        "task"     => "run.css",
         "browse"   => "browse.css",
         "stat"     => "stats-hosts.css",
         "stats"    => "stats-hosts.css",

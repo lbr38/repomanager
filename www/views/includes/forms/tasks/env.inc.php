@@ -37,9 +37,6 @@
     } ?>
 </select>
 
-<h6>DESCRIPTION</h6>
-<input type="text" class="task-param" param-name="description" />
-
 <?php
 // Define schedule form action (useful for the schedule form)
 $scheduleForm['action'] = 'env'; ?>

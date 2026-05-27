@@ -34,6 +34,9 @@ class Duplicate
             Param\Description::check($formParams['description']);
         }
 
+        // Check tags
+        Param\Tags::check($formParams['tags']);
+
         // Check group
         if (!empty($formParams['group'])) {
             Param\Group::check($formParams['group']);

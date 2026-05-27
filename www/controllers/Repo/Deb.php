@@ -2,8 +2,6 @@
 
 namespace Controllers\Repo;
 
-use Exception;
-
 class Deb extends \Controllers\Repo\Repo
 {
     public function __construct()
@@ -18,14 +16,6 @@ class Deb extends \Controllers\Repo\Repo
     public function getIdByNameDistComponent(string $name, string $distribution, string $component) : int|null
     {
         return $this->model->getIdByNameDistComponent($name, $distribution, $component);
-    }
-
-    /**
-     *  Return repository environment description
-     */
-    public function getDescriptionByName(string $name, string $dist, string $component, string $env) : string|null
-    {
-        return $this->model->getDescriptionByName($name, $dist, $component, $env);
     }
 
     /**
@@ -63,9 +53,9 @@ class Deb extends \Controllers\Repo\Repo
     /**
      *  Add a new DEB repository
      */
-    public function add(string $name, string $distribution, string $component, string $source = '') : void
+    public function add(string $name, string $distribution, string $component, string $source = '', string $description = '', array $tags = []) : void
     {
-        $this->model->add($name, $distribution, $component, $source);
+        $this->model->add($name, $distribution, $component, $source, $description, implode(',', $tags));
     }
 
     /**

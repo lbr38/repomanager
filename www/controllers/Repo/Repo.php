@@ -27,6 +27,7 @@ class Repo
     private $time;
     private $env;
     private $description;
+    private $tags = [];
     private $group;
     private $advancedParams = [];
     private $signed;
@@ -115,6 +116,11 @@ class Repo
     public function setDescription($description = ''): void
     {
         $this->description = Validate::string($description);
+    }
+
+    public function setTags(array $tags = []): void
+    {
+        $this->tags = $tags;
     }
 
     public function setSource(string $source): void
@@ -257,6 +263,11 @@ class Repo
         return $this->description;
     }
 
+    public function getTags(): array
+    {
+        return $this->tags;
+    }
+
     public function getGroup(): string|null
     {
         return $this->group;
@@ -292,74 +303,76 @@ class Repo
     {
         $data = $this->model->getAllById($repoId, $snapId, $envId);
 
-        if (!empty($data['repoId'])) {
-            $this->setRepoId($data['repoId']);
-        }
-        if (!empty($data['snapId'])) {
-            $this->setSnapId($data['snapId']);
-        }
-        if (!empty($data['envId'])) {
-            $this->setEnvId($data['envId']);
-        }
-        if (!empty($data['Source'])) {
-            $this->setSource($data['Source']);
-        }
-        if (!empty($data['Name'])) {
-            $this->setName($data['Name']);
-        }
-        if (!empty($data['Releasever'])) {
-            $this->setReleasever($data['Releasever']);
-        }
-        if (!empty($data['Dist'])) {
-            $this->setDist($data['Dist']);
-        }
-        if (!empty($data['Section'])) {
-            $this->setSection($data['Section']);
-        }
-        if (!empty($data['Package_type'])) {
-            $this->setPackageType($data['Package_type']);
-        }
-        if (!empty($data['Date'])) {
-            $this->setDate($data['Date']);
-        }
-        if (!empty($data['Time'])) {
-            $this->setTime($data['Time']);
-        }
-        if (!empty($data['Status'])) {
-            $this->setStatus($data['Status']);
-        }
-        if (!empty($data['Env'])) {
-            $this->setEnv($data['Env']);
-        }
-        if (!empty($data['Type'])) {
-            $this->setType($data['Type']);
-        }
-        if (!empty($data['Signed'])) {
-            $this->setSigned($data['Signed']);
-        }
-        if (!empty($data['Reconstruct'])) {
-            $this->setRebuild($data['Reconstruct']);
-        }
-        if (!empty($data['Description'])) {
-            $this->setDescription($data['Description']);
-        }
-        if (!empty($data['Arch'])) {
-            $this->setArch(explode(',', $data['Arch']));
-        }
-
-        /**
-         *  Extract Advanced_params JSON
-         *  This includes package include/exclude, metadata custom fields and potentially other parameters in the future
-         *  It is optional and can be empty
-         */
-        if (!empty($data['Advanced_params'])) {
-            try {
-                $advancedParams = json_decode($data['Advanced_params'], true, 512, JSON_THROW_ON_ERROR);
-            } catch (JsonException $e) {
-                throw new Exception('Failed to decode advanced parameters JSON: ' . $e->getMessage());
+        try {
+            if (!empty($data['repoId'])) {
+                $this->setRepoId($data['repoId']);
+            }
+            if (!empty($data['snapId'])) {
+                $this->setSnapId($data['snapId']);
+            }
+            if (!empty($data['envId'])) {
+                $this->setEnvId($data['envId']);
+            }
+            if (!empty($data['Source'])) {
+                $this->setSource($data['Source']);
+            }
+            if (!empty($data['Name'])) {
+                $this->setName($data['Name']);
+            }
+            if (!empty($data['Releasever'])) {
+                $this->setReleasever($data['Releasever']);
+            }
+            if (!empty($data['Dist'])) {
+                $this->setDist($data['Dist']);
+            }
+            if (!empty($data['Section'])) {
+                $this->setSection($data['Section']);
+            }
+            if (!empty($data['Package_type'])) {
+                $this->setPackageType($data['Package_type']);
+            }
+            if (!empty($data['Date'])) {
+                $this->setDate($data['Date']);
+            }
+            if (!empty($data['Time'])) {
+                $this->setTime($data['Time']);
+            }
+            if (!empty($data['Status'])) {
+                $this->setStatus($data['Status']);
+            }
+            if (!empty($data['Env'])) {
+                $this->setEnv($data['Env']);
+            }
+            if (!empty($data['Type'])) {
+                $this->setType($data['Type']);
+            }
+            if (!empty($data['Signed'])) {
+                $this->setSigned($data['Signed']);
+            }
+            if (!empty($data['Reconstruct'])) {
+                $this->setRebuild($data['Reconstruct']);
+            }
+            if (!empty($data['Arch'])) {
+                $this->setArch(explode(',', $data['Arch']));
+            }
+            if (!empty($data['Description'])) {
+                $this->setDescription($data['Description']);
+            }
+            if (!empty($data['Tags'])) {
+                $tags = explode(',', $data['Tags']);
+                $this->setTags($tags);
             }
 
-            $this->setAdvancedParams($advancedParams);
+            /**
+             *  Advanced_params includes package include/exclude, metadata custom fields and potentially other parameters in the future
+             *  It is optional and can be empty
+             */
+            if (!empty($data['Advanced_params'])) {
+                $advancedParams = json_decode($data['Advanced_params'], true, 512, JSON_THROW_ON_ERROR);
+                $this->setAdvancedParams($advancedParams);
+            }
+        } catch (JsonException $e) {
+            throw new Exception('Failed to decode JSON data from database: ' . $e->getMessage());
         }
     }
 
@@ -532,5 +545,18 @@ class Repo
     public function updateSource(int $repoId, string $source): void
     {
         $this->model->updateSource($repoId, $source);
+    }
+
+    /**
+     *  Update description
+     */
+    public function updateDescription(int $id, string $description) : void
+    {
+        // Description should not contain single quotes or backslashes
+        if (str_contains($description, "'") || str_contains($description, "\\") || str_contains($description, '<?') || str_contains($description, '?>')) {
+            throw new Exception('Description contains invalid characters');
+        }
+
+        $this->model->updateDescription($id, Validate::string($description));
     }
 }

@@ -67,27 +67,6 @@ class Env extends \Controllers\Task\Execution
                 }
             }
 
-            /**
-             *  If the user did not specify any description then we get the one currently in place on the environment of the same name (if the environment exists and if it has a description)
-             */
-            if (empty($this->repoController->getDescription())) {
-                if ($this->repoController->getPackageType() == 'rpm') {
-                    $actualDescription = $this->rpmRepoController->getDescriptionByName($this->repoController->getName(), $this->repoController->getReleasever(), $env);
-                }
-                if ($this->repoController->getPackageType() == 'deb') {
-                    $actualDescription = $this->debRepoController->getDescriptionByName($this->repoController->getName(), $this->repoController->getDist(), $this->repoController->getSection(), $env);
-                }
-
-                /**
-                 *  If the description is empty then the description will remain empty
-                 */
-                if (!empty($actualDescription)) {
-                    $this->repoController->setDescription(htmlspecialchars_decode($actualDescription));
-                } else {
-                    $this->repoController->setDescription('');
-                }
-            }
-
             $this->taskLogSubStepController->completed();
             $this->taskLogSubStepController->new('create-symlink-' . $env, 'CREATING SYMLINK');
 
@@ -171,7 +150,7 @@ class Env extends \Controllers\Task\Execution
              *  Add environment to database
              */
             $this->taskLogSubStepController->new('update-database', 'UPDATING DATABASE');
-            $this->repoEnvController->add($this->repoController->getSnapId(), $env, $this->repoController->getDescription());
+            $this->repoEnvController->add($this->repoController->getSnapId(), $env);
             $this->taskLogSubStepController->completed();
             $this->taskLogStepController->completed();
         }

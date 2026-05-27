@@ -153,13 +153,6 @@ class Form
             }
 
             /**
-             *  Update snapshot description
-             *  TODO: no editable description for now
-             */
-            // $repoController->updateDescription($param['snap-id'], $description);
-            // $snapshotController->updateDescription($param['snap-id'], $description);
-
-            /**
              *  Add history
              */
             if ($repoController->getPackageType() == 'rpm') {

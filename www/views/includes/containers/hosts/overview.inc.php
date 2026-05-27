@@ -6,15 +6,63 @@
     if ($totalHosts >= 1) : ?>
         <h3>OVERVIEW</h3>
 
-        <div class="hosts-charts-container">
-            <div class="echart-container div-generic-blue">
-                <h6 class="margin-top-0">HOSTS (<?= $totalHosts ?>)</h6>
-
-                <div id="hosts-count-chart-loading" class="echart-loading">
-                    <img src="/assets/icons/loading.svg" class="icon-np" />
+        <div class="grid grid-rfr-1-4 column-gap-20 row-gap-20 margin-bottom-20">
+            <div class="kpi-card">
+                <img src="/assets/icons/server.svg" class="icon-np icon-medium" />
+                <div>
+                    <p class="kpi-value"><?= $totalHosts ?></p>
+                    <p class="mediumopacity-cst">Hosts</p>
                 </div>
+            </div>
 
-                <div id="hosts-count-chart" class="echart"></div>
+            <div class="kpi-card">
+                <img src="/assets/icons/warning.svg" class="icon-np icon-medium" />
+                <div>
+                    <p class="kpi-value"><?= $totalOutdated ?></p>
+                    <p class="mediumopacity-cst">Need update</p>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <img src="/assets/icons/check.svg" class="icon-np icon-medium" />
+                <div>
+                    <p class="kpi-value"><?= $totalUptodate ?></p>
+                    <p class="mediumopacity-cst">Up to date</p>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <img src="/assets/icons/enabled.svg" class="icon-np icon-medium" />
+                <div>
+                    <p class="kpi-value"><?= $compliancePercent ?>%</p>
+                    <p class="mediumopacity-cst">Hosts compliance</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="hosts-charts-container">
+            <div class="hosts-chart-sub-container hosts-chart-wide div-generic-blue">
+                <h6 class="margin-top-0">OPERATING SYSTEMS</h6>
+
+                <div class="echart-container">
+                    <div id="hosts-os-chart-loading" class="echart-loading">
+                        <img src="/assets/icons/loading.svg" class="icon-np" />
+                    </div>
+
+                    <div id="hosts-os-chart" class="echart"></div>
+                </div>
+            </div>
+
+            <div class="hosts-chart-sub-container div-generic-blue">
+                <h6 class="margin-top-0">ARCHITECTURES</h6>
+
+                <div class="echart-container">
+                    <div id="hosts-arch-chart-loading" class="echart-loading">
+                        <img src="/assets/icons/loading.svg" class="icon-np" />
+                    </div>
+
+                    <div id="hosts-arch-chart" class="echart"></div>
+                </div>
             </div>
 
             <div class="hosts-chart-sub-container div-generic-blue">
@@ -51,30 +99,6 @@
                         </div>
                         <?php
                     endforeach ?>
-                </div>
-            </div>
-
-            <div class="hosts-chart-sub-container div-generic-blue">
-                <h6 class="margin-top-0">OPERATING SYSTEMS</h6>
-
-                <div class="echart-container">
-                    <div id="hosts-os-chart-loading" class="echart-loading">
-                        <img src="/assets/icons/loading.svg" class="icon-np" />
-                    </div>
-
-                    <div id="hosts-os-chart" class="echart"></div>
-                </div>
-            </div>
-
-            <div class="hosts-chart-sub-container div-generic-blue">
-                <h6 class="margin-top-0">ARCHITECTURES</h6>
-
-                <div class="echart-container">
-                    <div id="hosts-arch-chart-loading" class="echart-loading">
-                        <img src="/assets/icons/loading.svg" class="icon-np" />
-                    </div>
-
-                    <div id="hosts-arch-chart" class="echart"></div>
                 </div>
             </div>
 
@@ -152,7 +176,6 @@
 
         <script>
             $(document).ready(function() {
-                new EChart('nightingale', 'hosts-count-chart');
                 new EChart('bar', 'hosts-os-chart');
                 new EChart('nightingale', 'hosts-arch-chart');
                 new EChart('nightingale', 'hosts-env-chart');

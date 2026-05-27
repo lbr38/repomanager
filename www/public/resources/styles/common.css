@@ -54,7 +54,7 @@ h1, h2, h3, h4 {
 h3 {
     width: max-content;
     font-size: 18px;
-    margin: 50px 0 40px 0;
+    margin: 40px 0 40px 0;
     border-bottom: 1px solid #15bf7f;
 }
 
@@ -86,6 +86,19 @@ h6 {
     color: #8A99AA;
     margin-bottom: 2px;
     word-break: break-all;
+}
+
+.repo-description-container {
+    display: flex;
+    align-items: center;
+    column-gap: 8px;
+    margin-top: 5px;
+}
+
+.repo-description-container:hover .repo-description-empty:empty::before {
+    content: 'Add a description...';
+    opacity: 0.5;
+    cursor: pointer;
 }
 
 .empty-state {
@@ -253,7 +266,7 @@ pre.codeblock {
 .margin-top-0 {margin-top: 0px !important}.margin-top-5 {margin-top: 5px !important}.margin-top-8{margin-top:8px!important}.margin-top-10 {margin-top: 10px !important}.margin-top-15 {margin-top: 15px !important}.margin-top-20 {margin-top: 20px !important}.margin-top-30 {margin-top: 30px !important}.margin-top-40 {margin-top: 40px !important}.margin-top-50{margin-top:50px !important}
 .margin-bottom-0 {margin-bottom: 0px !important}.margin-bottom-5 {margin-bottom: 5px !important}.margin-bottom-8{margin-bottom:8px!important}.margin-bottom-10 {margin-bottom: 10px !important}.margin-bottom-15 {margin-bottom: 15px !important}.margin-bottom-20 {margin-bottom: 20px !important}.margin-bottom-30 {margin-bottom: 30px !important}.margin-bottom-40 {margin-bottom: 40px !important} .margin-bottom-50{margin-bottom:50px!important}
 .min-height-100{min-height:100px!important}.min-height-120{min-height:120px!important}.min-height-150{min-height:150px!important}.min-height-200{min-height:200px!important}.min-height-300{min-height:300px!important}.min-height-400{min-height:400px!important}.min-height-500{min-height:500px!important}.min-height-600{min-height:600px!important}.min-height-700{min-height:700px!important}.min-height-800{min-height:800px!important}.min-height-900{min-height:900px!important}.min-height-1000{min-height:1000px!important}
-.min-width-100 {min-width: 100px}.min-width-200 {min-width: 200px}.min-width-300 {min-width: 300px}.min-width-400 {min-width: 400px}.min-width-500 {min-width: 500px}.min-width-600 {min-width: 600px}.min-width-700 {min-width: 700px}.min-width-800 {min-width: 800px}.min-width-900 {min-width: 900px}.min-width-1000 {min-width: 1000px}
+.min-width-100 {min-width: 100px}.min-width-150{min-width: 150px}.min-width-200 {min-width: 200px}.min-width-300 {min-width: 300px}.min-width-400 {min-width: 400px}.min-width-500 {min-width: 500px}.min-width-600 {min-width: 600px}.min-width-700 {min-width: 700px}.min-width-800 {min-width: 800px}.min-width-900 {min-width: 900px}.min-width-1000 {min-width: 1000px}
 .min-height-50vh{min-height:50vh}.min-height-90vh{min-height:90vh}.min-height-100vh{min-height:100vh}
 .min-width-100vw{min-width:100vw}
 .width-100{width:100%}
@@ -299,40 +312,48 @@ code {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 35px;
+    min-width: 32px;
     height: 30px;
-    border: none;
-    border-radius: 60px;
-    color: white;
+    border: 1px solid #2d5575;
+    border-radius: 6px;
+    color: #97a5b4;
     text-align: center;
     text-decoration: none;
-    font-size: 14px;
+    font-size: 13px;
     cursor: pointer;
-    background-color: #15bf7f;
-    border-radius: 0;
+    background-color: transparent;
+    margin: 0 2px;
+    transition: all 0.15s ease;
 }
 
 [class*=' pagination-btn']:hover,[class^='pagination-btn']:hover {
-    background-color: #12a16a;
+    background-color: rgba(34, 56, 79, 0.6);
+    border-color: #3d7aab;
+    color: #ffffff;
 }
 
 .pagination-btn-current {
-    background-color: #12a16a;
-    border: 1px solid #10885a;
+    background-color: rgba(21, 191, 127, 0.15);
+    border-color: #15bf7f;
+    color: #15bf7f;
+}
+
+.pagination-btn-current:hover {
+    background-color: rgba(21, 191, 127, 0.25);
+    border-color: #15bf7f;
+    color: #15bf7f;
 }
 
 .pagination-btn-first {
-    border-top-left-radius: 60px;
-    border-bottom-left-radius: 60px;
+    border-radius: 6px;
 }
 
 .pagination-btn-last {
-    border-top-right-radius: 60px;
-    border-bottom-right-radius: 60px;
+    border-radius: 6px;
 }
 
 .pagination-btn-previous, .pagination-btn-next {
-    width: 40px;
+    width: 35px;
 }
 
 .round-item {

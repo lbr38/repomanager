@@ -247,6 +247,7 @@ class Execution
             'gpg-sign' => 'setGpgSign',
             'env' => 'setEnv',
             'description' => 'setDescription',
+            'tags' => 'setTags',
             'group' => 'setGroup',
             'advanced-params' => 'setAdvancedParams'
         ];

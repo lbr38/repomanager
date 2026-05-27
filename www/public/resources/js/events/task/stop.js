@@ -1,7 +1,10 @@
 /**
  *  Event: stop task
  */
-$(document).on('click','.stop-task-btn',function () {
+$(document).on('click','.stop-task-btn',function (e) {
+    // Prevent parent to be triggered
+    e.stopPropagation();
+
     myalert.print('Stopping task...');
 
     ajaxRequest(
@@ -17,5 +20,7 @@ $(document).on('click','.stop-task-btn',function () {
         true,
         // Print error alert:
         true
-    );
+    ).then(function () {
+        mycontainer.reload('tasks/tasks');
+    });
 });

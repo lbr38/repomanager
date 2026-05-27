@@ -17,16 +17,8 @@
 <p class="note">The new name of the repository.</p>
 <input type="text" class="task-param" param-name="name" required />
 
-<select class="task-param hide" param-name="arch" multiple>
-    <?php
-    foreach ($repoController->getArch() as $arch) {
-        echo '<option value="' . $arch . '" selected>' . $arch . '</option>';
-    } ?>
-</select>
-
 <input type="hidden" class="task-param" param-name="old-name" value="<?= $repoController->getName() ?>" />
 
-<input type="hidden" class="task-param" param-name="gpg-sign" value="<?= $repoController->getSigned() ?>" />
 
 <?php
 // Define schedule form action (useful for the schedule form)

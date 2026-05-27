@@ -1,442 +1,396 @@
+<?php
+use \Controllers\Layout\Table\Render as TableRender;
+use \Controllers\Utils\Generate\Html\Label;
+use \Controllers\Task\Task;
+use JsonException; ?>
+
 <div class="reloadable-table" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
     <?php
     if (!empty($reloadableTableContent)) : ?>
-        <div class="flex align-item-center justify-space-between">
-            <h6 class="margin-top-0 margin-bottom-5"><?= strtoupper($taskTableType) ?></h6>
+        <div class="flex align-item-center justify-space-between margin-bottom-10">
+            <h6 class="margin-top-0 margin-bottom-0"><?= strtoupper($taskTableType) ?></h6>
 
             <?php
             if (in_array($taskTableType, ['scheduled', 'queued'])) : ?>
-                <div class="flex justify-end margin-bottom-10 margin-right-15">
-                    <input type="checkbox" class="select-all-checkbox lowopacity" checkbox-id="<?= $taskTableType . '-task' ?>" title="Select all" />
-                </div>
+                <label class="flex align-item-center column-gap-8 pointer opacity-60">
+                    <p class="font-size-13">Select all</p>
+                    <input type="checkbox" class="select-all-checkbox" checkbox-id="<?= $taskTableType . '-task' ?>" title="Select all" />
+                </label>
                 <?php
             endif ?>
         </div>
 
-        <?php
-        foreach ($reloadableTableContent as $item) :
-            $headerColor = '';
-            $actionBtn = 'show-task-btn';
+        <div class="flex flex-direction-column row-gap-10">
+            <?php
+            foreach ($reloadableTableContent as $item) :
+                $taskAccent = '';
 
-            /**
-             *  Retrieve task parameters
-             */
-            $taskRawParams = json_decode($item['Raw_params'], true);
+                // Retrieve task parameters
+                try {
+                    $taskRawParams = json_decode($item['Raw_params'], true, 512, JSON_THROW_ON_ERROR);
+                } catch (JsonException $e) {
+                    echo '<p class="note">Error decoding task #' . $item['Id'] . ' parameters: ' . $e->getMessage() . '</p>';
+                    continue;
+                }
 
-            /**
-             *  If the current task item was made in a scheduled task, we display the scheduled task header
-             */
-            if (in_array($item['Status'], ['scheduled', 'queued', 'disabled'])) {
-                $headerColor = 'header-blue-min';
-                $actionBtn = 'show-scheduled-task-info-btn';
-            }
+                // Determine status accent color
+                if ($item['Status'] == 'done') {
+                    $taskAccent = 'task-accent-green';
+                } elseif ($item['Status'] == 'error' or $item['Status'] == 'stopped') {
+                    $taskAccent = 'task-accent-red';
+                } elseif ($item['Status'] == 'running') {
+                    $taskAccent = 'task-accent-running';
+                } elseif ($item['Status'] == 'queued') {
+                    $taskAccent = 'task-accent-yellow';
+                } elseif ($item['Status'] == 'scheduled') {
+                    $taskAccent = 'task-accent-orange';
+                }
 
-            $tableClass = 'table-container grid-40p-45p-10p column-gap-10 justify-space-between pointer ' . $actionBtn . ' ' . $headerColor; ?>
+                // Determine action title and icon
+                $icon = 'plus';
+                $actionTitle = Task::generateLiteralAction($taskRawParams['action']);
 
-            <div class="<?= $tableClass ?>" task-id="<?= $item['Id'] ?>" title="View task details">
-                <div class="flex align-item-center column-gap-15">
-                    <div>
+                if ($taskRawParams['action'] == 'create') {
+                    $icon = 'plus';
+                    if (!isset($taskRawParams['repo-type'])) {
+                        $actionTitle = 'New repository';
+                    } else {
+                        $actionTitle = $taskRawParams['repo-type'] == 'local' ? 'New local repository' : 'New mirror repository';
+                    }
+                }
+                if ($taskRawParams['action'] == 'update') {
+                    $icon = 'update';
+                }
+                if ($taskRawParams['action'] == 'rebuild') {
+                    $icon = 'update';
+                }
+                if ($taskRawParams['action'] == 'rename') {
+                    $icon = 'edit';
+                }
+                if ($taskRawParams['action'] == 'env') {
+                    $icon = 'link';
+                }
+                if ($taskRawParams['action'] == 'duplicate') {
+                    $icon = 'duplicate';
+                }
+                if ($taskRawParams['action'] == 'delete') {
+                    $icon = 'delete';
+                }
+                if ($taskRawParams['action'] == 'removeEnv') {
+                    $icon = 'delete';
+                }
+                if ($item['Status'] == 'running') {
+                    $icon = 'loading';
+                }
+
+                // Determine click behavior class
+                $actionBtn = in_array($item['Status'], ['scheduled', 'queued', 'disabled']) ? 'task-item-selectable' : ''; ?>
+
+                <div class="task-item <?= $taskAccent ?> <?= $actionBtn ?> pointer" task-id="<?= $item['Id'] ?>" title="<?= in_array($item['Status'], ['scheduled', 'queued', 'disabled']) ? 'Click to select' : 'View task details' ?>">
+                    <a <?= in_array($item['Status'], ['scheduled', 'queued', 'disabled']) ? '' : 'href="/task/' . $item['Id'] . '"'; ?>>
+                        <div class="flex align-item-center column-gap-20">
+                            <?php
+                            // Checkbox for scheduled/queued tasks (hidden like snap checkboxes)
+                            if (in_array($item['Status'], ['scheduled', 'queued', 'disabled'])) :
+                                if (IS_ADMIN or in_array('delete', USER_PERMISSIONS['tasks']['allowed-actions'])) : ?>
+                                    <input type="checkbox" class="task-checkbox-input child-checkbox" checkbox-id="<?= $taskTableType ?>-task" checkbox-data-attribute="task-id" task-id="<?= $item['Id'] ?>" title="Select task" />
+                                    <?php
+                                endif;
+                            endif ?>
+
+                            <img class="icon-np <?= $item['Status'] != 'running' ? 'icon-lowopacity' : '' ?>" src="/assets/icons/<?= $icon ?>.svg" title="<?= $actionTitle ?>" />
+
+                            <div class="flex flex-direction-column row-gap-2">
+                                <?php
+                                // Date and time for immediate tasks
+                                if (!empty($item['Date']) and !empty($item['Time'])) : ?>
+                                    <span class="task-item-date"><?= DateTime::createFromFormat('Y-m-d', $item['Date'])->format('d-m-Y') ?> <?= $item['Time'] ?></span>
+                                    <?php
+                                endif;
+
+                                // Schedule info for scheduled tasks
+                                if ($item['Type'] == 'scheduled') : ?>
+                                    <span class="task-item-schedule mediumopacity-cst flex align-item-center column-gap-8">
+                                        <span>
+                                            <?php
+                                            if ($taskRawParams['schedule']['schedule-type'] == 'unique') {
+                                                echo 'Scheduled on ' . DateTime::createFromFormat('Y-m-d', $taskRawParams['schedule']['schedule-date'])->format('d-m-Y') . ' ' . $taskRawParams['schedule']['schedule-time'] . ':00';
+                                            }
+                                            if ($taskRawParams['schedule']['schedule-type'] == 'recurring') {
+                                                if ($taskRawParams['schedule']['schedule-frequency'] == 'hourly') {
+                                                    echo 'Hourly';
+                                                }
+                                                if ($taskRawParams['schedule']['schedule-frequency'] == 'daily') {
+                                                    echo 'Daily';
+                                                }
+                                                if ($taskRawParams['schedule']['schedule-frequency'] == 'weekly') {
+                                                    echo 'Weekly';
+                                                }
+                                                if ($taskRawParams['schedule']['schedule-frequency'] == 'monthly') {
+                                                    echo 'Monthly';
+                                                }
+                                                if ($taskRawParams['schedule']['schedule-frequency'] == 'cron') {
+                                                    echo 'Cron';
+                                                }
+                                            } ?>
+                                        </span>
+                                        <?php
+                                        if ($item['Status'] == 'disabled') : ?>
+                                            <span class="label-white">Disabled</span>
+                                            <?php
+                                        endif ?>
+                                    </span>
+                                    <?php
+                                endif ?>
+
+                                <span class="task-item-action lowopacity-cst"><?= $actionTitle ?></span>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a <?= in_array($item['Status'], ['scheduled', 'queued', 'disabled']) ? '' : 'href="/task/' . $item['Id'] . '"'; ?>>
+                        <div class="task-item-repo">
+                            <span class="label-white"><?= $myTask->getRepo($item['Id']); ?></span>
+
+                            <?php
+                            if (in_array($taskRawParams['action'], ['env', 'removeEnv'])) {
+                                if (is_string($taskRawParams['env'])) {
+                                    echo Label::envtag($taskRawParams['env']);
+                                }
+
+                                if (is_array($taskRawParams['env'])) {
+                                    foreach ($taskRawParams['env'] as $env) {
+                                        echo Label::envtag($env);
+                                    }
+                                }
+                            } ?>
+                        </div>
+                    </a>
+
+                    <div class="task-item-status">
                         <?php
-                        if ($taskRawParams['action'] == 'create') {
-                            $icon = 'plus';
+                        if (in_array($item['Status'], ['scheduled', 'queued', 'disabled']) and $item['Type'] == 'scheduled') {
+                            echo '<img class="icon-lowopacity show-scheduled-task-info-btn" src="/assets/icons/view.svg" task-id="' . $item['Id'] . '" title="Show task details" />';
+                        }
 
-                            /**
-                             *  To keep compatibility with old tasks (old operations table)
-                             *  TODO: delete this in 1year
-                             */
-                            if (!isset($taskRawParams['repo-type'])) {
-                                $actionTitle = 'New repository';
-                            } else {
-                                if ($taskRawParams['repo-type'] == 'local') {
-                                    $actionTitle = 'New local repository';
-                                }
-                                if ($taskRawParams['repo-type'] == 'mirror') {
-                                    $actionTitle = 'New mirror repository';
-                                }
+                        if (($item['Status'] == 'error' or $item['Status'] == 'stopped') and !empty($item['Id'])) {
+                            if (IS_ADMIN or in_array('relaunch', USER_PERMISSIONS['tasks']['allowed-actions'])) {
+                                echo '<img class="icon-lowopacity relaunch-task-btn" src="/assets/icons/update.svg" task-id="' . $item['Id'] . '" title="Relaunch this task" />';
                             }
                         }
 
-                        if ($taskRawParams['action'] == 'update') {
-                            $icon = 'update';
-                            $actionTitle = 'Update repository';
+                        if ($item['Status'] == 'queued') {
+                            echo '<img class="icon-np" src="/assets/icons/pending.svg" title="Pending" />';
                         }
 
-                        if ($taskRawParams['action'] == 'rebuild') {
-                            $icon = 'update';
-                            $actionTitle = 'Rebuild metadata';
-                        }
-
-                        if ($taskRawParams['action'] == 'rename') {
-                            $icon = 'edit';
-                            $actionTitle = 'Rename repository';
-                        }
-
-                        if ($taskRawParams['action'] == 'env') {
-                            $icon = 'link';
-                            $actionTitle = 'Point an environment';
-                        }
-
-                        if ($taskRawParams['action'] == 'duplicate') {
-                            $icon = 'duplicate';
-                            $actionTitle = 'Duplicate repository';
-                        }
-
-                        if ($taskRawParams['action'] == 'delete') {
-                            $icon = 'delete';
-                            $actionTitle = 'Delete repository';
-                        }
-
-                        if ($taskRawParams['action'] == 'removeEnv') {
-                            $icon = 'delete';
-                            $actionTitle = 'Remove environment';
+                        if ($item['Status'] == 'running') {
+                            if (IS_ADMIN or in_array('stop', USER_PERMISSIONS['tasks']['allowed-actions'])) {
+                                echo '<span title="Stop task" class="stop-task-btn" task-id="' . $item['Id'] . '"><img src="/assets/icons/stop.svg" class="icon-lowopacity"></span>';
+                            }
                         } ?>
-
-                        <img class="icon" src="/assets/icons/<?= $icon ?>.svg" title="<?= $actionTitle ?>" />
                     </div>
+                </div>
 
-                    <div class="flex flex-direction-column row-gap-4">
+                <?php
+                // If task is scheduled, print task info div
+                if ($item['Type'] == 'scheduled') : ?>
+                    <div class="scheduled-task-info div-generic-blue margin-bottom-10 hide" task-id="<?= $item['Id'] ?>">
+                        <div class="grid grid-2">
+                            <div>
+                                <h6 class="margin-top-0">SCHEDULE TYPE</h6>
+                                <?php
+                                if ($taskRawParams['schedule']['schedule-type'] == 'unique') : ?>
+                                    <p>Single execution</p>
+                                    <?php
+                                endif;
+                                if ($taskRawParams['schedule']['schedule-type'] == 'recurring') : ?>
+                                    <p>Recurring execution</p>
+                                    <?php
+                                endif ?>
+                            </div>
+
+                            <div>
+                                <?php
+                                if ($taskRawParams['schedule']['schedule-type'] == 'unique') : ?>
+                                    <h6 class="margin-top-0">SCHEDULE DATE</h6>
+                                    <p><?= DateTime::createFromFormat('Y-m-d', $taskRawParams['schedule']['schedule-date'])->format('d-m-Y') . ' ' . $taskRawParams['schedule']['schedule-time'] . ':00' ?></p>
+                                    <?php
+                                endif;
+                                if ($taskRawParams['schedule']['schedule-type'] == 'recurring') : ?>
+                                    <h6 class="margin-top-0">SCHEDULE FREQUENCY</h6>
+                                    <p>
+                                        <?php
+                                        if ($taskRawParams['schedule']['schedule-frequency'] == 'hourly') {
+                                            echo 'Every hour';
+                                        }
+                                        if ($taskRawParams['schedule']['schedule-frequency'] == 'daily') {
+                                            echo 'Every day at ' . $taskRawParams['schedule']['schedule-time'] . ':00';
+                                        }
+                                        if ($taskRawParams['schedule']['schedule-frequency'] == 'weekly') {
+                                            echo 'Every week on ' . implode(', ', $taskRawParams['schedule']['schedule-day']) . ' at ' . $taskRawParams['schedule']['schedule-time'] . ':00';
+                                        }
+                                        if ($taskRawParams['schedule']['schedule-frequency'] == 'monthly') {
+                                            echo 'Every ' . $taskRawParams['schedule']['schedule-monthly-day-position'] . ' ' . $taskRawParams['schedule']['schedule-monthly-day'] . ' of the month at ' . $taskRawParams['schedule']['schedule-time'] . ':00';
+                                        }
+                                        if ($taskRawParams['schedule']['schedule-frequency'] == 'cron') {
+                                            echo 'Cron: ' . htmlspecialchars($taskRawParams['schedule']['schedule-cron'] ?? '', ENT_QUOTES, 'UTF-8');
+                                        } ?>
+                                    </p>
+                                    <?php
+                                endif ?>
+                            </div>
+                        </div>
+
                         <?php
-                        /**
-                         *  If task is immediate, display the date and time
-                         */
-                        if (!empty($item['Date']) and !empty($item['Time'])) :
-                            echo '<span><b>' . DateTime::createFromFormat('Y-m-d', $item['Date'])->format('d-m-Y') . ' ' . $item['Time'] . '</b></span>';
+                        if ($taskRawParams['action'] == 'duplicate') : ?>
+                            <h6>DUPLICATE TO</h6>
+                            <p><?= $taskRawParams['name'] ?></p>
+                            <?php
                         endif;
 
-                        /**
-                         *  If task is scheduled
-                         */
-                        if ($item['Type'] == 'scheduled') :
-                            if (!empty($item['Date']) and !empty($item['Time'])) {
-                                $class = 'margin-top-5';
-                            } else {
-                                $class = '';
-                            } ?>
-
-                            <span class="<?= $class ?>">
-                                <?php
-                                /**
-                                 *  Case it is a unique scheduled task
-                                 */
-                                if ($taskRawParams['schedule']['schedule-type'] == 'unique') {
-                                    echo 'Scheduled on<br>';
-                                    echo DateTime::createFromFormat('Y-m-d', $taskRawParams['schedule']['schedule-date'])->format('d-m-Y') . ' ' . $taskRawParams['schedule']['schedule-time'] . ':00';
-                                }
-
-                                /**
-                                 *  Case it is a recurring scheduled task
-                                 */
-                                if ($taskRawParams['schedule']['schedule-type'] == 'recurring') {
-                                    if ($taskRawParams['schedule']['schedule-frequency'] == 'hourly') {
-                                        echo 'Hourly scheduled task';
-                                    }
-
-                                    if ($taskRawParams['schedule']['schedule-frequency'] == 'daily') {
-                                        echo 'Daily scheduled task';
-                                    }
-
-                                    if ($taskRawParams['schedule']['schedule-frequency'] == 'weekly') {
-                                        echo 'Weekly scheduled task';
-                                    }
-
-                                    if ($taskRawParams['schedule']['schedule-frequency'] == 'monthly') {
-                                        echo 'Monthly scheduled task';
-                                    }
-
-                                    if ($taskRawParams['schedule']['schedule-frequency'] == 'cron') {
-                                        echo 'Cron scheduled task';
-                                    }
-                                } ?>
-                            </span>
+                        if ($taskRawParams['action'] == 'rename') : ?>
+                            <h6>RENAME TO</h6>
+                            <p><?= $taskRawParams['name'] ?></p>
                             <?php
                         endif ?>
 
-                        <span class="lowopacity-cst">
-                            <?= $actionTitle ?>
-                        </span>
-                    </div>
-                </div>
-  
-                <div class="flex row-gap-5 column-gap-5 flex-wrap">
-                    <span class="label-white">
-                        <?= $myTask->getRepo($item['Id']); ?>
-                    </span>
-
-                    <?php
-                    /**
-                     *  If action is 'env' or 'removeEnv', print environment
-                     */
-                    if (in_array($taskRawParams['action'], ['env', 'removeEnv'])) {
-                        if (is_string($taskRawParams['env'])) {
-                            echo \Controllers\Utils\Generate\Html\Label::envtag($taskRawParams['env']);
-                        }
-                        if (is_array($taskRawParams['env'])) {
-                            foreach ($taskRawParams['env'] as $env) {
-                                echo \Controllers\Utils\Generate\Html\Label::envtag($env);
-                            }
-                        }
-                    } ?>
-                </div>
-
-                <div class="flex align-item-center justify-end column-gap-10 row-gap-10 flex-wrap">
-                    <?php
-                    // If task is a scheduled task and is disabled
-                    if ($item['Type'] == 'scheduled' and $item['Status'] == 'disabled') {
-                            echo '<img class="icon-np mediumopacity-cst" src="/assets/icons/pause.svg" title="Task execution is disabled" />';
-                    }
-
-                    // Print relaunch button if task has failed
-                    if (($item['Status'] == 'error' or $item['Status'] == 'stopped') and !empty($item['Id'])) {
-                        if (IS_ADMIN or in_array('relaunch', USER_PERMISSIONS['tasks']['allowed-actions'])) {
-                            echo '<img class="icon-lowopacity relaunch-task-btn" src="/assets/icons/update.svg" task-id="' . $item['Id'] . '" title="Relaunch this task with the same parameters." />';
-                        }
-                    }
-
-                    if ($item['Status'] == 'queued') {
-                        echo '<img class="icon-np" src="/assets/icons/pending.svg" title="Task is pending" />';
-                    }
-
-                    if ($item['Status'] == 'running') {
-                        if (IS_ADMIN or in_array('stop', USER_PERMISSIONS['tasks']['allowed-actions'])) {
-                            echo '<span title="Stop task" class="stop-task-btn" task-id="' . $item['Id'] . '"><img src="/assets/icons/stop.svg" class="icon-lowopacity"></span>';
-                        }
-                        echo '<img src="/assets/icons/loading.svg" class="icon-np" title="Task running" />';
-                    }
-
-                    if ($item['Status'] == 'done') {
-                        echo '<img class="icon-np" src="/assets/icons/check.svg" title="Task completed" />';
-                    }
-
-                    if ($item['Status'] == 'error') {
-                        echo '<img class="icon-np" src="/assets/icons/error.svg" title="Task has failed" />';
-                    }
-
-                    if ($item['Status'] == 'stopped') {
-                        echo '<img class="icon-np" src="/assets/icons/warning-red.svg" title="Task stopped by the user" />';
-                    }
-
-                    /**
-                     *  Delete task button, only for scheduled and queued tasks
-                     */
-                    if (in_array($item['Status'], ['scheduled', 'queued', 'disabled'])) {
-                        if (IS_ADMIN or in_array('delete', USER_PERMISSIONS['tasks']['allowed-actions'])) {
-                            echo '<input type="checkbox" class="child-checkbox lowopacity" checkbox-id="' . $taskTableType . '-task" checkbox-data-attribute="task-id" task-id="' . $item['Id'] . '" title="Select scheduled task" />';
-                        }
-                    } ?>
-                </div>
-            </div>
-
-            <?php
-            /**
-             *  If task is scheduled, print task info div
-             */
-            if ($item['Type'] == 'scheduled') : ?>
-                <div class="scheduled-task-info details-div margin-bottom-10 hide" task-id="<?= $item['Id'] ?>">
-                    <div class="grid grid-2">
-                        <div>
-                            <h6 class="margin-top-0">SCHEDULE TYPE</h6>
+                        <div class="grid grid-2">
                             <?php
-                            // Case it is a unique scheduled task
-                            if ($taskRawParams['schedule']['schedule-type'] == 'unique') : ?>
-                                <p>Single execution</p>
+                            if (!empty($taskRawParams['arch'])) : ?>
+                                <div>
+                                    <h6>ARCHITECTURE</h6>
+                                    <div class="flex align-item-center row-gap-5 column-gap-5">
+                                        <?php
+                                        foreach ($taskRawParams['arch'] as $architecture) {
+                                            echo '<p>' . Label::white($architecture) . '</p>';
+                                        } ?>
+                                    </div>
+                                </div>
                                 <?php
                             endif;
 
-                            // Case it is a recurring scheduled task
-                            if ($taskRawParams['schedule']['schedule-type'] == 'recurring') : ?>
-                                <p>Recurring execution</p>
+                            if (!empty($taskRawParams['env'])) : ?>
+                                <div>
+                                    <h6>ENVIRONMENT</h6>
+                                    <div class="flex align-item-center row-gap-5 column-gap-5">
+                                        <?php
+                                        foreach ($taskRawParams['env'] as $env) {
+                                            echo '<p>' . Label::envtag($env) . '</p>';
+                                        } ?>
+                                    </div>
+                                </div>
                                 <?php
                             endif ?>
                         </div>
 
-                        <div>
+                        <div class="grid grid-2">
                             <?php
-                            // Case it is a unique scheduled task
-                            if ($taskRawParams['schedule']['schedule-type'] == 'unique') : ?>
-                                <h6 class="margin-top-0">SCHEDULE DATE</h6>
-                                <p><?=  DateTime::createFromFormat('Y-m-d', $taskRawParams['schedule']['schedule-date'])->format('d-m-Y') . ' ' . $taskRawParams['schedule']['schedule-time'] . ':00' ?></p>
+                            if (!empty($taskRawParams['gpg-check'])) : ?>
+                                <div>
+                                    <h6>CHECK GPG SIGNATURES</h6>
+                                    <div class="flex align-item-center column-gap-5">
+                                        <?php
+                                        if ($taskRawParams['gpg-check'] == 'true') {
+                                            echo '<img src="/assets/icons/check.svg" class="icon" />';
+                                            echo '<span>Enabled</span>';
+                                        } else {
+                                            echo '<img src="/assets/icons/error.svg" class="icon" />';
+                                            echo '<span>Disabled</span>';
+                                        } ?>
+                                    </div>
+                                </div>
                                 <?php
                             endif;
 
-                            // Case it is a recurring scheduled task
-                            if ($taskRawParams['schedule']['schedule-type'] == 'recurring') : ?>
-                                <h6 class="margin-top-0">SCHEDULE FREQUENCY</h6>
+                            if (!empty($taskRawParams['gpg-sign'])) : ?>
+                                <div>
+                                    <h6>SIGN WITH GPG</h6>
+                                    <div class="flex align-item-center column-gap-5">
+                                        <?php
+                                        if ($taskRawParams['gpg-sign'] == 'true') {
+                                            echo '<img src="/assets/icons/check.svg" class="icon" />';
+                                            echo '<span>Enabled</span>';
+                                        } else {
+                                            echo '<img src="/assets/icons/error.svg" class="icon" />';
+                                            echo '<span>Disabled</span>';
+                                        } ?>
+                                    </div>
+                                </div>
+                                <?php
+                            endif ?>
+                        </div>
+
+                        <div class="grid grid-2">
+                            <div>
+                                <h6>NOTIFY ON TASK ERROR</h6>
+                                <div class="flex align-item-center column-gap-5">
+                                    <?php
+                                    if ($taskRawParams['schedule']['schedule-notify-error'] == 'true') {
+                                        echo '<img src="/assets/icons/check.svg" class="icon" />';
+                                        echo '<span>Enabled</span>';
+                                    } else {
+                                        echo '<img src="/assets/icons/error.svg" class="icon" />';
+                                        echo '<span>Disabled</span>';
+                                    } ?>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h6>NOTIFY ON TASK SUCCESS</h6>
+                                <div class="flex align-item-center column-gap-5">
+                                    <?php
+                                    if ($taskRawParams['schedule']['schedule-notify-success'] == 'true') {
+                                        echo '<img src="/assets/icons/check.svg" class="icon" />';
+                                        echo '<span>Enabled</span>';
+                                    } else {
+                                        echo '<img src="/assets/icons/error.svg" class="icon" />';
+                                        echo '<span>Disabled</span>';
+                                    } ?>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-2">
+                            <div>
+                                <h6>SEND A REMINDER</h6>
                                 <p>
                                     <?php
-                                    if ($taskRawParams['schedule']['schedule-frequency'] == 'hourly') {
-                                        echo 'Every hour';
-                                    }
-
-                                    if ($taskRawParams['schedule']['schedule-frequency'] == 'daily') {
-                                        echo 'Every day at ' . $taskRawParams['schedule']['schedule-time'] . ':00';
-                                    }
-
-                                    if ($taskRawParams['schedule']['schedule-frequency'] == 'weekly') {
-                                        echo 'Every week on ' . implode(', ', $taskRawParams['schedule']['schedule-day']) . ' at ' . $taskRawParams['schedule']['schedule-time'] . ':00';
-                                    }
-
-                                    if ($taskRawParams['schedule']['schedule-frequency'] == 'monthly') {
-                                        echo 'Every ' . $taskRawParams['schedule']['schedule-monthly-day-position'] . ' ' . $taskRawParams['schedule']['schedule-monthly-day'] . ' of the month at ' . $taskRawParams['schedule']['schedule-time'] . ':00';
-                                    } ?>
-                                    <?php
-                                    if ($taskRawParams['schedule']['schedule-frequency'] == 'cron') {
-                                        echo 'Cron: ' . htmlspecialchars($taskRawParams['schedule']['schedule-cron'] ?? '', ENT_QUOTES, 'UTF-8');
+                                    if (empty($taskRawParams['schedule']['schedule-reminder'])) {
+                                        echo 'None';
+                                    } else {
+                                        foreach ($taskRawParams['schedule']['schedule-reminder'] as $reminder) {
+                                            if ($reminder == 1) {
+                                                echo '1 day before<br>';
+                                            } else {
+                                                echo $reminder . ' days before<br>';
+                                            }
+                                        }
                                     } ?>
                                 </p>
-                                <?php
-                            endif ?>
-                        </div>
-                    </div>
-
-                    <?php
-                    if ($taskRawParams['action'] == 'duplicate') : ?>
-                        <h6>DUPLICATE TO</h6>
-                        <p><?= $taskRawParams['name'] ?></p>
-                        <?php
-                    endif;
-
-                    if ($taskRawParams['action'] == 'rename') : ?>
-                        <h6>RENAME TO</h6>
-                        <p><?= $taskRawParams['name'] ?></p>
-                        <?php
-                    endif ?>
-
-                    <div class="grid grid-2">
-                        <?php
-                        if (!empty($taskRawParams['arch'])) : ?>
-                            <div>
-                                <h6>ARCHITECTURE</h6>
-                                <div class="flex align-item-center row-gap-5 column-gap-5">
-                                    <?php
-                                    foreach ($taskRawParams['arch'] as $architecture) {
-                                        echo '<div><span class="label-black">' . $architecture . '</span></div>';
-                                    } ?>
-                                </div>
                             </div>
-                            <?php
-                        endif;
 
-                        if (!empty($taskRawParams['env'])) : ?>
                             <div>
-                                <h6>ENVIRONMENT</h6>
-                                <div class="flex align-item-center row-gap-5 column-gap-5">
+                                <h6>CONTACT</h6>
+                                <p>
                                     <?php
-                                    foreach ($taskRawParams['env'] as $env) {
-                                        echo '<div>' . \Controllers\Utils\Generate\Html\Label::envtag($env) . '</div>';
-                                    } ?>
-                                </div>
-                            </div>
-                            <?php
-                        endif ?>
-                    </div>
-
-                    <div class="grid grid-2">
-                        <?php
-                        if (!empty($taskRawParams['gpg-check'])) : ?>
-                            <div>
-                                <h6>CHECK GPG SIGNATURES</h6>
-                                <div class="flex align-item-center column-gap-5">
-                                    <?php
-                                    if ($taskRawParams['gpg-check'] == 'true') {
-                                        echo '<img src="/assets/icons/check.svg" class="icon" />';
-                                        echo '<span>Enabled</span>';
+                                    if (empty($taskRawParams['schedule']['schedule-recipient'])) {
+                                        echo 'None';
                                     } else {
-                                        echo '<img src="/assets/icons/error.svg" class="icon" />';
-                                        echo '<span>Disabled</span>';
-                                    } ?>
-                                </div>
-                            </div>
-                            <?php
-                        endif;
-
-                        if (!empty($taskRawParams['gpg-sign'])) : ?>
-                            <div>
-                                <h6>SIGN WITH GPG</h6>
-                                <div class="flex align-item-center column-gap-5">
-                                    <?php
-                                    if ($taskRawParams['gpg-sign'] == 'true') {
-                                        echo '<img src="/assets/icons/check.svg" class="icon" />';
-                                        echo '<span>Enabled</span>';
-                                    } else {
-                                        echo '<img src="/assets/icons/error.svg" class="icon" />';
-                                        echo '<span>Disabled</span>';
-                                    } ?>
-                                </div>
-                            </div>
-                            <?php
-                        endif ?>
-                    </div>
-
-                    <div class="grid grid-2">
-                        <div>
-                            <h6>NOTIFY ON TASK ERROR</h6>
-                            <div class="flex align-item-center column-gap-5">
-                                <?php
-                                if ($taskRawParams['schedule']['schedule-notify-error'] == 'true') {
-                                    echo '<img src="/assets/icons/check.svg" class="icon" />';
-                                    echo '<span>Enabled</span>';
-                                } else {
-                                    echo '<img src="/assets/icons/error.svg" class="icon" />';
-                                    echo '<span>Disabled</span>';
-                                } ?>
-                            </div>
-                        </div>
-
-                        <div>
-                            <h6>NOTIFY ON TASK SUCCESS</h6>
-                            <div class="flex align-item-center column-gap-5">
-                                <?php
-                                if ($taskRawParams['schedule']['schedule-notify-success'] == 'true') {
-                                    echo '<img src="/assets/icons/check.svg" class="icon" />';
-                                    echo '<span>Enabled</span>';
-                                } else {
-                                    echo '<img src="/assets/icons/error.svg" class="icon" />';
-                                    echo '<span>Disabled</span>';
-                                } ?>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-2">
-                        <div>
-                            <h6>SEND A REMINDER</h6>
-                            <p>
-                                <?php
-                                if (empty($taskRawParams['schedule']['schedule-reminder'])) {
-                                    echo 'None';
-                                } else {
-                                    foreach ($taskRawParams['schedule']['schedule-reminder'] as $reminder) {
-                                        if ($reminder == 1) {
-                                            echo '1 day before<br>';
-                                        } else {
-                                            echo $reminder . ' days before<br>';
+                                        foreach ($taskRawParams['schedule']['schedule-recipient'] as $recipient) {
+                                            echo $recipient . '<br>';
                                         }
-                                    }
-                                } ?>
-                            </p>
-                        </div>
-
-                        <div>
-                            <h6>CONTACT</h6>
-                            <p>
-                                <?php
-                                if (empty($taskRawParams['schedule']['schedule-recipient'])) {
-                                    echo 'None';
-                                } else {
-                                    foreach ($taskRawParams['schedule']['schedule-recipient'] as $recipient) {
-                                        echo $recipient . '<br>';
-                                    }
-                                } ?>
-                            </p>
+                                    } ?>
+                                </p>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <?php
-            endif;
-        endforeach; ?>
+                    <?php
+                endif;
+            endforeach; ?>
+        </div>
 
         <div class="flex justify-end margin-top-10">
-            <?php \Controllers\Layout\Table\Render::paginationBtn($reloadableTableCurrentPage, $reloadableTableTotalPages); ?>
+            <?php TableRender::paginationBtn($reloadableTableCurrentPage, $reloadableTableTotalPages); ?>
         </div>
 
         <br><br>

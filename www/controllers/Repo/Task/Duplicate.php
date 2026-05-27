@@ -287,7 +287,7 @@ class Duplicate extends \Controllers\Task\Execution
              */
             if (!empty($this->repoController->getEnv())) {
                 foreach ($this->repoController->getEnv() as $env) {
-                    $this->repoEnvController->add($targetSnapId, $env, $this->repoController->getDescription());
+                    $this->repoEnvController->add($targetSnapId, $env);
                 }
             }
 
