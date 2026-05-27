@@ -1,7 +1,7 @@
 <?php ob_start(); ?>
        
 <form id="task-form" autocomplete="off">
-    <div class="task-form-params" repo-id="none" action="create">
+    <div class="task-form-params form-block" repo-id="none" action="create">
         <h6 class="required">PACKAGE TYPE</h6>
         <?php
         // Case where the server manages several different types of repo
@@ -42,15 +42,15 @@
             <div field-type="mirror rpm">
                 <?php
                 if (RPM_REPO == 'true') :
-                    if (empty($newRepoRpmSourcesList)) {
+                    if (empty($rpmSourcesList)) {
                         echo '<div class="flex align-item-center column-gap-5 margin-top-10" field-type="mirror rpm"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /><p class="note">No rpm source repositories available. Please add a source repository first.</p></div>';
                     }
 
-                    if (!empty($newRepoRpmSourcesList)) : ?>
+                    if (!empty($rpmSourcesList)) : ?>
                         <select class="task-param" param-name="source" field-type="mirror rpm" package-type="rpm">
                             <option value="">Select a source repository</option>
                             <?php
-                            foreach ($newRepoRpmSourcesList as $source) {
+                            foreach ($rpmSourcesList as $source) {
                                 $definition = json_decode($source['Definition'], true);
                                 $name = $definition['name'];
                                 echo '<option value="' . $name . '">' . $name . '</option>';
@@ -64,15 +64,15 @@
             <div field-type="mirror deb">
                 <?php
                 if (DEB_REPO == 'true') :
-                    if (empty($newRepoDebSourcesList)) {
+                    if (empty($debSourcesList)) {
                         echo '<div class="flex align-item-center column-gap-5 margin-top-10" field-type="mirror deb"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /><p class="note">No deb source repositories available. Please add a source repository first.</p></div>';
                     }
 
-                    if (!empty($newRepoDebSourcesList)) : ?>
+                    if (!empty($debSourcesList)) : ?>
                         <select class="task-param" param-name="source" field-type="mirror deb" package-type="deb">
                             <option value="">Select a source repository</option>
                             <?php
-                            foreach ($newRepoDebSourcesList as $source) {
+                            foreach ($debSourcesList as $source) {
                                 $definition = json_decode($source['Definition'], true);
                                 $name = $definition['name'];
                                 echo '<option value="' . $name . '">' . $name . '</option>';
@@ -153,7 +153,7 @@
 
         <h6>POINT AN ENVIRONMENT</h6>
         <p class="note">Point an environment to the newly created repository.</p>
-        <select id="new-repo-target-env-select" class="task-param" param-name="env" package-type="all" multiple>
+        <select class="task-param" param-name="env" package-type="all" multiple>
             <option value=""></option>
             <?php
             foreach (ENVS as $env) {
@@ -165,19 +165,27 @@
             } ?>
         </select>
 
-        <div id="new-repo-target-description-tr">
-            <h6>DESCRIPTION</h6>
-            <input type="text" class="task-param" param-name="description" package-type="all" />
-        </div>
+        <h6>DESCRIPTION</h6>
+        <p class="note">Optional. A description for this repository.</p>
+        <input type="text" class="task-param" param-name="description" package-type="all" />
+
+        <h6>TAGS</h6>
+        <p class="note">Optional. Add tags to the repository. Tags can be used to filter repositories.</p>
+        <select class="task-param" param-name="tags" multiple>
+            <?php
+            foreach ($tags as $tag) {
+                echo '<option value="' . htmlspecialchars($tag, ENT_QUOTES) . '">' . htmlspecialchars($tag) . '</option>';
+            } ?>
+        </select>
 
         <?php
         // Possibility to add to a group, if there is at least one group
-        if (!empty($newRepoFormGroupList)) : ?>
+        if (!empty($groups)) : ?>
             <h6>ADD TO GROUP</h6>
             <select class="task-param" param-name="group" package-type="all" >
                 <option value="">Select a group</option>
                 <?php
-                foreach ($newRepoFormGroupList as $group) {
+                foreach ($groups as $group) {
                     echo '<option value="' . $group['Name'] . '">' . $group['Name'] . '</option>';
                 } ?>
             </select>
@@ -271,9 +279,6 @@
         </div>
     </div>
 
-    <br>
-    <hr>
-
     <?php
     // Define schedule form action (useful for the schedule form)
     $scheduleForm['action'] = 'create';
@@ -292,7 +297,8 @@ $(document).ready(function(){
     myselect2.convert('select.task-param[param-name="dist"]', 'Select distribution', true);
     myselect2.convert('select.task-param[param-name="section"]', 'Select component', true);
     myselect2.convert('select.task-param[param-name="arch"]', 'Select architecture', true);
-    myselect2.convert('select#new-repo-target-env-select', 'Select environment(s)', true);
+    myselect2.convert('select.task-param[param-name="env"]', 'Select environment(s)', true);
+    myselect2.convert('select.task-param[param-name="tags"]', 'Specify tags', true);
     myselect2.convert('select.task-param[param-name="advanced-params.packages.include"]', 'Specify package(s)', true);
     myselect2.convert('select.task-param[param-name="advanced-params.packages.exclude"]', 'Specify package(s)', true);
     myselect2.convert('select.task-param[param-name="schedule-day"]', 'Select day(s)', true);

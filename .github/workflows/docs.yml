@@ -11,14 +11,26 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - name: Check out the repo
+        uses: actions/checkout@v6
 
-      - uses: actions/setup-python@v6
+      - name: Retrieve Repomanager version
+        run: |
+          echo "VERSION=$(cat ${GITHUB_WORKSPACE}/www/version)" >> $GITHUB_ENV
+          echo "Version: ${{ env.VERSION }}"
+
+      - name: Set up Python environment
+        uses: actions/setup-python@v6
         with:
           python-version: '3.12'
+
+      - run: git config user.name github-actions[bot]
+      - run: git config user.email github-actions[bot]@users.noreply.github.com
+      - run: git fetch origin gh-pages --depth=1
 
       - run: pip install -r documentation/requirements.txt
 
       - run: |
           cd documentation
-          mkdocs gh-deploy --strict --force
+          mike deploy --push --update-aliases ${{ env.VERSION }} latest
+          mike set-default --push latest

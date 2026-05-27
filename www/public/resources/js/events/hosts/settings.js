@@ -13,6 +13,7 @@ $(document).on('submit','form#hosts-settings',function (e) {
         {
             complianceThresholdCount: $('input[name="compliance-threshold-count"').val(),
             complianceThresholdDays: $('input[name="compliance-threshold-days"').val(),
+            complianceSecurityUpdate: $('input[name="compliance-security-update"').is(':checked') ? 1 : 0,
             complianceRebootRequired: $('input[name="compliance-reboot-required"').is(':checked') ? 1 : 0
         },
         // Print success alert:

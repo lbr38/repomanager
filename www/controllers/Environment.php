@@ -59,7 +59,7 @@ class Environment
          *  Check if environment already exists
          */
         if ($this->exists($name)) {
-            throw new Exception('Environment <b>' . $name . '</b> already exists');
+            throw new Exception('Environment ' . $name . ' already exists');
         }
 
         /**
@@ -72,7 +72,7 @@ class Environment
         /**
          *  Add env to database
          */
-        $this->model->add($name, $color);
+        $this->model->add($name, $color, 'false');
     }
 
     /**
@@ -106,17 +106,14 @@ class Environment
             throw new Exception('You are not allowed to perform this action');
         }
 
-        /**
-         *  Delete all envs from database before inserting the new ones
-         */
+        // Delete all envs from database before inserting the new ones
         $this->model->deleteAll();
 
-        /**
-         *  Check if all specified envs are valid then add them to $envsToInsert array
-         */
+        // Check that all specified env values are valid
         foreach ($envs as $env) {
             $name = Validate::string($env['name']);
             $color = Validate::string($env['color']);
+            $protected = Validate::string($env['protected']);
 
             if (empty($name)) {
                 throw new Exception('Environment name is empty');
@@ -126,30 +123,54 @@ class Environment
                 throw new Exception('Environment color is empty');
             }
 
+            if (!in_array($protected, ['true', 'false'])) {
+                throw new Exception('Environment protected value is invalid');
+            }
+
             if (!Validate::alphaNumericHyphen($name)) {
-                throw new Exception('Environment <b>' . $name . '</b> contains invalid characters');
+                throw new Exception('Environment ' . $name . ' contains invalid characters');
             }
 
             if ($this->exists($name)) {
-                throw new Exception('Environment <b>' . $name . '</b> already exists');
+                throw new Exception('Environment ' . $name . ' already exists');
             }
 
-            $this->model->add($name, $color);
+            $this->model->add($name, $color, $protected);
         }
     }
 
     /**
      *  Return all environments list
      */
-    public function listAll()
+    public function listAll(): array
     {
         return $this->model->listAll();
     }
 
     /**
+     *  Return the list of protected environments
+     */
+    public function getProtected(): array
+    {
+        return $this->model->getProtected();
+    }
+
+    /**
+     *  Return true if the environment is protected
+     */
+    public function isProtected(string $name): bool
+    {
+        if (in_array($name, $this->getProtected())) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      *  Return default environment
      */
-    public function default()
+    public function default(): string
     {
         return $this->model->default();
     }

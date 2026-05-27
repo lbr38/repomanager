@@ -4,6 +4,7 @@ namespace Controllers\Service\Unit;
 
 use Exception;
 use DateTime;
+use Controllers\Task\Target;
 
 class ScheduledTask extends \Controllers\Service\Service
 {
@@ -35,6 +36,7 @@ class ScheduledTask extends \Controllers\Service\Service
         }
 
         $taskToExec = [];
+        $tasksRawParams = [];
         $dateNow = date('Y-m-d');
         $timeNow = date('H:i');
         $minutesNow = date('i');
@@ -64,6 +66,9 @@ class ScheduledTask extends \Controllers\Service\Service
             }
 
             $taskRawParams = json_decode($task['Raw_params'], true);
+
+            // Keep the parameters aside, they are needed when the task is actually executed
+            $tasksRawParams[$task['Id']] = $taskRawParams;
 
             /**
              *  Case where the task is a unique task
@@ -161,9 +166,7 @@ class ScheduledTask extends \Controllers\Service\Service
                 parent::log('Launching scheduled task #' . $taskId . '...');
 
                 try {
-                    // Add the scheduled task to the queue and execute it
-                    $this->taskController->updateStatus($taskId, 'queued');
-                    $this->taskController->executeId($taskId);
+                    $this->dispatch($taskId, $tasksRawParams[$taskId] ?? []);
                 } catch (Exception $e) {
                     throw new Exception('Error while executing scheduled task #' . $taskId . ': ' . $e->getMessage());
                 }
@@ -172,6 +175,85 @@ class ScheduledTask extends \Controllers\Service\Service
                 sleep(1);
             }
         }
+    }
+
+    /**
+     *  Dispatch a scheduled task that has reached its execution time
+     *  A scheduled task is never executed as is: it becomes the parent task of the sub-tasks it
+     *  launches, one per targeted repository, and its status summarizes theirs
+     */
+    private function dispatch(int $taskId, array $taskRawParams): void
+    {
+        // Keep the schedule type aside, as the sub-tasks parameters do not carry the schedule
+        $scheduleType = $taskRawParams['schedule']['schedule-type'] ?? '';
+        $tasksParams = [];
+        $grouped = true;
+
+        /**
+         *  Retrieve the parameters of the sub-tasks to launch
+         *  A dynamic target is resolved into one sub-task per matching repository, while a task
+         *  targeting several repositories already holds the parameters of each of them
+         */
+        if (Target::isDynamic($taskRawParams)) {
+            $targetController = new Target();
+            $tasksParams = $targetController->expand($taskRawParams);
+        } elseif (!empty($taskRawParams['tasks'])) {
+            $tasksParams = $taskRawParams['tasks'];
+        } else {
+            // A task targeting a single repository has no sub-task, it is executed as is
+            $grouped = false;
+        }
+
+        // The sub-tasks run immediately, the schedule is carried by the parent task only
+        foreach ($tasksParams as $key => $subTaskParams) {
+            $tasksParams[$key]['schedule'] = ['scheduled' => 'false'];
+        }
+
+        /**
+         *  A recurring task must run again at its next occurrence, so a copy of it is scheduled
+         *  before the current one is consumed by this execution
+         */
+        if ($scheduleType == 'recurring') {
+            $nextTaskId = $this->taskController->duplicate($taskId);
+
+            // The copy has not run yet, so it has no execution date and time
+            $this->taskController->updateDate($nextTaskId, '');
+            $this->taskController->updateTime($nextTaskId, '');
+            $this->taskController->updateStatus($nextTaskId, 'scheduled');
+        }
+
+        // Keep track of the moment the task actually ran, its sub-tasks duration is counted from there
+        $this->taskController->updateDate($taskId, date('Y-m-d'));
+        $this->taskController->updateTime($taskId, date('H:i:s'));
+
+        // A task without sub-task is queued and executed on its own
+        if (!$grouped) {
+            $this->taskController->updateStatus($taskId, 'queued');
+            $this->taskController->executeId($taskId);
+
+            return;
+        }
+
+        /**
+         *  A dynamic target may match no repository at all, in which case there is nothing to run
+         *  and the task is closed immediately
+         */
+        if (empty($tasksParams)) {
+            parent::log('No repository matches the target of scheduled task #' . $taskId);
+            $this->taskController->updateStatus($taskId, 'done');
+
+            return;
+        }
+
+        parent::log('Scheduled task #' . $taskId . ' launches ' . count($tasksParams) . ' sub-task(s)');
+
+        /**
+         *  The task is marked as running before its sub-tasks are launched, as the last sub-task to
+         *  end is the one that closes it
+         */
+        $this->taskController->updateStatus($taskId, 'running');
+
+        $this->taskController->execute($tasksParams, $taskId);
     }
 
     /**

@@ -1,4 +1,3 @@
-<h6>REPOSITORY</h6>
 <?php
 if ($repoController->getPackageType() == 'rpm') {
     echo '<span class="label-white">' . $repoController->getName() . ' ❯ ' . $repoController->getReleasever() . '</span>';

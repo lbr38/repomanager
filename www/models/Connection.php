@@ -45,9 +45,7 @@ class Connection extends SQLite3
                     $this->generateMainTables();
                 }
 
-            /**
-             *  Case where database is 'stats', it is the stats database 'repomanager-stats.db'
-             */
+            // Case where database is 'stats', it is the stats database 'repomanager-stats.db'
             } elseif ($database == 'stats') {
                 $this->open(STATS_DB);
                 $this->busyTimeout(30000);
@@ -64,9 +62,7 @@ class Connection extends SQLite3
                     $this->generateStatsTables();
                 }
 
-            /**
-             *  Case where database is 'hosts', it is the hosts database 'repomanager-hosts.db'
-             */
+            // Case where database is 'hosts', it is the hosts database 'repomanager-hosts.db'
             } elseif ($database == 'hosts') {
                 $this->open(HOSTS_DB);
                 $this->busyTimeout(30000);
@@ -83,9 +79,7 @@ class Connection extends SQLite3
                     $this->generateHostsTables();
                 }
 
-            /**
-             *  Case where database is 'host', it is a host database 'properties.db', databaseId must be set
-             */
+            // Case where database is 'host', it is a host database 'properties.db', databaseId must be set
             } elseif ($database == 'host' and !empty($databaseId)) {
                 $this->open(HOSTS_DIR . '/' . $databaseId . '/properties.db');
                 $this->busyTimeout(30000);
@@ -93,9 +87,7 @@ class Connection extends SQLite3
                 $this->enableWAL();
                 $this->generateHostTables();
 
-            /**
-             *  Case where database is 'ws', it is the websockets database 'repomanager-ws.db'
-             */
+            // Case where database is 'ws', it is the websockets database 'repomanager-ws.db'
             } elseif ($database == 'ws') {
                 $this->open(WS_DB);
                 $this->busyTimeout(30000);
@@ -103,9 +95,7 @@ class Connection extends SQLite3
                 $this->enableWAL();
                 $this->generateWsTables();
 
-            /**
-             *  Case where database is 'task-log', it is a task log database 'task-<databaseId>-log.db'
-             */
+            // Case where database is 'task-log', it is a task log database 'task-<databaseId>-log.db'
             } elseif ($database == 'task-log' and !empty($databaseId)) {
                 $this->open(MAIN_LOGS_DIR . '/repomanager-task-' . $databaseId . '-log.db');
                 $this->busyTimeout(30000);
@@ -113,9 +103,7 @@ class Connection extends SQLite3
                 $this->enableWAL();
                 $this->generateTaskLogTables();
 
-            /**
-             *  Case where database is not 'main', 'stats', 'hosts' or 'host'
-             */
+            // Case where database is not 'main', 'stats', 'hosts' or 'host'
             } else {
                 throw new Exception("unknown database: $database");
             }
@@ -133,12 +121,6 @@ class Connection extends SQLite3
     }
 
     /**
-     *
-     *  Functions to check if all tables are present
-     *
-     */
-
-    /**
      *  Count the number of tables in the database
      */
     public function countTables(): int
@@ -153,7 +135,7 @@ class Connection extends SQLite3
      */
     public function checkMainTables(): bool
     {
-        $this->required = 28;
+        $this->required = 29;
         $this->count = $this->countTables();
 
         // If the number of required tables != $required then try to regenerate the tables
@@ -241,19 +223,11 @@ class Connection extends SQLite3
     }
 
     /**
-     *
-     *  Functions to generate tables if not exists
-     *
-     */
-
-    /**
      *  Generate tables in the main database
      */
     private function generateMainTables(): void
     {
-        /**
-         *  repos table
-         */
+        // repos table
         $this->exec("CREATE TABLE IF NOT EXISTS repos (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Name VARCHAR(255) NOT NULL,
@@ -261,16 +235,14 @@ class Connection extends SQLite3
         Dist VARCHAR(255),
         Section VARCHAR(255),
         Source VARCHAR(255) NOT NULL,
-        Package_type VARCHAR(10) NOT NULL)");
+        Package_type VARCHAR(10) NOT NULL,
+        Description VARCHAR(255),
+        Tags VARCHAR(255))");
 
-        /**
-         *  Create indexes
-         */
+        // Create indexes
         $this->exec("CREATE INDEX IF NOT EXISTS repos_ALL_index ON repos (Name, Releasever, Dist, Section, Source, Package_type)");
 
-        /**
-         *  repos_snap table
-         */
+        // repos_snap table
         $this->exec("CREATE TABLE IF NOT EXISTS repos_snap (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Date DATE NOT NULL,
@@ -285,61 +257,45 @@ class Connection extends SQLite3
         Status CHAR(8) NOT NULL,
         Id_repo INTEGER NOT NULL)");
 
-        /**
-         *  Create indexes
-         */
+        // Create indexes
         // TODO: uncomment in release > 5.14.0
         // $this->exec("CREATE INDEX IF NOT EXISTS idx_repos_snap ON repos_snap (Date, Time, Signed, Arch, Type, Reconstruct, Size, Size_human, Status, Id_repo)");
         $this->exec("CREATE INDEX IF NOT EXISTS idx_repos_snap_status_id_repo ON repos_snap (Status, Id_repo)");
         $this->exec("CREATE INDEX IF NOT EXISTS idx_repos_snap_id_repo ON repos_snap (Id_repo)");
 
-        /**
-         *  repos_env table
-         */
+        // repos_env table
         $this->exec("CREATE TABLE IF NOT EXISTS repos_env (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Env VARCHAR(255),
-        Description VARCHAR(255),
         Id_snap INTEGER NOT NULL)");
 
-        /**
-         *  Create indexes
-         */
-        $this->exec("CREATE INDEX IF NOT EXISTS repos_env_index ON repos_env (Env, Description, Id_snap)");
+        // Create indexes
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_repos_env ON repos_env (Env, Id_snap)");
 
-        /**
-         *  Create indexes
-         */
-        $this->exec("CREATE INDEX IF NOT EXISTS repos_env_id_snap_index ON repos_env (Id_snap)");
+        // Create indexes
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_repos_env_id_snap ON repos_env (Id_snap)");
 
-        /**
-         *  env table
-         */
+        // env table
         $this->exec("CREATE TABLE IF NOT EXISTS env (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Name VARCHAR(255) NOT NULL,
-        Color VARCHAR(255))");
+        Color VARCHAR(255),
+        Protected CHAR(5))"); /* true, false */
 
-        /**
-         *  Insert default env if table is empty
-         */
+        // Insert default env if table is empty
         $result = $this->query("SELECT Id FROM env");
         if ($this->isempty($result) === true) {
             $this->exec("INSERT INTO env ('Name', 'Color') VALUES ('preprod', '#ffffff')");
             $this->exec("INSERT INTO env ('Name', 'Color') VALUES ('prod', '#F32F63')");
         }
 
-        /**
-         *  sources table
-         */
+        // sources table
         $this->exec("CREATE TABLE IF NOT EXISTS sources (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Definition TEXT,
         Method VARCHAR(255))");
 
-        /**
-         *  users table
-         */
+        // users table
         $this->exec("CREATE TABLE IF NOT EXISTS users (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Username VARCHAR(255) NOT NULL,
@@ -352,44 +308,35 @@ class Connection extends SQLite3
         Type CHAR(5) NOT NULL,
         State CHAR(7) NOT NULL)"); /* active / deleted */
 
-        /**
-         *  Create user_permissions table
-         */
+        // Create user_permissions table
         $this->exec("CREATE TABLE IF NOT EXISTS user_permissions (
         Permissions VARCHAR(255),
         User_id INTEGER NOT NULL)");
 
-        /**
-         *  user_role table
-         */
+        // Create user_preferences table
+        $this->exec("CREATE TABLE IF NOT EXISTS user_preferences (
+        Preferences TEXT,
+        User_id INTEGER NOT NULL UNIQUE)");
+
+        // user_role table
         $this->exec("CREATE TABLE IF NOT EXISTS user_role (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Name CHAR(15) NOT NULL UNIQUE)");
 
-        /**
-         *  If user_role table is empty (just created) then we create default roles
-         */
+        // If user_role table is empty (just created) then we create default roles
         $result = $this->query("SELECT Id FROM user_role");
         if ($this->isempty($result) === true) {
-            /**
-             *  super-administrator role: all permissions
-             */
+            // super-administrator role: all permissions
             $this->exec("INSERT INTO user_role ('Name') VALUES ('super-administrator')");
 
-            /**
-             *  administrator role: all permissions except user management (only super-administrator can manage users)
-             */
+            // administrator role: all permissions except user management (only super-administrator can manage users)
             $this->exec("INSERT INTO user_role ('Name') VALUES ('administrator')");
 
-            /**
-             *  usage role: read-only permissions
-             */
+            // usage role: read-only permissions
             $this->exec("INSERT INTO user_role ('Name') VALUES ('usage')");
         }
 
-        /**
-         *  If users table is empty (just created) then we create admin user (default password 'repomanager' and role n°1 (super-administrator))
-         */
+        // If users table is empty (just created) then we create admin user (default password 'repomanager' and role n°1 (super-administrator))
         $result = $this->query("SELECT Id FROM users");
         if ($this->isempty($result) === true) {
             $password_hashed = '$2y$10$FD6/70o2nXPf76SAPYIGSutauQ96LqKie5PLanoYBNbCWen492cX6';
@@ -403,9 +350,7 @@ class Connection extends SQLite3
             }
         }
 
-        /**
-         *  history table
-         */
+        // history table
         $this->exec("CREATE TABLE IF NOT EXISTS history (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Date DATE NOT NULL,
@@ -418,24 +363,18 @@ class Connection extends SQLite3
         Action VARCHAR(255) NOT NULL,
         State CHAR(7))"); /* success or error */
 
-        /**
-         *  groups table
-         */
+        // groups table
         $this->exec("CREATE TABLE IF NOT EXISTS groups (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Name VARCHAR(255) UNIQUE NOT NULL)");
 
-        /**
-         *  group_members table
-         */
+        // group_members table
         $this->exec("CREATE TABLE IF NOT EXISTS group_members (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Id_repo INTEGER NOT NULL,
         Id_group INTEGER NOT NULL);");
 
-        /**
-         *  Create indexes
-         */
+        // Create indexes
         $this->exec("CREATE INDEX IF NOT EXISTS group_members_id_repo_index ON group_members (Id_repo)");
         $this->exec("CREATE INDEX IF NOT EXISTS group_members_id_group_index ON group_members (Id_group)");
 
@@ -448,31 +387,26 @@ class Connection extends SQLite3
         Pid INTEGER,
         Logfile VARCHAR(255),
         Duration INTEGER,
-        Status CHAR(9))"); /* new, scheduled, running, done, stopped */
+        Status CHAR(9), /* new, scheduled, running, done, stopped */
+        Parent_task_id INTEGER)");
 
-        /**
-         *  Create indexes
-         */
+        // Create indexes
         $this->exec("CREATE INDEX IF NOT EXISTS tasks_rawparams_status ON tasks (Raw_params, Status)");
         $this->exec("CREATE INDEX IF NOT EXISTS tasks_status ON tasks (Status)");
+        // TODO: uncomment this after 6.0.0
+        // $this->exec("CREATE INDEX IF NOT EXISTS tasks_parent_task_id ON tasks (Parent_task_id)");
 
-        /**
-         *  profile_settings table
-         */
+        // profile_settings table
         $this->exec("CREATE TABLE IF NOT EXISTS profile_settings (
         Package_type VARCHAR(255))");
 
-        /**
-         *  If profile_settings table is empty (just created) then we populate it
-         */
+        // If profile_settings table is empty (just created) then we populate it
         $result = $this->query("SELECT * FROM profile_settings");
         if ($this->isempty($result) === true) {
             $this->exec("INSERT INTO profile_settings (Package_type) VALUES ('deb,rpm')");
         }
 
-        /**
-         *  profile table
-         */
+        // profile table
         $this->exec("CREATE TABLE IF NOT EXISTS profile (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Name VARCHAR(255) NOT NULL,
@@ -482,46 +416,34 @@ class Connection extends SQLite3
         Service_restart VARCHAR(255),
         Notes VARCHAR(255))");
 
-        /**
-         *  profile_repo_members table
-         */
+        // profile_repo_members table
         $this->exec("CREATE TABLE IF NOT EXISTS profile_repo_members (
         Id_profile INTEGER NOT NULL,
         Id_repo INTEGER NOT NULL)");
 
-        /**
-         *  profile_package table
-         */
+        // profile_package table
         $this->exec("CREATE TABLE IF NOT EXISTS profile_package (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Name VARCHAR(255) UNIQUE NOT NULL)");
 
-        /**
-         *  If profile_package table is empty (just created) then we populate it
-         */
+        // If profile_package table is empty (just created) then we populate it
         $result = $this->query("SELECT Id FROM profile_package");
         if ($this->isempty($result) === true) {
             $this->exec("INSERT INTO profile_package (Name) VALUES ('apache'), ('httpd'), ('php'), ('php-fpm'), ('mysql'), ('fail2ban'), ('nrpe'), ('munin-node'), ('node'), ('newrelic'), ('nginx'), ('haproxy'), ('netdata'), ('nfs'), ('rsnapshot'), ('kernel'), ('java'), ('redis'), ('varnish'), ('mongo'), ('rabbit'), ('clamav'), ('clam'), ('gpg'), ('gnupg')");
         }
 
-        /**
-         *  profile_service table
-         */
+        // profile_service table
         $this->exec("CREATE TABLE IF NOT EXISTS profile_service (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Name VARCHAR(255) UNIQUE NOT NULL)");
 
-        /**
-         *  If profile_service table is empty (just created) then we populate it
-         */
+        // If profile_service table is empty (just created) then we populate it
         $result = $this->query("SELECT Id FROM profile_service");
         if ($this->isempty($result) === true) {
             $this->exec("INSERT INTO profile_service (Name) VALUES ('apache'), ('httpd'), ('php-fpm'), ('mysqld'), ('fail2ban'), ('nrpe'), ('munin-node'), ('nginx'), ('haproxy'), ('netdata'), ('nfsd'), ('redis'), ('varnish'), ('mongod'), ('clamd')");
         }
 
-        /**
-         *  Create system_monitoring table
-         */
+        // Create system_monitoring table
         $this->exec("CREATE TABLE IF NOT EXISTS system_monitoring (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Timestamp VARCHAR(255) NOT NULL,
@@ -529,14 +451,10 @@ class Connection extends SQLite3
         Memory_usage REAL,
         Disk_usage REAL)");
 
-        /**
-         *  Create indexes on system_monitoring table
-         */
+        // Create indexes on system_monitoring table
         $this->exec("CREATE INDEX IF NOT EXISTS system_monitoring_index ON system_monitoring (Timestamp, Cpu_usage, Memory_usage, Disk_usage)");
 
-        /**
-         *  notifications table
-         */
+        // notifications table
         $this->exec("CREATE TABLE IF NOT EXISTS notifications (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Id_notification CHAR(5) NOT NULL,
@@ -544,9 +462,7 @@ class Connection extends SQLite3
         Message VARCHAR(255) NOT NULL,
         Status CHAR(9) NOT NULL)"); /* new, acquitted */
 
-        /**
-         *  settings table
-         */
+        // settings table
         $this->exec("CREATE TABLE IF NOT EXISTS settings (
         /* General settings */
         DEBUG_MODE CHAR(5),
@@ -614,26 +530,18 @@ class Connection extends SQLite3
         OIDC_HTTP_PROXY VARCHAR(255),
         OIDC_CERT_PATH VARCHAR(255))");
 
-        /**
-         *  If settings table is empty then populate it
-         */
+        // If settings table is empty then populate it
         $result = $this->query("SELECT * FROM settings");
         if ($this->isempty($result) === true) {
-            /**
-             *  Set default values
-             */
+            // Set default values
             $fqdn = 'localhost';
 
-            /**
-             *  FQDN file is created on container startup (entrypoint)
-             */
+            // FQDN file is created on container startup (entrypoint)
             if (file_exists(ROOT . '/.fqdn')) {
                 $fqdn = trim(file_get_contents(ROOT . '/.fqdn'));
             }
 
-            /**
-             *  GPG key Id
-             */
+            // GPG key Id
             $gpgKeyId = 'repomanager@' . $fqdn;
 
             /**
@@ -767,10 +675,7 @@ class Connection extends SQLite3
             )");
         }
 
-        /**
-         *  Generate cve table if not exists
-         *  CVEs table
-         */
+        // Generate cve table if not exists
         $this->exec("CREATE TABLE IF NOT EXISTS cve (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Name VARCHAR(255) NOT NULL,
@@ -822,16 +727,12 @@ class Connection extends SQLite3
         Duration INTEGER,
         Status CHAR(7) NOT NULL)"); /* running, error, done */
 
-        /**
-         *  Create indexes
-         */
+        // Create indexes
         $this->exec("CREATE INDEX IF NOT EXISTS cve_index ON cve (Name, Updated_date, Updated_time)");
         $this->exec("CREATE INDEX IF NOT EXISTS cve_cpe_index ON cve_cpe (Part, Vendor, Product, Version, Id_cve)");
         $this->exec("CREATE INDEX IF NOT EXISTS cve_affected_hosts_index ON cve_affected_hosts (Status, Id_cve)");
 
-        /**
-         *  Generate logs table if not exists
-         */
+        // Generate logs table if not exists
         $this->exec("CREATE TABLE IF NOT EXISTS logs (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Date DATE NOT NULL,
@@ -842,9 +743,7 @@ class Connection extends SQLite3
         Details TEXT,
         Status CHAR(9) NOT NULL)"); /* new, acquitted */
 
-        /**
-         *  Generate layout_container_state table if not exists
-         */
+        // Generate layout_container_state table if not exists
         $this->exec("CREATE TABLE IF NOT EXISTS layout_container_state (
         Container VARCHAR(255) NOT NULL)");
     }
@@ -854,9 +753,7 @@ class Connection extends SQLite3
      */
     private function generateStatsTables(): void
     {
-        /**
-         *  stats table
-         */
+        // stats table
         $this->exec("CREATE TABLE IF NOT EXISTS repo_stats (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Timestamp INTEGER NOT NULL,
@@ -865,9 +762,7 @@ class Connection extends SQLite3
         Snapshot_packages_count INTEGER NOT NULL,
         Id_repo INTEGER NOT NULL)");
 
-        /**
-         *  access_deb table
-         */
+        // access_deb table
         $this->exec("CREATE TABLE IF NOT EXISTS access_deb (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Timestamp INTEGER NOT NULL,
@@ -880,9 +775,7 @@ class Connection extends SQLite3
         Request VARCHAR(255) NOT NULL,
         Request_result VARCHAR(8) NOT NULL)");
 
-        /**
-         *  access_rpm table
-         */
+        // access_rpm table
         $this->exec("CREATE TABLE IF NOT EXISTS access_rpm (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Timestamp INTEGER NOT NULL,
@@ -894,16 +787,12 @@ class Connection extends SQLite3
         Request VARCHAR(255) NOT NULL,
         Request_result VARCHAR(8) NOT NULL)");
 
-        /**
-         *  access_queue table
-         */
+        // access_queue table
         $this->exec("CREATE TABLE IF NOT EXISTS access_queue (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Request VARCHAR(255) NOT NULL)");
 
-        /**
-         *  Create indexes
-         */
+        // Create indexes
         $this->exec("CREATE INDEX IF NOT EXISTS idx_access_deb ON access_deb (Name, Dist, Section, Env, Source, IP, Request, Request_result, Timestamp)");
         $this->exec("CREATE INDEX IF NOT EXISTS idx_access_rpm ON access_rpm (Name, Releasever, Env, Source, IP, Request, Request_result, Timestamp)");
         $this->exec("CREATE INDEX IF NOT EXISTS idx_repo_stats ON repo_stats (Snapshot_date, Snapshot_size, Snapshot_packages_count, Id_repo, Timestamp)");
@@ -922,9 +811,7 @@ class Connection extends SQLite3
      */
     private function generateHostsTables(): void
     {
-        /**
-         *  requests table
-         */
+        // requests table
         $this->exec("CREATE TABLE IF NOT EXISTS requests (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Date DATE NOT NULL,
@@ -938,9 +825,7 @@ class Connection extends SQLite3
         Next_retry VARCHAR(255),
         Id_host INTEGER NOT NULL)");
 
-        /**
-         *  hosts table
-         */
+        // hosts table
         $this->exec("CREATE TABLE IF NOT EXISTS hosts (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Ip VARCHAR(15) NOT NULL,
@@ -965,27 +850,22 @@ class Connection extends SQLite3
         Uptime VARCHAR(255),
         Agent_version VARCHAR(255))"); /* active / disabled / deleted */
 
-        /**
-         *  groups table
-         */
+        // groups table
         $this->exec("CREATE TABLE IF NOT EXISTS groups (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Name VARCHAR(255) UNIQUE NOT NULL)");
 
-        /**
-         *  group_members table
-         */
+        // group_members table
         $this->exec("CREATE TABLE IF NOT EXISTS group_members (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Id_host INTEGER NOT NULL,
         Id_group INTEGER NOT NULL)");
 
-        /**
-         *  settings table
-         */
+        // settings table
         $this->exec("CREATE TABLE IF NOT EXISTS settings (
         compliance_threshold_count INTEGER NOT NULL DEFAULT 1,
         compliance_threshold_days INTEGER NOT NULL DEFAULT 30,
+        compliance_security_update INTEGER NOT NULL DEFAULT 1,
         compliance_reboot_required INTEGER NOT NULL DEFAULT 1)"); /* 1 = true, 0 = false */
 
         // Insert default values in settings table, if empty
@@ -993,9 +873,7 @@ class Connection extends SQLite3
             $this->query("INSERT INTO settings (compliance_threshold_count, compliance_threshold_days, compliance_reboot_required) VALUES (1, 30, 1)");
         }
 
-        /**
-         *  Create indexes
-         */
+        // Create indexes
         // hosts table indexes:
         $this->exec("CREATE INDEX IF NOT EXISTS idx_hosts ON hosts (Ip, Hostname, Os, Os_version, Os_family, Kernel, Arch, Type, Profile, Env, AuthId, Token, Online_status, Online_status_date, Online_status_time, Reboot_required, Agent_version)");
         $this->exec("CREATE INDEX IF NOT EXISTS idx_hosts_authid ON hosts (AuthId)");
@@ -1026,46 +904,38 @@ class Connection extends SQLite3
      */
     public function generateHostTables(): void
     {
-        /**
-         *  packages table
-         *  Inventory of all packages installed on the host
-         */
+        // packages table, inventory of all packages installed on the host
         $this->exec("CREATE TABLE IF NOT EXISTS packages (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Name VARCHAR(255),
         Version VARCHAR(255),
         State VARCHAR(255),
         Type VARCHAR(255),
+        Security CHAR(5), /* true, false */
         Date DATE NOT NULL,
         Time TIME NOT NULL,
         Id_event INTEGER)");
 
-        /**
-         *  history table
-         *  History of all packages installed on the host (installed, updated, removed)
-         */
+        // history table, history of all packages installed on the host (installed, updated, removed)
         $this->exec("CREATE TABLE IF NOT EXISTS packages_history (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Name VARCHAR(255),
         Version VARCHAR(255),
         State VARCHAR(255),
         Type VARCHAR(255),
+        Security CHAR(5), /* true, false */
         Date DATE NOT NULL,
         Time TIME NOT NULL,
         Id_event INTEGER)");
 
-        /**
-         *  packages_available table
-         *  Available packages for update
-         */
+        // packages_available table, available packages for update
         $this->exec("CREATE TABLE IF NOT EXISTS packages_available (
         Name VARCHAR(255),
         Version VARCHAR(255),
+        Security CHAR(5), /* true, false */
         Repository VARCHAR(255))");
 
-        /**
-         *  events table
-         */
+        // events table
         $this->exec("CREATE TABLE IF NOT EXISTS events (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Date DATE NOT NULL,
@@ -1076,9 +946,7 @@ class Connection extends SQLite3
         Command VARCHAR(255),
         Status VARCHAR(7))"); /* error / warning / unknown / done */
 
-        /**
-         *  Create indexes
-         */
+        // Create indexes
         // packages table indexes:
         $this->exec("CREATE INDEX IF NOT EXISTS host_packages_available_name_version ON packages_available (Name, Version);");
         $this->exec("CREATE INDEX IF NOT EXISTS host_packages_name_version ON packages (Name, Version);");
@@ -1097,9 +965,7 @@ class Connection extends SQLite3
      */
     private function generateWsTables(): void
     {
-        /**
-         *  ws_connections table
-         */
+        // ws_connections table
         $this->exec("CREATE TABLE IF NOT EXISTS ws_connections (
         Connection_id INTEGER,
         Type VARCHAR(255),
@@ -1154,16 +1020,12 @@ class Connection extends SQLite3
     {
         $count = 0;
 
-        /**
-         *  Count the number of rows returned by the query
-         */
+        // Count the number of rows returned by the query
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $count++;
         }
 
-        /**
-         *  If count == 0 then result is empty
-         */
+        // If count == 0 then result is empty
         if ($count == 0) {
             return true;
         }

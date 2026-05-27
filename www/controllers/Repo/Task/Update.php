@@ -40,67 +40,49 @@ class Update extends \Controllers\Task\Execution
     /**
      *  Update repository
      */
-    public function execute()
+    public function execute(): void
     {
-        /**
-         *  Define default date and time
-         */
+        // Define default date and time
         $this->repoController->setDate(date('Y-m-d'));
         $this->repoController->setTime(date('H:i'));
 
-        /**
-         *  Sync packages (if mirror repo)
-         */
+        // Sync packages (if mirror repo)
         if ($this->repoController->getType() == 'mirror') {
             $this->syncPackage();
         }
 
-        /**
-         *  Update repository (if local repo)
-         */
+        // Update repository (if local repo)
         if ($this->repoController->getType() == 'local') {
             $this->updateLocal();
         }
 
-        /**
-         *  Sign repo / packages
-         */
+        // Sign repo / packages
         $this->signPackage();
 
-        /**
-         *  Create repo and symlinks
-         */
+        // Create repo and symlinks
         $this->createMetadata();
 
-        /**
-         *  Finalize repo (add to database and apply rights)
-         */
+        // Finalize repo (add to database and apply rights)
         $this->finalize();
     }
 
     /**
      *  Update local repository
      */
-    private function updateLocal()
+    private function updateLocal(): void
     {
         $this->taskLogStepController->new('updating', 'UPDATING');
         $this->taskLogSubStepController->new('initializing', 'INITIALIZING');
 
-        /**
-         *  Define temporary working directory
-         */
+        // Define temporary working directory
         $workingDir = REPOS_DIR . '/temporary-task-' . $this->taskId;
 
-        /**
-         *  Check if a snapshot exists in the database
-         */
+        // Check if a snapshot exists in the database
         if ($this->repoController->existsSnapId($this->repoController->getSnapId()) === false) {
             throw new Exception('Specified repo snapshot does not exist');
         }
 
-        /**
-         *  We cannot update a snapshot in the same day
-         */
+        // We cannot update a snapshot in the same day
         if ($this->repoController->getPackageType() == 'rpm') {
             if ($this->rpmRepoController->existsSnapDate($this->repoController->getName(), $this->repoController->getReleasever(), $this->repoController->getDate())) {
                 throw new Exception('A snapshot already exists on the <span class="label-black">' . $this->repoController->getDateFormatted() . '</span>');
@@ -112,16 +94,12 @@ class Update extends \Controllers\Task\Execution
             }
         }
 
-        /**
-         *  Arch must be specified
-         */
+        // Arch must be specified
         if (empty($this->repoController->getArch())) {
             throw new Exception('Packages arch must be specified');
         }
 
-        /**
-         *  Define previous snapshot directory path
-         */
+        // Define previous snapshot directory path
         if ($this->sourceRepoController->getPackageType() == 'rpm') {
             $previousSnapshotDir = REPOS_DIR . '/rpm/' . $this->sourceRepoController->getName() . '/' . $this->sourceRepoController->getReleasever() . '/' . $this->sourceRepoController->getDate();
         }
@@ -129,16 +107,12 @@ class Update extends \Controllers\Task\Execution
             $previousSnapshotDir = REPOS_DIR . '/deb/' . $this->sourceRepoController->getName() . '/' . $this->sourceRepoController->getDist() . '/' . $this->sourceRepoController->getSection() . '/' . $this->sourceRepoController->getDate();
         }
 
-        /**
-         *  Check that previous snapshot directory exists
-         */
+        // Check that previous snapshot directory exists
         if (!is_dir($previousSnapshotDir)) {
             throw new Exception('Previous snapshot directory does not exist: ' . $previousSnapshotDir);
         }
 
-        /**
-         *  If working directory already exists, delete it
-         */
+        // If working directory already exists, delete it
         if (is_dir($workingDir)) {
             if (!Directory::deleteRecursive($workingDir)) {
                 throw new Exception('Cannot delete existing directory: ' . $workingDir);
@@ -148,9 +122,7 @@ class Update extends \Controllers\Task\Execution
         $this->taskLogSubStepController->completed();
         $this->taskLogSubStepController->new('search-packages', 'SEARCHING PACKAGES IN PREVIOUS SNAPSHOT');
 
-        /**
-         *  Search for packages in the previous snapshot directory
-         */
+        // Search for packages in the previous snapshot directory
         try {
             if ($this->repoController->getPackageType() == 'deb') {
                 $packages = File::findRecursive($previousSnapshotDir . '/pool/' . $this->sourceRepoController->getSection(), [], ['deb', 'dsc', 'gz', 'xz']);
@@ -163,17 +135,13 @@ class Update extends \Controllers\Task\Execution
             throw new Exception('Error while retrieving previous snapshot packages: ' . $e->getMessage());
         }
 
-        /**
-         *  Count number of packages found
-         */
+        // Count number of packages found
         $totalPackages = count($packages);
         $packageCounter = 0;
 
         $this->taskLogSubStepController->completed($totalPackages . ' package(s) found');
 
-        /**
-         *  Create target pool/packages directory
-         */
+        // Create target pool/packages directory
         if ($this->repoController->getPackageType() == 'deb') {
             // Create pool directory
             if (!mkdir($workingDir . '/pool/' . $this->repoController->getSection(), 0770, true)) {
@@ -187,9 +155,7 @@ class Update extends \Controllers\Task\Execution
             }
         }
 
-        /**
-         *  Deduplication/Copy packages from previous snapshot to the new snapshot
-         */
+        // Deduplication/Copy packages from previous snapshot to the new snapshot
         foreach ($packages as $packagePath) {
             // Get package name
             $name = basename($packagePath);

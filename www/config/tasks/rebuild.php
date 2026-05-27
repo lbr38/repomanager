@@ -16,5 +16,8 @@ $taskConfig = [
 // Form configuration
 $formConfig = [
     // Allowed schedule types for this task
-    'allowed-schedule-types' => ['unique', 'recurring']
+    'allowed-schedule-types' => ['unique', 'recurring'],
+
+    // This task can target a dynamic set of repositories (all latest snapshots matching filters)
+    'allow-dynamic-target' => true
 ];

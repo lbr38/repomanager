@@ -1,12 +1,14 @@
 <?php
+use \Controllers\Layout\Table\Render as TableRender;
+
 $taskController = new \Controllers\Task\Task();
+$taskListingController = new \Controllers\Task\Listing();
 $repoController = new \Controllers\Repo\Repo();
 $legacyLog = false;
 $output = '';
+$taskFound = true;
 
-/**
- *  Get the log file of the task
- */
+// Get the log file of the task
 try {
     /**
      *  If a task Id is provided in the URL, use it
@@ -21,12 +23,12 @@ try {
 
     // If no task Id has been found, throw an exception. It can happen on brand new installations with no task yet.
     if (empty($taskId)) {
-        throw new Exception('No task found.');
+        throw new Exception('No task found');
     }
 
     // Check if task exists
     if (!$taskController->exists($taskId)) {
-        throw new Exception('Task #' . $taskId . ' not found.');
+        throw new Exception('Task #' . $taskId . ' not found');
     }
 
     // Get task info
@@ -51,106 +53,115 @@ try {
 
         $repoId = null;
         $snapId = null;
-        $envId = null;
 
         // Get log content
         $content = $taskLogController->getContent();
 
         // If log content is empty
         if (empty($content)) {
-            throw new Exception('No log found for this task.');
-        }
+            /**
+             *  The task itself may have no log if it only dispatched sub-tasks (e.g. a scheduled
+             *  task targeting a group of repositories). In that case, display the list of
+             *  sub-tasks it launched instead of failing.
+             */
+            $childTasks = $taskListingController->getByParentId($taskId);
 
-        if (empty($rawParams['action'])) {
-            throw new Exception('No action found in the task.');
-        }
-
-        /**
-         *  Get repository info
-         */
-
-        // If the action is create, the repository info is in the raw params
-        if ($rawParams['action'] == 'create') {
-            $repoController->setType($rawParams['repo-type']);
-
-            if (!empty($rawParams['source'])) {
-                $repoController->setSource($rawParams['source']);
-            }
-            if (!empty($rawParams['alias'])) {
-                $repoController->setName($rawParams['alias']);
-            } else {
-                $repoController->setName($rawParams['source']);
-            }
-            if (!empty($rawParams['dist'])) {
-                $repoController->setDist($rawParams['dist']);
-            }
-            if (!empty($rawParams['section'])) {
-                $repoController->setSection($rawParams['section']);
-            }
-            if (!empty($rawParams['releasever'])) {
-                $repoController->setReleasever($rawParams['releasever']);
-            }
-            if (!empty($rawParams['arch'])) {
-                $repoController->setArch($rawParams['arch']);
-            }
-            if (!empty($rawParams['package-type'])) {
-                $repoController->setPackageType($rawParams['package-type']);
-            }
-            if (!empty($rawParams['gpg-check'])) {
-                $repoController->setGpgCheck($rawParams['gpg-check']);
-            }
-            if (!empty($rawParams['gpg-sign'])) {
-                $repoController->setGpgSign($rawParams['gpg-sign']);
-            }
-            if (!empty($rawParams['description'])) {
-                $repoController->setDescription($rawParams['description']);
-            }
-            if (!empty($rawParams['group'])) {
-                $repoController->setGroup($rawParams['group']);
-            }
-
-        // Otherwise, we get the repository info from the database
-        } else {
-            if (!empty($rawParams['repo-id'])) {
-                $repoId = $rawParams['repo-id'];
-            }
-            if (!empty($rawParams['snap-id'])) {
-                $snapId = $rawParams['snap-id'];
-            }
-            // If the action is removeEnv, the environment has been removed, so it
-            if ($rawParams['action'] != 'removeEnv') {
-                if (!empty($rawParams['env-id'])) {
-                    $envId = $rawParams['env-id'];
+            if (empty($childTasks)) {
+                // A scheduled task has no log until it has been executed at least once
+                if (in_array($taskInfo['Status'], ['scheduled', 'disabled'])) {
+                    throw new Exception('This task has not been executed yet');
                 }
+
+                throw new Exception('No log found for this task');
             }
 
-            $repoController->getAllById($repoId, $snapId, $envId);
-        }
+            // Used to display the real status of the parent task, based on its sub-tasks status
+            $subTasksSummary = $taskListingController->getSubTasksSummary($taskId);
 
-        /**
-         *  Include table template for the task
-         */
-        ob_start();
-        include_once(ROOT . '/views/templates/tasks/' . $rawParams['action'] . '.inc.php');
-        $output .= ob_get_clean();
-
-        /**
-         *  The container which will contain all the steps
-         */
-        $output .= '<div class="steps-container" task-id="' . $taskId . '">';
-
-        /**
-         *  Include steps
-         */
-        foreach ($content['steps'] as $stepIdentifier => $step) {
             ob_start();
-            include(ROOT . '/views/includes/containers/tasks/log/step.inc.php');
-            include(ROOT . '/views/includes/containers/tasks/log/step-content.inc.php');
+            TableRender::render('tasks/list-children');
             $output .= ob_get_clean();
-        }
+        } else {
+            if (empty($rawParams['action'])) {
+                throw new Exception('No action found in the task');
+            }
 
-        $output .= '</div>';
+            // If the action is create, the repository info is in the raw params
+            if ($rawParams['action'] == 'create') {
+                $repoController->setType($rawParams['repo-type']);
+
+                if (!empty($rawParams['source'])) {
+                    $repoController->setSource($rawParams['source']);
+                }
+                if (!empty($rawParams['alias'])) {
+                    $repoController->setName($rawParams['alias']);
+                } else {
+                    $repoController->setName($rawParams['source']);
+                }
+                if (!empty($rawParams['dist'])) {
+                    $repoController->setDist($rawParams['dist']);
+                }
+                if (!empty($rawParams['section'])) {
+                    $repoController->setSection($rawParams['section']);
+                }
+                if (!empty($rawParams['releasever'])) {
+                    $repoController->setReleasever($rawParams['releasever']);
+                }
+                if (!empty($rawParams['arch'])) {
+                    $repoController->setArch($rawParams['arch']);
+                }
+                if (!empty($rawParams['package-type'])) {
+                    $repoController->setPackageType($rawParams['package-type']);
+                }
+                if (!empty($rawParams['gpg-check'])) {
+                    $repoController->setGpgCheck($rawParams['gpg-check']);
+                }
+                if (!empty($rawParams['gpg-sign'])) {
+                    $repoController->setGpgSign($rawParams['gpg-sign']);
+                }
+                if (!empty($rawParams['description'])) {
+                    $repoController->setDescription($rawParams['description']);
+                }
+                if (!empty($rawParams['tags'])) {
+                    $repoController->setTags($rawParams['tags']);
+                }
+                if (!empty($rawParams['group'])) {
+                    $repoController->setGroup($rawParams['group']);
+                }
+
+            // Otherwise, we get the repository info from the database
+            } else {
+                if (!empty($rawParams['repo-id'])) {
+                    $repoId = $rawParams['repo-id'];
+                }
+                if (!empty($rawParams['snap-id'])) {
+                    $snapId = $rawParams['snap-id'];
+                }
+
+                $repoController->getAllById($repoId, $snapId);
+            }
+
+            // Include table template for the task
+            ob_start();
+            include_once(ROOT . '/views/templates/tasks/' . $rawParams['action'] . '.inc.php');
+            $output .= ob_get_clean();
+
+            // The container which will contain all the steps
+            $output .= '<div class="steps-container" task-id="' . $taskId . '">';
+
+            // Include steps
+            foreach ($content['steps'] as $stepIdentifier => $step) {
+                ob_start();
+                include(ROOT . '/views/includes/containers/tasks/log/step.inc.php');
+                include(ROOT . '/views/includes/containers/tasks/log/step-content.inc.php');
+                $output .= ob_get_clean();
+            }
+
+            $output .= '</div>';
+        }
     }
 } catch (Exception $e) {
-    $output = '<p class="note">' . $e->getMessage() . '</p>';
+    $taskFound = false;
+    $taskErrorMessage = $e->getMessage();
+    $output = '<p class="note">' . $taskErrorMessage . '</p>';
 }

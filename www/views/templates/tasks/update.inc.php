@@ -1,40 +1,22 @@
-<div class="div-generic-blue margin-bottom-15">
-    <div class="flex align-item-center justify-space-between">
-        <h3>UPDATE REPOSITORY</h3>
+<?php
+use \Controllers\Utils\Generate\Html\Label; ?>
 
-        <div class="text-right">
-            <p title="Task execution date"><?= DateTime::createFromFormat('Y-m-d', $taskInfo['Date'])->format('d-m-Y') . ' ' . $taskInfo['Time'] ?></p>
-            <div class="flex align-item-center column-gap-5 justify-end">
-                <p title="Task Id">Task #<?= $taskId ?></p>
-                <?php
-                if ((DEVEL or \Controllers\App\DebugMode::enabled()) and file_exists(MAIN_LOGS_DIR . '/repomanager-task-' . $taskId . '-log.process')) {
-                    echo '<img src="/assets/icons/file.svg" class="icon view-task-process-log" task-id="' . $taskId . '" title="Debug log" />';
-                } ?>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="div-generic-blue margin-bottom-15">
+<div id="task-details" class="div-generic-blue margin-bottom-15">
     <div class="grid grid-2 row-gap-10 column-gap-20">
         <div>
             <h6 class="margin-top-0">REPOSITORY</h6>
-            <p>
-                <span class="label-white">
-                    <?php
-                    if ($repoController->getPackageType() == 'deb') {
-                        echo $repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection();
-                    }
-                    if ($repoController->getPackageType() == 'rpm') {
-                        echo $repoController->getName();
-                    } ?>
-                </span>
-            </p>
+            <?php
+            if ($repoController->getPackageType() == 'deb') {
+                echo Label::white($repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection());
+            }
+            if ($repoController->getPackageType() == 'rpm') {
+                echo Label::white($repoController->getName());
+            } ?>
         </div>
 
         <div>
             <h6 class="margin-top-0">SOURCE REPOSITORY</h6>
-            <p class="copy"><span class="label-white"><?= $repoController->getSource() ?></span></p>
+            <p class="copy"><?= Label::white($repoController->getSource()) ?></p>
         </div>
     </div>
 
@@ -57,7 +39,7 @@
                 <div class="flex column-gap-5 row-gap-5 flex-wrap">
                     <?php
                     foreach ($rawParams['arch'] as $arch) {
-                        echo '<span class="label-black">' . $arch . '</span>';
+                        echo Label::white($arch);
                     } ?>
                 </div>
             </div>
@@ -70,7 +52,7 @@
                 <div class="flex column-gap-5 row-gap-5 flex-wrap">
                     <?php
                     foreach ($rawParams['env'] as $env) {
-                        echo \Controllers\Utils\Generate\Html\Label::envtag($env);
+                        echo Label::envtag($env);
                     } ?>
                 </div>
             </div>
@@ -86,7 +68,7 @@
                 <div class="flex column-gap-5 row-gap-5 flex-wrap">
                     <?php
                     foreach ($rawParams['advanced-params']['packages']['include'] as $package) {
-                        echo '<span class="label-black">' . $package . '</span>';
+                        echo Label::white($package);
                     } ?>
                 </div>
             </div>
@@ -99,7 +81,7 @@
                 <div class="flex column-gap-5 row-gap-5 flex-wrap">
                     <?php
                     foreach ($rawParams['advanced-params']['packages']['exclude'] as $package) {
-                        echo '<span class="label-black">' . $package . '</span>';
+                        echo Label::white($package);
                     } ?>
                 </div>
             </div>
@@ -135,7 +117,7 @@
                         }
 
                         $displayName = $metadataMap[$metadata] ?? $metadata;
-                        echo '<span class="label-black">' . $displayName . '</span>';
+                        echo Label::white($displayName);
                     } ?>
                 </div>
             </div>

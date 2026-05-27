@@ -30,7 +30,7 @@ foreach ($packages as $package) :
         <p class="copy"><?= $package['Name'] ?></p>
     </div>
     
-    <p class="copy"><?= $package['Version'] ?></p>
+    <p class="copy"><span class="label-white"><?= $package['Version'] ?></span></p>
 
     <div>
         <?php

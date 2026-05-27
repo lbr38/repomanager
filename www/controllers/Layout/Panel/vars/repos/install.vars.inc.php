@@ -45,8 +45,8 @@ foreach ($repos as $repo) {
     $packageType = $repoController->getPackageType();
     $packagesTypes[] = $packageType; ?>
 
-    <h6 class="margin-bottom-5">REPOSITORY</h6>
-    <div class="flex align-item-center justify-space-between margin-left-5 margin-right-5">
+    <div class="form-block form-block-accent-<?= $packageType == 'deb' ? 'red' : 'blue' ?>">
+    <div class="flex align-item-center justify-space-between">
         <div class="flex align-item-center">
             <?php
             if ($packageType == 'deb') {
@@ -58,11 +58,9 @@ foreach ($repos as $repo) {
                 $labelColor = 'blue';
             } ?>
 
-            <p class="label-black"><?= $repoController->getDateFormatted() ?></p>
+            <p class="label-white"><?= $repoController->getDateFormatted() ?></p>
             <p class="repository-install-env"></p>
         </div>
-
-        <span class="label-pkg-<?= $packageType ?>"><?= strtoupper($packageType) ?></span>
     </div>
 
     <h6>INSTALLATION</h6>
@@ -95,11 +93,10 @@ foreach ($repos as $repo) {
     if ($packageType == 'rpm') : ?>
         <pre class="repository-install-commands codeblock margin-top-10 margin-bottom-10 copy" url="<?= WWW_REPOS_DIR_URL ?>" hostname="<?= WWW_HOSTNAME ?>" prefix="<?= REPO_CONF_FILES_PREFIX ?>" package-type="rpm" name="<?= $repoController->getName() ?>" releasever="<?= $repoController->getReleasever() ?>"></pre>
         <?php
-    endif;
+    endif; ?>
 
-    if ($repo !== end($repos)) {
-        echo '<hr class="margin-top-30 margin-bottom-30">';
-    }
+    </div>
+    <?php
 }
 
 $commands = ob_get_clean();

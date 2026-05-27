@@ -36,7 +36,9 @@ class HostSearch
 
             // Show all group containers (in case they were hidden during a previous search)
             $('.hosts-group-container').show();
-            $('.host-line').removeClass('flex').hide();
+
+            //  Hide all host lines, only those corresponding to the search will be re-displayed
+            $('.host-line').hide();
 
             /**
              * Parse filter parameters from search input.
@@ -243,7 +245,6 @@ class HostSearch
         $('#hosts-search').addClass('hide');
 
         $('.hosts-group-container, .host-line').show();
-        $('.host-line').addClass('flex');
         $('#hosts').show();
     }
 

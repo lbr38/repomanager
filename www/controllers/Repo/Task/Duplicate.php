@@ -45,16 +45,12 @@ class Duplicate extends \Controllers\Task\Execution
         $this->taskLogStepController->new('duplicating', 'DUPLICATING');
         $this->taskLogSubStepController->new('initializing', 'INITIALIZING');
 
-        /**
-         *  Check if source repo snapshot exists
-         */
+        // Check if source repo snapshot exists
         if ($this->sourceRepoController->existsSnapId($this->sourceRepoController->getSnapId()) === false) {
             throw new Exception('Source repository snapshot does not exist');
         }
 
-        /**
-         *  Check if a repo with the same name already exists
-         */
+        // Check if a repo with the same name already exists
         if ($this->repoController->getPackageType() == 'rpm') {
             if ($this->rpmRepoController->isActive($this->repoController->getName(), $this->repoController->getReleasever())) {
                 throw new Exception('A repo <span class="label-black">' . $this->repoController->getName() . ' (release ver. ' . $this->repoController->getReleasever() . ')</span> already exists');
@@ -66,9 +62,7 @@ class Duplicate extends \Controllers\Task\Execution
             }
         }
 
-        /**
-         *  Define source snapshot path
-         */
+        // Define source snapshot path
         if ($this->sourceRepoController->getPackageType() == 'rpm') {
             $sourceSnapshotPath = REPOS_DIR . '/rpm/' . $this->sourceRepoController->getName() . '/' . $this->sourceRepoController->getReleasever() . '/' . $this->sourceRepoController->getDate();
         }
@@ -76,9 +70,7 @@ class Duplicate extends \Controllers\Task\Execution
             $sourceSnapshotPath = REPOS_DIR . '/deb/' . $this->sourceRepoController->getName() . '/' . $this->sourceRepoController->getDist() . '/' . $this->sourceRepoController->getSection() . '/' . $this->sourceRepoController->getDate();
         }
 
-        /**
-         *  Define target snapshot path
-         */
+        // Define target snapshot path
         if ($this->repoController->getPackageType() == 'rpm') {
             $parentDir = REPOS_DIR . '/rpm/' . $this->repoController->getName() . '/' . $this->repoController->getReleasever();
             $targetSnapshotPath = REPOS_DIR . '/rpm/' . $this->repoController->getName() . '/' . $this->repoController->getReleasever() . '/'. $this->repoController->getDate();
@@ -88,38 +80,28 @@ class Duplicate extends \Controllers\Task\Execution
             $targetSnapshotPath = REPOS_DIR . '/deb/' . $this->repoController->getName() . '/' . $this->repoController->getDist() . '/' . $this->repoController->getSection() . '/' . $this->repoController->getDate();
         }
 
-        /**
-         *  Create parent directory if it does not already exists
-         */
+        // Create parent directory if it does not already exists
         if (!is_dir($parentDir)) {
             if (!mkdir($parentDir, 0770, true)) {
                 throw new Exception('Cannot create directory ' . $parentDir);
             }
         }
 
-        /**
-         *  Set temporary dir path
-         */
+        // Set temporary dir path
         $tempDir = REPOS_DIR . '/temporary-task-' . $this->taskId;
 
-        /**
-         *  Create the temporary directory if it does not already exist (might exist if the task has been stopped and restarted)
-         */
+        // Create the temporary directory if it does not already exist (might exist if the task has been stopped and restarted)
         if (!file_exists($tempDir)) {
             if (!mkdir($tempDir, 0770, true)) {
                 throw new Exception('Cannot create temporary directory ' . $tempDir);
             }
         }
 
-        /**
-         *  Get all files and directories in the source repository
-         */
+        // Get all files and directories in the source repository
         $dirs  = File::recursiveScan($sourceSnapshotPath, 'dir', true);
         $files = File::recursiveScan($sourceSnapshotPath, 'file', true);
 
-        /**
-         *  Create all directories in the temporary directory
-         */
+        // Create all directories in the temporary directory
         foreach ($dirs as $dir) {
             if (!file_exists($tempDir . '/' . $dir)) {
                 if (!mkdir($tempDir . '/' . $dir, 0770, true)) {
@@ -139,19 +121,13 @@ class Duplicate extends \Controllers\Task\Execution
         foreach ($files as $file) {
             $fileCounter++;
 
-            /**
-             *  Count total number of files to copy
-             */
+            // Count total number of files to copy
             $totalFiles = count($files);
 
-            /**
-             *  Show progress
-             */
+            // Show progress
             $this->taskLogSubStepController->new('copying-file-' . $fileCounter, 'COPYING FILE (' . $fileCounter . '/' . $totalFiles . ')', 'From ' . $sourceSnapshotPath . '/' . $file . '<br>To ' . $tempDir . '/' . $file);
 
-            /**
-             *  Ignore file if it was already copied (completed file exists)
-             */
+            // Ignore file if it was already copied (completed file exists)
             if (file_exists($tempDir . '/' . $file) and file_exists($tempDir . '/' . $file . '.completed')) {
                 $this->taskLogSubStepController->completed('Already exists (ignoring)');
                 continue;
@@ -167,16 +143,12 @@ class Duplicate extends \Controllers\Task\Execution
                 }
             }
 
-            /**
-             *  Copy the file
-             */
+            // Copy the file
             if (!copy($sourceSnapshotPath . '/' . $file, $tempDir . '/' . $file)) {
                 throw new Exception('Cannot copy file ' . $sourceSnapshotPath . '/' . $file . ' to ' . $tempDir . '/' . $file);
             }
 
-            /**
-             *  Create the completed file
-             */
+            // Create the completed file
             if (!touch($tempDir . '/' . $file . '.completed')) {
                 throw new Exception('Cannot create copy-completed file ' . $tempDir . '/' . $file . '.completed');
             }
@@ -186,9 +158,7 @@ class Duplicate extends \Controllers\Task\Execution
 
         unset($dirs, $files);
 
-        /**
-         *  Rename the temporary directory to the target directory
-         */
+        // Rename the temporary directory to the target directory
         $this->taskLogSubStepController->new('moving-temp-dir', 'MOVING TEMPORARY DIRECTORY');
         if (!rename($tempDir, $targetSnapshotPath)) {
             throw new Exception('Cannot rename temporary directory ' . $tempDir . ' to ' . $targetSnapshotPath);
@@ -208,23 +178,17 @@ class Duplicate extends \Controllers\Task\Execution
                 }
             }
 
-            /**
-             *  Set step 'DUPLICATING' as completed
-             */
+            // Set step 'DUPLICATING' as completed
             $this->taskLogStepController->completed();
 
-            /**
-             *  On a deb repo, the duplicated repo metadata must be rebuilded
-             */
+            // On a deb repo, the duplicated repo metadata must be rebuilded
             if ($this->repoController->getPackageType() == 'deb') {
                 $this->createMetadata();
             }
 
             $this->taskLogStepController->new('finalizing', 'FINALIZING');
 
-            /**
-             *  Create a symlink to the new repo, only if the user has specified an environment
-             */
+            // Create a symlink to the new repo, only if the user has specified an environment
             if (!empty($this->repoController->getEnv())) {
                 foreach ($this->repoController->getEnv() as $env) {
                     $this->taskLogSubStepController->new('pointing-environment', 'POINTING ENVIRONMENT');
@@ -236,18 +200,14 @@ class Duplicate extends \Controllers\Task\Execution
                         $link = REPOS_DIR . '/deb/' . $this->repoController->getName() . '/' . $this->repoController->getDist() . '/' . $this->repoController->getSection() . '/' . $env;
                     }
 
-                    /**
-                     *  If a symlink with the same name already exists, we remove it
-                     */
+                    // If a symlink with the same name already exists, we remove it
                     if (is_link($link)) {
                         if (!unlink($link)) {
                             throw new Exception('Could not remove existing symlink ' . $link);
                         }
                     }
 
-                    /**
-                     *  Create symlink
-                     */
+                    // Create symlink
                     if (!symlink($this->repoController->getDate(), $link)) {
                         throw new Exception('Could not point environment to the repository');
                     }
@@ -260,9 +220,7 @@ class Duplicate extends \Controllers\Task\Execution
 
             $this->taskLogSubStepController->new('inserting-database', 'INSERTING REPOSITORY IN DATABASE');
 
-            /**
-             *  Insert the new repo in database and retrieve its Id
-             */
+            // Insert the new repo in database and retrieve its Id
             if ($this->repoController->getPackageType() == 'rpm') {
                 $this->rpmRepoController->add($this->repoController->getName(), $this->repoController->getReleasever(), $this->repoController->getSource());
                 $targetRepoId = $this->rpmRepoController->getLastInsertRowID();
@@ -272,14 +230,13 @@ class Duplicate extends \Controllers\Task\Execution
                 $targetRepoId = $this->debRepoController->getLastInsertRowID();
             }
 
-            /**
-             *  Add the new repo snapshot in database
-             */
+            // Repository Id becomes the Id of the last inserted row in the database
+            $this->repoController->setRepoId($targetRepoId);
+
+            // Add the new repo snapshot in database
             $this->repoSnapshotController->add($this->repoController->getDate(), $this->repoController->getTime(), $this->repoController->getSigned(), $this->repoController->getArch(), $this->repoController->getAdvancedParams(), $this->repoController->getType(), $this->repoController->getStatus(), $targetRepoId);
 
-            /**
-             *  Retrieve the Id of the new repo snapshot in database
-             */
+            // Retrieve the Id of the new repo snapshot in database
             $targetSnapId = $this->repoSnapshotController->getLastInsertRowID();
 
             // Calculate and update snapshot size
@@ -287,28 +244,26 @@ class Duplicate extends \Controllers\Task\Execution
             $this->repoSnapshotController->updateSize($targetSnapId, Directory::getSize($targetSnapshotPath));
             $this->taskLogSubStepController->completed();
 
-            /**
-             *  Add the new repo environment in database, only if the user has specified an environment
-             */
+            // Add the new repo environment in database, only if the user has specified an environment
             if (!empty($this->repoController->getEnv())) {
                 foreach ($this->repoController->getEnv() as $env) {
-                    $this->repoEnvController->add($targetSnapId, $env, $this->repoController->getDescription());
+                    $this->repoEnvController->add($targetSnapId, $env);
                 }
             }
 
-            /**
-             *  Add the new repo to a group if a group has been specified
-             */
+            // Apply description and tags after the repository Id has been determined,
+            $this->repoController->updateDescription($this->repoController->getRepoId(), (string) $this->repoController->getDescription());
+            $this->repoController->updateTags($this->repoController->getRepoId(), $this->repoController->getTags());
+
+            // Add the new repo to a group if a group has been specified
             if (!empty($this->repoController->getGroup())) {
-                $this->repoController->addRepoIdToGroup($targetRepoId, $this->repoController->getGroup());
+                $this->repoController->addRepoIdToGroup($this->repoController->getRepoId(), $this->repoController->getGroup());
             }
 
             $this->taskLogSubStepController->completed();
             $this->taskLogStepController->completed();
 
-        /**
-         *  If an error occurred after the temporary directory was renamed, clean the target directory
-         */
+        // If an error occurred after the temporary directory was renamed, clean the target directory
         } catch (Exception $e) {
             if (file_exists($targetSnapshotPath)) {
                 if (!Directory::deleteRecursive($targetSnapshotPath)) {
@@ -316,9 +271,7 @@ class Duplicate extends \Controllers\Task\Execution
                 }
             }
 
-            /**
-             *  Throw initial exception to set the task as error
-             */
+            // Throw initial exception to set the task as error
             throw new Exception($e->getMessage());
         }
     }

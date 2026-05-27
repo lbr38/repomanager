@@ -8,11 +8,11 @@
 
     <div class="flex column-gap-10">
         <img src="/assets/icons/rocket.svg" class="icon" />
-        <a href="/run"><h5 class="margin-0">TASKS</h5></a>
+        <a href="/tasks"><h5 class="margin-0">TASKS</h5></a>
     </div>
 
     <div class="flex column-gap-10">
-        <img src="/assets/icons/server.svg" class="icon" />
+        <img src="/assets/icons/disk.svg" class="icon" />
         <a href="/hosts"><h5 class="margin-0">HOSTS</h5></a>
     </div>
 

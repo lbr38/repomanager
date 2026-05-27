@@ -4,17 +4,17 @@
 function autorefresh()
 {
     // Ignore refresh if 'legacy' attribute is set
-    if ($('#log-refresh-container').attr('legacy') == 'true') {
+    if ($('#task-refresh-container').attr('legacy') == 'true') {
         return;
     }
 
     // Autorefresh with new steps and content every 2sec
     setInterval(function () {
         // Retrieve task Id
-        var taskId = $('#log-refresh-container').attr('task-id');
+        var taskId = $('#task-refresh-container').attr('task-id');
 
         // Ignore refresh if task is not running (wait for 2sec and try again)
-        if ($('#log-refresh-container').attr('task-status') != 'running') {
+        if ($('#task-refresh-container').attr('task-status') != 'running') {
             return;
         }
 
@@ -67,11 +67,12 @@ function autorefresh()
                 var status = jsonValue.message;
 
                 // Refresh task status in the DOM, if the task is not running anymore, this will prevent the task from refreshing again
-                $('#log-refresh-container').attr('task-status', status);
+                $('#task-refresh-container').attr('task-status', status);
 
-                // Remove the autoscroll button if the task is done, error or stopped
+                // Remove the autoscroll and stop buttons if the task is done, error or stopped
                 if (status == 'done' || status == 'error' || status == 'stopped') {
                     $('#autoscroll-btn').remove();
+                    $('#stop-task-log-btn').remove();
                 }
             });
         }).finally(function () {
@@ -87,11 +88,11 @@ function autorefresh()
 function enableAutoScroll()
 {
     // Autoscroll can be enabled only if the task is running
-    if ($('#log-refresh-container').attr('task-status') == 'running') {
+    if ($('#task-refresh-container').attr('task-status') == 'running') {
         // Set autoscroll cookie to true to enable autoscroll
         mycookie.set('autoscroll', 'true');
 
-        $('#autoscroll-btn').find('img').attr('src', '/assets/icons/pause.svg');
+        $('#autoscroll-btn').find('.round-btn-icon').css('--icon', "url('/assets/icons/pause.svg')");
         $('#autoscroll-btn').addClass('round-btn-yellow').removeClass('round-btn-green');
         $('#autoscroll-btn').attr('title', 'Disable auto refresh and scroll');
 
@@ -112,7 +113,7 @@ function disableAutoScroll()
         // Set autoscroll cookie to false to disable autoscroll
         mycookie.set('autoscroll', 'false');
 
-        $('#autoscroll-btn').find('img').attr('src', '/assets/icons/play.svg');
+        $('#autoscroll-btn').find('.round-btn-icon').css('--icon', "url('/assets/icons/play.svg')");
         $('#autoscroll-btn').addClass('round-btn-green').removeClass('round-btn-yellow');
         $('#autoscroll-btn').attr('title', 'Enable auto refresh and scroll');
 
@@ -135,7 +136,7 @@ function refreshStepsInDOM(steps)
             var autoscroll = false;
 
             // Retrieve task Id
-            var taskId = $('#log-refresh-container').attr('task-id');
+            var taskId = $('#task-refresh-container').attr('task-id');
 
             // Parse steps JSON
             steps = JSON.parse(JSON.stringify(steps));

@@ -54,7 +54,7 @@
 
                     <div class="flex flex-direction-column row-gap-5">
                         <h6 class="margin-top-0">VERSION</h6>
-                        <p class="lowopacity-cst copy"><?= $event['Version'] ?></p>
+                        <p class="copy"><span class="label-white"><?= $event['Version'] ?></span></p>
                     </div>
                 </div>
 

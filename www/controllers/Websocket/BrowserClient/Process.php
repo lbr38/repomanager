@@ -20,15 +20,21 @@ class Process extends \Controllers\Websocket\WebsocketServer
             return;
         }
 
+        // Keep track of what has been broadcasted to avoid deleting containers that have been added while broadcasting
+        $broadcasted = [];
+
         // For each container, send a reload request to all browser clients
         foreach ($containers as $container) {
             $this->broadcast($socket, 'browser-client', array(
                 'type' => 'reload-container',
                 'container' => $container['Container']
             ));
+
+            $broadcasted[] = $container['Container'];
         }
 
-        // Clean up the layout container state
-        $this->layoutContainerReloadController->clean();
+        // Only remove what has just been broadcasted: a task may have requested a reload while
+        // broadcasting, and it must be kept so it is sent on the next round
+        $this->layoutContainerReloadController->delete($broadcasted);
     }
 }

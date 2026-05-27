@@ -3,7 +3,7 @@
  *  Rename rpm repo
  */
 $rawParams['action'] = 'rename';
-$rawParams['snap-id'] = '1';
+$rawParams['repo-id'] = '1';
 $rawParams['env-id'] = '';
 $rawParams['name'] = 'centos-extras-common-rename';
 $rawParams['arch'] = ['x86_64', 'noarch'];

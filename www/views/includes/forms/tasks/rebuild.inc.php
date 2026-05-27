@@ -1,6 +1,3 @@
-<h6>REBUILD METADATA</h6>
-<p class="note">The repository snapshot to rebuild metadata for.</p>
-
 <div class="flex align-item-center">
     <p class="label-white">
         <?php

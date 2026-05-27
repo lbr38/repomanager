@@ -23,6 +23,9 @@ class Rebuild extends \Controllers\Task\Execution
             $this->status = 'error';
             $this->error = $e->getMessage();
 
+            // If an error occurred, mark the snapshot metadata rebuild as needed
+            $this->repoSnapshotController->updateRebuild($this->repoController->getSnapId(), 'needed');
+
             // Throw back the exception to be caught by the main script
             throw new Exception($e->getMessage());
         } finally {
@@ -34,26 +37,18 @@ class Rebuild extends \Controllers\Task\Execution
     /**
      *  Rebuild repository metadata
      */
-    public function execute()
+    public function execute(): void
     {
-        /**
-         *  Set snapshot metadata rebuild state in database
-         */
+        // Set snapshot metadata rebuild state in database
         $this->repoSnapshotController->updateRebuild($this->repoController->getSnapId(), 'running');
 
-        /**
-         *  Sign repository / packages
-         */
+        // Sign repository / packages
         $this->signPackage();
 
-        /**
-         *  Create repository and symlinks
-         */
+        // Create repository and symlinks
         $this->createMetadata();
 
-        /**
-         *  Finalize repository (update database, clean temporary files, etc.)
-         */
+        // Finalize repository (update database, clean temporary files, etc.)
         $this->finalize();
     }
 }

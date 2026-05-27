@@ -17,7 +17,7 @@ class ConfirmBox
 
         // If there is a title
         if (data.title != "") {
-            innerHtml += '<div class="flex justify-space-between">';
+            innerHtml += '<div class="flex align-item-center justify-space-between">';
             innerHtml += '<h6 class="margin-top-0 margin-bottom-0 wordbreakall">' + data.title.toUpperCase() + '</h6>';
             innerHtml += '<img src="/assets/icons/close.svg" class="icon-large lowopacity confirm-box-cancel-btn" title="Close" />';
             innerHtml += '</div>';
@@ -38,7 +38,7 @@ class ConfirmBox
         if (!empty(data.buttons)) {
             var id = 0;
             for (const [key, value] of Object.entries(data.buttons)) {
-                innerHtml += '<div class="confirm-box-btn btn-auto-' + value.color + '" confirm-btn-id="' + id + '" pointer">' + value.text + '</div>';
+                innerHtml += '<div class="confirm-box-btn btn-auto-' + (value.color || 'tr') + '" confirm-btn-id="' + id + '" pointer">' + value.text + '</div>';
                 id++;
             }
         }

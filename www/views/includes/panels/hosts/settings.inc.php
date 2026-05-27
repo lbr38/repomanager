@@ -17,6 +17,14 @@
         </div>
 
         <div>
+            <p>Host is not compliant when a security update is available:</p>
+            <label class="onoff-switch-label">
+                <input name="compliance-security-update" type="checkbox" class="onoff-switch-input" <?= $complianceSecurityUpdate ? 'checked' : '' ?> />
+                <span class="onoff-switch-slider"></span>
+            </label>
+        </div>
+
+        <div>
             <p>Host is not compliant when a reboot is required:</p>
             <label class="onoff-switch-label">
                 <input name="compliance-reboot-required" type="checkbox" class="onoff-switch-input" <?= $complianceRebootRequired ? 'checked' : '' ?> />

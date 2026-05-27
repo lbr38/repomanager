@@ -118,6 +118,9 @@ extra_css:
 
 # -- Footer --
 extra:
+  version:
+    provider: mike
+    default: latest
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/lbr38/repomanager

@@ -2,34 +2,28 @@
 
 <h6>CREATE A NEW GROUP</h6>
 
-<form id="newGroupForm" autocomplete="off">
-    <input id="newGroupInput" type="text" class="input-medium" placeholder="Group name" /></td>
-    <button type="submit" class="btn-xxsmall-green" title="Add">+</button></td>
+<form id="new-group" autocomplete="off">
+    <input name="group-name" type="text" placeholder="Group name" />
+    <button type="submit" class="btn-small-green margin-top-5" title="Create">Create</button>
 </form>
-
-<br>
 
 <?php
 if (!empty($hostGroupsList)) : ?>
-    <h6>CURRENT GROUPS</h6>
+    <h6 class="margin-top-30 margin-bottom-5">CURRENT GROUPS</h6>
 
     <?php
     foreach ($hostGroupsList as $group) :
-        /**
-         *  Ignore if group name is 'Default'
-         */
+        // Ignore if group name is 'Default'
         if ($group['Name'] === 'Default') {
             continue;
         }
 
-        /**
-         *  Retrieve hosts members and hosts not members of the group
-         */
+        // Retrieve hosts members and hosts not members of the group
         $hostsIn = $mygroup->getHostsMembers($group['Id']);
         $hostsNotIn = $mygroup->getHostsNotMembers();
         $hostsInCount = count($hostsIn); ?>
 
-        <div class="table-container grid-fr-4-1 bck-blue-alt group-config-btn pointer" group-id="<?= $group['Id'] ?>">
+        <div class="table-container-2 panel-list-item group-config-btn pointer" group-id="<?= $group['Id'] ?>">
             <div>
                 <p><?= $group['Name'] ?></p>
                 <p class="lowopacity-cst"><?= $hostsInCount ?> host<?= $hostsInCount > 1 ? 's' : '' ?></p>
@@ -48,18 +42,14 @@ if (!empty($hostGroupsList)) : ?>
                 <h6>HOSTS</h6>
                 <select class="group-hosts-list" group-id="<?= $group['Id'] ?>" name="group-hosts[]" multiple>
                     <?php
-                    /**
-                     *  Hosts members of the group will be selected by default in the list
-                     */
+                    // Hosts members of the group will be selected by default in the list
                     if (!empty($hostsIn)) {
                         foreach ($hostsIn as $host) {
                             echo '<option value="' . $host['Id'] . '" selected>' . $host['Hostname'] . ' (' . $host['Ip'] . ')</option>';
                         }
                     }
 
-                    /**
-                     *  Hosts not members of the group will be unselected in the list
-                     */
+                    // Hosts not members of the group will be unselected in the list
                     if (!empty($hostsNotIn)) {
                         foreach ($hostsNotIn as $host) {
                             echo '<option value="' . $host['Id'] . '">' . $host['Hostname'] . ' (' . $host['Ip'] . ')</option>';

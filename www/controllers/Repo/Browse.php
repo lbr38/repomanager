@@ -209,7 +209,7 @@ class Browse
 
             <li>
                 <div class="<?= $class ?>" path="<?= htmlspecialchars($path, ENT_QUOTES) ?>" name="<?= htmlspecialchars($file, ENT_QUOTES) ?>">
-                    <div class="flex column-gap-5 align-item-center" title="<?= $title ?>">
+                    <div class="flex column-gap-8 align-item-center" title="<?= $title ?>">
                         <img src="/assets/icons/<?= $icon ?>.svg" class="icon" />
                         <p><?= htmlspecialchars($file, ENT_QUOTES) ?></p>
                     </div>
@@ -265,7 +265,7 @@ class Browse
 
             <li>
                 <div class="<?= $class ?>" path="<?= $path ?>" name="<?= $file ?>">
-                    <div class="flex column-gap-5 align-item-center" title="<?= $title ?>">
+                    <div class="flex column-gap-8 align-item-center" title="<?= $title ?>">
                         <img src="/assets/icons/<?= $icon ?>.svg" class="icon" />
                         <p><?= $file ?></p>
                     </div>
@@ -286,10 +286,10 @@ class Browse
      */
     private static function printSubDir(string $dir, string $path): void
     {
-        $fullPath = $path . '/' . $dir;
-        ?>
+        $fullPath = $path . '/' . $dir; ?>
+
         <li>
-            <div class="explorer-toggle div-generic-blue pointer flex column-gap-5 align-item-center" title="Directory <?= $dir ?>" data-path="<?= htmlspecialchars($fullPath, ENT_QUOTES) ?>">
+            <div class="explorer-toggle div-generic-blue pointer flex column-gap-8 align-item-center" title="Directory <?= $dir ?>" data-path="<?= htmlspecialchars($fullPath, ENT_QUOTES) ?>">
                 <img src="/assets/icons/folder.svg" class="icon" />
                 <p><?= $dir ?></p>
             </div>

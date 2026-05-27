@@ -1,6 +1,3 @@
-<h6>UPDATE</h6>
-<p class="note">Task will create a new snapshot of the repository.</p>
-
 <div class="flex align-item-center">
     <p class="label-white">
         <?php

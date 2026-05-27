@@ -58,12 +58,12 @@ trait Sync
             if ($this->repoSnapshotController->getDateById($this->repoController->getSnapId()) != $this->repoController->getDate()) {
                 if ($this->repoController->getPackageType() == 'rpm') {
                     if ($this->rpmRepoController->existsSnapDate($this->repoController->getName(), $this->repoController->getReleasever(), $this->repoController->getDate())) {
-                        throw new Exception('A snapshot already exists on the ' . Label::black($this->repoController->getDateFormatted()));
+                        throw new Exception('A snapshot already exists on the ' . Label::white($this->repoController->getDateFormatted()));
                     }
                 }
                 if ($this->repoController->getPackageType() == 'deb') {
                     if ($this->debRepoController->existsSnapDate($this->repoController->getName(), $this->repoController->getDist(), $this->repoController->getSection(), $this->repoController->getDate())) {
-                        throw new Exception('A snapshot already exists on the ' . Label::black($this->repoController->getDateFormatted()));
+                        throw new Exception('A snapshot already exists on the ' . Label::white($this->repoController->getDateFormatted()));
                     }
                 }
             }

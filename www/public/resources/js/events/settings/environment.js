@@ -1,11 +1,36 @@
 /**
+ *  Toggle environment proctection
+ */
+$(document).on('click','img.env-protection', function () {
+    const img = $(this);
+    const protected = img.attr('protected');
+    const id = img.attr('env-id');
+    const name = img.attr('env-name');
+    
+    if (protected == 'false') {
+        img.attr('src','/assets/icons/locked-red.svg');
+        img.attr('title','Unprotect environment');
+        img.attr('protected','true');
+        img.addClass('icon');
+        img.removeClass('icon-lowopacity');
+    } else {
+        img.attr('src','/assets/icons/unlocked.svg');
+        img.attr('title','Protect environment');
+        img.addClass('icon-lowopacity');
+        img.attr('protected','false');
+        img.removeClass('icon');
+    }
+});
+
+/**
  *  Event: add a new environment by pressing enter
  */
 $(document).on('keypress','input[name="add-env-name"]', function (e) {
-    var keycode = (event.keyCode ? event.keyCode : event.which);
+    const keycode = (event.keyCode ? event.keyCode : event.which);
+
     if (keycode == '13') {
         e.stopPropagation();
-        addEnv();
+        myenvironment.add();
     }
 });
 
@@ -13,17 +38,18 @@ $(document).on('keypress','input[name="add-env-name"]', function (e) {
  *  Event: add a new environment by clicking the add button
  */
 $(document).on('click','#add-env-btn',function () {
-    addEnv();
+    myenvironment.add();
 });
 
 /**
  *  Event: edit environments by pressing enter
  */
 $(document).on('keypress','input[name="env-name"]', function (e) {
-    var keycode = (event.keyCode ? event.keyCode : event.which);
+    const keycode = (event.keyCode ? event.keyCode : event.which);
+
     if (keycode == '13') {
         e.stopPropagation();
-        editEnv();
+        myenvironment.edit();
     }
 });
 
@@ -31,15 +57,15 @@ $(document).on('keypress','input[name="env-name"]', function (e) {
  *  Event: edit environments by clicking the edit button
  */
 $(document).on('click','#edit-env-btn', function () {
-    editEnv()
+    myenvironment.edit();
 });
 
 /**
  *  Event: delete an environment
  */
 $(document).on('click','.delete-env-btn',function () {
-    var id = $(this).attr('env-id');
-    var name = $(this).attr('env-name');
+    const id = $(this).attr('env-id');
+    const name = $(this).attr('env-name');
 
     myconfirmbox.print(
         {
@@ -50,22 +76,7 @@ $(document).on('click','.delete-env-btn',function () {
                 'text': 'Delete',
                 'color': 'red',
                 'callback': function () {
-                    ajaxRequest(
-                        // Controller:
-                        'environment',
-                        // Action:
-                        'delete-env',
-                        // Data:
-                        {
-                            id: id,
-                        },
-                        // Print success alert:
-                        true,
-                        // Print error alert:
-                        true
-                    ).then(function () {
-                        mylayout.reloadContentById('envs-div');
-                    });
+                    myenvironment.delete(id);
                 }
             }]
         }

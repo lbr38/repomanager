@@ -1,4 +1,4 @@
-<article class="reloadable-container" container="header/general-log-messages">
+<div class="reloadable-container width-100" container="header/general-log-messages">
     <?php
     /**
      *  Print info or error logs if any
@@ -55,4 +55,4 @@
         </section>
         <?php
     endif ?>
-</article>
+</div>
