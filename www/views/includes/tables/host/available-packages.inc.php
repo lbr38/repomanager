@@ -39,7 +39,7 @@
                 <div class="get-package-timeline pointer" hostid="<?= $id ?>" packagename="<?= $item['Name'] ?>" title="See package history">
                     <div class="flex align-item-center column-gap-5">
                         <p class="copy" title="Available package"><?= $item['Name'] ?></p>
-                        <p class="copy" title="Available version"><code class="wordbreakall"><?= $item['Version'] ?></code></p>
+                        <p class="copy" title="Available version"><code class="wordbreakall"><?= $item['Current_version'] ?> ❯ <?= $item['Version'] ?></code></p>
                     </div>
 
                     <?php

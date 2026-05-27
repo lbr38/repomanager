@@ -3,9 +3,12 @@
 namespace Controllers\Task;
 
 use Controllers\Task\Form\Param\Schedule;
+use Controllers\Task\Log\SubStep;
+use Controllers\Task\Log\Step;
 use Controllers\Utils\Cron;
-use Exception;
+use Controllers\Process;
 use JsonException;
+use Exception;
 use DateTime;
 
 class Task
@@ -139,45 +142,6 @@ class Task
     public function updateDuration(int $id, string $duration) : void
     {
         $this->model->updateDuration($id, $duration);
-    }
-
-    /**
-     *  List all queued tasks
-     *  It is possible to filter the type of task ('immediate' or 'scheduled')
-     *  It is possible to add an offset to the request
-     */
-    public function listQueued(string $type = '', bool $withOffset = false, int $offset = 0)
-    {
-        return $this->model->listQueued($type, $withOffset, $offset);
-    }
-
-    /**
-     *  List all running tasks
-     *  It is possible to filter the type of task ('immediate' or 'scheduled')
-     *  It is possible to add an offset to the request
-     */
-    public function listRunning(string $type = '', bool $withOffset = false, int $offset = 0)
-    {
-        return $this->model->listRunning($type, $withOffset, $offset);
-    }
-
-    /**
-     *  List all scheduled tasks
-     *  It is possible to add an offset to the request
-     */
-    public function listScheduled(bool $withOffset = false, int $offset = 0)
-    {
-        return $this->model->listScheduled($withOffset, $offset);
-    }
-
-    /**
-     *  List all done tasks (with or without errors)
-     *  It is possible to filter the type of task ('immediate' or 'scheduled')
-     *  It is possible to add an offset to the request
-     */
-    public function listDone(string $type = 'immediate', bool $withOffset = false, int $offset = 0)
-    {
-        return $this->model->listDone($type, $withOffset, $offset);
     }
 
     /**
@@ -444,7 +408,7 @@ class Task
      */
     public function executeId(int $id) : void
     {
-        $myprocess = new \Controllers\Process('/usr/bin/php ' . ROOT . '/tasks/execute.php --id="' . $id . '" > ' . MAIN_LOGS_DIR . '/repomanager-task-' . $id . '-log.process 2>&1 &');
+        $myprocess = new Process('/usr/bin/php ' . ROOT . '/tasks/execute.php --id="' . $id . '" > ' . MAIN_LOGS_DIR . '/repomanager-task-' . $id . '-log.process 2>&1 &');
         $myprocess->execute();
         $myprocess->close();
     }
@@ -498,38 +462,43 @@ class Task
     }
 
     /**
-     *  Stop a task based on the specified PID
+     *  Stop a task based on the specified task Id
      */
-    public function kill(string $taskId) : void
+    public function stop(int $taskId): void
     {
         if (!IS_ADMIN and !in_array('stop', USER_PERMISSIONS['tasks']['allowed-actions'])) {
             throw new Exception('You are not allowed to stop a task');
         }
 
+        // Check if task exists
+        if (!$this->exists($taskId)) {
+            throw new Exception('Task #' . $taskId . ' does not exist');
+        }
+
+        // Get task details
+        $taskInfo = $this->getById($taskId);
+
+        // Check if task is running
+        if ($taskInfo['Status'] != 'running') {
+            throw new Exception('Task #' . $taskId . ' is not running');
+        }
+
         if (file_exists(PID_DIR . '/' . $taskId . '.pid')) {
-            /**
-             *  Getting PID file content
-             */
+            // Getting PID file content
             $content = file_get_contents(PID_DIR . '/' . $taskId . '.pid');
 
-            /**
-             *  Getting sub PIDs
-             */
+            // Getting sub PIDs
             preg_match_all('/(?<=SUBPID=).*/', $content, $subpids);
 
-            /**
-             *  Killing sub PIDs
-             */
+            // Killing sub PIDs
             if (!empty($subpids[0])) {
                 $killError = '';
 
                 foreach ($subpids[0] as $subpid) {
                     $subpid = trim(str_replace('"', '', $subpid));
 
-                    /**
-                     *  Check if the PID is still running
-                     */
-                    $myprocess = new \Controllers\Process('/usr/bin/ps --pid ' . $subpid);
+                    // Check if the PID is still running
+                    $myprocess = new Process('/usr/bin/ps --pid ' . $subpid);
                     $myprocess->execute();
                     $content = $myprocess->getOutput();
                     $myprocess->close();
@@ -538,10 +507,8 @@ class Task
                         continue;
                     }
 
-                    /**
-                     *  Kill the process
-                     */
-                    $myprocess = new \Controllers\Process('/usr/bin/kill -9 ' . $subpid);
+                    // Kill the process
+                    $myprocess = new Process('/usr/bin/kill -9 ' . $subpid);
                     $myprocess->execute();
                     $content = $myprocess->getOutput();
                     $myprocess->close();
@@ -552,31 +519,23 @@ class Task
                 }
             }
 
-            /**
-             *  Delete PID file
-             */
+            // Delete PID file
             if (!unlink(PID_DIR . '/' . $taskId . '.pid')) {
                 throw new Exception('Error while deleting PID file');
             }
         }
 
-        /**
-         *  Update task in database, set status to 'stopped'
-         */
+        // Update task in database, set status to 'stopped'
         $this->updateStatus($taskId, 'stopped');
 
-        $taskLogStepController = new \Controllers\Task\Log\Step($taskId);
-        $taskLogSubStepController = new \Controllers\Task\Log\SubStep($taskId);
+        $taskLogStepController = new Step($taskId);
+        $taskLogSubStepController = new SubStep($taskId);
 
-        /**
-         *  Set latest step and substep as stopped
-         */
+        // Set latest step and substep as stopped
         $taskLogStepController->stopped();
         $taskLogSubStepController->stopped();
 
-        /**
-         *  Update layout containers states
-         */
+        // Update layout containers states
         $this->layoutContainerReloadController->reload('header/menu');
         $this->layoutContainerReloadController->reload('repos/list');
         $this->layoutContainerReloadController->reload('tasks/list');
@@ -630,7 +589,7 @@ class Task
     public static function getChildrenPid(int $pid) : array|bool
     {
         // Specified PID could have children PID, we need to get them all
-        $processController = new \Controllers\Process('/usr/bin/pgrep -P ' . $pid);
+        $processController = new Process('/usr/bin/pgrep -P ' . $pid);
         $processController->execute();
 
         // If exit code is 0, then the PID has children
@@ -651,16 +610,35 @@ class Task
     /**
      *  Enable a recurrent task
      */
-    public function enable(array $tasksId) : void
+    public function enable(array $tasksId): void
     {
         if (!IS_ADMIN and !in_array('enable', USER_PERMISSIONS['tasks']['allowed-actions'])) {
-            throw new Exception('You are not allowed to enable a task.');
+            throw new Exception('You are not allowed to enable a task');
         }
 
         foreach ($tasksId as $id) {
             // Check if task exists
             if (!$this->exists($id)) {
-                throw new Exception('Task #' . $id . ' does not exist.');
+                throw new Exception('Task #' . $id . ' does not exist');
+            }
+
+            // Get task details
+            $task = $this->getById($id);
+
+            try {
+                $taskRawParams = json_decode($task['Raw_params'], true, 512, JSON_THROW_ON_ERROR);
+            } catch (JsonException $e) {
+                throw new Exception('Could not decode task #' . $id . ' JSON parameters: ' . $e->getMessage());
+            }
+
+            // Check if task is a scheduled task
+            if ($taskRawParams['schedule']['scheduled'] != 'true') {
+                throw new Exception('Task #' . $id . ' is not a scheduled task and cannot be enabled');
+            }
+
+            // Do nothing if task is already enabled
+            if ($task['Status'] == 'scheduled') {
+                return;
             }
 
             // Enable task
@@ -674,13 +652,32 @@ class Task
     public function disable(array $tasksId) : void
     {
         if (!IS_ADMIN and !in_array('disable', USER_PERMISSIONS['tasks']['allowed-actions'])) {
-            throw new Exception('You are not allowed to disable a task.');
+            throw new Exception('You are not allowed to disable a task');
         }
 
         foreach ($tasksId as $id) {
             // Check if task exists
             if (!$this->exists($id)) {
-                throw new Exception('Task #' . $id . ' does not exist.');
+                throw new Exception('Task #' . $id . ' does not exist');
+            }
+
+            // Get task details
+            $task = $this->getById($id);
+
+            try {
+                $taskRawParams = json_decode($task['Raw_params'], true, 512, JSON_THROW_ON_ERROR);
+            } catch (JsonException $e) {
+                throw new Exception('Could not decode task #' . $id . ' JSON parameters: ' . $e->getMessage());
+            }
+
+            // Check if task is a scheduled task
+            if ($taskRawParams['schedule']['scheduled'] != 'true') {
+                throw new Exception('Task #' . $id . ' is not a scheduled task and cannot be disabled');
+            }
+
+            // Do nothing if task is already disabled
+            if ($task['Status'] == 'disabled') {
+                return;
             }
 
             // Disable task
@@ -694,13 +691,28 @@ class Task
     public function delete(array $tasksId) : void
     {
         if (!IS_ADMIN and !in_array('delete', USER_PERMISSIONS['tasks']['allowed-actions'])) {
-            throw new Exception('You are not allowed to delete a task.');
+            throw new Exception('You are not allowed to delete a task');
         }
 
         foreach ($tasksId as $id) {
             // Check if task exists
             if (!$this->exists($id)) {
-                throw new Exception('Task #' . $id . ' does not exist.');
+                throw new Exception('Task #' . $id . ' does not exist');
+            }
+
+            // Get task details
+            $task = $this->getById($id);
+
+            try {
+                $taskRawParams = json_decode($task['Raw_params'], true, 512, JSON_THROW_ON_ERROR);
+            } catch (JsonException $e) {
+                throw new Exception('Could not decode task #' . $id . ' JSON parameters: ' . $e->getMessage());
+            }
+
+
+            // Check if task is a scheduled task
+            if ($taskRawParams['schedule']['scheduled'] != 'true') {
+                throw new Exception('Task #' . $id . ' is not a scheduled task and cannot be deleted');
             }
 
             // Delete task

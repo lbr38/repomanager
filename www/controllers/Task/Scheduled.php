@@ -5,12 +5,17 @@ namespace Controllers\Task;
 use Exception;
 use JsonException;
 use Controllers\Task\Form\Param\Schedule;
+use Controllers\Task\Listing as TaskListing;
 
 class Scheduled extends Task
 {
+    private $taskListingController;
+
     public function __construct()
     {
         parent::__construct();
+
+        $this->taskListingController = new TaskListing();
     }
 
     /**
@@ -22,7 +27,7 @@ class Scheduled extends Task
         $tasksUsingSnapId = [];
 
         // Get scheduled tasks
-        $scheduledTasks = $this->listScheduled();
+        $scheduledTasks = $this->taskListingController->getScheduled();
 
         if (!empty($scheduledTasks)) {
             foreach ($scheduledTasks as $scheduledTask) {
@@ -48,7 +53,7 @@ class Scheduled extends Task
     public function deleteBySnapId(int $id) : void
     {
         // Get scheduled tasks
-        $scheduledTasks = $this->listScheduled();
+        $scheduledTasks = $this->taskListingController->getScheduled();
 
         // Quit if there is no scheduled task
         if (empty($scheduledTasks)) {

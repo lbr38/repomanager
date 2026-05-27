@@ -1,10 +1,11 @@
 <?php
 $myTask = new \Controllers\Task\Task();
+$taskListingController = new \Controllers\Task\Listing();
 
 /**
  *  Get running tasks
  */
-$tasksRunning = $myTask->listRunning();
+$tasksRunning = $taskListingController->getRunning();
 
 /**
  *  Count running tasks

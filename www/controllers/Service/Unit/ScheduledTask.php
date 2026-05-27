@@ -8,6 +8,7 @@ use DateTime;
 class ScheduledTask extends \Controllers\Service\Service
 {
     private $taskController;
+    private $taskListingController;
     private $taskNotifyController;
 
     public function __construct(string $unit)
@@ -15,6 +16,7 @@ class ScheduledTask extends \Controllers\Service\Service
         parent::__construct($unit);
 
         $this->taskController = new \Controllers\Task\Task();
+        $this->taskListingController = new \Controllers\Task\Listing();
         $this->taskNotifyController = new \Controllers\Task\Notify();
     }
 
@@ -41,7 +43,7 @@ class ScheduledTask extends \Controllers\Service\Service
         /**
          *  Get scheduled tasks
          */
-        $scheduledTasks = $this->taskController->listScheduled();
+        $scheduledTasks = $this->taskListingController->getScheduled();
 
         /**
          *  Quit if there is no task to execute
@@ -193,7 +195,7 @@ class ScheduledTask extends \Controllers\Service\Service
             /**
              *  Get scheduled tasks
              */
-            $scheduledTasks = $this->taskController->listScheduled();
+            $scheduledTasks = $this->taskListingController->getScheduled();
 
             /**
              *  Quit if there is no task to execute

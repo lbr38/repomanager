@@ -57,6 +57,21 @@ class Task extends \Controllers\Api\Controller
                  *  Delete a task by task ID
                  *  https://repomanager.mydomain.net/api/v2/task/{id}
                  */
+                if ($this->uri[5] == 'delete' and $this->method == 'DELETE') {
+                    $taskController->delete([$id]);
+
+                    return ['results' => 'Task deleted successfully.'];
+                }
+
+                /**
+                 *  Stop a task by task ID
+                 *  https://repomanager.mydomain.net/api/v2/task/{id}/stop
+                 */
+                if ($this->uri[5] == 'stop' and $this->method == 'POST') {
+                    $taskController->stop($id);
+
+                    return ['results' => 'Task stopped successfully.'];
+                }
             }
         }
 

@@ -57,6 +57,23 @@ class Snapshot extends \Controllers\Api\Controller
             if ($this->uri[5] == 'packages') {
                 return ['results' => $repoSnapshotPackageController->list()];
             }
+
+            /**
+             *  Make a diff between two snapshots
+             *  https://repomanager.mydomain.net/api/v2/snapshot/$this->snapId/diff?id={snapshotId2}
+             */
+            if ($this->uri[5] == 'diff') {
+                // Check if second snapshot ID is provided in query parameters and is valid
+                if (empty($_GET['id'])) {
+                    throw new Exception('No second snapshot Id specified for diff');
+                }
+
+                if (!is_numeric($_GET['id'])) {
+                    throw new Exception('Invalid snapshot Id #' . $_GET['id']);
+                }
+
+                return ['results' => $repoSnapshotController->diff($this->snapId, $_GET['id'])];
+            }
         }
 
         if ($this->method == 'POST') {
