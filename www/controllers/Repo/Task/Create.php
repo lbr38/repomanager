@@ -38,6 +38,9 @@ class Create extends \Controllers\Task\Execution
         // Set repo type for the task to be executed
         $this->type = $this->params['repo-type'];
 
+        // Set
+        // $this->repoController->setAdvancedParams($this->params['advanced-params']);
+
         // Execute the task
         try {
             $this->execute();
@@ -245,7 +248,7 @@ class Create extends \Controllers\Task\Execution
         /**
          *  Add snapshot to database
          */
-        $this->repoSnapshotController->add($this->repoController->getDate(), $this->repoController->getTime(), 'false', $this->repoController->getArch(), array(), array(), array(), $this->repoController->getType(), 'active', $this->repoController->getRepoId());
+        $this->repoSnapshotController->add($this->repoController->getDate(), $this->repoController->getTime(), 'false', $this->repoController->getArch(), $this->repoController->getAdvancedParams(), $this->repoController->getType(), 'active', $this->repoController->getRepoId());
 
         /**
          *  Retrieve snapshot Id from the last insert row

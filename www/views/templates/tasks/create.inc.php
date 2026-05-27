@@ -95,12 +95,12 @@
     <div class="grid grid-2 row-gap-10 column-gap-20">
         <?php
         if ($repoController->getType() == 'mirror') :
-            if (!empty($repoController->getPackagesToInclude())) : ?>
+            if (!empty($repoController->getAdvancedParams()['packages']['include'])) : ?>
                 <div>
                     <h6>PACKAGES TO INCLUDE</h6>
                     <div class="flex column-gap-5 row-gap-5 flex-wrap">
                         <?php
-                        foreach ($repoController->getPackagesToInclude() as $package) {
+                        foreach ($repoController->getAdvancedParams()['packages']['include'] as $package) {
                             echo '<span class="label-black">' . $package . '</span>';
                         } ?>
                     </div>
@@ -108,12 +108,12 @@
                 <?php
             endif;
 
-            if (!empty($repoController->getPackagesToExclude())) : ?>
+            if (!empty($repoController->getAdvancedParams()['packages']['exclude'])) : ?>
                 <div>
                     <h6>PACKAGES TO EXCLUDE</h6>
                     <div class="flex column-gap-5 row-gap-5 flex-wrap">
                         <?php
-                        foreach ($repoController->getPackagesToExclude() as $package) {
+                        foreach ($repoController->getAdvancedParams()['packages']['exclude'] as $package) {
                             echo '<span class="label-black">' . $package . '</span>';
                         } ?>
                     </div>
@@ -125,12 +125,12 @@
 
     <div class="grid grid-2 row-gap-10 column-gap-20">
         <?php
-        if (!empty($rawParams['package-include'])) : ?>
+        if (!empty($rawParams['advanced-params']['packages']['include'])) : ?>
             <div>
                 <h6>PACKAGES TO INCLUDE</h6>
                 <div class="flex column-gap-5 row-gap-5 flex-wrap">
                     <?php
-                    foreach ($rawParams['package-include'] as $package) {
+                    foreach ($rawParams['advanced-params']['packages']['include'] as $package) {
                         echo '<span class="label-black">' . $package . '</span>';
                     } ?>
                 </div>
@@ -138,12 +138,12 @@
             <?php
         endif;
 
-        if (!empty($rawParams['package-exclude'])) : ?>
+        if (!empty($rawParams['advanced-params']['packages']['exclude'])) : ?>
             <div>
                 <h6>PACKAGES TO EXCLUDE</h6>
                 <div class="flex column-gap-5 row-gap-5 flex-wrap">
                     <?php
-                    foreach ($rawParams['package-exclude'] as $package) {
+                    foreach ($rawParams['advanced-params']['packages']['exclude'] as $package) {
                         echo '<span class="label-black">' . $package . '</span>';
                     } ?>
                 </div>

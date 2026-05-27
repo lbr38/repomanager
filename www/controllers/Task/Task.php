@@ -360,88 +360,82 @@ class Task
     /**
      *  Execute one or more tasks
      */
-    public function execute(array $tasksParams) : void
+    public function execute(array $tasksParams): int|array
     {
+        $tasks = [];
+
         /**
          *  $tasksParams can contain one or more tasks
          *  Each task is an array containing all the parameters needed to execute the task
          */
         foreach ($tasksParams as $taskParams) {
-            /**
-             *  If the task is a new repo, we need to loop through all the releasever (rpm) or dist/section (deb) and create a dedicated task for each of them
-             */
+            // If the task is a new repo, we need to loop through all the releasever (rpm) or dist/section (deb) and create a dedicated task for each of them
             if ($taskParams['action'] == 'create') {
                 if ($taskParams['package-type'] == 'rpm') {
                     foreach ($taskParams['releasever'] as $releasever) {
-                        /**
-                         *  Create a new array with the same parameters as the original array, but with only one releasever
-                         */
+                        // Create a new array with the same parameters as the original array, but with only one releasever
                         $params = $taskParams;
 
-                        /**
-                         *  Replace the releasever array with a single releasever
-                         */
+                        // Replace the releasever array with a single releasever
                         $params['releasever'] = $releasever;
 
-                        /**
-                         *  Generate a new task containing all the parameters needed to execute the task retrieve its Id
-                         */
+                        // Generate a new task containing all the parameters needed to execute the task retrieve its Id
                         $taskId = $this->new($params);
 
-                        /**
-                         *  Execute the task now if it is not scheduled
-                         */
+                        // Execute the task now if it is not scheduled
                         if ($params['schedule']['scheduled'] != 'true') {
                             $this->executeId($taskId);
                         }
+
+                        // Add task Id to the list of executed tasks
+                        $tasks[] = $taskId;
                     }
                 }
 
                 if ($taskParams['package-type'] == 'deb') {
                     foreach ($taskParams['dist'] as $dist) {
                         foreach ($taskParams['section'] as $section) {
-                            /**
-                             *  Create a new array with the same parameters as the original array, but with only one dist and one section
-                             */
+                            // Create a new array with the same parameters as the original array, but with only one dist and one section
                             $params = $taskParams;
 
-                            /**
-                             *  Replace the dist and section arrays with a single dist and a single section
-                             */
+                            // Replace the dist and section arrays with a single dist and a single section
                             $params['dist'] = $dist;
                             $params['section'] = $section;
 
-                            /**
-                             *  Generate a new task containing all the parameters needed to execute the task retrieve its Id
-                             */
+                            // Generate a new task containing all the parameters needed to execute the task retrieve its Id
                             $taskId = $this->new($params);
 
-                            /**
-                             *  Execute the task now if it is not scheduled
-                             */
+                            // Execute the task now if it is not scheduled
                             if ($params['schedule']['scheduled'] != 'true') {
                                 $this->executeId($taskId);
                             }
+
+                            // Add task Id to the list of executed tasks
+                            $tasks[] = $taskId;
                         }
                     }
                 }
 
-            /**
-             *  Every other task can be executed directly
-             */
+            // Every other task can be executed directly
             } else {
-                /**
-                 *  Generate a new task containing all the parameters needed to execute the task retrieve its Id
-                 */
+                // Generate a new task containing all the parameters needed to execute the task retrieve its Id
                 $taskId = $this->new($taskParams);
 
-                /**
-                 *  Execute the task now if it is not scheduled
-                 */
+                // Execute the task now if it is not scheduled
                 if ($taskParams['schedule']['scheduled'] != 'true') {
                     $this->executeId($taskId);
                 }
+
+                // Add task Id to the list of executed tasks
+                $tasks[] = $taskId;
             }
+        }
+
+        // Return the Id of the executed task or an array with all the executed tasks Id
+        if (count($tasks) == 1) {
+            return $tasks[0];
+        } else {
+            return $tasks;
         }
     }
 

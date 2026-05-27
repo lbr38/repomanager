@@ -3,128 +3,93 @@
 namespace Controllers\Task\Form;
 
 use Exception;
+use Controllers\Repo\Rpm;
+use Controllers\Repo\Deb;
 use Controllers\History\Save as History;
 
 class Create
 {
-    public function validate(array $formParams)
+    public function validate(array $formParams): void
     {
-        $rpmRepoController = new \Controllers\Repo\Rpm();
-        $debRepoController = new \Controllers\Repo\Deb();
+        $rpmRepoController = new Rpm();
+        $debRepoController = new Deb();
 
-        /**
-         *  Check package type
-         */
+        // Check package type
         Param\PackageType::check($formParams['package-type']);
 
-        /**
-         *  Check repo type
-         */
+        // Check repo type
         Param\RepoType::check($formParams['repo-type']);
 
-        /**
-         *  Case package type is 'rpm'
-         */
+        // Case package type is 'rpm'
         if ($formParams['package-type'] == 'rpm') {
-            /**
-             *  Check releasever
-             */
+            // Check releasever
             Param\Releasever::check($formParams['releasever']);
         }
 
-        /**
-         *  Case package type is 'deb'
-         */
+        // Case package type is 'deb'
         if ($formParams['package-type'] == 'deb') {
-            /**
-             *  Check distribution
-             */
+            // Check distribution
             Param\Dist::check($formParams['dist']);
 
-            /**
-             *  Check section
-             */
+            // Check section
             Param\Section::check($formParams['section']);
+
+            // Check metadata custom fields
+            Param\Metadata::checkOrigin($formParams['advanced-params']['metadata-custom-fields']['origin']);
+            Param\Metadata::checkLabel($formParams['advanced-params']['metadata-custom-fields']['label']);
+            Param\Metadata::checkDescription($formParams['advanced-params']['metadata-custom-fields']['description']);
         }
 
-        /**
-         *  Check env
-         */
+        // Check env
         if (!empty($formParams['env'])) {
             Param\Environment::check($formParams['env']);
         }
 
-        /**
-         *  Check description
-         */
+        // Check description
         Param\Description::check($formParams['description']);
 
-        /**
-         *  Check group
-         */
+        // Check group
         if (!empty($formParams['group'])) {
             Param\Group::check($formParams['group']);
         }
 
-        /**
-         *  If the selected repo type is 'local' we will have to check that a name has been provided (can be left empty in the case of a mirror)
-         */
+        // If the selected repo type is 'local' we will have to check that a name has been provided (can be left empty in the case of a mirror)
         if ($formParams['repo-type'] == 'local') {
             $targetName = $formParams['alias'];
         }
 
-        /**
-         *  If the selected repo type is 'mirror' then we check additional parameters
-         */
+        // If the selected repo type is 'mirror' then we check additional parameters
         if ($formParams['repo-type'] == 'mirror') {
-            /**
-             *  Check source
-             */
+            // Check source
             Param\Source::check($formParams['source'], $formParams['package-type']);
 
-            /**
-             *  If no alias has been given, we use the source name as alias
-             */
+            // If no alias has been given, we use the source name as alias
             if (!empty($formParams['alias'])) {
                 $targetName = $formParams['alias'];
             } else {
                 $targetName = $formParams['source'];
             }
 
-            /**
-             *  Check gpg check
-             */
+            // Check gpg check
             Param\GpgCheck::check($formParams['gpg-check']);
 
-            /**
-             *  Check gpg sign
-             */
+            // Check gpg sign
             Param\GpgSign::check($formParams['gpg-sign']);
 
-            /**
-             *  Check package(s) to include
-             */
-            Param\PackageInclude::check($formParams['package-include']);
+            // Check package(s) to include
+            Param\PackageInclude::check($formParams['advanced-params']['packages']['include']);
 
-            /**
-             *  Check package(s) to exclude
-             */
-            Param\PackageExclude::check($formParams['package-exclude']);
+            // Check package(s) to exclude
+            Param\PackageExclude::check($formParams['advanced-params']['packages']['exclude']);
         }
 
-        /**
-         *  Check name
-         */
+        // Check name
         Param\Name::check($targetName);
 
-        /**
-         *  Check architecture
-         */
+        // Check architecture
         Param\Arch::check($formParams['arch']);
 
-        /**
-         *  Check if a repository with the same name is already active with snapshots
-         */
+        // Check if a repository with the same name is already active with snapshots
         if ($formParams['package-type'] == 'rpm') {
             foreach ($formParams['releasever'] as $releasever) {
                 if ($rpmRepoController->isActive($targetName, $releasever)) {
@@ -134,9 +99,7 @@ class Create
         }
 
         if ($formParams['package-type'] == 'deb') {
-            /**
-             *  For deb repo, we check that no repo/dist/section with the same name is already active
-             */
+            // For deb repo, we check that no repo/dist/section with the same name is already active
             foreach ($formParams['dist'] as $distribution) {
                 foreach ($formParams['section'] as $section) {
                     if ($debRepoController->isActive($targetName, $distribution, $section)) {
@@ -146,14 +109,10 @@ class Create
             }
         }
 
-        /**
-         *  Check scheduling parameters
-         */
+        // Check scheduling parameters
         Param\Schedule::check($formParams['schedule']);
 
-        /**
-         *  Add history
-         */
+        // Add history
         if ($formParams['package-type'] == 'rpm') {
             History::set('Running task: New repository <span class="label-white">' . $targetName . '</span> (' . $formParams['repo-type'] . ')');
         }

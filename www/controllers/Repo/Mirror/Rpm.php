@@ -594,10 +594,10 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              *  If a list of package(s) to include has been provided, check if the package is in the list
              *  If not, skip the package
              */
-            if (!empty($this->packagesToInclude)) {
+            if (!empty($this->advancedParams['packages']['include'])) {
                 $isIn = false;
 
-                foreach ($this->packagesToInclude as $packageToInclude) {
+                foreach ($this->advancedParams['packages']['include'] as $packageToInclude) {
                     if (preg_match('/' . $packageToInclude . '/', $rpmPackageName)) {
                         $isIn = true;
                     }
@@ -616,10 +616,10 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              *  If a list of package(s) to exclude has been provided, check if the package is in the list
              *  If so, skip the package
              */
-            if (!empty($this->packagesToExclude)) {
+            if (!empty($this->advancedParams['packages']['exclude'])) {
                 $isIn = false;
 
-                foreach ($this->packagesToExclude as $packageToExclude) {
+                foreach ($this->advancedParams['packages']['exclude'] as $packageToExclude) {
                     if (preg_match('/' . $packageToExclude . '/', $rpmPackageName)) {
                         $isIn = true;
                     }

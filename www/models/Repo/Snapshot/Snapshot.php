@@ -91,17 +91,15 @@ class Snapshot extends \Models\Model
     /**
      *  Add a snapshot in database
      */
-    public function add(string $date, string $time, string $gpgSignature, array $arch, array $includeTranslation, array $packagesIncluded, array $packagesExcluded, string $type, string $status, int $repoId): void
+    public function add(string $date, string $time, string $gpgSignature, array $arch, string $advancedParams, string $type, string $status, int $repoId): void
     {
         try {
-            $stmt = $this->db->prepare("INSERT INTO repos_snap ('Date', 'Time', 'Signed', 'Arch', 'Pkg_translation', 'Pkg_included', 'Pkg_excluded', 'Type', 'Status', 'Id_repo') VALUES (:date, :time, :signed, :arch, :includeTranslation, :packagesIncluded, :packagesExcluded, :type, :status, :repoId)");
+            $stmt = $this->db->prepare("INSERT INTO repos_snap ('Date', 'Time', 'Signed', 'Arch', 'Advanced_params', 'Type', 'Status', 'Id_repo') VALUES (:date, :time, :signed, :arch, :advancedParams, :type, :status, :repoId)");
             $stmt->bindValue(':date', $date);
             $stmt->bindValue(':time', $time);
             $stmt->bindValue(':signed', $gpgSignature);
             $stmt->bindValue(':arch', implode(',', $arch));
-            $stmt->bindValue(':includeTranslation', implode(',', $includeTranslation));
-            $stmt->bindValue(':packagesIncluded', implode(',', $packagesIncluded));
-            $stmt->bindValue(':packagesExcluded', implode(',', $packagesExcluded));
+            $stmt->bindValue(':advancedParams', $advancedParams);
             $stmt->bindValue(':type', $type);
             $stmt->bindValue(':status', $status);
             $stmt->bindValue(':repoId', $repoId);
@@ -157,36 +155,6 @@ class Snapshot extends \Models\Model
     }
 
     /**
-     *  Update snapshot included packages in the database
-     */
-    public function updatePackagesIncluded(int $snapId, string $packages): void
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE repos_snap SET Pkg_included = :packagesIncluded WHERE Id = :snapId");
-            $stmt->bindValue(':packagesIncluded', $packages);
-            $stmt->bindValue(':snapId', $snapId);
-            $stmt->execute();
-        } catch (Exception $e) {
-            DbLog::error($e);
-        }
-    }
-
-    /**
-     *  Update snapshot excluded packages in the database
-     */
-    public function updatePackagesExcluded(int $snapId, string $packages): void
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE repos_snap SET Pkg_excluded = :packagesExcluded WHERE Id = :snapId");
-            $stmt->bindValue(':packagesExcluded', $packages);
-            $stmt->bindValue(':snapId', $snapId);
-            $stmt->execute();
-        } catch (Exception $e) {
-            DbLog::error($e);
-        }
-    }
-
-    /**
      *  Update snapshot status in the database
      */
     public function updateStatus(string $snapId, string $status): void
@@ -232,12 +200,27 @@ class Snapshot extends \Models\Model
     }
 
     /**
+     *  Update snapshot advanced parameters in the database
+     */
+    public function updateAdvancedParams(int $snapId, string $advancedParams): void
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE repos_snap SET Advanced_params = :advancedParams WHERE Id = :snapId");
+            $stmt->bindValue(':advancedParams', $advancedParams);
+            $stmt->bindValue(':snapId', $snapId);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+    }
+
+    /**
      *  Return true if a snapshot with the specified ID exists
      */
     public function exists(int $id) : bool
     {
         try {
-            $stmt = $this->db->prepare("SELECT Id FROM repos_snap WHERE Id = :id");
+            $stmt = $this->db->prepare("SELECT Id FROM repos_snap WHERE Id = :id AND Status = 'active'");
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (Exception $e) {

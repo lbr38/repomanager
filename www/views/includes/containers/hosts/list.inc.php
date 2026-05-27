@@ -34,7 +34,7 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
                 <?php
             endif;
 
-            if (HostPermission::allowedAction('edit-groups')) : ?>
+            if (HostPermission::allowedAction('edit-groups') and $totalHosts > 0) : ?>
                 <div class="slide-btn get-panel-btn mediumopacity" panel="hosts/groups/list" title="Manage hosts groups">
                     <img src="/assets/icons/folder.svg" />
                     <span>Groups</span>
@@ -42,7 +42,7 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
                 <?php
             endif;
 
-            if (HostPermission::allowedAction('edit-settings')) : ?>
+            if (HostPermission::allowedAction('edit-settings') and $totalHosts > 0) : ?>
                 <div class="slide-btn get-panel-btn mediumopacity" panel="hosts/settings" title="Edit display settings">
                     <img src="/assets/icons/cog.svg" />
                     <span>Settings</span>
@@ -54,8 +54,14 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
 
     <?php
     if ($totalHosts == 0) : ?>
-        <p class="note">No host registered yet!</p>
-        <p class="note">Install <a href="https://github.com/lbr38/linupdate" target="_blank" rel="noopener noreferrer" class="font-size-13"><b>linupdate</b> <img src="/assets/icons/external-link.svg" class="icon-small margin-left-5" /></a> on your hosts to register them to Repomanager. This page will display dashboards and informations about the hosts and their packages (installed, available, updated...). See <a href="https://github.com/lbr38/linupdate/wiki/Module:-reposerver#quick-setup-example" class="font-size-13"><b>quick setup example</b> <img src="/assets/icons/external-link.svg" class="icon-small margin-left-5" /></a>
+        <div class="empty-state">
+            <p class="empty-state-title">No host registered yet.</p>
+            <p class="note">Install <b>linupdate</b> on your hosts to register them to Repomanager. This page will display dashboards and informations about the hosts and their packages (installed, available, updated...).</p>
+            <div class="empty-state-actions">
+                <a href="https://github.com/lbr38/linupdate" target="_blank" rel="noopener noreferrer"><button type="button" class="btn-medium-blue">Linupdate GitHub</button></a>
+                <a href="https://github.com/lbr38/linupdate/wiki/Module:-reposerver#quick-setup-example" target="_blank" rel="noopener noreferrer"><button type="button" class="btn-large-tr">Linupdate quick setup</button></a>
+            </div>
+        </div>
         <?php
     endif;
 

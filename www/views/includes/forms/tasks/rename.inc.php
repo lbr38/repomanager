@@ -4,11 +4,11 @@
 <div class="flex align-item-center">
     <p class="label-white">
         <?php
-        if ($myrepo->getPackageType() == 'rpm') {
-            echo $myrepo->getName() . ' ❯ ' . $myrepo->getReleasever();
+        if ($repoController->getPackageType() == 'rpm') {
+            echo $repoController->getName() . ' ❯ ' . $repoController->getReleasever();
         }
-        if ($myrepo->getPackageType() == 'deb') {
-            echo $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection();
+        if ($repoController->getPackageType() == 'deb') {
+            echo $repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection();
         } ?>
     </p>
 </div>
@@ -19,14 +19,14 @@
 
 <select class="task-param hide" param-name="arch" multiple>
     <?php
-    foreach ($myrepo->getArch() as $arch) {
+    foreach ($repoController->getArch() as $arch) {
         echo '<option value="' . $arch . '" selected>' . $arch . '</option>';
     } ?>
 </select>
 
-<input type="hidden" class="task-param" param-name="old-name" value="<?= $myrepo->getName() ?>" />
+<input type="hidden" class="task-param" param-name="old-name" value="<?= $repoController->getName() ?>" />
 
-<input type="hidden" class="task-param" param-name="gpg-sign" value="<?= $myrepo->getSigned() ?>" />
+<input type="hidden" class="task-param" param-name="gpg-sign" value="<?= $repoController->getSigned() ?>" />
 
 <?php
 // Define schedule form action (useful for the schedule form)

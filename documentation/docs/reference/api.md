@@ -485,12 +485,17 @@ Mainly used by the `linupdate` agent, these endpoints allow to register a host t
     </tr>
     <tr>
       <td>/host/registering<br><code>DELETE</code></td>
-      <td><code>&lt;HOST_ID&gt;</code> and <code>&lt;HOST_TOKEN&gt;</code></td>
-      <td></td>
+      <td><code>&lt;APIKEY&gt;</code><br>or<br><code>&lt;HOST_ID&gt;</code> and <code>&lt;HOST_TOKEN&gt;</code></td>
+      <td><code>hostname</code> (required if API key is used)</td>
       <td>Unregister a host from Repomanager</td>
       <td markdown="block">
+        With API key:
         ```bash
-        curl --fail-with-body --post301 -L -s -X DELETE -H "Authorization: Host <HOST_ID>:<HOST_TOKEN>" -H "Content-Type: application/json" https://repomanager.mydomain.net/api/v2/host/registering
+        curl --fail-with-body -L -s -X DELETE -H "Authorization: Bearer <APIKEY>" -H "Content-Type: application/json" -d '{"hostname":"<hostname>"}' https://repomanager.mydomain.net/api/v2/host/registering
+        ```
+        With host ID and token:
+        ```bash
+        curl --fail-with-body -L -s -X DELETE -H "Authorization: Host <HOST_ID>:<HOST_TOKEN>" -H "Content-Type: application/json" https://repomanager.mydomain.net/api/v2/host/registering
         ```
       </td>
     </tr>

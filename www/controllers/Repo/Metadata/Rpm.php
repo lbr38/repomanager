@@ -3,6 +3,7 @@
 namespace Controllers\Repo\Metadata;
 
 use Exception;
+use Controllers\Process;
 
 class Rpm extends Metadata
 {
@@ -47,7 +48,7 @@ class Rpm extends Metadata
         /**
          *  Create repository metadata
          */
-        $myprocess = new \Controllers\Process($this->createrepo . ' ' . $this->createrepoArgs . ' ' . $this->root . '/');
+        $myprocess = new Process($this->createrepo . ' ' . $this->createrepoArgs . ' ' . $this->root . '/');
         $myprocess->setBackground(true);
         $myprocess->execute();
 
@@ -99,7 +100,7 @@ class Rpm extends Metadata
             /**
              *  Include modules.yaml in the metadata
              */
-            $myprocess = new \Controllers\Process($this->modifyrepo . ' ' . $this->root . '/modules.yaml ' . $this->root . '/repodata/');
+            $myprocess = new Process($this->modifyrepo . ' ' . $this->root . '/modules.yaml ' . $this->root . '/repodata/');
             $myprocess->setBackground(true);
             $myprocess->execute();
 
@@ -143,7 +144,7 @@ class Rpm extends Metadata
             /**
              *  Include updateinfo.xml in the metadata
              */
-            $myprocess = new \Controllers\Process($this->modifyrepo . ' ' . $this->root . '/updateinfo.xml ' . $this->root . '/repodata/');
+            $myprocess = new Process($this->modifyrepo . ' ' . $this->root . '/updateinfo.xml ' . $this->root . '/repodata/');
             $myprocess->setBackground(true);
             $myprocess->execute();
 

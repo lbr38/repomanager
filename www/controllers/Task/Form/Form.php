@@ -3,7 +3,10 @@
 namespace Controllers\Task\Form;
 
 use Exception;
+use Controllers\Repo\Repo;
 use Controllers\Utils\Validate;
+use Controllers\Repo\Environment;
+use Controllers\Task\Scheduled as ScheduledTask;
 use Controllers\User\Permission\Repo as RepoPermission;
 
 class Form
@@ -21,74 +24,56 @@ class Form
         $content = '<form id="task-form" autocomplete="off">';
 
         foreach ($repos as $repo) {
-            $myrepo = new \Controllers\Repo\Repo();
-            $repoEnvController = new \Controllers\Repo\Environment();
-            $scheduledTaskController = new \Controllers\Task\Scheduled();
-            $repoId = Validate::string($repo['repo-id']);
-            $snapId = Validate::string($repo['snap-id']);
+            $repoController = new Repo();
+            $repoEnvController = new Environment();
+            $scheduledTaskController = new ScheduledTask();
+            $repoId = Validate::int($repo['repo-id']);
+            $snapId = Validate::int($repo['snap-id']);
             $envId  = null;
 
-            /**
-             *  If an environment points to the snapshot (snapId), retrieve the envId from the repo array
-             */
+            // If an environment points to the snapshot (snapId), retrieve the envId from the repo array
             if (!empty($repo['envId'])) {
-                $envId = Validate::string($repo['env-id']);
+                $envId = Validate::int($repo['env-id']);
             }
 
-            /**
-             *  Check that the Ids are numeric
-             */
+            // Check that the Ids are numeric
             if (!is_numeric($repoId)) {
-                throw new Exception("Repo Id is invalid");
+                throw new Exception("Repository Id is invalid");
             }
             if (!is_numeric($snapId)) {
                 throw new Exception("Snapshot Id is invalid");
             }
-            if (!empty($envId)) {
-                if (!is_numeric($envId)) {
-                    throw new Exception("Environment Id is invalid");
-                }
+            if (!empty($envId) and !is_numeric($envId)) {
+                throw new Exception("Environment Id is invalid");
             }
 
-            /**
-             *  Check that the Ids exist in the database
-             */
-            if (!$myrepo->existsId($repoId)) {
-                throw new Exception("Repo Id does not exist");
+            // Check that the Ids exist in the database
+            if (!$repoController->existsId($repoId)) {
+                throw new Exception("Repository Id does not exist");
             }
-            if (!$myrepo->existsSnapId($snapId)) {
+            if (!$repoController->existsSnapId($snapId)) {
                 throw new Exception("Snapshot Id does not exist");
             }
-            if (!is_null($envId)) {
-                if (!$repoEnvController->exists($envId)) {
-                    throw new Exception("Environment Id does not exist");
-                }
+            if (!empty($envId) and !$repoEnvController->exists($envId)) {
+                throw new Exception("Environment Id does not exist");
             }
 
-            /**
-             *  Retrieve all repo data from the Ids
-             */
-            $myrepo->getAllById($repoId, $snapId, $envId);
+            // Retrieve all repo data from the Ids
+            $repoController->getAllById($repoId, $snapId, $envId);
 
-            /**
-             *  Retrieve the package type of the repo
-             */
-            $packageType = $myrepo->getPackageType();
+            // Retrieve the package type of the repo
+            $packageType = $repoController->getPackageType();
 
             // Get scheduled tasks on this snapshot (if any) and count them
             $scheduledTasks = $scheduledTaskController->getBySnapId($snapId);
             $scheduledTasksCount = count($scheduledTasks);
 
-            /**
-             *  Build the form from a template
-             */
+            // Build the form from a template
             ob_start();
 
             echo '<div class="task-form-params" repo-id="' . $repoId . '" snap-id="' . $snapId . '" env-id="' . $envId . '" action="' . $action . '">';
 
-            /**
-             *  Include form template
-             */
+            // Include form template
             include(ROOT . '/views/includes/forms/tasks/' . $action . '.inc.php');
 
             echo '</div>';
@@ -100,13 +85,12 @@ class Form
 
         ob_start();
 
-        /**
-         *  Include schedule task template
-         */
+        // Include schedule task template
         include(ROOT . '/views/includes/forms/tasks/schedule.inc.php');
 
         $content .= ob_get_clean();
 
+        // Add submit button and close form
         $content .= '<br><button class="task-confirm-btn btn-large-red">Execute now</button></form><br><br>';
 
         return $content;
@@ -119,9 +103,7 @@ class Form
     public function validate(array $tasksParams) : void
     {
         foreach ($tasksParams as $task) {
-            /**
-             *  Retrieve action
-             */
+            // Retrieve action
             if (empty($task['action'])) {
                 throw new Exception('No action has been specified');
             }
@@ -130,28 +112,20 @@ class Form
                 throw new Exception('Invalid action: ' . $task['action']);
             }
 
-            /**
-             *  If the user does not have permission to perform the specified action, prevent execution of the task.
-             */
+            // If the user does not have permission to perform the specified action, prevent execution of the task.
             if (!RepoPermission::allowedAction($task['action'])) {
                 throw new Exception('You are not allowed to execute this action');
             }
 
-            /**
-             *  Generate controller name
-             */
+            // Generate controller name
             $controllerPath = '\Controllers\Task\Form\\' . ucfirst($task['action']);
 
-            /**
-             *  Check if class exists, otherwise the action might be invalid
-             */
+            // Check if class exists, otherwise the action might be invalid
             if (!class_exists($controllerPath)) {
                 throw new Exception('Invalid action: ' . $task['action']);
             }
 
-            /**
-             *  Validate form by calling the controller
-             */
+            // Validate form by calling the controller
             $controller = new $controllerPath();
             $controller->validate($task);
         }

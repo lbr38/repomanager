@@ -5,6 +5,7 @@ namespace Controllers\Api\Snapshot;
 use Controllers\User\Permission\Repo as RepoPermission;
 use Controllers\Repo\Snapshot\Package;
 use Controllers\Utils\Convert;
+use Controllers\Task\Task;
 use Exception;
 
 class Snapshot extends \Controllers\Api\Controller
@@ -94,7 +95,7 @@ class Snapshot extends \Controllers\Api\Controller
                  *  Same code as controllers/ajax/browse.php
                  *  TODO : find a way to not duplicate code
                  */
-                $mytask = new \Controllers\Task\Task();
+                $taskController = new Task();
 
                 if (!RepoPermission::allowedAction('rebuild')) {
                     throw new Exception('You are not allowed to rebuild a repository snapshot');
@@ -117,13 +118,12 @@ class Snapshot extends \Controllers\Api\Controller
                 $params['schedule']['scheduled'] = 'false';
 
                 // Execute the task
-                $mytask->execute([$params]);
-
-                unset($mytask);
+                $taskId = $taskController->execute([$params]);
 
                 return [
                     'rc' => 202,
-                    'results' => 'Snapshot metadata rebuild started'
+                    'results' => 'Snapshot metadata rebuild started',
+                    'task-id' => $taskId
                 ];
             }
         }

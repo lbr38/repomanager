@@ -1,7 +1,7 @@
 
 /* All buttons */
 [class^="btn-"], [class*=" btn-"], input::file-selector-button {
-    padding: 10px 5px 10px 5px;
+    padding: 10px;
     border: none;
     border-radius: 60px;
     color: white;
