@@ -99,7 +99,7 @@ class Task
     /**
      *  Get task details by Id
      */
-    public function getById(int $id)
+    public function getById(int $id): array
     {
         return $this->model->getById($id);
     }
