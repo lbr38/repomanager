@@ -35,9 +35,7 @@ trait Create
             $workingDir = $snapshotPath;
         }
 
-        /**
-         *  Generate repository metadata
-         */
+        // Generate repository metadata
         if ($this->repoController->getPackageType() == 'rpm') {
             $mymetadata = new RpmMetadata($this->taskId);
             $mymetadata->setRoot($workingDir);
@@ -52,6 +50,7 @@ trait Create
             $mymetadata->setSection($this->repoController->getSection());
             $mymetadata->setArch($this->repoController->getArch());
             $mymetadata->setGpgSign($this->repoController->getGpgSign());
+            $mymetadata->setMetadataCustomFields($this->repoController->getAdvancedParams()['metadata-custom-fields'] ?? []);
             $mymetadata->create();
         }
 
@@ -94,18 +93,14 @@ trait Create
                         $link = REPOS_DIR . '/deb/' . $this->repoController->getName() . '/' . $this->repoController->getDist() . '/' . $this->repoController->getSection() . '/' . $env;
                     }
 
-                    /**
-                     *  If a symlink with the same name already exists, we remove it
-                     */
+                    // If a symlink with the same name already exists, we remove it
                     if (is_link($link)) {
                         if (!unlink($link)) {
                             throw new Exception('Could not remove existing symlink ' . $link);
                         }
                     }
 
-                    /**
-                     *  Create symlink
-                     */
+                    // Create symlink
                     if (!symlink($this->repoController->getDate(), $link)) {
                         throw new Exception('Could not point environment to the repository');
                     }

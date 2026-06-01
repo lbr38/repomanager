@@ -455,80 +455,51 @@ $(document).on('click',".task-schedule-btn", function () {
 $(document).on('submit','#task-form',function (e) {
     e.preventDefault();
 
-     /**
-     *  Main array that will contain the schedule parameters
-     */
+    // Main object that will contain the schedule parameters
     var scheduleObj = {};
 
-    /**
-     *  Retrieve the schedule parameters
-     */
+    // Main array that will contain all the parameters of each repo to be processed (1 or more repos depending on the user's selection)
+    var taskParams = [];
+
+    // Retrieve the schedule parameters
     $(this).find('.task-schedule-form-params').each(function () {
-        /**
-         *  Retrieve the schedule parameters entered by the user and push them into the object
-         *  There is no associative array in js so we push an object.
-         */
-        var params = $(this).find('.task-param');
+        $(this).find('.task-param').each(function () {
+            // Parameter name (input name)
+            const name = $(this).attr('param-name');
 
-        params.each(function () {
-            /**
-             *  Retrieve the parameter name (input name) and its value (input value)
-             */
-            var param_name = $(this).attr('param-name');
-
-            /**
-             *  If the input is a checkbox and it is checked then its value will be 'true'
-             *  If it is not checked then its value will be 'false'
-             */
+            // If the input is a checkbox and it's checked then its value will be 'true' otherwise 'false'
             if ($(this).attr('type') == 'checkbox') {
                 if ($(this).is(":checked")) {
-                    var param_value = 'true';
+                    var value = 'true';
                 } else {
-                    var param_value = 'false';
+                    var value = 'false';
                 }
 
-            /**
-             *  If the input is a radio button then we only retrieve its value if it is checked, otherwise we move on to the next parameter
-             */
+            // If the input is a radio button then we only retrieve its value if it is checked, otherwise we move on to the next parameter
             } else if ($(this).attr('type') == 'radio') {
                 if ($(this).is(":checked")) {
-                    var param_value = $(this).val();
+                    var value = $(this).val();
                 } else {
                     return; // return is the equivalent of 'continue' for jquery loops .each()
                 }
+            // If the input is not a checkbox then we retrieve its value
             } else {
-                /**
-                 *  If the input is not a checkbox then we retrieve its value
-                 */
-                var param_value = $(this).val();
+                var value = $(this).val();
             }
 
-            scheduleObj[param_name] = param_value;
+            scheduleObj[name] = value;
         });
     });
 
-    /**
-     *  Main array that will contain all the parameters of each repo to be processed (1 or more repos depending on the user's selection)
-     */
-    var taskParams = [];
-
-    /**
-     *  Retrieve the parameters entered in the form
-     */
+    // Retrieve the parameters entered in the form
     $(this).find('.task-form-params').each(function () {
-        /**
-         *  Object that will contain the parameters entered in the form for this repo
-         */
+        // Object that will contain the parameters entered in the form for this repo
         var obj = {};
 
-        /**
-         *  Retrieve the task action
-         */
+        // Retrieve the task action
         obj['action'] = $(this).attr('action');
 
-        /**
-         *  If action is not 'create' then we retrieve the snap id and env id
-         */
+        // If action is not 'create' then we retrieve the snap id and env id
         if (obj['action'] != 'create') {
             obj['repo-id'] = $(this).attr('repo-id');
             obj['snap-id'] = $(this).attr('snap-id');
@@ -553,62 +524,65 @@ $(document).on('submit','#task-form',function (e) {
              *  then only retrieve input value if its package type is the same as the selected package type
              *  Else continue to the next parameter
              */
-            if ($(this).attr('package-type')) {
-                if ($(this).attr('package-type') != packageType && $(this).attr('package-type') != 'all') {
-                    return; // return is the equivalent of 'continue' for jquery loops .each()
+            if (obj['action'] == 'create') {
+                if ($(this).attr('package-type')) {
+                    if ($(this).attr('package-type') != packageType && $(this).attr('package-type') != 'all') {
+                        return; // continue
+                    }
                 }
             }
 
-            /**
-             *  Retrieve the parameter name (input name) and its value (input value)
-             */
-            var param_name = $(this).attr('param-name');
+            // Retrieve the parameter name (input name) and its value (input value)
+            var name = $(this).attr('param-name');
 
-            /**
-             *  If the input is a checkbox and it is checked then its value will be 'true'
-             *  If it is not checked then its value will be 'false'
-             */
+            // If the input is a checkbox and it is checked then its value will be 'true', otherwise 'false'
             if ($(this).attr('type') == 'checkbox') {
                 if ($(this).is(":checked")) {
-                    var param_value = 'true';
+                    var value = 'true';
                 } else {
-                    var param_value = 'false';
+                    var value = 'false';
                 }
 
-            /**
-             *  If the input is a radio button then we only retrieve its value if it is checked, otherwise we move on to the next parameter
-             */
+            // If the input is a radio button then we only retrieve its value if it is checked, otherwise we move on to the next parameter
             } else if ($(this).attr('type') == 'radio') {
                 if ($(this).is(":checked")) {
-                    var param_value = $(this).val();
+                    var value = $(this).val();
                 } else {
                     return; // return is the equivalent of 'continue' for jquery loops .each()
                 }
+            // If the input is not a checkbox then we retrieve its value
             } else {
-                /**
-                 *  If the input is not a checkbox then we retrieve its value
-                 */
-                var param_value = $(this).val();
+                var value = $(this).val();
             }
 
-            obj[param_name] = param_value;
+            // Si le nom contient des points, on crée des sous-objets imbriqués
+            if (name.includes('.')) {
+                var parts = name.split('.');
+                var ref = obj;
+                for (var i = 0; i < parts.length; i++) {
+                    if (i === parts.length - 1) {
+                        ref[parts[i]] = value;
+                    } else {
+                        if (typeof ref[parts[i]] !== 'object' || ref[parts[i]] === null) {
+                            ref[parts[i]] = {};
+                        }
+                        ref = ref[parts[i]];
+                    }
+                }
+            } else {
+                obj[name] = value;
+            }
         });
 
-        /**
-         *  Add the schedule parameters to the task itself
-         */
+        // Add the schedule parameters to the task itself
         obj['schedule'] = scheduleObj;
 
-        /**
-         *  Push each repo parameter into the main array
-         */
+        // Push each repo parameter into the main array
         taskParams.push(obj);
     });
 
-    /**
-     *  Convert the main array to JSON format and send it to php for verification of the parameters
-     */
-    var taskParamsJson = JSON.stringify(taskParams);
+    // Convert the main array to JSON format and send it to php for verification of the parameters
+    const taskParamsJson = JSON.stringify(taskParams);
 
     // for debug only
     // console.log(taskParamsJson);

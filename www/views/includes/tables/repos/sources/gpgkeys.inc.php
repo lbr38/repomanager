@@ -1,16 +1,12 @@
 <div class="reloadable-table" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
-    <h6>CURRENT GPG SIGNING KEYS</h6>
-
-    <p class="note">All keys imported in Repomanager keyring.</p>
-
     <?php
-    if (empty($reloadableTableContent)) : ?>
-        <p class="note">Nothing for now!</p>
-        <?php
-    endif;
-
     if (!empty($reloadableTableContent)) : ?>
-        <div class="flex justify-end margin-bottom-10 margin-right-15">
+        <div class="flex justify-space-between align-flex-end margin-top-30 margin-bottom-15 margin-right-15">
+            <div>
+                <h6 class="margin-top-0">CURRENT GPG SIGNING KEYS</h6>
+                <p class="note">All keys imported in Repomanager keyring.</p>
+            </div>
+
             <input type="checkbox" class="select-all-checkbox lowopacity" checkbox-id="gpg-key" title="Select all GPG keys" />
         </div>
 

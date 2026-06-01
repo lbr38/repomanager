@@ -23,9 +23,9 @@ class Api
             /**
              *  Exit if method is not allowed
              */
-            if ($_SERVER['REQUEST_METHOD'] != 'GET' and $_SERVER['REQUEST_METHOD'] != 'POST' and $_SERVER['REQUEST_METHOD'] != 'PUT' and $_SERVER['REQUEST_METHOD'] != 'DELETE') {
+            if (!in_array($_SERVER['REQUEST_METHOD'], ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'])) {
                 http_response_code(405);
-                echo json_encode(["return" => "405", "message_error" => array('Method not allowed')]);
+                echo json_encode(["return" => "405", "message_error" => ['Method not allowed']]);
                 exit;
             }
 

@@ -5,6 +5,7 @@ namespace Controllers\Api\Snapshot;
 use Controllers\User\Permission\Repo as RepoPermission;
 use Controllers\Repo\Snapshot\Package;
 use Controllers\Utils\Convert;
+use Controllers\Task\Task;
 use Exception;
 
 class Snapshot extends \Controllers\Api\Controller
@@ -43,7 +44,7 @@ class Snapshot extends \Controllers\Api\Controller
         if ($this->method == 'GET') {
             /**
              *  List snapshot details
-             *  https://repomanager.mydomain.net/api/v2/snapshot/$this->snapId/
+             *  https://repomanager.mydomain.net/api/v2/snapshot/{snap-id}/
              */
             if (empty($this->uri[5])) {
                 return ['results' => $repoSnapshotController->getById($this->snapId)];
@@ -51,17 +52,34 @@ class Snapshot extends \Controllers\Api\Controller
 
             /**
              *  List all packages of a snapshot
-             *  https://repomanager.mydomain.net/api/v2/snapshot/$this->snapId/packages
+             *  https://repomanager.mydomain.net/api/v2/snapshot/{snap-id}/packages
              */
             if ($this->uri[5] == 'packages') {
                 return ['results' => $repoSnapshotPackageController->list()];
+            }
+
+            /**
+             *  Make a diff between two snapshots
+             *  https://repomanager.mydomain.net/api/v2/snapshot/{snap-id}/diff/{snap2-id}
+             */
+            if ($this->uri[5] == 'diff') {
+                // Check if second snapshot ID is provided in query parameters and is valid
+                if (empty($this->uri[6])) {
+                    throw new Exception('No second snapshot Id specified for diff');
+                }
+
+                if (!is_numeric($this->uri[6])) {
+                    throw new Exception('Invalid snapshot Id #' . $this->uri[6]);
+                }
+
+                return ['results' => $repoSnapshotController->diff($this->snapId, $this->uri[6])];
             }
         }
 
         if ($this->method == 'POST') {
             /**
              *  Upload packages to a snapshot
-             *  https://repomanager.mydomain.net/api/v2/snapshot/$this->snapId/upload
+             *  https://repomanager.mydomain.net/api/v2/snapshot/{snap-id}/upload
              */
             if ($this->uri[5] == 'upload' and !empty($this->postFiles)) {
                 $overwrite = false;
@@ -87,14 +105,14 @@ class Snapshot extends \Controllers\Api\Controller
         if ($this->method == 'PUT') {
             /**
              *  Rebuild a snapshot
-             *  https://repomanager.mydomain.net/api/v2/snapshot/$this->snapId/rebuild
+             *  https://repomanager.mydomain.net/api/v2/snapshot/{snap-id}/rebuild
              */
             if ($this->uri[5] == 'rebuild' and !empty($this->data['gpgSign'])) {
                 /**
                  *  Same code as controllers/ajax/browse.php
                  *  TODO : find a way to not duplicate code
                  */
-                $mytask = new \Controllers\Task\Task();
+                $taskController = new Task();
 
                 if (!RepoPermission::allowedAction('rebuild')) {
                     throw new Exception('You are not allowed to rebuild a repository snapshot');
@@ -117,13 +135,12 @@ class Snapshot extends \Controllers\Api\Controller
                 $params['schedule']['scheduled'] = 'false';
 
                 // Execute the task
-                $mytask->execute([$params]);
-
-                unset($mytask);
+                $taskId = $taskController->execute([$params]);
 
                 return [
                     'rc' => 202,
-                    'results' => 'Snapshot metadata rebuild started'
+                    'results' => 'Snapshot metadata rebuild started',
+                    'task-id' => $taskId
                 ];
             }
         }
@@ -131,7 +148,7 @@ class Snapshot extends \Controllers\Api\Controller
         if ($this->method == 'DELETE') {
             /**
              *  Delete packages from a snapshot
-             *  https://repomanager.mydomain.net/api/v2/snapshot/$this->snapId/packages
+             *  https://repomanager.mydomain.net/api/v2/snapshot/{snap-id}/packages
              */
             if ($this->uri[5] == 'packages' and !empty($this->data['packages'])) {
                 return ['results' => ['Packages deleted successfully:' => $repoSnapshotPackageController->deleteByName($this->data['packages'])]];

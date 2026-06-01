@@ -3,13 +3,13 @@
 namespace Controllers\Group;
 
 use Exception;
-use Controllers\History\Save as History;
+use Controllers\Repo\Repo;
+use Controllers\Host\Host;
 use Controllers\Utils\Validate;
+use Controllers\History\Save as History;
 
 class Group
 {
-    private $id;
-    private $name;
     private $type;
     private $model;
 
@@ -19,73 +19,44 @@ class Group
         $this->model = new \Models\Group\Group($type);
     }
 
-    public function setId(string $id)
-    {
-        $this->id = $id;
-    }
-
-    public function setName(string $name)
-    {
-        $this->name = $name;
-    }
-
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    public function getType()
-    {
-        return $this->type;
-    }
-
     /**
      *  Return false if group does not exist
      */
-    public function getIdByName(string $name)
+    public function getIdByName(string $name): int
     {
-        /**
-         *  Check if group exists
-         */
-        if ($this->exists($name) === false) {
-            throw new Exception("Group <b>$name</b> does not exist");
+        // Check if group exists
+        if (!$this->exists($name)) {
+            throw new Exception('Group $name does not exist');
         }
 
         return $this->model->getIdByName($name);
     }
 
     /**
-     *  Retourne le nom du groupe à partir de son Id
+     *  Return the group's name from its ID
      */
-    public function getNameById(string $id)
+    public function getNameById(int $id): string
     {
-        /**
-         *  On vérifie que le groupe existe
-         */
-        if ($this->existsId($id) === false) {
-            throw new Exception("Group Id <b>$id</b> does not exist");
+        // Check if group exists
+        if (!$this->existsId($id)) {
+            throw new Exception('Group Id $id does not exist');
         }
 
         return $this->model->getNameById($id);
     }
 
     /**
-     *  Retourne true si l'Id du groupe existe en base de données
+     *  Return true if the group's ID exists in the database
      */
-    public function existsId(string $groupId)
+    public function existsId(int $groupId): bool
     {
         return $this->model->existsId($groupId);
     }
 
     /**
-     *  Vérifie si le groupe existe en base de données, à partir de son nom
+     *  Check if the group exists in the database by its name
      */
-    public function exists(string $name = '')
+    public function exists(string $name): bool
     {
         return $this->model->exists($name);
     }
@@ -93,34 +64,26 @@ class Group
     /**
      *  Create a new group
      */
-    public function new(string $name) : void
+    public function new(string $name): void
     {
         $name = Validate::string($name);
 
-        /**
-         *  Check that group name does not contain invalid characters
-         */
-        if (!Validate::alphaNumericHyphen($name)) {
-            throw new Exception("Group <b>$name</b> contains invalid characters");
+        // Check that the group name does not contain invalid characters
+        if (!Validate::alphaNumericHyphen($name, ['.', ' '])) {
+            throw new Exception('Group ' . $name . ' contains invalid characters');
         }
 
-        /**
-         *  Group name cannot be 'Default'
-         */
+        // Group name cannot be 'Default'
         if (strtolower($name) === 'default') {
             throw new Exception('Default is a reserved group name');
         }
 
-        /**
-         *  Check if group name already exists
-         */
+        // Check if group name already exists
         if ($this->exists($name) === true) {
-            throw new Exception("Group name <b>$name</b> already exists");
+            throw new Exception('Group name ' . $name . ' already exists');
         }
 
-        /**
-         *  Add the new group to the database
-         */
+        // Add the new group to the database
         $this->model->add($name);
 
         if ($this->type == 'repo') {
@@ -135,59 +98,48 @@ class Group
     /**
      *  Edit a group
      */
-    public function edit(int $id, string $name, array $data) : void
+    public function edit(int $id, string $name, array $data): void
     {
-        /**
-         *  Check if group exists
-         */
+        // Check if group exists
         if (!$this->existsId($id)) {
             throw new Exception('Group does not exist');
         }
 
-        /**
-         *  Check if group name is valid
-         */
-        if (!Validate::alphaNumericHyphen($name)) {
-            throw new Exception("Group name <b>$name</b> contains invalid characters");
+        // Check if group name is valid
+        if (!Validate::alphaNumericHyphen($name, ['.', ' '])) {
+            throw new Exception('Group name ' . $name . ' contains invalid characters');
         }
 
-        /**
-         *  Edit group name
-         */
+        // Edit group name
         $this->updateName($id, $name);
 
-        /**
-         *  Edit group data
-         */
-
-        /**
-         *  If group type is 'repo'
-         */
+        // If group type is 'repo'
         if ($this->type == 'repo') {
-            $myrepo = new \Controllers\Repo\Repo();
-            $myrepo->addReposIdToGroup($data, $id);
+            $repoController = new Repo();
+            $repoController->addReposIdToGroup($id, $data);
         }
 
-        /**
-         *  If group type is 'host'
-         */
+        // If group type is 'host'
         if ($this->type == 'host') {
-            $myhost = new \Controllers\Host\Host();
-            $myhost->addHostsIdToGroup($data, $id);
+            $hostController = new Host();
+            $hostController->addHostsIdToGroup($id, $data);
         }
 
         if ($this->type == 'repo') {
             History::set('Repository group <code>' . $name . '</code> edited');
         }
+
         if ($this->type == 'host') {
             History::set('Host group <code>' . $name . '</code> edited');
         }
+
+        unset($repoController, $hostController);
     }
 
     /**
      *  Delete one or more groups
      */
-    public function delete(array $groups) : void
+    public function delete(array $groups): void
     {
         foreach ($groups as $id) {
             // Check if group exists
@@ -212,16 +164,14 @@ class Group
     }
 
     /**
-     *  Retourne les informations de tous les groupes en base de données
-     *  Sauf le groupe par défaut
+     *  Return information for all groups in the database
+     *  Except the default group
      */
-    public function listAll($withDefault = false)
+    public function listAll($withDefault = false): array
     {
         $groups = $this->model->listAll();
 
-        /**
-         *  Add default group 'Default' to the end of the list
-         */
+        // Add default group 'Default' to the end of the list
         if ($withDefault === true) {
             $groups[] = [
                 'Id' => 0,
@@ -233,9 +183,9 @@ class Group
     }
 
     /**
-     *  Supprime des groupes les repos qui n'existent plus
+     *  Remove repositories that no longer exist from groups
      */
-    public function cleanRepos()
+    public function cleanRepos(): void
     {
         $this->model->cleanRepos();
     }
@@ -243,7 +193,7 @@ class Group
     /**
      *  Update group name in database
      */
-    private function updateName(int $id, string $name)
+    private function updateName(int $id, string $name): void
     {
         $this->model->updateName($id, $name);
     }
@@ -251,7 +201,7 @@ class Group
     /**
      *  Return the list of repos in a group
      */
-    public function getReposMembers(int $id)
+    public function getReposMembers(int $id): array
     {
         return $this->model->getReposMembers($id);
     }
@@ -259,7 +209,7 @@ class Group
     /**
      *  Return the list of repos not in any group
      */
-    public function getReposNotMembers()
+    public function getReposNotMembers(): array
     {
         return $this->model->getReposNotMembers();
     }
@@ -267,7 +217,7 @@ class Group
     /**
      *  Return the list of hosts in a group
      */
-    public function getHostsMembers(int $id)
+    public function getHostsMembers(int $id): array
     {
         return $this->model->getHostsMembers($id);
     }
@@ -275,7 +225,7 @@ class Group
     /**
      *  Return the list of hosts not in any group
      */
-    public function getHostsNotMembers()
+    public function getHostsNotMembers(): array
     {
         return $this->model->getHostsNotMembers();
     }

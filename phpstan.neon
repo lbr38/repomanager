@@ -1,0 +1,19 @@
+parameters:
+  # Default analysis level (0-9 or 'max'). Set here so PHPStan loads rules.
+  level: 0
+  bootstrapFiles:
+    - phpstan-bootstrap.php
+  excludePaths:
+    # Exclude third-party libraries from analysis (not our code)
+    - www/libs/*
+    - www/update/database/archives/*
+    - www/controllers/Cve
+    - */Cve.php
+    - */Cves.php
+    - */Cve/*
+    - */cve-*.php
+    - */cves/*
+  ignoreErrors:
+    # Ignore include/require messages for production ROOT path
+    - message: '#Path in (include|include_once|require|require_once)\(\) "/var/www/repomanager/.*" is not a file or it does not exist.#'
+      

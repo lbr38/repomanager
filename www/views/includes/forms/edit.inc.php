@@ -69,4 +69,4 @@ endif ?>
 <h6>SNAPSHOT</h6>
 <span class="label-black"><?= $repoController->getDateFormatted() ?></span>
 
-<p class="note margin-top-5">Nothing editable for now but it will be soon!</p>
+<p class="note margin-top-5">Nothing editable for now!</p>

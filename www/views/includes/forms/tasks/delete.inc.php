@@ -1,11 +1,11 @@
 <h6>DELETE</h6>
 <p class="note">The repository snapshot to delete.</p>
 <?php
-if ($myrepo->getPackageType() == 'rpm') {
-    echo '<span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getReleasever() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span>';
+if ($repoController->getPackageType() == 'rpm') {
+    echo '<span class="label-white">' . $repoController->getName() . ' ❯ ' . $repoController->getReleasever() . '</span>⸺<span class="label-black">' . $repoController->getDateFormatted() . '</span>';
 }
-if ($myrepo->getPackageType() == 'deb') {
-    echo '<p><span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⸺<span class="label-black">' . $myrepo->getDateFormatted() . '</span></p>';
+if ($repoController->getPackageType() == 'deb') {
+    echo '<p><span class="label-white">' . $repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection() . '</span>⸺<span class="label-black">' . $repoController->getDateFormatted() . '</span></p>';
 }
 
 if ($scheduledTasksCount > 0) : ?>

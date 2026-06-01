@@ -105,7 +105,7 @@ if ($_POST['action'] == 'relaunch' and !empty($_POST['id'])) {
  */
 if ($_POST['action'] == 'stop' and !empty($_POST['id'])) {
     try {
-        $myTask->kill($_POST['id']);
+        $myTask->stop($_POST['id']);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }

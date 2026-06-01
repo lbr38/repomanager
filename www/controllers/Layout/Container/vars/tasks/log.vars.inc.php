@@ -93,12 +93,6 @@ try {
             if (!empty($rawParams['arch'])) {
                 $repoController->setArch($rawParams['arch']);
             }
-            if (!empty($rawParams['packages-include'])) {
-                $repoController->setPackagesToInclude($rawParams['packages-include']);
-            }
-            if (!empty($rawParams['packages-exclude'])) {
-                $repoController->setPackagesToExclude($rawParams['packages-exclude']);
-            }
             if (!empty($rawParams['package-type'])) {
                 $repoController->setPackageType($rawParams['package-type']);
             }

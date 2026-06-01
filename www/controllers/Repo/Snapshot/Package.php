@@ -2,6 +2,8 @@
 
 namespace Controllers\Repo\Snapshot;
 
+use Controllers\Repo\Package\Rpm as RpmPackage;
+use Controllers\Repo\Package\Deb as DebPackage;
 use Controllers\User\Permission\Repo as RepoPermission;
 use Controllers\Repo\Snapshot\Snapshot;
 use Controllers\Exception\AppException;
@@ -67,11 +69,27 @@ class Package
 
         // Extract package name from path and add it to the list of packages
         foreach ($scan as $path) {
-            $package = end(explode('/', $path));
+            $filename = explode('/', $path);
+            $filename = end($filename);
             $size = filesize($path);
+            $ext = pathinfo($path, PATHINFO_EXTENSION);
+
+            // Extract package info (name, version, release, arch) when deb
+            if ($ext == 'deb') {
+                $info = DebPackage::getInfo($path);
+            }
+
+            // Extract package info (name, version, release, arch) when rpm
+            if ($ext == 'rpm') {
+                $info = RpmPackage::getInfo($path);
+            }
 
             $packages[] = [
-                'name' => $package,
+                'filename' => $filename,
+                'name' => $info['name'],
+                'version' => $info['version'],
+                'release' => $info['release'] ?? null,
+                'arch' => $info['arch'],
                 'size' => $size,
                 'size-human' => Convert::sizeToHuman($size),
                 'relative-path' => str_replace($this->snapshotPath . '/', '', $path),

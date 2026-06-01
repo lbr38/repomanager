@@ -1,4 +1,4 @@
-name: PHP_CodeSniffer
+name: PHP CodeSniffer
 
 on:
   push:

@@ -268,9 +268,47 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
         ```
       </td>
     </tr>
+
+    <tr>
+      <td>/snapshot/<code>&lt;SNAPSHOT_ID&gt;</code>/diff/<code>&lt;SNAPSHOT_ID_2&gt;</code><br><code>GET</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td></td>
+      <td>Compare two snapshots and list added/removed packages</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/snapshot/<SNAPSHOT_ID>/diff/<SNAPSHOT_ID_2>
+        ```
+      </td>
+    </tr>
 </tbody>
 </table>
 
+### Environment management
+
+<table>
+  <thead>
+    <tr>
+      <th style="min-width: 250px">Endpoint and method</th>
+      <th style="min-width: 150px">Authentication</th>
+      <th style="min-width: 200px">Parameter(s)</th>
+      <th style="min-width: 300px">Description</th>
+      <th>Example</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>/environment/<code>&lt;ENV&gt;</code>/point<br><code>PATCH</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td><code>snapshot Id</code> (required, JSON body)</td>
+      <td>Point an environment to an existing snapshot (starts an asynchronous task; returns <code>202</code> and <code>task-id</code>).</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X PATCH -H "Authorization: Bearer <APIKEY>" -H "Content-Type: application/json" -d '{"snapshot":1}' https://repomanager.mydomain.net/api/v2/environment/prod/point
+        ```
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 ### Hosts listing
 
@@ -473,6 +511,28 @@ Mainly used by the `linupdate` agent, these endpoints allow to register a host t
   </thead>
   <tbody>
     <tr>
+      <td>/host/<code>&lt;HOST_ID&gt;</code>/installed<br><code>GET</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td></td>
+      <td>Get installed packages of a specific host</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/host/<HOST_ID>/installed
+        ```
+      </td>
+    </tr>
+    <tr>
+      <td>/host/<code>&lt;HOST_ID&gt;</code>/available<br><code>GET</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td></td>
+      <td>Get available updates for a specific host</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/host/<HOST_ID>/available
+        ```
+      </td>
+    </tr>
+    <tr>
       <td>/host/registering<br><code>POST</code></td>
       <td><code>&lt;APIKEY&gt;</code></td>
       <td><code>hostname</code> (required)<br><code>ip</code> (required)</td>
@@ -485,12 +545,17 @@ Mainly used by the `linupdate` agent, these endpoints allow to register a host t
     </tr>
     <tr>
       <td>/host/registering<br><code>DELETE</code></td>
-      <td><code>&lt;HOST_ID&gt;</code> and <code>&lt;HOST_TOKEN&gt;</code></td>
-      <td></td>
+      <td><code>&lt;APIKEY&gt;</code><br>or<br><code>&lt;HOST_ID&gt;</code> and <code>&lt;HOST_TOKEN&gt;</code></td>
+      <td><code>hostname</code> (required if API key is used)</td>
       <td>Unregister a host from Repomanager</td>
       <td markdown="block">
+        With API key:
         ```bash
-        curl --fail-with-body --post301 -L -s -X DELETE -H "Authorization: Host <HOST_ID>:<HOST_TOKEN>" -H "Content-Type: application/json" https://repomanager.mydomain.net/api/v2/host/registering
+        curl --fail-with-body -L -s -X DELETE -H "Authorization: Bearer <APIKEY>" -H "Content-Type: application/json" -d '{"hostname":"<hostname>"}' https://repomanager.mydomain.net/api/v2/host/registering
+        ```
+        With host ID and token:
+        ```bash
+        curl --fail-with-body -L -s -X DELETE -H "Authorization: Host <HOST_ID>:<HOST_TOKEN>" -H "Content-Type: application/json" https://repomanager.mydomain.net/api/v2/host/registering
         ```
       </td>
     </tr>
@@ -586,6 +651,132 @@ Mainly used by the `linupdate` agent, these endpoints allow to register a host t
                 }
             ]
         }' https://repomanager.mydomain.net/api/v2/host/packages/event
+        ```
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+### Tasks
+
+<table>
+  <thead>
+    <tr>
+      <th style="min-width: 250px">Endpoint and method</th>
+      <th style="min-width: 150px">Authentication</th>
+      <th style="min-width: 200px">Parameter(s)</th>
+      <th style="min-width: 300px">Description</th>
+      <th>Example</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>/tasks/<br><code>GET</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td></td>
+      <td>List all tasks</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/tasks/
+        ```
+      </td>
+    </tr>
+    <tr>
+      <td>/tasks/running<br><code>GET</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td></td>
+      <td>List running tasks</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/tasks/running
+        ```
+      </td>
+    </tr>
+    <tr>
+      <td>/tasks/queued<br><code>GET</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td></td>
+      <td>List queued tasks</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/tasks/queued
+        ```
+      </td>
+    </tr>
+    <tr>
+      <td>/tasks/scheduled<br><code>GET</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td></td>
+      <td>List scheduled tasks</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/tasks/scheduled
+        ```
+      </td>
+    </tr>
+    <tr>
+      <td>/tasks/done<br><code>GET</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td></td>
+      <td>List done tasks</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/tasks/done
+        ```
+      </td>
+    </tr>
+    <tr>
+      <td>/task/<code>&lt;TASK_ID&gt;</code>/<br><code>GET</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td></td>
+      <td>Retrieve task details by task ID</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/task/<TASK_ID>/
+        ```
+      </td>
+    </tr>
+    <tr>
+      <td>/task/<code>&lt;TASK_ID&gt;</code>/stop<br><code>POST</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td></td>
+      <td>Stop a running task</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/task/<TASK_ID>/stop
+        ```
+      </td>
+    </tr>
+    <tr>
+      <td>/task/<code>&lt;TASK_ID&gt;</code>/enable<br><code>POST</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td></td>
+      <td>Enable a recurrent task</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/task/<TASK_ID>/enable
+        ```
+      </td>
+    </tr>
+    <tr>
+      <td>/task/<code>&lt;TASK_ID&gt;</code>/disable<br><code>POST</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td></td>
+      <td>Disable a recurrent task</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/task/<TASK_ID>/disable
+        ```
+      </td>
+    </tr>
+    <tr>
+      <td>/task/<code>&lt;TASK_ID&gt;</code>/delete<br><code>DELETE</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td></td>
+      <td>Delete a recurrent task</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X DELETE -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/task/<TASK_ID>/delete
         ```
       </td>
     </tr>

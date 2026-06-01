@@ -1,0 +1,23 @@
+name: API - admin - environment point tests
+description: Run environment point tests as admin user
+
+inputs:
+  api-host:
+    description: API test host URL
+    required: true
+  api-key:
+    description: Admin API key
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: (admin) Point environment prod to snapshot 1
+      shell: bash
+      run: |
+        RESULT=$(curl --fail-with-body -L -s -X PATCH -H "Authorization: Bearer ${{ inputs.api-key }}" -H "Content-Type: application/json" -d '{"snapshot":1}' ${{ inputs.api-host }}/api/v2/environment/prod/point)
+        if [ $? -ne 0 ]; then
+            echo "Failed to point environment"
+            exit 1
+        fi
+        echo "$RESULT" | jq

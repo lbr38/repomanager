@@ -2,78 +2,63 @@
 
 namespace Controllers\Task\Form;
 
-use Exception;
+use Controllers\Repo\Repo;
 use Controllers\History\Save as History;
 
 class Update
 {
-    public function validate(array $formParams)
+    public function validate(array $formParams): void
     {
-        $myrepo = new \Controllers\Repo\Repo();
+        $repoController = new Repo();
 
-        /**
-         *  Check that the snapshot id is valid
-         */
+        // Check that the snapshot id is valid
         Param\Snapshot::checkId($formParams['snap-id']);
 
-        /**
-         *  Retrieve all repo data from the Ids,
-         */
-        $myrepo->setSnapId($formParams['snap-id']);
-        $myrepo->getAllById('', $formParams['snap-id'], '');
+        // Retrieve all repo data from the Id
+        $repoController->setSnapId($formParams['snap-id']);
+        $repoController->getAllById('', $formParams['snap-id'], '');
 
-        /**
-         *  Check env
-         */
+        // Check env
         if (!empty($formParams['env'])) {
             Param\Environment::check($formParams['env']);
         }
 
-        /**
-         *  Check architecture
-         */
+        // Check architecture
         Param\Arch::check($formParams['arch']);
 
-        /**
-         *  Case of a mirror repository, check additional parameters
-         */
-        if ($myrepo->getType() == 'mirror') {
-            /**
-             *  Check package(s) to include
-             */
-            Param\PackageInclude::check($formParams['package-include']);
+        // Case of a mirror repository, check additional parameters
+        if ($repoController->getType() == 'mirror') {
+            // Check package(s) to include
+            Param\PackageInclude::check($formParams['advanced-params']['packages']['include']);
 
-            /**
-             *  Check package(s) to exclude
-             */
-            Param\PackageExclude::check($formParams['package-exclude']);
+            // Check package(s) to exclude
+            Param\PackageExclude::check($formParams['advanced-params']['packages']['exclude']);
 
-            /**
-             *  Check gpg check
-             */
+            // Check gpg check
             Param\GpgCheck::check($formParams['gpg-check']);
+
+            if ($repoController->getPackageType() == 'deb') {
+                // Check metadata custom fields
+                Param\Metadata::checkOrigin($formParams['advanced-params']['metadata-custom-fields']['origin']);
+                Param\Metadata::checkLabel($formParams['advanced-params']['metadata-custom-fields']['label']);
+                Param\Metadata::checkDescription($formParams['advanced-params']['metadata-custom-fields']['description']);
+            }
         }
 
-        /**
-         *  Check gpg sign
-         */
+        // Check gpg sign
         Param\GpgSign::check($formParams['gpg-sign']);
 
-        /**
-         *  Check scheduling parameters
-         */
+        // Check scheduling parameters
         Param\Schedule::check($formParams['schedule']);
 
-        /**
-         *  Add history
-         */
-        if ($myrepo->getPackageType() == 'rpm') {
-            History::set('Running task: update ' . $myrepo->getType() . ' repository <span class="label-white">' . $myrepo->getName() . '</span>');
+        // Add history
+        if ($repoController->getPackageType() == 'rpm') {
+            History::set('Running task: update ' . $repoController->getType() . ' repository <span class="label-white">' . $repoController->getName() . '</span>');
         }
-        if ($myrepo->getPackageType() == 'deb') {
-            History::set('Running task: update ' . $myrepo->getType() . ' repository <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>');
+        if ($repoController->getPackageType() == 'deb') {
+            History::set('Running task: update ' . $repoController->getType() . ' repository <span class="label-white">' . $repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection() . '</span>');
         }
 
-        unset($myrepo);
+        unset($repoController);
     }
 }

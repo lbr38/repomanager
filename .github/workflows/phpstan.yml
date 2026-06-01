@@ -1,0 +1,28 @@
+name: PHPStan
+
+on:
+  push:
+    branches: [ main, devel ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  phpstan:
+    name: Run PHPStan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+
+      - name: Run PHPStan
+        run: |
+          php $GITHUB_WORKSPACE/www/libs/vendor/bin/phpstan analyse \
+          -c $GITHUB_WORKSPACE/phpstan.neon \
+          $GITHUB_WORKSPACE/www

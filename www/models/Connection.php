@@ -277,9 +277,7 @@ class Connection extends SQLite3
         Time TIME NOT NULL,
         Signed CHAR(5) NOT NULL, /* true, false */
         Arch VARCHAR(255),
-        Pkg_translation VARCHAR(255),
-        Pkg_included VARCHAR(255),
-        Pkg_excluded VARCHAR(255),
+        Advanced_params TEXT,
         Type CHAR(6) NOT NULL,
         Reconstruct CHAR(8), /* needed, running, failed */
         Status CHAR(8) NOT NULL,
@@ -288,9 +286,9 @@ class Connection extends SQLite3
         /**
          *  Create indexes
          */
-        $this->exec("CREATE INDEX IF NOT EXISTS repos_snap_index ON repos_snap (Date, Time, Signed, Arch, Pkg_translation, Pkg_included, Pkg_excluded, Type, Reconstruct, Status, Id_repo)");
-        $this->exec("CREATE INDEX IF NOT EXISTS repos_snap_status_id_repo_index ON repos_snap (Status, Id_repo)");
-        $this->exec("CREATE INDEX IF NOT EXISTS repos_snap_id_repo_index ON repos_snap (Id_repo)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_repos_snap ON repos_snap (Date, Time, Signed, Arch, Type, Reconstruct, Status, Id_repo)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_repos_snap_status_id_repo ON repos_snap (Status, Id_repo)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_repos_snap_id_repo ON repos_snap (Id_repo)");
 
         /**
          *  repos_env table
@@ -682,7 +680,6 @@ class Connection extends SQLite3
                 DEB_REPO,
                 DEB_SIGN_REPO,
                 DEB_DEFAULT_ARCH,
-                DEB_DEFAULT_TRANSLATION,
                 DEB_ALLOW_EMPTY_REPO,
                 DEB_INVALID_SIGNATURE,
                 GPG_SIGNING_KEYID,
@@ -736,7 +733,6 @@ class Connection extends SQLite3
                 'true',
                 'true',
                 'amd64',
-                '',
                 'false',
                 'error',
                 '$gpgKeyId',

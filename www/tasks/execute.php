@@ -14,6 +14,7 @@ ini_set('memory_limit', TASK_EXECUTION_MEMORY_LIMIT . 'M');
 
 $mysettings = new \Controllers\Settings();
 $myTask = new \Controllers\Task\Task();
+$taskListingController = new \Controllers\Task\Listing();
 $mylog = new \Controllers\Log\Log();
 $myFatalErrorHandler = new \Controllers\FatalErrorHandler();
 
@@ -107,12 +108,12 @@ try {
             /**
              *  Get running tasks
              */
-            $runningTasks = $myTask->listRunning();
+            $runningTasks = $taskListingController->getRunning();
 
             /**
              *  Get all currently queued tasks
              */
-            $queuedTasks = $myTask->listQueued();
+            $queuedTasks = $taskListingController->getQueued();
 
             /**
              *  First, check if the taskId is still in the queued tasks list.

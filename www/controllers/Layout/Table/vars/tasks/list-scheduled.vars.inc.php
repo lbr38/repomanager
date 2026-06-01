@@ -1,5 +1,6 @@
 <?php
 $myTask = new \Controllers\Task\Task();
+$taskListingController = new \Controllers\Task\Listing();
 $reloadableTableOffset = 0;
 
 /**
@@ -12,12 +13,12 @@ if (!empty($_COOKIE['tables/tasks/list-scheduled/offset']) and is_numeric($_COOK
 /**
  *  Get list of scheduled tasks, with offset
  */
-$reloadableTableContent = $myTask->listScheduled(true, $reloadableTableOffset);
+$reloadableTableContent = $taskListingController->getScheduled(true, $reloadableTableOffset);
 
 /**
  *  Get list of ALL scheduled tasks, without offset, for the total count
  */
-$reloadableTableTotalItems = count($myTask->listScheduled());
+$reloadableTableTotalItems = count($taskListingController->getScheduled());
 
 /**
  *  Count total pages for the pagination

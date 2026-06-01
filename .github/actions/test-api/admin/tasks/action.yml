@@ -1,0 +1,63 @@
+name: API - admin - tasks listing tests
+description: Run tasks listing tests as admin user
+
+inputs:
+  api-host:
+    description: API test host URL
+    required: true
+  api-key:
+    description: Admin API key
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: (admin) List all tasks
+      shell: bash
+      run: |
+        RESULT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/tasks/)
+        if [ $? -ne 0 ]; then
+            echo "Failed to list all tasks"
+            exit 1
+        fi
+        echo "$RESULT" | jq
+
+    - name: (admin) List running tasks
+      shell: bash
+      run: |
+        RESULT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/tasks/running)
+        if [ $? -ne 0 ]; then
+            echo "Failed to list running tasks"
+            exit 1
+        fi
+        echo "$RESULT" | jq
+
+    - name: (admin) List queued tasks
+      shell: bash
+      run: |
+        RESULT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/tasks/queued)
+        if [ $? -ne 0 ]; then
+            echo "Failed to list queued tasks"
+            exit 1
+        fi
+        echo "$RESULT" | jq
+
+    - name: (admin) List scheduled tasks
+      shell: bash
+      run: |
+        RESULT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/tasks/scheduled)
+        if [ $? -ne 0 ]; then
+            echo "Failed to list scheduled tasks"
+            exit 1
+        fi
+        echo "$RESULT" | jq
+
+    - name: (admin) List done tasks
+      shell: bash
+      run: |
+        RESULT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/tasks/done)
+        if [ $? -ne 0 ]; then
+            echo "Failed to list done tasks"
+            exit 1
+        fi
+        echo "$RESULT" | jq

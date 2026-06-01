@@ -40,7 +40,7 @@ class Environment extends \Models\Model
     /**
      *  Associate a new env to a snapshot
      */
-    public function add(string $env, string $description, int $snapId) : void
+    public function add(int $snapId, string $env, string $description) : void
     {
         try {
             $stmt = $this->db->prepare("INSERT INTO repos_env ('Env', 'Description', 'Id_snap') VALUES (:env, :description, :snapId)");

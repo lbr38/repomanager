@@ -4,26 +4,26 @@
 <div class="flex align-item-center">
     <p class="label-white">
         <?php
-        if ($myrepo->getPackageType() == 'rpm') {
-            echo $myrepo->getName() . ' ❯ ' . $myrepo->getReleasever();
+        if ($repoController->getPackageType() == 'rpm') {
+            echo $repoController->getName() . ' ❯ ' . $repoController->getReleasever();
         }
-        if ($myrepo->getPackageType() == 'deb') {
-            echo $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection();
+        if ($repoController->getPackageType() == 'deb') {
+            echo $repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection();
         } ?>
     </p>
 
-    <p>⸺<span class="label-black"><?= $myrepo->getDateFormatted() ?></span></p>
+    <p>⸺<span class="label-black"><?= $repoController->getDateFormatted() ?></span></p>
 </div>
 
 <h6 class="required">ENVIRONMENT</h6>
 <p class="note">Select one or multiple environments to point to the repository snapshot.</p>
-<select id="point-env-target-env-select-<?= $myrepo->getSnapId() ?>" class="task-param" param-name="env" multiple required>
+<select id="point-env-target-env-select-<?= $repoController->getSnapId() ?>" class="task-param" param-name="env" multiple required>
     <?php
     $selected = false;
 
     foreach (ENVS as $env) {
         // Don't display the environment if it already exists
-        if ($myrepo->existsSnapIdEnv($myrepo->getSnapId(), $env['Name'])) {
+        if ($repoController->existsSnapIdEnv($repoController->getSnapId(), $env['Name'])) {
             continue;
         }
 
@@ -46,6 +46,6 @@ $scheduleForm['action'] = 'env'; ?>
 
 <script>
 $(document).ready(function() {
-    myselect2.convert('#point-env-target-env-select-<?= $myrepo->getSnapId() ?>');
+    myselect2.convert('#point-env-target-env-select-<?= $repoController->getSnapId() ?>');
 });
 </script>

@@ -1,5 +1,6 @@
 <?php
 $myTask = new \Controllers\Task\Task();
+$taskListingController = new \Controllers\Task\Listing();
 $reloadableTableOffset = 0;
 
 /**
@@ -12,12 +13,12 @@ if (!empty($_COOKIE['tables/tasks/list-running/offset']) and is_numeric($_COOKIE
 /**
  *  Get list of running tasks, with offset
  */
-$reloadableTableContent = $myTask->listRunning('', true, $reloadableTableOffset);
+$reloadableTableContent = $taskListingController->getRunning('', true, $reloadableTableOffset);
 
 /**
  *  Get list of ALL running tasks, without offset, for the total count
  */
-$reloadableTableTotalItems = count($myTask->listRunning());
+$reloadableTableTotalItems = count($taskListingController->getRunning());
 
 /**
  *  Count total pages for the pagination

@@ -25,9 +25,9 @@ class Environment
     /**
      *  Associate a new environment to a snapshot
      */
-    public function add(string $env, string $description = '', int $snapId) : void
+    public function add(int $snapId, string $env, string $description = '') : void
     {
-        $this->model->add($env, $description, $snapId);
+        $this->model->add($snapId, $env, $description);
     }
 
     /**

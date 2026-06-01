@@ -10,6 +10,8 @@ class Rebuild extends \Controllers\Task\Execution
     use \Controllers\Repo\Metadata\Create;
     use \Controllers\Repo\Task\Finalize;
 
+    private $packagesToSign = 'all';
+
     public function __construct(string $taskId)
     {
         parent::__construct($taskId, 'rebuild');

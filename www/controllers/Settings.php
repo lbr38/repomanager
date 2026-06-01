@@ -249,19 +249,6 @@ class Settings
             $settingsToApply['DEB_DEFAULT_ARCH'] = $debDefaultArch;
         }
 
-        if (!empty($sendSettings['debDefaultTranslation'])) {
-            /**
-             *  Convert array to a string with values separated by a comma
-             */
-            $debDefaultTranslation = Validate::string(implode(',', $sendSettings['debDefaultTranslation']));
-
-            if (!Validate::alphaNumeric($debDefaultTranslation, [','])) {
-                throw new Exception('Invalid translation value for ' . $debDefaultTranslation);
-            }
-
-            $settingsToApply['DEB_DEFAULT_TRANSLATION'] = $debDefaultTranslation;
-        }
-
         if (!empty($sendSettings['deb-allow-empty-repo'])) {
             if ($sendSettings['deb-allow-empty-repo'] == 'true') {
                 $settingsToApply['DEB_ALLOW_EMPTY_REPO'] = 'true';
