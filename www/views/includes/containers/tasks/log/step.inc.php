@@ -7,14 +7,43 @@ if (!empty($step['substeps'])) {
     $stepClass = 'show-step-content-btn pointer';
 }
 
+// If the step is running
+if ($step['status'] == 'running') {
+    $icon = 'loading.svg';
+    $message = 'Running';
+}
+
 // If the step has an error, the title will be red
-if ($step['status'] == 'error' or $step['status'] == 'stopped') {
+if ($step['status'] == 'error') {
     $titleClass = 'bkg-red';
+    $icon = 'error.svg';
+    $message = 'Error';
+}
+
+// If the step is stopped, the title will be red
+if ($step['status'] == 'stopped') {
+    $titleClass = 'bkg-red';
+    $icon = 'warning-red.svg';
+    $message = 'Task stopped by the user';
+}
+
+// If the step has a warning, the title will be orange
+if ($step['status'] == 'warning') {
+    $titleClass = 'bkg-yellow';
+    $icon = 'warning.svg';
+    $message = 'Completed with warnings';
 }
 
 // If the step is completed, the title will be green
 if ($step['status'] == 'completed') {
     $titleClass = 'bkg-green';
+    $icon = 'check.svg';
+    $message = 'Completed';
+}
+
+// If the step has no status, hide the icon, this is mostly used for the DURATION step
+if ($step['status'] == 'none') {
+    $icon = null;
 } ?>
 
 <div class="task-step <?= $stepClass ?>" task-id="<?= $taskId ?>" step="<?=  $stepIdentifier ?>" status="<?= $step['status'] ?>">
@@ -26,26 +55,6 @@ if ($step['status'] == 'completed') {
         <div class="task-step-status">
             <div class="flex column-gap-10 align-item-center">
                 <?php
-                if ($step['status'] == 'running') {
-                    $icon = 'loading.svg';
-                    $message = 'Running';
-                }
-
-                if ($step['status'] == 'completed') {
-                    $icon = 'check.svg';
-                    $message = 'Completed';
-                }
-
-                if ($step['status'] == 'stopped') {
-                    $icon = 'warning-red.svg';
-                    $message = 'Task stopped by the user';
-                }
-
-                if ($step['status'] == 'error') {
-                    $icon = 'error.svg';
-                    $message = 'Error';
-                }
-
                 // If the step has no status, hide the icon, this is mostly used for the DURATION step
                 if ($step['status'] == 'none') {
                     $icon = null;

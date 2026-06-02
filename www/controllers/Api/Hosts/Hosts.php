@@ -89,11 +89,21 @@ class Hosts extends \Controllers\Api\Controller
             if ($this->uri[4] == 'package' and $this->method == 'GET') {
                 $version = $this->uri[6] ?? '';
 
+                // Use strict filters if strict params are set
+                $strictName = isset($_GET['strict-name']) ?? false;
+                $strictVersion = isset($_GET['strict-version']) ?? false;
+
+                // If the "strict" query parameter is set, both strictName and strictVersion will be true
+                if (isset($_GET['strict'])) {
+                    $strictName = true;
+                    $strictVersion = true;
+                }
+
                 if (empty($this->uri[5])) {
                     throw new Exception('You must specify a package');
                 }
 
-                return ['results' => $hostListingController->getByPackage($this->uri[5], $version)];
+                return ['results' => $hostListingController->getByPackage($this->uri[5], $version, $strictName, $strictVersion)];
             }
 
             /**

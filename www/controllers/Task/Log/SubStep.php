@@ -25,19 +25,13 @@ class SubStep extends Log
      */
     public function new(string $identifier, string $title = '', string $note = '') : void
     {
-        /**
-         *  First, close previous sub-step if any
-         */
+        // First, close previous sub-step if not already closed
         $this->completed();
 
-        /**
-         *  Get latest step Id
-         */
-        $stepId = $this->stepController->getLatestStepId($this->taskId);
+        // Get latest step Id
+        $stepId = $this->stepController->getLatestStepId();
 
-        /**
-         *  Create new substep in database
-         */
+        // Create new substep in database
         $this->model->new($stepId, $identifier, $title, $note);
 
         unset($stepId, $identifier, $title, $note);
@@ -48,19 +42,15 @@ class SubStep extends Log
      */
     public function completed(string|null $message = '', string|null $identifier = '') : void
     {
-        /**
-         *  Get latest step Id
-         */
-        $stepId = $this->stepController->getLatestStepId($this->taskId);
+        // Get latest step Id
+        $stepId = $this->stepController->getLatestStepId();
 
         // If there was no step, return
         if (empty($stepId)) {
             return;
         }
 
-        /**
-         *  If no identifier is provided, get latest sub-step key name, otherwise use the provided identifier
-         */
+        // If no identifier is provided, get latest sub-step key name, otherwise use the provided identifier
         if (!empty($identifier)) {
             // Get substep Id by identifier
             $substepId = $this->getSubStepIdByIdentifier($stepId, $identifier);
@@ -69,42 +59,36 @@ class SubStep extends Log
             $substepId = $this->getLatestSubStepId($stepId);
         }
 
-        /**
-         *  First, add message to output, if any
-         */
+        // First, add message to output, if any
         $this->output($message);
 
-        /**
-         *  If there was substeps, mark latest substep as completed in database
-         */
+        // If there was substeps, mark latest substep as completed in database
         if (!empty($substepId)) {
-            $this->model->status($substepId, 'completed');
+            // Get substep status
+            $status = $this->getStatus($substepId);
+
+            // If substep has no status or is still running, mark it as completed
+            if (is_null($status) or $status == 'running') {
+                $this->model->status($substepId, 'completed');
+            }
         }
     }
 
     /**
      *  Set a warning message for the latest sub-step
      */
-    public function warning(string $message, string|null $outputType = null) : void
+    public function warning(string $message) : void
     {
-        /**
-         *  Get latest step Id
-         */
-        $stepId = $this->stepController->getLatestStepId($this->taskId);
+        // Get latest step Id
+        $stepId = $this->stepController->getLatestStepId();
 
-        /**
-         *  Get latest sub-step Id
-         */
+        // Get latest sub-step Id
         $substepId = $this->getLatestSubStepId($stepId);
 
-        /**
-         *  Add warning message to output
-         */
+        // Add warning message to output
         $this->output($message, 'warning');
 
-        /**
-         *  If there was substeps, mark latest substep as warning in database
-         */
+        // If there was substeps, mark latest substep as warning in database
         if (!empty($substepId)) {
             $this->model->status($substepId, 'warning');
         }
@@ -115,24 +99,16 @@ class SubStep extends Log
      */
     public function error(string $message) : void
     {
-        /**
-         *  Get latest step Id
-         */
-        $stepId = $this->stepController->getLatestStepId($this->taskId);
+        // Get latest step Id
+        $stepId = $this->stepController->getLatestStepId();
 
-        /**
-         *  Get latest sub-step Id
-         */
+        // Get latest sub-step Id
         $substepId = $this->getLatestSubStepId($stepId);
 
-        /**
-         *  Add error message to output
-         */
+        // Add error message to output
         $this->output($message, 'error');
 
-        /**
-         *  If there was substeps, mark latest substep as error in database
-         */
+        // If there was substeps, mark latest substep as error in database
         if (!empty($substepId)) {
             $this->model->status($substepId, 'error');
         }
@@ -143,19 +119,13 @@ class SubStep extends Log
      */
     public function stopped() : void
     {
-        /**
-         *  Get latest step Id
-         */
-        $stepId = $this->stepController->getLatestStepId($this->taskId);
+        // Get latest step Id
+        $stepId = $this->stepController->getLatestStepId();
 
-        /**
-         *  Get latest sub-step Id
-         */
+        // Get latest sub-step Id
         $substepId = $this->getLatestSubStepId($stepId);
 
-        /**
-         *  If there was substeps, mark latest substep as stopped in database
-         */
+        // If there was substeps, mark latest substep as stopped in database
         if (!empty($substepId)) {
             $this->model->status($substepId, 'stopped');
         }
@@ -176,31 +146,21 @@ class SubStep extends Log
             $type = 'info';
         }
 
-        /**
-         *  Get latest step Id
-         */
-        $stepId = $this->stepController->getLatestStepId($this->taskId);
+        // Get latest step Id
+        $stepId = $this->stepController->getLatestStepId();
 
-        /**
-         *  Get latest sub-step Id
-         */
+        // Get latest sub-step Id
         $substepId = $this->getLatestSubStepId($stepId);
 
-        /**
-         *  If there was no substep, return
-         */
+        // If there was no substep, return
         if (empty($substepId)) {
             return;
         }
 
-        /**
-         *  Get current output
-         */
+        // Get current output
         $currentOutput = $this->getOutput($substepId);
 
-        /**
-         *  If there was output, decode it
-         */
+        // If there was output, decode it
         if (!empty($currentOutput)) {
             try {
                 // Decode JSON output
@@ -211,18 +171,14 @@ class SubStep extends Log
             }
         }
 
-        /**
-         *  Add new output
-         */
+        // Add new output
         $output[] = [
             'time' => microtime(true),
             'type' => $type,
             'message' => $message
         ];
 
-        /**
-         *  Encode output
-         */
+        // Encode output
         try {
             $output = json_encode($output, JSON_THROW_ON_ERROR);
         } catch (JsonException $e) {
@@ -230,9 +186,7 @@ class SubStep extends Log
             return;
         }
 
-        /**
-         *  Write output to database
-         */
+        // Write output to database
         $this->writeOutput($substepId, $output);
 
         unset($stepId, $substepId, $output);
@@ -244,6 +198,14 @@ class SubStep extends Log
     public function get(int $stepId) : array
     {
         return $this->model->get($stepId);
+    }
+
+    /**
+     *  Return substep status
+     */
+    private function getStatus(int $substepId): string|null
+    {
+        return $this->model->getStatus($substepId);
     }
 
     /**

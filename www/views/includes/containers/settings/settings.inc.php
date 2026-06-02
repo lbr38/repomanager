@@ -326,7 +326,7 @@
                             $color = $env['Color'];
                         } ?>
 
-                        <div class="env-line flex align-item-center column-gap-5" env-id="<?= $env['Id'] ?>">
+                        <div class="env-line flex align-item-center column-gap-10" env-id="<?= $env['Id'] ?>">
                             <div>
                                 <div class="input-color-wrapper">
                                     <input type="color" name="env-color" value="<?= $color ?>" /> 
@@ -351,7 +351,7 @@
 
             <h6>ADD NEW ENVIRONMENT</h6>
             <p class="note">Choose a color and a name for the new environment.</p>
-            <div class="flex align-item-center column-gap-5">
+            <div class="flex align-item-center column-gap-10">
                 <div>
                     <div class="input-color-wrapper">
                         <input type="color" name="add-env-color" class="color-xsmall" value="#F32F63" /> 

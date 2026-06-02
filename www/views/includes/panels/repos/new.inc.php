@@ -213,6 +213,10 @@
 
         <div id="advanced-params" class="hide">
             <div field-type="mirror rpm deb">
+                <h6>KEEP LATEST x VERSIONS OF PACKAGES</h6>
+                <p class="note">Keep only the latest x versions of packages in the repository. Older versions will be not be ignored.</p>
+                <input type="number" class="task-param" param-name="advanced-params.packages.keep-latest" package-type="all" min="1" placeholder="e.g. 5" />
+            
                 <h6>ONLY INCLUDE PACKAGE(S)</h6>
                 <p class="note">Specify packages names to include. All other packages will be ignored from sync.</p>
                 <p class="note">You can use <code>.*</code> as a wildcard. e.g <code>nginx_1.24.*</code></p>

@@ -109,6 +109,17 @@
 
     <div class="grid grid-2 row-gap-10 column-gap-20">
         <?php
+        if (!empty($rawParams['advanced-params']['packages']['keep-latest'])) : ?>
+            <div>
+                <h6>KEEP LATEST VERSIONS</h6>
+                <p><?= $rawParams['advanced-params']['packages']['keep-latest'] ?></p>
+            </div>
+            <?php
+        endif ?>
+    </div>
+
+    <div class="grid grid-2 row-gap-10 column-gap-20">
+        <?php
         if (!empty($rawParams['gpg-check'])) : ?>
             <div>
                 <h6>CHECK GPG SIGNATURES</h6>

@@ -1126,8 +1126,7 @@ class Connection extends SQLite3
         Start REAL,
         End REAL,
         Duration REAL,
-        Message VARCHAR(255),
-        Task_id INTEGER)");
+        Message VARCHAR(255))");
 
         // substeps table
         $this->exec("CREATE TABLE IF NOT EXISTS substeps (
@@ -1142,8 +1141,9 @@ class Connection extends SQLite3
         Output TEXT,
         Step_id INTEGER)");
 
-        $this->exec("CREATE INDEX IF NOT EXISTS steps_task_id ON steps (Task_id)");
-        $this->exec("CREATE INDEX IF NOT EXISTS steps_step_id ON substeps (Step_id)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_steps_step_id ON substeps (Step_id)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_substeps_identifier_step_id ON substeps (Identifier, Step_id)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_substeps_status_step_id ON substeps (Status, Step_id)");
     }
 
     /**

@@ -76,6 +76,9 @@ class Create
             // Check gpg sign
             Param\GpgSign::check($formParams['gpg-sign']);
 
+            // Check keep latest versions of packages
+            Param\KeepLatest::check($formParams['advanced-params']['packages']['keep-latest']);
+
             // Check package(s) to include
             Param\PackageInclude::check($formParams['advanced-params']['packages']['include']);
 

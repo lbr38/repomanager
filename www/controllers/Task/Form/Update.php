@@ -28,6 +28,9 @@ class Update
 
         // Case of a mirror repository, check additional parameters
         if ($repoController->getType() == 'mirror') {
+            // Check keep latest versions of packages
+            Param\KeepLatest::check($formParams['advanced-params']['packages']['keep-latest']);
+
             // Check package(s) to include
             Param\PackageInclude::check($formParams['advanced-params']['packages']['include']);
 

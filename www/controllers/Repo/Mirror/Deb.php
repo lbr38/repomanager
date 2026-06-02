@@ -34,9 +34,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             }
         }
 
-        /**
-         *  Print an error and quit if no Release file has been found
-         */
+        // Print an error and quit if no Release file has been found
         if (!file_exists($this->workingDir . '/InRelease') and !file_exists($this->workingDir . '/Release') and !file_exists($this->workingDir . '/Release.gpg')) {
             throw new Exception('No <code>InRelease</code> or <code>Release</code> file has been found in the source repository <code>' . $url . '/</code> (looked for <code>InRelease</code>, <code>Release</code> and <code>Release.gpg</code>). Is the URL of the repository correct?');
         }
@@ -52,13 +50,9 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
      */
     private function parseReleaseFile(string $url) : void
     {
-        /**
-         *  Process research of Packages indices for each arch
-         */
+        // Process research of Packages indices for each arch
         foreach ($this->arch as $arch) {
-            /**
-             *  If the arch is 'src' then the indices file is named 'Sources'
-             */
+            // If the arch is 'src' then the indices file is named 'Sources'
             if ($arch == 'src') {
                 $this->taskLogSubStepController->new('searching-source-indices', 'SEARCHING FOR SOURCES INDICES FILE LOCATION');
 
@@ -74,9 +68,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                 ];
             }
 
-            /**
-             *  If the arch is not 'src' then the indices file is named 'Packages'
-             */
+            // If the arch is not 'src' then the indices file is named 'Packages'
             if ($arch != 'src') {
                 $this->taskLogSubStepController->new('searching-packages-indices-' . $arch, 'SEARCHING FOR PACKAGES INDICES FILE FOR ARCH ' . strtoupper($arch));
 
@@ -92,14 +84,17 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                 ];
             }
 
-            /**
-             *  Get InRelease / Release file content
-             */
+            // Get InRelease / Release file content
             $content = file($this->workingDir . '/' . $this->validReleaseFile);
 
             /**
              *  Parse the whole file, searching for the desired lines
+             *  Prefer the strongest available checksum algorithm (SHA512 > SHA256 > SHA1 > MD5)
              */
+            $checksumPriority = [128 => 4, 64 => 3, 40 => 2, 32 => 1];
+            $bestCandidate = null;
+            $bestPriority = 0;
+
             foreach ($content as $line) {
                 // Clean line
                 $line = trim($line);
@@ -119,50 +114,55 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                     continue;
                 }
 
-                if (strlen($splittedLine[0]) == '64') {
-                    $location = end($splittedLine);
-                    $checksum = $splittedLine[0];
+                $hashLen = strlen($splittedLine[0]);
+                $priority = $checksumPriority[$hashLen] ?? 0;
 
-                    /**
-                     *  Include this Packages.xx/Sources.xx file only if it does really exist on the remote server (sometimes it can be declared in Release but not exists...)
-                     */
-                    try {
-                        $this->httpRequestController->reachable([
-                            'url' => $url . '/' . $location,
-                            'sslCertificatePath' => $this->sslCustomCertificate,
-                            'sslPrivateKeyPath' => $this->sslCustomPrivateKey,
-                            'sslCaCertificatePath' => $this->sslCustomCaCertificate,
-                            'proxy' => PROXY ?? null,
-                        ]);
-                    } catch (Exception $e) {
-                        if (DebugMode::enabled()) {
-                            echo $url . '/' . $location . ' is not reachable' . PHP_EOL;
-                        }
-
-                        // If the URL is not reachable, then try to find another Packages/Sources file
-                        continue;
-                    }
-
-                    /**
-                     *  If URL is reachable, then add the Packages/Sources file location to the global array
-                     */
-                    if ($arch == 'src') {
-                        $this->sourcesIndicesLocation[] = ['location' => $location, 'checksum' => $checksum];
-                    }
-                    if ($arch != 'src') {
-                        $this->packagesIndicesLocation[] = ['location' => $location, 'checksum' => $checksum];
-                    }
-
-                    $this->taskLogSubStepController->completed();
-
-                    // Then ignore all next Packages.xx/Sources.xx indices file from the same arch as at least one has been found
-                    continue 2;
+                // Ignore unknown hash lengths or hashes weaker than the current best
+                if ($priority === 0 || $priority <= $bestPriority) {
+                    continue;
                 }
+
+                $location = end($splittedLine);
+                $checksum = $splittedLine[0];
+
+                // Include this Packages.xx/Sources.xx file only if it does really exist on the remote server (sometimes it can be declared in Release but not exists...)
+                try {
+                    $this->httpRequestController->reachable([
+                        'url' => $url . '/' . $location,
+                        'sslCertificatePath' => $this->sslCustomCertificate,
+                        'sslPrivateKeyPath' => $this->sslCustomPrivateKey,
+                        'sslCaCertificatePath' => $this->sslCustomCaCertificate,
+                        'proxy' => PROXY ?? null,
+                    ]);
+                } catch (Exception $e) {
+                    if (DebugMode::enabled()) {
+                        echo $url . '/' . $location . ' is not reachable' . PHP_EOL;
+                    }
+
+                    // If the URL is not reachable, then try to find another Packages/Sources file
+                    continue;
+                }
+
+                $bestCandidate = ['location' => $location, 'checksum' => $checksum];
+                $bestPriority = $priority;
             }
 
-            /**
-             *  If no Packages.xx/Sources.xx file has been found for this arch, throw an error
-             */
+            if ($bestCandidate !== null) {
+            // If URL is reachable, then add the Packages/Sources file location to the global array
+                if ($arch == 'src') {
+                    $this->sourcesIndicesLocation[] = $bestCandidate;
+                }
+                if ($arch != 'src') {
+                    $this->packagesIndicesLocation[] = $bestCandidate;
+                }
+
+                $this->taskLogSubStepController->completed();
+
+                // Proceed to the next arch as a valid indices file has been found
+                continue;
+            }
+
+            // If no Packages.xx/Sources.xx file has been found for this arch, throw an error
             if ($arch == 'src') {
                 throw new Exception('No ' . $arch . ' <code>Sources</code> indices file has been found in the <code>' . $this->validReleaseFile . '</code> file.');
             }
@@ -171,9 +171,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             }
         }
 
-        /**
-         *  Throw an error if no Packages indices file location has been found
-         */
+        // Throw an error if no Packages indices file location has been found
         if (empty($this->packagesIndicesLocation)) {
             throw new Exception('No <code>Packages</code> indices file location has been found.');
         }
@@ -181,9 +179,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             throw new Exception('No <code>Sources</code> indices file location has been found.');
         }
 
-        /**
-         *  Process research of Translation files for each requested translation language
-         */
+        // Process research of Translation files for each requested translation language
         // if (!empty($this->translation)) {
         //     $this->taskLogSubStepController->new('searching-translation', 'SEARCHING FOR TRANSLATION FILE LOCATION');
 
@@ -235,44 +231,32 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
     {
         $this->taskLogSubStepController->new('retrieving-deb-packages-list', 'RETRIEVING DEB PACKAGES LIST');
 
-        /**
-         *  Process research for each Package file (could have multiple if multiple archs have been specified)
-         */
+        // Process research for each Package file (could have multiple if multiple archs have been specified)
         foreach ($this->packagesIndicesLocation as $packageIndice) {
             $packageIndicesLocation = $packageIndice['location'];
             $packageIndicesChecksum = $packageIndice['checksum'];
             $packageIndicesName = preg_split('#/#', $packageIndicesLocation);
             $packageIndicesName = end($packageIndicesName);
 
-            /**
-             *  Download Packages.xx file using its location
-             */
+            // Download Packages.xx file using its location
             if (!$this->download($url . '/' . $packageIndicesLocation, $this->workingDir . '/' . $packageIndicesName)) {
                 throw new Exception('Error while downloading <code>' . $packageIndicesName . '</code> indices file: <code>' . $url . '/' . $packageIndicesLocation . '</code>');
             }
 
-            /**
-             *  Then check that the Packages.xx file's checksum matches the one that what specified in Release file
-             */
+            // Then check that the Packages.xx file's checksum matches the one that what specified in Release file
             if (!$this->checksum($this->workingDir . '/' . $packageIndicesName, $packageIndicesChecksum)) {
                 throw new Exception('<code>' . $packageIndicesName . '</code> indices file\'s checksum does not match the checksum specified in the <code>Release</code> file ' . $packageIndicesChecksum);
             }
 
-            /**
-             *  Get the file extension of the Packages.xx file (.gz, .bz2 or .xz)
-             */
+            // Get the file extension of the Packages.xx file (.gz, .bz2 or .xz)
             $packagesIndicesFileExtension = pathinfo($this->workingDir . '/' . $packageIndicesName, PATHINFO_EXTENSION);
 
-            /**
-             *  Quit if the file extension is not supported (.gz, .bz2 or .xz)
-             */
+            // Quit if the file extension is not supported (.gz, .bz2 or .xz)
             if (!in_array($packagesIndicesFileExtension, ['', 'gz', 'bz2', 'xz'])) {
                 throw new Exception('Unsupported file extension <code>' . $packagesIndicesFileExtension . '</code> for <code>Packages</code> indices file. Please contact the developer to add support for this file extension.');
             }
 
-            /**
-             *  Uncompress Packages.xx if it is compressed (.gz, .xz or .bz2)
-             */
+            // Uncompress Packages.xx if it is compressed (.gz, .xz or .bz2)
             try {
                 if ($packagesIndicesFileExtension == 'gz') {
                     Gzip::uncompress($this->workingDir . '/' . $packageIndicesName);
@@ -285,48 +269,58 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                 throw new Exception('Error while uncompressing <code>' . $packageIndicesName . '</code><br><pre class="codeblock copy">' . $e->getMessage() . '</pre>');
             }
 
-            /**
-             *  Get all .deb packages location from the uncompressed Packages file
-             */
+            // Get all .deb packages location from the uncompressed Packages file
+            $packageName = '';
+            $packageArch = '';
             $packageLocation = '';
             $packageChecksum = '';
             $handle = fopen($this->workingDir . '/Packages', 'r');
 
             if ($handle) {
                 while (($line = fgets($handle)) !== false) {
-                    /**
-                     *  Get deb location
-                     */
+                    // Get deb package name
+                    if (preg_match('/^Package:\s+(.*)/im', $line)) {
+                        $packageName = trim(str_replace('Package: ', '', $line));
+                    }
+
+                    // Get deb package architecture
+                    if (preg_match('/^Architecture:\s+(.*)/im', $line)) {
+                        $packageArch = trim(str_replace('Architecture: ', '', $line));
+                    }
+
+                    // Get deb location
                     if (preg_match('/^Filename:\s+(.*)/im', $line)) {
                         $packageLocation = trim(str_replace('Filename: ', '', $line));
                     }
 
-                    /**
-                     *  Get deb SHA256
-                     */
+                    // Get deb SHA256
                     if (preg_match('/^SHA256:\s+(.*)/im', $line)) {
                         $packageChecksum = trim(str_replace('SHA256: ', '', $line));
                     }
 
-                    /**
-                     *  If location and checksum have been parsed, had them to the global deb packages list array
-                     */
+                    // If location and checksum have been parsed, add them to the global deb packages list array
                     if (!empty($packageLocation) and !empty($packageChecksum)) {
                         // If package location starts with './' then remove it
                         $packageLocation = preg_replace('/^\.\//', '', $packageLocation);
 
-                        $this->debPackagesLocation[] = ['location' => $packageLocation, 'checksum' => $packageChecksum];
+                        $this->debPackagesLocation[] = [
+                            'name'     => $packageName,
+                            'arch'     => $packageArch,
+                            'location' => $packageLocation,
+                            'checksum' => $packageChecksum,
+                        ];
 
-                        unset($packageLocation, $packageChecksum);
+                        $packageName = '';
+                        $packageArch = '';
+                        $packageLocation = '';
+                        $packageChecksum = '';
                     }
                 }
 
                 fclose($handle);
             }
 
-            /**
-             *  Delete Packages file once it has been parsed
-             */
+            // Delete Packages file once it has been parsed
             if (file_exists($this->workingDir . '/Packages')) {
                 if (!unlink($this->workingDir . '/Packages')) {
                     throw new Exception('Cannot delete <code>' . $this->workingDir . '/Packages' . '</code> file');
@@ -344,161 +338,161 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             }
         }
 
-        $this->taskLogSubStepController->completed(count($this->debPackagesLocation) . ' package(s) found');
+        // Filter packages to keep only the X latest versions if 'keep-latest' is set
+        if (!empty($this->advancedParams['keep-latest'])) {
+            $this->debPackagesLocation = $this->keepLatestVersions($this->debPackagesLocation, (int) $this->advancedParams['keep-latest']);
+        }
+
+        $this->taskLogSubStepController->completed(count($this->debPackagesLocation) . ' package' . (count($this->debPackagesLocation) > 1 ? 's' : '') . ' found');
     }
 
     /**
-     *  Parse Sources indices file to find .dsc/tar.gz/tar.xz sources packages location
+     *  Parse Sources indices file to find .dsc/tar.gz/tar.xz source packages location
      */
     private function parseSourcesIndiceFile(string $url) : void
     {
-        /**
-         *  Ignore this function if no 'src' arch has been specified
-         */
+        // Ignore this function if no 'src' arch has been specified
         if (!in_array('src', $this->arch)) {
             return;
         }
 
         $this->taskLogSubStepController->new('retrieving-source-packages-list', 'RETRIEVING SOURCE PACKAGES LIST');
 
-        /**
-         *  Process research for each Sources file
-         */
+        // Process research for each Sources file
         foreach ($this->sourcesIndicesLocation as $sourcesIndice) {
             $sourcesIndicesLocation = $sourcesIndice['location'];
             $sourcesIndexChecksum = $sourcesIndice['checksum'];
             $sourcesIndicesName = preg_split('#/#', $sourcesIndicesLocation);
             $sourcesIndicesName = end($sourcesIndicesName);
 
-            /**
-             *  Download Sources file using its location
-             */
+            // Download Sources file using its location
             if (!$this->download($url . '/' . $sourcesIndicesLocation, $this->workingDir . '/' . $sourcesIndicesName)) {
                 throw new Exception('Error while downloading <code>' . $sourcesIndicesName . '</code> indices file: <code>' . $url . '/' . $sourcesIndicesLocation . '</code>');
             }
 
-            /**
-             *  Then check that the Sources.xx file's checksum matches the one that what specified in Release file
-             */
+            // Then check that the Sources.xx file's checksum matches the one that what specified in Release file
             if (!$this->checksum($this->workingDir . '/' . $sourcesIndicesName, $sourcesIndexChecksum)) {
                 throw new Exception('<code>' . $sourcesIndicesName . '</code> indices file\'s checksum does not match the checksum specified in the <code>Release</code> file ' . $sourcesIndexChecksum);
             }
 
-            /**
-             *  Uncompress Sources.xx if it is compressed (.gz or .xz)
-             */
-            if (preg_match('/.gz$/i', $sourcesIndicesName)) {
-                try {
-                    Gzip::uncompress($this->workingDir . '/' . $sourcesIndicesName);
-                } catch (Exception $e) {
-                    throw new Exception('Error while uncompressing <code>' . $sourcesIndicesName . '</code><br><pre class="codeblock copy">' . $e->getMessage() . '</pre>');
-                }
-            }
-            if (preg_match('/.xz$/i', $sourcesIndicesName)) {
-                try {
-                    Xz::uncompress($this->workingDir . '/' . $sourcesIndicesName);
-                } catch (Exception $e) {
-                    throw new Exception('Error while uncompressing <code>' . $sourcesIndicesName . '</code><br><pre class="codeblock copy">' . $e->getMessage() . '</pre>');
-                }
+            // Get the file extension of the Sources.xx file (.gz, .xz or .bz2)
+            $sourcesIndicesFileExtension = pathinfo($this->workingDir . '/' . $sourcesIndicesName, PATHINFO_EXTENSION);
+
+            // Quit if the file extension is not supported (.gz, .xz or .bz2)
+            if (!in_array($sourcesIndicesFileExtension, ['', 'gz', 'bz2', 'xz'])) {
+                throw new Exception('Unsupported file extension <code>' . $sourcesIndicesFileExtension . '</code> for <code>Sources</code> indices file. Please contact the developer to add support for this file extension.');
             }
 
-            /**
-             *  Get all .dsc/tar.gz/tar.xz sources packages location from the Sources file
-             */
-            $linecount = 0;
+            // Uncompress Sources.xx if it is compressed (.gz, .bz2 or .xz)
+            try {
+                if ($sourcesIndicesFileExtension == 'gz') {
+                    Gzip::uncompress($this->workingDir . '/' . $sourcesIndicesName);
+                } else if ($sourcesIndicesFileExtension == 'xz') {
+                    Xz::uncompress($this->workingDir . '/' . $sourcesIndicesName);
+                } else if ($sourcesIndicesFileExtension == 'bz2') {
+                    Bzip2::uncompress($this->workingDir . '/' . $sourcesIndicesName, $this->workingDir . '/Sources');
+                }
+            } catch (Exception $e) {
+                throw new Exception('Error while uncompressing <code>' . $sourcesIndicesName . '</code><br><pre class="codeblock copy">' . $e->getMessage() . '</pre>');
+            }
+
+            // Get all .dsc/tar.gz/tar.xz source packages location from the Sources file
+            $packageName = '';
             $directory = '';
             $packageLocation = '';
             $packageMd5 = '';
+            $inFilesBlock = false;
+            $packages = [];
             $handle = fopen($this->workingDir . '/Sources', 'r');
 
-            /**
-             *  Read all lines from Sources file
-             */
+            // Read all lines from Sources file
             if ($handle) {
                 while (($line = fgets($handle)) !== false) {
-                    /**
-                     *  Get .dsc/tar.gz/tar.xz package directory location
-                     */
-                    if (preg_match('/^Directory:\s+(.*)/im', $line)) {
-                        $directory = trim(str_replace('Directory: ', '', $line));
-                    }
+                    // If we are inside the Files: block, parse each file entry line
+                    if ($inFilesBlock) {
+                        if (preg_match('/^ [a-f0-9]{32}/', $line)) {
+                            $packageLine = explode(' ', $line);
 
-                    /**
-                     *  Get .dsc/tar.gz/tar.xz location
-                     */
-                    if (preg_match('/^Files:$/im', $line)) {
-                        /**
-                         *  If line starts with 'Files:' then get the next XX lines that contain the packages md5sum and name
-                         *  Start from current $linecount to get the next lines
-                         */
-                        $spl = new \SplFileObject($this->workingDir . '/Sources');
-
-                        for ($i = 1; $i < 999; $i++) {
-                            $spl->seek($linecount + $i);
-                            $packageLine = $spl->current();
-
-                            /**
-                             *  If the current line does not start with an empty space and a md5sum, then it is the end of the packages list
-                             */
-                            if (!preg_match('/^ [a-f0-9]{32}/', $packageLine)) {
-                                break 1;
-                            }
-
-                            /**
-                             *  Explode the line to separate md5sum and package location
-                             */
-                            $packageLine = explode(' ', $packageLine);
-
-                            /**
-                             *  If the first part of the line is not empty and is a md5sum, then it is the md5sum of the package
-                             */
+                            // Second field is the md5sum of the package
                             if (!empty($packageLine[1]) and Validate::md5($packageLine[1])) {
                                 $packageMd5 = trim($packageLine[1]);
                             }
 
-                            /**
-                             *  If the third part of the line is not empty, then it is the package location
-                             */
+                            // Fourth field is the filename of the package
                             if (!empty($packageLine[3]) and preg_match('/^.*\.(asc|bz2|dsc|gz|xz)$/i', $packageLine[3])) {
                                 $packageLocation = trim($packageLine[3]);
                             }
 
-                            /**
-                             *  Add founded packages location and md5sum to a global 'packages' array
-                             */
                             if (!empty($packageLocation) and !empty($packageMd5)) {
                                 $packages[] = ['location' => $packageLocation, 'md5sum' => $packageMd5];
+                                $packageLocation = '';
+                                $packageMd5 = '';
+                            }
+
+                            continue;
+                        }
+
+                        // Non-indented line signals end of Files: block — flush collected packages to global array
+                        $inFilesBlock = false;
+
+                        if (!empty($directory) and !empty($packages)) {
+                            foreach ($packages as $package) {
+                                $this->sourcesPackagesLocation[] = [
+                                    'name'     => $packageName,
+                                    'arch'     => 'src',
+                                    'location' => $directory . '/' . $package['location'],
+                                    'md5sum'   => $package['md5sum'],
+                                ];
                             }
                         }
 
-                        unset($spl, $packageLocation, $packageMd5);
+                        $packageName = '';
+                        $directory = '';
+                        $packages = [];
                     }
 
-                    /**
-                     *  If directory and packages have been parsed, had them to the global sources packages list array
-                     */
-                    if (!empty($directory) and !empty($packages)) {
-                        foreach ($packages as $package) {
-                            $this->sourcesPackagesLocation[] = ['location' => $directory . '/' . $package['location'], 'md5sum' => $package['md5sum']];
-                        }
-
-                        /**
-                         *  Then reset $directory and $packages variables to be ready for the next directory
-                         */
-                        unset($directory, $packages);
+                    // Get source package name
+                    if (preg_match('/^Package:\s+(.*)/im', $line)) {
+                        $packageName = trim(str_replace('Package: ', '', $line));
                     }
 
-                    $linecount++;
+                    // Get .dsc/tar.gz/tar.xz package directory location
+                    if (preg_match('/^Directory:\s+(.*)/im', $line)) {
+                        $directory = trim(str_replace('Directory: ', '', $line));
+                    }
+
+                    // Detect start of Files: block
+                    if (preg_match('/^Files:$/im', $line)) {
+                        $inFilesBlock = true;
+                        $packages = [];
+                    }
+                }
+
+                // Flush last package (in case the file ends while still in the Files: block)
+                if (!empty($directory) and !empty($packages)) {
+                    foreach ($packages as $package) {
+                        $this->sourcesPackagesLocation[] = [
+                            'name'     => $packageName,
+                            'arch'     => 'src',
+                            'location' => $directory . '/' . $package['location'],
+                            'md5sum'   => $package['md5sum'],
+                        ];
+                    }
                 }
 
                 fclose($handle);
             }
 
-            $this->taskLogSubStepController->completed(count($this->sourcesPackagesLocation) . ' source package(s) found');
+            // Delete Sources file once it has been parsed
+            if (file_exists($this->workingDir . '/Sources')) {
+                if (!unlink($this->workingDir . '/Sources')) {
+                    throw new Exception('Cannot delete <code>' . $this->workingDir . '/Sources' . '</code> file');
+                }
+            }
         }
 
         /**
-         *  Quit if no sources packages have been found
+         *  Quit if no source packages have been found
          *  Ignore it if DEB_ALLOW_EMPTY_REPO is set to true, which means that no package will be downloaded for this arch (https://github.com/lbr38/repomanager/issues/255)
          */
         if (DEB_ALLOW_EMPTY_REPO == 'false') {
@@ -507,7 +501,12 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             }
         }
 
-        $this->taskLogSubStepController->completed();
+        // Filter source packages to keep only the X latest versions if 'keep-latest' is set
+        if (!empty($this->advancedParams['keep-latest'])) {
+            $this->sourcesPackagesLocation = $this->keepLatestVersions($this->sourcesPackagesLocation, (int) $this->advancedParams['keep-latest']);
+        }
+
+        $this->taskLogSubStepController->completed(count($this->sourcesPackagesLocation) . ' source package' . (count($this->sourcesPackagesLocation) > 1 ? 's' : '') . ' found');
     }
 
     /**
@@ -515,9 +514,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
      */
     private function checkReleaseGPGSignature() : void
     {
-        /**
-         *  List of possible Release files to check
-         */
+        // List of possible Release files to check
         $releaseFiles = [
             [
                 'name' => 'InRelease',
@@ -529,9 +526,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             ]
         ];
 
-        /**
-         *  If signature check is disabled, then just set a valid Release file
-         */
+        // If signature check is disabled, then just set a valid Release file
         if ($this->checkSignature == 'false') {
             foreach ($releaseFiles as $releaseFile) {
                 if (!file_exists($this->workingDir . '/' . $releaseFile['name'])) {
@@ -539,11 +534,10 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                 }
 
                 $this->validReleaseFile = $releaseFile['name'];
+                break;
             }
 
-            /**
-             *  If no valid Release file has been found, throw an error
-             */
+            // If no valid Release file has been found, throw an error
             if (empty($this->validReleaseFile)) {
                 throw new Exception('No valid <code>InRelease</code> or <code>Release</code> file found. Please ensure that the remote repository is correctly built.');
             }
@@ -551,9 +545,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             return;
         }
 
-        /**
-         *  If signature check is enabled, then look for a valid Release file
-         */
+        // If signature check is enabled, then look for a valid Release file
         foreach ($releaseFiles as $releaseFile) {
             if (!file_exists($this->workingDir . '/' . $releaseFile['name'])) {
                 continue;
@@ -561,9 +553,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
 
             $this->taskLogSubStepController->new('checking-' . $releaseFile['name'] . 'gpg-signature', 'CHECKING ' . strtoupper($releaseFile['name']) . ' FILE GPG SIGNATURE');
 
-            /**
-             *  Check that GPG signature is valid (signed with a known key)
-             */
+            // Check that GPG signature is valid (signed with a known key)
             try {
                 if (!empty($releaseFile['signature'])) {
                     $this->checkGPGSignature($this->workingDir . '/' . $releaseFile['signature'], $this->workingDir . '/' . $releaseFile['name']);
@@ -571,9 +561,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                     $this->checkGPGSignature($this->workingDir . '/' . $releaseFile['name']);
                 }
 
-                /**
-                 *  If file's signature is valid, then set file as the valid Release file and quit the loop
-                 */
+                // If file's signature is valid, then set file as the valid Release file and quit the loop
                 $this->validReleaseFile = $releaseFile['name'];
 
                 $this->taskLogSubStepController->completed('GPG signature is valid');
@@ -591,9 +579,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             }
         }
 
-        /**
-         *  If no valid Release file has been found, throw an error
-         */
+        // If no valid Release file has been found, throw an error
         if (empty($this->validReleaseFile)) {
             throw new Exception('No <code>InRelease</code> or <code>Release</code> file found with a valid GPG signature. Please check that you have imported the GPG key used to sign the repository.');
         }
@@ -604,16 +590,12 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
      */
     private function checkGPGSignature(string $signedFile, string $clearFile = '') : void
     {
-        /**
-         *  Check that signature file exists
-         */
+        // Check that signature file exists
         if (!file_exists($signedFile)) {
             throw new Exception('No ' . end(explode('/', $signedFile)) . ' signed file found. Are you sure that the remote repository is signed?');
         }
 
-        /**
-         *  If a clear file has been specified, check that it exists
-         */
+        // If a clear file has been specified, check that it exists
         if (!empty($clearFile) and !file_exists($clearFile)) {
             throw new Exception('No ' . end(explode('/', $clearFile)) . ' clear file found. Are you sure that the remote repository is signed?');
         }
@@ -634,23 +616,17 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
         $output = $myprocess->getOutput();
         $myprocess->close();
 
-        /**
-         *  If 'Can't check signature: No public key' is found in the output, then the GPG key is not imported
-         */
+        // If 'Can't check signature: No public key' is found in the output, then the GPG key is not imported
         if (preg_match("/Can't check signature: No public key/", $output)) {
             throw new Exception('No GPG key could verify the signature of <code>' . end(explode('/', $signedFile)) . '</code> file. Please check that you have imported the GPG key used to sign the repository.<br><pre class="codeblock">' . $output . '</pre>');
         }
 
-        /**
-         *  If 'BAD signature from' is found in the output, then the signature is invalid / broken
-         */
+        // If 'BAD signature from' is found in the output, then the signature is invalid / broken
         if (preg_match("/BAD signature from/", $output)) {
             throw new Exception('Invalid signature of <code>' . end(explode('/', $signedFile)) . '</code> file: <br><pre class="codeblock">' . $output . '</pre>');
         }
 
-        /**
-         *  Else if the exit code is not 0, then print the error message
-         */
+        // Else if the exit code is not 0, then print the error message
         if ($myprocess->getExitCode() != 0) {
             throw new Exception('Invalid signature or no GPG key could verify the signature of <code>' . end(explode('/', $signedFile)) . '</code> file: <br><pre class="codeblock">' . $output . '</pre>');
         }
@@ -661,19 +637,13 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
      */
     private function downloadDebPackages($url) : void
     {
-        /**
-         *  Define package relative dir
-         */
+        // Define package relative dir
         $relativeDir = 'pool/' . $this->section;
 
-        /**
-         *  Target directory in which packages will be downloaded
-         */
+        // Target directory in which packages will be downloaded
         $absoluteDir = $this->workingDir . '/' . $relativeDir;
 
-        /**
-         *  Create directory in which packages will be downloaded
-         */
+        // Create directory in which packages will be downloaded
         if (!is_dir($absoluteDir)) {
             if (!mkdir($absoluteDir, 0770, true)) {
                 throw new Exception('Cannot create directory: <code>' . $absoluteDir . '</code>');
@@ -681,20 +651,14 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
         }
 
         if (!empty($this->debPackagesLocation)) {
-            /**
-             *  Print URL from which packages are downloaded
-             */
+            // Print URL from which packages are downloaded
             $this->taskLogSubStepController->new('downloading-packages', 'DOWNLOADING PACKAGES', 'From ' . $url);
 
-            /**
-             *  Count total packages to print progression during syncing
-             */
+            // Count total packages to print progression during syncing
             $totalPackages = count($this->debPackagesLocation);
             $packageCounter = 0;
 
-            /**
-             *  Download each package and check its md5
-             */
+            // Download each package and check its md5
             foreach ($this->debPackagesLocation as $debPackage) {
                 $debPackageLocation = $debPackage['location'];
                 $debPackageChecksum = $debPackage['checksum'];
@@ -702,14 +666,10 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                 $debPackageName = end($debPackageName);
                 $packageCounter++;
 
-                /**
-                 *  Output package to download to log file
-                 */
+                // Output package to download to log file
                 $this->taskLogSubStepController->new('downloading-package-' . $packageCounter, 'DOWNLOADING PACKAGE (' . $packageCounter . '/' . $totalPackages . ')', $url . '/' . $debPackageLocation);
 
-                /**
-                 *  Before downloading package, check if there is enough disk space left (2GB minimum)
-                 */
+                // Before downloading package, check if there is enough disk space left (2GB minimum)
                 if (disk_free_space(REPOS_DIR) < 2000000000) {
                     throw new Exception('Low disk space: repository storage has reached 2GB (minimum) of free space left. Task automatically stopped.');
                 }
@@ -727,9 +687,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                         }
                     }
 
-                    /**
-                     *  If package is not in the list of packages to include, skip it
-                     */
+                    // If package is not in the list of packages to include, skip it
                     if (!$isIn) {
                         $this->taskLogSubStepController->warning('Not in the list of packages to include (ignoring)');
                         continue;
@@ -749,9 +707,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                         }
                     }
 
-                    /**
-                     *  If package is in the list of packages to exclude, skip it
-                     */
+                    // If package is in the list of packages to exclude, skip it
                     if ($isIn) {
                         $this->taskLogSubStepController->warning('In the list of packages to exclude (ignoring)');
                         continue;
@@ -764,11 +720,10 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                  *  e.g. elasticsearch deb repository has a package named 'filebeat-8.0.0-amd64.deb'. In this case arch is incorrect and should use underscore instead of dash.
                  */
 
-                /**
-                 *  First check if package has arch in its name, else ignore it
-                 */
+                // First check if package has arch in its name, else ignore it
                 if (!preg_match('/(amd64|arm64|armel|armhf|i386|mips|mips64el|mipsel|ppc64el|s390x|all).deb$/', $debPackageName)) {
                     $this->taskLogSubStepController->warning('Package does not have a valid arch in its name (ignoring)');
+                    continue;
                 }
 
                 /**
@@ -806,9 +761,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                     }
                 }
 
-                /**
-                 *  Check if package already exists in the previous snapshot
-                 */
+                // Check if package already exists in the previous snapshot
                 if (isset($this->previousSnapshotDirPath)) {
                     if (file_exists($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $debPackageName)) {
                         if (!file_exists($absoluteDir . '/' . $debPackageName)) {
@@ -836,16 +789,12 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                     }
                 }
 
-                /**
-                 *  Download
-                 */
+                // Download
                 if (!$this->download($url . '/' . $debPackageLocation, $absoluteDir . '/' . $debPackageName, MIRRORING_PACKAGE_DOWNLOAD_RETRIES)) {
                     throw new Exception('Error while downloading package');
                 }
 
-                /**
-                 *  Check that downloaded deb package's sha256 matches the sha256 specified by the Packages file
-                 */
+                // Check that downloaded deb package's sha256 matches the sha256 specified by the Packages file
                 if (!$this->checksum($absoluteDir . '/' . $debPackageName, $debPackageChecksum)) {
                     $message = 'Checksum of the downloaded package does not match the checksum indicated by the source repository metadata';
 
@@ -875,9 +824,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                     unset($message);
                 }
 
-                /**
-                 *  Print OK if package has been downloaded and verified successfully
-                 */
+                // Print OK if package has been downloaded and verified successfully
                 $this->taskLogSubStepController->completed();
             }
 
@@ -889,25 +836,22 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
     }
 
     /**
-     *  Download deb sources packages
+     *  Download deb source packages
      */
     private function downloadDebSourcesPackages($url) : void
     {
-        /**
-         *  Ignore this function if no 'src' arch has been specified
-         */
+        // Ignore this function if no 'src' arch has been specified
         if (!in_array('src', $this->arch)) {
             return;
         }
 
-        /**
-         *  Target directory in which packages will be downloaded
-         */
-        $absoluteDir = $this->workingDir . '/pool/' . $this->section;
+        // Define package relative dir
+        $relativeDir = 'pool/' . $this->section;
 
-        /**
-         *  Create directory in which packages will be downloaded
-         */
+        // Target directory in which packages will be downloaded
+        $absoluteDir = $this->workingDir . '/' . $relativeDir;
+
+        // Create directory in which packages will be downloaded
         if (!is_dir($absoluteDir)) {
             if (!mkdir($absoluteDir, 0770, true)) {
                 throw new Exception('Cannot create directory: <code>' . $absoluteDir . '</code>');
@@ -915,20 +859,14 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
         }
 
         if (!empty($this->sourcesPackagesLocation)) {
-            /**
-             *  Print URL from which sources packages are downloaded
-             */
+            // Print URL from which source packages are downloaded
             $this->taskLogSubStepController->new('downloading-sources-packages', 'DOWNLOADING SOURCES PACKAGES', 'From ' . $url);
 
-            /**
-             *  Count total packages to print progression during syncing
-             */
+            // Count total packages to print progression during syncing
             $totalPackages = count($this->sourcesPackagesLocation);
             $packageCounter = 0;
 
-            /**
-             *  Download each source package and check its md5
-             */
+            // Download each source package and check its md5
             foreach ($this->sourcesPackagesLocation as $sourcePackage) {
                 $sourcePackageLocation = $sourcePackage['location'];
                 $sourcePackageMd5 = $sourcePackage['md5sum'];
@@ -936,9 +874,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                 $sourcePackageName = end($sourcePackageName);
                 $packageCounter++;
 
-                /**
-                 *  Output source package to download to log file
-                 */
+                // Output source package to download to log file
                 $this->taskLogSubStepController->new('downloading-source-package-' . $packageCounter, 'DOWNLOADING SOURCE PACKAGE (' . $packageCounter . '/' . $totalPackages . ')', $sourcePackageLocation);
 
                 /**
@@ -954,32 +890,80 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                     }
                 }
 
-                /**
-                 *  Before downloading package, check if there is enough disk space left (2GB minimum)
-                 */
+                // Before downloading package, check if there is enough disk space left (2GB minimum)
                 if (disk_free_space(REPOS_DIR) < 2000000000) {
                     throw new Exception('Low disk space: repository storage has reached 2GB (minimum) of free space left. Task automatically stopped.');
                 }
 
-                /**
-                 *  Download
-                 */
-                if (!$this->download($url . '/' . $sourcePackageLocation, $absoluteDir . '/' . $sourcePackageName)) {
-                    throw new Exception('Error while doawnloading sources package');
+                // Check if package already exists in the previous snapshot
+                if (isset($this->previousSnapshotDirPath)) {
+                    if (file_exists($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $sourcePackageName)) {
+                        if (!file_exists($absoluteDir . '/' . $sourcePackageName)) {
+                            // If deduplication is enabled, create a hard link to the package
+                            if (REPO_DEDUPLICATION) {
+                                if (!link($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $sourcePackageName, $absoluteDir . '/' . $sourcePackageName)) {
+                                    throw new Exception('Cannot create hard link to source package: ' . $this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $sourcePackageName);
+                                }
+
+                                $this->taskLogSubStepController->completed('Linked to previous snapshot');
+                            // If deduplication is not enabled, copy the package from the previous snapshot
+                            } else {
+                                if (!copy($this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $sourcePackageName, $absoluteDir . '/' . $sourcePackageName)) {
+                                    throw new Exception('Cannot copy source package from previous snapshot: ' . $this->previousSnapshotDirPath . '/' . $relativeDir . '/' . $sourcePackageName);
+                                }
+
+                                $this->taskLogSubStepController->completed('Copied from previous snapshot');
+                            }
+                        }
+
+                        // Create a .completed file to indicate that the package has been downloaded
+                        $this->createCompletedFile($absoluteDir . '/' . $sourcePackageName);
+
+                        continue;
+                    }
                 }
 
-                /**
-                 *  Check that downloaded source package's md5 matches the md5sum specified by the Sources indices file
-                 */
-                if (md5_file($absoluteDir . '/' . $sourcePackageName) != $sourcePackageMd5) {
-                    throw new Exception('Checksum of the file does not match ' . $sourcePackageMd5);
+                // Download
+                if (!$this->download($url . '/' . $sourcePackageLocation, $absoluteDir . '/' . $sourcePackageName, MIRRORING_PACKAGE_DOWNLOAD_RETRIES)) {
+                    throw new Exception('Error while downloading source package');
                 }
 
-                /**
-                 *  Print OK if source package has been downloaded and verified successfully
-                 */
+                // Check that downloaded source package's sha256 matches the sha256 specified by the Sources file
+                if (!$this->checksum($absoluteDir . '/' . $sourcePackageName, $sourcePackageMd5)) {
+                    $message = 'Checksum of the downloaded package does not match the checksum indicated by the source repository metadata';
+
+                    // If the MIRRORING_PACKAGE_CHECKSUM_FAILURE setting is set to 'error', then throw an exception
+                    if (MIRRORING_PACKAGE_CHECKSUM_FAILURE == 'error') {
+                        throw new Exception($message);
+                    }
+
+                    // If the MIRRORING_PACKAGE_CHECKSUM_FAILURE setting is set to 'ignore', then we ignore the package (delete it) and continue
+                    if (MIRRORING_PACKAGE_CHECKSUM_FAILURE == 'ignore') {
+                        $this->taskLogSubStepController->warning($message . ', ignoring package (deleting it) and continuing');
+
+                        // Delete the package
+                        if (file_exists($absoluteDir . '/' . $sourcePackageName)) {
+                            unlink($absoluteDir . '/' . $sourcePackageName);
+                        }
+
+                        continue;
+                    }
+
+                    // If the MIRRORING_PACKAGE_CHECKSUM_FAILURE setting is set to 'keep', then we keep the package anyway and continue
+                    if (MIRRORING_PACKAGE_CHECKSUM_FAILURE == 'keep') {
+                        $this->taskLogSubStepController->warning($message . ', keeping package anyway');
+                        continue;
+                    }
+
+                    unset($message);
+                }
+
+                // Print OK if source package has been downloaded and verified successfully
                 $this->taskLogSubStepController->completed();
             }
+
+            // Set the main substep as completed
+            $this->taskLogSubStepController->completed('', 'downloading-sources-packages');
         }
 
         unset($this->sourcesPackagesLocation, $totalPackages, $packageCounter);
@@ -1061,49 +1045,31 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             $metadataUrl = $url . '/dists/' . $this->dist;
         }
 
-        /**
-         *  Try to download distant Release / InRelease file
-         */
+        // Try to download distant Release / InRelease file
         $this->downloadReleaseFile($metadataUrl);
 
-        /**
-         *  Check Release GPG signature if enabled
-         */
+        // Check Release GPG signature if enabled
         $this->checkReleaseGPGSignature();
 
-        /**
-         *  Parse Release file to find Packages source files location
-         */
+        // Parse Release file to find Packages source files location
         $this->parseReleaseFile($metadataUrl);
 
-        /**
-         *  Parse Packages indices file to find packages location
-         */
+        // Parse Packages indices file to find packages location
         $this->parsePackagesIndiceFile($metadataUrl);
 
-        /**
-         *  Parse Sources indices file to find sources packages location
-         */
+        // Parse Sources indices file to find source packages location
         $this->parseSourcesIndiceFile($metadataUrl);
 
-        /**
-         *  Download deb packages
-         */
+        // Download deb packages
         $this->downloadDebPackages($url);
 
-        /**
-         *  Download sources packages
-         */
+        // Download source packages
         $this->downloadDebSourcesPackages($url);
 
-        /**
-         *  Download translations
-         */
+        // Download translations
         // $this->downloadTranslation();
 
-        /**
-         *  Clean remaining files
-         */
+        // Clean remaining files
         $this->clean();
     }
 }

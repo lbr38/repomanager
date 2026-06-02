@@ -236,7 +236,13 @@ class Listing
                     'Hostname' => $host['Hostname'],
                     'Ip' => $host['Ip'],
                     'Os' => $host['Os'],
+                    'Os_version' => $host['Os_version'],
                     'Os_family' => $host['Os_family'],
+                    "Kernel" => $host['Kernel'],
+                    "Arch" => $host['Arch'],
+                    "Type" => $host['Type'],
+                    'Profile' => $host['Profile'],
+                    'Env' => $host['Env'],
                     'Available_updates' => [
                         'Total' => count($available),
                         'Packages' => $available
