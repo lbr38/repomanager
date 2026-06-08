@@ -2,6 +2,17 @@
 
 namespace Controllers\App;
 
+use Controllers\App\Structure\Directory;
+use Controllers\App\Structure\File;
+use Controllers\App\Config\Notification;
+use Controllers\App\Config\Properties;
+use Controllers\App\Config\Settings;
+use Controllers\App\Config\Main as MainConfig;
+use Controllers\App\Config\Env;
+use Controllers\App\Config\Log;
+use Controllers\App\Permissions;
+use Controllers\App\Session;
+use Controllers\App\Header;
 use Exception;
 
 class Main
@@ -15,38 +26,29 @@ class Main
             throw new Exception('Invalid autoloader level specified: ' . $level);
         }
 
-        \Controllers\App\Config\Properties::get();
-        \Controllers\App\Config\Main::get();
-        \Controllers\App\Config\Settings::getYaml();
-        \Controllers\App\Config\Settings::get();
-        \Controllers\App\Config\Env::get();
-        \Controllers\App\Structure\Directory::create();
-        \Controllers\App\Structure\File::create();
+        // Load main configuration and create necessary directories and files
+        Properties::get();
+        MainConfig::get();
+        Settings::getYaml();
+        Settings::get();
+        Env::get();
+        Directory::create();
+        File::create();
 
-        /**
-         *  Load minimal components
-         *  Useful for minimal pages or CLI scripts
-         */
+        // Load minimal components, useful for minimal pages or CLI scripts
         if ($level == 'minimal') {
-            \Controllers\App\Permissions::load();
+            Permissions::load();
         }
 
-        /**
-         *  Load API components
-         */
+        // Load API components
         if ($level == 'api') {
-            \Controllers\App\Header::authenticate();
-            \Controllers\App\Permissions::load();
+            Header::authenticate();
+            Permissions::load();
         }
 
-        /**
-         *  Load all components
-         */
+        // Load all components
         if ($level == 'all') {
-            /**
-             *  Define a cookie with the actual URI
-             *  Useful to redirect to the same page after logout/login
-             */
+            // Define a cookie with the actual URI, useful to redirect to the same page after logout/login
             if (!empty($_SERVER['REQUEST_URI'])) {
                 if ($_SERVER["REQUEST_URI"] != '/login' and $_SERVER["REQUEST_URI"] != '/logout') {
                     // Secure cookie only if HTTPS
@@ -57,15 +59,12 @@ class Main
                 }
             }
 
-            \Controllers\App\Session::load();
-            \Controllers\App\Permissions::load();
-            \Controllers\App\Config\Log::get();
-            \Controllers\App\Config\Notification::get();
+            // Load session, permissions, log and notifications
+            Session::load();
+            Permissions::load();
+            Log::get();
+            Notification::get();
         }
-
-        /**
-         *  Retrieve all loading errors
-         */
 
         // Errors related to the loading of the main configuration
         if (defined('__LOAD_SETTINGS_ERROR') && __LOAD_SETTINGS_ERROR > 0) {

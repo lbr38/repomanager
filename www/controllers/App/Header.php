@@ -33,7 +33,7 @@ class Header
                 $apiKey = substr($_SERVER['HTTP_AUTHORIZATION'], 7);
 
                 if (!$userController->apiKeyValid($apiKey)) {
-                    throw new Exception('Invalid API key');
+                    throw new Exception('invalid API key');
                 }
 
                 define('API_KEY', $apiKey);
@@ -42,7 +42,7 @@ class Header
             /**
              *  If host Id+token are specified through the Authorization header
              */
-            if (strpos($_SERVER['HTTP_AUTHORIZATION'], 'Host ') === 0) {
+            else if (strpos($_SERVER['HTTP_AUTHORIZATION'], 'Host ') === 0) {
                 /**
                  *  Extract the host Id and token
                  *  Remove "Host " from the header
@@ -58,14 +58,14 @@ class Header
                  *  Check if host Id and token are specified
                  */
                 if (count($hostIdToken) != 2) {
-                    throw new Exception('Invalid host Id and token format');
+                    throw new Exception('invalid host Id and token format');
                 }
 
                 /**
                  *  Check if host Id and token are valid
                  */
                 if (!$hostController->checkIdToken($hostIdToken[0], $hostIdToken[1])) {
-                    throw new Exception('Invalid host Id and token');
+                    throw new Exception('invalid host Id and token');
                 }
 
                 /**
@@ -73,6 +73,8 @@ class Header
                  */
                 define('HOST_AUTH_ID', $hostIdToken[0]);
                 define('HOST_TOKEN', $hostIdToken[1]);
+            } else {
+                throw new Exception('invalid Authorization header format');
             }
 
             define('AUTHENTICATED', true);
