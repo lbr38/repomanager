@@ -90,4 +90,9 @@ EXPOSE 8080
 # Set working dir
 WORKDIR ${DATA_DIR}
 
+# Set healthcheck
+# Check if nginx is responding on the expected port (default 8080 if NGINX_LISTEN_PORT is not set)
+HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
+            CMD /bin/sh -c 'curl -fsS http://localhost:${NGINX_LISTEN_PORT:-8080} || exit 1'
+
 ENTRYPOINT ["/init"]
