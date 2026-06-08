@@ -241,6 +241,34 @@ class Mirror
     }
 
     /**
+     *  Filter a packages array to keep only the X latest versions per package name + arch.
+     *  Relies on the order of packages in the source metadata file (primary.xml for RPM,
+     *  Packages for DEB), which in practice is the build/version order for a given package name.
+     *  Each package in $packages must contain at least 'name' and 'arch' keys.
+     */
+    protected function keepLatestVersions(array $packages, int $keepLatest): array
+    {
+        if ($keepLatest < 1 || empty($packages)) {
+            return $packages;
+        }
+
+        // Group packages by name + arch (preserves original metadata order within each group)
+        $grouped = [];
+        foreach ($packages as $package) {
+            $key = ($package['name'] ?? '') . '|' . ($package['arch'] ?? '');
+            $grouped[$key][] = $package;
+        }
+
+        // Keep only the X last entries of each group (assumes metadata lists them oldest -> newest)
+        $filtered = [];
+        foreach ($grouped as $group) {
+            $filtered = array_merge($filtered, array_slice($group, -$keepLatest));
+        }
+
+        return $filtered;
+    }
+
+    /**
      *  Clean remaining files in working directory
      */
     public function clean() : void

@@ -69,7 +69,7 @@ class Group
         $name = Validate::string($name);
 
         // Check that the group name does not contain invalid characters
-        if (!Validate::alphaNumericHyphen($name, ['.', ' '])) {
+        if (!Validate::alphaNumericHyphen($name, ['.', ' ', '(', ')', '+'])) {
             throw new Exception('Group ' . $name . ' contains invalid characters');
         }
 

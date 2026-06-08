@@ -283,7 +283,7 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
 </tbody>
 </table>
 
-### Environment management
+### Environment
 
 <table>
   <thead>
@@ -396,8 +396,8 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
     <tr>
       <td>/hosts/package/<code>&lt;PACKAGE&gt;</code>/<code>&lt;VERSION?&gt;</code><br><code>GET</code></td>
       <td><code>&lt;APIKEY&gt;</code></td>
-      <td><code>package</code> (required, in URL)<br><code>version</code> (optional, in URL)</td>
-      <td>List hosts that have the specified package installed, optionally filtered by version</td>
+      <td><code>package</code> (required, in URL)<br><code>version</code> (optional, in URL)<br><code>strict</code> (optional, query parameter)<br><code>strict-name</code> (optional, query parameter)<br><code>strict-version</code> (optional, query parameter)</td>
+      <td>List hosts that have the specified package installed, optionally filtered by version. By default, package name and version matching can be non-strict. Use <code>strict</code> to enable strict matching for both package name and version, or use <code>strict-name</code> and <code>strict-version</code> independently.</td>
       <td markdown="block">
         ```bash
         curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/hosts/package/nginx
@@ -405,6 +405,18 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
         With version:
         ```bash
         curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/hosts/package/nginx/1.24.0-1
+        ```
+        Strict on both name and version:
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" "https://repomanager.mydomain.net/api/v2/hosts/package/nginx/1.24.0-1?strict"
+        ```
+        Strict package name only:
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" "https://repomanager.mydomain.net/api/v2/hosts/package/nginx?strict-name"
+        ```
+        Strict version only:
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" "https://repomanager.mydomain.net/api/v2/hosts/package/nginx/1.24.0-1?strict-version"
         ```
       </td>
     </tr>

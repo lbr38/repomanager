@@ -15,14 +15,13 @@ class Step extends \Models\Model
     /**
      *  Add a new step in the database
      */
-    public function new(int $taskId, string $identifier, string $title) : void
+    public function new(string $identifier, string $title) : void
     {
         try {
-            $stmt = $this->db->prepare("INSERT INTO steps ('Identifier', 'Title', 'Status', 'Start', 'Task_id') VALUES (:identifier, :title, 'running', :start, :taskId)");
+            $stmt = $this->db->prepare("INSERT INTO steps ('Identifier', 'Title', 'Status', 'Start') VALUES (:identifier, :title, 'running', :start)");
             $stmt->bindValue(':identifier', $identifier);
             $stmt->bindValue(':title', $title);
             $stmt->bindValue(':start', microtime(true));
-            $stmt->bindValue(':taskId', $taskId);
             $stmt->execute();
         } catch (Exception $e) {
             DbLog::error($e);
@@ -35,11 +34,10 @@ class Step extends \Models\Model
     public function status(int $stepId, string $status, string $message = '') : void
     {
         try {
+            // Set step end time
             $end = microtime(true);
 
-            /**
-             *  Get step start time
-             */
+            // Get step start time
             $stmt = $this->db->prepare("SELECT Start FROM steps WHERE Id = :stepId");
             $stmt->bindValue(':stepId', $stepId);
             $result = $stmt->execute();
@@ -48,9 +46,7 @@ class Step extends \Models\Model
                 $start = $row['Start'];
             }
 
-            /**
-             *  Calculate step duration
-             */
+            // Calculate step duration
             $duration = $end - $start;
 
             $stmt = $this->db->prepare("UPDATE steps SET Status = :status, End = :end, Duration = :duration, Message = :message WHERE Id = :stepId");
@@ -68,20 +64,19 @@ class Step extends \Models\Model
     /**
      *  Get steps for the provided task ID
      */
-    public function get(int $taskId) : array
+    public function get() : array
     {
         $data = [];
 
         try {
-            $stmt = $this->db->prepare("SELECT * FROM steps WHERE Task_id = :taskId");
-            $stmt->bindValue(':taskId', $taskId);
+            $stmt = $this->db->prepare("SELECT * FROM steps");
             $result = $stmt->execute();
-
-            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-                $data[] = $row;
-            }
         } catch (Exception $e) {
             DbLog::error($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
         }
 
         return $data;
@@ -90,22 +85,41 @@ class Step extends \Models\Model
     /**
      *  Return the latest step ID for the provided task ID
      */
-    public function getLatestStepId(int $taskId) : int|null
+    public function getLatestStepId() : int|null
     {
         $data = null;
 
         try {
-            $stmt = $this->db->prepare("SELECT Id FROM steps WHERE Task_id = :taskId ORDER BY Id DESC LIMIT 1");
-            $stmt->bindValue(':taskId', $taskId);
+            $stmt = $this->db->prepare("SELECT Id FROM steps ORDER BY Id DESC LIMIT 1");
             $result = $stmt->execute();
-
-            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-                $data = $row['Id'];
-            }
         } catch (Exception $e) {
             DbLog::error($e);
         }
 
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data = $row['Id'];
+        }
+
         return $data;
+    }
+
+    /**
+     *  Return true if there is at least one sub-step in warning status for the provided step ID, false otherwise
+     */
+    public function hasWarningSubSteps(int $stepId): bool
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM substeps WHERE Step_id = :stepId AND Status = 'warning'");
+            $stmt->bindValue(':stepId', $stepId);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+
+        if ($this->db->isempty($result)) {
+            return false;
+        }
+
+        return true;
     }
 }

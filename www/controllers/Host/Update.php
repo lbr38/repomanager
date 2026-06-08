@@ -73,17 +73,16 @@ class Update
 
     /**
      *  Update network in database
-     *  TODO: convert stdClass object to array in Api/Host/Host.php and remove object support from this method
      */
-    public function updateNetwork(int $id, array|object $network) : void
+    public function updateNetwork(int $id, array $network) : void
     {
         $data = [];
 
         // Validate network data
         foreach ($network as $int => $intData) {
-            $data[$int]['ipv4'] = Validate::string($intData->ipv4 ?? '');
-            $data[$int]['ipv6'] = Validate::string($intData->ipv6 ?? '');
-            $data[$int]['mac'] = Validate::string($intData->mac ?? '');
+            $data[$int]['ipv4'] = Validate::string($intData['ipv4'] ?? '');
+            $data[$int]['ipv6'] = Validate::string($intData['ipv6'] ?? '');
+            $data[$int]['mac'] = Validate::string($intData['mac'] ?? '');
         }
 
         // Encode to JSON for database storage

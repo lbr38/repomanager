@@ -4,6 +4,8 @@ namespace Controllers\Task\Log;
 
 use Exception;
 use JsonException;
+use Controllers\Task\Log\Step;
+use Controllers\Task\Log\SubStep;
 
 class Log
 {
@@ -22,18 +24,14 @@ class Log
     public function getContent() : array
     {
         $content = [];
-        $stepController = new \Controllers\Task\Log\Step($this->taskId);
-        $subStepController = new \Controllers\Task\Log\SubStep($this->taskId);
+        $stepController = new Step($this->taskId);
+        $subStepController = new SubStep($this->taskId);
 
         try {
-            /**
-             *  Get steps
-             */
-            $steps = $stepController->get($this->taskId);
+            // Get steps
+            $steps = $stepController->get();
 
-            /**
-             *  Add each step to the content
-             */
+            // Add each step to the content
             foreach ($steps as $step) {
                 $stepId = $step['Id'];
 
@@ -46,14 +44,10 @@ class Log
                     'message' => $step['Message']
                 ];
 
-                /**
-                 *  Get sub steps
-                 */
+                // Get sub steps
                 $subSteps = $subStepController->get($stepId);
 
-                /**
-                 *  Add each sub step to the content
-                 */
+                // Add each sub step to the content
                 foreach ($subSteps as $subStep) {
                     $content['steps'][$step['Identifier']]['substeps'][$subStep['Identifier']] = [
                         'title' => $subStep['Title'],

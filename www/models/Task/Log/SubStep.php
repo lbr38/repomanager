@@ -38,9 +38,7 @@ class SubStep extends \Models\Model
         try {
             $end = microtime(true);
 
-            /**
-             *  Get sub step start time
-             */
+            // Get sub step start time
             $stmt = $this->db->prepare("SELECT Start FROM substeps WHERE Id = :subStepId");
             $stmt->bindValue(':subStepId', $subStepId);
             $result = $stmt->execute();
@@ -49,9 +47,7 @@ class SubStep extends \Models\Model
                 $start = $row['Start'];
             }
 
-            /**
-             *  Calculate sub step duration
-             */
+            // Calculate sub step duration
             $duration = $end - $start;
 
             $stmt = $this->db->prepare("UPDATE substeps SET Status = :status, End = :end, Duration = :duration WHERE Id = :subStepId");
@@ -167,5 +163,27 @@ class SubStep extends \Models\Model
         } catch (Exception $e) {
             DbLog::error($e);
         }
+    }
+
+    /**
+     *  Return substep status
+     */
+    public function getStatus(int $substepId): string|null
+    {
+        $status = null;
+
+        try {
+            $stmt = $this->db->prepare("SELECT Status FROM substeps WHERE Id = :substepId");
+            $stmt->bindValue(':substepId', $substepId);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $status = $row['Status'];
+        }
+
+        return $status;
     }
 }
