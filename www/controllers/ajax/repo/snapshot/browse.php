@@ -43,6 +43,47 @@ if ($_POST['action'] == 'tree' and !empty($_POST['path'])) {
 }
 
 /**
+ *  Return the next page of files for a directory (load more)
+ */
+if ($_POST['action'] == 'tree/page' and !empty($_POST['path']) and isset($_POST['offset'])) {
+    try {
+        if (!preg_match("#^" . REPOS_DIR . "#", realpath($_POST['path']))) {
+            throw new Exception('invalid path ' . $_POST['path']);
+        }
+
+        $offset = max(0, (int) $_POST['offset']);
+        $result = \Controllers\Repo\Browse::renderPage($_POST['path'], $offset);
+    } catch (Exception $e) {
+        response(HTTP_BAD_REQUEST, 'Could not generate repository tree: ' . $e->getMessage());
+    }
+
+    response(HTTP_OK, $result);
+}
+
+/**
+ *  Search for files matching a query string across the entire repository subtree
+ */
+if ($_POST['action'] == 'tree/search' and !empty($_POST['path']) and isset($_POST['query'])) {
+    try {
+        if (!preg_match("#^" . REPOS_DIR . "#", realpath($_POST['path']))) {
+            throw new Exception('invalid path ' . $_POST['path']);
+        }
+
+        $query = trim($_POST['query']);
+
+        if (strlen($query) < 2) {
+            throw new Exception('search query must be at least 2 characters');
+        }
+
+        $result = \Controllers\Repo\Browse::search($_POST['path'], $query);
+    } catch (Exception $e) {
+        response(HTTP_BAD_REQUEST, 'Could not search repository: ' . $e->getMessage());
+    }
+
+    response(HTTP_OK, $result);
+}
+
+/**
  *  Delete packages from repo
  */
 if ($action == 'delete-package' and !empty($_POST['snapId']) and !empty($_POST['packages'])) {

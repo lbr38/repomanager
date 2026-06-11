@@ -1,19 +1,23 @@
 /**
 *   Explorateur de fichiers
 */
-#explorer {
+#explorer,
+#browse-search-results {
     font-size: 14px;
 }
 
-#explorer ul {
+#explorer ul,
+#browse-search-results ul {
     list-style-type: none;
 }
 
-#explorer a, #explorer li {
+#explorer a, #explorer li,
+#browse-search-results a, #browse-search-results li {
     text-decoration: none;
 }
 
-#explorer li > div {
+#explorer li > div,
+#browse-search-results li > div {
     min-height: 30px;
     padding: 10px 15px;
     margin-bottom: 6px;
@@ -21,15 +25,18 @@
     box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
 }
 
-#explorer li span {
+#explorer li span,
+#browse-search-results li span {
     display: block;
 }
 
-#explorer ul {
+#explorer ul,
+#browse-search-results ul {
     padding-left: 15px;
 }
 
-#explorer ul:first-child {
+#explorer ul:first-child,
+#browse-search-results ul:first-child {
     padding-left: 0;
 }
 

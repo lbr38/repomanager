@@ -2,26 +2,39 @@
 use \Controllers\User\Permission\Host as HostPermission; ?>
 
 <section class="section-main reloadable-container" container="host/summary">
-    <div id="title-button-div">
-        <h3><?= strtoupper($hostname) ?></h3>
+    <div class="margin-top-50 margin-bottom-40">
+        <div class="flex flex-wrap justify-space-between column-gap-20 row-gap-15">
+            <div class="flex align-item-center column-gap-10">
+                <h3 class="margin-0"><?= strtoupper($hostname) ?></h3>
 
-        <div class="flex justify-space-between">
-            <?php
-            if (HostPermission::allowedAction('reset')) : ?>
-                <div id="host-reset-btn" class="slide-btn-yellow" host-id="<?= $id ?>" title="Reset host informations">
-                    <img src="/assets/icons/update.svg">
-                    <span>Reset</span>
+                <div class="flex column-gap-8">
+                    <?php
+                    if ($compliance['compliant']) {
+                        echo '<img src="/assets/icons/check.svg" class="icon-np" title="Host is compliant" />';
+                    } else {
+                        echo '<img src="/assets/icons/warning-red.svg" class="icon-np" title="Host is not compliant: ' . strtolower($compliance['reason']) . '" />';
+                    } ?>
                 </div>
-                <?php
-            endif;
+            </div>
 
-            if (HostPermission::allowedAction('delete')) : ?>
-                <div id="host-delete-btn" class="slide-btn-red" host-id="<?= $id ?>" title="Delete host">
-                    <img src="/assets/icons/delete.svg">
-                    <span>Delete</span>
-                </div>
+            <div class="flex justify-space-between">
                 <?php
-            endif ?>
+                if (HostPermission::allowedAction('reset')) : ?>
+                    <div id="host-reset-btn" class="slide-btn-yellow" host-id="<?= $id ?>" title="Reset host informations">
+                        <img src="/assets/icons/update.svg">
+                        <span>Reset</span>
+                    </div>
+                    <?php
+                endif;
+
+                if (HostPermission::allowedAction('delete')) : ?>
+                    <div id="host-delete-btn" class="slide-btn-red" host-id="<?= $id ?>" title="Delete host">
+                        <img src="/assets/icons/delete.svg">
+                        <span>Delete</span>
+                    </div>
+                    <?php
+                endif ?>
+            </div>
         </div>
     </div>
 

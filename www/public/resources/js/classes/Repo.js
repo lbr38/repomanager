@@ -157,13 +157,15 @@ class Repo {
     }
 
     /**
-     *  Print packages tree
+     *  Print packages tree (root level only – sub-directories are lazy-loaded on expand)
      */
     printTree(path)
     {
+        const self = this;
+
         ajaxRequest(
             // Controller:
-            'repo/browse',
+            'repo/snapshot/browse',
             // Action:
             'tree',
             // Data:
@@ -175,33 +177,171 @@ class Repo {
             // Print error alert:
             true
         ).then(function () {
-            // Replace loading icon with the tree structure
             $('#packages-list').html(jsonValue.message);
-
-            // Hide all the sub-menus
-            $('div.explorer-toggle').next().hide();
-
-            // Set the cursor of the toggling span elements
-            $('div.explorer-toggle').css('cursor', 'pointer');
-
-            // Prepend a plus sign to signify that the sub-menus aren't expanded
-            $('div.explorer-toggle').prepend('+ ');
-
-            // Add a click function that toggles the sub-menu when the corresponding span element is clicked
-            $('div.explorer-toggle').click(function () {
-                $(this).next().toggle(100);
-
-                // Switch the plus to a minus sign or vice-versa
-                var v = $(this).html().substring(0, 1);
-                if (v == '+') {
-                    $(this).html('-' + $(this).html().substring(1));
-                } else if (v == '-') {
-                    $(this).html('+' + $(this).html().substring(1));
-                }
-            });
-
+            self._initTreeLevel($('#packages-list'));
+            self._initLoadMore($('#packages-list'));
+            self._initSearch(path);
             $('#loading-tree').remove();
+            $('#browse-search-bar').show();
             $('#explorer').show();
+        });
+    }
+
+    /**
+     *  Initialise click handlers for one tree level.
+     *  Directories are fetched from the server the first time they are expanded.
+     *  Call this again on any newly injected subtree container.
+     */
+    _initTreeLevel($container)
+    {
+        const self = this;
+
+        $container.find('div.explorer-toggle').each(function () {
+            const $toggle = $(this);
+
+            $toggle.prepend('+ ');
+
+            $toggle.on('click', function () {
+                const $subtree = $toggle.next('ul');
+
+                // Already loaded: just toggle visibility
+                if ($toggle.data('loaded')) {
+                    $subtree.toggle(100);
+                    const v = $toggle.html().substring(0, 1);
+                    if (v == '+') {
+                        $toggle.html('-' + $toggle.html().substring(1));
+                    } else if (v == '-') {
+                        $toggle.html('+' + $toggle.html().substring(1));
+                    }
+                    return;
+                }
+
+                // First expand: fetch this directory level from the server
+                $toggle.data('loaded', true);
+                $toggle.html('-' + $toggle.html().substring(1));
+
+                // Show loading indicator inside the empty placeholder
+                $subtree.html('<li class="flex align-item-center column-gap-5 padding-top-10 padding-bottom-10"><img src="/assets/icons/loading.svg" class="icon" /><span class="lowopacity-cst">Loading</span></li>');
+                $subtree.show();
+
+                ajaxRequest(
+                    // Controller:
+                    'repo/snapshot/browse',
+                    // Action:
+                    'tree',
+                    // Data:
+                    {
+                        path: $toggle.data('path')
+                    },
+                    // Print success alert:
+                    false,
+                    // Print error alert:
+                    true
+                ).then(function () {
+                    // The server returns a <ul>…</ul>; replace the placeholder <ul>
+                    const $newSubtree = $(jsonValue.message).hide();
+                    $subtree.replaceWith($newSubtree);
+                    self._initTreeLevel($newSubtree);
+                    $newSubtree.show(100);
+                }).catch(function () {
+                    // Revert state so the user can retry
+                    $toggle.data('loaded', false);
+                    $toggle.html('+' + $toggle.html().substring(1));
+                    $subtree.hide().empty();
+                });
+            });
+        });
+    }
+
+    /**
+     *  Set up the file search bar.
+     *  Debounces keystrokes and queries the server for filename matches.
+     *  Clears back to the tree when the input is emptied.
+     */
+    _initSearch(rootPath)
+    {
+        let debounceTimer = null;
+
+        $('#browse-search-input').on('input', function () {
+            clearTimeout(debounceTimer);
+            const query = $(this).val().trim();
+
+            if (query.length < 2) {
+                $('#browse-search-results').hide().empty();
+                $('#explorer').show();
+                return;
+            }
+
+            debounceTimer = setTimeout(function () {
+                // Show loading state
+                $('#explorer').hide();
+                $('#browse-search-results')
+                    .html('<div class="flex align-item-center column-gap-5 padding-top-5"><img src="/assets/icons/loading.svg" class="icon" /><span class="lowopacity-cst">Searching...</span></div>')
+                    .show();
+
+                ajaxRequest(
+                    // Controller:
+                    'repo/snapshot/browse',
+                    // Action:
+                    'tree/search',
+                    // Data:
+                    {
+                        path: rootPath, query: query
+                    },
+                    // Print success alert:
+                    false,
+                    // Print error alert:
+                    false
+                ).then(function () {
+                    $('#browse-search-results').html(jsonValue.message);
+                }).catch(function () {
+                    $('#browse-search-results').html('<p class="note">Search failed. Please try again.</p>');
+                });
+            }, 350);
+        });
+    }
+
+    /**
+     *  Set up delegated "load more" handler on a root container.
+     *  Must be called once on the #packages-list root; event delegation handles
+     *  all .load-more-files buttons inserted dynamically inside it.
+     */
+    _initLoadMore($root)
+    {
+        const self = this;
+
+        $root.on('click', 'li.load-more-files', function () {
+            const $li = $(this);
+            const path = $li.data('path');
+            const offset = $li.data('offset');
+
+            // Show loading state in place of the button
+            $li.find('div').html('<div class="flex align-item-center column-gap-5"><img src="/assets/icons/loading.svg" class="icon" /><span class="lowopacity-cst">Loading</span></div>');
+            $li.off('click');
+
+            ajaxRequest(
+                // Controller:
+                'repo/snapshot/browse',
+                // Action:
+                'tree/page',
+                // Data:
+                {
+                    path: path, offset: offset
+                },
+                // Print success alert:
+                false,
+                // Print error alert:
+                true
+            ).then(function () {
+                // Response is a fragment of <li> elements; insert before the button then remove it
+                const $items = $(jsonValue.message);
+                $li.before($items);
+                $li.remove();
+            }).catch(function () {
+                // Restore button text so the user can retry
+                $li.find('div').html('<p>Load more files (click to retry)</p>');
+                $li.on('click', arguments.callee);
+            });
         });
     }
 }

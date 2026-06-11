@@ -3,6 +3,8 @@
 namespace Controllers\Host;
 
 use Controllers\User\Permission\Host as HostPermission;
+use Controllers\Host\Package\Package as HostPackage;
+use Controllers\Host\Package\Event as PackageEvent;
 use Controllers\Host\Request as HostRequest;
 use Controllers\Group\Host as HostGroup;
 use Controllers\Layout\ContainerReload;
@@ -87,22 +89,26 @@ class Host
     /**
      *  Edit the display settings on the hosts page
      */
-    public function setSettings(int $packagesConsideredOutdated, int $packagesConsideredCritical): void
+    public function setSettings(int $complianceThresholdCount, int $complianceThresholdDays, int $complianceRebootRequired): void
     {
         if (!HostPermission::allowedAction('edit-settings')) {
             throw new Exception('You are not allowed to perform this action');
         }
 
-        if (!is_numeric($packagesConsideredOutdated) or !is_numeric($packagesConsideredCritical)) {
-            throw new Exception('Parameters must be numeric');
+        if (!is_numeric($complianceThresholdCount) or !is_numeric($complianceThresholdDays) or !is_numeric($complianceRebootRequired)) {
+            throw new Exception('Setting must be numeric');
         }
 
-        // Parameters must be greater than 0
-        if ($packagesConsideredOutdated <= 0 or $packagesConsideredCritical <= 0) {
-            throw new Exception('Parameters must be greater than 0');
+        // Value must be greater than 0
+        if ($complianceThresholdCount <= 0 or $complianceThresholdDays <= 0) {
+            throw new Exception('Value must be greater than 0');
         }
 
-        $this->model->setSettings($packagesConsideredOutdated, $packagesConsideredCritical);
+        if ($complianceRebootRequired !== 0 and $complianceRebootRequired !== 1) {
+            throw new Exception('Invalid value for compliance reboot required setting');
+        }
+
+        $this->model->setSettings($complianceThresholdCount, $complianceThresholdDays, $complianceRebootRequired);
     }
 
     /**
@@ -215,5 +221,60 @@ class Host
                 $this->model->removeFromGroup($actualHostId, $groupId);
             }
         }
+    }
+
+    /**
+     *  Return an array with the compliance status of a host
+     */
+    public function getCompliance(int $hostId): array
+    {
+        $hostPackageController = new HostPackage($hostId);
+        $hostPackageEventController = new PackageEvent($hostId);
+        $host = $this->get($hostId);
+        $settings = $this->getSettings();
+
+        $compliant = true;
+        $reason = '';
+
+        // Retrieve the total number of available packages
+        $available = count($hostPackageController->getAvailable());
+
+        // Retrieve the date of the last package upgrade event
+        $latestUpdate = $hostPackageEventController->getLastPackageUpgradeEvent()['Date'] ?? null;
+
+        // Calculate the threshold date based on the compliance threshold in days
+        $thresholdDate = strtotime('-' . $settings['compliance_threshold_days'] . ' days');
+
+        // The host is not compliant if the available updates count is >= threshold
+        if ($available >= $settings['compliance_threshold_count']) {
+            $compliant = false;
+            $reason = 'Pending updates count (' . $available . ') is greater than or equal to the threshold (' . $settings['compliance_threshold_count'] . ')';
+        }
+
+        if (!$latestUpdate) {
+            $compliant = false;
+            $reason = 'No package update has been performed yet';
+        }
+
+        // The host is not compliant if the latest update is older than the compliance threshold defined in settings (in days)
+        if ($latestUpdate and $thresholdDate and strtotime($latestUpdate) < $thresholdDate) {
+            $compliant = false;
+            $reason = 'Latest update date (' . $latestUpdate . ') is older than the compliance threshold (' . $settings['compliance_threshold_days'] . ' days)';
+        }
+
+        // Optional rule: host is not compliant when a reboot is required
+        $rebootRequired = $host['Reboot_required'] ?? 'false';
+        if ((int) $settings['compliance_reboot_required'] === 1 and ($rebootRequired === 'true')) {
+            $compliant = false;
+            $reason = 'Host requires a reboot';
+        }
+
+        return [
+            'compliant' => $compliant,
+            'reason' => $reason,
+            'available_updates_count' => $available,
+            'latest_update' => $latestUpdate,
+            'reboot_required' => $rebootRequired
+        ];
     }
 }

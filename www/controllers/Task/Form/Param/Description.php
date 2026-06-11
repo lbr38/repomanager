@@ -6,7 +6,7 @@ use Exception;
 
 class Description
 {
-    public static function check(string $description = null) : void
+    public static function check(string $description = '') : void
     {
         if (empty($description)) {
             return;

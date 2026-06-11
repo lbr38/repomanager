@@ -259,36 +259,6 @@ $(document).on('submit','.group-form',function (e) {
 });
 
 /**
- *  Event: Edit hosts settings
- */
-$(document).on('submit','#hostsSettingsForm',function () {
-    event.preventDefault();
-
-    var packagesConsideredOutdated = $('input[name="settings-pkgs-considered-outdated"').val();
-    var packagesConsideredCritical = $('input[name="settings-pkgs-considered-critical"').val();
-
-    ajaxRequest(
-        // Controller:
-        'host',
-        // Action:
-        'editSettings',
-        // Data:
-        {
-            packagesConsideredOutdated: packagesConsideredOutdated,
-            packagesConsideredCritical: packagesConsideredCritical
-        },
-        // Print success alert:
-        true,
-        // Print error alert:
-        true,
-        // Reload container:
-        ['hosts/list']
-    );
-
-    return false;
-});
-
-/**
  * Execute an action on selected hosts
  * @param {*} action
  * @param {*} hosts

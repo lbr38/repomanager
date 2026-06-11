@@ -45,6 +45,12 @@
             <p class="note">Generating tree structure...</p>
         </div>
 
+        <div id="browse-search-bar" class="hide margin-bottom-10">
+            <input type="text" id="browse-search-input" placeholder="Search files by name..." autocomplete="off" />
+        </div>
+
+        <div id="browse-search-results" class="hide"></div>
+
         <div id="explorer" class="hide">
             <form id="packages-list" snap-id="<?= $snapId ?>">
             </form>

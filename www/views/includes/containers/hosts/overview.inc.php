@@ -6,18 +6,64 @@
     if ($totalHosts >= 1) : ?>
         <h3>OVERVIEW</h3>
 
-        <div class="hosts-charts-container">
-            <div class="echart-container div-generic-blue">
-                <h6 class="margin-top-0">HOSTS (<?= $totalHosts ?>)</h6>
-
-                <div id="hosts-count-chart-loading" class="echart-loading">
-                    <img src="/assets/icons/loading.svg" class="icon-np" />
+        <div class="grid grid-rfr-1-3 column-gap-20 row-gap-20 margin-bottom-20">
+            <div class="kpi-card">
+                <img src="/assets/icons/server.svg" class="icon-np icon-medium" />
+                <div>
+                    <p class="kpi-value"><?= $totalHosts ?></p>
+                    <p class="mediumopacity-cst">Host<?= $totalHosts > 1 ? 's' : '' ?></p>
                 </div>
-
-                <div id="hosts-count-chart" class="echart"></div>
             </div>
 
-            <div class="hosts-chart-sub-container div-generic-blue">
+            <div id="hosts-compliant-kpi" class="kpi-card kpi-card-ajax" autoupdate="true">
+                <img src="/assets/icons/loading.svg" class="icon-np icon-medium" />
+                <div>
+                    <p class="kpi-value">
+                        <img src="/assets/icons/loading.svg" class="icon-np icon-small" />
+                    </p>
+                    <p class="mediumopacity-cst">Compliant hosts</p>
+                </div>
+            </div>
+
+            <div id="hosts-uptodate-kpi" class="kpi-card kpi-card-ajax">
+                <img src="/assets/icons/loading.svg" class="icon-np icon-medium" />
+                <div>
+                    <p class="kpi-value">
+                        <img src="/assets/icons/loading.svg" class="icon-np icon-small" />
+                    </p>
+                    <p class="mediumopacity-cst">Up-to-date hosts</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-rfr-1-3 column-gap-20">
+            <div class="div-generic-blue" style="grid-column: span 2;">
+                <h6 class="margin-top-0">OPERATING SYSTEMS</h6>
+
+                <div class="echart-container">
+                    <div id="hosts-os-chart-loading" class="echart-loading">
+                        <img src="/assets/icons/loading.svg" class="icon-np" />
+                    </div>
+
+                    <div id="hosts-os-chart" class="echart"></div>
+                </div>
+            </div>
+
+            <div class="div-generic-blue">
+                <h6 class="margin-top-0">ARCHITECTURES</h6>
+
+                <div class="echart-container">
+                    <div id="hosts-arch-chart-loading" class="echart-loading">
+                        <img src="/assets/icons/loading.svg" class="icon-np" />
+                    </div>
+
+                    <div id="hosts-arch-chart" class="echart"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-rfr-1-3 column-gap-20">
+            <div class="div-generic-blue">
                 <h6 class="margin-top-0">KERNELS</h6>
             
                 <div class="grid grid-rfr-1-2 row-gap-5 column-gap-40 margin-15">
@@ -36,7 +82,7 @@
                 </div>
             </div>
 
-            <div class="hosts-chart-sub-container div-generic-blue">
+            <div class="div-generic-blue">
                 <h6 class="margin-top-0">PROFILES</h6>
                 <div class="grid grid-rfr-1-2 row-gap-5 column-gap-40 margin-15">
                     <?php
@@ -54,31 +100,7 @@
                 </div>
             </div>
 
-            <div class="hosts-chart-sub-container div-generic-blue">
-                <h6 class="margin-top-0">OPERATING SYSTEMS</h6>
-
-                <div class="echart-container">
-                    <div id="hosts-os-chart-loading" class="echart-loading">
-                        <img src="/assets/icons/loading.svg" class="icon-np" />
-                    </div>
-
-                    <div id="hosts-os-chart" class="echart"></div>
-                </div>
-            </div>
-
-            <div class="hosts-chart-sub-container div-generic-blue">
-                <h6 class="margin-top-0">ARCHITECTURES</h6>
-
-                <div class="echart-container">
-                    <div id="hosts-arch-chart-loading" class="echart-loading">
-                        <img src="/assets/icons/loading.svg" class="icon-np" />
-                    </div>
-
-                    <div id="hosts-arch-chart" class="echart"></div>
-                </div>
-            </div>
-
-            <div class="hosts-chart-sub-container div-generic-blue">
+            <div class="div-generic-blue">
                 <h6 class="margin-top-0">ENVIRONMENTS</h6>
 
                 <div class="echart-container">
@@ -90,7 +112,7 @@
                 </div>
             </div>
 
-            <div class="hosts-chart-sub-container div-generic-blue">
+            <div class="div-generic-blue">
                 <h6 class="margin-top-0">AGENT STATUS</h6>
 
                 <div class="echart-container">
@@ -102,7 +124,7 @@
                 </div>
             </div>
 
-            <div class="hosts-chart-sub-container div-generic-blue">
+            <div class="div-generic-blue">
                 <h6 class="margin-top-0">AGENT VERSION</h6>
 
                 <div class="echart-container">
@@ -114,7 +136,7 @@
                 </div>
             </div>
 
-            <div class="hosts-chart-sub-container div-generic-blue">
+            <div class="div-generic-blue relative">
                 <h6 class="margin-top-0">HOSTS REQUIRING REBOOT</h6>
                 
                 <div id="hosts-requiring-reboot-chart" class="flex justify-center align-item-center">

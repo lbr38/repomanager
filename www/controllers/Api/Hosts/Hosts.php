@@ -99,15 +99,18 @@ class Hosts extends \Controllers\Api\Controller
                     $strictVersion = true;
                 }
 
+                // If the "absent" query parameter is set, return hosts on which the package is NOT installed
+                $absent = isset($_GET['absent']);
+
                 if (empty($this->uri[5])) {
                     throw new Exception('You must specify a package');
                 }
 
-                return ['results' => $hostListingController->getByPackage($this->uri[5], $version, $strictName, $strictVersion)];
+                return ['results' => $hostListingController->getByPackage($this->uri[5], $version, $strictName, $strictVersion, $absent)];
             }
 
             /**
-             *  List up-to-date hosts
+             *  List up-to-date hosts (0 available updates)
              *  https://repomanager.mydomain.net/api/v2/hosts/uptodate
              */
             if ($this->uri[4] == 'uptodate' and $this->method == 'GET') {
@@ -115,11 +118,29 @@ class Hosts extends \Controllers\Api\Controller
             }
 
             /**
-             *  List outdated hosts
+             *  List compliant hosts (all compliance criteria)
+             *  https://repomanager.mydomain.net/api/v2/hosts/compliant
+             */
+            if ($this->uri[4] == 'compliant' and $this->method == 'GET') {
+                return ['results' => $hostListingController->getCompliant(isset($_GET['packages']))];
+            }
+
+            /**
+             *  List outdated hosts (at least 1 available update)
              *  https://repomanager.mydomain.net/api/v2/hosts/outdated
              */
             if ($this->uri[4] == 'outdated' and $this->method == 'GET') {
-                return ['results' => $hostListingController->getOutdated()];
+                // Also get the list of available updates if the "packages" query parameter is set
+                return ['results' => $hostListingController->getOutdated(isset($_GET['packages']))];
+            }
+
+            /**
+             *  List non-compliant hosts (all compliance criteria)
+             *  https://repomanager.mydomain.net/api/v2/hosts/non-compliant
+             */
+            if ($this->uri[4] == 'non-compliant' and $this->method == 'GET') {
+                // Also get the list of available updates if the "packages" query parameter is set
+                return ['results' => $hostListingController->getNonCompliant(isset($_GET['packages']))];
             }
         }
 

@@ -138,7 +138,7 @@ class User
     /**
      *  Return true if user exists
      */
-    public function exists(string $username, string $type = null) : bool
+    public function exists(string $username, string $type = '') : bool
     {
         return $this->model->exists($username, $type);
     }

@@ -10,13 +10,13 @@ $options = [];
 $agents = $hostListingController->getAgentVersion();
 
 foreach ($agents as $agent) {
-    if (empty($agent['Linupdate_version'])) {
+    if (empty($agent['Agent_version'])) {
         $labels[] = 'Unknown';
     } else {
-        $labels[] = $agent['Linupdate_version'];
+        $labels[] = $agent['Agent_version'];
     }
 
-    $datasets[0]['data'][] = $agent['Linupdate_version_count'];
+    $datasets[0]['data'][] = $agent['Agent_version_count'];
     $datasets[0]['colors'][] = Color::random();
 }
 

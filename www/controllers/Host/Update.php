@@ -140,11 +140,11 @@ class Update
     }
 
     /**
-     *  Update host's linupdate version in database
+     *  Update host's agent version in database
      */
-    public function updateLinupdateVersion(int $id, string $version) : void
+    public function updateAgentVersion(int $id, string $version) : void
     {
-        $this->model->updateLinupdateVersion($id, Validate::string($version));
+        $this->model->updateAgentVersion($id, Validate::string($version));
     }
 
     /**

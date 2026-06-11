@@ -13,6 +13,7 @@
     <link rel="stylesheet" type="text/css" href="/resources/styles/components/input.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/components/button.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/components/label.css?<?= VERSION ?>">
+    <link rel="stylesheet" type="text/css" href="/resources/styles/components/card.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/components/confirmbox.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/components/modal.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/components/tooltip.css?<?= VERSION ?>">

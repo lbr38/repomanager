@@ -60,6 +60,7 @@
 <script src="/resources/js/classes/DateRangePicker.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/SessionStorage.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/EChart.js?<?= VERSION ?>"></script>
+<script src="/resources/js/classes/KPICard.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/System.js?<?= VERSION ?>"></script>
 
 <script>
@@ -129,9 +130,10 @@ if (__ACTUAL_URI__[1] == 'hosts' or __ACTUAL_URI__[1] == 'host') {
 
     $jsFiles =[
         'host',
-        'events/host/layout',
+        'events/hosts/profile/actions',
+        'events/hosts/settings',
+        'events/hosts/layout',
         'events/host/actions',
-        'events/profile/actions',
         'events/task/stop'
     ];
 }

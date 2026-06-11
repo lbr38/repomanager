@@ -9,7 +9,7 @@ $(document).on('click','.view-file',function () {
     
     ajaxRequest(
         // Controller:
-        'repo/browse',
+        'repo/snapshot/browse',
         // Action:
         'view-file',
         // Data:
@@ -70,8 +70,8 @@ $(document).on('click',".package-checkbox",function (e) {
         }
     }
 
-    // Count the number of selected packages
-    var count = $('#packages-list').find('input[type="checkbox"].package-checkbox:checked').length;
+    // Count the number of selected packages (across both tree and search results)
+    var count = $('body').find('input[type="checkbox"].package-checkbox:checked').length;
 
     /**
      *  Define confirm box buttons depending on the allowed actions
@@ -126,7 +126,7 @@ $(document).on('click',"#rebuild-btn",function () {
 
     ajaxRequest(
         // Controller:
-        'repo/browse',
+        'repo/snapshot/browse',
         // Action:
         'rebuild',
         // Data:

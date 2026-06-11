@@ -1,25 +1,23 @@
 <?php
 use \Controllers\User\Permission\Host as HostPermission;
+use \Controllers\Host\Host;
 
 if (!HostPermission::allowedAction('edit-settings')) {
     throw new Exception('You are not allowed to access this panel');
 }
 
-$myhost = new \Controllers\Host\Host();
+$hostController = new Host();
 
-/**
- *  Getting general hosts threshold settings
- */
-$hostsSettings = $myhost->getSettings();
+// Get hosts settings
+$settings = $hostController->getSettings();
 
-/**
- *  Threshold of the maximum number of available update above which the host is considered as 'not up to date' (but not critical)
- */
-$pkgs_count_considered_outdated = $hostsSettings['pkgs_count_considered_outdated'];
+// Get compliance threshold count
+$complianceThresholdCount = $settings['compliance_threshold_count'];
 
-/**
- *  Threshold of the maximum number of available update above which the host is considered as 'not up to date' (critical)
- */
-$pkgs_count_considered_critical = $hostsSettings['pkgs_count_considered_critical'];
+// Get compliance threshold days
+$complianceThresholdDays = $settings['compliance_threshold_days'];
 
-unset($myhost, $hostsSettings);
+// Get compliance reboot required
+$complianceRebootRequired = $settings['compliance_reboot_required'];
+
+unset($hostController, $settings);

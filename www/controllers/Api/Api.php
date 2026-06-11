@@ -177,6 +177,12 @@ class Api
         // TODO: remove 'return' key in favor of 'rc' key in future major release
         $results['return'] = $results['rc'];
         $results['note'] = "The 'return' key is deprecated and will be removed in a future major release (replaced by 'rc' key)";
+
+        // If the "normalize" query parameter is set, convert all result keys to lowercase
+        if (isset($_GET['normalize'])) {
+            $results = Serializer::normalize($results);
+        }
+
         http_response_code((int) $results['rc']);
         echo json_encode($results);
         exit;

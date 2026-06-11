@@ -151,8 +151,18 @@ class Host
             // Print error alert:
             true
         ).then(function () {
-            // Convert the JSON response to CSV format, replacing null values with empty strings and escaping quotes
-            const lines = JSON.parse(jsonValue.message).map(row => row.map(field => `"${(field ?? '').toString().replace(/"/g,'""')}"`).join(','));
+            // Convert JSON response to CSV lines without wrapping fields in double quotes.
+            // Replace CSV-breaking characters to keep a stable comma-separated format.
+            const sanitizeCsvField = function (field) {
+                return (field ?? '')
+                    .toString()
+                    .replace(/\r\n|\r|\n/g, ' ')
+                    .replace(/,/g, ' ')
+                    .replace(/"/g, "'")
+                    .trim();
+            };
+
+            const lines = JSON.parse(jsonValue.message).map(row => row.map(sanitizeCsvField).join(','));
 
             // Join the lines with newline characters
             const csv = lines.join('\n');

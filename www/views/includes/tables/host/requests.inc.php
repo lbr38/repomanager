@@ -2,8 +2,12 @@
     <p class="note margin-bottom-15">Requests sent to the host.</p>
 
     <?php
-    if (empty($reloadableTableContent)) :
-        echo '<p>Nothing for now!</p>';
+    if (empty($reloadableTableContent)) : ?>
+        <div class="empty-state">
+            <p class="empty-state-title">Nothing for now!</p>
+            <p class="note">No requests have been sent to the host yet.</p>
+        </div>
+        <?php
     endif;
 
     if (!empty($reloadableTableContent)) :
@@ -118,7 +122,7 @@
             }
 
             if ($request == 'request-packages-update') {
-                $requestString = 'Request to install a list of package(s)';
+                $requestString = 'Request to update a list of package(s)';
                 $requestTitle = 'Requested the host to install a list of package(s)';
 
 

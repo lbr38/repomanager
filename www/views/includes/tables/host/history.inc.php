@@ -1,5 +1,13 @@
 <div class="reloadable-table margin-top-15" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
     <?php
+    if (empty($reloadableTableContent)) : ?>
+        <div class="empty-state">
+            <p class="empty-state-title">Nothing for now!</p>
+            <p class="note">The host did not send any history yet.</p>
+        </div>
+        <?php
+    endif;
+
     if (!empty($reloadableTableContent)) :
         foreach ($reloadableTableContent as $date => $packageState) : ?>
             <div class="table-container-3 row-gap-15 column-gap-30 bck-blue-alt event-packages-btn pointer" host-id="<?= $id ?>" event-date="<?= $date ?>">

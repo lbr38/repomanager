@@ -175,7 +175,7 @@ class User extends \Models\Model
     /**
      *  Return true if user exists in database
      */
-    public function exists(string $username, string $type = null): bool
+    public function exists(string $username, string $type = ''): bool
     {
         try {
             $query = "SELECT * FROM users WHERE Username = :username";

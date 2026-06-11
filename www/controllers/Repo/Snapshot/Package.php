@@ -328,6 +328,8 @@ class Package
         }
 
         foreach ($files as $file) {
+            $file = REPOS_DIR . '/' . $file;
+
             // Filename must not contain special characters
             // Only allow dashes and underscores and one more character: the dot (because package names contain dots)
             // Also allow slash because the path of the file also contains the subfolders to the package from the root of the repo

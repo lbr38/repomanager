@@ -11,11 +11,8 @@ $id = __ACTUAL_URI__[2];
 $myhost = new \Controllers\Host\Host();
 $hostPackageController = new \Controllers\Host\Package\Package($id);
 
-/**
- *  Getting all informations about this host
- */
+// Getting all informations about this host
 $hostProperties = $myhost->get($id);
-
 $hostname         = $hostProperties['Hostname'];
 $ip               = $hostProperties['Ip'];
 $os               = $hostProperties['Os'];
@@ -28,7 +25,7 @@ $ram              = $hostProperties['Ram'];
 $profile          = $hostProperties['Profile'];
 $env              = $hostProperties['Env'];
 $agentStatus      = $hostProperties['Online_status'];
-$agentVersion     = $hostProperties['Linupdate_version'];
+$agentVersion     = $hostProperties['Agent_version'];
 $rebootRequired   = $hostProperties['Reboot_required'];
 $uptime           = $hostProperties['Uptime'];
 
@@ -46,16 +43,15 @@ if (is_numeric($uptime)) {
     $uptime = $interval->format('%a days, %h hours, %i minutes');
 }
 
-/**
- *  Last known agent state message
- */
+// Last known agent state message
 $agentLastSendStatusMsg = 'state on ' . DateTime::createFromFormat('Y-m-d', $hostProperties['Online_status_date'])->format('d-m-Y') . ' at ' . $hostProperties['Online_status_time'];
 
-/**
- *  Checking that the last time the agent has sent his status was before 1h10m
- */
+// Checking that the last time the agent has sent his status was before 1h10m
 if ($hostProperties['Online_status_date'] != DATE_YMD or $hostProperties['Online_status_time'] <= date('H:i:s', strtotime(date('H:i:s') . ' - 70 minutes'))) {
     $agentStatus = 'seems-stopped';
 }
+
+// Check if the host is compliant
+$compliance = $myhost->getCompliance($id);
 
 unset($myhost, $hostPackageController, $hostProperties);

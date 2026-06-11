@@ -1,5 +1,9 @@
 <?php
-use \Controllers\User\Permission\Host as HostPermission; ?>
+use \Controllers\User\Permission\Host as HostPermission;
+use \Controllers\Utils\Generate\Html\Label;
+use \Controllers\Utils\Generate\Html\Icon;
+use \Controllers\Utils\Convert;
+use \Controllers\Host\Package\Package; ?>
 
 <section class="section-main reloadable-container" container="hosts/list">
     <div class="flex justify-space-between margin-top-50 margin-bottom-40">
@@ -83,7 +87,7 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
                         <img src="/assets/icons/info.svg" class="icon-small icon-np lowopacity search-package-tooltip" />
                     </div>
 
-                    <input type="text" id="search-package-input" onkeyup="HostSearch.searchPackage()" autocomplete="off" placeholder="name=package name" />
+                    <input type="text" id="search-package-input" onkeyup="HostSearch.searchPackage()" autocomplete="off" placeholder="name=mysql" />
                 </div>
             </div>
 
@@ -170,6 +174,8 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
                                         $agentStatus = 'unknown';
                                         $requestInfo = null;
                                         $responseDetails = null;
+                                        $compliantIcon = 'check.svg';
+                                        $compliantTitle = 'Host is compliant';
 
                                         if (!empty($host['Hostname'])) {
                                             $hostname = $host['Hostname'];
@@ -201,8 +207,8 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
                                         if (!empty($host['Env'])) {
                                             $env = $host['Env'];
                                         }
-                                        if (!empty($host['Linupdate_version'])) {
-                                            $agentVersion = $host['Linupdate_version'];
+                                        if (!empty($host['Agent_version'])) {
+                                            $agentVersion = $host['Agent_version'];
                                         }
                                         if (!empty($host['Reboot_required'])) {
                                             $rebootRequired = $host['Reboot_required'];
@@ -220,10 +226,7 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
                                         $agentLastSendStatusMsg = 'state on ' . DateTime::createFromFormat('Y-m-d', $host['Online_status_date'])->format('d-m-Y') . ' ' . $host['Online_status_time'];
 
                                         // Open the dedicated database of the host from its ID to be able to retrieve additional information
-                                        $hostPackageController = new \Controllers\Host\Package\Package($id);
-
-                                        // Retrieve the total number of available packages
-                                        $packagesAvailableTotal = count($hostPackageController->getAvailable());
+                                        $hostPackageController = new Package($id);
 
                                         // Retrieve the total number of installed packages
                                         $packagesInstalledTotal = count($hostPackageController->getInstalled());
@@ -233,9 +236,23 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
 
                                         unset($hostPackageController);
 
+                                        // Determine host compliance
+                                        $compliance = $hostController->getCompliance($id);
+                                        $packagesAvailableTotal = $compliance['available_updates_count'];
+                                        $latestUpdate = $compliance['latest_update'];
+
+                                        $class = '';
+                                        if (!$compliance['compliant']) {
+                                            $compliantIcon = 'warning-red.svg';
+                                            $compliantTitle = 'Host is not compliant: ' . strtolower($compliance['reason']);
+                                            if ($packagesAvailableTotal >= $complianceThresholdCount) {
+                                                $class = 'bkg-red';
+                                            }
+                                        }
+
                                         // Print the host informations
                                         // Here the <div> will contain all the host informations in order to be able to search on it (input 'search a host') ?>
-                                        <div class="host-line flex flex-direction-column div-generic-blue bck-blue-alt margin-bottom-10" hostid="<?= $id ?>" hostname="<?= $hostname ?>" os="<?= $os ?>" os_version="<?= $osVersion ?>" os_family="<?= $osFamily ?>" type="<?= $type ?>" kernel="<?= $kernel ?>" arch="<?= $arch ?>" profile="<?= $profile ?>" env="<?= $env ?>" agent_version="<?= $agentVersion ?>" reboot_required="<?= $rebootRequired ?>">
+                                        <div class="host-line flex flex-direction-column div-generic-blue bck-blue-alt margin-bottom-10" hostid="<?= $id ?>" hostname="<?= $hostname ?>" os="<?= $os ?>" os_version="<?= $osVersion ?>" os_family="<?= $osFamily ?>" type="<?= $type ?>" kernel="<?= $kernel ?>" arch="<?= $arch ?>" profile="<?= $profile ?>" env="<?= $env ?>" agent-status="<?= $agentStatus ?>" agent-version="<?= $agentVersion ?>" reboot_required="<?= $rebootRequired ?>" compliant="<?= Convert::toString($compliance['compliant']) ?>">
                                             <div class="flex column-gap-20">
                                                 <div class="align-self-center">
                                                     <?php
@@ -268,7 +285,7 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
 
                                                             <div class="grid hosts-compact-view-subgrid align-item-center">
                                                                 <div class="label-icon-tr max-width-fit" title="OS and type">
-                                                                    <?= \Controllers\Utils\Generate\Html\Icon::os($os); ?>
+                                                                    <?= Icon::os($os); ?>
 
                                                                     <div class="flex flex-direction-column row-gap-2 width-100">
                                                                         <p class="font-size-13" title="OS"><?= ucfirst($os) . ' ' . $osVersion ?></p>
@@ -279,20 +296,10 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
                                                                 <div class="flex flex-direction-column row-gap-5">
                                                                     <a href="/host/<?= $id ?>" target="_blank" rel="noopener noreferrer">
                                                                         <div class="label-icon-tr max-width-fit">
-                                                                            <img src="/assets/icons/package.svg" class="icon-np" />
+                                                                            <img src="/assets/icons/<?= $compliantIcon ?>" class="icon-np" title="<?= $compliantTitle ?>"/>
                                                                             <div class="flex align-item-center column-gap-10">
                                                                                 <p class="font-size-13" title="<?= $packagesInstalledTotal . ' package(s) installed on this host' ?>"><?= $packagesInstalledTotal ?></p>
-                                                                                <?php
-                                                                                if ($packagesAvailableTotal > 0) {
-                                                                                    $class = '';
-                                                                                    if ($packagesAvailableTotal >= $packagesCountConsideredCritical) {
-                                                                                        $class = 'bkg-red';
-                                                                                    } elseif ($packagesAvailableTotal >= $packagesCountConsideredOutdated) {
-                                                                                        $class = 'bkg-yellow';
-                                                                                    }
-
-                                                                                    echo '<p class="font-size-13 host-available-packages-label ' . $class . '" title="' . $packagesAvailableTotal . ' package update(s) available on this host">' . $packagesAvailableTotal . '</p>';
-                                                                                } ?>
+                                                                                <p class="font-size-13 host-available-packages-label <?= $class ?>" title="<?= $packagesAvailableTotal ?> package update(s) available on this host"><?= $packagesAvailableTotal ?></p>
                                                                             </div>
                                                                         </div>
                                                                     </a>
@@ -351,7 +358,7 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
                                                                 <h6 class="margin-top-0">OS</h6>
                                                                 <div class="flex align-item-center column-gap-5">
                                                                     <p class="mediumopacity-cst copy"><?= $os ?></p>
-                                                                    <span><?= \Controllers\Utils\Generate\Html\Icon::os($os); ?></span>
+                                                                    <span><?= Icon::os($os); ?></span>
                                                                 </div>
                                                             </div>
 
@@ -378,7 +385,7 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
                                                             <div>
                                                                 <h6 class="margin-top-0">ENVIRONMENT</h6>
                                                                 <p class="copy">
-                                                                    <?= \Controllers\Utils\Generate\Html\Label::envtag($env) ?>
+                                                                    <?= Label::envtag($env) ?>
                                                                 </p>
                                                             </div>
 
@@ -393,10 +400,8 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
                                                                 <h6 class="margin-top-0"><?= $layoutPackagesTitle ?> AVAILABLE</h6>
                                                                 <p title="<?= $packagesAvailableTotal . ' package update(s) available on this host' ?>">
                                                                     <?php
-                                                                    if ($packagesAvailableTotal >= $packagesCountConsideredCritical) {
+                                                                    if ($packagesAvailableTotal >= $complianceThresholdCount) {
                                                                         echo '<span class="label-white bkg-red">' . $packagesAvailableTotal . '</span>';
-                                                                    } elseif ($packagesAvailableTotal >= $packagesCountConsideredOutdated) {
-                                                                        echo '<span class="label-white bkg-yellow">' . $packagesAvailableTotal . '</span>';
                                                                     } else {
                                                                         echo '<span class="label-white">' . $packagesAvailableTotal . '</span>';
                                                                     } ?>    
@@ -465,7 +470,7 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
                                                                         $requestTitleShort = 'Request package information';
                                                                     }
                                                                     if ($request == 'request-packages-update') {
-                                                                        $requestTitle = 'Request to install a list of package(s)';
+                                                                        $requestTitle = 'Request to update a list of package(s)';
                                                                         $requestTitleShort = 'Request to update a list of package(s)';
 
                                                                         if (!empty($requestJson['packages'])) {

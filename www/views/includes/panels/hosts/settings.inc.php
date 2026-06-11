@@ -1,21 +1,29 @@
 <?php ob_start(); ?>
 
-<form id="hostsSettingsForm" action="/hosts" method="post" autocomplete="off">
-    <h6>AVAILABLE PACKAGE UPDATES</h6>
+<form id="hosts-settings" action="/hosts" method="post" autocomplete="off">
+    <h6>COMPLIANCE</h6>
 
-    <p class="note">Display color labels depending on the number of available updates to help you quickly identify hosts that need to be updated.</p>
+    <p class="note">Set the thresholds for host compliance.</p>
 
-    <br>
+    <div class="flex flex-direction-column row-gap-10 margin-top-15 margin-bottom-15">
+        <div>
+            <p>Host is not compliant when pending updates is greater or equal to:</p>
+            <input type="number" name="compliance-threshold-count" value="<?= $complianceThresholdCount ?>" />
+        </div>
 
-    <p>Display a <span class="label-yellow">yellow</span> label when total available update is greater than or equal to:</p>
-    <input type="number" name="settings-pkgs-considered-outdated" value="<?= $pkgs_count_considered_outdated ?>" />
-        
-    <br><br>
+        <div>
+            <p>Host is not compliant when latest update is older than (days):</p>
+            <input type="number" name="compliance-threshold-days" value="<?= $complianceThresholdDays ?>" />
+        </div>
 
-    <p>Display a <span class="label-red">red</span> label when total available update is greater than or equal to:</p>
-    <input type="number" name="settings-pkgs-considered-critical" value="<?= $pkgs_count_considered_critical ?>" />
-
-    <br><br>
+        <div>
+            <p>Host is not compliant when a reboot is required:</p>
+            <label class="onoff-switch-label">
+                <input name="compliance-reboot-required" type="checkbox" class="onoff-switch-input" <?= $complianceRebootRequired ? 'checked' : '' ?> />
+                <span class="onoff-switch-slider"></span>
+            </label>
+        </div>
+    </div>
 
     <button class="btn-large-green">Save</button>
 </form>
@@ -23,6 +31,6 @@
 <?php
 $content = ob_get_clean();
 $slidePanelName = 'hosts/settings';
-$slidePanelTitle = 'HOSTS DISPLAY SETTINGS';
+$slidePanelTitle = 'HOSTS SETTINGS';
 
 include(ROOT . '/views/includes/slide-panel.inc.php');

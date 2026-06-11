@@ -123,12 +123,13 @@ class Host extends \Models\Model
     /**
      *  Edit the display settings on the hosts page
      */
-    public function setSettings(string $packagesConsideredOutdated, string $packagesConsideredCritical): void
+    public function setSettings(int $complianceThresholdCount, int $complianceThresholdDays, int $complianceRebootRequired): void
     {
         try {
-            $stmt = $this->db->prepare("UPDATE settings SET pkgs_count_considered_outdated = :packagesConsideredOutdated, pkgs_count_considered_critical = :packagesConsideredCritical");
-            $stmt->bindValue(':packagesConsideredOutdated', $packagesConsideredOutdated);
-            $stmt->bindValue(':packagesConsideredCritical', $packagesConsideredCritical);
+            $stmt = $this->db->prepare("UPDATE settings SET compliance_threshold_count = :compliance_threshold_count, compliance_threshold_days = :compliance_threshold_days, compliance_reboot_required = :compliance_reboot_required");
+            $stmt->bindValue(':compliance_threshold_count', $complianceThresholdCount, SQLITE3_INTEGER);
+            $stmt->bindValue(':compliance_threshold_days', $complianceThresholdDays, SQLITE3_INTEGER);
+            $stmt->bindValue(':compliance_reboot_required', $complianceRebootRequired, SQLITE3_INTEGER);
             $stmt->execute();
         } catch (Exception $e) {
             DbLog::error($e);

@@ -960,7 +960,7 @@ class Connection extends SQLite3
         Online_status_time TIME,
         Reboot_required CHAR(5),
         Uptime VARCHAR(255),
-        Linupdate_version VARCHAR(255))"); /* active / disabled / deleted */
+        Agent_version VARCHAR(255))"); /* active / disabled / deleted */
 
         /**
          *  groups table
@@ -981,22 +981,20 @@ class Connection extends SQLite3
          *  settings table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS settings (
-        pkgs_count_considered_outdated INTEGER NOT NULL,
-        pkgs_count_considered_critical INTEGER NOT NULL)");
+        compliance_threshold_count INTEGER NOT NULL DEFAULT 1,
+        compliance_threshold_days INTEGER NOT NULL DEFAULT 30,
+        compliance_reboot_required INTEGER NOT NULL DEFAULT 1)"); /* 1 = true, 0 = false */
 
-        /**
-         *  If settings table is empty then populate it
-         */
-        $result = $this->query("SELECT pkgs_count_considered_outdated FROM settings");
-        if ($this->isempty($result) === true) {
-            $this->exec("INSERT INTO settings ('pkgs_count_considered_outdated', 'pkgs_count_considered_critical') VALUES ('1', '10')");
+        // Insert default values in settings table, if empty
+        if ($this->isempty($this->query("SELECT * FROM settings"))) {
+            $this->query("INSERT INTO settings (compliance_threshold_count, compliance_threshold_days, compliance_reboot_required) VALUES (1, 30, 1)");
         }
 
         /**
          *  Create indexes
          */
         // hosts table indexes:
-        $this->exec("CREATE INDEX IF NOT EXISTS idx_hosts ON hosts (Ip, Hostname, Os, Os_version, Os_family, Kernel, Arch, Type, Profile, Env, AuthId, Token, Online_status, Online_status_date, Online_status_time, Reboot_required, Linupdate_version)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_hosts ON hosts (Ip, Hostname, Os, Os_version, Os_family, Kernel, Arch, Type, Profile, Env, AuthId, Token, Online_status, Online_status_date, Online_status_time, Reboot_required, Agent_version)");
         $this->exec("CREATE INDEX IF NOT EXISTS idx_hosts_authid ON hosts (AuthId)");
         $this->exec("CREATE INDEX IF NOT EXISTS idx_hosts_token ON hosts (Token)");
         $this->exec("CREATE INDEX IF NOT EXISTS idx_hosts_authid_token ON hosts (AuthId, Token)");
@@ -1083,12 +1081,12 @@ class Connection extends SQLite3
         $this->exec("CREATE INDEX IF NOT EXISTS host_packages_name_version ON packages (Name, Version);");
         $this->exec("CREATE INDEX IF NOT EXISTS host_packages_state ON packages (State);");
         $this->exec("CREATE INDEX IF NOT EXISTS host_packages_id_event_state ON packages (Id_event, State)");
-        $this->exec("CREATE INDEX IF NOT EXISTS host_packages_state_date ON packages (State, Date)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_host_packages_state_date_time ON packages (State, Date, Time)");
         // packages_history table indexes:
         $this->exec("CREATE INDEX IF NOT EXISTS host_packages_history_id_event_State ON packages_history (Id_event, State)");
         $this->exec("CREATE INDEX IF NOT EXISTS host_packages_history_name ON packages_history (Name)");
         $this->exec("CREATE INDEX IF NOT EXISTS host_packages_history_state ON packages_history (State)");
-        $this->exec("CREATE INDEX IF NOT EXISTS host_packages_history_state_date ON packages_history (State, Date)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_host_packages_history_state_date_time ON packages_history (State, Date, Time)");
     }
 
     /**

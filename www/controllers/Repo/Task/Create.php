@@ -272,6 +272,7 @@ class Create extends \Controllers\Task\Execution
         File::recursiveChmod($snapshotPath, 'file', 660);
 
         $this->taskLogSubStepController->completed();
+        $this->taskLogStepController->completed();
 
         /**
          *  Add repo to group if a group has been specified
@@ -281,7 +282,5 @@ class Create extends \Controllers\Task\Execution
             $this->repoController->addRepoIdToGroup($this->repoController->getRepoId(), $this->repoController->getGroup());
             $this->taskLogStepController->completed();
         }
-
-        $this->taskLogStepController->completed();
     }
 }
