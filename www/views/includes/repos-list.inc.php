@@ -6,7 +6,7 @@ if (!empty($groups)) {
             continue;
         }
 
-        include(ROOT . '/views/includes/containers/repos/includes-temp/group.inc.php');
+        include(ROOT . '/views/includes/containers/repos/group.inc.php');
     }
 } ?>
 

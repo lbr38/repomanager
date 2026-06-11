@@ -2,7 +2,7 @@
 use \Controllers\Layout\Table\Render as TableRender; ?>
 
 <section class="section-main">
-    <h3>REPOSITORY STATISTICS</h3>
+    <h3>REPOSITORY OVERVIEW</h3>
 
     <?php
     if ($repoController->getPackageType() == 'rpm') {

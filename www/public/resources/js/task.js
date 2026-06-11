@@ -615,7 +615,7 @@ $(document).on('submit','#task-form',function (e) {
     const taskParamsJson = JSON.stringify(taskParams);
 
     // for debug only
-    // console.log(taskParamsJson);
+    console.log(taskParamsJson);
 
     ajaxRequest(
         // Controller:

@@ -37,7 +37,7 @@ use \Controllers\App\DebugMode ?>
             </div>
 
             <div class="kpi-card">
-                <img src="/assets/icons/package.svg" class="icon-np icon-medium" />
+                <img src="/assets/icons/rocket.svg" class="icon-np icon-medium" />
                 <div>
                     <p class="kpi-value"><?= Task::generateLiteralAction($rawParams['action']) ?></p>
                     <p class="mediumopacity-cst">Action</p>
@@ -45,12 +45,24 @@ use \Controllers\App\DebugMode ?>
             </div>
 
             <div class="kpi-card">
-                <img src="/assets/icons/package.svg" class="icon-np icon-medium" />
+                <img src="/assets/icons/calendar.svg" class="icon-np icon-medium" />
                 <div>
                     <p class="kpi-value"><?= DateTime::createFromFormat('Y-m-d', $taskInfo['Date'])->format('d-m-Y') ?> <?= $taskInfo['Time'] ?></p>
                     <p class="mediumopacity-cst">Date</p>
                 </div>
-            </div>        
+            </div>
+
+            <?php
+            if (!empty($taskInfo['Duration'])) : ?>
+                <div class="kpi-card">
+                    <img src="/assets/icons/time.svg" class="icon-np icon-medium" />
+                    <div>
+                        <p class="kpi-value"><?= $taskInfo['Duration'] ?></p>
+                        <p class="mediumopacity-cst">Total duration</p>
+                    </div>
+                </div>
+                <?php
+            endif ?>
         </div>
 
         <?= $output ?>

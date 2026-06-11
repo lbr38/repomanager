@@ -28,13 +28,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
 
     <?php
-    /**
-     *  Load additional CSS files depending on the current URI
-     */
+    // Load additional CSS files depending on the current URI
     $additionalCss = [
-        "run"      => "run.css",
-        "tasks"    => "run.css",
-        "task"     => "run.css",
+        "tasks"    => "tasks",
+        "task"     => "tasks.css",
         "browse"   => "browse.css",
         "stat"     => "stats-hosts.css",
         "stats"    => "stats-hosts.css",

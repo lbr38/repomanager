@@ -178,6 +178,7 @@ class Repo extends \Models\Model
                 WHERE repos_env.Id = :envId");
                 $stmt->bindValue(':envId', $envId);
             }
+
             $result = $stmt->execute();
         } catch (Exception $e) {
             DbLog::error($e);

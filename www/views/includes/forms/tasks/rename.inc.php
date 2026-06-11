@@ -19,7 +19,6 @@
 
 <input type="hidden" class="task-param" param-name="old-name" value="<?= $repoController->getName() ?>" />
 
-
 <?php
 // Define schedule form action (useful for the schedule form)
 $scheduleForm['action'] = 'rename';

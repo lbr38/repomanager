@@ -7,6 +7,18 @@ $repoController = new \Controllers\Repo\Repo();
 $myrepoListing = new \Controllers\Repo\Listing();
 $taskController = new \Controllers\Task\Task();
 
+$groups = [];
+$repos = [];
+$snapshots = [];
+
+// TODO 6.0.0: add editable settings in the repos list
+$repoListSettings = [
+    // expand the repo if it's the only one in the group, otherwise show it in a grid if there are multiple repos in the group
+    'expand' => true,
+    // Set all repos in one line (override previous setting)
+    'one-line' => true
+];
+
 // Retrieve all group names
 $groupsList = $groupController->listAll(true);
 
@@ -42,11 +54,7 @@ if (!empty($nextScheduledTasks)) {
     $nextScheduledTasks = array_unique($nextScheduledTasks, SORT_REGULAR);
 }
 
-
-$groups = [];
-$repos = [];
-$snapshots = [];
-
+// Loop through groups to get repos for each group and add them to the $groups array
 foreach ($groupsList as $group) {
     $show = true;
     $previousId = null;
@@ -88,7 +96,7 @@ foreach ($groupsList as $group) {
             $groups[$group['Id']]['count']++;
         }
 
-        // TODO: If the repository is in the user permissions, then the group become showable for the user
+        // TODO 6.0.0: If the repository is in the user permissions, then the group become showable for the user
 
         $previousId = $repo['repoId'];
     }

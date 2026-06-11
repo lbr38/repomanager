@@ -1,8 +1,7 @@
 <?php
 use \Controllers\Layout\Table\Render as TableRender;
 use \Controllers\Utils\Generate\Html\Label;
-use \Controllers\Task\Task;
-use JsonException; ?>
+use \Controllers\Task\Task; ?>
 
 <div class="reloadable-table" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
     <?php
@@ -11,7 +10,8 @@ use JsonException; ?>
             <h6 class="margin-top-0 margin-bottom-0"><?= strtoupper($taskTableType) ?></h6>
 
             <?php
-            if (in_array($taskTableType, ['scheduled', 'queued'])) : ?>
+            // Print Select all checkbox for scheduled and queued tasks if there are more than 1 task
+            if (in_array($taskTableType, ['scheduled', 'queued']) and (count($reloadableTableContent) > 1)) : ?>
                 <label class="flex align-item-center column-gap-8 pointer opacity-60">
                     <p class="font-size-13">Select all</p>
                     <input type="checkbox" class="select-all-checkbox" checkbox-id="<?= $taskTableType . '-task' ?>" title="Select all" />
@@ -108,9 +108,17 @@ use JsonException; ?>
                                     <?php
                                 endif;
 
+                                if ($item['Status'] == 'queued') : ?>
+                                    <div class="flex align-item-center column-gap-8">
+                                        <span class="mediumopacity-cst">Task #<?= $item['Id'] ?></span>
+                                        <span class="label-yellow">Pending</span>
+                                    </div>
+                                    <?php
+                                endif;
+
                                 // Schedule info for scheduled tasks
                                 if ($item['Type'] == 'scheduled') : ?>
-                                    <span class="task-item-schedule mediumopacity-cst flex align-item-center column-gap-8">
+                                    <div class="task-item-schedule mediumopacity-cst flex align-item-center column-gap-8">
                                         <span>
                                             <?php
                                             if ($taskRawParams['schedule']['schedule-type'] == 'unique') {
@@ -134,12 +142,13 @@ use JsonException; ?>
                                                 }
                                             } ?>
                                         </span>
+
                                         <?php
                                         if ($item['Status'] == 'disabled') : ?>
                                             <span class="label-white">Disabled</span>
                                             <?php
                                         endif ?>
-                                    </span>
+                                    </div>
                                     <?php
                                 endif ?>
 

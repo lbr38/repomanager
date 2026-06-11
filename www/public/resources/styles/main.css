@@ -508,13 +508,6 @@ article {
     padding-left: 0;
 }
 
-.group-repo-name-icon {
-    width: 18px;
-    height: 18px;
-    opacity: 0.7;
-    filter: invert(70%) sepia(60%) saturate(600%) hue-rotate(160deg) brightness(1.05);
-}
-
 .group-repo-name span {
     font-family: 'archivo';
     font-size: 16px;

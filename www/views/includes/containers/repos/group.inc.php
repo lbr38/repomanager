@@ -20,6 +20,21 @@
         $previousName = null;
 
         foreach ($group['repos'] as $repoId) {
+            $hideName = false;
+            $class = 'grid grid-rfr-1-2';
+
+            // If expand is enable, expand the repo if it's the only one in the group
+            if ($repoListSettings['expand']) {
+                if (count($group['repos']) == 1) {
+                    $class = '';
+                }
+            }
+
+            if ($repoListSettings['one-line']) {
+                $class = '';
+            }
+
+            // Find the repo in the $repos array using array_filter
             $repo = array_filter($repos, function ($repo) use ($repoId) {
                 return $repo['repoId'] == $repoId;
             });
@@ -37,19 +52,13 @@
                 if ($previousName != null) {
                     echo '</div>';
                 } ?>
-
-                <div class="group-repo-name">
-                    <!-- <img src="/assets/icons/package.svg" class="group-repo-name-icon" />'; -->
-                    <span><?= $repo['Name'] ?></span>
-                    <img src="/assets/icons/edit.svg" class="icon-lowopacity icon-small repo-rename-btn" repo-id="<?= $repo['repoId'] ?>" title="Rename repository" />
-                </div>
-                
+             
                 <!-- Opening repo div -->
-                <div class="grid grid-rfr-1-2 column-gap-40">
+                <div class="<?= $class ?> column-gap-40">
                 <?php
             endif;
 
-            include(ROOT . '/views/includes/containers/repos/includes-temp/repo.inc.php');
+            include(ROOT . '/views/includes/containers/repos/repo.inc.php');
 
             $previousName = $repo['Name'];
         } ?>

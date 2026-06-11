@@ -5,7 +5,7 @@ use \Controllers\User\Permission\Repo as RepoPermission; ?>
     <div id="repositories-list">
         <h3 class="margin-bottom-40">REPOSITORIES</h3>
 
-        <div class="flex flex-wrap align-item-center column-gap-10 row-gap-15 margin-bottom-10 kpi-container">
+        <div class="flex flex-wrap align-item-center column-gap-15 row-gap-15 margin-bottom-10 kpi-container">
             <div class="kpi-card">
                 <img src="/assets/icons/package.svg" class="icon-np icon-medium" />
                 <div>

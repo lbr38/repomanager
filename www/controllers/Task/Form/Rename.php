@@ -17,11 +17,11 @@ class Rename
         $rpmRepoController = new Rpm();
         $debRepoController = new Deb();
 
-        // Check that the snapshot id is valid
-        Param\Snapshot::checkId($formParams['snap-id']);
+        // Check that the repo id is valid
+        Param\Repo::checkId($formParams['repo-id']);
 
         // Retrieve all repo data from the Id
-        $repoController->getAllById('', $formParams['snap-id'], '');
+        $repoController->getAllById($formParams['repo-id']);
 
         // Check old name
         Param\Name::check($formParams['old-name']);
@@ -51,10 +51,10 @@ class Rename
 
         // Add history
         if ($repoController->getPackageType() == 'rpm') {
-            History::set('Running task: renaming repository ' . Label::white($repoController->getName()) . '⸺' . Label::white($repoController->getDateFormatted()) . ' ➡ ' . Label::white($formParams['name']));
+            History::set('Running task: renaming repository ' . Label::white($repoController->getName()) . ' ➡ ' . Label::white($formParams['name']));
         }
         if ($repoController->getPackageType() == 'deb') {
-            History::set('Running task: renaming repository ' . Label::white($repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection()) . '⸺' . Label::white($repoController->getDateFormatted()) . ' ➡ ' . Label::white($formParams['name'] . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection()));
+            History::set('Running task: renaming repository ' . Label::white($repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection()) . ' ➡ ' . Label::white($formParams['name'] . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection()));
         }
 
         unset($repoController, $rpmRepoController, $debRepoController);

@@ -18,7 +18,7 @@
     margin-top: 30px;
 }
 
-#task-refresh-container pre { /* empecher le contenu des <pre> de dépasser */
+#task-refresh-container pre {
     white-space: pre-wrap;       /* css-3 */
     white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
     white-space: -pre-wrap;      /* Opera 4-6 */
@@ -31,6 +31,7 @@
     margin: 10px 0 0 0;
 }
 
+/* Legacy log layout, to be removed */
 .getPackagesDiv, .signRepoDiv, .createRepoDiv {
     background-color: #182b3e;
     padding: 15px;
@@ -50,11 +51,21 @@
     bottom: 20px;
     z-index: 1000;
 }
-/* Les boutons scroll sont affichés en colonne */
+
 #scroll-btns {
     display: flex;
     flex-direction: column;
     row-gap: 5px;
+}
+
+#autoscroll-btn {
+    width: 40px;
+    height: 40px;
+}
+
+#autoscroll-btn img {
+    width: 32px;
+    height: 32px;
 }
 
 .op-header-container {
@@ -63,7 +74,7 @@
     margin-left: 15px;
 }
 
-/* Legacy task log layout */
+/* Legacy task log layout, to be removed */
 .op-table {
     width: 100%;
     margin: 5px;
