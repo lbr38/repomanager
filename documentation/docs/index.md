@@ -5,7 +5,7 @@
 <div align="center">
     <img src="https://raw.githubusercontent.com/lbr38/repomanager/refs/heads/devel/images/readme/github-readme-white.png#gh-dark-mode-only" align="top" width=30%>
 </div>
-
+ 
 <br><br>
 
 **Repomanager** is a web mirroring tool for `rpm` and `deb` package repositories.
