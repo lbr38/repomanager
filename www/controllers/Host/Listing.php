@@ -230,7 +230,7 @@ class Listing
             $available = $hostPackageController->getAvailable();
 
             // If available updates count is greater than the maximum number of available updates allowed in settings, the host is outdated
-            if (count($available) > $settings['pkgs_count_considered_outdated']) {
+            if (count($available) >= $settings['pkgs_count_considered_outdated']) {
                 $data[] = [
                     'Id' => $host['Id'],
                     'Hostname' => $host['Hostname'],
