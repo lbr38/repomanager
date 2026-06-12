@@ -48,28 +48,25 @@
 
         <input type="text" id="installed-packages-search" class="margin-bottom-5" onkeyup="filterPackage()" autocomplete="off" placeholder="Search package">
 
-        <div id="installed-packages-container" class="margin-top-15">
+        <div id="installed-packages-container" class="flex flex-direction-column row-gap-10 margin-top-15">
             <?php
             if (!empty($packagesInventored)) :
                 foreach ($packagesInventored as $item) : ?>
-                    <div class="table-container-3 bck-blue-alt pointer package-row get-package-timeline" hostid="<?= $id ?>" packagename="<?= $item['Name'] ?>" packageversion="<?= $item['Version'] ?>" title="See package history">
-                        <div class="text-center">
+                    <div class="host-package-item host-package-item-installed get-package-timeline pointer package-row" hostid="<?= $id ?>" packagename="<?= $item['Name'] ?>" packageversion="<?= $item['Version'] ?>" title="See package history">
+                        <div class="flex align-item-center column-gap-10">
                             <?= \Controllers\Utils\Generate\Html\Icon::product($item['Name']);?>
-                        </div>
 
-                        <div>
-                            <p class="copy">
-                                <?php
-                                /**
-                                 *  If package is removed or purged, show it in red
-                                 */
-                                if ($item['State'] == 'removed' or $item['State'] == 'purged') {
-                                    echo '<span class="redtext">' . $item['Name'] . ' (uninstalled)</span>';
-                                } else {
-                                    echo $item['Name'];
-                                } ?>
-                            </p>
-                            <p class="lowopacity-cst copy"><?= $item['Version'] ?></p>
+                            <div>
+                                <p class="copy">
+                                    <?php
+                                    if ($item['State'] == 'removed' or $item['State'] == 'purged') {
+                                        echo '<span class="redtext">' . $item['Name'] . ' (uninstalled)</span>';
+                                    } else {
+                                        echo $item['Name'];
+                                    } ?>
+                                </p>
+                                <p class="font-size-12 lowopacity-cst copy"><?= $item['Version'] ?></p>
+                            </div>
                         </div>
                     </div>
                     <?php

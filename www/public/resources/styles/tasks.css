@@ -1,20 +1,24 @@
-#log-refresh-container {
+#task-refresh-container {
     flex: 0 0 100%;
     position: relative;
     min-height: 90vh;
 }
 
-#log-refresh-container h3 {
+#task-refresh-container h3 {
     margin-top: 0 !important;
     margin-bottom: 0 !important;
     border: none;
 }
 
-#log-refresh-container h6 {
+#task-refresh-container #task-details h6 {
+    margin-bottom: 5px;
+}
+
+#task-refresh-container h6 {
     margin-top: 30px;
 }
 
-#log-refresh-container pre { /* empecher le contenu des <pre> de dépasser */
+#task-refresh-container pre {
     white-space: pre-wrap;       /* css-3 */
     white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
     white-space: -pre-wrap;      /* Opera 4-6 */
@@ -27,6 +31,7 @@
     margin: 10px 0 0 0;
 }
 
+/* Legacy log layout, to be removed */
 .getPackagesDiv, .signRepoDiv, .createRepoDiv {
     background-color: #182b3e;
     padding: 15px;
@@ -39,17 +44,28 @@
     line-height: 2 !important;
 }
 
-/* Boutons Top et Down pour atteindre le haut ou le bas de page */
 #scroll-btns-container {
-    display: none;
+    display: block;
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 1000;
 }
-/* Les boutons scroll sont fixes à l'intérieur du container */
+
 #scroll-btns {
-    position: sticky;
-    top: 570px;
     display: flex;
     flex-direction: column;
     row-gap: 5px;
+}
+
+#autoscroll-btn {
+    width: 40px;
+    height: 40px;
+}
+
+#autoscroll-btn img {
+    width: 32px;
+    height: 32px;
 }
 
 .op-header-container {
@@ -58,7 +74,7 @@
     margin-left: 15px;
 }
 
-/* Legacy task log layout */
+/* Legacy task log layout, to be removed */
 .op-table {
     width: 100%;
     margin: 5px;
@@ -111,12 +127,50 @@
 .task-step {
     display: flex;
     flex-direction: column;
-    margin-top: 5px;
+    margin-top: 8px;
     border-radius: 10px;
-    border: 1px solid #24405c;
-    background-color: #182b3e;
-    -webkit-box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
-    box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
+    border: 1px solid #1e3a54;
+    border-left: 3px solid #1e3a54;
+    background: linear-gradient(135deg, #121f30, #162a3e);
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.task-step[status="completed"] {
+    border-left-color: #15bf7f;
+    background: linear-gradient(135deg, rgba(21, 191, 127, 0.12), rgba(21, 191, 127, 0.03));
+    border-color: rgba(21, 191, 127, 0.3);
+}
+
+.task-step[status="error"],
+.task-step[status="stopped"] {
+    border-left-color: #F32F63;
+    background: linear-gradient(135deg, rgba(243, 47, 99, 0.12), rgba(243, 47, 99, 0.03));
+    border-color: rgba(243, 47, 99, 0.3);
+}
+
+.task-step[status="warning"] {
+    border-left-color: #ffb536;
+    background: linear-gradient(135deg, rgba(255, 181, 54, 0.12), rgba(255, 181, 54, 0.03));
+    border-color: rgba(255, 181, 54, 0.3);
+}
+
+.task-step[status="running"] {
+    border-left-color: #5473e8;
+    background: linear-gradient(135deg, rgba(84, 115, 232, 0.12), rgba(84, 115, 232, 0.03));
+    border-color: rgba(84, 115, 232, 0.3);
+}
+
+.task-step[status="completed"] .task-step-status p {
+    color: #15bf7f;
+}
+
+.task-step[status="error"] .task-step-status p,
+.task-step[status="stopped"] .task-step-status p {
+    color: #F32F63;
+}
+
+.task-step[status="warning"] .task-step-status p {
+    color: #ffb536;
 }
 
 .task-step-title {
@@ -125,7 +179,7 @@
     justify-content: space-between;
     align-items: center;
     column-gap: 10px;
-    padding: 20px;
+    padding: 16px 20px;
     border-radius: 10px;
 }
 
@@ -135,26 +189,36 @@
     min-height: 250px;
     max-height: 700px;
     overflow-y: auto;
-    border-radius: 20px;
-    margin-top: 4px;
-    border-left: 1px solid #24405c;
-    border-right: 1px solid #24405c;
-    border-bottom: 1px solid #24405c;
-    background-color: #182b3e;
-    -webkit-box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
-    box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
+    border-radius: 0 0 10px 10px;
+    margin-top: 0;
+    border: 1px solid #1e3a54;
+    border-top: none;
+    background: linear-gradient(180deg, #0e1a28, #121f30);
 }
 
 .task-sub-step-container {
-    border-right: 1px solid #24405c;
+    border-right: 1px solid #1e3a54;
 }
 
 .task-sub-step-content, .step-loading {
     display: grid;
     grid-template-columns: minmax(20px, 20px) auto;
-    column-gap: 10px;
-    border-top: 1px solid #24405c;
-    padding: 15px;
+    column-gap: 12px;
+    border-top: 1px solid rgba(30, 58, 84, 0.5);
+    padding: 14px 18px;
+    transition: background 0.15s ease;
+}
+
+.task-sub-step-content:first-child {
+    border-top: none;
+}
+
+.task-sub-step-content:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.task-step.step-open {
+    border-radius: 10px 10px 0 0;
 }
 
 .step-content-btns {
@@ -169,13 +233,8 @@
 
 /* Desktop configuration */
 @media (min-width:1500px) {
-    #log-refresh-container {
+    #task-refresh-container {
         flex: 0 0 94%;
-    }
-
-    #scroll-btns-container {
-        display: block;
-        order: 2;
     }
 
     .task-step-content {

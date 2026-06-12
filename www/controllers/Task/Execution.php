@@ -112,6 +112,11 @@ class Execution
                 $this->repoController->getAllById($this->params['repo-id'], $this->params['snap-id'], $this->params['env-id']);
             }
 
+            // Retrieve repository details from repo Id, if needed
+            if (isset($taskConfig['retrieve-repo-from-repo-id']) and $taskConfig['retrieve-repo-from-repo-id']) {
+                $this->repoController->getAllById($this->params['repo-id']);
+            }
+
             // Retrieve repository details from snap Id, if needed
             if (isset($taskConfig['retrieve-repo-from-snap-id']) and $taskConfig['retrieve-repo-from-snap-id']) {
                 $this->repoController->getAllById(null, $this->params['snap-id'], null);
@@ -247,6 +252,7 @@ class Execution
             'gpg-sign' => 'setGpgSign',
             'env' => 'setEnv',
             'description' => 'setDescription',
+            'tags' => 'setTags',
             'group' => 'setGroup',
             'advanced-params' => 'setAdvancedParams'
         ];
@@ -284,7 +290,7 @@ class Execution
         // Update layout containers states
         $this->layoutContainerReloadController->reload('header/menu');
         $this->layoutContainerReloadController->reload('repos/list');
-        $this->layoutContainerReloadController->reload('tasks/list');
+        $this->layoutContainerReloadController->reload('tasks/tasks');
         $this->layoutContainerReloadController->reload('browse/list');
         $this->layoutContainerReloadController->reload('browse/actions');
 
@@ -359,7 +365,7 @@ class Execution
             // Update layout containers states
             $this->layoutContainerReloadController->reload('header/menu');
             $this->layoutContainerReloadController->reload('repos/list');
-            $this->layoutContainerReloadController->reload('tasks/list');
+            $this->layoutContainerReloadController->reload('tasks/tasks');
             $this->layoutContainerReloadController->reload('browse/list');
             $this->layoutContainerReloadController->reload('browse/actions');
         } catch (Exception $e) {

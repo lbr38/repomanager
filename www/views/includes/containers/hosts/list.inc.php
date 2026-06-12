@@ -87,9 +87,9 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
                 </div>
             </div>
 
-            <div class="flex justify-end margin-bottom-10 margin-right-30">
-                <div id="select-all-hosts" class="flex align-item-center column-gap-5 mediumopacity pointer">
-                    <p>Select all hosts</p>
+            <div class="flex justify-end margin-bottom-10 margin-right-20">
+                <div id="select-all-hosts" class="flex align-item-center column-gap-8 mediumopacity pointer">
+                    <p>Select all</p>
                     <input type="checkbox" title="Select all hosts" />
                 </div>
             </div>
@@ -115,7 +115,7 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
                         } ?>
                         <input type='hidden' name='groupname' value='<?=$group['Name']?>'>
         
-                        <div class="hosts-group-container div-generic-blue veil-on-reload">
+                        <div class="hosts-group-container veil-on-reload">
                             <?php
                             // Print the group name except if it's the Default group
                             if ($group['Name'] == 'Default') {
@@ -134,22 +134,23 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
                                 $countMessage = $hostsCount . ' hosts';
                             } ?>
 
-                            <div class="flex justify-space-between">
+                            <div class="hosts-group-header">
+                                <div class="hosts-group-header-left">
+                                    <img src="/assets/icons/folder.svg" class="icon-np lowopacity-cst" />
+                                    <span class="hosts-group-header-name"><?= $groupName ?></span>
+                                    <span class="hosts-group-header-count"><?= $hostsCount ?></span>
+                                </div>
+
                                 <div>
-                                    <p class="font-size-16"><?= $groupName ?></p>
-                                    <p class="lowopacity-cst"><?= $countMessage ?></p>
+                                    <input class="select-group-hosts-checkbox lowopacity pointer" type="checkbox" group="<?= $group['Name'] ?>" title="Select all" >
                                 </div>
                             </div>
 
                             <?php
                             // Print the hosts of the group
                             if (!empty($hostsList)) : ?>
-                                <div class="hosts-table">
-                                    <div class="flex justify-end margin-bottom-10">
-                                        <span class="margin-right-15">
-                                            <input class="select-group-hosts-checkbox lowopacity pointer" type="checkbox" group="<?= $group['Name'] ?>" title="Select all" >
-                                        </span>
-                                    </div>
+                                <div class="hosts-group-content">
+                                    <div class="flex flex-direction-column row-gap-10">
                                 
                                     <?php
                                     // Process the hosts list
@@ -234,338 +235,310 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
                                         unset($hostPackageController);
 
                                         // Print the host informations
-                                        // Here the <div> will contain all the host informations in order to be able to search on it (input 'search a host') ?>
-                                        <div class="host-line flex flex-direction-column div-generic-blue bck-blue-alt margin-bottom-10" hostid="<?= $id ?>" hostname="<?= $hostname ?>" os="<?= $os ?>" os_version="<?= $osVersion ?>" os_family="<?= $osFamily ?>" type="<?= $type ?>" kernel="<?= $kernel ?>" arch="<?= $arch ?>" profile="<?= $profile ?>" env="<?= $env ?>" agent_version="<?= $agentVersion ?>" reboot_required="<?= $rebootRequired ?>">
-                                            <div class="flex column-gap-20">
-                                                <div class="align-self-center">
-                                                    <?php
-                                                    if ($agentStatus == 'running') : ?>
-                                                        <img src="/assets/icons/check.svg" class="icon-np" title="Agent is running" />
-                                                        <?php
-                                                    endif;
+                                        // Here the <div> will contain all the host informations in order to be able to search on it (input 'search a host')
+                                        $hostAccent = $agentStatus === 'running' ? 'host-accent-green' : 'host-accent-red'; ?>
 
-                                                    if ($agentStatus != 'running') : ?>
-                                                        <img src="/assets/icons/warning-red.svg" class="icon-np" title="Agent state on the host: <?= $agentStatus ?> (<?= $agentLastSendStatusMsg ?>)" />
-                                                        <?php
-                                                    endif ?>
-                                                </div>
+                                        <div class="host-line <?= $hostAccent ?>" hostid="<?= $id ?>" hostname="<?= $hostname ?>" os="<?= $os ?>" os_version="<?= $osVersion ?>" os_family="<?= $osFamily ?>" type="<?= $type ?>" kernel="<?= $kernel ?>" arch="<?= $arch ?>" profile="<?= $profile ?>" env="<?= $env ?>" agent_version="<?= $agentVersion ?>" reboot_required="<?= $rebootRequired ?>" title="<?= $agentStatus !== 'running' ? 'Agent ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')' : 'Agent is running' ?>">
+                                            <div class="width-100 overflowx-auto overflowy-hidden">
+                                                <?php
+                                                if ($compactView) : ?>
+                                                    <div class="grid hosts-compact-view">
+                                                        <div class="flex align-item-center column-gap-10">
+                                                            <?= \Controllers\Utils\Generate\Html\Icon::os($os); ?>
 
-                                                <div class="width-100 overflowx-auto overflowy-hidden">
-                                                    <?php
-                                                    if ($compactView) : ?>
-                                                        <div class="grid hosts-compact-view">
                                                             <div>
-                                                                <div>
-                                                                    <p title="Hostname" class="copy">
-                                                                        <a href="/host/<?= $id ?>" class="wordbreakall" target="_blank" rel="noopener noreferrer">
-                                                                            <b><?= $hostname ?></b>
-                                                                        </a>
-                                                                    </p>
-
-                                                                    <p class="mediumopacity-cst copy" title="IP address"><?= $ip ?></p>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="grid hosts-compact-view-subgrid align-item-center">
-                                                                <div class="label-icon-tr max-width-fit" title="OS and type">
-                                                                    <?= \Controllers\Utils\Generate\Html\Icon::os($os); ?>
-
-                                                                    <div class="flex flex-direction-column row-gap-2 width-100">
-                                                                        <p class="font-size-13" title="OS"><?= ucfirst($os) . ' ' . $osVersion ?></p>
-                                                                        <p class="font-size-10 font-family-archivo mediumopacity-cst" title="Type"><b><?= strtoupper($type) ?></b></p>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="flex flex-direction-column row-gap-5">
-                                                                    <a href="/host/<?= $id ?>" target="_blank" rel="noopener noreferrer">
-                                                                        <div class="label-icon-tr max-width-fit">
-                                                                            <img src="/assets/icons/package.svg" class="icon-np" />
-                                                                            <div class="flex align-item-center column-gap-10">
-                                                                                <p class="font-size-13" title="<?= $packagesInstalledTotal . ' package(s) installed on this host' ?>"><?= $packagesInstalledTotal ?></p>
-                                                                                <?php
-                                                                                if ($packagesAvailableTotal > 0) {
-                                                                                    $class = '';
-                                                                                    if ($packagesAvailableTotal >= $packagesCountConsideredCritical) {
-                                                                                        $class = 'bkg-red';
-                                                                                    } elseif ($packagesAvailableTotal >= $packagesCountConsideredOutdated) {
-                                                                                        $class = 'bkg-yellow';
-                                                                                    }
-
-                                                                                    echo '<p class="font-size-13 host-available-packages-label ' . $class . '" title="' . $packagesAvailableTotal . ' package update(s) available on this host">' . $packagesAvailableTotal . '</p>';
-                                                                                } ?>
-                                                                            </div>
-                                                                        </div>
+                                                                <p title="Hostname" class="copy">
+                                                                    <a href="/host/<?= $id ?>" class="wordbreakall" target="_blank" rel="noopener noreferrer">
+                                                                        <b><?= $hostname ?></b>
                                                                     </a>
-                                                                </div>
-
-                                                                <div class="flex align-item-center justify-end">
-                                                                    <?php
-                                                                    if ($rebootRequired == 'true') {
-                                                                        echo '<img src="/assets/icons/warning.svg" class="icon-np" title="Reboot required" />';
-                                                                    } ?>
-                                                                </div>
+                                                                </p>
+                                                                <p class="font-size-12 mediumopacity-cst copy" title="IP address"><?= $ip ?></p>
                                                             </div>
                                                         </div>
-                                                        <?php
-                                                    endif;
 
-                                                    if (!$compactView) : ?>
-                                                        <div class="margin-bottom-15">
+                                                        <div class="grid hosts-compact-view-subgrid align-item-center">
+                                                            <div class="flex flex-direction-column row-gap-2">
+                                                                <p class="font-size-13" title="OS"><?= ucfirst($os) . ' ' . $osVersion ?></p>
+                                                                <p class="font-size-10 font-family-archivo mediumopacity-cst" title="Type"><b><?= strtoupper($type) ?></b></p>
+                                                            </div>
+
+                                                            <div>
+                                                                <a href="/host/<?= $id ?>" target="_blank" rel="noopener noreferrer">
+                                                                    <div class="flex align-item-center column-gap-8">
+                                                                        <img src="/assets/icons/package.svg" class="icon-np" />
+                                                                        <p class="label-white font-size-12" title="<?= $packagesInstalledTotal . ' package(s) installed on this host' ?>"><?= $packagesInstalledTotal ?></p>
+                                                                        <?php
+                                                                        if ($packagesAvailableTotal > 0) {
+                                                                            $class = '';
+                                                                            if ($packagesAvailableTotal >= $packagesCountConsideredCritical) {
+                                                                                $class = 'label-red';
+                                                                            } elseif ($packagesAvailableTotal >= $packagesCountConsideredOutdated) {
+                                                                                $class = 'label-yellow';
+                                                                            }
+
+                                                                            echo '<p class="' . $class . ' font-size-11" title="' . $packagesAvailableTotal . ' package update(s) available on this host">' . $packagesAvailableTotal . '</p>';
+                                                                        } ?>
+                                                                    </div>
+                                                                </a>
+                                                            </div>
+
+                                                            <div class="flex align-item-center justify-end">
+                                                                <?php
+                                                                if ($rebootRequired == 'true') {
+                                                                    echo '<img src="/assets/icons/warning.svg" class="icon-np" title="Reboot required" />';
+                                                                } ?>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <?php
+                                                endif;
+
+                                                if (!$compactView) : ?>
+                                                    <div class="flex align-item-center column-gap-10 margin-bottom-15">
+                                                        <?= \Controllers\Utils\Generate\Html\Icon::os($os); ?>
+                                                        <div>
                                                             <p class="copy">
                                                                 <a href="/host/<?= $id ?>" class="wordbreakall" target="_blank" rel="noopener noreferrer">
                                                                     <b><?= $hostname ?></b>
                                                                 </a>
                                                             </p>
+                                                            <p class="font-size-12 mediumopacity-cst copy"><?= $ip ?></p>
                                                         </div>
+                                                    </div>
 
-                                                        <div class="grid grid-rfr-1-4 row-gap-20 column-gap-20">
-                                                            <div>
-                                                                <h6 class="margin-top-0">IP</h6>
-                                                                <p class="mediumopacity-cst copy"><?= $ip ?></p>
-                                                            </div>
-                                                            
-                                                            <div>
-                                                                <h6 class="margin-top-0">TYPE</h6>
-                                                                <p class="mediumopacity-cst copy"><?= $type ?></p>
-                                                            </div>
-
-                                                            <div>
-                                                                <h6 class="margin-top-0">AGENT VERSION</h6>
-                                                                <p class="mediumopacity-cst copy"><?= $agentVersion ?></p>
-                                                            </div>
-
-                                                            <div>
-                                                                <h6 class="margin-top-0">REBOOT REQUIRED</h6>
-                                                                <p class="flex align-item-center column-gap-5">
-                                                                    <?php
-                                                                    if ($rebootRequired == 'true') {
-                                                                        echo '<img src="/assets/icons/warning.svg" class="icon-np" />';
-                                                                        echo '<span>Yes</span>';
-                                                                    } else {
-                                                                        echo '<span class="mediumopacity-cst">No</span>';
-                                                                    } ?>
-                                                                </p>
-                                                            </div>
-
-                                                            <div>
-                                                                <h6 class="margin-top-0">OS</h6>
-                                                                <div class="flex align-item-center column-gap-5">
-                                                                    <p class="mediumopacity-cst copy"><?= $os ?></p>
-                                                                    <span><?= \Controllers\Utils\Generate\Html\Icon::os($os); ?></span>
-                                                                </div>
-                                                            </div>
-
-                                                            <div>
-                                                                <h6 class="margin-top-0">OS VERSION</h6>
-                                                                <p class="mediumopacity-cst copy"><?= $osVersion ?></p>
-                                                            </div>
-
-                                                            <div>
-                                                                <h6 class="margin-top-0">KERNEL</h6>
-                                                                <p class="mediumopacity-cst copy"><?= $kernel ?></p>
-                                                            </div>
-
-                                                            <div>
-                                                                <h6 class="margin-top-0">ARCH</h6>
-                                                                <p class="mediumopacity-cst copy"><?= $arch ?></p>
-                                                            </div>
-
-                                                            <div>
-                                                                <h6 class="margin-top-0">PROFILE</h6>
-                                                                <p class="mediumopacity-cst copy"><?= $profile ?></p>
-                                                            </div>
-
-                                                            <div>
-                                                                <h6 class="margin-top-0">ENVIRONMENT</h6>
-                                                                <p class="copy">
-                                                                    <?= \Controllers\Utils\Generate\Html\Label::envtag($env) ?>
-                                                                </p>
-                                                            </div>
-
-                                                            <div>
-                                                                <h6 class="margin-top-0"><?= $layoutPackagesTitle ?> INSTALLED</h6>
-                                                                <p title="<?= $packagesInstalledTotal . ' package(s) installed on this host' ?>">
-                                                                    <?= $packagesInstalledTotal ?>
-                                                                </p>
-                                                            </div>
-
-                                                            <div>
-                                                                <h6 class="margin-top-0"><?= $layoutPackagesTitle ?> AVAILABLE</h6>
-                                                                <p title="<?= $packagesAvailableTotal . ' package update(s) available on this host' ?>">
-                                                                    <?php
-                                                                    if ($packagesAvailableTotal >= $packagesCountConsideredCritical) {
-                                                                        echo '<span class="label-white bkg-red">' . $packagesAvailableTotal . '</span>';
-                                                                    } elseif ($packagesAvailableTotal >= $packagesCountConsideredOutdated) {
-                                                                        echo '<span class="label-white bkg-yellow">' . $packagesAvailableTotal . '</span>';
-                                                                    } else {
-                                                                        echo '<span class="label-white">' . $packagesAvailableTotal . '</span>';
-                                                                    } ?>    
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                    
+                                                    <div class="grid grid-rfr-1-5 row-gap-20 column-gap-20">
                                                         <div>
-                                                            <?php
-                                                            // Last request status
-                                                            if (!empty($lastPendingRequest)) :
-                                                                // Retrieve and decode JSON data
-                                                                $requestJson = json_decode($lastPendingRequest['Request'], true);
+                                                            <h6 class="margin-top-0">OS</h6>
+                                                            <p class="mediumopacity-cst copy"><?= ucfirst($os) . ' ' . $osVersion ?></p>
+                                                        </div>
+                                                        
+                                                        <div>
+                                                            <h6 class="margin-top-0">TYPE</h6>
+                                                            <p class="mediumopacity-cst copy"><?= $type ?></p>
+                                                        </div>
 
-                                                                // Request name
-                                                                $request = $requestJson['request'];
+                                                        <div>
+                                                            <h6 class="margin-top-0">KERNEL</h6>
+                                                            <p class="mediumopacity-cst copy"><?= $kernel ?></p>
+                                                        </div>
 
-                                                                // Request data
-                                                                if (isset($requestJson['data'])) {
-                                                                    $requestData = $requestJson['data'];
+                                                        <div>
+                                                            <h6 class="margin-top-0">ARCH</h6>
+                                                            <p class="mediumopacity-cst copy"><?= $arch ?></p>
+                                                        </div>
+
+                                                        <div>
+                                                            <h6 class="margin-top-0">PROFILE</h6>
+                                                            <p class="mediumopacity-cst copy"><?= $profile ?></p>
+                                                        </div>
+
+                                                        <div>
+                                                            <h6 class="margin-top-0">ENVIRONMENT</h6>
+                                                            <p class="copy">
+                                                                <?= \Controllers\Utils\Generate\Html\Label::envtag($env) ?>
+                                                            </p>
+                                                        </div>
+
+                                                        <div>
+                                                            <h6 class="margin-top-0">AGENT VERSION</h6>
+                                                            <p class="copy"><span class="label-white"><?= $agentVersion ?></span></p>
+                                                        </div>
+
+                                                        <div>
+                                                            <h6 class="margin-top-0">REBOOT REQUIRED</h6>
+                                                            <p class="flex align-item-center column-gap-5">
+                                                                <?php
+                                                                if ($rebootRequired == 'true') {
+                                                                    echo '<img src="/assets/icons/warning.svg" class="icon-np" />';
+                                                                    echo '<span>Yes</span>';
+                                                                } else {
+                                                                    echo '<span class="mediumopacity-cst">No</span>';
+                                                                } ?>
+                                                            </p>
+                                                        </div>
+
+                                                        <div>
+                                                            <h6 class="margin-top-0"><?= $layoutPackagesTitle ?> INSTALLED</h6>
+                                                            <p title="<?= $packagesInstalledTotal . ' package(s) installed on this host' ?>">
+                                                                <span class="label-white"><?= $packagesInstalledTotal ?></span>
+                                                            </p>
+                                                        </div>
+
+                                                        <div>
+                                                            <h6 class="margin-top-0"><?= $layoutPackagesTitle ?> AVAILABLE</h6>
+                                                            <p title="<?= $packagesAvailableTotal . ' package update(s) available on this host' ?>">
+                                                                <?php
+                                                                if ($packagesAvailableTotal >= $packagesCountConsideredCritical) {
+                                                                    echo '<span class="label-red">' . $packagesAvailableTotal . '</span>';
+                                                                } elseif ($packagesAvailableTotal >= $packagesCountConsideredOutdated) {
+                                                                    echo '<span class="label-yellow">' . $packagesAvailableTotal . '</span>';
+                                                                } else {
+                                                                    echo '<span class="label-white">' . $packagesAvailableTotal . '</span>';
+                                                                } ?>    
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                
+                                                    <div>
+                                                        <?php
+                                                        // Last request status
+                                                        if (!empty($lastPendingRequest)) :
+                                                            // Retrieve and decode JSON data
+                                                            $requestJson = json_decode($lastPendingRequest['Request'], true);
+
+                                                            // Request name
+                                                            $request = $requestJson['request'];
+
+                                                            // Request data
+                                                            if (isset($requestJson['data'])) {
+                                                                $requestData = $requestJson['data'];
+                                                            }
+
+                                                            // Only if not a 'disconnect' request
+                                                            if ($request != 'disconnect') :
+                                                                // Response data
+                                                                if (!empty($lastPendingRequest['Response_json'])) {
+                                                                    $responseJson = json_decode($lastPendingRequest['Response_json'], true);
                                                                 }
 
-                                                                // Only if not a 'disconnect' request
-                                                                if ($request != 'disconnect') :
-                                                                    // Response data
-                                                                    if (!empty($lastPendingRequest['Response_json'])) {
-                                                                        $responseJson = json_decode($lastPendingRequest['Response_json'], true);
-                                                                    }
+                                                                // Request status
+                                                                if ($lastPendingRequest['Status'] == 'new') {
+                                                                    $requestStatus = 'Pending';
+                                                                    $requestStatusIcon = 'pending.svg';
+                                                                }
+                                                                if ($lastPendingRequest['Status'] == 'sent') {
+                                                                    $requestStatus = 'Sent';
+                                                                    $requestStatusIcon = 'pending.svg';
+                                                                }
+                                                                if ($lastPendingRequest['Status'] == 'running') {
+                                                                    $requestStatus = 'Running';
+                                                                    $requestStatusIcon = 'loading.svg';
+                                                                }
+                                                                if ($lastPendingRequest['Status'] == 'canceled') {
+                                                                    $requestStatus = 'Canceled';
+                                                                    $requestStatusIcon = 'warning-red.svg';
+                                                                }
+                                                                if ($lastPendingRequest['Status'] == 'failed') {
+                                                                    $requestStatus = 'Failed';
+                                                                    $requestStatusIcon = 'error.svg';
+                                                                }
+                                                                if ($lastPendingRequest['Status'] == 'completed') {
+                                                                    $requestStatus = 'Completed';
+                                                                    $requestStatusIcon = 'check.svg';
+                                                                }
 
-                                                                    // Request status
-                                                                    if ($lastPendingRequest['Status'] == 'new') {
-                                                                        $requestStatus = 'Pending';
-                                                                        $requestStatusIcon = 'pending.svg';
-                                                                    }
-                                                                    if ($lastPendingRequest['Status'] == 'sent') {
-                                                                        $requestStatus = 'Sent';
-                                                                        $requestStatusIcon = 'pending.svg';
-                                                                    }
-                                                                    if ($lastPendingRequest['Status'] == 'running') {
-                                                                        $requestStatus = 'Running';
-                                                                        $requestStatusIcon = 'loading.svg';
-                                                                    }
-                                                                    if ($lastPendingRequest['Status'] == 'canceled') {
-                                                                        $requestStatus = 'Canceled';
-                                                                        $requestStatusIcon = 'warning-red.svg';
-                                                                    }
-                                                                    if ($lastPendingRequest['Status'] == 'failed') {
-                                                                        $requestStatus = 'Failed';
-                                                                        $requestStatusIcon = 'error.svg';
-                                                                    }
-                                                                    if ($lastPendingRequest['Status'] == 'completed') {
-                                                                        $requestStatus = 'Completed';
-                                                                        $requestStatusIcon = 'check.svg';
-                                                                    }
+                                                                // Request info
+                                                                $requestInfo = $lastPendingRequest['Info'];
 
-                                                                    // Request info
-                                                                    $requestInfo = $lastPendingRequest['Info'];
+                                                                // Request title
+                                                                if ($request == 'request-general-infos') {
+                                                                    $requestTitle = 'Requested the host to send its general informations';
+                                                                    $requestTitleShort = 'Request general information';
+                                                                }
+                                                                if ($request == 'request-packages-infos') {
+                                                                    $requestTitle = 'Requested the host to send its packages informations';
+                                                                    $requestTitleShort = 'Request package information';
+                                                                }
+                                                                if ($request == 'request-packages-update') {
+                                                                    $requestTitle = 'Request to install a list of package(s)';
+                                                                    $requestTitleShort = 'Request to update a list of package(s)';
 
-                                                                    // Request title
-                                                                    if ($request == 'request-general-infos') {
-                                                                        $requestTitle = 'Requested the host to send its general informations';
-                                                                        $requestTitleShort = 'Request general information';
+                                                                    if (!empty($requestJson['packages'])) {
+                                                                        $requestDetails = count($requestJson['packages']) . ' package(s) to install';
                                                                     }
-                                                                    if ($request == 'request-packages-infos') {
-                                                                        $requestTitle = 'Requested the host to send its packages informations';
-                                                                        $requestTitleShort = 'Request package information';
-                                                                    }
-                                                                    if ($request == 'request-packages-update') {
-                                                                        $requestTitle = 'Request to install a list of package(s)';
-                                                                        $requestTitleShort = 'Request to update a list of package(s)';
+                                                                }
+                                                                if ($request == 'request-all-packages-update') {
+                                                                    $requestTitle = 'Requested the host to update all of its packages';
+                                                                    $requestTitleShort = 'Request to update all packages';
 
-                                                                        if (!empty($requestJson['packages'])) {
-                                                                            $requestDetails = count($requestJson['packages']) . ' package(s) to install';
+                                                                    if (!empty($responseJson)) {
+                                                                        // If there was no packages to update
+                                                                        if ($responseJson['update']['status'] == 'nothing-to-do') {
+                                                                            $responseDetails = 'No packages to update';
                                                                         }
-                                                                    }
-                                                                    if ($request == 'request-all-packages-update') {
-                                                                        $requestTitle = 'Requested the host to update all of its packages';
-                                                                        $requestTitleShort = 'Request to update all packages';
 
-                                                                        if (!empty($responseJson)) {
-                                                                            // If there was no packages to update
-                                                                            if ($responseJson['update']['status'] == 'nothing-to-do') {
-                                                                                $responseDetails = 'No packages to update';
+                                                                        // If there was packages to update, retrieve the number of packages updated
+                                                                        if ($responseJson['update']['status'] == 'done' or $responseJson['update']['status'] == 'failed') {
+                                                                            $successCount = $responseJson['update']['success']['count'];
+                                                                            $failedCount  = $responseJson['update']['failed']['count'];
+
+                                                                            // If the update was successful
+                                                                            if ($responseJson['update']['status'] == 'done') {
+                                                                                $requestStatus = 'Successful';
+                                                                                $requestStatusIcon = 'check.svg';
                                                                             }
 
-                                                                            // If there was packages to update, retrieve the number of packages updated
-                                                                            if ($responseJson['update']['status'] == 'done' or $responseJson['update']['status'] == 'failed') {
-                                                                                $successCount = $responseJson['update']['success']['count'];
-                                                                                $failedCount  = $responseJson['update']['failed']['count'];
-
-                                                                                // If the update was successful
-                                                                                if ($responseJson['update']['status'] == 'done') {
-                                                                                    $requestStatus = 'Successful';
-                                                                                    $requestStatusIcon = 'check.svg';
-                                                                                }
-
-                                                                                // If the update failed
-                                                                                if ($responseJson['update']['status'] == 'failed') {
-                                                                                    $requestStatus = 'Failed with errors';
-                                                                                    $requestStatusIcon = 'error.svg';
-                                                                                }
-
-                                                                                // If there was packages updated AND packages failed
-                                                                                if ($successCount >= 1 and $failedCount >= 1) {
-                                                                                    $requestStatus = 'Partial success';
-                                                                                    $requestStatusIcon = 'warning.svg';
-                                                                                }
-
-                                                                                // If there was no packages updated AND packages failed
-                                                                                if ($successCount == 0 and $failedCount >= 1) {
-                                                                                    $requestStatus = 'Failed';
-                                                                                    $requestStatusIcon = 'error.svg';
-                                                                                }
-
-                                                                                // Build a short info message
-                                                                                $responseDetails = $successCount . ' package(s) updated, ' . $failedCount . ' failed';
-
-                                                                                // Retrieve the list of packages updated
-                                                                                // $successPackages = $responseJson['update']['success']['packages'];
-
-                                                                                // Retrieve the list of packages failed
-                                                                                // $failedPackages = $responseJson['update']['failed']['packages'];
+                                                                            // If the update failed
+                                                                            if ($responseJson['update']['status'] == 'failed') {
+                                                                                $requestStatus = 'Failed with errors';
+                                                                                $requestStatusIcon = 'error.svg';
                                                                             }
+
+                                                                            // If there was packages updated AND packages failed
+                                                                            if ($successCount >= 1 and $failedCount >= 1) {
+                                                                                $requestStatus = 'Partial success';
+                                                                                $requestStatusIcon = 'warning.svg';
+                                                                            }
+
+                                                                            // If there was no packages updated AND packages failed
+                                                                            if ($successCount == 0 and $failedCount >= 1) {
+                                                                                $requestStatus = 'Failed';
+                                                                                $requestStatusIcon = 'error.svg';
+                                                                            }
+
+                                                                            // Build a short info message
+                                                                            $responseDetails = $successCount . ' package(s) updated, ' . $failedCount . ' failed';
+
+                                                                            // Retrieve the list of packages updated
+                                                                            // $successPackages = $responseJson['update']['success']['packages'];
+
+                                                                            // Retrieve the list of packages failed
+                                                                            // $failedPackages = $responseJson['update']['failed']['packages'];
                                                                         }
                                                                     }
+                                                                }
 
-                                                                    // Only print the request title if it was executed less than 1h ago
-                                                                    if (strtotime($lastPendingRequest['Date'] . ' ' . $lastPendingRequest['Time']) >= strtotime(date('Y-m-d H:i:s') . ' - 1 hour')) : ?>
-                                                                        <h6>LAST REQUEST</h6>
-                                                                        <div class="flex align-item-center column-gap-5">
-                                                                            <?php
-                                                                            if (!empty($requestStatusIcon)) {
-                                                                                if (str_ends_with($requestStatusIcon, '.svg')) {
-                                                                                    echo '<img src="/assets/icons/' . $requestStatusIcon . '" class="icon-np" title="' . $requestStatus . '" />';
-                                                                                } else {
-                                                                                    echo '<span class="' . $requestStatusIcon . '" title="' . $requestStatus . '"></span> ';
-                                                                                }
-                                                                            } ?>
-                                                                            <p class="mediumopacity-cst" title="<?= $requestTitle ?>">
-                                                                                <?php
-                                                                                echo $requestTitleShort;
-
-                                                                                if (!empty($requestInfo)) {
-                                                                                    echo ' - ' . $requestInfo;
-                                                                                }
-
-                                                                                if (!empty($responseDetails)) {
-                                                                                    echo ' - ' . $responseDetails;
-                                                                                } ?>
-                                                                            </p>                                                                            
-                                                                        </div>
+                                                                // Only print the request title if it was executed less than 1h ago
+                                                                if (strtotime($lastPendingRequest['Date'] . ' ' . $lastPendingRequest['Time']) >= strtotime(date('Y-m-d H:i:s') . ' - 1 hour')) : ?>
+                                                                    <h6>LAST REQUEST</h6>
+                                                                    <div class="flex align-item-center column-gap-5">
                                                                         <?php
-                                                                    endif;
+                                                                        if (!empty($requestStatusIcon)) {
+                                                                            if (str_ends_with($requestStatusIcon, '.svg')) {
+                                                                                echo '<img src="/assets/icons/' . $requestStatusIcon . '" class="icon-np" title="' . $requestStatus . '" />';
+                                                                            } else {
+                                                                                echo '<span class="' . $requestStatusIcon . '" title="' . $requestStatus . '"></span> ';
+                                                                            }
+                                                                        } ?>
+                                                                        <p class="mediumopacity-cst" title="<?= $requestTitle ?>">
+                                                                            <?php
+                                                                            echo $requestTitleShort;
+
+                                                                            if (!empty($requestInfo)) {
+                                                                                echo ' - ' . $requestInfo;
+                                                                            }
+
+                                                                            if (!empty($responseDetails)) {
+                                                                                echo ' - ' . $responseDetails;
+                                                                            } ?>
+                                                                        </p>                                                                            
+                                                                    </div>
+                                                                    <?php
                                                                 endif;
-                                                            endif ?>
-                                                        </div>
-                                                        <?php
-                                                    endif ?>
+                                                            endif;
+                                                        endif ?>
+                                                    </div>
+                                                    <?php
+                                                endif ?>
 
-                                                    <div class="host-additionnal-info"></div>
-                                                </div>
-
-                                                <div class="align-self-center">
-                                                    <input type="checkbox" class="js-host-checkbox lowopacity pointer" name="checkbox-host[]" group="<?= $group['Name'] ?>" value="<?= $id ?>" title="Select <?= $hostname ?>">
-                                                </div>
+                                                <div class="host-additionnal-info"></div>
                                             </div>
+
+                                            <input type="checkbox" class="js-host-checkbox" name="checkbox-host[]" group="<?= $group['Name'] ?>" value="<?= $id ?>" title="Select <?= $hostname ?>">
                                         </div>
                                         <?php
                                     endforeach; ?>
+                                    </div>
                                 </div>
                                 <?php
                             endif ?>

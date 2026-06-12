@@ -261,7 +261,9 @@ class Connection extends SQLite3
         Dist VARCHAR(255),
         Section VARCHAR(255),
         Source VARCHAR(255) NOT NULL,
-        Package_type VARCHAR(10) NOT NULL)");
+        Package_type VARCHAR(10) NOT NULL,
+        Description VARCHAR(255),
+        Tags VARCHAR(255))");
 
         /**
          *  Create indexes
@@ -296,18 +298,17 @@ class Connection extends SQLite3
         $this->exec("CREATE TABLE IF NOT EXISTS repos_env (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Env VARCHAR(255),
-        Description VARCHAR(255),
         Id_snap INTEGER NOT NULL)");
 
         /**
          *  Create indexes
          */
-        $this->exec("CREATE INDEX IF NOT EXISTS repos_env_index ON repos_env (Env, Description, Id_snap)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_repos_env ON repos_env (Env, Id_snap)");
 
         /**
          *  Create indexes
          */
-        $this->exec("CREATE INDEX IF NOT EXISTS repos_env_id_snap_index ON repos_env (Id_snap)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_repos_env_id_snap ON repos_env (Id_snap)");
 
         /**
          *  env table

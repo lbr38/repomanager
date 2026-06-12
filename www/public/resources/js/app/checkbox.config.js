@@ -221,7 +221,7 @@ const checkboxesCallback = {
                         // Print error alert:
                         true
                     ).then(function () {
-                        mycontainer.reload('tasks/list');
+                        mycontainer.reload('tasks/tasks');
                     });
                 }
             },
@@ -243,7 +243,7 @@ const checkboxesCallback = {
                         // Print error alert:
                         true
                     ).then(function () {
-                        mycontainer.reload('tasks/list');
+                        mycontainer.reload('tasks/tasks');
                     });
                 }
             },
@@ -265,7 +265,7 @@ const checkboxesCallback = {
                         // Print error alert:
                         true
                     ).then(function () {
-                        mycontainer.reload('tasks/list');
+                        mycontainer.reload('tasks/tasks');
                     });
                 }
             }]
@@ -298,7 +298,7 @@ const checkboxesCallback = {
                         // Print error alert:
                         true
                     ).then(function () {
-                        mycontainer.reload('tasks/list');
+                        mycontainer.reload('tasks/tasks');
                     });
                 }
             }]

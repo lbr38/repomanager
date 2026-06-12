@@ -3,6 +3,7 @@
 namespace Controllers\Task\Form;
 
 use Exception;
+use Controllers\User\User;
 use Controllers\Repo\Repo;
 use Controllers\Utils\Validate;
 use Controllers\Repo\Environment;
@@ -18,7 +19,7 @@ class Form
      */
     public function get(string $action, array $repos) : string
     {
-        $userController = new \Controllers\User\User();
+        $userController = new User();
         $usersEmail = $userController->getEmails();
 
         $content = '<form id="task-form" autocomplete="off">';
@@ -27,31 +28,44 @@ class Form
             $repoController = new Repo();
             $repoEnvController = new Environment();
             $scheduledTaskController = new ScheduledTask();
-            $repoId = Validate::int($repo['repo-id']);
-            $snapId = Validate::int($repo['snap-id']);
+            $repoId = null;
+            $snapId = null;
             $envId  = null;
+            $scheduledTasksCount = 0;
+
+            if (empty($repo['repo-id'])) {
+                throw new Exception('Repository Id is required');
+            }
+
+            if (!is_numeric($repo['repo-id'])) {
+                throw new Exception('Repository Id is invalid');
+            }
+
+            $repoId = Validate::int($repo['repo-id']);
+
+            // If a snapshot Id is provided
+            if (!empty($repo['snap-id'])) {
+                if (!is_numeric($repo['snap-id'])) {
+                    throw new Exception('Snapshot Id is invalid');
+                }
+
+                $snapId = Validate::int($repo['snap-id']);
+            }
 
             // If an environment points to the snapshot (snapId), retrieve the envId from the repo array
-            if (!empty($repo['envId'])) {
-                $envId = Validate::int($repo['env-id']);
-            }
+            if (!empty($repo['env-id'])) {
+                if (!is_numeric($repo['env-id'])) {
+                    throw new Exception('Environment Id is invalid');
+                }
 
-            // Check that the Ids are numeric
-            if (!is_numeric($repoId)) {
-                throw new Exception("Repository Id is invalid");
-            }
-            if (!is_numeric($snapId)) {
-                throw new Exception("Snapshot Id is invalid");
-            }
-            if (!empty($envId) and !is_numeric($envId)) {
-                throw new Exception("Environment Id is invalid");
+                $envId = Validate::int($repo['env-id']);
             }
 
             // Check that the Ids exist in the database
             if (!$repoController->existsId($repoId)) {
                 throw new Exception("Repository Id does not exist");
             }
-            if (!$repoController->existsSnapId($snapId)) {
+            if (!empty($snapId) and !$repoController->existsSnapId($snapId)) {
                 throw new Exception("Snapshot Id does not exist");
             }
             if (!empty($envId) and !$repoEnvController->exists($envId)) {
@@ -64,9 +78,11 @@ class Form
             // Retrieve the package type of the repo
             $packageType = $repoController->getPackageType();
 
-            // Get scheduled tasks on this snapshot (if any) and count them
-            $scheduledTasks = $scheduledTaskController->getBySnapId($snapId);
-            $scheduledTasksCount = count($scheduledTasks);
+            // Get scheduled tasks on the snapshot (if any) and count them
+            if (!empty($snapId)) {
+                $scheduledTasks = $scheduledTaskController->getBySnapId($snapId);
+                $scheduledTasksCount = count($scheduledTasks);
+            }
 
             // Build the form from a template
             ob_start();

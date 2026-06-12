@@ -20,31 +20,11 @@ $(document).on('click','.show-step-content-btn',function () {
 
     if ($('.task-step-content[task-id="' + taskId + '"][step="' + step + '"]').is(':visible')) {
         $('.task-step-content[task-id="' + taskId + '"][step="' + step + '"]').hide();
+        $(this).removeClass('step-open');
     } else {
         $('.task-step-content[task-id="' + taskId + '"][step="' + step + '"]').css('display', 'grid');
+        $(this).addClass('step-open');
     }
-});
-
-/**
- *  Event: show logfile
- */
-$(document).on('click','.show-task-btn',function () {
-    var taskId = $(this).attr('task-id');
-
-    // Add a loading spinner to the container
-    $('#log-refresh-container').html('<div class="absolute min-height-50vh flex align-item-center justify-center"><img src="/assets/icons/loading.svg" class="icon" /></div>');
-
-    // Change URL without reloading the page
-    history.pushState(null, null, '/run/' + taskId);
-
-    // Reload task container to print the new task log
-    mycontainer.reload('tasks/log').then(function () {
-        // Restart log scroll event listener
-        scrollEventListener();
-
-        // Remove loading spinner
-        $('#log-refresh-container .loading-veil').remove();
-    });
 });
 
 /**
@@ -235,6 +215,27 @@ $(document).on('click','.step-down-btn',function () {
 });
 
 /**
+ *  Event: click on a selectable task item to toggle its hidden checkbox
+ */
+$(document).on('click', '.task-item-selectable', function (e) {
+    // Prevent parent to be triggered
+    e.stopPropagation(e);
+
+    // Ignore clicks on action icons and the details button
+    if ($(e.target).closest('.show-scheduled-task-info-btn, .relaunch-task-btn, .stop-task-btn, .task-checkbox-input').length) {
+        return;
+    }
+
+    // Find the hidden checkbox inside this task item and toggle it
+    var checkbox = $(this).find('.task-checkbox-input');
+
+    if (checkbox.length) {
+        // click() toggles the native checked state + fires click and change events
+        checkbox.click();
+    }
+});
+
+/**
  *  Event: show or hide scheduled task informations
  */
 $(document).on('click','.show-scheduled-task-info-btn',function (e) {
@@ -250,11 +251,26 @@ $(document).on('click','.show-scheduled-task-info-btn',function (e) {
 });
 
 /**
+ *  Event: toggle selected state on task-item when its hidden checkbox is toggled
+ */
+$(document).on('change', '.task-checkbox-input', function () {
+    var container = $(this).closest('.task-item');
+
+    if ($(this).is(':checked')) {
+        container.addClass('task-selected');
+    } else {
+        container.removeClass('task-selected');
+    }
+});
+
+/**
  *  Event: relaunch task
  */
 $(document).on('click','.relaunch-task-btn',function (e) {
     // Prevent parent to be triggered
     e.stopPropagation();
+
+    myalert.print('Relaunching task...');
 
     ajaxRequest(
         // Controller:
@@ -269,5 +285,7 @@ $(document).on('click','.relaunch-task-btn',function (e) {
         true,
         // Print error alert:
         true
-    );
+    ).then(function () {
+        mycontainer.reload('tasks/tasks');
+    });
 });

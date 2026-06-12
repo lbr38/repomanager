@@ -153,7 +153,7 @@
 
         <h6>POINT AN ENVIRONMENT</h6>
         <p class="note">Point an environment to the newly created repository.</p>
-        <select id="new-repo-target-env-select" class="task-param" param-name="env" package-type="all" multiple>
+        <select class="task-param" param-name="env" package-type="all" multiple>
             <option value=""></option>
             <?php
             foreach (ENVS as $env) {
@@ -165,10 +165,13 @@
             } ?>
         </select>
 
-        <div id="new-repo-target-description-tr">
-            <h6>DESCRIPTION</h6>
-            <input type="text" class="task-param" param-name="description" package-type="all" />
-        </div>
+        <h6>DESCRIPTION</h6>
+        <p class="note">Optional. A description for this repository.</p>
+        <input type="text" class="task-param" param-name="description" package-type="all" />
+
+        <h6>TAGS</h6>
+        <p class="note">Optional. Add tags to the repository. Tags can be used to filter repositories.</p>
+        <select class="task-param" param-name="tags" multiple></select>
 
         <?php
         // Possibility to add to a group, if there is at least one group
@@ -267,7 +270,8 @@ $(document).ready(function(){
     myselect2.convert('select.task-param[param-name="dist"]', 'Select distribution', true);
     myselect2.convert('select.task-param[param-name="section"]', 'Select component', true);
     myselect2.convert('select.task-param[param-name="arch"]', 'Select architecture', true);
-    myselect2.convert('select#new-repo-target-env-select', 'Select environment(s)', true);
+    myselect2.convert('select.task-param[param-name="env"]', 'Select environment(s)', true);
+    myselect2.convert('select.task-param[param-name="tags"]', 'Specify tags', true);
     myselect2.convert('select.task-param[param-name="advanced-params.packages.include"]', 'Specify package(s)', true);
     myselect2.convert('select.task-param[param-name="advanced-params.packages.exclude"]', 'Specify package(s)', true);
     myselect2.convert('select.task-param[param-name="schedule-day"]', 'Select day(s)', true);

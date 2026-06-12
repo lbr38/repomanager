@@ -11,16 +11,12 @@
 
 <div id="repository-install-commands-container" class="hide">
     <?php
-    /**
-     *  Display a warning message if the user selected both deb and rpm repositories
-     */
+    // Display a warning message if the user selected both deb and rpm repositories
     if (in_array('deb', $packagesTypes) and in_array('rpm', $packagesTypes)) {
         echo '<p class="note margin-top-15"><img src="/assets/icons/warning.svg" class="icon-np" /> You have selected both deb and rpm repositories. Make sure to install them separately.</p>';
     }
 
-    /**
-     *  Print the GPG key installation commands (only for deb packages)
-     */
+    // Print the GPG key installation commands (only for deb packages)
     if (in_array('deb', $packagesTypes)) : ?>
         <h6>INSTALL THE GPG KEY</h6>
         <p class="note">For Debian based systems. Copy and paste the following commands in the shell of the target host.</p>

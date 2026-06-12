@@ -1,13 +1,16 @@
 <div class="reloadable-table margin-top-15" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
     <?php
-    if (!empty($reloadableTableContent)) :
+    if (!empty($reloadableTableContent)) : ?>
+        <div class="flex flex-direction-column row-gap-10">
+        <?php
         foreach ($reloadableTableContent as $date => $packageState) : ?>
-            <div class="table-container-3 row-gap-15 column-gap-30 bck-blue-alt event-packages-btn pointer" host-id="<?= $id ?>" event-date="<?= $date ?>">
-                <div>
+            <div class="host-event-item event-packages-btn pointer" host-id="<?= $id ?>" event-date="<?= $date ?>">
+                <div class="flex align-item-center column-gap-20">
+                    <img src="/assets/icons/calendar.svg" class="icon-np lowopacity-cst" />
                     <p><b><?= DateTime::createFromFormat('Y-m-d', $date)->format('d-m-Y') ?></b></p>
                 </div>
 
-                <div class="grid grid-rfr-1-4 row-gap-15 column-gap-30">
+                <div class="flex align-item-center column-gap-20 flex-wrap">
                     <?php
                     foreach ($packageState as $state => $packages) :
                         if (empty($packages)) {
@@ -60,6 +63,7 @@
         endforeach;
 
         unset($date, $packageState, $state, $packages, $title, $icon, $count); ?>
+        </div>
 
         <div class="flex justify-end margin-top-10">
             <?php \Controllers\Layout\Table\Render::paginationBtn($reloadableTableCurrentPage, $reloadableTableTotalPages); ?>

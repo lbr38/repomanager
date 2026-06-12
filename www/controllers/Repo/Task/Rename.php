@@ -13,8 +13,8 @@ class Rename extends \Controllers\Task\Execution
     {
         parent::__construct($taskId, 'rename');
 
-        // Get source repository details from its snapshot Id
-        $this->sourceRepoController->getAllById(null, $this->params['snap-id'], null);
+        // Get source repository details from its repo Id
+        $this->sourceRepoController->getAllById($this->params['repo-id']);
 
         // Execute the task
         try {
@@ -39,9 +39,9 @@ class Rename extends \Controllers\Task\Execution
         $this->taskLogStepController->new('renaming', 'RENAMING');
         $this->taskLogSubStepController->new('renaming-directory', 'RENAMING REPOSITORY DIRECTORY');
 
-        // Check if source repo snapshot exists
-        if ($this->sourceRepoController->existsSnapId($this->sourceRepoController->getSnapId()) === false) {
-            throw new Exception('Source repository snapshot does not exist');
+        // Check if source repo exists
+        if ($this->sourceRepoController->existsId($this->sourceRepoController->getRepoId()) === false) {
+            throw new Exception('Source repository does not exist');
         }
 
         // Check if a repo with the same name already exists
@@ -56,7 +56,7 @@ class Rename extends \Controllers\Task\Execution
             }
         }
 
-        // Define source snapshot path
+        // Define source repository path
         if ($this->sourceRepoController->getPackageType() == 'rpm') {
             $sourcePath = REPOS_DIR . '/rpm/' . $this->sourceRepoController->getName() . '/' . $this->sourceRepoController->getReleasever();
         }
@@ -64,7 +64,7 @@ class Rename extends \Controllers\Task\Execution
             $sourcePath = REPOS_DIR . '/deb/' . $this->sourceRepoController->getName() . '/' . $this->sourceRepoController->getDist() . '/' . $this->sourceRepoController->getSection();
         }
 
-        // Define target snapshot path
+        // Define target repository path
         if ($this->repoController->getPackageType() == 'rpm') {
             $parentDir = REPOS_DIR . '/rpm/' . $this->repoController->getName();
             $targetPath = REPOS_DIR . '/rpm/' . $this->repoController->getName() . '/' . $this->repoController->getReleasever();
@@ -96,24 +96,24 @@ class Rename extends \Controllers\Task\Execution
         $this->taskLogSubStepController->completed();
         $this->taskLogStepController->completed();
 
-        if ($this->repoController->getPackageType() == 'deb') {
-            try {
-                // On a deb repo, the renamed repository needs to have its metadata rebuilded
-                $this->createMetadata();
+        // if ($this->repoController->getPackageType() == 'deb') {
+        //     try {
+        //         // On a deb repo, the renamed repository needs to have its metadata rebuilded
+        //         $this->createMetadata();
 
-            // If an error occurred after repository has been moved, try to revert the move
-            } catch (Exception $e) {
-                // Try to revert the move
-                if (file_exists($targetPath)) {
-                    if (!rename($targetPath, $sourcePath)) {
-                        throw new Exception('An error occured while creating the repository metadata: ' . $e->getMessage() . '. Additionally, the system could not revert the renamed repository from ' . $targetPath . ' to ' . $sourcePath . '. Manual intervention is required to restore the repository to its original state.');
-                    }
-                }
+        //     // If an error occurred after repository has been moved, try to revert the move
+        //     } catch (Exception $e) {
+        //         // Try to revert the move
+        //         if (file_exists($targetPath)) {
+        //             if (!rename($targetPath, $sourcePath)) {
+        //                 throw new Exception('An error occured while creating the repository metadata: ' . $e->getMessage() . '. Additionally, the system could not revert the renamed repository from ' . $targetPath . ' to ' . $sourcePath . '. Manual intervention is required to restore the repository to its original state.');
+        //             }
+        //         }
 
-                // Throw initial exception to set the task as error
-                throw new Exception('An error occured while creating the repository metadata: ' . $e->getMessage(). ' The renamed repository has been reverted to its original state. Please check that everything is fine before retrying the rename operation.');
-            }
-        }
+        //         // Throw initial exception to set the task as error
+        //         throw new Exception('An error occured while creating the repository metadata: ' . $e->getMessage(). ' The renamed repository has been reverted to its original state. Please check that everything is fine before retrying the rename operation.');
+        //     }
+        // }
 
         try {
             $this->taskLogStepController->new('finalizing', 'FINALIZING');

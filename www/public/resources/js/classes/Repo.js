@@ -6,7 +6,7 @@ class Repo {
     {
         // If input is empty, then show all repos and quit
         if (!$("#repo-search-input").val()) {
-            $('.repos-list-group, .repos-list-group-flex-div').show();
+            $('.repos-list-group, .repo-item, .group-repo-name').show();
             return;
         }
 
@@ -14,74 +14,48 @@ class Repo {
 
         /**
          *  Retrieve search input value
-         *  Convert to uppercase to ignore case when searching
+         *  Split into individual terms for multi-word search
          */
-        const search = $("#repo-search-input").val().toUpperCase().trim();
+        const terms = $("#repo-search-input").val().toUpperCase().trim().split(/\s+/);
 
-        // First, hide all repos groups
-        $('.repos-list-group, .repos-list-group-flex-div').hide();
+        // First, hide all groups and repo items
+        $('.repos-list-group, .repo-item, .group-repo-name').hide();
 
-        // Then search in every repo group of there is a repo or dist or section matching the search
-        $('.repos-list-group').each(function () {
-            // Retrieve all repos lines
-            $('.item-repo').each(function () {
-                const name = $(this).attr('name');
-                const dist = $(this).attr('dist');
-                const section = $(this).attr('section');
-                const releasever = $(this).attr('releasever');
+        // Search through all repo items using data attributes
+        $('.repo-item').each(function () {
+            const name = ($(this).attr('data-name') || '').toUpperCase();
+            const dist = ($(this).attr('data-dist') || '').toUpperCase();
+            const section = ($(this).attr('data-section') || '').toUpperCase();
+            const releasever = ($(this).attr('data-releasever') || '').toUpperCase();
+            const type = ($(this).attr('data-type') || '').toUpperCase();
+            const packageType = ($(this).attr('data-package-type') || '').toUpperCase();
+            const description = ($(this).attr('data-description') || '').toUpperCase();
+            const tags = ($(this).attr('data-tags') || '').toUpperCase();
 
-                // If repo name contains the search then display 'repos-list-group-flex-div' and its parent 'repos-list-group'
-                if (name.toUpperCase().indexOf(search) > -1) {
-                    $(this).parents('.repos-list-group-flex-div').show();
-                    $(this).parents('.repos-list-group').show();
-                }
-
-                // If repo dist contains the search then display 'repos-list-group-flex-div' and its parent 'repos-list-group'
-                if (dist.toUpperCase().indexOf(search) > -1) {
-                    $(this).parents('.repos-list-group-flex-div').show();
-                    $(this).parents('.repos-list-group').show();
-                }
-
-                // If repo section contains the search then display 'repos-list-group-flex-div' and its parent 'repos-list-group'
-                if (section.toUpperCase().indexOf(search) > -1) {
-                    $(this).parents('.repos-list-group-flex-div').show();
-                    $(this).parents('.repos-list-group').show();
-                }
-
-                // If repo releasever contains the search then display 'repos-list-group-flex-div' and its parent 'repos-list-group'
-                if (releasever.toUpperCase().indexOf(search) > -1) {
-                    $(this).parents('.repos-list-group-flex-div').show();
-                    $(this).parents('.repos-list-group').show();
-                }
+            // Collect snapshot dates and environment names as searchable text
+            var snapDates = '';
+            $(this).find('.snap-date').each(function () {
+                snapDates += ' ' + $(this).text().toUpperCase();
             });
 
-            // Retrieve all repos environments
-            $('.item-env').each(function () {
-                const env = $(this).text().trim();
-
-                // If env is not empty
-                if (env != "") {
-                    // If env name contains the search then display 'repos-list-group-flex-div' and its parent 'repos-list-group'
-                    if (env.toUpperCase().indexOf(search) > -1) {
-                        $(this).parents('.repos-list-group-flex-div').show();
-                        $(this).parents('.repos-list-group').show();
-                    }
-                }
+            var envNames = '';
+            $(this).find('.snap-env').each(function () {
+                envNames += ' ' + $(this).text().toUpperCase();
             });
 
-            // Retrieve all repos descriptions
-            $('input[type="text"].repo-description-input').each(function () {
-                const description = $(this).val().trim();
+            // All searchable content for this repo
+            const searchable = name + ' ' + dist + ' ' + section + ' ' + releasever + ' ' + type + ' ' + packageType + ' ' + description + ' ' + tags + snapDates + envNames;
 
-                // If description is not empty
-                if (description != "") {
-                    // If description contains the search then display 'repos-list-group-flex-div' and its parent 'repos-list-group'
-                    if (description.toUpperCase().indexOf(search) > -1) {
-                        $(this).parents('.repos-list-group-flex-div').show();
-                        $(this).parents('.repos-list-group').show();
-                    }
-                }
+            // Check that ALL terms match somewhere in the searchable content
+            const allMatch = terms.every(function (term) {
+                return searchable.indexOf(term) > -1;
             });
+
+            if (allMatch) {
+                $(this).show();
+                $(this).parent().prev('.group-repo-name').show();
+                $(this).closest('.repos-list-group').show();
+            }
         });
 
         mylayout.hideLoading();
@@ -93,10 +67,12 @@ class Repo {
     getSize()
     {
         // Loop through all repos and get their size
-        $('#repos-list-container').find('.item-size').each(function () {
+        // item-size is the legacy class for snap-size
+        $('#repos-list-container').find('.snap-size, .item-size').each(function () {
             var repoId = $(this).attr('repo-id');
             var snapId = $(this).attr('snap-id');
             var path = $(this).attr('repo-relative-path');
+            let element = $(this);
 
             ajaxRequest(
                 // Controller:
@@ -112,9 +88,9 @@ class Repo {
                 // Print error alert:
                 false
             ).then(function () {
-                $("#repos-list-container").find('.item-size[repo-id="' + repoId + '"][snap-id="' + snapId + '"]').html(jsonValue.message);
+                $(element).html(jsonValue.message);
             }).catch(function () {
-                $("#repos-list-container").find('.item-size[repo-id="' + repoId + '"][snap-id="' + snapId + '"]').replaceWith('<img src="/assets/icons/warning.svg" class="icon" title="' + jsonValue.message + '"/>');
+                $(element).replaceWith('<img src="/assets/icons/warning.svg" class="icon" title="' + jsonValue.message + '"/>');
             });
         });
     }
@@ -154,6 +130,30 @@ class Repo {
                 }
             });
         });
+    }
+
+    /**
+     * Update repository description
+     * @param {*} id
+     * @param {*} description
+     */
+    updateDescription(id, description)
+    {
+        ajaxRequest(
+            // Controller:
+            'repo/edit',
+            // Action:
+            'description',
+            // Data:
+            {
+                repoId: id,
+                description: description
+            },
+            // Print success alert:
+            true,
+            // Print error alert:
+            true
+        );
     }
 
     /**

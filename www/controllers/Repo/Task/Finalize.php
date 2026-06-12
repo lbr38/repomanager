@@ -32,7 +32,7 @@ trait Finalize
             // If currently no rpm repo of this name exists in the database then we add it
             if ($this->repoController->getPackageType() == 'rpm') {
                 if (!$this->rpmRepoController->exists($this->repoController->getName(), $this->repoController->getReleasever())) {
-                    $this->rpmRepoController->add($this->repoController->getName(), $this->repoController->getReleasever(), $this->repoController->getSource());
+                    $this->rpmRepoController->add($this->repoController->getName(), $this->repoController->getReleasever(), $this->repoController->getSource(), $this->repoController->getDescription(), $this->repoController->getTags());
 
                     // Repository Id becomes the Id of the last inserted row in the database
                     $this->repoController->setRepoId($this->rpmRepoController->getLastInsertRowID());
@@ -46,8 +46,7 @@ trait Finalize
             // If currently no deb repo of this name exists in the database then we add it
             if ($this->repoController->getPackageType() == 'deb') {
                 if (!$this->debRepoController->exists($this->repoController->getName(), $this->repoController->getDist(), $this->repoController->getSection())) {
-                    $this->debRepoController->add($this->repoController->getName(), $this->repoController->getDist(), $this->repoController->getSection(), $this->repoController->getSource());
-
+                    $this->debRepoController->add($this->repoController->getName(), $this->repoController->getDist(), $this->repoController->getSection(), $this->repoController->getSource(), $this->repoController->getDescription(), $this->repoController->getTags());
                     // Repository Id becomes the Id of the last inserted row in the database
                     $this->repoController->setRepoId($this->debRepoController->getLastInsertRowID());
 
@@ -66,7 +65,7 @@ trait Finalize
             // Add env in database if an env has been specified by the user
             if (!empty($this->repoController->getEnv())) {
                 foreach ($this->repoController->getEnv() as $env) {
-                    $this->repoEnvController->add($this->repoController->getSnapId(), $env, $this->repoController->getDescription());
+                    $this->repoEnvController->add($this->repoController->getSnapId(), $env);
                 }
             }
         }
@@ -122,23 +121,6 @@ trait Finalize
                 $this->taskLogSubStepController->new('adding-env', 'ADDING ENVIRONMENT');
 
                 foreach ($this->repoController->getEnv() as $env) {
-                    // If the user has not specified any description, then we retrieve the one currently in place on the environment of the same name (if the environment exists and if it has a description)
-                    if (empty($this->repoController->getDescription())) {
-                        if ($this->repoController->getPackageType() == 'rpm') {
-                            $actualDescription = $this->rpmRepoController->getDescriptionByName($this->repoController->getName(), $this->repoController->getReleasever(), $env);
-                        }
-                        if ($this->repoController->getPackageType() == 'deb') {
-                            $actualDescription = $this->debRepoController->getDescriptionByName($this->repoController->getName(), $this->repoController->getDist(), $this->repoController->getSection(), $env);
-                        }
-
-                        // If the retrieved description is empty then the description will remain empty
-                        if (!empty($actualDescription)) {
-                            $this->repoController->setDescription(htmlspecialchars_decode($actualDescription));
-                        } else {
-                            $this->repoController->setDescription('');
-                        }
-                    }
-
                     // Retrieve the Id of the environment currently in place (if there is one)
                     if ($this->repoController->getPackageType() == 'rpm') {
                         $actualEnvIds = $this->rpmRepoController->getEnvIdFromRepoName($this->repoController->getName(), $this->repoController->getReleasever(), $env);
@@ -155,7 +137,7 @@ trait Finalize
                     }
 
                     // Then we declare the new environment and make it point to the previously created snapshot
-                    $this->repoEnvController->add($this->repoController->getSnapId(), $env, $this->repoController->getDescription());
+                    $this->repoEnvController->add($this->repoController->getSnapId(), $env);
                 }
 
                 $this->taskLogSubStepController->completed();

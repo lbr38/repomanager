@@ -46,7 +46,7 @@ class Render
 
         // Previous button
         if ($currentPage > 1) {
-            $output .= '<button class="reloadable-table-page-btn pagination-btn-first pagination-btn-previous" page="' . ($currentPage - 1) . '" title="Previous"><img src="/assets/icons/previous.svg" class="icon" /></button>';
+            $output .= '<button class="reloadable-table-page-btn pagination-btn-first pagination-btn-previous" page="' . ($currentPage - 1) . '" title="Previous">❮</button>';
         }
 
         // First page button (n°1)
@@ -92,7 +92,7 @@ class Render
 
         // Next button
         if ($currentPage < $totalPages) {
-            $output .= '<button class="reloadable-table-page-btn pagination-btn-last pagination-btn-next" page="' . ($currentPage + 1) . '" title="Next"><img src="/assets/icons/next.svg" class="icon" /></button>';
+            $output .= '<button class="reloadable-table-page-btn pagination-btn-last pagination-btn-next" page="' . ($currentPage + 1) . '" title="Next">❯</button>';
         }
 
         echo $output;

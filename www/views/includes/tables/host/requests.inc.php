@@ -6,418 +6,430 @@
         echo '<p>Nothing for now!</p>';
     endif;
 
-    if (!empty($reloadableTableContent)) :
-        foreach ($reloadableTableContent as $item) :
-            $class = 'table-container bck-blue-alt';
-            $request = '';
-            $requestData = [];
-            $requestInfo = null;
-            $requestDetails = null;
-            $responseDetails = null;
-            $responseJson = null;
-            $successPackages = [];
-            $failedPackages = [];
-            $dryRun = null;
-            $ignoreExclusions = null;
-            $fullUpgrade = null;
-            $keepConfigFiles = null;
+    if (!empty($reloadableTableContent)) : ?>
+        <div class="flex flex-direction-column row-gap-10">
+            <?php
+            foreach ($reloadableTableContent as $item) :
+                $class = 'host-request-item';
+                $request = '';
+                $requestData = [];
+                $requestInfo = null;
+                $requestDetails = null;
+                $responseDetails = null;
+                $responseJson = null;
+                $successPackages = [];
+                $failedPackages = [];
+                $dryRun = null;
+                $ignoreExclusions = null;
+                $fullUpgrade = null;
+                $keepConfigFiles = null;
 
-            /**
-             *  Retrieve and decode JSON data
-             */
-            $requestJson = json_decode($item['Request'], true);
+                /**
+                 *  Retrieve and decode JSON data
+                 */
+                $requestJson = json_decode($item['Request'], true);
 
-            /**
-             *  Request name
-             */
-            $request = $requestJson['request'];
+                /**
+                 *  Request name
+                 */
+                $request = $requestJson['request'];
 
-            /**
-             *  Request data
-             */
-            if (isset($requestJson['data'])) {
-                $requestData = $requestJson['data'];
-            }
-
-            /**
-             *  Update params
-             */
-            if (!empty($requestData['update-params'])) {
-                // Retrieve dry-run value
-                if (!empty($requestData['update-params']['dry-run'])) {
-                    $dryRun = \Controllers\Utils\Convert::toBool($requestData['update-params']['dry-run']);
+                /**
+                 *  Request data
+                 */
+                if (isset($requestJson['data'])) {
+                    $requestData = $requestJson['data'];
                 }
 
-                // Retrieve ignore-exclusions value
-                if (!empty($requestData['update-params']['ignore-exclusions'])) {
-                    $ignoreExclusions = \Controllers\Utils\Convert::toBool($requestData['update-params']['ignore-exclusions']);
-                }
-
-                // Retrieve full-upgrade value
-                if (!empty($requestData['update-params']['full-upgrade'])) {
-                    $fullUpgrade = \Controllers\Utils\Convert::toBool($requestData['update-params']['full-upgrade']);
-                }
-
-                // Retrieve keep-config-files value
-                if (!empty($requestData['update-params']['keep-config-files'])) {
-                    $keepConfigFiles = \Controllers\Utils\Convert::toBool($requestData['update-params']['keep-config-files']);
-                }
-            }
-
-            /**
-             *  Request info
-             */
-            $requestInfo = $item['Info'];
-
-            /**
-             *  Response data
-             */
-            if (!empty($item['Response_json'])) {
-                $responseJson = json_decode($item['Response_json'], true);
-            }
-
-            /**
-             *  Request status
-             */
-            if ($item['Status'] == 'new') {
-                $requestStatus = 'Pending';
-                $requestStatusIcon = 'pending.svg';
-            }
-            if ($item['Status'] == 'sent') {
-                $requestStatus = 'Sent';
-                $requestStatusIcon = 'pending.svg';
-            }
-            if ($item['Status'] == 'running') {
-                $requestStatus = 'Running';
-                $requestStatusIcon = 'loading.svg';
-            }
-            if ($item['Status'] == 'canceled') {
-                $requestStatus = 'Canceled';
-                $requestStatusIcon = 'warning-red.svg';
-            }
-            if ($item['Status'] == 'failed') {
-                $requestStatus = 'Failed';
-                $requestStatusIcon = 'error.svg';
-            }
-            if ($item['Status'] == 'completed') {
-                $requestStatus = 'Completed';
-                $requestStatusIcon = 'check.svg';
-            }
-
-            /**
-             *  Request title
-             */
-            if ($request == 'request-general-infos') {
-                $requestString = 'Requested general informations';
-                $requestTitle = 'Requested the host to send its general informations';
-            }
-
-            if ($request == 'request-packages-infos') {
-                $requestString = 'Requested packages informations';
-                $requestTitle = 'Requested the host to send its packages informations';
-            }
-
-            if ($request == 'request-packages-update') {
-                $requestString = 'Request to install a list of package(s)';
-                $requestTitle = 'Requested the host to install a list of package(s)';
-
-
-                if (!empty($responseJson)) {
-                    if (!empty($requestJson['packages'])) {
-                        $requestDetails = count($requestJson['packages']) . ' package(s) to install';
+                /**
+                 *  Update params
+                 */
+                if (!empty($requestData['update-params'])) {
+                    // Retrieve dry-run value
+                    if (!empty($requestData['update-params']['dry-run'])) {
+                        $dryRun = \Controllers\Utils\Convert::toBool($requestData['update-params']['dry-run']);
                     }
 
-                    /**
-                     *  If there was no packages to update
-                     */
-                    if ($responseJson['update']['status'] == 'nothing-to-do') {
-                        $responseDetails = 'No packages to update';
+                    // Retrieve ignore-exclusions value
+                    if (!empty($requestData['update-params']['ignore-exclusions'])) {
+                        $ignoreExclusions = \Controllers\Utils\Convert::toBool($requestData['update-params']['ignore-exclusions']);
                     }
 
-                    /**
-                     *  If there was packages to update, retrieve the number of packages updated
-                     */
-                    if ($responseJson['update']['status'] == 'done' or $responseJson['update']['status'] == 'failed') {
-                        $successCount = $responseJson['update']['success']['count'];
-                        $failedCount  = $responseJson['update']['failed']['count'];
+                    // Retrieve full-upgrade value
+                    if (!empty($requestData['update-params']['full-upgrade'])) {
+                        $fullUpgrade = \Controllers\Utils\Convert::toBool($requestData['update-params']['full-upgrade']);
+                    }
 
-                        // If the update was successful
-                        if ($responseJson['update']['status'] == 'done') {
-                            $requestStatus = 'Successful';
-                            $requestStatusIcon = 'check.svg';
-                        }
-
-                        // If the update failed
-                        if ($responseJson['update']['status'] == 'failed') {
-                            $requestStatus = 'Failed with errors';
-                            $requestStatusIcon = 'error.svg';
-                        }
-
-                        // If there was packages updated AND packages failed
-                        if ($successCount >= 1 and $failedCount >= 1) {
-                            $requestStatus = 'Partial success';
-                            $requestStatusIcon = 'warning.svg';
-                        }
-
-                        // If there was no packages updated AND packages failed
-                        if ($successCount == 0 and $failedCount >= 1) {
-                            $requestStatus = 'Failed';
-                            $requestStatusIcon = 'error.svg';
-                        }
-
-                        // Build a short info message
-                        $responseDetails .= $successCount . ' package(s) updated, ' . $failedCount . ' failed';
-
-                        // Retrieve the list of packages updated
-                        $successPackages = $responseJson['update']['success']['packages'];
-
-                        // Retrieve the list of packages failed
-                        $failedPackages = $responseJson['update']['failed']['packages'];
+                    // Retrieve keep-config-files value
+                    if (!empty($requestData['update-params']['keep-config-files'])) {
+                        $keepConfigFiles = \Controllers\Utils\Convert::toBool($requestData['update-params']['keep-config-files']);
                     }
                 }
-            }
 
-            if ($request == 'request-all-packages-update') {
-                $requestString = 'Requested to update all packages';
-                $requestTitle = 'Requested the host to update all of its packages';
+                /**
+                 *  Request info
+                 */
+                $requestInfo = $item['Info'];
 
-                if (!empty($responseJson)) {
-                    /**
-                     *  If there was no packages to update
-                     */
-                    if ($responseJson['update']['status'] == 'nothing-to-do') {
-                        $responseDetails = 'No packages to update';
-                    }
+                /**
+                 *  Response data
+                 */
+                if (!empty($item['Response_json'])) {
+                    $responseJson = json_decode($item['Response_json'], true);
+                }
 
-                    /**
-                     *  If there was packages to update, retrieve the number of packages updated
-                     */
-                    if ($responseJson['update']['status'] == 'done' or $responseJson['update']['status'] == 'failed') {
-                        $successCount = $responseJson['update']['success']['count'];
-                        $failedCount  = $responseJson['update']['failed']['count'];
+                /**
+                 *  Request status
+                 */
+                if ($item['Status'] == 'new') {
+                    $requestStatus = 'Pending';
+                    $requestStatusIcon = 'pending.svg';
+                }
+                if ($item['Status'] == 'sent') {
+                    $requestStatus = 'Sent';
+                    $requestStatusIcon = 'pending.svg';
+                }
+                if ($item['Status'] == 'running') {
+                    $requestStatus = 'Running';
+                    $requestStatusIcon = 'loading.svg';
+                }
+                if ($item['Status'] == 'canceled') {
+                    $requestStatus = 'Canceled';
+                    $requestStatusIcon = 'warning-red.svg';
+                }
+                if ($item['Status'] == 'failed') {
+                    $requestStatus = 'Failed';
+                    $requestStatusIcon = 'error.svg';
+                }
+                if ($item['Status'] == 'completed') {
+                    $requestStatus = 'Completed';
+                    $requestStatusIcon = 'check.svg';
+                }
 
-                        // If the update was successful
-                        if ($responseJson['update']['status'] == 'done') {
-                            $requestStatus = 'Successful';
-                            $requestStatusIcon = 'check.svg';
+                /**
+                 *  Request title
+                 */
+                if ($request == 'request-general-infos') {
+                    $requestString = 'Requested general informations';
+                    $requestTitle = 'Requested the host to send its general informations';
+                }
+
+                if ($request == 'request-packages-infos') {
+                    $requestString = 'Requested packages informations';
+                    $requestTitle = 'Requested the host to send its packages informations';
+                }
+
+                if ($request == 'request-packages-update') {
+                    $requestString = 'Request to install a list of package(s)';
+                    $requestTitle = 'Requested the host to install a list of package(s)';
+
+
+                    if (!empty($responseJson)) {
+                        if (!empty($requestJson['packages'])) {
+                            $requestDetails = count($requestJson['packages']) . ' package(s) to install';
                         }
 
-                        // If the update failed
-                        if ($responseJson['update']['status'] == 'failed') {
-                            $requestStatus = 'Failed with errors';
-                            $requestStatusIcon = 'error.svg';
+                        /**
+                         *  If there was no packages to update
+                         */
+                        if ($responseJson['update']['status'] == 'nothing-to-do') {
+                            $responseDetails = 'No packages to update';
                         }
 
-                        // If there was packages updated AND packages failed
-                        if ($successCount >= 1 and $failedCount >= 1) {
-                            $requestStatus = 'Partial success';
-                            $requestStatusIcon = 'warning.svg';
+                        /**
+                         *  If there was packages to update, retrieve the number of packages updated
+                         */
+                        if ($responseJson['update']['status'] == 'done' or $responseJson['update']['status'] == 'failed') {
+                            $successCount = $responseJson['update']['success']['count'];
+                            $failedCount  = $responseJson['update']['failed']['count'];
+
+                            // If the update was successful
+                            if ($responseJson['update']['status'] == 'done') {
+                                $requestStatus = 'Successful';
+                                $requestStatusIcon = 'check.svg';
+                            }
+
+                            // If the update failed
+                            if ($responseJson['update']['status'] == 'failed') {
+                                $requestStatus = 'Failed with errors';
+                                $requestStatusIcon = 'error.svg';
+                            }
+
+                            // If there was packages updated AND packages failed
+                            if ($successCount >= 1 and $failedCount >= 1) {
+                                $requestStatus = 'Partial success';
+                                $requestStatusIcon = 'warning.svg';
+                            }
+
+                            // If there was no packages updated AND packages failed
+                            if ($successCount == 0 and $failedCount >= 1) {
+                                $requestStatus = 'Failed';
+                                $requestStatusIcon = 'error.svg';
+                            }
+
+                            // Build a short info message
+                            $responseDetails .= $successCount . ' package(s) updated, ' . $failedCount . ' failed';
+
+                            // Retrieve the list of packages updated
+                            $successPackages = $responseJson['update']['success']['packages'];
+
+                            // Retrieve the list of packages failed
+                            $failedPackages = $responseJson['update']['failed']['packages'];
                         }
-
-                        // If there was no packages updated AND packages failed
-                        if ($successCount == 0 and $failedCount >= 1) {
-                            $requestStatus = 'Failed';
-                            $requestStatusIcon = 'error.svg';
-                        }
-
-                        // Build a short info message
-                        $responseDetails .= $successCount . ' package(s) updated, ' . $failedCount . ' failed';
-
-                        // Retrieve the list of packages updated
-                        $successPackages = $responseJson['update']['success']['packages'];
-
-                        // Retrieve the list of packages failed
-                        $failedPackages = $responseJson['update']['failed']['packages'];
                     }
                 }
-            }
 
-            if ($request == 'request-packages-update' or $request == 'request-all-packages-update') {
-                $class .= ' request-show-more-info-btn pointer';
-            }
+                if ($request == 'request-all-packages-update') {
+                    $requestString = 'Requested to update all packages';
+                    $requestTitle = 'Requested the host to update all of its packages';
 
-            // If the request was a profile update or a disconnect, skip it
-            if ($request == 'update-profile' or $request == 'disconnect') {
-                continue;
-            } ?>
-
-            <div class="<?= $class ?>" request-id="<?= $item['Id'] ?>">
-                <div class="text-center">
-                    <?php
-                    if (!empty($requestStatusIcon)) {
-                        if (str_ends_with($requestStatusIcon, '.svg')) {
-                            echo '<img class="icon-np" src="/assets/icons/' . $requestStatusIcon . '" title="' . $requestStatus . '">';
-                        } else {
-                            echo '<span class="' . $requestStatusIcon . '" title="' . $requestStatus . '"></span> ';
+                    if (!empty($responseJson)) {
+                        /**
+                         *  If there was no packages to update
+                         */
+                        if ($responseJson['update']['status'] == 'nothing-to-do') {
+                            $responseDetails = 'No packages to update';
                         }
-                    } ?>
-                </div>
 
-                <div>
-                    <p><b><?= DateTime::createFromFormat('Y-m-d', $item['Date'])->format('d-m-Y') ?></b></p>
-                    <p class="lowopacity-cst"><?= $item['Time']; ?>
-                </div>
+                        /**
+                         *  If there was packages to update, retrieve the number of packages updated
+                         */
+                        if ($responseJson['update']['status'] == 'done' or $responseJson['update']['status'] == 'failed') {
+                            $successCount = $responseJson['update']['success']['count'];
+                            $failedCount  = $responseJson['update']['failed']['count'];
 
-                <div>
-                    <p title="<?= $requestTitle ?>"><?= $requestString ?></p>
+                            // If the update was successful
+                            if ($responseJson['update']['status'] == 'done') {
+                                $requestStatus = 'Successful';
+                                $requestStatusIcon = 'check.svg';
+                            }
 
-                    <p class="lowopacity-cst">
+                            // If the update failed
+                            if ($responseJson['update']['status'] == 'failed') {
+                                $requestStatus = 'Failed with errors';
+                                $requestStatusIcon = 'error.svg';
+                            }
+
+                            // If there was packages updated AND packages failed
+                            if ($successCount >= 1 and $failedCount >= 1) {
+                                $requestStatus = 'Partial success';
+                                $requestStatusIcon = 'warning.svg';
+                            }
+
+                            // If there was no packages updated AND packages failed
+                            if ($successCount == 0 and $failedCount >= 1) {
+                                $requestStatus = 'Failed';
+                                $requestStatusIcon = 'error.svg';
+                            }
+
+                            // Build a short info message
+                            $responseDetails .= $successCount . ' package(s) updated, ' . $failedCount . ' failed';
+
+                            // Retrieve the list of packages updated
+                            $successPackages = $responseJson['update']['success']['packages'];
+
+                            // Retrieve the list of packages failed
+                            $failedPackages = $responseJson['update']['failed']['packages'];
+                        }
+                    }
+                }
+
+                /**
+                 *  Add accent color based on status
+                 */
+                if ($item['Status'] == 'completed' or $requestStatus == 'Successful') {
+                    $class .= ' request-accent-green';
+                } elseif ($item['Status'] == 'failed' or $item['Status'] == 'canceled' or $requestStatus == 'Failed' or $requestStatus == 'Failed with errors') {
+                    $class .= ' request-accent-red';
+                } elseif ($requestStatus == 'Partial success') {
+                    $class .= ' request-accent-yellow';
+                }
+
+                if ($request == 'request-packages-update' or $request == 'request-all-packages-update') {
+                    $class .= ' request-show-more-info-btn pointer';
+                }
+
+                // If the request was a profile update or a disconnect, skip it
+                if ($request == 'update-profile' or $request == 'disconnect') {
+                    continue;
+                } ?>
+
+                <div class="<?= $class ?>" request-id="<?= $item['Id'] ?>">
+                    <div class="flex align-item-center column-gap-15">
                         <?php
-                        echo $requestStatus;
+                        if (!empty($requestStatusIcon)) {
+                            if (str_ends_with($requestStatusIcon, '.svg')) {
+                                echo '<img class="icon-np" src="/assets/icons/' . $requestStatusIcon . '" title="' . $requestStatus . '">';
+                            } else {
+                                echo '<span class="' . $requestStatusIcon . '" title="' . $requestStatus . '"></span> ';
+                            }
+                        } ?>
 
-                        if (!empty($requestInfo)) {
-                            echo ' - ' . $requestInfo;
+                        <div>
+                            <p><b><?= DateTime::createFromFormat('Y-m-d', $item['Date'])->format('d-m-Y') ?></b> <span class="lowopacity-cst"><?= $item['Time']; ?></span></p>
+                            <p class="lowopacity-cst" title="<?= $requestTitle ?>"><?= $requestString ?></p>
+                        </div>
+                    </div>
+
+                    <div class="flex align-item-center column-gap-10">
+                        <p class="lowopacity-cst font-size-12">
+                            <?php
+                            echo $requestStatus;
+
+                            if (!empty($requestInfo)) {
+                                echo ' - ' . $requestInfo;
+                            }
+
+                            if (!empty($responseDetails)) {
+                                echo ' - ' . $responseDetails;
+                            } ?>
+                        </p>
+                    </div>
+
+                    <div class="flex align-item-center justify-end column-gap-15">
+                        <?php
+                        if (!empty($dryRun) and $dryRun) {
+                            echo '<img class="icon-np lowopacity-cst" src="/assets/icons/build.svg" title="Task as been executed in dry-run mode">';
                         }
 
-                        if (!empty($responseDetails)) {
-                            echo ' - ' . $responseDetails;
-                        } ?>
-                    </p>
+                        if (file_exists(WS_REQUESTS_LOGS_DIR . '/request-' . $item['Id'] . '.log')) : ?>
+                            <img class="icon-lowopacity request-show-log-btn" request-id="<?= $item['Id'] ?>" src="/assets/icons/view.svg" title="Show global log">
+                            <?php
+                        endif;
+
+                        if ($item['Status'] == 'new') : ?>
+                            <img class="icon-lowopacity cancel-request-btn" src="/assets/icons/delete.svg" request-id="<?= $item['Id'] ?>" title="Cancel request">
+                            <?php
+                        endif ?>
+                    </div>
                 </div>
 
-                <div class="flex align-item-center justify-end column-gap-15">
+                <div class="request-details details-div hide margin-bottom-10" request-id="<?= $item['Id'] ?>">
                     <?php
-                    if (!empty($dryRun) and $dryRun) {
-                        echo '<img class="icon-np lowopacity-cst" src="/assets/icons/build.svg" title="Task as been executed in dry-run mode">';
-                    }
+                    /**
+                     *  If there are update params
+                     */
+                    if (!empty($requestData['update-params'])) : ?>
+                        <div class="grid grid-4 column-gap-15 row-gap-15 justify-space-between">
+                            <div>
+                                <h6 class="margin-top-0">DRY RUN</h6>
+                                <?php
+                                if (isset($dryRun)) {
+                                    if ($dryRun) {
+                                        echo '<p>Enabled</p>';
+                                    } else {
+                                        echo '<p>Disabled</p>';
+                                    }
+                                } ?>
+                            </div>
 
-                    if (file_exists(WS_REQUESTS_LOGS_DIR . '/request-' . $item['Id'] . '.log')) : ?>
-                        <img class="icon-lowopacity request-show-log-btn" request-id="<?= $item['Id'] ?>" src="/assets/icons/view.svg" title="Show global log">
+                            <div>
+                                <h6 class="margin-top-0">IGNORE EXCLUSIONS</h6>
+                                <?php
+                                if (isset($ignoreExclusions)) {
+                                    if ($ignoreExclusions) {
+                                        echo '<p>Enabled</p>';
+                                    } else {
+                                        echo '<p>Disabled</p>';
+                                    }
+                                } ?>
+                            </div>
+
+                            <div>
+                                <h6 class="margin-top-0">FULL UPGRADE</h6>
+                                <?php
+                                if (isset($fullUpgrade)) {
+                                    if ($fullUpgrade) {
+                                        echo '<p>Enabled</p>';
+                                    } else {
+                                        echo '<p>Disabled</p>';
+                                    }
+                                } ?>
+                            </div>
+
+                            <div>
+                                <h6 class="margin-top-0">KEEP CONFIG FILES</h6>
+                                <?php
+                                if (isset($keepConfigFiles)) {
+                                    if ($keepConfigFiles) {
+                                        echo '<p>Enabled</p>';
+                                    } else {
+                                        echo '<p>Disabled</p>';
+                                    }
+                                } ?>
+                            </div>
+                        </div>
+                        <br>
                         <?php
                     endif;
 
-                    if ($item['Status'] == 'new') : ?>
-                        <img class="icon-lowopacity cancel-request-btn" src="/assets/icons/delete.svg" request-id="<?= $item['Id'] ?>" title="Cancel request">
+                    /**
+                     *  If there was packages updated
+                     */
+                    if (!empty($successPackages)) :
+                        $icon = 'update-yellow.svg';
+                        $title = count($successPackages) . ' package' . (count($successPackages) > 1 ? 's' : '') . ' updated';
+                        include(ROOT . '/views/includes/labels/label-icon-tr.inc.php'); ?>
+
+                        <div class="grid grid-3 row-gap-10 justify-space-between margin-top-15 margin-bottom-15 margin-left-10">
+                            <?php
+                            // Print each package with its version and log
+                            foreach ($successPackages as $package => $details) : ?>
+                                <div class="flex align-flex-start column-gap-5">
+                                    <?= \Controllers\Utils\Generate\Html\Icon::product($package) ?>
+                                    <p class="get-package-timeline pointer wordbreakall copy" hostid="<?= $id ?>" packagename="<?= $package ?>" title="See package timeline"><?= $package ?></p>
+                                </div>
+
+                                <p class="wordbreakall copy"><?= $details['version'] ?></p>
+
+                                <p class="text-right">
+                                    <?php
+                                    if (!empty($details['log'])) : ?>
+                                        <img class="icon-lowopacity request-show-package-log-btn" request-id="<?= $item['Id'] ?>" package="<?= $package ?>" status="success" src="/assets/icons/view.svg" title="Show package log" />
+                                        <?php
+                                    endif ?>
+                                </p>
+                                <?php
+                            endforeach ?>
+                        </div>
+                        <?php
+                    endif;
+
+                    /**
+                     *  If there was packages failed
+                     */
+                    if (!empty($failedPackages)) :
+                        $icon = 'warning-red.svg';
+                        $title = count($failedPackages) . ' package' . (count($failedPackages) > 1 ? 's' : '') . ' failed';
+                        include(ROOT . '/views/includes/labels/label-icon-tr.inc.php'); ?>
+
+                        <div class="grid grid-3 row-gap-10 justify-space-between margin-top-15 margin-bottom-15 margin-left-10">
+                            <?php
+                            // Print each package with its version and log
+                            foreach ($failedPackages as $package => $details) : ?>
+                                <div class="flex align-flex-start column-gap-5">
+                                    <?= \Controllers\Utils\Generate\Html\Icon::product($package) ?>
+                                    <p class="get-package-timeline pointer wordbreakall copy" hostid="<?= $id ?>" packagename="<?= $package ?>" title="See package timeline"><?= $package ?></p>
+                                </div>
+
+                                <p class="wordbreakall copy"><?= $details['version'] ?></p>
+
+                                <p class="text-right">
+                                    <?php
+                                    if (!empty($details['log'])) : ?>
+                                        <img class="icon-lowopacity request-show-package-log-btn" request-id="<?= $item['Id'] ?>" package="<?= $package ?>" status="failed" src="/assets/icons/view.svg" title="Show package log" />
+                                        <?php
+                                    endif ?>
+                                </p>
+                                <?php
+                            endforeach ?>
+                        </div>
                         <?php
                     endif ?>
                 </div>
-            </div>
-
-            <div class="request-details details-div hide margin-bottom-10" request-id="<?= $item['Id'] ?>">
                 <?php
-                /**
-                 *  If there are update params
-                 */
-                if (!empty($requestData['update-params'])) : ?>
-                    <div class="grid grid-4 column-gap-15 row-gap-15 justify-space-between">
-                        <div>
-                            <h6 class="margin-top-0">DRY RUN</h6>
-                            <?php
-                            if (isset($dryRun)) {
-                                if ($dryRun) {
-                                    echo '<p>Enabled</p>';
-                                } else {
-                                    echo '<p>Disabled</p>';
-                                }
-                            } ?>
-                        </div>
-
-                        <div>
-                            <h6 class="margin-top-0">IGNORE EXCLUSIONS</h6>
-                            <?php
-                            if (isset($ignoreExclusions)) {
-                                if ($ignoreExclusions) {
-                                    echo '<p>Enabled</p>';
-                                } else {
-                                    echo '<p>Disabled</p>';
-                                }
-                            } ?>
-                        </div>
-
-                        <div>
-                            <h6 class="margin-top-0">FULL UPGRADE</h6>
-                            <?php
-                            if (isset($fullUpgrade)) {
-                                if ($fullUpgrade) {
-                                    echo '<p>Enabled</p>';
-                                } else {
-                                    echo '<p>Disabled</p>';
-                                }
-                            } ?>
-                        </div>
-
-                        <div>
-                            <h6 class="margin-top-0">KEEP CONFIG FILES</h6>
-                            <?php
-                            if (isset($keepConfigFiles)) {
-                                if ($keepConfigFiles) {
-                                    echo '<p>Enabled</p>';
-                                } else {
-                                    echo '<p>Disabled</p>';
-                                }
-                            } ?>
-                        </div>
-                    </div>
-                    <br>
-                    <?php
-                endif;
-
-                /**
-                 *  If there was packages updated
-                 */
-                if (!empty($successPackages)) :
-                    $icon = 'update-yellow.svg';
-                    $title = count($successPackages) . ' package' . (count($successPackages) > 1 ? 's' : '') . ' updated';
-                    include(ROOT . '/views/includes/labels/label-icon-tr.inc.php'); ?>
-
-                    <div class="grid grid-3 row-gap-10 justify-space-between margin-top-15 margin-bottom-15 margin-left-10">
-                        <?php
-                        // Print each package with its version and log
-                        foreach ($successPackages as $package => $details) : ?>
-                            <div class="flex align-flex-start column-gap-5">
-                                <?= \Controllers\Utils\Generate\Html\Icon::product($package) ?>
-                                <p class="get-package-timeline pointer wordbreakall copy" hostid="<?= $id ?>" packagename="<?= $package ?>" title="See package timeline"><?= $package ?></p>
-                            </div>
-
-                            <p class="wordbreakall copy"><?= $details['version'] ?></p>
-
-                            <p class="text-right">
-                                <?php
-                                if (!empty($details['log'])) : ?>
-                                    <img class="icon-lowopacity request-show-package-log-btn" request-id="<?= $item['Id'] ?>" package="<?= $package ?>" status="success" src="/assets/icons/view.svg" title="Show package log" />
-                                    <?php
-                                endif ?>
-                            </p>
-                            <?php
-                        endforeach ?>
-                    </div>
-                    <?php
-                endif;
-
-                /**
-                 *  If there was packages failed
-                 */
-                if (!empty($failedPackages)) :
-                    $icon = 'warning-red.svg';
-                    $title = count($failedPackages) . ' package' . (count($failedPackages) > 1 ? 's' : '') . ' failed';
-                    include(ROOT . '/views/includes/labels/label-icon-tr.inc.php'); ?>
-
-                    <div class="grid grid-3 row-gap-10 justify-space-between margin-top-15 margin-bottom-15 margin-left-10">
-                        <?php
-                        // Print each package with its version and log
-                        foreach ($failedPackages as $package => $details) : ?>
-                            <div class="flex align-flex-start column-gap-5">
-                                <?= \Controllers\Utils\Generate\Html\Icon::product($package) ?>
-                                <p class="get-package-timeline pointer wordbreakall copy" hostid="<?= $id ?>" packagename="<?= $package ?>" title="See package timeline"><?= $package ?></p>
-                            </div>
-
-                            <p class="wordbreakall copy"><?= $details['version'] ?></p>
-
-                            <p class="text-right">
-                                <?php
-                                if (!empty($details['log'])) : ?>
-                                    <img class="icon-lowopacity request-show-package-log-btn" request-id="<?= $item['Id'] ?>" package="<?= $package ?>" status="failed" src="/assets/icons/view.svg" title="Show package log" />
-                                    <?php
-                                endif ?>
-                            </p>
-                            <?php
-                        endforeach ?>
-                    </div>
-                    <?php
-                endif ?>
-            </div>
-            <?php
-        endforeach; ?>
+            endforeach; ?>
+        </div>
         
         <div class="flex justify-end margin-top-10">
             <?php \Controllers\Layout\Table\Render::paginationBtn($reloadableTableCurrentPage, $reloadableTableTotalPages); ?>

@@ -105,6 +105,9 @@ try {
             if (!empty($rawParams['description'])) {
                 $repoController->setDescription($rawParams['description']);
             }
+            if (!empty($rawParams['tags'])) {
+                $repoController->setTags($rawParams['tags']);
+            }
             if (!empty($rawParams['group'])) {
                 $repoController->setGroup($rawParams['group']);
             }

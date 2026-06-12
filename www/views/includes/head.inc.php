@@ -8,6 +8,7 @@
     <link rel="stylesheet" type="text/css" href="/resources/styles/normalize.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/common.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/components/layout.css?<?= VERSION ?>">
+    <link rel="stylesheet" type="text/css" href="/resources/styles/components/card.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/components/alert.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/components/icon.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/components/input.css?<?= VERSION ?>">
@@ -27,11 +28,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
 
     <?php
-    /**
-     *  Load additional CSS files depending on the current URI
-     */
+    // Load additional CSS files depending on the current URI
     $additionalCss = [
-        "run"      => "run.css",
+        "tasks"    => "tasks",
+        "task"     => "tasks.css",
         "browse"   => "browse.css",
         "stat"     => "stats-hosts.css",
         "stats"    => "stats-hosts.css",

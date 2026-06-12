@@ -25,36 +25,32 @@
             </div>
         </div>
 
-        <?php
-        foreach ($reloadableTableContent as $item) :
-            $checked = '';
-            $excluded = false;
-            $title = 'Select package'; ?>
+        <div class="flex flex-direction-column row-gap-10">
+            <?php
+            foreach ($reloadableTableContent as $item) :
+                $checked = '';
+                $excluded = false;
+                $title = 'Select package'; ?>
 
-            <div class="table-container-3 bck-blue-alt">
-                <div class="text-center">
-                    <?= \Controllers\Utils\Generate\Html\Icon::product($item['Name']) ?>
-                </div>
+                <div class="host-package-item pointer" title="Click to select">
+                    <div class="flex align-item-center column-gap-10">
+                        <?= \Controllers\Utils\Generate\Html\Icon::product($item['Name']) ?>
 
-                <div class="get-package-timeline pointer" hostid="<?= $id ?>" packagename="<?= $item['Name'] ?>" title="See package history">
-                    <div class="flex align-item-center column-gap-5">
-                        <p class="copy" title="Available package"><?= $item['Name'] ?></p>
-                        <p class="copy" title="Available version"><code class="wordbreakall"><?= $item['Current_version'] ?> ❯ <?= $item['Version'] ?></code></p>
+                        <div class="get-package-timeline" hostid="<?= $id ?>" packagename="<?= $item['Name'] ?>">
+                            <p class="copy" title="Available package"><?= $item['Name'] ?></p>
+                            <?php
+                            if (!empty($item['Repository'])) : ?>
+                                <p class="note wordbreakall copy" title="Repository"><?= $item['Repository'] ?></p>
+                                <?php
+                            endif ?>
+                        </div>
                     </div>
 
-                    <?php
-                    if (!empty($item['Repository'])) : ?>
-                        <p class="note wordbreakall copy" title="Repository"><?= $item['Repository'] ?></p>
-                        <?php
-                    endif ?>
-                </div>
+                    <div class="flex align-item-center column-gap-10">
+                        <p class="copy" title="Available version"><span class="label-white wordbreakall"><?= $item['Current_version'] ?> ❯ <?= $item['Version'] ?></span></p>
 
-                <div class="text-right margin-right-5">
-                    <div class="flex align-iten-center justify-end column-gap-10 row-gap-5 flex-wrap">
                         <?php
-                        /**
-                         *  If package was selected, we check the checkbox
-                         */
+                        // If package was selected, we check the checkbox
                         if (!empty($selectedPackages['packages'])) {
                             foreach ($selectedPackages['packages'] as $package) {
                                 if ($package['name'] === $item['Name'] and $package['available_version'] === $item['Version']) {
@@ -62,9 +58,8 @@
                                     break;
                                 }
                             }
-                        } ?>
+                        }
 
-                        <?php
                         if (IS_ADMIN) {
                             // If the package is in the "exclude on major update" list, print a warning icon
                             foreach ($packageExcludedMajor as $package) {
@@ -84,20 +79,25 @@
 
                             // If there is no package update already running, display the checkbox
                             if ($packageUpdateRunning == false) { ?>
-                                <input type="checkbox" class="available-package-checkbox lowopacity <?= $excluded ? 'checkbox-warning' : '' ?>" host-id="<?= $id ?>" package="<?= $item['Name'] ?>" version="<?= $item['Version'] ?>" <?= $checked ?> <?= $excluded ? 'excluded="true"' : 'excluded="false"' ?> title="<?= $title ?>" />
+                                <input type="checkbox" class="available-package-checkbox <?= $excluded ? 'checkbox-warning' : '' ?>" host-id="<?= $id ?>" package="<?= $item['Name'] ?>" version="<?= $item['Version'] ?>" <?= $checked ?> <?= $excluded ? 'excluded="true"' : 'excluded="false"' ?> title="<?= $title ?>" />
                                 <?php
                             }
                         } ?>
                     </div>
                 </div>
+                <?php
+            endforeach; ?>
+            
+            <div class="flex justify-end margin-top-10">
+                <?php \Controllers\Layout\Table\Render::paginationBtn($reloadableTableCurrentPage, $reloadableTableTotalPages); ?>
             </div>
-            <?php
-        endforeach; ?>
-        
-        <div class="flex justify-end margin-top-10">
-            <?php \Controllers\Layout\Table\Render::paginationBtn($reloadableTableCurrentPage, $reloadableTableTotalPages); ?>
-        </div>
 
+            <script>
+            $(function() {
+                $('.available-package-checkbox:checked').closest('.host-package-item').addClass('host-package-selected');
+            });
+            </script>
+        </div>
         <?php
     endif ?>
 </div>

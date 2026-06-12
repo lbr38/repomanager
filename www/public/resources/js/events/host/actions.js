@@ -103,6 +103,37 @@ $(document).on('click','.host-update-packages-btn',function () {
 });
 
 /**
+ *  Event: click on a host-line to select it
+ *  Do not trigger if the user clicked on a link (<a>)
+ */
+$(document).on('click', '.host-line', function (e) {
+    // Ignore clicks on links or the checkbox itself
+    if ($(e.target).closest('a, input[name="checkbox-host[]"]').length) {
+        return;
+    }
+
+    // Find the checkbox inside this container and toggle it
+    var checkbox = $(this).find('input[name="checkbox-host[]"]');
+
+    if (checkbox.length) {
+        checkbox.click();
+    }
+});
+
+/**
+ *  Event: toggle selected state on host-line when checkbox is checked/unchecked
+ */
+$(document).on('change', 'input[name="checkbox-host[]"]', function () {
+    var container = $(this).closest('.host-line');
+
+    if ($(this).is(':checked')) {
+        container.addClass('host-selected');
+    } else {
+        container.removeClass('host-selected');
+    }
+});
+
+/**
  *  Event: when a host checkbox is checked
  */
 $(document).on('click','input[type="checkbox"][name="checkbox-host[]"]',function () {
@@ -120,14 +151,16 @@ $(document).on('click','input[type="checkbox"].select-group-hosts-checkbox',func
     // Retrieve checkbox status
     const status = $(this).attr('status');
 
-    // Retrieve all checkboxes of the group
-    const hostsCheckboxes = $('input[name="checkbox-host[]"][group="' + group + '"]:visible');
+    // Retrieve all checkboxes of the group (filter by visible host-line parent since checkboxes are hidden)
+    const hostsCheckboxes = $('input[name="checkbox-host[]"][group="' + group + '"]').filter(function () {
+        return $(this).closest('.host-line').is(':visible');
+    });
 
     // If current status is 'selected', then unselect all hosts
     if (status == 'selected') {
         hostsCheckboxes.each(function () {
             if ($(this).is(':checked')) {
-                $(this).prop('checked', false);
+                $(this).prop('checked', false).trigger('change');
             }
         });
 
@@ -139,7 +172,7 @@ $(document).on('click','input[type="checkbox"].select-group-hosts-checkbox',func
         // Check all checkbox-host[] of the same group
         hostsCheckboxes.each(function () {
             if (!$(this).is(':checked')) {
-                $(this).prop('checked', true);
+                $(this).prop('checked', true).trigger('change');
             }
         });
 
@@ -161,9 +194,11 @@ $(document).on('click', '#select-all-hosts', function () {
     const hostGroupsCheckboxes = $('input[type="checkbox"].select-group-hosts-checkbox:visible');
 
     /**
-     *  Retrieve all hosts checkboxes that are visible
+     *  Retrieve all hosts checkboxes (filter by visible host-line parent)
      */
-    const hostCheckboxes = $('input[type="checkbox"][name="checkbox-host[]"]:visible');
+    const hostCheckboxes = $('input[type="checkbox"][name="checkbox-host[]"]').filter(function () {
+        return $(this).closest('.host-line').is(':visible');
+    });
 
     /**
      *  Retrieve select status
@@ -182,7 +217,7 @@ $(document).on('click', '#select-all-hosts', function () {
 
         hostCheckboxes.each(function () {
             if (!$(this).is(':checked')) {
-                $(this).prop('checked', true);
+                $(this).prop('checked', true).trigger('change');
             }
         });
 
@@ -206,7 +241,7 @@ $(document).on('click', '#select-all-hosts', function () {
 
         hostCheckboxes.each(function () {
             if ($(this).is(':checked')) {
-                $(this).prop('checked', false);
+                $(this).prop('checked', false).trigger('change');
             }
         });
 
@@ -305,6 +340,33 @@ $(document).on('submit', '#host-update-packages-form', function () {
 });
 
 /**
+ *  Event: click on a host-package-item to select it
+ */
+$(document).on('click', '.host-package-item', function (e) {
+    // Ignore if clicked on a link or directly on the checkbox
+    if ($(e.target).closest('a').length || $(e.target).is('.available-package-checkbox')) {
+        return;
+    }
+
+    var checkbox = $(this).find('.available-package-checkbox');
+    if (checkbox.length) {
+        checkbox.trigger('click');
+    }
+});
+
+/**
+ *  Event: toggle selected state on host-package-item when checkbox changes
+ */
+$(document).on('change', '.available-package-checkbox', function () {
+    var container = $(this).closest('.host-package-item');
+    if (this.checked) {
+        container.addClass('host-package-selected');
+    } else {
+        container.removeClass('host-package-selected');
+    }
+});
+
+/**
  *  Event: available package checkbox selection
  */
 $(document).on('click','input[type="checkbox"].available-package-checkbox',function (e) {
@@ -370,7 +432,7 @@ $(document).on('click','input[type="checkbox"].available-package-checkbox',funct
         myconfirmbox.print(
             {
                 'title': 'Update packages',
-                'message': 'Request the host to update selected packages?',
+                'message': countChecked + ' package' + (countChecked > 1 ? 's' : '') + ' selected.',
                 'id': 'update-available-packages-confirm-box',
                 'buttons': [
                 {
@@ -406,6 +468,9 @@ $(document).on('click','input[type="checkbox"].available-package-checkbox',funct
     } else {
         myconfirmbox.close();
     }
+
+    // Trigger change to update visual state
+    $(this).trigger('change');
 });
 
 /**

@@ -7,7 +7,7 @@ class Label
     /**
      *  Generate environment tag
      */
-    public static function envtag(string $name, string|null $css = null) : string
+    public static function envtag(string $name, string|null $css = null, string|null $additionalCssClasses = null, string|null $additionalStyle = null) : string
     {
         // Default class and colors
         $class = 'env';
@@ -26,17 +26,33 @@ class Label
             }
         }
 
+        // Outlined style: transparent bg, colored border and text
         if ($background == '#ffffff') {
-            $border = '1px solid #949494';
+            // No color configured: use a subtle gray outline
+            $color = '#c0d0e2';
+            $border = '1.5px solid #c0d0e2';
         } else {
-            $border = '1px solid ' . $background;
+            // Use the configured color for border and text
+            $color = $background;
+            $border = '1.5px solid ' . $background;
         }
+        $background = 'transparent';
 
         if ($css == 'fit') {
             $class = 'env-fit';
         }
 
-        return '<span class="' . $class . '" style="background-color: ' . $background . '; color: ' . $color . '; border: ' . $border . '">' . $name . '</span>';
+        if (!empty($additionalCssClasses)) {
+            $class .= ' ' . $additionalCssClasses;
+        }
+
+        $style = 'background-color: ' . $background . '; color: ' . $color . '; border: ' . $border;
+
+        if (!empty($additionalStyle)) {
+            $style .= '; ' . $additionalStyle;
+        }
+
+        return '<span class="' . $class . '" style="' . $style . '">' . $name . '</span>';
     }
 
     /**
@@ -45,13 +61,5 @@ class Label
     public static function white(string $string): string
     {
         return '<span class="label-white">' . $string . '</span>';
-    }
-
-    /**
-     *  Generate black label
-     */
-    public static function black(string $string): string
-    {
-        return '<span class="label-black">' . $string . '</span>';
     }
 }

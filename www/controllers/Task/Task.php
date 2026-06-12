@@ -450,7 +450,7 @@ class Task
         $this->executeId($newTaskId);
 
         $this->layoutContainerReloadController->reload('tasks/logs');
-        $this->layoutContainerReloadController->reload('tasks/list');
+        $this->layoutContainerReloadController->reload('tasks/tasks');
     }
 
     /**
@@ -538,7 +538,7 @@ class Task
         // Update layout containers states
         $this->layoutContainerReloadController->reload('header/menu');
         $this->layoutContainerReloadController->reload('repos/list');
-        $this->layoutContainerReloadController->reload('tasks/list');
+        $this->layoutContainerReloadController->reload('tasks/tasks');
 
         if (!empty($killError)) {
             throw new Exception($killError);
@@ -709,9 +709,8 @@ class Task
                 throw new Exception('Could not decode task #' . $id . ' JSON parameters: ' . $e->getMessage());
             }
 
-
-            // Check if task is a scheduled task
-            if ($taskRawParams['schedule']['scheduled'] != 'true') {
+            // Check if task is a scheduled task or a queued task, only these types of tasks can be deleted
+            if ($taskRawParams['schedule']['scheduled'] != 'true' and $task['Status'] != 'queued') {
                 throw new Exception('Task #' . $id . ' is not a scheduled task and cannot be deleted');
             }
 
@@ -1006,5 +1005,38 @@ class Task
     public function getLatestStatus(string $snapId) : array
     {
         return $this->model->getLatestStatus($snapId);
+    }
+
+    /**
+     *  Generate a human readable literal action from the technical action name
+     */
+    public static function generateLiteralAction(string $action): string
+    {
+        if ($action == 'create') {
+            return 'Create repository';
+        }
+        if ($action == 'update') {
+            return 'Update repository';
+        }
+        if ($action == 'env') {
+            return 'Point an environment';
+        }
+        if ($action == 'removeEnv') {
+            return 'Remove an environment';
+        }
+        if ($action == 'rebuild') {
+            return 'Rebuild repository metadata';
+        }
+        if ($action == 'rename') {
+            return 'Rename repository';
+        }
+        if ($action == 'duplicate') {
+            return 'Duplicate repository';
+        }
+        if ($action == 'delete') {
+            return 'Delete snapshot';
+        }
+
+        return ucfirst($action);
     }
 }

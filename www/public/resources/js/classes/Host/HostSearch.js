@@ -42,7 +42,7 @@ class HostSearch
             $('.hosts-group-container').show();
 
             //  Hide all host lines, only those corresponding to the search will be re-displayed
-            $('.host-line').removeClass('flex').hide();
+            $('.host-line').hide();
 
             /**
              *  Check if the user has entered a filter in his search, different filters are possible:
@@ -176,7 +176,7 @@ class HostSearch
                 if (div) {
                     var txtValue = div.textContent || div.innerText;
                     if (txtValue.toUpperCase().indexOf(search) > -1) {
-                        $(this).addClass('flex').show();
+                        $(this).show();
                     }
                 }
             });
@@ -332,7 +332,6 @@ class HostSearch
         $('#hosts-search').addClass('hide');
 
         $('.hosts-group-container, .host-line').show();
-        $('.host-line').addClass('flex');
         $('#hosts').show();
     }
 

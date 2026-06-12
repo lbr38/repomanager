@@ -40,12 +40,11 @@ class Environment extends \Models\Model
     /**
      *  Associate a new env to a snapshot
      */
-    public function add(int $snapId, string $env, string $description) : void
+    public function add(int $snapId, string $env) : void
     {
         try {
-            $stmt = $this->db->prepare("INSERT INTO repos_env ('Env', 'Description', 'Id_snap') VALUES (:env, :description, :snapId)");
+            $stmt = $this->db->prepare("INSERT INTO repos_env ('Env', 'Id_snap') VALUES (:env, :snapId)");
             $stmt->bindValue(':env', $env);
-            $stmt->bindValue(':description', $description);
             $stmt->bindValue(':snapId', $snapId);
             $stmt->execute();
         } catch (Exception $e) {
@@ -60,21 +59,6 @@ class Environment extends \Models\Model
     {
         try {
             $stmt = $this->db->prepare("DELETE FROM repos_env WHERE Id = :envId");
-            $stmt->bindValue(':envId', $id);
-            $stmt->execute();
-        } catch (Exception $e) {
-            DbLog::error($e);
-        }
-    }
-
-    /**
-     *  Update environment description
-     */
-    public function updateDescription(int $id, string $description) : void
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE repos_env SET Description = :description WHERE Id = :envId");
-            $stmt->bindValue(':description', $description);
             $stmt->bindValue(':envId', $id);
             $stmt->execute();
         } catch (Exception $e) {
