@@ -62,7 +62,7 @@ use \Controllers\Utils\Generate\Html\Label; ?>
 
         <div class="flex flex-direction-column row-gap-10 margin-top-20 overflowx-auto">
             <?php
-            foreach ($myrepoListing->listSnapshots($repo['repoId']) as $snapshot) :
+            foreach ($repoListingController->listSnapshots($repo['repoId']) as $snapshot) :
                 // Generate repo relative path
                 if ($repo['Package_type'] == 'rpm') {
                     $repoRelativePath = 'rpm/' .$repo['Name'] . '/' . $repo['Releasever'] . '/' . $snapshot['Date'];
