@@ -789,7 +789,10 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         // Set the main substep as completed
         $this->taskLogSubStepController->completed('', 'downloading-packages');
 
-        unset($this->rpmPackagesLocation, $totalPackages, $packageCounter);
+        unset($totalPackages, $packageCounter);
+
+        // Clear memory
+        $this->rpmPackagesLocation = [];
     }
 
     /**

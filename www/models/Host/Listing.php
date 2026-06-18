@@ -205,7 +205,7 @@ class Listing extends \Models\Model
                 hosts.Online_status_date,
                 hosts.Online_status_time,
                 hosts.Reboot_required,
-                hosts.Linupdate_version
+                hosts.Agent_version
                 FROM hosts
                 INNER JOIN group_members
                     ON hosts.Id = group_members.Id_host
@@ -393,7 +393,7 @@ class Listing extends \Models\Model
         $data = [];
 
         try {
-            $result = $this->db->query("SELECT Linupdate_version, COUNT(*) as Linupdate_version_count FROM hosts GROUP BY Linupdate_version");
+            $result = $this->db->query("SELECT Agent_version, COUNT(*) as Agent_version_count FROM hosts GROUP BY Agent_version");
         } catch (Exception $e) {
             DbLog::error($e);
         }

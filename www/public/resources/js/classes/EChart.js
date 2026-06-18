@@ -536,7 +536,7 @@ class EChart
                     type: 'pie',
                     roseType: 'radius',
                     radius: [innerRadius, outerRadius], // Configurable radius values
-                    center: ['50%', '50%'],
+                    center: this.chartOptions?.title?.text ? ['50%', '57%'] : ['50%', '50%'],
                     itemStyle: {
                         borderRadius: 2
                     },
@@ -1004,6 +1004,9 @@ class EChart
         if (this.chartOptions.title?.text) {
             options.title.text = this.chartOptions.title.text;
             options.title.left = this.chartOptions.title.align || 'left';
+            if (this.chartOptions.title.fontSize !== undefined) {
+                options.title.textStyle.fontSize = this.chartOptions.title.fontSize;
+            }
         }
 
         // Y-axis features

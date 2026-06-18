@@ -151,22 +151,6 @@ article {
     align-self: flex-start;
 }
 
-#title-button-div {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-top: 50px;
-}
-
-#title-button-div h3 {
-    margin-top: 0;
-}
-
-#title-button-container {
-    display: flex;
-    justify-content: space-between;
-}
-
 .close-btn {
     width: 25px;
     cursor: pointer;

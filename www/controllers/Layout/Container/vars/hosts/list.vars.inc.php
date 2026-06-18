@@ -1,48 +1,30 @@
 <?php
-$mygroup = new \Controllers\Group\Host();
-$myhost = new \Controllers\Host\Host();
+$groupController = new \Controllers\Group\Host();
+$hostController = new \Controllers\Host\Host();
 $hostListingController = new \Controllers\Host\Listing();
 $hostRequestController = new \Controllers\Host\Request();
 $compactView = true;
 
-/**
- *  Initializing counters for doughnut chart
- */
-$totalUptodate = 0;
-$totalNotUptodate = 0;
-
-/**
- *  Getting total hosts
- */
+// Get total hosts
 $totalHosts = count($hostListingController->get());
 
-/**
- *  Get hosts groups list
- */
-$hostGroupsList = $mygroup->listAll(true);
+// Get hosts groups list
+$hostGroupsList = $groupController->listAll(true);
 
-/**
- *  Getting general hosts threshold settings
- */
-$hostsSettings = $myhost->getSettings();
+// Get general hosts settings
+$settings = $hostController->getSettings();
 
-/**
- *  Threshold of the maximum number of available update above which the host is considered as 'not up to date' (but not critical)
- */
-$packagesCountConsideredOutdated = $hostsSettings['pkgs_count_considered_outdated'];
+// Threshold of the maximum number of available update above which the host is considered as 'not compliant'
+$complianceThresholdCount = $settings['compliance_threshold_count'];
 
-/**
- *  Threshold of the maximum number of available update above which the host is considered as 'not up to date' (critical)
- */
-$packagesCountConsideredCritical = $hostsSettings['pkgs_count_considered_critical'];
+// Threshold of the latest update age in days above which the host is considered as 'not compliant'
+$complianceThresholdDays = $settings['compliance_threshold_days'];
 
 if (isset($_COOKIE['hosts/compact-view']) and $_COOKIE['hosts/compact-view'] == false) {
     $compactView = false;
 }
 
-/**
- *  Setting layout variables depending on the view mode
- */
+// Layout variables depending on the view mode
 if ($compactView) {
     $layoutPackagesTitle = 'PKG.';
     $layoutGridClass = 'grid-5';
@@ -51,4 +33,4 @@ if ($compactView) {
     $layoutGridClass = 'grid-4';
 }
 
-unset($myhost, $mygroup);
+unset($groupController, $settings);

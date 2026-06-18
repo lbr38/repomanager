@@ -1,21 +1,6 @@
 <?php
 
 /**
- *  Edit hosts settings
- */
-if ($action == 'editSettings' and isset($_POST['packagesConsideredOutdated']) and isset($_POST['packagesConsideredCritical'])) {
-    $myhost = new \Controllers\Host\Host();
-
-    try {
-        $myhost->setSettings($_POST['packagesConsideredOutdated'], $_POST['packagesConsideredCritical']);
-    } catch (Exception $e) {
-        response(HTTP_BAD_REQUEST, $e->getMessage());
-    }
-
-    response(HTTP_OK, 'Parameters have been taken into account');
-}
-
-/**
  *  Get all hosts that have the specified kernel
  */
 if ($action == 'get-by-kernel' and isset($_POST['kernel'])) {
@@ -48,11 +33,11 @@ if ($action == 'get-by-profile' and isset($_POST['profile'])) {
 /**
  *  Search if a package is installed on a host (from Search package form)
  */
-if ($action == 'get-by-package' and !empty($_POST['package']) and isset($_POST['version']) and isset($_POST['strictName']) and isset($_POST['strictVersion'])) {
+if ($action == 'get-by-package' and !empty($_POST['package']) and isset($_POST['version']) and isset($_POST['strictName']) and isset($_POST['strictVersion']) and isset($_POST['absent'])) {
     $hostListingController = new \Controllers\Host\Listing();
 
     try {
-        $result = $hostListingController->getByPackage($_POST['package'], $_POST['version'], $_POST['strictName'], $_POST['strictVersion']);
+        $result = $hostListingController->getByPackage($_POST['package'], $_POST['version'], $_POST['strictName'], $_POST['strictVersion'], $_POST['absent']);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }

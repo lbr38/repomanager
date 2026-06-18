@@ -24,7 +24,7 @@
     min-width: 20px;
     text-align: center;
     border-radius: 60px;
-    padding: 0 1px;
+    padding: 1px 2px;
 }
 
 .host-additionnal-info {
@@ -67,35 +67,6 @@
 
 .hosts-group-container {
     break-inside: avoid;
-}
-
-.searchInput-container {
-    width: 100%;
-    margin-bottom: 50px;
-}
-
-.searchInput-subcontainer {
-    margin: auto;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    column-gap: 40px;
-}
-
-.searchInput-subcontainer p {
-    text-align: center;
-}
-
-.hosts-charts-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    margin: 0 auto 20px auto;
-}
-
-.hosts-chart-sub-container {
-    min-height: 230px;
-    position: relative;
 }
 
 .hosts-charts-list-label > div > span:first-child {
@@ -241,11 +212,6 @@
     .hosts-compact-view-subgrid {
         grid-template-columns: 40% 25% 10%;
         justify-content: space-evenly;
-    }
-
-    .hosts-charts-container {
-        display: grid;
-        grid-template-columns: repeat(3, 32.5%);
     }
 
     .event-packages-details {

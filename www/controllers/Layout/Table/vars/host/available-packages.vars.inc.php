@@ -50,20 +50,18 @@ $packageUpdateRunning = $hostRequestController->isPackageUpdateRequestRunning($i
  *  Then retrieve the profile configuration
  */
 if (!empty($host['Profile'])) {
-    /**
-     *  Get the host profile configuration to retrieve the list of packages that are excluded
-     */
-    $profileConfiguration = $profileController->getProfileConfiguration($host['Profile']);
+    // Get the host profile configuration to retrieve the list of packages that are excluded
+    try {
+        $profileConfiguration = $profileController->getProfileConfiguration($host['Profile']);
 
-    /**
-     *  Get the list of packages that are excluded from updates
-     */
-    $packageExcluded = array_filter(explode(',', $profileConfiguration['Package_exclude']));
+        // Get the list of packages that are excluded from updates
+        $packageExcluded = array_filter(explode(',', $profileConfiguration['Package_exclude']));
 
-    /**
-     *  Get the list of packages that are excluded from major updates
-     */
-    $packageExcludedMajor = array_filter(explode(',', $profileConfiguration['Package_exclude_major']));
+        // Get the list of packages that are excluded from major updates
+        $packageExcludedMajor = array_filter(explode(',', $profileConfiguration['Package_exclude_major']));
+    } catch (Exception $e) {
+        // intentionally ignored
+    }
 }
 
 unset($hostController, $hostPackageController, $hostRequestController, $profileController, $host, $profileConfiguration);

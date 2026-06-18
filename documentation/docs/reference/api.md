@@ -37,6 +37,16 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
 
     ``<SNAPSHOT_ID>`` can be retrieved from the URL when you browse a snapshot from the repositories list or from the API when you list snapshots of a repository.
 
+  ### Global query parameters
+
+  - ``normalize`` (optional): when set on a request, all keys in the JSON response are converted to lowercase recursively.
+
+  Example:
+
+  ```bash
+  curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" "https://repomanager.mydomain.net/api/v2/hosts/?normalize"
+  ```
+
 
 ### Source repositories
 
@@ -396,8 +406,8 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
     <tr>
       <td>/hosts/package/<code>&lt;PACKAGE&gt;</code>/<code>&lt;VERSION?&gt;</code><br><code>GET</code></td>
       <td><code>&lt;APIKEY&gt;</code></td>
-      <td><code>package</code> (required, in URL)<br><code>version</code> (optional, in URL)<br><code>strict</code> (optional, query parameter)<br><code>strict-name</code> (optional, query parameter)<br><code>strict-version</code> (optional, query parameter)</td>
-      <td>List hosts that have the specified package installed, optionally filtered by version. By default, package name and version matching can be non-strict. Use <code>strict</code> to enable strict matching for both package name and version, or use <code>strict-name</code> and <code>strict-version</code> independently.</td>
+      <td><code>package</code> (required, in URL)<br><code>version</code> (optional, in URL)<br><code>strict</code> (optional, query parameter)<br><code>strict-name</code> (optional, query parameter)<br><code>strict-version</code> (optional, query parameter)<br><code>absent</code> (optional, query parameter)</td>
+      <td>List hosts that have the specified package installed, optionally filtered by version. By default, package name and version matching can be non-strict. Use <code>strict</code> to enable strict matching for both package name and version, or use <code>strict-name</code> and <code>strict-version</code> independently. Set <code>absent</code> to list hosts where the package (and optional version) is not installed.</td>
       <td markdown="block">
         ```bash
         curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/hosts/package/nginx
@@ -418,13 +428,21 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
         ```bash
         curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" "https://repomanager.mydomain.net/api/v2/hosts/package/nginx/1.24.0-1?strict-version"
         ```
+        Return hosts where package is absent:
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" "https://repomanager.mydomain.net/api/v2/hosts/package/nginx?absent"
+        ```
+        Return hosts where exact package version is absent:
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" "https://repomanager.mydomain.net/api/v2/hosts/package/nginx/1.24.0-1?absent&strict"
+        ```
       </td>
     </tr>
     <tr>
       <td>/hosts/uptodate<br><code>GET</code></td>
       <td><code>&lt;APIKEY&gt;</code></td>
       <td></td>
-      <td>List all up-to-date hosts (hosts with no or few available updates based on configured threshold)</td>
+      <td>List hosts with no available updates (<code>0</code> pending updates).</td>
       <td markdown="block">
         ```bash
         curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/hosts/uptodate
@@ -434,11 +452,45 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
     <tr>
       <td>/hosts/outdated<br><code>GET</code></td>
       <td><code>&lt;APIKEY&gt;</code></td>
-      <td></td>
-      <td>List all outdated hosts (hosts with available updates exceeding the configured threshold)</td>
+      <td><code>packages</code> (optional, query parameter)</td>
+      <td>List hosts with at least one available update (<code>&gt;= 1</code> pending update). Set the <code>packages</code> query parameter to include the list of available updates for each host.</td>
       <td markdown="block">
         ```bash
         curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/hosts/outdated
+        ```
+        Including the list of available updates:
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" "https://repomanager.mydomain.net/api/v2/hosts/outdated?packages"
+        ```
+      </td>
+    </tr>
+    <tr>
+      <td>/hosts/compliant<br><code>GET</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td><code>packages</code> (optional, query parameter)</td>
+      <td>List hosts compliant with all configured compliance criteria (pending updates threshold, latest update recency, and optional reboot-required check). Set the <code>packages</code> query parameter to include the list of available updates for each host.</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/hosts/compliant
+        ```
+        Including the list of available updates:
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" "https://repomanager.mydomain.net/api/v2/hosts/compliant?packages"
+        ```
+      </td>
+    </tr>
+    <tr>
+      <td>/hosts/non-compliant<br><code>GET</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td><code>packages</code> (optional, query parameter)</td>
+      <td>List hosts not compliant with at least one configured compliance criterion. Set the <code>packages</code> query parameter to include the list of available updates for each host.</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/hosts/non-compliant
+        ```
+        Including the list of available updates:
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" "https://repomanager.mydomain.net/api/v2/hosts/non-compliant?packages"
         ```
       </td>
     </tr>
@@ -574,11 +626,11 @@ Mainly used by the `linupdate` agent, these endpoints allow to register a host t
     <tr>
       <td>/host/status<br><code>PUT</code></td>
       <td><code>&lt;HOST_ID&gt;</code> and <code>&lt;HOST_TOKEN&gt;</code></td>
-      <td><code>hostname</code> (optional)<br><code>os</code> (optional)<br><code>os_version</code> (optional)<br><code>os_family</code> (optional)<br><code>type</code> (=virtualization type) (optional)<br><code>kernel</code> (optional)<br><code>arch</code> (optional)<br><code>profile</code> (optional)<br><code>env</code> (optional)<br><code>agent_status</code> (optional)<br><code>linupdate_version</code> (optional)<br><code>reboot_required</code> (optional)</td>
+      <td><code>hostname</code> (optional)<br><code>os</code> (optional)<br><code>os_version</code> (optional)<br><code>os_family</code> (optional)<br><code>type</code> (=virtualization type) (optional)<br><code>kernel</code> (optional)<br><code>arch</code> (optional)<br><code>profile</code> (optional)<br><code>env</code> (optional)<br><code>agent_status</code> (optional)<br><code>agent_version</code> (optional)<br><code>reboot_required</code> (optional)</td>
       <td>Send host general information to Repomanager</td>
       <td markdown="block">
         ```bash
-        curl --fail-with-body --post301 -L -s -X PUT -H "Authorization: Host <HOST_ID>:<HOST_TOKEN>" -H "Content-Type: application/json" -d '{"hostname":"myfqdn.localhost","os":"ubuntu","os_version":"22.04","os_family":"Debian","type":"Bare metal","kernel":"5.15.0-89-generic","arch":"x86_64","profile":"PC","env":"prod","agent_status":"running","linupdate_version":"2.2.2","reboot_required":"false"}' https://repomanager.mydomain.net/api/v2/host/status
+        curl --fail-with-body --post301 -L -s -X PUT -H "Authorization: Host <HOST_ID>:<HOST_TOKEN>" -H "Content-Type: application/json" -d '{"hostname":"myfqdn.localhost","os":"ubuntu","os_version":"22.04","os_family":"Debian","type":"Bare metal","kernel":"5.15.0-89-generic","arch":"x86_64","profile":"PC","env":"prod","agent_status":"running","agent_version":"2.2.2","reboot_required":"false"}' https://repomanager.mydomain.net/api/v2/host/status
         ```
       </td>
     </tr>

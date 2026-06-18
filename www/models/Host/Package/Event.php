@@ -105,6 +105,54 @@ class Event extends \Models\Model
     }
 
     /**
+     *  Return latest event where at least one package was upgraded
+     */
+    public function getLastPackageUpgradeEvent(): array
+    {
+        $data = [];
+
+        try {
+            // Strategy: use the existing (State, Date) indexes on packages and packages_history
+            // to find the most recent Id_event from each table in O(1), then look up the event
+            // by INTEGER PRIMARY KEY. The final UNION ALL operates on at most 2 rows.
+            // This avoids any full table scan or temporary B-TREE.
+            $stmt = $this->db->prepare("
+                SELECT e.Id, e.Date, e.Time
+                FROM events e
+                WHERE e.Id = (
+                    SELECT Id_event FROM packages
+                    WHERE State = :state
+                    ORDER BY Date DESC, Time DESC LIMIT 1
+                )
+                UNION ALL
+                SELECT e.Id, e.Date, e.Time
+                FROM events e
+                WHERE e.Id = (
+                    SELECT Id_event FROM packages_history
+                    WHERE State = :state
+                    ORDER BY Date DESC, Time DESC LIMIT 1
+                )
+                ORDER BY Date DESC, Time DESC
+                LIMIT 1");
+
+            $stmt->bindValue(':state', 'upgraded');
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+
+        if (!isset($result)) {
+            return $data;
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data = $row;
+        }
+
+        return $data;
+    }
+
+    /**
      *  Add a new event in database
      */
     public function add(string $dateStart, string $dateEnd, string $timeStart, string $timeEnd, string $command) : void

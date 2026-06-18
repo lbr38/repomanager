@@ -18,9 +18,7 @@ class Export extends Host
             throw new Exception('No hosts provided for export');
         }
 
-        /**
-         *  First check that hosts Id are valid and exist
-         */
+        // First check that hosts Id are valid and exist
         foreach ($hosts as $id) {
             if (!is_numeric($id)) {
                 throw new Exception('Invalid host Id: ' . $id);
@@ -31,9 +29,7 @@ class Export extends Host
             }
         }
 
-        /**
-         *  Generate the CSV header
-         */
+        // Generate the CSV header
         $csv[] = [
             'Id',
             'Hostname',
@@ -53,9 +49,7 @@ class Export extends Host
             'Reboot required',
         ];
 
-        /**
-         *  For each host, get its information and add it to the CSV array
-         */
+        // For each host, get its information and add it to the CSV array
         foreach ($hosts as $id) {
             $data = $this->get($id);
 
@@ -74,14 +68,12 @@ class Export extends Host
                 $data['Online_status'],
                 $data['Online_status_date'],
                 $data['Online_status_time'],
-                $data['Linupdate_version'],
+                $data['Agent_version'],
                 $data['Reboot_required'],
             ];
         }
 
-        /**
-         *  Encode to JSON and return the CSV data
-         */
+        // Encode to JSON and return the CSV data
         try {
             return json_encode($csv, JSON_THROW_ON_ERROR);
         } catch (JsonException $e) {

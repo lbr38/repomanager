@@ -42,6 +42,14 @@ class Event
     }
 
     /**
+     *  Return latest event date/time where at least one package was upgraded
+     */
+    public function getLastPackageUpgradeEvent(): array
+    {
+        return $this->model->getLastPackageUpgradeEvent();
+    }
+
+    /**
      *  Add events to the database
      */
     public function setHistory(array $events) : void

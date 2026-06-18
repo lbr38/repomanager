@@ -10,7 +10,7 @@ class Directory
      *  Return an array with the list of founded directories in specified directory path
      *  Directory name can be filtered with a regex
      */
-    public static function findRecursive(string $directoryPath, string $directoryNameRegex = null, bool $returnFullPath = true) : array
+    public static function findRecursive(string $directoryPath, string $directoryNameRegex = '', bool $returnFullPath = true) : array
     {
         $foundedDirs = [];
 

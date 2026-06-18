@@ -56,15 +56,16 @@ $(document).on('mouseenter', '.search-host-tooltip', function (e) {
     content += '<code>env=ENVIRONMENT</code>';
     content += '<code>agent-version=VERSION</code>';
     content += '<code>reboot-required=true/false</code>';
+    content += '<code>compliant=true/false</code>';
     content += '</div>';
     content += '<p class="note margin-top-5">Example: get the list of hosts with Ubuntu OS and search for IP 192.168.x</p>';
     content += '<p><code>os=ubuntu 192.168</code></p>';
 
     content += '<div class="flex flex-direction-column row-gap-5 margin-top-10">';
-    content += '<p>- Main search is performed on all fields, use filters to narrow down results</p>';
-    content += '<p>- You can combine multiple filters</p>';
-    content += '<p>- Use quotes when filter contains spaces, e.g os="Linux Mint"</p>';
-    content += '<p>- Search and filters are case-insensitive</p>';
+    content += '<p>• Main search is performed on all fields, use filters to narrow down results</p>';
+    content += '<p>• You can combine multiple filters</p>';
+    content += '<p>• Use quotes when filter contains spaces, e.g os="Linux Mint"</p>';
+    content += '<p>• Search and filters are case-insensitive</p>';
     content += '</div>';
 
     // Print tooltip
@@ -80,18 +81,23 @@ $(document).on('mouseenter', '.search-package-tooltip', function (e) {
     content  = '<p>Syntax</p>';
     content += '<p><code>name=PACKAGE_NAME</code></p>';
 
-    content += '<p class="margin-top-10">Optional filters</p>';
-    content += '<div class="flex flex-direction-column row-gap-5 max-width-500">';
+    content += '<p class="margin-top-10">Filters</p>';
+    content += '<div class="flex align-item-center flex-wrap column-gap-5 row-gap-8 max-width-500">';
     content += '<p><code>version=PACKAGE_VERSION</code></p>';
-    content += '<p><code>strict-name=true/false</code></p>';
-    content += '<p><code>strict-version=true/false</code></p>';
+    content += '<p><code>strict-name</code></p>';
+    content += '<p><code>strict-version</code></p>';
+    content += '<p><code>strict</code></p>';
+    content += '<p><code>absent</code></p>';
     content += '</div>';
-    content += '<p class="note margin-top-5">Example: strict search for apache2 package version 2.4.x</p>';
-    content += '<p><code>name=apache2 version=2.4 strict-name=true</code></p>';
+    content += '<p class="note margin-top-5">Example: strict search for apache2 package version 2.4.x (exact name and exact version)</p>';
+    content += '<p><code>name=apache2 version=2.4 strict</code></p>';
+    content += '<p class="note margin-top-5">Example: hosts where apache2 is absent</p>';
+    content += '<p><code>name=apache2 absent</code></p>';
 
     content += '<div class="flex flex-direction-column row-gap-5 margin-top-10">';
-    content += '<p>● Use scrict filters to search for exact package name and/or version</p>';
-    content += '<p>● Search and filters are case-insensitive</p>';
+    content += '<p>• Use strict filters to search for exact package name and/or version</p>';
+    content += '<p>• Use absent to invert the result and return hosts without a matching package</p>';
+    content += '<p>• Search and filters are case-insensitive</p>';
     content += '</div>';
 
     // Print tooltip

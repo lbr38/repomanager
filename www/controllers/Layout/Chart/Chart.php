@@ -9,8 +9,13 @@ class Chart
     public static function get(string $id, int $days) : array
     {
         try {
-            if (!file_exists(ROOT . '/controllers/Layout/Chart/vars/' . $id . '.vars.inc.php')) {
+            // Only allow safe characters in the chart ID to prevent path traversal / local file inclusion
+            if (!preg_match("#^" . ROOT . "#", realpath(ROOT . '/controllers/Layout/Chart/vars/' . $id . '.vars.inc.php'))) {
                 throw new Exception('could not retrieve chart data for chart ID ' . $id);
+            }
+
+            if (!file_exists(ROOT . '/controllers/Layout/Chart/vars/' . $id . '.vars.inc.php')) {
+                throw new Exception('could not retrieve chart data for chart ID ' . $id . ' (file does not exist)');
             }
 
             // Timestart is X days ago
@@ -42,6 +47,13 @@ class Chart
     public static function getPeriod(string $id, string $timeStart, string $timeEnd): array
     {
         try {
+            /**
+             *  Only allow safe characters in the chart ID to prevent path traversal / local file inclusion
+             */
+            if (!preg_match('/^[a-z0-9-]+$/i', $id)) {
+                throw new Exception('invalid chart ID');
+            }
+
             if (!file_exists(ROOT . '/controllers/Layout/Chart/vars/' . $id . '.vars.inc.php')) {
                 throw new Exception('could not retrieve chart data for chart ID ' . $id);
             }

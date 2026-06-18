@@ -8,7 +8,7 @@ function downloadPackage()
     /**
      *  Get all selected checkboxes and their file-id (media) attribute
      */
-    $('#packages-list').find('input[name=packageName\\[\\]]:checked').each(function () {
+    $('#packages-list, #browse-search-results').find('input[name=packageName\\[\\]]:checked').each(function () {
         packagesToDownload.push({ filename: $(this).attr('filename'), path: $(this).attr('path') });
     });
 
@@ -52,7 +52,7 @@ function deletePackages(snapId)
 
     ajaxRequest(
         // Controller:
-        'repo/browse',
+        'repo/snapshot/browse',
         // Action:
         'delete-package',
         {

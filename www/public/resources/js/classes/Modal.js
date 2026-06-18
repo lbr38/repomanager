@@ -38,18 +38,6 @@ class Modal
         // Remove existing modal loading window if any
         $('.modal-window-container.modal-loading').remove();
 
-        // Parse content and if a line contains [ERR] or [WRN], color it accordingly
-        content = content.split('\n').map(function(line) {
-            if (line.includes('[ERR]')) {
-                return '<span class="redtext font-size-12">' + line + '</span>';
-            }
-            if (line.includes('[WRN]')) {
-                return '<span class="yellowtext font-size-12">' + line + '</span>';
-            }
-
-            return line;
-        }).join('\n');
-
         // Generate content
         var html = '<div class="modal-window-container" modal="' + id + '">'
             + '<div class="modal-window">'
@@ -61,6 +49,19 @@ class Modal
 
         // If content must be wrapped in a <pre> tag
         if (inPre) {
+            // Escape HTML entities first to prevent XML/HTML tags from being interpreted by the browser,
+            // then apply [ERR]/[WRN] coloring
+            content = content.split('\n').map(function(line) {
+                const escaped = line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+                if (escaped.includes('[ERR]')) {
+                    return '<span class="redtext font-size-12">' + escaped + '</span>';
+                }
+                if (escaped.includes('[WRN]')) {
+                    return '<span class="yellowtext font-size-12">' + escaped + '</span>';
+                }
+
+                return escaped;
+            }).join('\n');
             html += '<pre class="codeblock copy">' + content + '</pre>';
         } else {
             html += content;

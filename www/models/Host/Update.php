@@ -210,12 +210,12 @@ class Update extends \Models\Model
     }
 
     /**
-     *  Update linupdate version in database
+     *  Update agent version in database
      */
-    public function updateLinupdateVersion(int $id, string $version) : void
+    public function updateAgentVersion(int $id, string $version) : void
     {
         try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Linupdate_version = :version WHERE Id = :id");
+            $stmt = $this->db->prepare("UPDATE hosts SET Agent_version = :version WHERE Id = :id");
             $stmt->bindValue(':version', $version);
             $stmt->bindValue(':id', $id);
             $stmt->execute();

@@ -1,0 +1,87 @@
+.kpi-card {
+    display: flex;
+    align-items: center;
+    column-gap: 12px;
+    width: auto;
+    padding: 14px;
+    background-color: #182b3e;
+    border: 1px solid #24405c;
+    border-radius: 20px;
+    box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
+}
+
+.kpi-value {
+    font-family: 'Archivo';
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1;
+    transition: transform 0.2s ease;
+    transform-origin: left;
+}
+
+.kpi-card:hover .kpi-value {
+    transform: scale(1.10);
+}
+
+.kpi-status-running {
+    background: linear-gradient(135deg, #2a0f2e 0%, #4a1942 50%, #2a0f2e 100%);
+    border-color: #c44daa;
+    animation: pulse-running 2s ease-in-out infinite;
+}
+
+.kpi-status-done {
+    background: linear-gradient(135deg, #0f3d2e 0%, #1a5c40 50%, #0f3d2e 100%);
+    border-color: #1abc6b;
+}
+
+.kpi-status-error,
+.kpi-status-stopped {
+    background: linear-gradient(135deg, #3d1420 0%, #5c1a2a 50%, #3d1420 100%);
+    border-color: #c0392b;
+}
+
+.kpi-status-scheduled {
+    background: linear-gradient(135deg, #2d2a0f 0%, #4a4410 50%, #2d2a0f 100%);
+    border-color: #b8a825;
+}
+
+@keyframes pulse-running {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.85; }
+}
+
+.storage-card {
+    max-width: 100vw;
+}
+
+.storage-meter {
+    width: 100%;
+    height: 9px;
+    overflow: hidden;
+    background-color: #0e1e2f;
+    border: 1px solid #24405c;
+    border-radius: 20px;
+}
+
+.storage-meter span {
+    display: block;
+    height: 100%;
+    min-width: 3px;
+    background-color: #15bf7f;
+    border-radius: 20px;
+}
+
+.kpi-container > .kpi-card,
+.kpi-container > .storage-card {
+    flex: 1 1 calc(50% - 10px);
+    box-sizing: border-box;
+}
+
+/* Desktop configuration */
+@media (min-width:1025px) {
+    .kpi-container > .kpi-card,
+    .kpi-container > .storage-card {
+        flex: 1 1 0;
+        min-width: 0;
+    }
+}

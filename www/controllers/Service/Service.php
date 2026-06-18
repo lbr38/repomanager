@@ -4,7 +4,6 @@ namespace Controllers\Service;
 
 use Exception;
 use Controllers\App\DebugMode;
-use Controllers\Utils\Convert;
 use Controllers\Log\Cli as CliLog;
 use Controllers\Log\File as FileLog;
 
@@ -45,7 +44,7 @@ class Service
      *  Return repomanager settings
      *  A specific setting can be requested by passing its name as argument
      */
-    public static function getSettings(string $setting = null) : array|string
+    public static function getSettings(string $setting = '') : array|string
     {
         $settingsController = new \Controllers\Settings();
 

@@ -832,7 +832,10 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             $this->taskLogSubStepController->completed('', 'downloading-packages');
         }
 
-        unset($this->debPackagesLocation, $totalPackages, $packageCounter);
+        unset($totalPackages, $packageCounter);
+
+        // Clear memory
+        $this->debPackagesLocation = [];
     }
 
     /**
@@ -966,7 +969,10 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             $this->taskLogSubStepController->completed('', 'downloading-sources-packages');
         }
 
-        unset($this->sourcesPackagesLocation, $totalPackages, $packageCounter);
+        unset($totalPackages, $packageCounter);
+
+        // Clear memory
+        $this->sourcesPackagesLocation = [];
     }
 
     /**

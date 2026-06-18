@@ -17,6 +17,14 @@ class Convert
     }
 
     /**
+     *  Converts a boolean to a string
+     */
+    public static function toString(bool $bool): string
+    {
+        return $bool ? 'true' : 'false';
+    }
+
+    /**
      *  Converts a microtime to a time format
      */
     public static function microtimeToTime(string $microtime) : string
