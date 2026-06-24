@@ -6,6 +6,7 @@ use Exception;
 use Controllers\User\Permission\Host as HostPermission;
 use Controllers\History\Save as History;
 use Controllers\Utils\Validate;
+use Controllers\Repo\Repo;
 
 class Profile
 {
@@ -19,7 +20,7 @@ class Profile
     /**
      *  Return profile name by Id
      */
-    public function getNameById(int $id)
+    public function getNameById(int $id): string
     {
         return $this->model->getNameById($id);
     }
@@ -27,7 +28,7 @@ class Profile
     /**
      *  Return profile Id by name
      */
-    public function getIdByName(string $name)
+    public function getIdByName(string $name): int|null
     {
         return $this->model->getIdByName($name);
     }
@@ -35,7 +36,7 @@ class Profile
     /**
      *  Return a list of all packages in profile_package table
      */
-    public function getPackages()
+    public function getPackages(): array
     {
         return $this->model->getPackages();
     }
@@ -43,7 +44,7 @@ class Profile
     /**
      *  Return a list of all services in profile_service table
      */
-    public function getServices()
+    public function getServices(): array
     {
         return $this->model->getServices();
     }
@@ -73,95 +74,116 @@ class Profile
      */
     public function getProfileConfiguration(string $profile) : array
     {
-        /**
-         *  Check that profile exists
-         */
-        if ($this->exists($profile) === false) {
+        // Check that profile exists
+        if (!$this->exists($profile)) {
             throw new Exception($profile . ' profile does not exist');
         }
 
-        /**
-         *  Get profile Id from database
-         */
+        // Get profile Id from database
         $profileId = $this->getIdByName($profile);
 
-        /**
-         *  Get profile full configuration
-         */
+        // Get profile full configuration
         return $this->model->getProfileConfiguration($profileId);
     }
 
     /**
      *  Return an array containing repos members of a profile
+     *  TODO later: delete older format (for linupdate < 3.17.0) and only keep new format (for linupdate >= 3.17.0), then remove $newFormat parameter
      */
-    public function getReposMembersList(string $profile)
+    public function getReposMembersList(string $profile, bool $newFormat = false): array
     {
-        /**
-         *  First check that profile exists
-         */
-        if ($this->exists($profile) === false) {
+        $config = [];
+
+        // First check that profile exists
+        if (!$this->exists($profile)) {
             throw new Exception($profile . ' profile does not exist');
         }
 
-        /**
-         *  Retrieve profile Id from database
-         */
+        // Retrieve profile Id from database
         $profileId = $this->getIdByName($profile);
 
-        /**
-         *  Retrieve repos configuration
-         */
-        $repos = $this->model->getReposMembersList($profileId);
+        // If $newFormat is set to true then we return a new format for the repos list (for linupdate >= 3.17.0)
+        if ($newFormat) {
+            $config = [
+                'repos' => [],
+                'reposerver' => [
+                    'hostname' => WWW_HOSTNAME,
+                    'gpgkey_url' => __SERVER_URL__ . '/repo/gpgkeys/' . WWW_HOSTNAME . '.pub'
+                ]
+            ];
 
-        /**
-         *  Format repos members configuration files (.repo or .list) before sending to JSON format
-         */
-        $globalArray = [];
+            // Retrieve all repos members of the profile
+            foreach ($this->model->getReposMembersList($profileId) as $repo) {
+                if ($repo['Package_type'] == 'rpm') {
+                    $config['repos'][] = [
+                        'name' => $repo['Name'],
+                        'releasever' => $repo['Releasever'],
+                        'url' => __SERVER_URL__ . '/repo/rpm/' . $repo['Name'] . '/' . $repo['Releasever'] . '/__ENV__',
+                        'description' => $repo['Name'] . ' repo on ' . __SERVER_URL__,
+                        'filename_prefix' => REPO_CONF_FILES_PREFIX
+                    ];
+                }
 
-        foreach ($repos as $repo) {
-            if ($repo['Package_type'] == 'rpm') {
-                $repoArray = [
-                    // Legacy content
-                    'filename' => REPO_CONF_FILES_PREFIX . $repo['Name'] . '.repo',
-                    'description' => $repo['Name'] . ' repo on ' . __SERVER_URL__,
-                    'content' => '[' . REPO_CONF_FILES_PREFIX . $repo['Name'] . '___ENV__]' . PHP_EOL . 'name=' . $repo['Name'] . ' repo on ' . WWW_HOSTNAME . PHP_EOL . 'baseurl=' . __SERVER_URL__ . '/repo/rpm/' . $repo['Name'] . '/' . $repo['Releasever'] . '/__ENV__' . PHP_EOL . 'enabled=1' . PHP_EOL . 'gpgkey=' . __SERVER_URL__ . '/repo/gpgkeys/' . WWW_HOSTNAME . '.pub' . PHP_EOL . 'gpgcheck=1',
-                    // New content
-                    'repo_server' => WWW_HOSTNAME,
-                    'repo_name' => $repo['Name'],
-                    'repo_releasever ' => $repo['Releasever'],
-                    'repo_url' => __SERVER_URL__ . '/repo/rpm/' . $repo['Name'] . '/' . $repo['Releasever'] . '/__ENV__',
-                    'gpgkey_url' => __SERVER_URL__ . '/repo/gpgkeys/' . WWW_HOSTNAME . '.pub',
-                    'filename_prefix' => REPO_CONF_FILES_PREFIX
-                ];
+                if ($repo['Package_type'] == 'deb') {
+                    $config['repos'][] = [
+                        'name' => $repo['Name'],
+                        'distribution' => $repo['Dist'],
+                        'component' => $repo['Section'],
+                        'url' => __SERVER_URL__ . '/repo/deb/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '/__ENV__',
+                        'description' => $repo['Name'] . ' repo on ' . __SERVER_URL__,
+                        'filename_prefix' => REPO_CONF_FILES_PREFIX
+                    ];
+                }
             }
 
-            if ($repo['Package_type'] == 'deb') {
-                $repoArray = [
-                    // Legacy content
-                    'filename' => REPO_CONF_FILES_PREFIX . $repo['Name'] . '.list',
-                    'description' => $repo['Name'] . ' repo on ' . __SERVER_URL__,
-                    'content' => 'deb ' . __SERVER_URL__ . '/repo/deb/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '/__ENV__ ' . $repo['Dist'] . ' ' . $repo['Section'],
-                    // New content
-                    'repo_server' => WWW_HOSTNAME,
-                    'repo_name' => $repo['Name'],
-                    'repo_distribution' => $repo['Dist'],
-                    'repo_component' => $repo['Section'],
-                    'repo_url' => __SERVER_URL__ . '/repo/deb/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '/__ENV__',
-                    'gpgkey_url' => __SERVER_URL__ . '/repo/gpgkeys/' . WWW_HOSTNAME . '.pub',
-                    'filename_prefix' => REPO_CONF_FILES_PREFIX
-                ];
-            }
+        /**
+         *  Old format (for linupdate < 3.17.0)
+         *  To delete from 31/12/2026 (old linupdate 3.x.x versions) and 31/12/2027 (linupdate 2.x.x)
+         */
+        } else {
+            foreach ($this->model->getReposMembersList($profileId) as $repo) {
+                if ($repo['Package_type'] == 'rpm') {
+                    $config[] = [
+                        // Legacy content (mainly for linupdate 2.x.x and some old linupdate 3.x.x versions) (to delete from 31/12/2027)
+                        'filename' => REPO_CONF_FILES_PREFIX . $repo['Name'] . '.repo',
+                        'description' => $repo['Name'] . ' repo on ' . __SERVER_URL__,
+                        'content' => '[' . REPO_CONF_FILES_PREFIX . $repo['Name'] . '___ENV__]' . PHP_EOL . 'name=' . $repo['Name'] . ' repo on ' . WWW_HOSTNAME . PHP_EOL . 'baseurl=' . __SERVER_URL__ . '/repo/rpm/' . $repo['Name'] . '/' . $repo['Releasever'] . '/__ENV__' . PHP_EOL . 'enabled=1' . PHP_EOL . 'gpgkey=' . __SERVER_URL__ . '/repo/gpgkeys/' . WWW_HOSTNAME . '.pub' . PHP_EOL . 'gpgcheck=1',
+                        // Intermediate content (to delete from 31/12/2026)
+                        'repo_server' => WWW_HOSTNAME,
+                        'repo_name' => $repo['Name'],
+                        'repo_releasever ' => $repo['Releasever'],
+                        'repo_url' => __SERVER_URL__ . '/repo/rpm/' . $repo['Name'] . '/' . $repo['Releasever'] . '/__ENV__',
+                        'gpgkey_url' => __SERVER_URL__ . '/repo/gpgkeys/' . WWW_HOSTNAME . '.pub',
+                        'filename_prefix' => REPO_CONF_FILES_PREFIX,
+                    ];
+                }
 
-            $globalArray[] = $repoArray;
+                if ($repo['Package_type'] == 'deb') {
+                    $config[] = [
+                        // Legacy content (mainly for linupdate 2.x.x and some old linupdate 3.x.x versions) (to delete from 31/12/2027)
+                        'filename' => REPO_CONF_FILES_PREFIX . $repo['Name'] . '.list',
+                        'description' => $repo['Name'] . ' repo on ' . __SERVER_URL__,
+                        'content' => 'deb ' . __SERVER_URL__ . '/repo/deb/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '/__ENV__ ' . $repo['Dist'] . ' ' . $repo['Section'],
+                        // Intermediate content (to delete from 31/12/2026)
+                        'repo_server' => WWW_HOSTNAME,
+                        'repo_name' => $repo['Name'],
+                        'repo_distribution' => $repo['Dist'],
+                        'repo_component' => $repo['Section'],
+                        'repo_url' => __SERVER_URL__ . '/repo/deb/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '/__ENV__',
+                        'gpgkey_url' => __SERVER_URL__ . '/repo/gpgkeys/' . WWW_HOSTNAME . '.pub',
+                        'filename_prefix' => REPO_CONF_FILES_PREFIX,
+                    ];
+                }
+            }
         }
 
-        return $globalArray;
+        return $config;
     }
 
     /**
      *  Return true if profile exists in database
      */
-    public function exists(string $name)
+    public function exists(string $name): bool
     {
         return $this->model->exists($name);
     }
@@ -169,7 +191,7 @@ class Profile
     /**
      *  Return true if profile Id exists in database
      */
-    public function existsId(int $id)
+    public function existsId(int $id): bool
     {
         return $this->model->existsId($id);
     }
@@ -191,17 +213,9 @@ class Profile
     }
 
     /**
-     *  Return the number of hosts using the specified profile
-     */
-    public function countHosts(string $profile)
-    {
-        return $this->model->countHosts($profile);
-    }
-
-    /**
      *  Create a new profile
      */
-    public function new(string $name)
+    public function new(string $name): void
     {
         if (!HostPermission::allowedAction('edit-profiles')) {
             throw new Exception('You are not allowed to perform this action');
@@ -209,18 +223,14 @@ class Profile
 
         $name = Validate::string($name);
 
-        /**
-         *  Check that profile name does not contain forbidden characters
-         */
+        // Check that profile name does not contain forbidden characters
         if (!Validate::alphaNumericHyphen($name)) {
-            throw new Exception("<b>$name</b> profile contains invalid characters");
+            throw new Exception($name . ' profile contains invalid characters');
         }
 
-        /**
-         *  Check that profile does not already exist
-         */
-        if ($this->model->exists($name) === true) {
-            throw new Exception("<b>$name</b> profile already exists");
+        // Check that profile does not already exist
+        if ($this->model->exists($name)) {
+            throw new Exception($name . ' profile already exists');
         }
 
         $this->model->add($name);
@@ -327,7 +337,7 @@ class Profile
     /**
      *  Configure profile
      */
-    public function configure(int $id, string $name, array $reposIds, array $packagesExcluded, array $packagesMajorExcluded, array $serviceNeedReload, array $serviceNeedRestart, string $notes)
+    public function configure(int $id, string $name, array $reposIds, array $packagesExcluded, array $packagesMajorExcluded, array $serviceNeedReload, array $serviceNeedRestart, string $notes): void
     {
         if (!HostPermission::allowedAction('edit-profiles')) {
             throw new Exception('You are not allowed to perform this action');
@@ -337,46 +347,29 @@ class Profile
         $hostRequestController = new \Controllers\Host\Request();
         $name = Validate::string($name);
 
-        /**
-         *  Check that profile name does not contain forbidden characters
-         */
+        // Check that profile name does not contain forbidden characters
         if (!Validate::alphaNumericHyphen($name)) {
             throw new Exception($name . ' profile name contains invalid characters');
         }
 
-        /**
-         *  Check that profile exists
-         */
-        if ($this->existsId($id) === false) {
+        // Check that profile exists
+        if (!$this->existsId($id)) {
             throw new Exception($name . ' profile does not exist');
         }
 
-        /**
-         *  Retrieve actual profile name from its Id
-         */
-        $actualName = $this->model->getNameById($id);
-
-        /**
-         *  If the name is being changed then we check that the new name does not already exist
-         */
-        if ($name != $actualName) {
-            if ($this->model->exists($name) === true) {
+        // Check that profile name does not already exist if it has been changed
+        if ($name != $this->model->getNameById($id)) {
+            if ($this->model->exists($name)) {
                 throw new Exception($name . ' profile already exists');
             }
         }
 
-        /**
-         *  First we clean all profile repos members before adding the new ones
-         */
+        // First, clean all profile repos members before adding the new ones
         $this->model->cleanProfileRepoMembers($id);
 
-        /**
-         *  If $reposIds array is empty then we stop here, the profile will remain without any repo configured. Else we continue.
-         */
+        // If $reposIds array is empty then we stop here, the profile will remain without any repo configured. Else we continue.
         if (!empty($reposIds)) {
-            /**
-             *  Add each repo Id to profile_repo_members table
-             */
+            // Add each repo Id to profile_repo_members table
             foreach ($reposIds as $repoId) {
                 $this->model->addRepoToProfile($id, $repoId);
             }
@@ -390,9 +383,7 @@ class Profile
          *  If empty then we set an empty value
          */
 
-        /**
-         *  Packages to exclude on major version update
-         */
+        // Packages to exclude on major version update
         if (!empty($packagesMajorExcluded)) {
             foreach ($packagesMajorExcluded as $packageName) {
                 $packageName = Validate::string($packageName);
@@ -411,16 +402,12 @@ class Profile
                     $packageNameFormatted = $packageName;
                 }
 
-                /**
-                 *  Add package to profile_package table if it does not already exist
-                 */
+                // Add package to profile_package table if it does not already exist
                 $this->model->addPackage($packageNameFormatted);
             }
         }
 
-        /**
-         *  Packages to exclude
-         */
+        // Packages to exclude
         if (!empty($packagesExcluded)) {
             foreach ($packagesExcluded as $packageName) {
                 $packageName = Validate::string($packageName);
@@ -439,23 +426,17 @@ class Profile
                     $packageNameFormatted = $packageName;
                 }
 
-                /**
-                 *  Add package to profile_package table if it does not already exist
-                 */
+                // Add package to profile_package table if it does not already exist
                 $this->model->addPackage($packageNameFormatted);
             }
         }
 
-        /**
-         *  Services to restart
-         */
+        // Services to restart
         if (!empty($serviceNeedRestart)) {
             foreach ($serviceNeedRestart as $serviceName) {
                 $serviceName = Validate::string($serviceName);
 
-                /**
-                 *  On vérifie que le nom du service ne contient pas de caractères interdits
-                 */
+                // Check that service name does not contain invalid characters
                 if (!Validate::alphaNumericHyphen($serviceName, ['@', ':', '.*'])) {
                     throw new Exception('Service ' . $serviceName . ' contains invalid characters');
                 }
@@ -479,26 +460,18 @@ class Profile
         $serviceNeedReloadExploded = implode(',', $serviceNeedReload);
         $serviceNeedRestartExploded = implode(',', $serviceNeedRestart);
 
-        /**
-         *  Check notes
-         */
+        // Check that notes does not contain invalid characters
         if (!empty($notes)) {
             $notes = Validate::string($notes);
         }
 
-        /**
-         *  Insert new configuration into database
-         */
+        // Insert new configuration into database
         $this->model->configure($id, $name, $packagesExcludedExploded, $packagesMajorExcludedExploded, $serviceNeedReloadExploded, $serviceNeedRestartExploded, $notes);
 
-        /**
-         *  Get all hosts using this profile
-         */
+        // Get all hosts using this profile
         $hosts = $hostListingController->getByProfile($name);
 
-        /**
-         *  For each host, add a new request to apply the new profile configuration
-         */
+        // For each host, add a new request to apply the new profile configuration
         foreach ($hosts as $host) {
             $hostRequestController->new($host['Id'], 'update-profile');
         }
@@ -517,30 +490,26 @@ class Profile
     /**
      *  Remove unused repos from profiles (repos that have no active snapshot)
      */
-    public function cleanProfiles()
+    public function cleanProfiles(): void
     {
-        /**
-         *  Get unused repos Id (repos that have no active snapshot and so are not visible from web UI)
-         */
-        $myrepo = new \Controllers\Repo\Repo();
-        $unusedRepos = $myrepo->getUnused();
+        // Get unused repos Id (repos that have no active snapshot and so are not visible from web UI)
+        $repoController = new Repo();
+        $unusedRepos = $repoController->getUnused();
 
-        /**
-         *  Remove those repos Id from profiles
-         */
+        // Remove those repos Id from profiles
         if (!empty($unusedRepos)) {
             foreach ($unusedRepos as $unusedRepo) {
                 $this->removeRepoMemberId($unusedRepo['Id']);
             }
         }
 
-        unset($myrepo);
+        unset($repoController);
     }
 
     /**
      *  Remove repo Id from profile members
      */
-    public function removeRepoMemberId(int $id)
+    public function removeRepoMemberId(int $id): void
     {
         $this->model->removeRepoMemberId($id);
     }

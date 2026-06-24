@@ -38,7 +38,7 @@
                 <input type="text" name="addSourceName" placeholder="e.g. nginx" required />
 
                 <h6 class="required">URL</h6>
-                <p class="note">URL to the root of the repository.</p>
+                <p class="note">URL to the root of the repository. Variables are supported, please check the notes in <a href="https://docs.repomanager.net/configuration/source-repositories/#add-a-source-repository-manually" class="note-link" target="_blank" rel="noopener noreferrer">Add a source repository manually</a> for more information.</p>
                 <input type="text" name="addSourceUrl" placeholder="e.g. http://nginx.org/packages/debian" required />
 
                 <br><br>

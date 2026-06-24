@@ -246,20 +246,13 @@ class Host extends \Controllers\Api\Controller
                         }
                     }
 
-                    // If linupdate version has been specified then update it in database
-                    if (!empty($this->data['linupdate_version']) or !empty($this->data['agent_version'])) {
-                        // TODO: temporary
-                        # Use agent_version later
-                        if (!empty($this->data['linupdate_version'])) {
-                            $version = $this->data['linupdate_version'];
-                        } else {
-                            $version = $this->data['agent_version'];
-                        }
+                    // If agent version has been specified then update it in database
+                    if (!empty($this->data['agent_version'])) {
                         try {
-                            $hostUpdateController->updateAgentVersion($this->hostId, $version);
-                            $message[] = "Linupdate version updated successfully.";
+                            $hostUpdateController->updateAgentVersion($this->hostId, $this->data['agent_version']);
+                            $message[] = "Agent version updated successfully.";
                         } catch (Exception $e) {
-                            throw new Exception('Linupdate version update has failed.');
+                            throw new Exception('Agent version update has failed.');
                         }
                     }
 

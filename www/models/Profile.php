@@ -15,9 +15,9 @@ class Profile extends Model
     /**
      *  Return profile Id by name
      */
-    public function getIdByName(string $name)
+    public function getIdByName(string $name): int|null
     {
-        $id = '';
+        $id = null;
 
         try {
             $stmt = $this->db->prepare("SELECT Id FROM profile WHERE Name = :name");
@@ -37,7 +37,7 @@ class Profile extends Model
     /**
      *  Return profile name by Id
      */
-    public function getNameById(int $id)
+    public function getNameById(int $id): string
     {
         $name = '';
 
@@ -59,7 +59,7 @@ class Profile extends Model
     /**
      *  Return a list of all packages in profile_package table
      */
-    public function getPackages()
+    public function getPackages(): array
     {
         $packages = [];
 
@@ -79,7 +79,7 @@ class Profile extends Model
     /**
      *  Return a list of all services in profile_service table
      */
-    public function getServices()
+    public function getServices(): array
     {
         $data = [];
 
@@ -148,7 +148,7 @@ class Profile extends Model
     /**
      *  Return true if profile exists in database
      */
-    public function exists(string $name)
+    public function exists(string $name): bool
     {
         try {
             $stmt = $this->db->prepare("SELECT Id FROM profile WHERE Name = :name");
@@ -158,9 +158,6 @@ class Profile extends Model
             DbLog::error($e);
         }
 
-        /**
-         *  If result is empty then profile does not exist
-         */
         if ($this->db->isempty($result)) {
             return false;
         }
@@ -171,7 +168,7 @@ class Profile extends Model
     /**
      *  Return true if profile Id exists in database
      */
-    public function existsId(int $id)
+    public function existsId(int $id): bool
     {
         try {
             $stmt = $this->db->prepare("SELECT Id FROM profile WHERE Id = :id");
@@ -181,9 +178,6 @@ class Profile extends Model
             DbLog::error($e);
         }
 
-        /**
-         *  If result is empty then profile does not exist
-         */
         if ($this->db->isempty($result)) {
             return false;
         }
@@ -194,7 +188,7 @@ class Profile extends Model
     /**
      *  Create new profile in database
      */
-    public function add(string $name)
+    public function add(string $name): void
     {
         try {
             $stmt = $this->db->prepare("INSERT INTO profile (Name) VALUES (:name)");
@@ -208,7 +202,7 @@ class Profile extends Model
     /**
      *  Configure profile
      */
-    public function configure(int $id, string $name, string $packageExclude = null, string $packageExcludeMajor = null, string $serviceReload = null, string $serviceRestart = null, string $notes = null)
+    public function configure(int $id, string $name, string $packageExclude = '', string $packageExcludeMajor = '', string $serviceReload = '', string $serviceRestart = '', string $notes = ''): void
     {
         try {
             $stmt = $this->db->prepare("UPDATE profile SET Name = :name, Package_exclude = :packageExclude, Package_exclude_major = :packageExcludeMajor, Service_reload = :serviceReload, Service_restart = :serviceRestart, Notes = :notes WHERE Id = :id");
@@ -228,7 +222,7 @@ class Profile extends Model
     /**
      *  Delete a profile
      */
-    public function delete(int $id)
+    public function delete(int $id): void
     {
         try {
             $stmt = $this->db->prepare("DELETE FROM profile WHERE Id = :id");
@@ -453,35 +447,9 @@ class Profile extends Model
     }
 
     /**
-     *  Return the number of hosts using the specified profile
-     */
-    public function countHosts(string $profile)
-    {
-        $myhost = new \Controllers\Host\Host();
-
-        $hosts = [];
-
-        try {
-            $stmt = $myhost->db->prepare("SELECT Id FROM hosts WHERE Profile = :profile");
-            $stmt->bindValue(':profile', $profile);
-            $result = $stmt->execute();
-        } catch (Exception $e) {
-            DbLog::error($e);
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $hosts[] = $row;
-        }
-
-        $myhost->db->close();
-
-        return count($hosts);
-    }
-
-    /**
      *  Remove repo Id from profile members
      */
-    public function removeRepoMemberId(int $id)
+    public function removeRepoMemberId(int $id): void
     {
         try {
             $stmt = $this->db->prepare("DELETE FROM profile_repo_members WHERE Id_repo = :id");
