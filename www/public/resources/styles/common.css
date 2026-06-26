@@ -88,6 +88,28 @@ h6 {
     word-break: break-all;
 }
 
+.note-link {
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.note-link::before {
+    filter: brightness(0) saturate(100%) invert(72%) sepia(2%) saturate(2168%) hue-rotate(169deg) brightness(95%) contrast(95%);
+    content: "";
+    background-image: url('/assets/icons/external-link.svg');
+    background-repeat: no-repeat;
+    background-size: contain;
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-left: 4px;
+    margin-right: 1px;
+}
+
+.note-link:hover {
+    color: #ffffff;
+}
+
 .empty-state {
     display: flex;
     flex-direction: column;

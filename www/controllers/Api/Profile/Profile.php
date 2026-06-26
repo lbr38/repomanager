@@ -66,7 +66,7 @@ class Profile extends \Controllers\Api\Controller
              *  Return profile repos configuration
              */
             if ($this->component == 'repos') {
-                return ['results' => $myprofile->getReposMembersList($this->profile)];
+                return ['results' => $myprofile->getReposMembersList($this->profile, isset($_GET['new-format']))];
             }
         }
 

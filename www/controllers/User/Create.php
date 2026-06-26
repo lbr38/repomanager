@@ -57,8 +57,7 @@ class Create extends User
         /**
          *  Hashing password with a salt automatically generated
          */
-        $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-        if ($hashedPassword === false) {
+        if (!$hashedPassword = password_hash($password, PASSWORD_BCRYPT)) {
             throw new Exception('Error while creating user password');
         }
 
@@ -75,7 +74,7 @@ class Create extends User
         /**
          *  Insert new user in database
          */
-        $this->model->create($username, $hashedPassword, $role, null, null, null, 'local', $this->userPermissionController->getDefault());
+        $this->model->create($username, $hashedPassword, $role, '', '', '', 'local', $this->userPermissionController->getDefault());
 
         /**
          *  Add history
@@ -154,7 +153,7 @@ class Create extends User
          *  If the user already exists (from a previous SSO connection) then update its informations (as it may have changed)
          */
         if (!$this->exists($username, 'sso')) {
-            $this->model->create($username, null, $role, $firstName, $lastName, $email, 'sso', $this->userPermissionController->getDefault());
+            $this->model->create($username, '', $role, $firstName, $lastName, $email, 'sso', $this->userPermissionController->getDefault());
             return;
         }
 

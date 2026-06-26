@@ -1,25 +1,19 @@
 /**
  *  Event: print repository installation commands on environment change
  */
-$(document).on('change','#repo-install-select-env',function () {
-    event.preventDefault();
+$(document).on('change','#repo-install-select-env',function (e) {
+    event.preventDefault(e);
 
-    /**
-     *  Get environment name
-     */
-    var env = $(this).val();
+    // Get environment name
+    const env = $(this).val();
 
-    /**
-     *  If no environment is selected, hide the install commands
-     */
+    // If no environment is selected, hide the install commands
     if (env == '') {
         $('div#repository-install-commands-container').hide();
         return;
     }
 
-    /**
-     *  For each repository, print the installation commands
-     */
+    // For each repository, print the installation commands
     $('pre.repository-install-commands').each(function () {
         var url = $(this).attr('url');
         var hostname = $(this).attr('hostname');
@@ -36,6 +30,18 @@ $(document).on('change','#repo-install-select-env',function () {
             html += 'EOF';
         }
 
+        // deb822 syntax
+        if (packageType == 'deb-alt') {
+            html  = 'cat << EOF > /etc/apt/sources.list.d/' + prefix + name + '-' + dist + '-' + component + '.list\n';
+            html += 'Types: deb\n';
+            html += 'URIs: ' + url + '/deb/' + name + '/' + dist + '/' + component + '/' + env + '\n';
+            html += 'Suites: ' + dist + '\n';
+            html += 'Components: ' + component + '\n';
+            html += 'Enabled: yes\n';
+            html += 'Signed-By: /etc/apt/keyrings/' + hostname + '.asc\n';
+            html += 'EOF';
+        }
+
         if (packageType == 'rpm') {
             html  = 'cat << EOF > /etc/yum.repos.d/' + prefix + name + '.repo\n'
             html += '['+ prefix + name + '_' + env + ']\n'
@@ -47,21 +53,33 @@ $(document).on('change','#repo-install-select-env',function () {
             html += 'EOF';
         }
 
-        /**
-         *  Print the environment next to the repositories
-         */
+        // Print the environment next to the repositories
         printEnv(env, '.repository-install-env');
 
-        /**
-         *  Append the installation commands
-         */
+        // Append the installation commands
         $(this).html(html);
 
-        /**
-         *  Print the installation commands
-         */
+        // Print the installation commands
         $('div#repository-install-commands-container').show();
     });
 
     return false;
+});
+
+/**
+ *  Event: select repository config format (legacy or deb822)
+ */
+$(document).on('change','input[type="radio"].config-format',function (e) {
+    const format = $(this).val();
+    const snapId = $(this).attr('snapshot-id');
+
+    if (format == 'legacy') {
+        $('.deb822-format-container[snapshot-id="' + snapId + '"]').hide();
+        $('.legacy-format-container[snapshot-id="' + snapId + '"]').show();
+    }
+
+    if (format == 'deb822') {
+        $('.legacy-format-container[snapshot-id="' + snapId + '"]').hide();
+        $('.deb822-format-container[snapshot-id="' + snapId + '"]').show();
+    }
 });

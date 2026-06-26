@@ -23,17 +23,19 @@ From the **REPOSITORIES** tab:
 
 **Step 5:** You should now edit the source repository to add more information like distributions and components or release version and import its GPG signing key if any. It is recommended to add as much information as you can as this is used for suggestions when creating a mirror. See [Edit a source repository](#edit-a-source-repository).
 
-!!! info "Notes"
-
-    **Supported RPM repository URLs**
+!!! info "RPM repositories URLs information"
 
       - Please only provide **direct** URLs to the source repository. Mirrorlist URLs are **not supported**.
-      - ``$releasever`` and ``$basearch`` yum variables inside URLs **are supported**. They will be automatically replaced during the repo mirroring process by the value you have defined for **Release version** and **Architecture** (when creating or updating a repo).
+      - ``$releasever`` and ``$basearch`` variables inside URLs **are supported**. They will be automatically replaced during the repo mirroring process by the value you have defined for **Release version** and **Architecture** (when creating or updating a repo).
       - Examples of supported URLs:
 
         `https://dl.fedoraproject.org/pub/epel/$releasever/Everything/$basearch`
         
         `http://repo.mysql.com/yum/mysql-5.7-community/el/7/$basearch`
+
+!!! info "DEB repositories URLs information"
+
+    - ``$dist`` and ``$component`` variables inside URLs **are supported**. They will be automatically replaced during the repo mirroring process by the value you have defined for **Distribution** and **Component** (when creating or updating a repo).
 
 
 ## Import source repositories from predefined or custom lists
