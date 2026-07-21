@@ -228,6 +228,31 @@
                 <select class="task-param" param-name="advanced-params.packages.exclude" package-type="all" multiple></select>
             </div>
 
+            <div field-type="mirror local rpm">
+                <h6>METADATA SYNC</h6>
+                <p class="note">Sync additional metadata files from the source repository.</p>
+
+                <div class="grid grid-2 column-gap-15">
+                    <p><code>comps.xml</code></p>
+                    <label class="onoff-switch-label justify-self-end">
+                        <input type="checkbox" class="onoff-switch-input task-param" value="true" param-name="advanced-params.metadata-sync.comps" package-type="rpm" checked />
+                        <span class="onoff-switch-slider"></span>
+                    </label>
+
+                    <p><code>modules.yaml</code></p>
+                    <label class="onoff-switch-label justify-self-end">
+                        <input type="checkbox" class="onoff-switch-input task-param" value="true" param-name="advanced-params.metadata-sync.modules" package-type="rpm" checked />
+                        <span class="onoff-switch-slider"></span>
+                    </label>
+
+                    <p><code>updateinfo.xml.gz</code></p>
+                    <label class="onoff-switch-label justify-self-end">
+                        <input type="checkbox" class="onoff-switch-input task-param" value="true" param-name="advanced-params.metadata-sync.updateinfo" package-type="rpm" checked />
+                        <span class="onoff-switch-slider"></span>
+                    </label>
+                </div>
+            </div>
+
             <div field-type="mirror local deb">
                 <h6>METADATA CUSTOM FIELDS</h6>
 

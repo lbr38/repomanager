@@ -125,6 +125,32 @@ if ($repoController->getType() == 'mirror' or ($repoController->getType() == 'lo
             <?php
         endif;
 
+        if ($repoController->getPackageType() == 'rpm') : ?>
+            <h6>METADATA SYNC</h6>
+            <p class="note">Sync additional metadata files from the source repository.</p>
+
+            <div class="grid grid-2 column-gap-15">
+                <p><code>comps.xml</code></p>
+                <label class="onoff-switch-label justify-self-end">
+                    <input type="checkbox" param-name="advanced-params.metadata-sync.comps" class="onoff-switch-input task-param" value="true" <?php echo ($repoController->getAdvancedParams()['metadata-sync']['comps'] ?? 'true') == 'true' ? 'checked' : ''; ?>>
+                    <span class="onoff-switch-slider"></span>
+                </label>
+
+                <p><code>modules.yaml</code></p>
+                <label class="onoff-switch-label justify-self-end">
+                    <input type="checkbox" param-name="advanced-params.metadata-sync.modules" class="onoff-switch-input task-param" value="true" <?php echo ($repoController->getAdvancedParams()['metadata-sync']['modules'] ?? 'true') == 'true' ? 'checked' : ''; ?>>
+                    <span class="onoff-switch-slider"></span>
+                </label>
+
+                <p><code>updateinfo.xml.gz</code></p>
+                <label class="onoff-switch-label justify-self-end">
+                    <input type="checkbox" param-name="advanced-params.metadata-sync.updateinfo" class="onoff-switch-input task-param" value="true" <?php echo ($repoController->getAdvancedParams()['metadata-sync']['updateinfo'] ?? 'true') == 'true' ? 'checked' : ''; ?>>
+                    <span class="onoff-switch-slider"></span>
+                </label>
+            </div>
+            <?php
+        endif;
+
         if ($repoController->getPackageType() == 'deb') : ?>
             <h6>METADATA CUSTOM FIELDS</h6>
 

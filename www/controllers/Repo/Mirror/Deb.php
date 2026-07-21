@@ -339,8 +339,8 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
         }
 
         // Filter packages to keep only the X latest versions if 'keep-latest' is set
-        if (!empty($this->advancedParams['keep-latest'])) {
-            $this->debPackagesLocation = $this->keepLatestVersions($this->debPackagesLocation, (int) $this->advancedParams['keep-latest']);
+        if (!empty($this->advancedParams['packages']['keep-latest'])) {
+            $this->debPackagesLocation = $this->keepLatestVersions($this->debPackagesLocation, (int) $this->advancedParams['packages']['keep-latest']);
         }
 
         $this->taskLogSubStepController->completed(count($this->debPackagesLocation) . ' package' . (count($this->debPackagesLocation) > 1 ? 's' : '') . ' found');
@@ -502,8 +502,8 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
         }
 
         // Filter source packages to keep only the X latest versions if 'keep-latest' is set
-        if (!empty($this->advancedParams['keep-latest'])) {
-            $this->sourcesPackagesLocation = $this->keepLatestVersions($this->sourcesPackagesLocation, (int) $this->advancedParams['keep-latest']);
+        if (!empty($this->advancedParams['packages']['keep-latest'])) {
+            $this->sourcesPackagesLocation = $this->keepLatestVersions($this->sourcesPackagesLocation, (int) $this->advancedParams['packages']['keep-latest']);
         }
 
         $this->taskLogSubStepController->completed(count($this->sourcesPackagesLocation) . ' source package' . (count($this->sourcesPackagesLocation) > 1 ? 's' : '') . ' found');

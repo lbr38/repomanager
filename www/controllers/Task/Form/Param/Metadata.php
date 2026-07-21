@@ -7,6 +7,13 @@ use Controllers\Utils\Validate;
 
 class Metadata
 {
+    public static function checkSync(string $sync): void
+    {
+        if (!in_array($sync, ['true', 'false'])) {
+            throw new Exception('Invalid value for metadata sync parameter. Must be "true" or "false".');
+        }
+    }
+
     public static function checkOrigin(string $origin): void
     {
         if (empty($origin)) {
