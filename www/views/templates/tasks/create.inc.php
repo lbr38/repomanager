@@ -160,6 +160,31 @@
                 <p><?= $rawParams['advanced-params']['packages']['keep-latest'] ?></p>
             </div>
             <?php
+        endif;
+
+        // If there is at least one metadata file sync that is ignored (one false value in a key/value pair), we display the metadata sync section
+        if (!empty($rawParams['advanced-params']['metadata-sync']) and in_array('false', $rawParams['advanced-params']['metadata-sync'])) : ?>
+            <div>
+                <h6>IGNORE METADATA FILES SYNC</h6>
+                <div class="flex column-gap-5 row-gap-5 flex-wrap">
+                    <?php
+                    $metadataMap = [
+                        'comps' => 'comps.xml',
+                        'modules' => 'modules.yaml',
+                        'updateinfo' => 'updateinfo.xml.gz'
+                    ];
+
+                    foreach ($rawParams['advanced-params']['metadata-sync'] as $metadata => $value) {
+                        if ($value == 'true') {
+                            continue;
+                        }
+
+                        $displayName = $metadataMap[$metadata] ?? $metadata;
+                        echo '<span class="label-black">' . $displayName . '</span>';
+                    } ?>
+                </div>
+            </div>
+            <?php
         endif ?>
     </div>
 

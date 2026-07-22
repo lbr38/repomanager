@@ -253,6 +253,7 @@ pre.codeblock {
 .justify-items-center{justify-items: center}
 .justify-items-end{justify-items: flex-end}
 .justify-self-center{justify-self:center}
+.justify-self-end{justify-self:flex-end}
 .align-content-center {align-content: center}
 .align-content-right {align-content: flex-end}
 .align-item-start {align-items: start !important}

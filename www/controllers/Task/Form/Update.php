@@ -40,6 +40,13 @@ class Update
             // Check gpg check
             Param\GpgCheck::check($formParams['gpg-check']);
 
+            if ($repoController->getPackageType() == 'rpm') {
+                // Check additional metadata files sync
+                Param\Metadata::checkSync($formParams['advanced-params']['metadata-sync']['comps']);
+                Param\Metadata::checkSync($formParams['advanced-params']['metadata-sync']['modules']);
+                Param\Metadata::checkSync($formParams['advanced-params']['metadata-sync']['updateinfo']);
+            }
+
             if ($repoController->getPackageType() == 'deb') {
                 // Check metadata custom fields
                 Param\Metadata::checkOrigin($formParams['advanced-params']['metadata-custom-fields']['origin']);

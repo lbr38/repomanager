@@ -24,6 +24,11 @@ class Create
         if ($formParams['package-type'] == 'rpm') {
             // Check releasever
             Param\Releasever::check($formParams['releasever']);
+
+            // Check additional metadata files sync
+            Param\Metadata::checkSync($formParams['advanced-params']['metadata-sync']['comps']);
+            Param\Metadata::checkSync($formParams['advanced-params']['metadata-sync']['modules']);
+            Param\Metadata::checkSync($formParams['advanced-params']['metadata-sync']['updateinfo']);
         }
 
         // Case package type is 'deb'

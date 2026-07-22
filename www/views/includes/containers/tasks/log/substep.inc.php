@@ -44,7 +44,7 @@
                     } else if ($type == 'error') {
                         echo '<p class="redtext">' . $message . '</p>';
                     } else if ($type == 'pre') {
-                        echo '<pre class="codeblock">' . $message . '</pre>';
+                        echo '<pre class="codeblock copy">' . $message . '</pre>';
                     } else {
                         echo '<p>' . $message . '</p>';
                     }

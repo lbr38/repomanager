@@ -67,6 +67,12 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
 
         $this->taskLogSubStepController->new('getting-comps', 'GETTING COMPS.XML', 'From ' . $url . '/' . $this->compsLocation);
 
+        // If sync of comps.xml is disabled, skip it
+        if ($this->advancedParams['metadata-sync']['comps'] == 'false') {
+            $this->taskLogSubStepController->completed('Skipping (sync disabled)');
+            return;
+        }
+
         if (!$this->download($url . '/' . $this->compsLocation, $this->workingDir . '/comps.xml')) {
             throw new Exception('Could not download <code>comps.xml</code>');
         }
@@ -91,6 +97,12 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
 
         $this->taskLogSubStepController->new('getting-modules', 'GETTING MODULES', 'From ' . $url . '/' . $this->modulesLocation);
 
+        // If sync of modules.yaml is disabled, skip it
+        if ($this->advancedParams['metadata-sync']['modules'] == 'false') {
+            $this->taskLogSubStepController->completed('Skipping (sync disabled)');
+            return;
+        }
+
         // Get modules file extension
         $modulesFileExtension = pathinfo($this->modulesLocation, PATHINFO_EXTENSION);
 
@@ -100,14 +112,10 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         }
 
         /**
-         *  We'll give this modules file a temporary name, to avoid it being included automatically by createrepo_c (it fails every time with modules.yaml file)
-         *  It will be renamed and imported by modifyrepo_c later
+         *  Download the modules file with a temporary compressed name, then uncompress it to a plain
+         *  modules.yaml file so it can be found and included automatically by createrepo_c.
          */
-        $modulesFileExtension == 'gz' ? $modulesFileTargetName = 'modules.yaml.gz' : null;
-        $modulesFileExtension == 'xz' ? $modulesFileTargetName = 'modules.yaml.xz' : null;
-        $modulesFileExtension == 'bz2' ? $modulesFileTargetName = 'modules.yaml.bz2' : null;
-        $modulesFileExtension == 'zst' ? $modulesFileTargetName = 'modules.yaml.zst' : null;
-        $modulesFileExtension == 'yaml' ? $modulesFileTargetName = 'modules.yaml' : null;
+        $modulesFileTargetName = 'modules.yaml' . ($modulesFileExtension != 'yaml' ? '.' . $modulesFileExtension : '');
 
         // Download modules file
         if (!$this->download($url . '/' . $this->modulesLocation, $this->workingDir . '/' . $modulesFileTargetName)) {
@@ -119,29 +127,29 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             throw new Exception('<code>' . $modulesFileTargetName . '</code> checksum does not match provided checksum');
         }
 
-        // If modules file has been downloaded as a .gz file, uncompress it (otherwise it will fail to be included to the metadata)
+        // Uncompress the modules file to a plain modules.yaml based on its actual mime type (required for createrepo_c to include it)
+        $mime = mime_content_type($this->workingDir . '/' . $modulesFileTargetName);
+
         try {
-            if ($modulesFileExtension == 'gz') {
+            if ($mime == 'application/gzip') {
                 Gzip::uncompress($this->workingDir . '/' . $modulesFileTargetName);
-            }
-
-            if ($modulesFileExtension == 'bz2') {
+            } elseif ($mime == 'application/x-bzip2') {
                 Bzip2::uncompress($this->workingDir . '/' . $modulesFileTargetName, $this->workingDir . '/modules.yaml');
-            }
-
-            if ($modulesFileExtension == 'xz') {
+            } elseif ($mime == 'application/x-xz') {
                 Xz::uncompress($this->workingDir . '/' . $modulesFileTargetName, $this->workingDir . '/modules.yaml');
-            }
-
-            if ($modulesFileExtension == 'zst') {
+            } elseif ($mime == 'application/zstd') {
                 Zstd::uncompress($this->workingDir . '/' . $modulesFileTargetName);
+            } elseif ($mime == 'text/plain') {
+                // Already a plain yaml file, nothing to do
+            } else {
+                throw new Exception('MIME type not supported: ' . $mime . '. Please contact the developer to add support for this MIME type.');
             }
         } catch (Exception $e) {
             throw new Exception('Error while uncompressing <code>' . $modulesFileTargetName . '</code><br><pre class="codeblock">' . $e->getMessage() . '</pre>');
         }
 
-        // Delete original file (only if it was compressed and not already a plain .yaml file)
-        if ($modulesFileExtension != 'yaml') {
+        // Delete original compressed file if it was not already a plain yaml file
+        if ($mime != 'text/plain' and file_exists($this->workingDir . '/' . $modulesFileTargetName)) {
             if (!unlink($this->workingDir . '/' . $modulesFileTargetName)) {
                 throw new Exception('Could not delete <code>' . $this->workingDir . '/' . $modulesFileTargetName . '</code>');
             }
@@ -162,6 +170,12 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
 
         $this->taskLogSubStepController->new('getting-updateinfo', 'GETTING UPDATEINFO.XML.GZ', 'From ' . $url . '/' . $this->updateInfoLocation);
 
+        // If sync of updateinfo.xml.gz is disabled, skip it
+        if ($this->advancedParams['metadata-sync']['updateinfo'] == 'false') {
+            $this->taskLogSubStepController->completed('Skipping (sync disabled)');
+            return;
+        }
+
         // Get updateinfo file extension
         $updateInfoFileExtension = pathinfo($this->updateInfoLocation, PATHINFO_EXTENSION);
 
@@ -170,49 +184,20 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             throw new Exception('Unsupported file extension <code>' . $updateInfoFileExtension . '</code> for <code>updateinfo</code> file. Please contact the developer to add support for this file extension.');
         }
 
-        // We'll give this updateinfo file a target name according to its file extension
-        $updateInfoFileExtension == 'gz' ? $updateInfoFileTargetName = 'updateinfo.xml.gz' : null;
-        $updateInfoFileExtension == 'xz' ? $updateInfoFileTargetName = 'updateinfo.xml.xz' : null;
-        $updateInfoFileExtension == 'bz2' ? $updateInfoFileTargetName = 'updateinfo.xml.bz2' : null;
-        $updateInfoFileExtension == 'zst' ? $updateInfoFileTargetName = 'updateinfo.xml.zst' : null;
-        $updateInfoFileExtension == 'xml' ? $updateInfoFileTargetName = 'updateinfo.xml' : null;
+        /**
+         *  Keep the file in its original (compressed) state, but give it a fixed target name so it can be
+         *  found and added to the metadata by modifyrepo_c later. No need to uncompress it.
+         */
+        $updateInfoFileTargetName = 'updateinfo.xml' . ($updateInfoFileExtension != 'xml' ? '.' . $updateInfoFileExtension : '');
 
         // Download updateinfo file
         if (!$this->download($url . '/' . $this->updateInfoLocation, $this->workingDir . '/' . $updateInfoFileTargetName)) {
-            throw new Exception('Could not download <code>updateinfo.xml.gz</code>');
+            throw new Exception('Could not download <code>' . $updateInfoFileTargetName . '</code>');
         }
 
         // Check that downloaded file checksum is the same as the provided checksum from repomd.xml
         if (!$this->checksum($this->workingDir . '/' . $updateInfoFileTargetName, $this->updateInfoChecksum)) {
             throw new Exception('<code>' . $updateInfoFileTargetName . '</code> checksum does not match provided checksum');
-        }
-
-        // If updateinfo file has been downloaded as a .gz file, uncompress it
-        try {
-            if ($updateInfoFileExtension == 'gz') {
-                Gzip::uncompress($this->workingDir . '/' . $updateInfoFileTargetName);
-            }
-
-            if ($updateInfoFileExtension == 'bz2') {
-                Bzip2::uncompress($this->workingDir . '/' . $updateInfoFileTargetName, $this->workingDir . '/updateinfo.xml');
-            }
-
-            if ($updateInfoFileExtension == 'xz') {
-                Xz::uncompress($this->workingDir . '/' . $updateInfoFileTargetName, $this->workingDir . '/updateinfo.xml');
-            }
-
-            if ($updateInfoFileExtension == 'zst') {
-                Zstd::uncompress($this->workingDir . '/' . $updateInfoFileTargetName);
-            }
-        } catch (Exception $e) {
-            throw new Exception('Error while uncompressing <code>' . $updateInfoFileTargetName . '</code><br><pre class="codeblock">' . $e->getMessage() . '</pre>');
-        }
-
-        // Delete original file (only if it was compressed and not already a plain .xml file)
-        if ($updateInfoFileExtension != 'xml') {
-            if (!unlink($this->workingDir . '/' . $updateInfoFileTargetName)) {
-                throw new Exception('Could not delete <code>' . $this->workingDir . '/' . $updateInfoFileTargetName . '</code>');
-            }
         }
 
         $this->taskLogSubStepController->completed();
@@ -473,8 +458,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         }
 
         // Filter packages to keep only the X latest versions if 'keep-latest' is set
-        if (!empty($this->advancedParams['keep-latest'])) {
-            $this->rpmPackagesLocation = $this->keepLatestVersions($this->rpmPackagesLocation, (int) $this->advancedParams['keep-latest']);
+        if (!empty($this->advancedParams['packages']['keep-latest'])) {
+            $this->rpmPackagesLocation = $this->keepLatestVersions($this->rpmPackagesLocation, (int) $this->advancedParams['packages']['keep-latest']);
         }
 
         $this->taskLogSubStepController->completed(count($this->rpmPackagesLocation) . ' package' . (count($this->rpmPackagesLocation) > 1 ? 's' : '') . ' found');

@@ -450,23 +450,12 @@ class Gpg
             throw new Exception('Invalid URL');
         }
 
-        // Check if the URL is reachable
-        try {
-            $this->httpRequestController->reachable([
-                'url' => $url,
-                'connectTimeout' => 5,
-                'proxy' => PROXY ?? null,
-            ]);
-        } catch (Exception $e) {
-            throw new Exception('URL ' . $url . ' is not reachable: ' . $e->getMessage());
-        }
-
         // Download GPG key
         try {
             $output = $this->httpRequestController->get([
                 'url'            => $url,
-                'connectTimeout' => 5,
-                'timeout'        => 10,
+                'connectTimeout' => 10,
+                'timeout'        => 30,
                 'proxy'          => PROXY ?? null,
                 'returnOutput'   => true
             ]);
