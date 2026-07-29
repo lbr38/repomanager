@@ -1,10 +1,11 @@
 <?php
+use \Controllers\Utils\Validate;
 
 /**
  *  Get and return the log content of a service unit
  */
 if ($action == 'get-unit-log' and !empty($_POST['unit']) and !empty($_POST['logfile'])) {
-    $logfile = \Controllers\Utils\Validate::string($_POST['logfile']);
+    $logfile = basename(Validate::string($_POST['logfile']));
 
     // Load service units configuration
     include_once(ROOT . '/config/service-units.php');

@@ -1,13 +1,20 @@
 <?php
+use Controllers\Layout\Container\Render as ContainerRender;
+use Controllers\Layout\Table\Render as TableRender;
+use Controllers\Layout\Panel\Render as PanelRender;
+use Controllers\Exception\InvalidContainerException;
+use Controllers\Exception\InvalidPanelException;
+use Controllers\Exception\InvalidTableException;
+use Controllers\Log\Log;
 
 /**
  *  Acquit log message
  */
-if ($action == "acquitLog" && !empty($_POST['id'])) {
-    $mylog = new \Controllers\Log\Log();
+if ($action == 'acquit-log' && !empty($_POST['id'])) {
+    $logController = new Log();
 
     try {
-        $mylog->acquit($_POST['id']);
+        $logController->acquit($_POST['id']);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
@@ -18,12 +25,13 @@ if ($action == "acquitLog" && !empty($_POST['id'])) {
 /**
  *  Return specified container content
  */
-if ($action == "getContainer" && !empty($_POST['container'])) {
+if ($action == 'get-container' && !empty($_POST['container'])) {
     try {
         ob_start();
-        \Controllers\Layout\Container\Render::render($_POST['container']);
+        ContainerRender::render($_POST['container']);
         $content = ob_get_clean();
-    } catch (Exception $e) {
+    } catch (InvalidContainerException $e) {
+        ob_end_clean();
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -33,12 +41,13 @@ if ($action == "getContainer" && !empty($_POST['container'])) {
 /**
  *  Return specified table content
  */
-if ($action == "getTable" && !empty($_POST['table']) && isset($_POST['offset'])) {
+if ($action == 'get-table' && !empty($_POST['table']) && isset($_POST['offset'])) {
     try {
         ob_start();
-        \Controllers\Layout\Table\Render::render($_POST['table'], $_POST['offset']);
+        TableRender::render($_POST['table'], $_POST['offset']);
         $content = ob_get_clean();
-    } catch (Exception $e) {
+    } catch (InvalidTableException $e) {
+        ob_end_clean();
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
@@ -48,12 +57,13 @@ if ($action == "getTable" && !empty($_POST['table']) && isset($_POST['offset']))
 /**
  *  Return specified panel content
  */
-if ($action == "get-panel" && !empty($_POST['name']) && isset($_POST['params'])) {
+if ($action == 'get-panel' && !empty($_POST['name']) && isset($_POST['params'])) {
     try {
         ob_start();
-        \Controllers\Layout\Panel\Render::render($_POST['name'], $_POST['params']);
+        PanelRender::render($_POST['name'], $_POST['params']);
         $content = ob_get_clean();
-    } catch (Exception $e) {
+    } catch (InvalidPanelException $e) {
+        ob_end_clean();
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 

@@ -669,7 +669,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                 }
 
                 // Extract package header
-                $myprocess = new Process('/usr/bin/rpm -qp --qf "%|DSAHEADER?{%{DSAHEADER:pgpsig}}:{%|RSAHEADER?{%{RSAHEADER:pgpsig}}:{(none}|}| %{NVRA}\n" ' . $absoluteDir. '/' . $rpmPackageName);
+                $myprocess = new Process('/usr/bin/rpm -qp --qf "%|DSAHEADER?{%{DSAHEADER:pgpsig}}:{%|RSAHEADER?{%{RSAHEADER:pgpsig}}:{(none}|}| %{NVRA}\n" ' . escapeshellarg($absoluteDir. '/' . $rpmPackageName));
                 $myprocess->execute();
                 $content = $myprocess->getOutput();
                 $myprocess->close();

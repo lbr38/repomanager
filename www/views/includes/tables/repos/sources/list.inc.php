@@ -1,16 +1,4 @@
 <div class="reloadable-table" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
-    <?php
-    if (!empty($reloadableTableContent)) : ?>
-        <h6>ADD</h6>
-        <p class="note">Import a predefined list or add a source repository manually.</p>
-
-        <div class="flex column-gap-10 margin-top-5 margin-bottom-30">
-            <button type="button" class="btn-medium-blue get-panel-btn" panel="repos/sources/import">Import</button>
-            <button type="button" class="btn-medium-tr get-panel-btn" panel="repos/sources/new">Manually add</button>
-        </div>
-        <?php
-    endif; ?>
-
     <div class="flex justify-space-between align-flex-end margin-top-40 margin-bottom-15 margin-right-15">
         <div>
             <h6 class="margin-top-0">CURRENT SOURCE REPOSITORIES</h6>

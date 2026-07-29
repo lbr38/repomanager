@@ -43,41 +43,59 @@ class Panel {
         });
 
         return new Promise((resolve, reject) => {
-            ajaxRequest(
-                // Controller:
-                'general',
-                // Action:
-                'get-panel',
-                // Data:
-                {
-                    name: name,
-                    params: params
-                },
-                // Print success alert:
-                false,
-                // Print error alert:
-                true
-            ).then(function () {
-                // Append panel to footer
-                if (append === true) {
-                    var html = $(jsonValue.message).find('.slide-panel').html();
+            try {
+                ajaxRequest(
+                    // Controller:
+                    'general',
+                    // Action:
+                    'get-panel',
+                    // Data:
+                    {
+                        name: name,
+                        params: params
+                    },
+                    // Print success alert:
+                    false,
+                    // Do not print error alert (it will be logged in the console and in the panel)
+                    false 
+                ).then(() => {
+                    // Append panel to footer
+                    if (append === true) {
+                        const content = $(jsonValue.message);
 
-                    // If panel content was not found in the response, reject the promise
-                    if (html === undefined) {
-                        reject('Panel content was not found');
+                        // If the root element is a slide-panel, get its content, otherwise get the content of the slide-panel child
+                        const html = (content.is('.slide-panel') ? content : content.find('.slide-panel')).html();
+
+                        // If panel content was not found in the response, reject the promise
+                        if (html === undefined) {
+                            console.error('Panel content was not found in the response');
+                            reject('Panel content was not found');
+                        }
+
+                        // Replace current panel content with the content from the response
+                        $('.slide-panel-container[slide-panel="' + name + '"]').find('.slide-panel').html(html);
                     }
 
-                    // Replace current panel content with the content from the response
-                    $('.slide-panel-container[slide-panel="' + name + '"]').find('.slide-panel').html(html);
-                }
+                    resolve('Panel retrieved successfully');
+                }).catch(e => {
+                    // Log error to console
+                    console.error('Failed to get panel: ' + e);
 
-                resolve('Panel retrieved successfully');
-            }).catch(function (e) {
-                reject('Failed to get panel: ' + e);
-            }).finally(function () {
-                // Hide loading icon
-                mylayout.hideLoading();
-            });
+                    // Print error to the user
+                    myalert.print(e, 'error');
+
+                    // Reject promise
+                    reject('Failed to get panel: ' + e);
+                }).finally(() => {
+                    // Hide loading icon
+                    mylayout.hideLoading();
+                });
+            } catch (error) {
+                // Catch synchronous errors (before the ajax request is sent)
+
+                // Reject promise
+                reject('Failed to get panel, synchronous error: ' + error.message);
+            }
         });
     }
 
@@ -113,9 +131,10 @@ class Panel {
                 false,
                 // Print error alert:
                 true
-            ).then(function () {
+            ).then(() => {
                 // Get panel content
-                var html = $(jsonValue.message).find('.slide-panel').html();
+                const $parsed = $(jsonValue.message);
+                var html = ($parsed.is('.slide-panel') ? $parsed : $parsed.find('.slide-panel')).html();
 
                 // If panel content was not found in the response, reject the promise
                 if (html === undefined) {
@@ -129,9 +148,9 @@ class Panel {
                 mylayout.reloadOpenedClosedElements();
 
                 resolve('Panel reloaded successfully');
-            }).catch(function (e) {
+            }).catch((e) => {
                 reject('Failed to reload panel ' + name + ': ' + e);
-            }).finally(function () {
+            }).finally(() => {
                 // Hide loading icon
                 mylayout.hideLoading();
             });

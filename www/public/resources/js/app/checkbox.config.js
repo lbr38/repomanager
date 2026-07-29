@@ -36,8 +36,6 @@ const checkboxesCallback = {
                                 mycontainer.reload('repos/list');
                                 // Reload group panel
                                 mypanel.reload('repos/groups/list');
-                                // Reload create repo panel
-                                mypanel.reload('repos/new');
                             });
                         }
                 }
@@ -73,7 +71,6 @@ const checkboxesCallback = {
                         true
                     ).then(function () {
                         mypanel.reload('repos/sources/list');
-                        mypanel.reload('repos/new');
                     });
                 }
             }]

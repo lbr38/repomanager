@@ -137,7 +137,7 @@ trait Sign
                 /**
                  *  Sign package
                  */
-                $myprocess = new Process('/usr/bin/rpmsign --macros=' . MACROS_FILE . ' --addsign ' . $rpmFile, array('GPG_TTY' => '$(tty)'));
+                $myprocess = new Process('/usr/bin/rpmsign --macros=' . MACROS_FILE . ' --addsign ' . escapeshellarg($rpmFile), array('GPG_TTY' => '$(tty)'));
 
                 /**
                  *  Execution

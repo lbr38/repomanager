@@ -10,16 +10,12 @@ class Container {
 
         return new Promise((resolve, reject) => {
             try {
-                /**
-                 *  If the container to reload does not exist, return
-                 */
+                // If the container to reload does not exist, return
                 if (!$('.reloadable-container[container="' + container + '"]').length) {
                     return;
                 }
 
-                /**
-                 *  Print a loading icon on the bottom of the page
-                 */
+                // Print a loading icon on the bottom of the page
                 mylayout.printLoading();
 
                 /**
@@ -32,7 +28,7 @@ class Container {
                     // Controller:
                     'general',
                     // Action:
-                    'getContainer',
+                    'get-container',
                     // Data:
                     {
                         sourceUrl: window.location.href,
@@ -41,8 +37,8 @@ class Container {
                     },
                     // Print success alert:
                     false,
-                    // Print error alert:
-                    true
+                    // Do not print error alert (it will be logged in the console)
+                    false
                 ).then(() => {
                     // Check if container must use Morphdom
                     if (typeof containersUsingMorphdom !== 'undefined' && containersUsingMorphdom.includes(container)) {
@@ -96,15 +92,26 @@ class Container {
                     // Reload opened or closed elements that were opened/closed before reloading
                     mylayout.reloadOpenedClosedElements();
 
-                    // Hide loading icon
-                    mylayout.hideLoading();
-
                     // Resolve promise
                     resolve('Container reloaded');
+                }).catch(e => {
+                    // Log error to console
+                    console.error('Failed to reload container ' + container + ': ' + e);
+
+                    // Print error to the user
+                    myalert.print(e, 'error');
+
+                    // Reject promise
+                    reject('Failed to reload container ' + container + ': ' + e);
+                }).finally(() => {
+                    // Hide loading icon
+                    mylayout.hideLoading();
                 });
             } catch (error) {
+                // Catch synchronous errors (before the ajax request is sent)
+
                 // Reject promise
-                reject('Failed to reload container');
+                reject('Failed to reload container, synchronous error: ' + error.message);
             }
         });
     }

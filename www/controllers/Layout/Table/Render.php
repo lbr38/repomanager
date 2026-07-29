@@ -3,39 +3,55 @@
 namespace Controllers\Layout\Table;
 
 use Exception;
+use Controllers\Exception\InvalidTableException;
+use Controllers\Utils\Validate;
 
 class Render
 {
-    public static function render(string $table, int $offset = 0)
+    /**
+     *  Render table content
+     *  InvalidTableException is thrown when the table name is invalid or the table file does not
+     *  exist, which should not be the case unless someone is trying to do something nasty
+     *  Otherwise, a generic Exception is thrown when the table file exists but an error occurs during rendering. The error is then shown in the table content.
+     */
+    public static function render(string $table, int $offset = 0): void
     {
         try {
-            /**
-             *  Check if table exists
-             */
-            if (!file_exists(ROOT . '/views/includes/tables/' . $table . '.inc.php')) {
-                throw new Exception('Could not retrieve content: unknown table ' . $table);
+            // Check if the table name is valid
+            if (!Validate::alphaNumericHyphen($table, ['/'])) {
+                throw new InvalidTableException('Invalid table name');
             }
 
-            /**
-             *  Include vars file if exists
-             */
-            if (file_exists(ROOT . '/controllers/Layout/Table/vars/' . $table . '.vars.inc.php')) {
-                include_once(ROOT . '/controllers/Layout/Table/vars/' . $table . '.vars.inc.php');
+            $_view = realpath(ROOT . '/views/includes/tables/' . $table . '.inc.php');
+            $_vars = realpath(ROOT . '/controllers/Layout/Table/vars/' . $table . '.vars.inc.php');
+
+            // Check that the table exists and is located inside the tables directory (prevent path traversal)
+            if ($_view === false || !str_starts_with($_view, ROOT . '/views/includes/tables/')) {
+                throw new InvalidTableException('Unknown table name');
             }
 
-            /**
-             *  Include table content
-             */
-            include_once(ROOT . '/views/includes/tables/' . $table . '.inc.php');
+            // Include vars file if exists
+            if ($_vars !== false && file_exists($_vars)) {
+                include_once($_vars);
+            }
+
+            // Include table content
+            include_once($_view);
+        } catch (InvalidTableException $e) {
+            // Rethrow the exception to be handled by the caller (when called via ajax)
+            throw $e;
         } catch (Exception $e) {
-            echo '<p>' . $e->getMessage() . '</p>';
+            // Otherwise include error container
+            include(ROOT . '/views/includes/tables/error.inc.php');
         }
+
+        unset($_view, $_vars);
     }
 
     /**
      *  Generate pagination buttons
      */
-    public static function paginationBtn($currentPage, $totalPages)
+    public static function paginationBtn($currentPage, $totalPages): void
     {
         $output = '';
 
