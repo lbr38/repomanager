@@ -27,8 +27,6 @@ $(document).on('submit','#newGroupForm',function (e) {
         mycontainer.reload('repos/list');
         // Reload group panel
         mypanel.reload('repos/groups/list');
-        // Reload create repo div
-        mypanel.reload('repos/new');
     });
 
     return false;
@@ -68,8 +66,6 @@ $(document).on('submit','.group-form',function (e) {
     ).then(function () {
         // Reload group panel
         mypanel.reload('repos/groups/list');
-        // Reload create repo div
-        mypanel.reload('repos/new');
     });
 
     return false;

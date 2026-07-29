@@ -284,6 +284,10 @@ class Package
         }
 
         foreach ($packages as $package) {
+            // Sanitize host-supplied values before using them
+            $package['name']    = Validate::string($package['name']);
+            $package['version'] = Validate::string($package['version']);
+
             // If the package does not exist in database, add it
             if (!$this->exists($package['name'])) {
                 $this->addPackage($package['name'], $package['version'], 'inventored', 'package', date('Y-m-d'), date('H:i:s'));
@@ -320,6 +324,11 @@ class Package
         }
 
         foreach ($packages as $package) {
+            // Sanitize host-supplied values before using them
+            $package['name']       = Validate::string($package['name']);
+            $package['version']    = Validate::string($package['version']);
+            $package['repository'] = Validate::string($package['repository'] ?? '');
+
             // If name is empty, we skip this package
             if (empty($package['name'])) {
                 continue;

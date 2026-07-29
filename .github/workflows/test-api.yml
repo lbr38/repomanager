@@ -3,9 +3,6 @@ name: Test Repomanager API
 on:
   push:
     branches: [ devel ]
-  pull_request:
-    push:
-      branches: [ main ]
 
 jobs:
   api-test:

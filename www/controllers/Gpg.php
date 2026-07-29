@@ -3,7 +3,9 @@
 namespace Controllers;
 
 use Exception;
+use Controllers\Process;
 use Controllers\Utils\Validate;
+use Controllers\User\Permission\Repo as RepoPermission;
 
 class Gpg
 {
@@ -288,6 +290,11 @@ class Gpg
      */
     public function import(string $gpgKeyUrl, string $gpgKeyFingerprint, string $gpgKeyPlainText)
     {
+        // Check user permissions
+        if (!RepoPermission::allowedAction('edit-source')) {
+            throw new Exception('You are not allowed to import a GPG key');
+        }
+
         $gpgKeyUrl = Validate::string($gpgKeyUrl);
         $gpgKeyFingerprint = Validate::string($gpgKeyFingerprint);
         $gpgKeyPlainText = Validate::string($gpgKeyPlainText);
@@ -400,7 +407,7 @@ class Gpg
             /**
              *  Import file into the repomanager trusted keyring
              */
-            $myprocess = new \Controllers\Process('/usr/bin/gpg --no-default-keyring --keyring ' . GPGHOME . '/trustedkeys.gpg --import ' . $gpgTempFile);
+            $myprocess = new Process('/usr/bin/gpg --no-default-keyring --keyring ' . GPGHOME . '/trustedkeys.gpg --import ' . $gpgTempFile);
             $myprocess->execute();
             $content = $myprocess->getOutput();
             $myprocess->close();
@@ -478,11 +485,16 @@ class Gpg
      */
     public function delete(array $gpgKeysIds) : void
     {
+        // Check user permissions
+        if (!RepoPermission::allowedAction('edit-source')) {
+            throw new Exception('You are not allowed to delete a GPG key');
+        }
+
         $idErrors = [];
 
         foreach ($gpgKeysIds as $id) {
             // Deleting key from the keyring, using its ID
-            $myprocess = new \Controllers\Process('/usr/bin/gpg --no-default-keyring --homedir ' . GPGHOME . ' --keyring ' . GPGHOME . '/trustedkeys.gpg --no-greeting --delete-key --batch --yes ' . Validate::string($id));
+            $myprocess = new Process('/usr/bin/gpg --no-default-keyring --homedir ' . GPGHOME . ' --keyring ' . GPGHOME . '/trustedkeys.gpg --no-greeting --delete-key --batch --yes ' . escapeshellarg($id));
             $myprocess->execute();
 
             if ($myprocess->getExitCode() != 0) {

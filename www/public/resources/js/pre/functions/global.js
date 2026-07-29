@@ -104,7 +104,8 @@ function ajaxRequest(controller, action, additionalData = null, printSuccessAler
                     }
                 }
 
-                reject('Failed to execute ajax request: ' + jsonValue.message);
+                // Reject promise with error message
+                reject(jsonValue.message);
             },
         });
     });

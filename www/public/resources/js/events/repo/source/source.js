@@ -40,7 +40,6 @@ $(document).on('submit','#add-source-repo-form',function () {
         true
     ).then(function () {
         mypanel.reload('repos/sources/list');
-        mypanel.reload('repos/new');
     });
 
     return false;
@@ -71,7 +70,6 @@ $(document).on('submit','#import-source-repos',function () {
         true
     ).then(function () {
         mypanel.reload('repos/sources/list');
-        mypanel.reload('repos/new');
     });
 
     return false;
@@ -122,7 +120,6 @@ $(document).on('click','.source-repo-form-submit-btn',function () {
         true
     ).then(function () {
         mypanel.reload('repos/sources/list');
-        mypanel.reload('repos/new');
     });
 
     return false;

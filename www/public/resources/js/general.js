@@ -36,7 +36,7 @@ $(document).on('click','.general-log-acquit-btn',function () {
         // Controller:
         'general',
         // Action:
-        'acquitLog',
+        'acquit-log',
         // Data:
         {
             id: id
