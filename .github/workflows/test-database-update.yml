@@ -2,10 +2,7 @@ name: Database update tests
 
 on:
   push:
-    branches: [ devel ]
-  pull_request:
-    push:
-      branches: [ main ]
+
 jobs:
   test-database-update:
     runs-on: ubuntu-latest

@@ -2,10 +2,7 @@ name: Test ansible role
 
 on:
   push:
-    branches: [ devel ]
-  pull_request:
-    push:
-      branches: [ main ]
+
 jobs:
   ansible:
     runs-on: ubuntu-latest
