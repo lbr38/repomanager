@@ -721,7 +721,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                  */
 
                 // First check if package has arch in its name, else ignore it
-                if (!preg_match('/(amd64|arm64|armel|armhf|i386|mips|mips64el|mipsel|ppc64el|s390x|all).deb$/', $debPackageName)) {
+                if (!preg_match('/(amd64|x64|arm64|armel|armhf|i386|mips|mips64el|mipsel|ppc64el|s390x|all).deb$/', $debPackageName)) {
                     $this->taskLogSubStepController->warning('Package does not have a valid arch in its name (ignoring)');
                     continue;
                 }
@@ -732,6 +732,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                  *  e.g. filebeat-8.0.0.amd64.deb -> filebeat-8.0.0_amd64.deb
                  */
                 $debPackageName = preg_replace('/[-.]amd64.deb$/', '_amd64.deb', $debPackageName);
+                $debPackageName = preg_replace('/[-.]x64.deb$/', '_amd64.deb', $debPackageName); // Some repositories use x64 instead of amd64 (e.g. opensearch)
                 $debPackageName = preg_replace('/[-.]arm64.deb$/', '_arm64.deb', $debPackageName);
                 $debPackageName = preg_replace('/[-.]armel.deb$/', '_armel.deb', $debPackageName);
                 $debPackageName = preg_replace('/[-.]armhf.deb$/', '_armhf.deb', $debPackageName);

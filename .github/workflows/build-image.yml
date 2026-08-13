@@ -1,4 +1,4 @@
-name: Publish Docker image
+name: Build Docker image
 
 on:
   release:
@@ -15,12 +15,8 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v6
-        # Production
         with:
           ref: 'main'
-        # Debug only
-        # with:
-        #   ref: 'devel'
 
       - name: Retrieve Repomanager version
         run: |
@@ -28,28 +24,22 @@ jobs:
           echo "Version: ${{ env.VERSION }}"
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
 
       - name: Log in to the container registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      # Build the images
+      # Build the image
       - name: Build and push docker
         uses: docker/build-push-action@v2
         with:
           file: Dockerfile
-          # Debug only
-          # push: true
-          # tags: lbr38/repomanager:devel
-          # platforms: linux/amd64,linux/arm64,linux/arm/v7
-
-          # Production
           push: true
           tags: lbr38/repomanager:latest, lbr38/repomanager:${{ env.VERSION }}
           platforms: linux/amd64,linux/arm64,linux/arm/v7
