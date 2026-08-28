@@ -112,8 +112,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         }
 
         /**
-         *  Download the modules file with a temporary compressed name, then uncompress it to a plain
-         *  modules.yaml file so it can be found and included automatically by createrepo_c.
+         *  Download the modules file with a temporary compressed name, then uncompress it to a plain modules.yaml file
          */
         $modulesFileTargetName = 'modules.yaml' . ($modulesFileExtension != 'yaml' ? '.' . $modulesFileExtension : '');
 
@@ -127,7 +126,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             throw new Exception('<code>' . $modulesFileTargetName . '</code> checksum does not match provided checksum');
         }
 
-        // Uncompress the modules file to a plain modules.yaml based on its actual mime type (required for createrepo_c to include it)
+        // Uncompress the modules file to a plain modules.yaml based on its actual mime type
         $mime = mime_content_type($this->workingDir . '/' . $modulesFileTargetName);
 
         try {
@@ -806,10 +805,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          *  Loop through all the archs selected by the user to build all the possible URLs to explore
          */
         foreach ($this->arch as $arch) {
-            $url = $this->url;
-
             // Replace $releasever variable in the URL if exists
-            $url = str_replace('$releasever', $this->releasever, $url);
+            $url = str_replace('$releasever', $this->releasever, $this->url);
 
             // If there is a $basearch variable in the URL, replace it with the current arch
             if (preg_match('/\$basearch/i', $url)) {
@@ -823,8 +820,6 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
 
         // If 'src' exists in the arch array
         if (in_array('src', $this->arch)) {
-            $url = $this->url;
-
             // Replace $releasever variable in the URL if exists
             $url = str_replace('$releasever', $this->releasever, $url);
 
@@ -855,7 +850,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                     'sslCertificatePath' => $this->sslCustomCertificate,
                     'sslPrivateKeyPath' => $this->sslCustomPrivateKey,
                     'sslCaCertificatePath' => $this->sslCustomCaCertificate,
-                    'proxy' => PROXY ?? null,
+                    'proxy' => PROXY ?? null
                 ]);
             } catch (Exception $e) {
                 // If the URL is not reachable, add it to the errorUrls array

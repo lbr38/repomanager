@@ -32,7 +32,7 @@ $(document).on('change','#repo-install-select-env',function (e) {
 
         // deb822 syntax
         if (packageType == 'deb-alt') {
-            html  = 'cat << EOF > /etc/apt/sources.list.d/' + prefix + name + '-' + dist + '-' + component + '.list\n';
+            html  = 'cat << EOF > /etc/apt/sources.list.d/' + prefix + name + '-' + dist + '-' + component + '.sources\n';
             html += 'Types: deb\n';
             html += 'URIs: ' + url + '/deb/' + name + '/' + dist + '/' + component + '/' + env + '\n';
             html += 'Suites: ' + dist + '\n';

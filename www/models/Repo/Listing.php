@@ -36,6 +36,9 @@ class Listing extends \Models\Model
             repos_snap.Signed,
             repos_snap.Arch,
             repos_snap.Type,
+            repos_snap.Reconstruct,
+            repos_snap.Size,
+            repos_snap.Size_human,
             repos_env.Description
             FROM repos 
             LEFT JOIN repos_snap
@@ -82,6 +85,8 @@ class Listing extends \Models\Model
                 repos_snap.Arch,
                 repos_snap.Type,
                 repos_snap.Reconstruct,
+                repos_snap.Size,
+                repos_snap.Size_human,
                 repos_snap.Status,
                 repos_env.Description
                 FROM repos
@@ -109,6 +114,8 @@ class Listing extends \Models\Model
                 repos_snap.Arch,
                 repos_snap.Type,
                 repos_snap.Reconstruct,
+                repos_snap.Size,
+                repos_snap.Size_human,
                 repos_snap.Status,
                 repos_env.Description
                 FROM repos

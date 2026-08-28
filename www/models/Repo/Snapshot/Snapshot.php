@@ -89,6 +89,33 @@ class Snapshot extends \Models\Model
     }
 
     /**
+     *  Return the size of a snapshot by ID
+     */
+    public function getSize(int $snapId, bool $human): int|string|null
+    {
+        $data = 0;
+
+        try {
+            if ($human) {
+                $stmt = $this->db->prepare("SELECT Size_human as Size FROM repos_snap WHERE Id = :snapId");
+            } else {
+                $stmt = $this->db->prepare("SELECT Size FROM repos_snap WHERE Id = :snapId");
+            }
+
+            $stmt->bindValue(':snapId', $snapId);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data = $row['Size'];
+        }
+
+        return $data;
+    }
+
+    /**
      *  Add a snapshot in database
      */
     public function add(string $date, string $time, string $gpgSignature, array $arch, string $advancedParams, string $type, string $status, int $repoId): void
@@ -157,11 +184,24 @@ class Snapshot extends \Models\Model
     /**
      *  Update snapshot status in the database
      */
-    public function updateStatus(string $snapId, string $status): void
+    public function updateStatus(int $snapId, string $status): void
     {
         try {
             $stmt = $this->db->prepare("UPDATE repos_snap SET Status = :status WHERE Id = :snapId");
             $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':snapId', $snapId);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+    }
+
+    public function updateSize(int $snapId, string $size, string $sizeHuman): void
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE repos_snap SET Size = :size, Size_human = :sizeHuman WHERE Id = :snapId");
+            $stmt->bindValue(':size', $size);
+            $stmt->bindValue(':sizeHuman', $sizeHuman);
             $stmt->bindValue(':snapId', $snapId);
             $stmt->execute();
         } catch (Exception $e) {

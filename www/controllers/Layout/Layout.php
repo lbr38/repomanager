@@ -45,8 +45,10 @@ class Layout
      */
     private function logout()
     {
-        // Start the session
-        session_start();
+        // Start the session if not already active
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
 
         // Reinitialize the session array, empty it
         $_SESSION = [];

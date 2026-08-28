@@ -45,6 +45,8 @@ function deletePackages(snapId)
 {
     var packages = [];
 
+    myalert.print('Deleting packages...');  
+
     // Get the path of the selected packages
     $('body').find('input[name=packageName\\[\\]]:checked').each(function () {
         packages.push($(this).attr('path'));

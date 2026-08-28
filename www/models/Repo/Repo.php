@@ -60,6 +60,8 @@ class Repo extends \Models\Model
                 repos_snap.Advanced_params,
                 repos_snap.Type,
                 repos_snap.Reconstruct,
+                repos_snap.Size,
+                repos_snap.Size_human,
                 repos_snap.Status,
                 repos_snap.Id_repo,
                 repos_env.Id AS envId,
@@ -94,6 +96,8 @@ class Repo extends \Models\Model
                 repos_snap.Advanced_params,
                 repos_snap.Type,
                 repos_snap.Reconstruct,
+                repos_snap.Size,
+                repos_snap.Size_human,
                 repos_snap.Status,
                 repos_snap.Id_repo
                 FROM repos 
@@ -132,6 +136,8 @@ class Repo extends \Models\Model
                 repos_snap.Advanced_params,
                 repos_snap.Type,
                 repos_snap.Reconstruct,
+                repos_snap.Size,
+                repos_snap.Size_human,
                 repos_snap.Status,
                 repos_snap.Id_repo
                 FROM repos
@@ -156,6 +162,8 @@ class Repo extends \Models\Model
                 repos_snap.Advanced_params,
                 repos_snap.Type,
                 repos_snap.Reconstruct,
+                repos_snap.Size,
+                repos_snap.Size_human,
                 repos_snap.Status,
                 repos_snap.Id_repo,
                 repos_env.Id AS envId,

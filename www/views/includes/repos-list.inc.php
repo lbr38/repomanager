@@ -96,6 +96,8 @@ if (!empty($groupsList)) {
                             $source         = $repo['Source'];
                             $rebuild        = $repo['Reconstruct'];
                             $status         = $repo['Status'];
+                            $size           = $repo['Size'] ?? '?';
+                            $sizeHuman      = $repo['Size_human'] ?? '?';
                             $packageType    = $repo['Package_type'];
                             $date           = $repo['Date'];
                             $dateFormatted  = DateTime::createFromFormat('Y-m-d', $repo['Date'])->format('d-m-Y');
@@ -285,16 +287,6 @@ if (!empty($groupsList)) {
                                     endif;
                                 endif ?>
                             </div>
-        
-                            <?php
-                            // Generate repo relative path
-                            if ($packageType == 'rpm') {
-                                $repoRelativePath = 'rpm/' .$name . '/' . $releaseVersion . '/' . $date;
-                            }
-
-                            if ($packageType == 'deb') {
-                                $repoRelativePath = 'deb/' . $name . '/' . $dist . '/' . $section . '/' . $date;
-                            } ?>
 
                             <div class="item-snapshot">
                                 <?php
@@ -333,7 +325,7 @@ if (!empty($groupsList)) {
                                             } ?>
                                         </span>
 
-                                        <span class="item-size lowopacity-cst" title="Repository snapshot size" repo-id="<?= $repoId ?>" snap-id="<?= $snapId ?>" repo-relative-path="<?= $repoRelativePath ?>">Calc.</span>
+                                        <span class="lowopacity-cst" title="Snapshot size"><?= $sizeHuman ?></span>
                                     </div>
                                     <?php
                                 endif ?>
@@ -425,7 +417,6 @@ if (!empty($groupsList)) {
 
 <script>
 $(document).ready(function() {
-    myrepo.getSize();
     myrepo.getLatestTaskStatus();
 });
 </script>

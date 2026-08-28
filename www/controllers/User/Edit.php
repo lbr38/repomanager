@@ -2,6 +2,7 @@
 namespace Controllers\User;
 
 use Exception;
+use Controllers\App\Session;
 use Controllers\History\Save as History;
 use Controllers\Utils\Validate;
 
@@ -53,9 +54,11 @@ class Edit extends User
         /**
          *  Update sessions variables with new values
          */
-        $_SESSION['first_name'] = $firstName;
-        $_SESSION['last_name']  = $lastName;
-        $_SESSION['email']      = $email;
+        Session::set([
+            'first_name' => $firstName,
+            'last_name'  => $lastName,
+            'email'      => $email
+        ]);
     }
 
     /**

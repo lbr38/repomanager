@@ -8,6 +8,7 @@ class Main extends \Controllers\Service\Service
 {
     private $taskController;
     private $signalHandler;
+    private $units;
 
     public function __construct(string $unit)
     {
@@ -15,6 +16,10 @@ class Main extends \Controllers\Service\Service
 
         $this->taskController = new \Controllers\Task\Task();
         $this->signalHandler = new \Controllers\SignalHandler();
+
+        // Load service units configuration
+        include(ROOT . '/config/service-units.php');
+        $this->units = $units;
     }
 
     /**
@@ -22,13 +27,7 @@ class Main extends \Controllers\Service\Service
      */
     public function run() : void
     {
-        $counter = 0;
-        $lastScheduledTaskRunning = null;
-        $lastStatsRunning = null;
         $startup = true;
-
-        // Load service units configuration
-        include(ROOT . '/config/service-units.php');
 
         // Main loop, every minute
         while (true) {
@@ -52,11 +51,11 @@ class Main extends \Controllers\Service\Service
              */
             if ($minutesNow == '00' || $startup === true) {
                 // Run hourly unit tasks
-                foreach ($units as $unitName => $unit) {
+                foreach ($this->units as $unitName => $unit) {
                     if ($unit['frequency'] == 'every-hour') {
                         // Check if the unit has not already been launched
                         if (!in_array($unitName, $launchedUnits)) {
-                            $this->runUnit($unit['title'], $unitName, isset($unit['force']) ? $unit['force'] : false);
+                            $this->runUnit($unitName, isset($unit['force']) ? $unit['force'] : false);
 
                             // Add the unit to the list of launched units, to avoid launching it twice in this loop
                             $launchedUnits[] = $unitName;
@@ -68,11 +67,11 @@ class Main extends \Controllers\Service\Service
             /**
              *  Run tasks scheduled to run every days at a specific time
              */
-            foreach ($units as $unitName => $unit) {
+            foreach ($this->units as $unitName => $unit) {
                 if ($unit['frequency'] == 'every-day' && $unit['time'] == $currentTime) {
                     // Check if the unit has not already been launched
                     if (!in_array($unitName, $launchedUnits)) {
-                        $this->runUnit($unit['title'], $unitName, isset($unit['force']) ? $unit['force'] : false);
+                        $this->runUnit($unitName, isset($unit['force']) ? $unit['force'] : false);
 
                         // Add the unit to the list of launched units, to avoid launching it twice in this loop
                         $launchedUnits[] = $unitName;
@@ -83,11 +82,11 @@ class Main extends \Controllers\Service\Service
             /**
              *  Run tasks scheduled to run every weeks on a specific day at a specific time
              */
-            foreach ($units as $unitName => $unit) {
+            foreach ($this->units as $unitName => $unit) {
                 if ($unit['frequency'] == 'every-week' && isset($unit['day']) && $unit['day'] == strtolower(date('l')) && isset($unit['time']) && $unit['time'] == $currentTime) {
                     // Check if the unit has not already been launched
                     if (!in_array($unitName, $launchedUnits)) {
-                        $this->runUnit($unit['title'], $unitName, isset($unit['force']) ? $unit['force'] : false);
+                        $this->runUnit($unitName, isset($unit['force']) ? $unit['force'] : false);
 
                         // Add the unit to the list of launched units, to avoid launching it twice in this loop
                         $launchedUnits[] = $unitName;
@@ -98,11 +97,11 @@ class Main extends \Controllers\Service\Service
             /**
              *  Finally, run tasks scheduled to run every minutes
              */
-            foreach ($units as $unitName => $unit) {
+            foreach ($this->units as $unitName => $unit) {
                 if ($unit['frequency'] == 'every-minute' or $unit['frequency'] == 'forever') {
                     // Check if the unit has not already been launched
                     if (!in_array($unitName, $launchedUnits)) {
-                        $this->runUnit($unit['title'], $unitName, isset($unit['force']) ? $unit['force'] : false);
+                        $this->runUnit($unitName, isset($unit['force']) ? $unit['force'] : false);
 
                         // Add the unit to the list of launched units, to avoid launching it twice in this loop
                         $launchedUnits[] = $unitName;
@@ -124,7 +123,7 @@ class Main extends \Controllers\Service\Service
     /**
      *  Run this service with the specified unit name
      */
-    private function runUnit(string $title, string $unit, bool $force = false) : void
+    public function runUnit(string $unit, bool $force = false) : void
     {
         try {
             /**
@@ -147,7 +146,7 @@ class Main extends \Controllers\Service\Service
             /**
              *  Else, run the service with the specified unit name
              */
-            parent::logDebug('Running: ' . $title . '...');
+            parent::logDebug('Running: ' . $this->units[$unit]['title'] . '...');
 
             $myprocess = new \Controllers\Process("/usr/bin/php " . ROOT . "/tools/service.php '" . $unit . "' >/dev/null 2>/dev/null &");
             $myprocess->execute();
@@ -158,7 +157,7 @@ class Main extends \Controllers\Service\Service
                 throw new Exception($output);
             }
         } catch (Exception $e) {
-            parent::logError('Error while launching ' . $title . ' (service unit ' . $unit . '): ' . $e->getMessage());
+            parent::logError('Error while launching ' . $this->units[$unit]['title'] . ' (service unit ' . $unit . '): ' . $e->getMessage());
         }
     }
 }
