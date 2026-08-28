@@ -2,6 +2,7 @@
 
 namespace Controllers\Repo\Task;
 
+use Controllers\Filesystem\Directory;
 use Controllers\Filesystem\File;
 use Exception;
 
@@ -186,6 +187,11 @@ trait Finalize
             $this->repoController->addRepoIdToGroup($this->repoController->getRepoId(), $this->repoController->getGroup());
             $this->taskLogStepController->completed();
         }
+
+        // Calculate and update snapshot size, this step can be done before the cleaning step, as temporary files are empty files and will not be counted in the size calculation
+        $this->taskLogSubStepController->new('calculating-size', 'CALCULATING SNAPSHOT SIZE');
+        $this->repoSnapshotController->updateSize($this->repoController->getSnapId(), Directory::getSize($snapshotPath));
+        $this->taskLogSubStepController->completed();
 
         $this->taskLogStepController->new('cleaning', 'CLEANING');
 

@@ -5,7 +5,7 @@ repositories:
   # CentOS BaseOS
   - name: centos-baseos
     type: rpm
-    description: CentOS 9 Stream BaseOS
+    description: CentOS Stream BaseOS
     url: https://mirror.stream.centos.org/$releasever-stream/BaseOS/$basearch/os
     releasever:
       - name: 10
@@ -21,7 +21,7 @@ repositories:
   # CentOS AppStream
   - name: centos-appstream
     type: rpm
-    description: CentOS 9 Stream AppStream
+    description: CentOS Stream AppStream
     url: https://mirror.stream.centos.org/$releasever-stream/AppStream/$basearch/os
     releasever:
       - name: 10
@@ -37,15 +37,15 @@ repositories:
   # CentOS Extras Common
   - name: centos-extras-common
     type: rpm
-    description: CentOS 9 Stream Extras Common
+    description: CentOS Stream Extras Common
     url: https://mirror.stream.centos.org/SIGs/$releasever-stream/extras/$basearch/extras-common
     releasever:
       - name: 10
         description: CentOS 10 Stream
         gpgkeys:
-          - fingerprint: 99DB70FAE1D7CE227FB6488205B555B38483C65D
+          - fingerprint: 363FC0972F64B699AED3968E1FF6A2171D997668
 
       - name: 9
         description: CentOS 9 Stream
         gpgkeys:
-          - fingerprint: 99DB70FAE1D7CE227FB6488205B555B38483C65D
+          - fingerprint: 363FC0972F64B699AED3968E1FF6A2171D997668

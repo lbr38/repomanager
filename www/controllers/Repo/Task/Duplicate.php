@@ -282,6 +282,11 @@ class Duplicate extends \Controllers\Task\Execution
              */
             $targetSnapId = $this->repoSnapshotController->getLastInsertRowID();
 
+            // Calculate and update snapshot size
+            $this->taskLogSubStepController->new('calculating-size', 'CALCULATING SNAPSHOT SIZE');
+            $this->repoSnapshotController->updateSize($targetSnapId, Directory::getSize($targetSnapshotPath));
+            $this->taskLogSubStepController->completed();
+
             /**
              *  Add the new repo environment in database, only if the user has specified an environment
              */

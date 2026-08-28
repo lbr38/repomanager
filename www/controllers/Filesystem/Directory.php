@@ -165,7 +165,7 @@ class Directory
     /**
      *  Get directory size in bytes
      */
-    public static function getSize(string $path)
+    public static function getSize(string $path): string
     {
         $bytestotal = 0;
         $path = realpath($path);

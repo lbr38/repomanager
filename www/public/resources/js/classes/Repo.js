@@ -88,38 +88,6 @@ class Repo {
     }
 
     /**
-     *  Get repositories size
-     */
-    getSize()
-    {
-        // Loop through all repos and get their size
-        $('#repos-list-container').find('.item-size').each(function () {
-            var repoId = $(this).attr('repo-id');
-            var snapId = $(this).attr('snap-id');
-            var path = $(this).attr('repo-relative-path');
-
-            ajaxRequest(
-                // Controller:
-                'repo/get',
-                // Action:
-                'size',
-                // Data:
-                {
-                    path: path
-                },
-                // Print success alert:
-                false,
-                // Print error alert:
-                false
-            ).then(function () {
-                $("#repos-list-container").find('.item-size[repo-id="' + repoId + '"][snap-id="' + snapId + '"]').html(jsonValue.message);
-            }).catch(function () {
-                $("#repos-list-container").find('.item-size[repo-id="' + repoId + '"][snap-id="' + snapId + '"]').replaceWith('<img src="/assets/icons/warning.svg" class="icon" title="' + jsonValue.message + '"/>');
-            });
-        });
-    }
-
-    /**
      *  Get latest task status for all repos
      */
     getLatestTaskStatus()

@@ -12,118 +12,115 @@ class Rpm extends Metadata
     private $createrepoArgs = '-v --compress-type=gz --general-compress-type=gz';
     private $modifyrepo = '/usr/bin/modifyrepo_c';
     private $modifyrepoArgs = '--compress-type=gz';
+    private $additionalMetadataFiles = [
+        'updateinfo.xml.gz' => [
+            'mdtype' => 'updateinfo',
+            'temp' => 'tmp-updateinfo'
+        ],
+        'comps.xml' => [
+            'mdtype' => 'group',
+            'temp' => 'tmp-comps'
+        ],
+        'modules.yaml' => [
+            'mdtype' => 'modules',
+            'temp' => 'tmp-modules'
+        ]
+    ];
 
-    public function setRoot(string $root)
+    public function setRoot(string $root): void
     {
         $this->root = $root;
     }
 
     /**
-     *  Add an additional metadata file to the repository metadata using modifyrepo_c
-     *  Searches for the file with various compressions and deletes it afterwards
-     */
-    private function addMetadata(string $filePrefix, string $mdtype): void
-    {
-        // Check if modifyrepo_c is available
-        if (!file_exists($this->modifyrepo)) {
-            throw new Exception('Could not find modifyrepo_c on the system');
-        }
-
-        // Look for the metadata file with various compression formats (and plain format) and use the first one found
-        $metadataFile = null;
-        foreach ([$filePrefix, $filePrefix . '.gz', $filePrefix . '.xz', $filePrefix . '.bz2', $filePrefix . '.zst'] as $file) {
-            if (file_exists($this->root . '/' . $file)) {
-                $metadataFile = $file;
-                break;
-            }
-        }
-
-        // If file doesn't exist, return silently (file may not exist in the source repo)
-        if (empty($metadataFile)) {
-            return;
-        }
-
-        // Add the file to the repository metadata using modifyrepo_c
-        $modifyrepoProcess = new Process($this->modifyrepo . ' ' . $this->modifyrepoArgs . ' --mdtype=' . $mdtype . ' ' . $this->root . '/' . $metadataFile . ' ' . $this->root . '/repodata/');
-        $modifyrepoProcess->setBackground(true);
-        $modifyrepoProcess->execute();
-
-        /**
-         *  Retrieve PID of the launched process
-         *  Then write PID to main PID file
-         */
-        $this->taskController->addsubpid($modifyrepoProcess->getPid());
-
-        // Retrieve output from process
-        $this->taskLogSubStepController->output($modifyrepoProcess->getOutput(), 'pre');
-
-        if ($modifyrepoProcess->getExitCode() != 0) {
-            throw new Exception('Could not add ' . $mdtype . ' to repository metadata');
-        }
-
-        $modifyrepoProcess->close();
-
-        // Delete the file as it's now part of the metadata
-        if (!unlink($this->root . '/' . $metadataFile)) {
-            throw new Exception('Could not delete ' . $this->root . '/' . $metadataFile);
-        }
-    }
-
-    /**
      *  Create metadata files
+     *  Use createrepo_c to generate repository metadata
+     *  Use modifyrepo_c to add additional metadata files to the repository metadata
      */
     public function create(): void
     {
-        // Check which of createrepo or createrepo_c is present on the system
-        if (!file_exists($this->createrepo)) {
-            throw new Exception('Could not find createrepo on the system');
+        $this->taskLogSubStepController->new('create-metadata', 'GENERATING REPOSITORY METADATA');
+
+        // Check if createrepo_c and modifyrepo_c exist on the system
+        foreach ([$this->createrepo, $this->modifyrepo] as $bin) {
+            if (!file_exists($bin)) {
+                throw new Exception('Could not find ' . $bin . ' on the system');
+            }
         }
 
         // Check if root path exists
         if (!is_dir($this->root)) {
-            throw new Exception("Repository root directory '" . $this->root . "' does not exist");
+            throw new Exception('Repository root directory ' . $this->root . ' does not exist');
         }
-
-        // If a comps.xml file exists in the root directory, include it in the metadata
-        if (file_exists($this->root . '/comps.xml')) {
-            $this->createrepoArgs .= ' --groupfile=' . $this->root . '/comps.xml';
-        }
-
-        $this->taskLogSubStepController->new('create-metadata', 'GENERATING REPOSITORY METADATA');
-
-        // Create repository metadata
-        $myprocess = new Process($this->createrepo . ' ' . $this->createrepoArgs . ' ' . $this->root . '/');
-        $myprocess->setBackground(true);
-        $myprocess->execute();
 
         /**
-         *  Retrieve PID of the launched process
-         *  Then write PID to main PID file
+         *  Rename additional metadata files to temporary names to avoid them being included automatically by createrepo_c
+         *  They will be added later using modifyrepo_c
+         *  This to avoid issues with broken modules.yaml (from Oracle 8 Appstream repo notably) raising errors in createrepo_c (modifyrepo_c does not have this issue)
+         *  https://github.com/lbr38/repomanager/issues/399
+         *  https://github.com/lbr38/repomanager/issues/408
          */
-        $this->taskController->addsubpid($myprocess->getPid());
+        foreach ($this->additionalMetadataFiles as $file => $value) {
+            if (file_exists($this->root . '/' . $file)) {
+                if (!rename($this->root . '/' . $file, $this->root . '/' . $value['temp'])) {
+                    throw new Exception('Could not rename ' . $this->root . '/' . $file . ' to ' . $this->root . '/' . $value['temp']);
+                }
+            }
+        }
+
+        // Launch createrepo_c to generate repository metadata
+        $process = new Process($this->createrepo . ' ' . $this->createrepoArgs . ' ' . $this->root . '/');
+        $process->setBackground(true);
+        $process->execute();
+
+        // Add PID to main PID file
+        $this->taskController->addsubpid($process->getPid());
 
         // Retrieve output from process
-        $output = $myprocess->getOutput();
+        $this->taskLogSubStepController->output($process->getOutput(), 'pre');
 
-        $this->taskLogSubStepController->output($output, 'pre');
-
-        if ($myprocess->getExitCode() != 0) {
+        if ($process->getExitCode() != 0) {
             throw new Exception('Could not generate repository metadata');
         }
 
-        $myprocess->close();
+        $process->close();
 
-        // Add updateinfo to metadata if it exists
-        $this->taskLogSubStepController->new('add-updateinfo', 'ADDING UPDATEINFO TO METADATA');
-        $this->addMetadata('updateinfo.xml', 'updateinfo');
         $this->taskLogSubStepController->completed();
 
-        // Delete temporary metadata files as they are no longer needed
-        foreach (['comps.xml', 'modules.yaml'] as $file) {
-            if (file_exists($this->root . '/' . $file)) {
-                if (!unlink($this->root . '/' . $file)) {
-                    throw new Exception('Could not delete ' . $this->root . '/' . $file);
-                }
+        $this->taskLogSubStepController->new('add-updateinfo', 'ADDING UPDATEINFO TO METADATA');
+
+        // Add additional metadata files to the repository metadata using modifyrepo_c
+        foreach ($this->additionalMetadataFiles as $file => $value) {
+            // If the temporary file does not exist, skip the addition of this metadata file
+            if (!file_exists($this->root . '/' . $value['temp'])) {
+                continue;
+            }
+
+            // Rename the temporary file back to its original name
+            if (!rename($this->root . '/' . $value['temp'], $this->root . '/' . $file)) {
+                throw new Exception('Could not rename ' . $this->root . '/' . $value['temp'] . ' to ' . $this->root . '/' . $file);
+            }
+
+            // Add the file to the repository metadata using modifyrepo_c
+            $process = new Process($this->modifyrepo . ' ' . $this->modifyrepoArgs . ' --mdtype=' . $value['mdtype'] . ' ' . $this->root . '/' . $file . ' ' . $this->root . '/repodata/');
+            $process->setBackground(true);
+            $process->execute();
+
+            // Retrieve PID of the launched process then write PID to main PID file
+            $this->taskController->addsubpid($process->getPid());
+
+            // Retrieve output from process
+            $this->taskLogSubStepController->output($process->getOutput(), 'pre');
+
+            if ($process->getExitCode() != 0) {
+                throw new Exception('Could not add ' . $value['mdtype'] . ' to repository metadata');
+            }
+
+            $process->close();
+
+            // Delete the file as it's now part of the metadata
+            if (!unlink($this->root . '/' . $file)) {
+                throw new Exception('Could not delete ' . $this->root . '/' . $file);
             }
         }
 

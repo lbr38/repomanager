@@ -7,6 +7,7 @@ use Controllers\Repo\Package\Deb as DebPackage;
 use Controllers\User\Permission\Repo as RepoPermission;
 use Controllers\Repo\Snapshot\Snapshot;
 use Controllers\Exception\AppException;
+use Controllers\Filesystem\Directory;
 use Controllers\Filesystem\File;
 use Controllers\Utils\Validate;
 use Controllers\Utils\Convert;
@@ -312,6 +313,9 @@ class Package
             $return['Following packages already exist and have been ignored'] = $packageIgnored;
         }
 
+        // Calculate and update snapshot size
+        $this->repoSnapshotController->updateSize($this->snapId, Directory::getSize($this->snapshotPath));
+
         return $return;
     }
 
@@ -365,6 +369,9 @@ class Package
         if (empty($deleted)) {
             throw new Exception('Nothing to delete');
         }
+
+        // Calculate and update snapshot size
+        $this->repoSnapshotController->updateSize($this->snapId, Directory::getSize($this->snapshotPath));
 
         return $deleted;
     }

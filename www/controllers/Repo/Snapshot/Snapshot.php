@@ -3,6 +3,7 @@
 namespace Controllers\Repo\Snapshot;
 
 use Controllers\Filesystem\Directory;
+use Controllers\Utils\Convert;
 use Controllers\Repo\Repo;
 use JsonException;
 use Exception;
@@ -53,6 +54,16 @@ class Snapshot
     private function getUnused(string $repoId, string $retention) : array
     {
         return $this->model->getUnused($repoId, $retention);
+    }
+
+    /**
+     *  Return the size of a snapshot by ID
+     *  Human-readable format if $human is true, otherwise return size in bytes
+     *  Can return null if the snapshot size is not yet calculated
+     */
+    public function getSize(int $snapId, bool $human = false): int|string|null
+    {
+        return $this->model->getSize($snapId, $human);
     }
 
     /**
@@ -111,6 +122,14 @@ class Snapshot
     }
 
     /**
+     *  Update snapshot size in the database
+     */
+    public function updateSize(int $snapId, string $size): void
+    {
+        $this->model->updateSize($snapId, $size, Convert::sizeToHuman($size));
+    }
+
+    /**
      *  Update snapshot rebuild status in the database
      */
     public function updateRebuild(int $snapId, string $status): void
@@ -150,7 +169,7 @@ class Snapshot
         $removedSnaps = [];
         $removedSnapsError = [];
         $removedSnapsFinalArray = [];
-        $repoController = new \Controllers\Repo\Repo();
+        $repoController = new Repo();
         $scheduledTaskController = new \Controllers\Task\Scheduled();
 
         // Get repository details

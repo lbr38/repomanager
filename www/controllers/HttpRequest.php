@@ -128,6 +128,9 @@ class HttpRequest
                 curl_setopt($this->ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
             }
 
+            // Add a custom user agent to avoid being blocked by some servers
+            curl_setopt($this->ch, CURLOPT_USERAGENT, 'Repomanager (+https://github.com/lbr38/repomanager)');
+
             // If the target must be saved as a file directly
             if ($saveToFile) {
                 if ($headRequest) {

@@ -52,6 +52,16 @@ $units = [
         'frequency' => 'every-minute',
         'log-dir' => 'system/monitoring'
     ],
+    // This calculate the size of repository snapshots
+    'snapshots-size-calculation' => [
+        'title' => 'Snapshots size calculation',
+        'description' => 'Re-calculates the size of repository snapshots and stores it in the database',
+        'controller' => 'Service\Unit\Repo\Size',
+        'method' => 'calculate',
+        'frequency' => 'every-day',
+        'time' => '00:00',
+        'log-dir' => 'repos/size'
+    ],
     // This generates statistics of repositories (size, packages count) every day at midnight
     'stats-generate' => [
         'title' => 'Repositories statistics generation',

@@ -280,13 +280,16 @@ class Connection extends SQLite3
         Advanced_params TEXT,
         Type CHAR(6) NOT NULL,
         Reconstruct CHAR(8), /* needed, running, failed */
+        Size INTEGER, /* size in bytes */
+        Size_human VARCHAR(255), /* human readable size */
         Status CHAR(8) NOT NULL,
         Id_repo INTEGER NOT NULL)");
 
         /**
          *  Create indexes
          */
-        $this->exec("CREATE INDEX IF NOT EXISTS idx_repos_snap ON repos_snap (Date, Time, Signed, Arch, Type, Reconstruct, Status, Id_repo)");
+        // TODO: uncomment in release > 5.14.0
+        // $this->exec("CREATE INDEX IF NOT EXISTS idx_repos_snap ON repos_snap (Date, Time, Signed, Arch, Type, Reconstruct, Size, Size_human, Status, Id_repo)");
         $this->exec("CREATE INDEX IF NOT EXISTS idx_repos_snap_status_id_repo ON repos_snap (Status, Id_repo)");
         $this->exec("CREATE INDEX IF NOT EXISTS idx_repos_snap_id_repo ON repos_snap (Id_repo)");
 

@@ -46,17 +46,15 @@ if (!is_dir($snapshotPath)) {
  *  Retrieve repo size and packages count
  */
 if ($myrepo->getPackageType() == 'rpm') {
-    $repoSize = \Controllers\Filesystem\Directory::getSize($snapshotPath);
     $packagesCount = count(\Controllers\Filesystem\File::findRecursive($snapshotPath, [], ['rpm']));
 }
 if ($myrepo->getPackageType() == 'deb') {
-    $repoSize = \Controllers\Filesystem\Directory::getSize($snapshotPath);
     $packagesCount = count(\Controllers\Filesystem\File::findRecursive($snapshotPath, [], ['deb']));
 }
 
 /**
- *  Convert repo size in the most suitable byte format
+ *  Get the size of the snapshot
  */
-$repoSize = \Controllers\Utils\Convert::sizeToHuman($repoSize);
+$repoSize = $repoSnapshotController->getSize($snapId, true) ?? 'Unknown';
 
 unset($repoSnapshotController);

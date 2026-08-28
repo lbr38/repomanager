@@ -1,6 +1,8 @@
 <?php
 namespace Controllers\User;
 
+use Controllers\App\Session;
+
 /**
  *  Composer autoload
  */
@@ -22,55 +24,35 @@ class Login extends User
         try {
             $username = Validate::string($username);
 
-            /**
-             *  Get user Id from username
-             */
+            // Get user Id from username
             $id = $this->getIdByUsername($username, 'local');
 
-            /**
-             *  If no matching user has been found, throw an exception
-             */
+            // If no matching user has been found, throw an exception
             if (empty($id)) {
                 throw new Exception('Unknown login');
             }
 
-            /**
-             *  Checking in database that username/password couple is matching
-             */
+            // Checking in database that username/password couple is matching
             $this->checkUsernamePwd($id, $password);
 
-            /**
-             *  Getting all user informations in datbase
-             */
+            // Getting all user informations in database
             $informations = $this->get($id);
 
-            /**
-             *  Starting session
-             */
-            session_start([
-                'cookie_secure'   => (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on'),
-                'cookie_httponly' => true,
+            // Saving user informations in session variables
+            Session::set([
+                'username'   => $username,
+                'id'         => $informations['userId'],
+                'role'       => $informations['Role_name'],
+                'first_name' => $informations['First_name'],
+                'last_name'  => $informations['Last_name'],
+                'email'      => $informations['Email'],
+                'type'       => 'local',
             ]);
 
-            /**
-             *  Saving user informations in session variables
-             */
-            $_SESSION['username']   = $username;
-            $_SESSION['id']         = $informations['userId'];
-            $_SESSION['role']       = $informations['Role_name'];
-            $_SESSION['first_name'] = $informations['First_name'];
-            $_SESSION['last_name']  = $informations['Last_name'];
-            $_SESSION['email']      = $informations['Email'];
-            $_SESSION['type']       = 'local';
-
-            /**
-             *  Add history
-             */
+            // Add history
             History::set('Authentication (local account)');
 
-            /**
-             *  If an 'origin' cookie exists then redirect the user to the specified URI
-             */
+            // If an 'origin' cookie exists then redirect the user to the specified URI
             if (!empty($_COOKIE['origin'])) {
                 if ($_COOKIE['origin'] != '/logout') {
                     header('Location: ' . $_COOKIE['origin']);
@@ -78,21 +60,15 @@ class Login extends User
                 }
             }
 
-            /**
-             *  Else redirect to default page '/'
-             */
+            // Else redirect to default page '/'
             header('Location: /');
 
             exit();
         } catch (Exception $e) {
-            /**
-             *  Add history
-             */
+            // Add history
             History::set('Authentication failed for <code>' . $username . '</code> (local account): ' . $e->getMessage(), 'error', $username);
 
-            /**
-             *  Throw back an exception with generic message to display on login page
-             */
+            // Throw back an exception with generic message to display on login page
             throw new Exception('Invalid login and/or password');
         }
     }
@@ -110,72 +86,52 @@ class Login extends User
             $email = '';
             $role = 'usage';
 
-            /**
-             *  Initialize OpenID Connect client
-             */
+            // Initialize OpenID Connect client
             $oidc = new OpenIDConnectClient(
                 OIDC_PROVIDER_URL,
                 OIDC_CLIENT_ID,
                 OIDC_CLIENT_SECRET
             );
 
-            /**
-             *  Disable https upgrade: useful for local/dev environment with no https
-             */
+            // Disable https upgrade: useful for local/dev environment with no https
             $oidc->setHttpUpgradeInsecureRequests(false);
 
-            /**
-             *  Use OIDC_AUTHORIZATION_ENDPOINT as authorization_endpoint if defined
-             */
+            // Use OIDC_AUTHORIZATION_ENDPOINT as authorization_endpoint if defined
             if (!empty(OIDC_AUTHORIZATION_ENDPOINT)) {
                 $oidc->providerConfigParam(['authorization_endpoint' => OIDC_AUTHORIZATION_ENDPOINT]);
             }
 
-            /**
-             *  Use OIDC_TOKEN_ENDPOINT as token_endpoint if defined
-             */
+            // Use OIDC_TOKEN_ENDPOINT as token_endpoint if defined
             if (!empty(OIDC_TOKEN_ENDPOINT)) {
                 $oidc->providerConfigParam(['token_endpoint' => OIDC_TOKEN_ENDPOINT]);
             }
 
-            /**
-             *  Use OIDC_USERINFO_ENDPOINT as userinfo_endpoint if defined
-             */
+            // Use OIDC_USERINFO_ENDPOINT as userinfo_endpoint if defined
             if (!empty(OIDC_USERINFO_ENDPOINT)) {
                 $oidc->providerConfigParam(['userinfo_endpoint' => OIDC_USERINFO_ENDPOINT]);
             }
 
-            /**
-             *  Use OIDC_SCOPES as scopes if defined
-             */
+            // Use OIDC_SCOPES as scopes if defined
             if (!empty(OIDC_SCOPES)) {
                 // Convert OIDC_SCOPES string to array
                 $scopes = explode(',', OIDC_SCOPES);
                 $oidc->addScope($scopes);
             }
 
-            /**
-             *  Use OIDC_HTTP_PROXY as httpProxy if defined
-             */
+            // Use OIDC_HTTP_PROXY as httpProxy if defined
             if (!empty(OIDC_HTTP_PROXY)) {
                 $oidc->setHttpProxy(OIDC_HTTP_PROXY);
             }
 
-            /**
-             *  Use OIDC_CERT_PATH as certPath if defined
-             */
+            // Use OIDC_CERT_PATH as certPath if defined
             if (!empty(OIDC_CERT_PATH)) {
                 $oidc->setCertPath(OIDC_CERT_PATH);
             }
 
-            /**
-             *  Try to authenticate user
-             */
+            // Try to authenticate user
             $oidc->authenticate();
 
-            /**
-             *  Get user informations
-             */
+            // Get user informations
             $roles     = $oidc->getVerifiedClaims(OIDC_GROUPS);
             $username  = $oidc->getVerifiedClaims(OIDC_USERNAME);
             $firstName = $oidc->requestUserInfo(OIDC_FIRST_NAME);
@@ -186,9 +142,7 @@ class Login extends User
                 throw new Exception('No username found in SSO response');
             }
 
-            /**
-             *  Define user role based on OIDC_GROUPS
-             */
+            // Define user role based on OIDC_GROUPS
             if (is_array($roles)) {
                 if (!empty(OIDC_GROUP_ADMINISTRATOR) && in_array(OIDC_GROUP_ADMINISTRATOR, $roles)) {
                     $role = 'administrator';
@@ -198,34 +152,28 @@ class Login extends User
                 // }
             }
 
-            /**
-             *  Saving user informations in session variable
-             */
-            $_SESSION['username']   = $username;
-            $_SESSION['role']       = $role;
-            $_SESSION['first_name'] = $firstName;
-            $_SESSION['last_name']  = $lastName;
-            $_SESSION['email']      = $email;
-            $_SESSION['type']       = 'sso';
+            // Saving user informations in session variable
+            Session::set([
+                'username'   => $username,
+                'role'       => $role,
+                'first_name' => $firstName,
+                'last_name'  => $lastName,
+                'email'      => $email,
+                'type'       => 'sso',
+            ]);
 
-            /**
-             *  Create user in database
-             */
+            // Create user in database
             $userCreateController->createSSO($username, $firstName, $lastName, $email, $role);
 
-            /**
-             *  Also save user Id in session variable now that the user exists in database
-             */
-            $_SESSION['id'] = $this->getIdByUsername($username, 'sso');
+            // Also save user Id in session variable now that the user exists in database
+            Session::set([
+                'id' => $this->getIdByUsername($username, 'sso'),
+            ]);
 
-            /**
-             *  Add history
-             */
+            // Add history
             History::set('Authentication (SSO account)');
 
-            /**
-             *  If an 'origin' cookie exists then redirect the user to the specified URI
-             */
+            // If an 'origin' cookie exists then redirect the user to the specified URI
             if (!empty($_COOKIE['origin'])) {
                 if ($_COOKIE['origin'] != '/logout') {
                     header('Location: ' . $_COOKIE['origin']);
@@ -233,9 +181,7 @@ class Login extends User
                 }
             }
 
-            /**
-             *  Else redirect to default page '/'
-             */
+            // Else redirect to default page '/'
             header('Location: /');
 
             exit();
@@ -266,9 +212,7 @@ class Login extends User
                 // Throw exception to display error message on login page
                 throw new Exception($error);
 
-            /**
-             *  If debug mode is disabled, just display the error message
-             */
+            // If debug mode is disabled, just display the error message
             } else {
                 // Throw exception to display error message on login page
                 throw new Exception('Could not connect through SSO: ' . $e->getMessage());
