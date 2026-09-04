@@ -1,0 +1,15 @@
+/* Enlarge the maximum width of the content */
+.md-grid {
+    max-width: 1600px;
+}
+
+/* Custom font for the topic in the header */
+.md-header__topic > .md-ellipsis {
+    font-family: "Orbitron", sans-serif;
+    font-weight: 700;
+}
+
+/* Remove left margin for the title when in LTR mode */
+[dir=ltr] .md-header__title {
+    margin-left: 0px;
+}
