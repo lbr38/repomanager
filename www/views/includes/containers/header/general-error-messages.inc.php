@@ -1,4 +1,4 @@
-<article class="reloadable-container" container="header/general-error-messages">
+<div class="reloadable-container width-100" container="header/general-error-messages">
     <?php
     /**
      *  Print missing parameters alert if any
@@ -18,7 +18,7 @@
                 endif;
 
                 if (!empty(__LOAD_ERROR_MESSAGES)) : ?>
-                    <div class="flex flex-direction-column row-gap-5 margin-top-10">
+                    <div class="flex flex-direction-column row-gap-5">
                         <?php
                         foreach (__LOAD_ERROR_MESSAGES as $message) {
                             echo '<p>' . $message . '</p>';
@@ -30,4 +30,4 @@
         </section>
         <?php
     endif ?>
-</article>
+</div>

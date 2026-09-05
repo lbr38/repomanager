@@ -1,6 +1,5 @@
 <?php
 $stepClass = '';
-$titleClass = '';
 
 // If the step has substeps content
 if (!empty($step['substeps'])) {
@@ -13,30 +12,26 @@ if ($step['status'] == 'running') {
     $message = 'Running';
 }
 
-// If the step has an error, the title will be red
+// If the step has an error
 if ($step['status'] == 'error') {
-    $titleClass = 'bkg-red';
     $icon = 'error.svg';
     $message = 'Error';
 }
 
-// If the step is stopped, the title will be red
+// If the step is stopped
 if ($step['status'] == 'stopped') {
-    $titleClass = 'bkg-red';
     $icon = 'warning-red.svg';
     $message = 'Task stopped by the user';
 }
 
-// If the step has a warning, the title will be orange
+// If the step has a warning
 if ($step['status'] == 'warning') {
-    $titleClass = 'bkg-yellow';
     $icon = 'warning.svg';
     $message = 'Completed with warnings';
 }
 
-// If the step is completed, the title will be green
+// If the step is completed
 if ($step['status'] == 'completed') {
-    $titleClass = 'bkg-green';
     $icon = 'check.svg';
     $message = 'Completed';
 }
@@ -47,7 +42,7 @@ if ($step['status'] == 'none') {
 } ?>
 
 <div class="task-step <?= $stepClass ?>" task-id="<?= $taskId ?>" step="<?=  $stepIdentifier ?>" status="<?= $step['status'] ?>">
-    <div class="task-step-title <?= $titleClass ?>">
+    <div class="task-step-title">
         <!-- Step title -->
         <p><?= $step['title'] ?></p>
 

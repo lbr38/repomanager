@@ -2,10 +2,14 @@
 
 namespace Controllers\Task;
 
+use Controllers\User\Permission\Task as TaskPermission;
 use Controllers\Task\Form\Param\Schedule;
+use Controllers\History\Save as History;
 use Controllers\Task\Log\SubStep;
 use Controllers\Task\Log\Step;
+use Controllers\Utils\Convert;
 use Controllers\Utils\Cron;
+use Controllers\Repo\Repo;
 use Controllers\Process;
 use JsonException;
 use Exception;
@@ -179,11 +183,10 @@ class Task
 
     /**
      *  Return repository from task Id
+     *  Return string if $string is true, otherwise return an array with the repository details
      */
-    public function getRepo(int $id): string
+    public function getRepo(int $id, $string = true): string|array
     {
-        $repoController = new \Controllers\Repo\Repo();
-
         try {
             // Retrieve task informations
             $taskInfo = $this->getById($id);
@@ -192,6 +195,53 @@ class Task
                 $taskRawParams = json_decode($taskInfo['Raw_params'], true, 512, JSON_THROW_ON_ERROR);
             } catch (JsonException $e) {
                 throw new Exception('could not decode task parameters: ' . $e->getMessage());
+            }
+        } catch (Exception $e) {
+            return 'Error retrieving repository: ' . strtolower($e->getMessage());
+        }
+
+        return $this->getRepoFromParams($taskRawParams, $string);
+    }
+
+    /**
+     *  Return repository from task parameters
+     *  Return string if $string is true, otherwise return an array with the repository details
+     */
+    public function getRepoFromParams(array $taskRawParams, $string = true): string|array
+    {
+        $repoController = new Repo();
+
+        try {
+            // Case where the task groups sub-tasks, the repositories are the ones of its sub-tasks
+            if (!empty($taskRawParams['tasks'])) {
+                unset($repoController);
+
+                $description = count($taskRawParams['tasks']) . ' repositories';
+
+                if ($string) {
+                    return $description;
+                }
+
+                return [
+                    'type' => 'group',
+                    'name' => $description
+                ];
+            }
+
+            // Case where the task targets a dynamic set of repositories, there is no fixed repository
+            if (Target::isDynamic($taskRawParams)) {
+                unset($repoController);
+
+                $description = Target::describe($taskRawParams['target']);
+
+                if ($string) {
+                    return $description;
+                }
+
+                return [
+                    'type' => 'target',
+                    'name' => $description
+                ];
             }
 
             if (!empty($taskRawParams['source-snap-id'])) {
@@ -248,15 +298,38 @@ class Task
                 }
             }
 
+            unset($repoController);
+
             if (!empty($dist) and !empty($component)) {
-                return $name . ' ❯ ' . $dist . ' ❯ ' . $component;
+                $repo = [
+                    'type' => 'deb',
+                    'name' => $name,
+                    'dist' => $dist,
+                    'component' => $component
+                ];
+
+                if ($string) {
+                    return $name . ' ❯ ' . $dist . ' ❯ ' . $component;
+                }
             }
 
             if (!empty($releasever)) {
-                return $name . ' ❯ ' . $releasever;
+                $repo = [
+                    'type' => 'rpm',
+                    'name' => $name,
+                    'releasever' => $releasever
+                ];
+
+                if ($string) {
+                    return $name . ' ❯ ' . $releasever;
+                }
             }
 
-            throw new Exception('unknown repository');
+            if (empty($repo)) {
+                throw new Exception('unknown repository');
+            }
+
+            return $repo;
         } catch (Exception $e) {
             return 'Error retrieving repository: ' . strtolower($e->getMessage());
         }
@@ -265,8 +338,9 @@ class Task
     /**
      *  Add a new task in database
      *  @param array $params
+     *  @param int|null $parentTaskId Id of the task that generated this task, if any (e.g. a scheduled task targeting a group of repositories)
      */
-    private function new(array $params) : int
+    private function new(array $params, int|null $parentTaskId = null) : int
     {
         /**
          *  Default values
@@ -289,8 +363,9 @@ class Task
 
         /**
          *  If task is 'create' then inject the name / dist / section into the repo-id field
+         *  A parent task has no repository of its own, only the sub-tasks it groups have one
          */
-        if ($params['action'] == 'create') {
+        if ($params['action'] == 'create' and empty($params['tasks'])) {
             // Repo name is the alias if it exists, otherwise it is the source repository name
             if (!empty($params['alias'])) {
                 $name = $params['alias'];
@@ -316,83 +391,74 @@ class Task
         /**
          *  Add the task in database
          */
-        $taskId = $this->model->new($type, $paramsJson, $status);
+        $taskId = $this->model->new($type, $paramsJson, $status, $parentTaskId);
 
         return $taskId;
     }
 
     /**
      *  Execute one or more tasks
+     *  @param int|null $parentTaskId Id of the task that generated these tasks, if any (e.g. a scheduled task targeting a group of repositories)
      */
-    public function execute(array $tasksParams): int|array
+    public function execute(array $tasksParams, int|null $parentTaskId = null): int|array
     {
         $tasks = [];
+        $tasksToExecute = [];
+
+        // Some parameters describe several tasks at once, so they are first split into individual tasks
+        $tasksParams = $this->splitParams($tasksParams);
 
         /**
-         *  $tasksParams can contain one or more tasks
-         *  Each task is an array containing all the parameters needed to execute the task
+         *  An action targeting several repositories generates as many tasks, which are grouped under
+         *  a parent task so that they are listed, followed and reported as a single operation
          */
-        foreach ($tasksParams as $taskParams) {
-            // If the task is a new repo, we need to loop through all the releasever (rpm) or dist/section (deb) and create a dedicated task for each of them
-            if ($taskParams['action'] == 'create') {
-                if ($taskParams['package-type'] == 'rpm') {
-                    foreach ($taskParams['releasever'] as $releasever) {
-                        // Create a new array with the same parameters as the original array, but with only one releasever
-                        $params = $taskParams;
+        if (count($tasksParams) > 1 and empty($parentTaskId)) {
+            $parentTaskId = $this->new([
+                'action'   => $tasksParams[0]['action'],
+                'schedule' => $tasksParams[0]['schedule'],
 
-                        // Replace the releasever array with a single releasever
-                        $params['releasever'] = $releasever;
+                // Kept so that a scheduled parent task can create its sub-tasks when it runs
+                'tasks'    => $tasksParams
+            ]);
 
-                        // Generate a new task containing all the parameters needed to execute the task retrieve its Id
-                        $taskId = $this->new($params);
-
-                        // Execute the task now if it is not scheduled
-                        if ($params['schedule']['scheduled'] != 'true') {
-                            $this->executeId($taskId);
-                        }
-
-                        // Add task Id to the list of executed tasks
-                        $tasks[] = $taskId;
-                    }
-                }
-
-                if ($taskParams['package-type'] == 'deb') {
-                    foreach ($taskParams['dist'] as $dist) {
-                        foreach ($taskParams['section'] as $section) {
-                            // Create a new array with the same parameters as the original array, but with only one dist and one section
-                            $params = $taskParams;
-
-                            // Replace the dist and section arrays with a single dist and a single section
-                            $params['dist'] = $dist;
-                            $params['section'] = $section;
-
-                            // Generate a new task containing all the parameters needed to execute the task retrieve its Id
-                            $taskId = $this->new($params);
-
-                            // Execute the task now if it is not scheduled
-                            if ($params['schedule']['scheduled'] != 'true') {
-                                $this->executeId($taskId);
-                            }
-
-                            // Add task Id to the list of executed tasks
-                            $tasks[] = $taskId;
-                        }
-                    }
-                }
-
-            // Every other task can be executed directly
-            } else {
-                // Generate a new task containing all the parameters needed to execute the task retrieve its Id
-                $taskId = $this->new($taskParams);
-
-                // Execute the task now if it is not scheduled
-                if ($taskParams['schedule']['scheduled'] != 'true') {
-                    $this->executeId($taskId);
-                }
-
-                // Add task Id to the list of executed tasks
-                $tasks[] = $taskId;
+            /**
+             *  A scheduled parent task only creates its sub-tasks when it reaches its execution time,
+             *  so there is nothing left to do for now
+             */
+            if ($tasksParams[0]['schedule']['scheduled'] == 'true') {
+                return $parentTaskId;
             }
+
+            // The parent task stays running as long as one of its sub-tasks is
+            $this->updateDate($parentTaskId, date('Y-m-d'));
+            $this->updateTime($parentTaskId, date('H:i:s'));
+            $this->updateStatus($parentTaskId, 'running');
+        }
+
+        foreach ($tasksParams as $taskParams) {
+            // Generate a new task containing all the parameters needed to execute the task retrieve its Id
+            $taskId = $this->new($taskParams, $parentTaskId);
+
+            // Execute the task now if it is not scheduled
+            if ($taskParams['schedule']['scheduled'] != 'true') {
+                $tasksToExecute[] = $taskId;
+            }
+
+            // Add task Id to the list of executed tasks
+            $tasks[] = $taskId;
+        }
+
+        /**
+         *  All the tasks are created before any of them is executed, so that a parent task cannot be
+         *  closed by one of its sub-tasks while the remaining ones are still being created
+         */
+        foreach ($tasksToExecute as $taskId) {
+            $this->executeId($taskId);
+        }
+
+        // The parent task is the entry point of the whole operation
+        if (!empty($parentTaskId)) {
+            return $parentTaskId;
         }
 
         // Return the Id of the executed task or an array with all the executed tasks Id
@@ -404,6 +470,39 @@ class Task
     }
 
     /**
+     *  Split the parameters describing several tasks at once into individual task parameters
+     *  A new repository can target multiple releasever (rpm) or multiple dist/section (deb), and
+     *  each of them is a task of its own
+     */
+    private function splitParams(array $tasksParams): array
+    {
+        $params = [];
+
+        foreach ($tasksParams as $taskParams) {
+            if ($taskParams['action'] != 'create') {
+                $params[] = $taskParams;
+                continue;
+            }
+
+            if ($taskParams['package-type'] == 'rpm') {
+                foreach ($taskParams['releasever'] as $releasever) {
+                    $params[] = array_merge($taskParams, ['releasever' => $releasever]);
+                }
+            }
+
+            if ($taskParams['package-type'] == 'deb') {
+                foreach ($taskParams['dist'] as $dist) {
+                    foreach ($taskParams['section'] as $section) {
+                        $params[] = array_merge($taskParams, ['dist' => $dist, 'section' => $section]);
+                    }
+                }
+            }
+        }
+
+        return $params;
+    }
+
+    /**
      *  Execute a task in background from its task Id
      */
     public function executeId(int $id) : void
@@ -411,6 +510,48 @@ class Task
         $myprocess = new Process('/usr/bin/php ' . ROOT . '/tasks/execute.php --id="' . $id . '" > ' . MAIN_LOGS_DIR . '/repomanager-task-' . $id . '-log.process 2>&1 &');
         $myprocess->execute();
         $myprocess->close();
+    }
+
+    /**
+     *  Close the parent task of a sub-task that has just ended
+     *  A parent task has no execution of its own, it only dispatches sub-tasks, so it is closed as
+     *  soon as none of them is left running, with a status summarizing their results
+     */
+    public function closeParent(int $parentTaskId) : void
+    {
+        $taskListingController = new Listing();
+
+        $parentTask = $this->getById($parentTaskId);
+
+        // Nothing to do if the parent task has already been closed
+        if (empty($parentTask) or $parentTask['Status'] != 'running') {
+            return;
+        }
+
+        $summary = $taskListingController->getSubTasksSummary($parentTaskId);
+
+        // The parent task can only be closed once its last sub-task has ended
+        if (empty($summary) or $summary['ongoing'] > 0) {
+            return;
+        }
+
+        // Total duration of the parent task, from the moment it dispatched its sub-tasks
+        $duration = Convert::microtimeToHuman(time() - strtotime($parentTask['Date'] . ' ' . $parentTask['Time']));
+
+        /**
+         *  Several sub-tasks can end at the same time and all reach this point, so the closing of the
+         *  parent task acts as a lock: only the one that actually closed it sends the notification
+         */
+        if (!$this->model->closeIfRunning($parentTaskId, $summary['status'], $duration)) {
+            return;
+        }
+
+        $taskNotifyController = new Notify();
+        $taskNotifyController->result($parentTaskId, $summary);
+
+        // Update layout containers states
+        $this->layoutContainerReloadController->reload('tasks/tasks');
+        $this->layoutContainerReloadController->reload('tasks/log');
     }
 
     /**
@@ -426,7 +567,7 @@ class Task
      */
     public function relaunch(int $id) : void
     {
-        if (!IS_ADMIN and !in_array('relaunch', USER_PERMISSIONS['tasks']['allowed-actions'])) {
+        if (!TaskPermission::allowedAction('relaunch')) {
             throw new Exception('You are not allowed to relaunch a task');
         }
 
@@ -450,7 +591,7 @@ class Task
         $this->executeId($newTaskId);
 
         $this->layoutContainerReloadController->reload('tasks/logs');
-        $this->layoutContainerReloadController->reload('tasks/list');
+        $this->layoutContainerReloadController->reload('tasks/tasks');
     }
 
     /**
@@ -466,7 +607,7 @@ class Task
      */
     public function stop(int $taskId): void
     {
-        if (!IS_ADMIN and !in_array('stop', USER_PERMISSIONS['tasks']['allowed-actions'])) {
+        if (!TaskPermission::allowedAction('stop')) {
             throw new Exception('You are not allowed to stop a task');
         }
 
@@ -481,6 +622,32 @@ class Task
         // Check if task is running
         if ($taskInfo['Status'] != 'running') {
             throw new Exception('Task #' . $taskId . ' is not running');
+        }
+
+        $taskListingController = new Listing();
+        $subTasks = $taskListingController->getByParentId($taskId);
+
+        /**
+         *  A parent task has no process and no log of its own, so stopping it means stopping the
+         *  sub-tasks it launched. They cannot close it once killed, so it is closed here.
+         */
+        if (!empty($subTasks)) {
+            foreach ($subTasks as $subTask) {
+                if ($subTask['Status'] == 'running') {
+                    $this->stop((int) $subTask['Id']);
+                }
+            }
+
+            $this->updateStatus($taskId, 'stopped');
+
+            // Update layout containers states
+            $this->layoutContainerReloadController->reload('tasks/tasks');
+            $this->layoutContainerReloadController->reload('tasks/log');
+
+            // Save history
+            History::set('Stopped task #' . $taskId);
+
+            return;
         }
 
         if (file_exists(PID_DIR . '/' . $taskId . '.pid')) {
@@ -537,8 +704,13 @@ class Task
 
         // Update layout containers states
         $this->layoutContainerReloadController->reload('header/menu');
+        $this->layoutContainerReloadController->reload('repos/kpi');
         $this->layoutContainerReloadController->reload('repos/list');
-        $this->layoutContainerReloadController->reload('tasks/list');
+        $this->layoutContainerReloadController->reload('tasks/tasks');
+        $this->layoutContainerReloadController->reload('tasks/log');
+
+        // Save history
+        History::set('Stopped task #' . $taskId);
 
         if (!empty($killError)) {
             throw new Exception($killError);
@@ -612,7 +784,7 @@ class Task
      */
     public function enable(array $tasksId): void
     {
-        if (!IS_ADMIN and !in_array('enable', USER_PERMISSIONS['tasks']['allowed-actions'])) {
+        if (!TaskPermission::allowedAction('enable')) {
             throw new Exception('You are not allowed to enable a task');
         }
 
@@ -651,7 +823,7 @@ class Task
      */
     public function disable(array $tasksId) : void
     {
-        if (!IS_ADMIN and !in_array('disable', USER_PERMISSIONS['tasks']['allowed-actions'])) {
+        if (!TaskPermission::allowedAction('disable')) {
             throw new Exception('You are not allowed to disable a task');
         }
 
@@ -690,7 +862,7 @@ class Task
      */
     public function delete(array $tasksId) : void
     {
-        if (!IS_ADMIN and !in_array('delete', USER_PERMISSIONS['tasks']['allowed-actions'])) {
+        if (!TaskPermission::allowedAction('delete')) {
             throw new Exception('You are not allowed to delete a task');
         }
 
@@ -709,9 +881,8 @@ class Task
                 throw new Exception('Could not decode task #' . $id . ' JSON parameters: ' . $e->getMessage());
             }
 
-
-            // Check if task is a scheduled task
-            if ($taskRawParams['schedule']['scheduled'] != 'true') {
+            // Check if task is a scheduled task or a queued task, only these types of tasks can be deleted
+            if ($taskRawParams['schedule']['scheduled'] != 'true' and $task['Status'] != 'queued') {
                 throw new Exception('Task #' . $id . ' is not a scheduled task and cannot be deleted');
             }
 
@@ -1006,5 +1177,75 @@ class Task
     public function getLatestStatus(string $snapId) : array
     {
         return $this->model->getLatestStatus($snapId);
+    }
+
+    /**
+     *  Generate a human readable literal action from the technical action name
+     */
+    public static function generateLiteralAction(array $task): array
+    {
+        // Try to decode the task parameters
+        try {
+            $taskRawParams = json_decode($task['Raw_params'], true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            return [
+                'title' => 'Error: could not decode task #' . $task['Id'] . ' JSON parameters: ' . $e->getMessage(),
+                'icon' => 'error.svg'
+            ];
+        }
+
+        // Default values
+        $title = ucfirst($taskRawParams['action']);
+        $icon = 'rocket.svg';
+
+        if ($taskRawParams['action'] == 'create') {
+            $repoType = $taskRawParams['repo-type'] ?? ($taskRawParams['tasks'][0]['repo-type'] ?? null);
+
+            $title = match ($repoType) {
+                'local' => 'New local repository',
+                'mirror' => 'New mirror repository',
+                default => 'New repository',
+            };
+            $icon = 'plus.svg';
+        }
+
+        if ($taskRawParams['action'] == 'update') {
+            $title = 'Update repository';
+            $icon = 'update.svg';
+        }
+        if ($taskRawParams['action'] == 'env') {
+            $title = 'Point an environment';
+            $icon = 'link.svg';
+        }
+        if ($taskRawParams['action'] == 'removeEnv') {
+            $title = 'Remove an environment';
+            $icon = 'delete.svg';
+        }
+        if ($taskRawParams['action'] == 'rebuild') {
+            $title = 'Rebuild repository metadata';
+            $icon = 'update.svg';
+        }
+        if ($taskRawParams['action'] == 'rename') {
+            $title = 'Rename repository';
+            $icon = 'edit.svg';
+        }
+        if ($taskRawParams['action'] == 'duplicate') {
+            $title = 'Duplicate repository';
+            $icon = 'duplicate.svg';
+        }
+        if ($taskRawParams['action'] == 'delete') {
+            $title = 'Delete snapshot';
+            $icon = 'delete.svg';
+        }
+
+        // If task is running, override icon
+        if ($task['Status'] === 'running') {
+            $icon = 'loading.svg';
+        }
+
+        return [
+            'title' => $title,
+            'icon' => $icon
+        ];
     }
 }

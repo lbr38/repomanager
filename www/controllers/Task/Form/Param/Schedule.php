@@ -320,7 +320,11 @@ class Schedule
         }
 
         // Remove recipient if no alert or reminder is set
-        if ($params['schedule']['schedule-notify-error'] == 'false' && $params['schedule']['schedule-notify-success'] == 'false' && empty($params['schedule']['schedule-reminder'])) {
+        $notifyOnError = $params['schedule']['schedule-notify-error'] ?? 'false';
+        $notifyOnSuccess = $params['schedule']['schedule-notify-success'] ?? 'false';
+        $reminders = $params['schedule']['schedule-reminder'] ?? [];
+
+        if ($notifyOnError == 'false' && $notifyOnSuccess == 'false' && empty($reminders)) {
             unset($params['schedule']['schedule-recipient']);
         }
 

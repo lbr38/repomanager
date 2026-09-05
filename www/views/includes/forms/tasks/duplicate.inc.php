@@ -1,5 +1,5 @@
-<h6>DUPLICATE</h6>
-<p class="note">The repository snapshot to be duplicated.</p>
+<?php
+use \Controllers\Group\Repo as RepoGroup; ?>
 
 <div class="flex align-item-center">
     <p class="label-white">
@@ -21,7 +21,7 @@
 
 <h6>POINT AN ENVIRONMENT</h6>
 <p class="note">Select one or multiple environments to point to the new repository snapshot.</p>
-<select id="duplicate-repo-target-env-select-<?= $repoController->getSnapId() ?>" class="task-param" param-name="env" multiple>
+<select class="task-param" param-name="env" multiple>
     <option value=""></option>
     <?php
     foreach (ENVS as $env) {
@@ -33,10 +33,18 @@
     } ?>
 </select>
 
-<div id="duplicate-repo-target-description-div">
-    <h6>DESCRIPTION</h6>
-    <input type="text" class="task-param" param-name="description" />
-</div>
+<h6>DESCRIPTION</h6>
+<p class="note">Optional. A description for this repository.</p>
+<input type="text" class="task-param" param-name="description" />
+
+<h6>TAGS</h6>
+<p class="note">Optional. Add tags to the repository. Tags can be used to filter repositories.</p>
+<select class="task-param" param-name="tags" multiple>
+    <?php
+    foreach ($tags as $tag) {
+        echo '<option value="' . htmlspecialchars($tag, ENT_QUOTES) . '">' . htmlspecialchars($tag) . '</option>';
+    } ?>
+</select>
 
 <select class="task-param hide" param-name="arch" multiple>
     <?php
@@ -49,10 +57,11 @@
 
 <?php
 /**
- *  Print group list
+ *
  */
-$group = new \Controllers\Group\Repo();
-$groupList = $group->listAll();
+// Print group list
+$groupController = new RepoGroup();
+$groupList = $groupController->listAll();
 
 if (!empty($groupList)) : ?>
     <h6>ADD TO GROUP</h6>
@@ -70,18 +79,8 @@ endif;
 $scheduleForm['action'] = 'duplicate'; ?>
 
 <script>
-$(document).ready(function(){
-    myselect2.convert('#duplicate-repo-target-env-select-<?= $repoController->getSnapId()?> ');
-
-    /**
-     *  Print description field only if an environment is specified
-     */
-    $(document).on('change','#duplicate-repo-target-env-select-<?= $repoController->getSnapId() ?>',function(){
-        if ($('#duplicate-repo-target-env-select-<?= $repoController->getSnapId() ?>').val() == "") {
-            $('#duplicate-repo-target-description-div').hide();
-        } else {
-            $('#duplicate-repo-target-description-div').show();
-        }
-    }).trigger('change');
-});
+    $(document).ready(function(){
+        myselect2.convert('select.task-param[param-name="env"]', 'Select environment(s)', true);
+        myselect2.convert('select.task-param[param-name="tags"]', 'Specify tags', true);
+    });
 </script>

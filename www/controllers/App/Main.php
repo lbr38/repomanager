@@ -89,7 +89,7 @@ class Main
 
         // Errors related to the loading of the environments
         if (defined('__LOAD_ERROR_EMPTY_ENVS') && __LOAD_ERROR_EMPTY_ENVS > 0) {
-            $__LOAD_ERROR_MESSAGES[] = '<b>You must at least configure 1 environment.</b>';
+            $__LOAD_ERROR_MESSAGES[] = '<b>You should at least configure one environment.</b>';
             $__LOAD_GENERAL_ERROR++;
         }
 

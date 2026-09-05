@@ -14,7 +14,7 @@ foreach ($tasks as $task) :
     // Include task configuration file
     include(ROOT . '/config/tasks/' . $params['action'] . '.php'); ?>
 
-    <div class="task-schedule-form-params" task-id="<?= $task['Id'] ?>">
+    <div class="task-schedule-form-params form-block" task-id="<?= $task['Id'] ?>">
         <h5 class="margin-top-0">TASK #<?= strtoupper($task['Id']) ?></h5>
 
         <h6>ACTION</h6>
@@ -148,7 +148,7 @@ foreach ($tasks as $task) :
         </select>
     </div>
 
-    <hr class="margin-top-30 margin-bottom-20">
+    <!-- <hr class="margin-top-30 margin-bottom-20"> -->
     <?php
 endforeach ?>
 

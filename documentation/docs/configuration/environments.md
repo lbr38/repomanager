@@ -15,11 +15,12 @@ Typically:
 
 This is what the environments have been designed for: to test package updates on testing hosts before updating them on production hosts.
 
-[![Environments](https://assets.repomanager.net/repomanager/configuration/environments/environments.png)](https://assets.repomanager.net/repomanager/configuration/environments/environments.png)
+[![Environments](https://assets.repomanager.net/repomanager/6.0.0/configuration/environments/environments.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/environments/environments.png)
 
 !!! info
 
     There is no limit to the number of environments you can define but you must define at least one.
+
 
 ## Create an environment
 
@@ -27,7 +28,26 @@ From the **SETTINGS** tab and the **REPOSITORIES** > **ENVIRONMENTS** section:
 
 **Step 1:** Create a new environment by specifying its name and color.
 
-[![Create an environment](https://assets.repomanager.net/repomanager/configuration/environments/new-environment.png)](https://assets.repomanager.net/repomanager/configuration/environments/new-environment.png)
+[![Create an environment](https://assets.repomanager.net/repomanager/6.0.0/configuration/environments/new-environment.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/environments/new-environment.png)
+
+
+## Protect an environment
+
+From the **SETTINGS** tab and the **REPOSITORIES** > **ENVIRONMENTS** section:
+
+**Step 1:** Use the `Protect` icon to protect an environment.
+
+[![Protect an environment](https://assets.repomanager.net/repomanager/6.0.0/configuration/environments/protect-environment.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/environments/protect-environment.png)
+
+!!! info
+
+    Protecting an environment will prevent some actions from being performed on it, such as:
+
+    - Modifying a snapshot which is currently being used by a protected environment
+    - Deleting a snapshot which is currently being used by a protected environment
+     - Removing a protected environment from a snapshot
+     - Moving a protected environment from a snapshot to another snapshot
+     - ...
 
 
 ## Delete an environment
@@ -36,7 +56,7 @@ From the **SETTINGS** tab and the **REPOSITORIES** > **ENVIRONMENTS** section:
 
 **Step 1:** Use the `Delete` icon to delete an environment.
 
-[![Delete an environment](https://assets.repomanager.net/repomanager/configuration/environments/delete-environment.png)](https://assets.repomanager.net/repomanager/configuration/environments/delete-environment.png)
+[![Delete an environment](https://assets.repomanager.net/repomanager/6.0.0/configuration/environments/delete-environment.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/environments/delete-environment.png)
 
 !!! info
 

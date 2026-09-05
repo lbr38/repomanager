@@ -1,5 +1,5 @@
 <footer>
-    <div class="flex flex-direction-column row-gap-10">
+    <div class="flex align-item-center flex-wrap column-gap-20 row-gap-10">
         <div class="flex align-item-center column-gap-5 max-width-fit mediumopacity">
             <img src="/assets/icons/file.svg" class="icon-np" />
             <a target="_blank" rel="noopener noreferrer" href="https://docs.repomanager.net">
@@ -29,11 +29,9 @@
         </div>
     </div>
 
-    <div class="flex flex-direction-column align-item-center row-gap-10 mediumopacity-cst">
-        <img src="/assets/official-logo/repomanager-white.svg" class="icon-np" />
-        <p>Repomanager - release version <?= VERSION ?></p>
-        <p>Repomanager is a free and open source software, licensed under the <a target="_blank" rel="noopener noreferrer" href="https://www.gnu.org/licenses/gpl-3.0.en.html">GPLv3</a> license.</p>
-        <p>Support development, star me on <a href='https://github.com/lbr38/repomanager'><b>GitHub</b> ⭐</a></p>
+    <div class="flex align-item-center column-gap-20 mediumopacity-cst">
+        <p>Version <?= VERSION ?></p>
+        <p><a href='https://github.com/lbr38/repomanager'>Star me on GitHub ⭐</a></p>
     </div>
 </footer>
 
@@ -51,6 +49,8 @@
 <script src="/resources/js/classes/Table.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/Panel.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/Cookie.js?<?= VERSION ?>"></script>
+<script src="/resources/js/classes/Permission/Repo.js?<?= VERSION ?>"></script>
+<script src="/resources/js/classes/Permission/Tasks.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/Alert.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/ConfirmBox.js?<?= VERSION ?>"></script>
 <script src="/resources/js/classes/Checkbox.js?<?= VERSION ?>"></script>
@@ -69,6 +69,8 @@
     const mytable = new Table();
     const mypanel = new Panel();
     const mycookie = new Cookie();
+    const myrepopermission = new RepoPermission();
+    const mytaskpermission = new TaskPermission();
     const myalert = new Alert();
     const myconfirmbox = new ConfirmBox();
     const mycheckbox = new Checkbox();
@@ -82,9 +84,7 @@
 
 <script>
 <?php
-/**
- *  Store each environment and its colors in browser localStorage for later use
- */
+// Store each environment and its colors in browser localStorage for later use
 if (!empty(ENVS)) {
     foreach (ENVS as $env) {
         $name = $env['Name'];
@@ -98,27 +98,27 @@ if (!empty(ENVS)) {
 </script>
 
 <?php
-/**
- *  Additional JS classes and files to load, depending on the current page
- */
+// Additional JS classes and files to load, depending on the current page
 if (__ACTUAL_URI__[1] == '') {
     $jsClasses = [
-        'Environment',
-        'Repo'
+        'Repo',
+        'ScheduledTask'
     ];
 
     $jsFiles = [
         'repo',
         'task',
-        'group',
         'source',
         'events/repo/source/distribution',
         'events/repo/source/releasever',
         'events/repo/source/source',
         'events/repo/list',
+        'events/repo/preferences',
         'events/repo/env',
         'events/repo/edit',
         'events/repo/install',
+        'events/repo/group',
+        'events/repo/scheduled-task',
         'events/task/stop'
     ];
 }
@@ -137,14 +137,14 @@ if (__ACTUAL_URI__[1] == 'hosts' or __ACTUAL_URI__[1] == 'host') {
         'events/task/stop'
     ];
 }
-if (__ACTUAL_URI__[1] == 'browse') {
+if (__ACTUAL_URI__[1] == 'snapshot') {
     $jsClasses = [
-        'Repo'
+        'Repo',
+        'Snapshot'
     ];
 
     $jsFiles = [
-        'functions/browse',
-        'events/browse/repository',
+        'events/snapshot/browse',
         'events/task/stop'
     ];
 }
@@ -155,8 +155,11 @@ if (__ACTUAL_URI__[1] == 'stats') {
     ];
 }
 if (__ACTUAL_URI__[1] == 'settings') {
+    $jsClasses = [
+        'Environment'
+    ];
+
     $jsFiles = [
-        'functions/environment',
         'events/settings/environment',
         'events/settings/user',
         'events/settings/debug-mode',
@@ -164,7 +167,7 @@ if (__ACTUAL_URI__[1] == 'settings') {
         'settings'
     ];
 }
-if (__ACTUAL_URI__[1] == 'run') {
+if (in_array(__ACTUAL_URI__[1], ['tasks', 'task'])) {
     $jsFiles = [
         'functions/task',
         'events/task/actions',

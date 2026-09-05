@@ -1,11 +1,11 @@
 <?php
-$myTask = new \Controllers\Task\Task();
+$taskController = new \Controllers\Task\Task();
 
 /**
  *  Validate and execute a task form
  */
-if ($_POST['action'] == 'validateForm' and !empty($_POST['taskParams'])) {
-    $myTaskForm = new \Controllers\Task\Form\Form();
+if ($_POST['action'] == 'validate-execute' and !empty($_POST['taskParams'])) {
+    $taskFormController = new \Controllers\Task\Form\Form();
 
     try {
         try {
@@ -14,17 +14,76 @@ if ($_POST['action'] == 'validateForm' and !empty($_POST['taskParams'])) {
             throw new Exception('Could not decode task parameters: ' . $e->getMessage());
         }
 
-        $myTaskForm->validate($taskRawParams);
-        $myTask->execute($taskRawParams);
+        $taskFormController->validate($taskRawParams);
+        $task = $taskController->execute($taskRawParams);
+
+        // If the task is an array, it means that multiple tasks have been executed, redirect to the tasks page
+        if (is_array($task)) {
+            $count = count($task);
+            $link = '/tasks';
+        }
+
+        // If there is only one task, redirect to the task log page
+        if (is_int($task)) {
+            $count = 1;
+            $link = '/task/' . $task;
+        }
+
+        if (isset($taskRawParams[0]['schedule']['scheduled']) and $taskRawParams[0]['schedule']['scheduled'] == 'true') {
+            response(HTTP_OK, 'Task' . ($count > 1 ? 's are scheduled' : ' is scheduled') . ': <a href="/tasks" target="_blank" rel="noopener noreferrer"><b>view</b></a>');
+        }
+
+        response(HTTP_OK, 'Task' . ($count > 1 ? 's are running' : ' is running') . ': <a href="' . $link . '" target="_blank" rel="noopener noreferrer"><b>view</b></a>');
+    } catch (Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+}
+
+/**
+ *  Validate and schedule a task targeting a dynamic set of repositories (all latest snapshots matching filters)
+ */
+if ($_POST['action'] == 'validate-execute-target' and !empty($_POST['taskParams'])) {
+    $taskFormController = new \Controllers\Task\Form\Form();
+
+    try {
+        try {
+            $taskRawParams = json_decode($_POST['taskParams'], true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            throw new Exception('Could not decode task parameters: ' . $e->getMessage());
+        }
+
+        // Validate the task and retrieve the sanitized parameters
+        $taskRawParams = $taskFormController->validateTarget($taskRawParams);
+
+        // Create the scheduled task, it will not be executed now
+        $taskController->execute([$taskRawParams]);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    if (isset($taskRawParams[0]['schedule']['scheduled']) and $taskRawParams[0]['schedule']['scheduled'] == 'true') {
-        response(HTTP_OK, 'Task is scheduled: <a href="/run" target="_blank" rel="noopener noreferrer"><b>visualize</b></a>');
+    response(HTTP_OK, 'Task is scheduled: <a href="/tasks" target="_blank" rel="noopener noreferrer"><b>view</b></a>');
+}
+
+/**
+ *  Return a description of the repositories currently matching a target definition
+ */
+if ($_POST['action'] == 'count-target-repos' and isset($_POST['target'])) {
+    $targetController = new \Controllers\Task\Target();
+
+    try {
+        try {
+            $target = json_decode($_POST['target'], true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            throw new Exception('Could not decode target: ' . $e->getMessage());
+        }
+
+        $repos = $targetController->resolve($target);
+        $count = count($repos);
+    } catch (Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, 'Task is running: <a href="/run" target="_blank" rel="noopener noreferrer"><b>visualize</b></a>');
+    response(HTTP_OK, 'Target: ' . \Controllers\Task\Target::describe($target) . '. ' . $count . ' repositor' . ($count == 1 ? 'y' : 'ies') . ' currently matching.');
 }
 
 /**
@@ -53,7 +112,7 @@ if ($_POST['action'] == 'edit-scheduled-tasks' and !empty($_POST['tasks'])) {
  */
 if ($_POST['action'] == 'disable' and !empty($_POST['id'])) {
     try {
-        $myTask->disable($_POST['id']);
+        $taskController->disable($_POST['id']);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
@@ -66,7 +125,7 @@ if ($_POST['action'] == 'disable' and !empty($_POST['id'])) {
  */
 if ($_POST['action'] == 'enable' and !empty($_POST['id'])) {
     try {
-        $myTask->enable($_POST['id']);
+        $taskController->enable($_POST['id']);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
@@ -79,12 +138,12 @@ if ($_POST['action'] == 'enable' and !empty($_POST['id'])) {
  */
 if ($_POST['action'] == 'delete' and !empty($_POST['id'])) {
     try {
-        $myTask->delete($_POST['id']);
+        $taskController->delete($_POST['id']);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, 'Task has been deleted');
+    response(HTTP_OK, 'Task' . (is_array($_POST['id']) and count($_POST['id']) > 1 ? 's have' : ' has') . ' been deleted');
 }
 
 /**
@@ -92,12 +151,12 @@ if ($_POST['action'] == 'delete' and !empty($_POST['id'])) {
  */
 if ($_POST['action'] == 'relaunch' and !empty($_POST['id'])) {
     try {
-        $myTask->relaunch($_POST['id']);
+        $taskController->relaunch($_POST['id']);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, 'Task has been relaunched using the same parameters');
+    response(HTTP_OK, 'Task' . (is_array($_POST['id']) and count($_POST['id']) > 1 ? 's have' : ' has') . ' been relaunched using the same parameters');
 }
 
 /**
@@ -105,12 +164,12 @@ if ($_POST['action'] == 'relaunch' and !empty($_POST['id'])) {
  */
 if ($_POST['action'] == 'stop' and !empty($_POST['id'])) {
     try {
-        $myTask->stop($_POST['id']);
+        $taskController->stop($_POST['id']);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, 'Task stopped');
+    response(HTTP_OK, 'Task' . (is_array($_POST['id']) and count($_POST['id']) > 1 ? 's have' : ' has') . ' been stopped');
 }
 
 /**
@@ -157,7 +216,7 @@ if ($_POST['action'] == 'get-log-lines' and !empty($_POST['taskId']) and !empty(
 
 if ($_POST['action'] == 'get-task-status' and !empty($_POST['taskId'])) {
     try {
-        $task = $myTask->getById($_POST['taskId']);
+        $task = $taskController->getById($_POST['taskId']);
         $status = $task['Status'];
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());

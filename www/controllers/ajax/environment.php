@@ -1,27 +1,25 @@
 <?php
+$envController = new \Controllers\Environment();
+
 /**
  *  Add a new environment
  */
-if ($action == 'add-env' and !empty($_POST['name']) and !empty($_POST['color'])) {
-    $myenv = new \Controllers\Environment();
-
+if ($action == 'add' and !empty($_POST['name']) and !empty($_POST['color'])) {
     try {
-        $myenv->add($_POST['name'], $_POST['color']);
+        $envController->add($_POST['name'], $_POST['color']);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, 'Environment <b>' . $_POST['name'] . '</b> has been added');
+    response(HTTP_OK, 'Environment ' . $_POST['name'] . ' added');
 }
 
 /**
  *  Delete an environment
  */
-if ($action == 'delete-env' and !empty($_POST['id'])) {
-    $myenv = new \Controllers\Environment();
-
+if ($action == 'delete' and !empty($_POST['id'])) {
     try {
-        $myenv->delete($_POST['id']);
+        $envController->delete($_POST['id']);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
@@ -30,18 +28,16 @@ if ($action == 'delete-env' and !empty($_POST['id'])) {
 }
 
 /**
- *  Add / edit actual envs
+ *  Edit environment(s)
  */
-if ($action == 'edit-env' and !empty($_POST['envs'])) {
-    $myenv = new \Controllers\Environment();
-
+if ($action == 'edit' and !empty($_POST['envs'])) {
     try {
-        $myenv->edit($_POST['envs']);
+        $envController->edit($_POST['envs']);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, 'Environments edited');
+    response(HTTP_OK, 'Environment' . (count($_POST['envs']) > 1 ? 's' : '') . ' updated');
 }
 
 response(HTTP_BAD_REQUEST, 'Invalid action');

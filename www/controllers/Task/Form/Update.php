@@ -2,8 +2,11 @@
 
 namespace Controllers\Task\Form;
 
+use Exception;
 use Controllers\Repo\Repo;
+use Controllers\Repo\Snapshot\Snapshot;
 use Controllers\History\Save as History;
+use Controllers\Utils\Generate\Html\Label;
 
 class Update
 {
@@ -14,17 +17,23 @@ class Update
         // Check that the snapshot id is valid
         Param\Snapshot::checkId($formParams['snap-id']);
 
+        // Check architecture
+        Param\Arch::check($formParams['arch']);
+
+        // Check gpg sign
+        Param\GpgSign::check($formParams['gpg-sign']);
+
+        // Check scheduling parameters
+        Param\Schedule::check($formParams['schedule']);
+
         // Retrieve all repo data from the Id
-        $repoController->setSnapId($formParams['snap-id']);
+        // $repoController->setSnapId($formParams['snap-id']);
         $repoController->getAllById('', $formParams['snap-id'], '');
 
         // Check env
         if (!empty($formParams['env'])) {
             Param\Environment::check($formParams['env']);
         }
-
-        // Check architecture
-        Param\Arch::check($formParams['arch']);
 
         // Case of a mirror repository, check additional parameters
         if ($repoController->getType() == 'mirror') {
@@ -55,18 +64,12 @@ class Update
             }
         }
 
-        // Check gpg sign
-        Param\GpgSign::check($formParams['gpg-sign']);
-
-        // Check scheduling parameters
-        Param\Schedule::check($formParams['schedule']);
-
         // Add history
         if ($repoController->getPackageType() == 'rpm') {
-            History::set('Running task: update ' . $repoController->getType() . ' repository <span class="label-white">' . $repoController->getName() . '</span>');
+            History::set('Running task: update ' . $repoController->getType() . ' repository ' . Label::white($repoController->getName()));
         }
         if ($repoController->getPackageType() == 'deb') {
-            History::set('Running task: update ' . $repoController->getType() . ' repository <span class="label-white">' . $repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection() . '</span>');
+            History::set('Running task: update ' . $repoController->getType() . ' repository ' . Label::white($repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection()));
         }
 
         unset($repoController);

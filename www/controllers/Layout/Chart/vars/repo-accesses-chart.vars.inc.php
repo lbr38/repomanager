@@ -12,12 +12,12 @@ $allTimestamps = [];
 $envData = [];
 
 // Check that repository Id is specified
-if (empty(__ACTUAL_URI__[3])) {
+if (empty(__ACTUAL_URI__[2])) {
     throw new Exception('no repository ID specified');
 }
 
 // Check that repository Id is valid
-if (!is_numeric(__ACTUAL_URI__[3])) {
+if (!is_numeric(__ACTUAL_URI__[2])) {
     throw new Exception('invalid repository ID');
 }
 
@@ -34,7 +34,7 @@ if (!empty($_COOKIE['chart/stats/accesses/envs'])) {
 // }
 
 // Retrieve repo infos from DB
-$repoController->getAllById(__ACTUAL_URI__[3], '', '');
+$repoController->getAllById(__ACTUAL_URI__[2], '', '');
 
 // Get statistics directly from database for all environments
 $results = [];

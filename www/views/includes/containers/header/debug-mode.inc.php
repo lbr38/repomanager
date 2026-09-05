@@ -1,4 +1,4 @@
-<article class="reloadable-container" container="header/debug-mode">
+<div class="reloadable-container width-100" container="header/debug-mode">
     <?php
     if (IS_ADMIN && \Controllers\App\DebugMode::enabled()) : ?>
         <section class="section-main">
@@ -31,4 +31,4 @@
         </section>
         <?php
     endif ?>
-</article>
+</div>

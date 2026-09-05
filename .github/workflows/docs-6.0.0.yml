@@ -1,0 +1,38 @@
+# TODO 6.0.0+: delete this workflow once 6.0.0 is released
+name: Deploy documentation (6.0.0)
+on:
+  push:
+    branches:
+      - ui
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v6
+
+      - name: Set up Python environment
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - run: git config user.name github-actions[bot]
+      - run: git config user.email github-actions[bot]@users.noreply.github.com
+      - run: git fetch origin gh-pages --depth=1
+
+      - run: pip install -r documentation/requirements.txt
+
+      # - run: |
+      #     cd documentation
+      #     mike deploy --push --update-aliases 6.0.0 latest
+      #     mike set-default --push latest
+
+      - run: |
+          cd documentation
+          mike deploy --push --update-aliases 6.0.0-beta
+          mike set-default --push 5.14.0
+#          mike --push 6.0.0-beta

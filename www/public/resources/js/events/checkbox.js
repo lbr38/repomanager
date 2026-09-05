@@ -1,4 +1,21 @@
 /**
+ *  Event: When a task "select all" button is clicked
+ */
+$(document).on('click', '.task-select-all-btns', function (e) {
+    // Prevent parent to be triggered
+    e.stopPropagation();
+
+    const checkbox = $(this).find('.select-all-checkbox');
+    const status = !checkbox.is(':checked');
+
+    checkbox.prop('checked', status);
+    $(this).attr('status', status ? 'selected' : '');
+
+    // Select/deselect all child checkboxes
+    mycheckbox.selectAll(checkbox.attr('checkbox-id'));
+});
+
+/**
  *  Event: When a "select all" checkbox is clicked
  */
 $(document).on('click','.select-all-checkbox',function (e) {

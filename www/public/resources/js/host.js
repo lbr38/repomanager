@@ -1,54 +1,4 @@
 /**
- *  Fonctions
- */
-
-/**
- *  Rechercher un paquet dans le tableau des paquets installés sur l'hôte
- */
-function filterPackage()
-{
-    var input, filter, i
-
-    /**
-     *  Retrieve the input value
-     */
-    input = document.getElementById("installed-packages-search");
-    filter = input.value.toUpperCase();
-
-    /**
-     *  Retrieve package rows
-     */
-    container = document.getElementById("installed-packages-container");
-    packageRow = container.getElementsByClassName("package-row");
-
-    /**
-     *  Loop through all rows, and hide those who don't match the search query
-     */
-    for (i = 0; i < packageRow.length; i++) {
-        /**
-         *  Retrieve current row package name and version
-         */
-        packageName = packageRow[i].getAttribute('packagename');
-        packageVersion = packageRow[i].getAttribute('packageversion');
-
-        /**
-         *  If a package name or version matches the filter, then show the row, else hide it
-         */
-        if (packageName && packageVersion) {
-            if (packageName.toUpperCase().indexOf(filter) > -1 || packageVersion.toUpperCase().indexOf(filter) > -1) {
-                packageRow[i].style.display = "";
-            } else {
-                packageRow[i].style.display = "none";
-            }
-        }
-    }
-}
-
-/**
- *  Events listeners
- */
-
-/**
  *  Event: Search hosts on 'kernel' mouse hover
  */
 $(document).on('mouseenter',".hosts-charts-list-label[chart-type=kernel]",function (e) {
@@ -183,7 +133,7 @@ $(document).on('mouseenter',".hosts-charts-list-label[chart-type=profile]",funct
 /**
  *  Event: Create new group
  */
-$(document).on('submit','#newGroupForm',function (e) {
+$(document).on('submit','form#new-group',function (e) {
     e.preventDefault();
 
     ajaxRequest(
@@ -193,7 +143,7 @@ $(document).on('submit','#newGroupForm',function (e) {
         'new',
         // Data:
         {
-            name: $("#newGroupInput").val(),
+            name: $(this).find('input[name="group-name"]').val(),
             type: 'host'
         },
         // Print success alert:
@@ -214,9 +164,7 @@ $(document).on('submit','#newGroupForm',function (e) {
  *  Event: Print group configuration div
  */
 $(document).on('click','.group-config-btn',function () {
-    var id = $(this).attr('group-id');
-
-    slide('.group-config-div[group-id="' + id + '"]');
+    slide('.group-config-div[group-id="' + $(this).attr('group-id') + '"]');
 });
 
 /**
@@ -318,37 +266,37 @@ $(document).on('click','#installed-packages-btn',function () {
 });
 
 /**
+ *  Event: debounced search in the inventoried packages list
+ */
+var installedPackagesSearchTimeout = null;
+$(document).on('input', '#installed-packages-search', function () {
+    var search = $(this).val();
+
+    clearTimeout(installedPackagesSearchTimeout);
+    installedPackagesSearchTimeout = setTimeout(function () {
+        mycookie.set('tables/host/installed-packages/search', search, 1);
+        mycookie.set('tables/host/installed-packages/offset', 0, 1);
+        mytable.reload('host/installed-packages', 0);
+    }, 300);
+});
+
+/**
  *  Event: click 'Select all' available packages
  */
 $(document).on('click','.available-package-select-all',function () {
-    /**
-     *  Retrieve all available packages checkboxes
-     */
-    var checkboxes = $('.available-package-checkbox');
+    // Retrieve all available packages checkboxes
+    const checkboxes = $('.available-package-checkbox');
 
-    /**
-     *  Retrieve select btn status
-     */
-    var selectStatus = $(this).attr('status');
-
-    /**
-     *  If current status is not 'selected', then select all the packages
-     */
-    if (selectStatus != 'selected') {
-        /**
-         *  Loop through all checkboxes and check them
-         */
+    // If current status is not 'selected', then select all the packages
+    if ($(this).attr('status') != 'selected') {
+        // Loop through all checkboxes and check them
         checkboxes.each(function () {
-            /**
-             *  If package is excluded then don't select it
-             */
+            // If package is excluded then don't select it
             if ($(this).attr('excluded') == 'true') {
                 return;
             }
 
-            /**
-             *  Check the checkbox if it is not already checked
-             */
+            // Check the checkbox if it is not already checked
             if (!$(this).is(':checked')) {
                 $(this).click();
             }
@@ -357,9 +305,7 @@ $(document).on('click','.available-package-select-all',function () {
         // Set status
         $(this).attr('status', 'selected');
 
-    /**
-     *  Otherwise, uncheck all checkboxes
-     */
+    // Otherwise, uncheck all checkboxes
     } else {
         checkboxes.each(function () {
             if ($(this).is(':checked')) {
@@ -379,11 +325,6 @@ $(document).on('click','.request-show-log-btn',function (e) {
     // Prevent parent to be triggered
     e.stopPropagation();
 
-    /**
-     *  Retrieve request id
-     */
-    var id = $(this).attr('request-id');
-
     ajaxRequest(
         // Controller:
         'host',
@@ -391,7 +332,7 @@ $(document).on('click','.request-show-log-btn',function (e) {
         'getRequestLog',
         // Data:
         {
-            id: id
+            id: $(this).attr('request-id')
         },
         // Print success alert:
         false,
@@ -438,22 +379,13 @@ $(document).on('click','.request-show-package-log-btn',function (e) {
  *  Event: show request log details
  */
 $(document).on('click','.request-show-more-info-btn',function () {
-    var id = $(this).attr('request-id');
-    $('div.request-details[request-id="' + id + '"]').toggle();
+    $('div.request-details[request-id="' + $(this).attr('request-id') + '"]').toggle();
 });
 
 /**
  *  Event: cancel a request sent to a host
  */
 $(document).on('click','.cancel-request-btn',function () {
-    /**
-     *  Retrieve request id
-     */
-    var id = $(this).attr('request-id');
-
-    /**
-     *  Cancel request
-     */
     ajaxRequest(
         // Controller:
         'host',
@@ -461,7 +393,7 @@ $(document).on('click','.cancel-request-btn',function () {
         'cancelRequest',
         // Data:
         {
-            id: id
+            id: $(this).attr('request-id')
         },
         // Print success alert:
         true,
@@ -475,10 +407,10 @@ $(document).on('click','.cancel-request-btn',function () {
 /**
  *  Event: print package history
  */
-$(document).on('click','.get-package-timeline',function () {
-    var hostid = $(this).attr('hostid');
-    var packageName = $(this).attr('packagename');
-    var title = packageName.toUpperCase() + ' HISTORY';
+$(document).on('click','.get-package-timeline',function (e) {
+    e.preventDefault();
+
+    const packageName = $(this).attr('packagename')
 
     mymodal.loading();
 
@@ -489,7 +421,7 @@ $(document).on('click','.get-package-timeline',function () {
         'getPackageTimeline',
         // Data:
         {
-            hostid: hostid,
+            hostid: $(this).attr('hostid'),
             packagename: packageName
         },
         // Print success alert:
@@ -497,7 +429,7 @@ $(document).on('click','.get-package-timeline',function () {
         // Print error alert:
         true
     ).then(function () {
-        mymodal.print(jsonValue.message, title, false)
+        mymodal.print(jsonValue.message, packageName.toUpperCase(), false)
     });
 });
 

@@ -138,13 +138,35 @@ class Package extends \Models\Model
 
     /**
      *  Return the list of inventoried packages in database
+     *  Supports optional pagination and search filter on package name
      */
-    public function getInventory() : array
+    public function getInventory(string $search, bool $withOffset = false, int $offset = 0): array
     {
         $datas = [];
 
         try {
-            $result = $this->db->query("SELECT * FROM packages ORDER BY Name ASC");
+            $query = "SELECT * FROM packages";
+
+            if (!empty($search)) {
+                $query .= " WHERE Name LIKE :search OR Version LIKE :search";
+            }
+
+            $query .= " ORDER BY Name ASC";
+
+            if ($withOffset === true) {
+                $query .= " LIMIT 10 OFFSET :offset";
+            }
+
+            $stmt = $this->db->prepare($query);
+
+            if (!empty($search)) {
+                $stmt->bindValue(':search', '%' . $search . '%', SQLITE3_TEXT);
+            }
+            if ($withOffset === true) {
+                $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
+            }
+
+            $result = $stmt->execute();
         } catch (Exception $e) {
             DbLog::error($e);
         }
@@ -154,6 +176,38 @@ class Package extends \Models\Model
         }
 
         return $datas;
+    }
+
+    /**
+     *  Return the total count of inventoried packages, optionally filtered by a search on package name/version
+     */
+    public function countInventory(string $search): int
+    {
+        $count = 0;
+
+        try {
+            $query = "SELECT COUNT(*) AS total FROM packages";
+
+            if (!empty($search)) {
+                $query .= " WHERE Name LIKE :search OR Version LIKE :search";
+            }
+
+            $stmt = $this->db->prepare($query);
+
+            if (!empty($search)) {
+                $stmt->bindValue(':search', '%' . $search . '%', SQLITE3_TEXT);
+            }
+
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $count = (int) $row['total'];
+        }
+
+        return $count;
     }
 
     /**
@@ -185,7 +239,7 @@ class Package extends \Models\Model
         $data = [];
 
         try {
-            $query = "SELECT packages_available.Name, packages.Version as Current_version, packages_available.Version, packages_available.Repository FROM packages_available";
+            $query = "SELECT packages_available.Name, packages.Version as Current_version, packages_available.Version, packages_available.Security, packages_available.Repository FROM packages_available";
 
             // Join with packages table to also get the current version of the package installed on the host
             $query .= " LEFT JOIN packages ON packages_available.Name = packages.Name AND (packages.State = 'inventored' or packages.State = 'installed' or packages.State = 'dep-installed' or packages.State = 'upgraded' or packages.State = 'downgraded')";
@@ -403,12 +457,13 @@ class Package extends \Models\Model
     /**
      *  Add a package in the available packages list
      */
-    public function addPackageAvailable(string $name, string $version, string $repository) : void
+    public function addPackageAvailable(string $name, string $version, string $security, string $repository) : void
     {
         try {
-            $stmt = $this->db->prepare("INSERT INTO packages_available ('Name', 'Version', 'Repository') VALUES (:name, :version, :repository)");
+            $stmt = $this->db->prepare("INSERT INTO packages_available ('Name', 'Version', 'Security', 'Repository') VALUES (:name, :version, :security, :repository)");
             $stmt->bindValue(':name', $name);
             $stmt->bindValue(':version', $version);
+            $stmt->bindValue(':security', $security);
             $stmt->bindValue(':repository', $repository);
             $stmt->execute();
         } catch (Exception $e) {
@@ -419,12 +474,13 @@ class Package extends \Models\Model
     /**
      *  Update a package in the available packages list
      */
-    public function updatePackageAvailable(string $name, string $version, string $repository) : void
+    public function updatePackageAvailable(string $name, string $version, string $security, string $repository) : void
     {
         try {
-            $stmt = $this->db->prepare("UPDATE packages_available SET Version = :version, Repository = :repository WHERE Name = :name");
+            $stmt = $this->db->prepare("UPDATE packages_available SET Version = :version, Security = :security, Repository = :repository WHERE Name = :name");
             $stmt->bindValue(':name', $name);
             $stmt->bindValue(':version', $version);
+            $stmt->bindValue(':security', $security);
             $stmt->bindValue(':repository', $repository);
             $stmt->execute();
         } catch (Exception $e) {

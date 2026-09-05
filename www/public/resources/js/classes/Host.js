@@ -50,7 +50,6 @@ class Host
             buttons.push(
                 {
                     'text': 'Request general information',
-                    'color': 'blue-alt',
                     'callback': function () {
                         executeAction('request-general-infos', hosts);
                     }
@@ -62,7 +61,6 @@ class Host
             buttons.push(
                 {
                     'text': 'Request package information',
-                    'color': 'blue-alt',
                     'callback': function () {
                         executeAction('request-packages-infos', hosts);
                     }
@@ -74,7 +72,6 @@ class Host
             buttons.push(
                 {
                     'text': 'Update packages',
-                    'color': 'blue-alt',
                     'callback': function () {
                         mypanel.get('hosts/requests/update-packages', {
                             hostsId: hosts
@@ -88,7 +85,6 @@ class Host
         buttons.push(
             {
                 'text': 'Export to CSV',
-                'color': 'blue-alt',
                 'callback': function () {
                     myhost.export(hosts);
                 }

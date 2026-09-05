@@ -46,4 +46,20 @@ class Listing
     {
         return $this->model->listSnapshots($repoId);
     }
+
+    /**
+     *  Return the list of repositories matching the specified filters, with their latest active snapshot Id
+     */
+    public function listByTarget(string $groupId = '', array $tags = [], string $packageType = '') : array
+    {
+        return $this->model->listByTarget($groupId, $tags, $packageType);
+    }
+
+    /**
+     *  Return the list of all distinct tags used by repositories
+     */
+    public function listTags(): array
+    {
+        return $this->model->listTags();
+    }
 }

@@ -1,9 +1,11 @@
 <?php
+use \Controllers\User\Permission\Task as TaskPermission;
+
 $taskController = new \Controllers\Task\Task();
 $tasks = [];
 
-// If the user is not an admin, check if they have permissions to edit a task
-if (!IS_ADMIN and !in_array('edit', USER_PERMISSIONS['tasks']['allowed-actions'])) {
+// Check if the user has permission to edit tasks
+if (!TaskPermission::allowedAction('edit')) {
     throw new Exception('You are not allowed to edit a task.');
 }
 

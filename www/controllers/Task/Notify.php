@@ -226,25 +226,40 @@ class Notify extends Task
     }
 
     /**
-     *  Notify task error
+     *  Notify the result of a scheduled task, from the summary of the sub-tasks it dispatched
      */
-    public function error(int $taskId, string $error) : void
+    public function result(int $taskId, array $summary): void
     {
-        $this->send($taskId, '❌​ Scheduled task #' . $taskId . ' failed on ' . WWW_HOSTNAME, 'error', strip_tags($error));
-    }
+        try {
+            $task = $this->getById($taskId);
+            $taskRawParams = json_decode($task['Raw_params'], true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            $this->logController->log('error', 'Service', 'Error while sending scheduled task #' . $taskId . ' notification: cannot decode JSON parameters: ' . $e->getMessage());
 
-    /**
-     *  Notify task success
-     */
-    public function success(int $taskId) : void
-    {
-        $this->send($taskId, '✅​ Scheduled task #' . $taskId . ' succeeded on ' . WWW_HOSTNAME, 'success');
+            return;
+        }
+
+        $schedule = $taskRawParams['schedule'] ?? [];
+
+        // Case at least one sub-task has failed
+        if ($summary['status'] == 'error') {
+            if (($schedule['schedule-notify-error'] ?? 'false') == 'true') {
+                $this->send($taskId, '❌​ Scheduled task #' . $taskId . ' failed on ' . WWW_HOSTNAME, 'error', $summary);
+            }
+
+            return;
+        }
+
+        // Case all sub-tasks have succeeded
+        if (($schedule['schedule-notify-success'] ?? 'false') == 'true') {
+            $this->send($taskId, '✅​ Scheduled task #' . $taskId . ' succeeded on ' . WWW_HOSTNAME, 'success', $summary);
+        }
     }
 
     /**
      *  Generate and send task message
      */
-    private function send(int $taskId, string $mailSubject, string $status, string $error = '') : void
+    private function send(int $taskId, string $mailSubject, string $status, array $summary = []) : void
     {
         $btn = 'View task log';
 
@@ -321,29 +336,42 @@ class Notify extends Task
             // Action
             $message .= '<p>Action: <b>' . $this->generateAction($taskRawParams) . '</b></p>';
 
-            // Repository details
-            foreach ($this->generateRepository($taskRawParams) as $key => $value) {
-                if ($key == 'repository') {
-                    $message .= '<p>Repository: <span class="label-transparent">' . $value . '</span></p>';
-                }
-
-                if ($key == 'snapshot-date') {
-                    $message .= '<p>Snapshot date: <span class="label-black">' . $value . '</span></p>';
-                }
-
-                if ($key == 'environment') {
-                    $message .= '<p>Environment: ';
-
-                    foreach ($value as $env) {
-                        $message .= Label::envtag($env) . ' ';
+            /**
+             *  A task targeting several repositories or a dynamic set of them has no repository of
+             *  its own, only its sub-tasks have one
+             */
+            if (Target::isDynamic($taskRawParams)) {
+                $message .= '<p>Target: <b>' . Target::describe($taskRawParams['target']) . '</b></p>';
+            } elseif (empty($taskRawParams['tasks'])) {
+                // Repository details
+                foreach ($this->generateRepository($taskRawParams) as $key => $value) {
+                    if ($key == 'repository') {
+                        $message .= '<p>Repository: <span class="label-transparent">' . $value . '</span></p>';
                     }
 
-                    $message .= '</p>';
-                }
+                    if ($key == 'snapshot-date') {
+                        $message .= '<p>Snapshot date: <span class="label-black">' . $value . '</span></p>';
+                    }
 
-                if ($key == 'target-repo') {
-                    $message .= '<p>Target repository: <span class="label-transparent">' . $value . '</span></p>';
+                    if ($key == 'environment') {
+                        $message .= '<p>Environment: ';
+
+                        foreach ($value as $env) {
+                            $message .= Label::envtag($env) . ' ';
+                        }
+
+                        $message .= '</p>';
+                    }
+
+                    if ($key == 'target-repo') {
+                        $message .= '<p>Target repository: <span class="label-transparent">' . $value . '</span></p>';
+                    }
                 }
+            }
+
+            // Sub-tasks results, if the task dispatched any
+            if (!empty($summary['total'])) {
+                $message .= '<p>Sub-tasks: <b>' . $summary['success'] . '</b> succeeded, <b>' . $summary['failed'] . '</b> failed, out of <b>' . $summary['total'] . '</b></p>';
             }
 
             // Duration
@@ -365,11 +393,6 @@ class Notify extends Task
             }
 
             $message .= '</b></p>';
-
-            // Error message, if any
-            if ($status == 'error' and !empty($error)) {
-                $message .= '<p>Error message: <b>' . $error . '</b></p>';
-            }
 
             $message .= '<br>';
 

@@ -2,33 +2,25 @@
 
 namespace Controllers\App\Config;
 
-use Exception;
+use Controllers\Environment;
 
 class Env
 {
     /**
      *  Load environments
      */
-    public static function get()
+    public static function get(): void
     {
-        $myenv = new \Controllers\Environment();
+        $envController = new Environment();
 
         if (!defined('ENVS')) {
-            define('ENVS', $myenv->listAll());
-        }
-        if (!defined('ENVS_TOTAL')) {
-            define('ENVS_TOTAL', $myenv->total());
+            define('ENVS', $envController->listAll());
         }
         if (!defined('DEFAULT_ENV')) {
-            define('DEFAULT_ENV', $myenv->default());
-        }
-        if (!defined('LAST_ENV')) {
-            define('LAST_ENV', $myenv->last());
+            define('DEFAULT_ENV', $envController->default());
         }
 
-        /**
-         *  If there is no environment configured then __LOAD_ERROR_EMPTY_ENVS = 1
-         */
+        // If there is no environment configured then __LOAD_ERROR_EMPTY_ENVS = 1
         if (empty(ENVS)) {
             if (!defined('__LOAD_ERROR_EMPTY_ENVS')) {
                 define('__LOAD_ERROR_EMPTY_ENVS', 1);
@@ -39,6 +31,6 @@ class Env
             }
         }
 
-        unset($myenv);
+        unset($envController);
     }
 }

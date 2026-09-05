@@ -17,6 +17,9 @@ $complianceThresholdCount = $settings['compliance_threshold_count'];
 // Get compliance threshold days
 $complianceThresholdDays = $settings['compliance_threshold_days'];
 
+// Get compliance security update
+$complianceSecurityUpdate = $settings['compliance_security_update'];
+
 // Get compliance reboot required
 $complianceRebootRequired = $settings['compliance_reboot_required'];
 

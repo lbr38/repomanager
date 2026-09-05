@@ -22,6 +22,20 @@
                 echo '<option value="group-' . $group['Id'] . '" ' . $selected . '>Group ' . $group['Name'] . '</option>';
             } ?>
         </optgroup>
+
+        <optgroup label="Repositories">
+            <?php
+            // Display repositories and select them if they are in the permissions
+            foreach ($reposList as $repoId => $repoLabel) {
+                $selected = '';
+
+                if (in_array($repoId, $permissions['repositories']['view']['repos'])) {
+                    $selected = 'selected';
+                }
+
+                echo '<option value="repo-' . $repoId . '" ' . $selected . '>' . $repoLabel . '</option>';
+            } ?>
+        </optgroup>
     </select>
 
     <h6>ALLOW ACTIONS ON REPOSITORIES</h6>

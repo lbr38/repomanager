@@ -7,6 +7,8 @@ class Container {
     reload(container, identifier = null)
     {
         var useMorphdom = false;
+        var partialConfig = (typeof containersPartialReload !== 'undefined') ? containersPartialReload[container] : null;
+        var partial = false;
 
         return new Promise((resolve, reject) => {
             try {
@@ -15,14 +17,25 @@ class Container {
                     return;
                 }
 
+                /**
+                 *  If the user is actively interacting with the container, only the items that
+                 *  are not busy will be refreshed, to avoid losing selections and inputs
+                 */
+                if (partialConfig && this._isBusy($('.reloadable-container[container="' + container + '"]'))) {
+                    partial = true;
+                }
+
                 // Print a loading icon on the bottom of the page
                 mylayout.printLoading();
 
                 /**
                  *  Check if container has children with class .veil-on-reload
                  *  If so print a veil on them
+                 *  The veil is not printed on a partial reload, as the user is working on the container
                  */
-                mylayout.printLoadingVeilByParentClass('reloadable-container[container="' + container + '"]');
+                if (!partial) {
+                    mylayout.printLoadingVeilByParentClass('reloadable-container[container="' + container + '"]');
+                }
 
                 ajaxRequest(
                     // Controller:
@@ -45,8 +58,12 @@ class Container {
                         useMorphdom = true;
                     }
 
+                    // If only the non-busy items must be refreshed
+                    if (partial) {
+                        this._partialReplace(container, partialConfig, jsonValue.message);
+
                     // If morphdom must be used
-                    if (useMorphdom) {
+                    } else if (useMorphdom) {
                         // Replace with new content using morphdom
                         morphdom($('.reloadable-container[container="' + container + '"]')[0], jsonValue.message, {
                             // Avoid some elements to be updated
@@ -170,6 +187,67 @@ class Container {
             return element.tagName === tagName && element.getAttribute(attr) === value;
         }
         
+        return false;
+    }
+
+    /**
+     * Replace only the items of a container that are not busy, keeping the ones the user is working on
+     * @param {string} container
+     * @param {Object} config
+     * @param {string} html
+     */
+    _partialReplace(container, config, html) {
+        const current = $('.reloadable-container[container="' + container + '"]');
+        const received = $('<div>').html(html);
+
+        received.find(config.item).each((index, newItem) => {
+            const key = $(newItem).attr(config.key);
+
+            // Item cannot be matched without a key
+            if (!key) {
+                return;
+            }
+
+            // Find the matching item currently displayed
+            const existing = current.find(config.item).filter((i, el) => $(el).attr(config.key) === key);
+
+            // The item does not exist yet on the page, it will show up on the next complete reload
+            if (!existing.length) {
+                return;
+            }
+
+            // Leave the items the user is currently working on untouched
+            if (this._isBusy(existing)) {
+                return;
+            }
+
+            existing.replaceWith(newItem);
+        });
+    }
+
+    /**
+     * Check if the user is actively interacting with an element (focus, checked checkbox, filled input)
+     * @param {jQuery} element
+     * @returns {boolean}
+     */
+    _isBusy(element) {
+        // An element inside has the focus
+        if (element.find(':focus').length) {
+            return true;
+        }
+
+        // A checkbox inside is checked
+        if (element.find('input[type="checkbox"]:checked').length) {
+            return true;
+        }
+
+        // A text input or a textarea inside is filled
+        if (element.find('input[type="text"], input[type="search"], input:not([type]), textarea').filter(function () {
+            return $(this).val().trim() !== '';
+        }).length) {
+            return true;
+        }
+
         return false;
     }
 }

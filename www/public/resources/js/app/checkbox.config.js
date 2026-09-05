@@ -193,7 +193,6 @@ const checkboxesCallback = {
             'buttons': [
             {
                 'text': 'Edit',
-                'color': 'blue-alt',
                 'callback': function () {
                     mypanel.get('tasks/edit', {
                         tasks: id
@@ -202,7 +201,6 @@ const checkboxesCallback = {
             },
             {
                 'text': 'Enable',
-                'color': 'blue-alt',
                 'callback': function () {
                     ajaxRequest(
                         // Controller:
@@ -218,13 +216,12 @@ const checkboxesCallback = {
                         // Print error alert:
                         true
                     ).then(function () {
-                        mycontainer.reload('tasks/list');
+                        mycontainer.reload('tasks/tasks');
                     });
                 }
             },
             {
                 'text': 'Disable',
-                'color': 'blue-alt',
                 'callback': function () {
                     ajaxRequest(
                         // Controller:
@@ -240,7 +237,7 @@ const checkboxesCallback = {
                         // Print error alert:
                         true
                     ).then(function () {
-                        mycontainer.reload('tasks/list');
+                        mycontainer.reload('tasks/tasks');
                     });
                 }
             },
@@ -262,7 +259,7 @@ const checkboxesCallback = {
                         // Print error alert:
                         true
                     ).then(function () {
-                        mycontainer.reload('tasks/list');
+                        mycontainer.reload('tasks/tasks');
                     });
                 }
             }]
@@ -295,7 +292,7 @@ const checkboxesCallback = {
                         // Print error alert:
                         true
                     ).then(function () {
-                        mycontainer.reload('tasks/list');
+                        mycontainer.reload('tasks/tasks');
                     });
                 }
             }]

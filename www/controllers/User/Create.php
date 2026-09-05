@@ -13,7 +13,7 @@ class Create extends User
     {
         parent::__construct();
         $this->model = new \Models\User\Create();
-        $this->userPermissionController = new \Controllers\User\Permission();
+        $this->userPermissionController = new \Controllers\User\Permission\Permission();
     }
 
     /**

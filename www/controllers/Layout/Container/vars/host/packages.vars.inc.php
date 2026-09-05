@@ -13,7 +13,7 @@ $complianceThresholdCount = $settings['compliance_threshold_count'];
 $complianceThresholdDays = $settings['compliance_threshold_days'];
 
 // Get installed packages and its total
-$packagesInventored = $hostPackageController->getInventory();
+$packagesInventoredTotal = $hostPackageController->countInventory();
 $packagesInstalledCount = count($hostPackageController->getInstalled());
 
 // Get available packages and its total

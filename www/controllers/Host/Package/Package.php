@@ -50,10 +50,19 @@ class Package
 
     /**
      *  Return the list of inventoried packages on the host
+     *  Supports optional pagination and search filter
      */
-    public function getInventory() : array
+    public function getInventory(string $search = '', bool $withOffset = false, int $offset = 0) : array
     {
-        return $this->model->getInventory();
+        return $this->model->getInventory($search, $withOffset, $offset);
+    }
+
+    /**
+     *  Return the total count of inventoried packages, optionally filtered
+     */
+    public function countInventory(string $search = ''): int
+    {
+        return $this->model->countInventory($search);
     }
 
     /**
@@ -143,17 +152,17 @@ class Package
     /**
      *  Add a package in the table available packages list
      */
-    private function addPackageAvailable(string $name, string $version, string $repository) : void
+    private function addPackageAvailable(string $name, string $version, string $security, string $repository) : void
     {
-        $this->model->addPackageAvailable($name, $version, $repository);
+        $this->model->addPackageAvailable($name, $version, $security, $repository);
     }
 
     /**
      *  Update a package in the available packages list
      */
-    private function updatePackageAvailable(string $name, string $version, string $repository) : void
+    private function updatePackageAvailable(string $name, string $version, string $security, string $repository) : void
     {
-        $this->model->updatePackageAvailable($name, $version, $repository);
+        $this->model->updatePackageAvailable($name, $version, $security, $repository);
     }
 
     /**
@@ -341,14 +350,14 @@ class Package
 
             // If the package does not exist in available packages list, add it
             if (!$this->packageAvailableExists($package['name'])) {
-                $this->addPackageAvailable($package['name'], $package['version'], $package['repository']);
+                $this->addPackageAvailable($package['name'], $package['version'], $package['security'], $package['repository']);
                 continue;
             }
 
             // If it exists in the database, also check the version present in the database
             // If the version in the database is different then we update the package in the database, otherwise we do nothing
             if ($this->packageVersionAvailableExists($package['name'], $package['version'])) {
-                $this->updatePackageAvailable($package['name'], $package['version'], $package['repository']);
+                $this->updatePackageAvailable($package['name'], $package['version'], $package['security'], $package['repository']);
             }
         }
     }

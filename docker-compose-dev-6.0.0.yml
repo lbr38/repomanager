@@ -1,0 +1,27 @@
+---
+# TODO debug
+# For my dev environment only
+version: "3"
+services:
+  repomanager:
+    container_name: repomanager-dev-600
+    image: repomanager
+    network_mode: host
+    environment:
+      FQDN: repomanager-dev-600.localhost
+      MAX_UPLOAD_SIZE: 64M
+      NGINX_LISTEN_PORT: 7777
+      PUID: 1000
+      PGID: 1000
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        branch: ui
+    restart: unless-stopped
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/lib/docker/volumes/repomanager-dev-600-logs:/var/log/nginx
+      - /var/lib/docker/volumes/repomanager-dev-600-www:/var/www/repomanager
+      - /var/lib/docker/volumes/repomanager-dev-600-data:/var/lib/repomanager
+      - /var/lib/docker/volumes/repomanager-dev-600-repo:/home/repo

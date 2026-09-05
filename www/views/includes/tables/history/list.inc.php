@@ -31,18 +31,18 @@
     }
 
     if (!empty($reloadableTableContent)) :
-        foreach ($reloadableTableContent as $item) : ?>
-            <div class="table-container grid-rfr-1-2 column-gap-15 row-gap-15 bck-blue-alt margin-top-5">
+        foreach ($reloadableTableContent as $item) :
+            if ($item['State'] == 'error') {
+                $accent = 'red';
+            }
+
+            if ($item['State'] == 'success') {
+                $accent = 'green';
+            } ?>
+
+            <div class="table-container panel-list-item accent-<?= $accent ?> grid-rfr-1-2 column-gap-15 row-gap-15 margin-top-5">
                 <div class="grid grid-rfr-1-2 column-gap-15 row-gap-15 align-item-center">
                     <div class="flex align-item-center column-gap-15">
-                        <?php
-                        if ($item['State'] == 'error') {
-                            echo '<img src="/assets/icons/error.svg" class="icon-np" title="Success" />';
-                        }
-                        if ($item['State'] == 'success') {
-                            echo '<img src="/assets/icons/check.svg" class="icon-np" tiel="Error" />';
-                        } ?>
-
                         <div class="flex flex-direction-column row-gap-5">
                             <p><b><?= $item['Date'] ?> <?= $item['Time'] ?></b></p>
                             <div class="flex align-item-center column-gap-5">
