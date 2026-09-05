@@ -2,74 +2,74 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://docs.repomanager.net/6.0.0-beta/</loc>
-         <lastmod>2026-09-04</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://docs.repomanager.net/6.0.0-beta/administration/backup-restore/</loc>
-         <lastmod>2026-09-04</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://docs.repomanager.net/6.0.0-beta/administration/migrations/</loc>
-         <lastmod>2026-09-04</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://docs.repomanager.net/6.0.0-beta/administration/troubleshooting/</loc>
-         <lastmod>2026-09-04</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://docs.repomanager.net/6.0.0-beta/administration/update/</loc>
-         <lastmod>2026-09-04</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://docs.repomanager.net/6.0.0-beta/configuration/environments/</loc>
-         <lastmod>2026-09-04</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://docs.repomanager.net/6.0.0-beta/configuration/settings/</loc>
-         <lastmod>2026-09-04</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://docs.repomanager.net/6.0.0-beta/configuration/source-repositories/</loc>
-         <lastmod>2026-09-04</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://docs.repomanager.net/6.0.0-beta/getting-started/alternative-installation/</loc>
-         <lastmod>2026-09-04</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://docs.repomanager.net/6.0.0-beta/getting-started/installation/</loc>
-         <lastmod>2026-09-04</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://docs.repomanager.net/6.0.0-beta/getting-started/requirements/</loc>
-         <lastmod>2026-09-04</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://docs.repomanager.net/6.0.0-beta/getting-started/reverseproxy/</loc>
-         <lastmod>2026-09-04</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://docs.repomanager.net/6.0.0-beta/reference/api/</loc>
-         <lastmod>2026-09-04</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://docs.repomanager.net/6.0.0-beta/reference/miscellaneous/</loc>
-         <lastmod>2026-09-04</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://docs.repomanager.net/6.0.0-beta/usage/hosts/</loc>
-         <lastmod>2026-09-04</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://docs.repomanager.net/6.0.0-beta/usage/operations/</loc>
-         <lastmod>2026-09-04</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://docs.repomanager.net/6.0.0-beta/usage/scheduling/</loc>
-         <lastmod>2026-09-04</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://docs.repomanager.net/6.0.0-beta/usage/stats-monitoring/</loc>
-         <lastmod>2026-09-04</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
 </urlset>
