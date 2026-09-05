@@ -189,7 +189,7 @@ Some ``.deb`` repositories do not follow the standard layout (``<root_url>/dists
 
 If you encounter such a repository, you can try to enable the ``NON-COMPLIANT REPOSITORY`` parameter when editing the source repository. Repomanager will try to sync from the root url without adding the ``/dists/<distribution>/`` part.
 
-[![Non-compliant repository parameter](https://github.com/user-attachments/assets/c046b1c9-993b-483f-b496-0c7ec51cec24)](https://github.com/user-attachments/assets/c046b1c9-993b-483f-b496-0c7ec51cec24)
+[![Non-compliant repository parameter](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/non-compliant-repository.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/non-compliant-repository.png)
 
 If it still does not work, please open an issue on GitHub with the repository details so it can be investigated and fixed if possible.
 
