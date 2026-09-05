@@ -86,9 +86,9 @@ chown 33:33 /var/lib/docker/volumes/repomanager-data/templates/source-repositori
 chmod 640 /var/lib/docker/volumes/repomanager-data/templates/source-repositories/deb/my-custom-deb-list.yml
 ```
 
-**Step 3:** Your custom list is now ready for import through the web interface: 
+**Step 3:** Your custom list is now ready for import through the web interface:
 
-[![Custom source repositories list ready for import](https://github.com/user-attachments/assets/842aa0d4-1e08-4acb-871f-4b0380345e13)](https://github.com/user-attachments/assets/842aa0d4-1e08-4acb-871f-4b0380345e13)
+[![Custom source repositories list ready for import](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/import-custom-source-repository.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/import-custom-source-repository.png)
 
 **Step 4:** Click the `Import` button to import the source repositories from your custom list.
 
