@@ -9,15 +9,15 @@ From the **REPOSITORIES** tab:
 
 **Step 1:** Use the `Source repositories` button to show the **SOURCE REPOSITORIES** panel.
 
-[![Source repositories button](https://assets.repomanager.net/repomanager/configuration/source-repositories/source-repositories-btn.png)](https://assets.repomanager.net/repomanager/configuration/source-repositories/source-repositories-btn.png)
+[![Source repositories button](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/source-repositories-btn.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/source-repositories-btn.png)
 
 **Step 2:** Click the `Manually add` button to add a new source repository.
 
-[![Add source repository manually](https://assets.repomanager.net/repomanager/configuration/source-repositories/add-source-repository-1.png)](https://assets.repomanager.net/repomanager/configuration/source-repositories/add-source-repository-1.png)
+[![Add source repository manually](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/add-source-repository-1.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/add-source-repository-1.png)
 
 **Step 3:** Select the type of repository then define a name to identify the source repository and specify its root URL.
 
-[![Add source repository manually](https://assets.repomanager.net/repomanager/configuration/source-repositories/add-source-repository-2.png)](https://assets.repomanager.net/repomanager/configuration/source-repositories/add-source-repository-2.png)
+[![Add source repository manually](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/add-source-repository-2.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/add-source-repository-2.png)
 
 **Step 4:** Click the `Add` button to add the source repository to the list of available source repositories.
 
@@ -44,17 +44,17 @@ From the **REPOSITORIES** tab:
 
 **Step 1:** Use the `Source repositories` button to show the **SOURCE REPOSITORIES** panel.
 
-[![Source repositories button](https://assets.repomanager.net/repomanager/configuration/source-repositories/source-repositories-btn.png)](https://assets.repomanager.net/repomanager/configuration/source-repositories/source-repositories-btn.png)
+[![Source repositories button](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/source-repositories-btn.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/source-repositories-btn.png)
 
 **Step 2:** Click the `Import` button.
 
-[![Import source repositories](https://assets.repomanager.net/repomanager/configuration/source-repositories/import-source-repository-1.png)](https://assets.repomanager.net/repomanager/configuration/source-repositories/import-source-repository-1.png)
+[![Import source repositories](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/import-source-repository-1.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/import-source-repository-1.png)
 
 **Step 3:** Select the source repositories list you want to import (e.g. **Alma Linux official repositories**).
 
 Predefined lists content is public and can be seen [here](https://github.com/lbr38/repomanager/tree/main/www/templates/source-repositories). More lists can be added in the future. You can make your own custom list and import it, see [Create custom source repositories list](#create-custom-source-repositories-list).
 
-[![Import source repositories](https://assets.repomanager.net/repomanager/configuration/source-repositories/import-source-repository-2.png)](https://assets.repomanager.net/repomanager/configuration/source-repositories/import-source-repository-2.png)
+[![Import source repositories](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/import-source-repository-2.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/import-source-repository-2.png)
 
 **Step 4:** Click the `Import` button to import the selected source repositories.
 
@@ -127,11 +127,11 @@ From the **REPOSITORIES** tab:
 
 **Step 1:** Use the `Source repositories` button to show the **SOURCE REPOSITORIES** panel.
 
-[![Source repositories button](https://assets.repomanager.net/repomanager/configuration/source-repositories/source-repositories-btn.png)](https://assets.repomanager.net/repomanager/configuration/source-repositories/source-repositories-btn.png)
+[![Source repositories button](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/source-repositories-btn.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/source-repositories-btn.png)
 
 **Step 2:** Click a source repository to edit it.
 
-[![Edit a source repository](https://assets.repomanager.net/repomanager/configuration/source-repositories/edit-source-repository-1.png)](https://assets.repomanager.net/repomanager/configuration/source-repositories/edit-source-repository-1.png)
+[![Edit a source repository](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/edit-source-repository-1.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/edit-source-repository-1.png)
 
 **Step 3:** Update the source repository information, like distributions and components or release version.
 
@@ -139,7 +139,7 @@ Import their GPG signing key if any.
 
 It is recommended to add as much information as you can as this is used for suggestions when creating a mirror.
 
-[![Edit a source repository](https://assets.repomanager.net/repomanager/configuration/source-repositories/edit-source-repository-2.png)](https://assets.repomanager.net/repomanager/configuration/source-repositories/edit-source-repository-2.png)
+[![Edit a source repository](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/edit-source-repository-2.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/edit-source-repository-2.png)
 
 !!! info "Notes"
 
@@ -152,11 +152,11 @@ From the **REPOSITORIES** tab:
 
 **Step 1:** Use the `Source repositories` button to show the **SOURCE REPOSITORIES** panel.
 
-[![Source repositories button](https://assets.repomanager.net/repomanager/configuration/source-repositories/source-repositories-btn.png)](https://assets.repomanager.net/repomanager/configuration/source-repositories/source-repositories-btn.png)
+[![Source repositories button](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/source-repositories-btn.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/source-repositories-btn.png)
 
 **Step 2:** Select the source repository you want to delete and click the `Delete` button.
 
-[![Delete a source repository](https://assets.repomanager.net/repomanager/configuration/source-repositories/delete-source-repository.png)](https://assets.repomanager.net/repomanager/configuration/source-repositories/delete-source-repository.png)
+[![Delete a source repository](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/delete-source-repository.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/delete-source-repository.png)
 
 !!! info "Notes"
 
@@ -169,7 +169,7 @@ From the **REPOSITORIES** tab:
 
 **Step 1:** Use the `Source repositories` button to show the **SOURCE REPOSITORIES** panel.
 
-[![Source repositories button](https://assets.repomanager.net/repomanager/configuration/source-repositories/source-repositories-btn.png)](https://assets.repomanager.net/repomanager/configuration/source-repositories/source-repositories-btn.png)
+[![Source repositories button](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/source-repositories-btn.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/source-repositories-btn.png)
 
 **Step 2:** Click the source repository to edit it.
 
@@ -178,7 +178,7 @@ From the **REPOSITORIES** tab:
 
 **Step 3:** Scroll down to **IMPORT GPG KEY** then paste the GPG key **URL**, **fingerprint** or **plain text**.
 
-[![Import a GPG key](https://assets.repomanager.net/repomanager/configuration/source-repositories/import-gpg-key.png)](https://assets.repomanager.net/repomanager/configuration/source-repositories/import-gpg-key.png)
+[![Import a GPG key](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/import-gpg-key.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/import-gpg-key.png)
 
 **Step 4:** Click the `Import` button to import the GPG key.
 

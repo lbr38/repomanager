@@ -108,7 +108,7 @@ docker logs repomanager
 
 ## First login
 
-Once the container is up and running, Repomanager will be accessible through a web browser on ``http://localhost:8080``.
+Once the container is up and running, Repomanager will be accessible through a web browser on http://localhost:8080.
 
 It is recommended to configure a reverse proxy to access the web interface through a dedicated FQDN on port ``443`` (you will need a valid SSL certificate). See [this section](reverseproxy.md) for an example of nginx reverse proxy configuration.
 

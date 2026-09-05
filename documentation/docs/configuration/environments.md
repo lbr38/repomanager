@@ -15,7 +15,7 @@ Typically:
 
 This is what the environments have been designed for: to test package updates on testing hosts before updating them on production hosts.
 
-[![Environments](https://assets.repomanager.net/repomanager/configuration/environments/environments.png)](https://assets.repomanager.net/repomanager/configuration/environments/environments.png)
+[![Environments](https://assets.repomanager.net/repomanager/6.0.0/configuration/environments/environments.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/environments/environments.png)
 
 !!! info
 
@@ -27,7 +27,7 @@ From the **SETTINGS** tab and the **REPOSITORIES** > **ENVIRONMENTS** section:
 
 **Step 1:** Create a new environment by specifying its name and color.
 
-[![Create an environment](https://assets.repomanager.net/repomanager/configuration/environments/new-environment.png)](https://assets.repomanager.net/repomanager/configuration/environments/new-environment.png)
+[![Create an environment](https://assets.repomanager.net/repomanager/6.0.0/configuration/environments/new-environment.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/environments/new-environment.png)
 
 
 ## Delete an environment
@@ -36,7 +36,7 @@ From the **SETTINGS** tab and the **REPOSITORIES** > **ENVIRONMENTS** section:
 
 **Step 1:** Use the `Delete` icon to delete an environment.
 
-[![Delete an environment](https://assets.repomanager.net/repomanager/configuration/environments/delete-environment.png)](https://assets.repomanager.net/repomanager/configuration/environments/delete-environment.png)
+[![Delete an environment](https://assets.repomanager.net/repomanager/6.0.0/configuration/environments/delete-environment.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/environments/delete-environment.png)
 
 !!! info
 
