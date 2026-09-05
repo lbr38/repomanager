@@ -42,11 +42,12 @@ From the **SETTINGS** tab and the **REPOSITORIES** > **ENVIRONMENTS** section:
 !!! info
 
     Protecting an environment will prevent some actions from being performed on it, such as:
-      - Modifying a snapshot which is currently being used by a protected environment
-      - Deleting a snapshot which is currently being used by a protected environment
-      - Removing a protected environment from a snapshot
-      - Moving a protected environment from a snapshot to another snapshot
-      - ...
+
+    - Modifying a snapshot which is currently being used by a protected environment
+    - Deleting a snapshot which is currently being used by a protected environment
+     - Removing a protected environment from a snapshot
+     - Moving a protected environment from a snapshot to another snapshot
+     - ...
 
 
 ## Delete an environment
