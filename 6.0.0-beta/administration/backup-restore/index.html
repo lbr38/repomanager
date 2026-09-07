@@ -1363,6 +1363,12 @@
 <p>This volume contains <strong>databases, logs and configuration files of the application</strong>.</p>
 <p>You should back up this volume to ensure you can restore your data in case of a failure. <strong>This can be done by copying the content of the volume to another location with rsync or cp</strong>. As the database is SQLite, no dump is needed.</p>
 <p>The <code>repomanager-data</code> volume also contains the <code>version</code> file which contains the version of the application. This can be useful to know which version of the application was running when the backup was made and to restore the same version when restoring the backup.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Make sure the container is stopped before backing up this volume to avoid database write while the backup is being made.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>docker<span class="w"> </span>stop<span class="w"> </span>repomanager
+</span></code></pre></div>
+</div>
 <h3 id="repositories">Repositories<a class="headerlink" href="#repositories" title="Permanent link">&para;</a></h3>
 <p>Repositories are stored in a dedicated Docker volume named <code>repomanager-repo</code> which is located in <code>/var/lib/docker/volumes/repomanager-repo</code> on the host (unless you have changed the default location). </p>
 <p>This volume contains the packages and metadata of the repositories.</p>
@@ -1389,26 +1395,26 @@
 </table>
 <h2 id="restoring-from-backup">Restoring from backup<a class="headerlink" href="#restoring-from-backup" title="Permanent link">&para;</a></h2>
 <p>First stop the container:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>docker<span class="w"> </span>stop<span class="w"> </span>repomanager
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>docker<span class="w"> </span>stop<span class="w"> </span>repomanager
 </span></code></pre></div>
 <p>Restore the backup by copying the content of your backup to the volumes:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>rsync<span class="w"> </span>-aP<span class="w"> </span>--delete<span class="w"> </span>my_backup/repomanager-data/<span class="w"> </span>/var/lib/docker/volumes/repomanager-data/
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>rsync<span class="w"> </span>-aP<span class="w"> </span>--delete<span class="w"> </span>my_backup/repomanager-repo/<span class="w"> </span>/var/lib/docker/volumes/repomanager-repo/
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>rsync<span class="w"> </span>-aP<span class="w"> </span>--delete<span class="w"> </span>my_backup/repomanager-data/<span class="w"> </span>/var/lib/docker/volumes/repomanager-data/
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>rsync<span class="w"> </span>-aP<span class="w"> </span>--delete<span class="w"> </span>my_backup/repomanager-repo/<span class="w"> </span>/var/lib/docker/volumes/repomanager-repo/
 </span></code></pre></div>
 <p>Make sure the permissions are correct:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>chown<span class="w"> </span>-R<span class="w"> </span><span class="m">33</span><span class="w"> </span>/var/lib/docker/volumes/repomanager-data
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>chown<span class="w"> </span>-R<span class="w"> </span><span class="m">33</span><span class="w"> </span>/var/lib/docker/volumes/repomanager-repo
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>chown<span class="w"> </span>-R<span class="w"> </span><span class="m">33</span><span class="w"> </span>/var/lib/docker/volumes/repomanager-data
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>chown<span class="w"> </span>-R<span class="w"> </span><span class="m">33</span><span class="w"> </span>/var/lib/docker/volumes/repomanager-repo
 </span></code></pre></div>
 <p>If you are restoring a previous version of the application, retrieve the version from the <code>version</code> file in the backup:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>cat<span class="w"> </span>/var/lib/docker/volumes/repomanager-data/version
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>cat<span class="w"> </span>/var/lib/docker/volumes/repomanager-data/version
 </span></code></pre></div>
 <p>If you are restoring a previous version of the application, delete the current image and pull the image of the version you are restoring:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>docker<span class="w"> </span>rm<span class="w"> </span>-f<span class="w"> </span>repomanager
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>docker<span class="w"> </span>system<span class="w"> </span>prune<span class="w"> </span>-a<span class="w"> </span>-f
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>docker<span class="w"> </span>pull<span class="w"> </span>lbr38/repomanager:&lt;version&gt;
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>docker<span class="w"> </span>rm<span class="w"> </span>-f<span class="w"> </span>repomanager
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>docker<span class="w"> </span>system<span class="w"> </span>prune<span class="w"> </span>-a<span class="w"> </span>-f
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>docker<span class="w"> </span>pull<span class="w"> </span>lbr38/repomanager:&lt;version&gt;
 </span></code></pre></div>
 <p>Start the container:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>docker<span class="w"> </span>start<span class="w"> </span>repomanager
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>docker<span class="w"> </span>start<span class="w"> </span>repomanager
 </span></code></pre></div>
 <script data-goatcounter="https://repomanager.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 
