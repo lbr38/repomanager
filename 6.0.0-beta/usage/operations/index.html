@@ -1476,6 +1476,10 @@
 <p><strong>Step 1:</strong> Select the environment you want to remove from a repository snapshot.</p>
 <p><a href="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/remove-environment.png"><img alt="Remove environment" src="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/remove-environment.png" /></a></p>
 <p><strong>Step 2:</strong> Click the <code>Remove</code> button.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>A protected environment cannot be removed from a repository snapshot.</p>
+</div>
 <h2 id="duplicate-a-repository"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"/></svg></span> Duplicate a repository<a class="headerlink" href="#duplicate-a-repository" title="Permanent link">&para;</a></h2>
 <p>From the <strong>REPOSITORIES</strong> tab:</p>
 <p><strong>Step 1:</strong> Select the repository snapshot you want to duplicate.</p>
@@ -1490,6 +1494,10 @@
 <p><a href="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/select-snapshot.png"><img alt="Select a snapshot" src="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/select-snapshot.png" /></a></p>
 <p><strong>Step 2:</strong> Click the <code>Delete</code> button.</p>
 <p><strong>Step 3:</strong> Click the <code>Execute now</code> button to launch the deletion task.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>A snapshot having a protected environment cannot be deleted.</p>
+</div>
 <h2 id="browse-repository-content"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M0 2.75C0 1.784.784 1 1.75 1h12.5c.966 0 1.75.784 1.75 1.75v10.5A1.75 1.75 0 0 1 14.25 15H1.75A1.75 1.75 0 0 1 0 13.25ZM14.5 6h-13v7.25c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25Zm-6-3.5v2h6V2.75a.25.25 0 0 0-.25-.25ZM5 2.5v2h2v-2Zm-3.25 0a.25.25 0 0 0-.25.25V4.5h2v-2Z"/></svg></span> Browse repository content<a class="headerlink" href="#browse-repository-content" title="Permanent link">&para;</a></h2>
 <p>From the <strong>REPOSITORIES</strong> tab:</p>
 <p><strong>Step 1:</strong> Locate the repository snapshot you want to explore.</p>
@@ -1509,6 +1517,7 @@
 <ul>
 <li>If you need to increase the maximum upload size, consider increasing the <code>MAX_UPLOAD_SIZE</code> value when pulling the docker image (see <a href="/getting-started/installation/#prepare-the-environment-variables">Prepare the environment variables</a>).</li>
 <li>A <code>.deb</code> package must contain the architecture in its name (e.g. <code>nginx_1.23.3-1_amd64.deb</code>) otherwise it will not be recognized as a valid package.<br>Valid architectures are: <code>amd64</code>, <code>arm64</code>, <code>armel</code>, <code>armhf</code>, <code>i386</code>, <code>mips</code>, <code>mips64el</code>, <code>mipsel</code>, <code>ppc64el</code>, <code>s390x</code> and <code>all</code>.</li>
+<li>A snapshot having a protected environment cannot be modified.</li>
 </ul>
 </div>
 <h2 id="delete-packages-from-a-repository"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6z"/></svg></span> Delete package(s) from a repository<a class="headerlink" href="#delete-packages-from-a-repository" title="Permanent link">&para;</a></h2>
@@ -1521,6 +1530,10 @@
 <p><strong>Step 4:</strong> Click the <code>Delete</code> button to delete the selected packages.</p>
 <p><strong>Step 5:</strong> To take the changes into account, use the <strong>REBUILD REPOSITORY</strong> section to rebuild the repository's metadata.</p>
 <p><a href="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/rebuild-repository-metadata.png"><img alt="Rebuild repository metadata" src="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/rebuild-repository-metadata.png" /></a></p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>A snapshot having a protected environment cannot be modified.</p>
+</div>
 <h2 id="rebuild-repository-metadata"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 6v3l4-4-4-4v3a8 8 0 0 0-8 8c0 1.57.46 3.03 1.24 4.26L6.7 14.8A5.9 5.9 0 0 1 6 12a6 6 0 0 1 6-6m6.76 1.74L17.3 9.2c.44.84.7 1.8.7 2.8a6 6 0 0 1-6 6v-3l-4 4 4 4v-3a8 8 0 0 0 8-8c0-1.57-.46-3.03-1.24-4.26"/></svg></span> Rebuild repository metadata<a class="headerlink" href="#rebuild-repository-metadata" title="Permanent link">&para;</a></h2>
 <p>From the <strong>REPOSITORIES</strong> tab:</p>
 <p><strong>Step 1:</strong> Select the repository snapshot you wish to rebuild.</p>
@@ -1528,6 +1541,10 @@
 <p><strong>Step 2:</strong> Click the <code>Rebuild</code> button.</p>
 <p><a href="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/rebuild-repository.png"><img alt="Rebuild repository" src="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/rebuild-repository.png" /></a></p>
 <p><strong>Step 3:</strong> Click the <code>Execute now</code> button to launch the metadata rebuilding task.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>A snapshot having a protected environment cannot be rebuilt.</p>
+</div>
 <h2 id="install-a-repository-on-a-client"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5 20h14v-2H5m14-9h-4V3H9v6H5l7 7z"/></svg></span> Install a repository on a client<a class="headerlink" href="#install-a-repository-on-a-client" title="Permanent link">&para;</a></h2>
 <p>Once a repository has been created, you can install it on a client to make it available for package installation.</p>
 <p>From the <strong>REPOSITORIES</strong> tab:</p>
