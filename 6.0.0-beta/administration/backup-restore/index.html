@@ -1365,7 +1365,7 @@
 <p>The <code>repomanager-data</code> volume also contains the <code>version</code> file which contains the version of the application. This can be useful to know which version of the application was running when the backup was made and to restore the same version when restoring the backup.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>Make sure the container is stopped before backing up <code>repomanager-data</code> volume to avoid database write while the backup is being made.</p>
+<p>Make sure the container is stopped before backing up <code>repomanager-data</code> volume to avoid database write while the backup is being made. Otherwise you could end up with a corrupted backup and will not be able to restore your data correctly.</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>docker<span class="w"> </span>stop<span class="w"> </span>repomanager
 </span></code></pre></div>
 </div>
