@@ -33,6 +33,11 @@
     box-shadow: none;
 }
 
+.label-mint {
+    color: #104C3E;
+    border: 1.5px solid #62CFA5;
+    background: #CFF5E5;
+}
 .label-white, .label-black {
     color: #c0d0e2;
     border: 1.5px solid #c0d0e2;

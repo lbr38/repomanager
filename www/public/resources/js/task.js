@@ -154,6 +154,13 @@ $(document).on('change', 'input[name="checkbox-repo"]', function () {
  *  Event: when a checkbox is checked/unchecked
  */
 $(document).on('click',"input[name=checkbox-repo]",function () {
+    // Selecting a snapshot cancels any environment selection, as the two selections are mutually exclusive
+    if ($(this).is(':checked')) {
+        $('#repositories-list').find('.select-env-checkbox:checked').each(function () {
+            $(this).prop('checked', false).trigger('change');
+        });
+    }
+
     // The buttons that will be displayed in the confirm box
     var buttons = [];
 

@@ -6,10 +6,6 @@
     <img src="https://raw.githubusercontent.com/lbr38/repomanager/refs/heads/devel/images/readme/github-readme-white.png#gh-dark-mode-only" align="top" width=30%>
 </div>
 
-!!! warning
-
-    6.0.0 is currently in beta and may contain experimental features.
-
 <br><br>
 
 **Repomanager** is a web mirroring tool for `rpm` and `deb` package repositories.

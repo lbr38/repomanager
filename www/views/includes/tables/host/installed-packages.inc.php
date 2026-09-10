@@ -1,3 +1,9 @@
+<?php
+use \Controllers\Layout\Table\Render as TableRender;
+use \Controllers\Utils\Generate\Html\Icon; ?>
+
+<input type="text" id="installed-packages-search" class="margin-bottom-10" autocomplete="off" placeholder="Search package" value="<?= !empty($_COOKIE['tables/host/installed-packages/search']) ? htmlspecialchars($_COOKIE['tables/host/installed-packages/search'], ENT_QUOTES) : '' ?>">
+
 <div class="reloadable-table" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
     <p class="margin-top-15 margin-bottom-15 mediumopacity-cst">
         <?= $reloadableTableTotalItems ?> package<?= $reloadableTableTotalItems > 1 ? 's' : '' ?> inventored<?= $search !== '' ? ' (filtered)' : '' ?>
@@ -13,7 +19,7 @@
             foreach ($reloadableTableContent as $item) : ?>
                 <div class="host-package-item host-package-item-installed get-package-timeline pointer" hostid="<?= $id ?>" packagename="<?= $item['Name'] ?>" packageversion="<?= $item['Version'] ?>" title="See package history">
                     <div class="flex align-item-center column-gap-10">
-                        <?= \Controllers\Utils\Generate\Html\Icon::product($item['Name']); ?>
+                        <?= Icon::product($item['Name']); ?>
 
                         <div>
                             <p class="copy">
@@ -33,7 +39,7 @@
         </div>
 
         <div class="flex justify-end margin-top-10">
-            <?php \Controllers\Layout\Table\Render::paginationBtn($reloadableTableCurrentPage, $reloadableTableTotalPages); ?>
+            <?php TableRender::paginationBtn($reloadableTableCurrentPage, $reloadableTableTotalPages); ?>
         </div>
         <?php
     endif ?>
