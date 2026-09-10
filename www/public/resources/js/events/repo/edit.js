@@ -1,75 +1,24 @@
 /**
- *  Event: click on edit repository button
- *  TODO: wait for repos list refactoring before implementing the repo-edit-btn
+ *  Event: click on rename repository button
  */
-// $(document).on('click','.repo-edit-btn',function (e) {
-//     e.preventDefault();
+$(document).on('click','.repo-rename-btn',function (e) {
+    e.preventDefault(e);
 
-//     const repoId = $(this).attr('repo-id');
+    // The buttons that will be displayed in the confirm box
+    var buttons = [];
 
-//     /**
-//      *  The buttons that will be displayed in the confirm box
-//      */
-//     var buttons = [];
+    if (!myrepopermission.allowedAction('rename')) {
+        myalert.print('You do not have permission to rename repositories', 'error');
+        return;
+    }
 
-//     /**
-//      *  The list of allowed actions the user can execute on the selected repositories
-//      *  By default: all, unless the user has specific permissions
-//      *  Those permissions are later verified by the server so even if the user tries to execute an action he is not allowed to, it will not work
-//      */
-//     var allowedActions = ['update', 'duplicate', 'env', 'rebuild', 'rename', 'edit', 'install', 'delete'];
-
-//     /**
-//      *  Get permissions from cookie
-//      */
-//     if (mycookie.exists('user_permissions')) {
-//         var userPermissions = JSON.parse(mycookie.get('user_permissions'));
-
-//         // Reset allowed actions array
-//         var allowedActions = [];
-
-//         // Loop through all permissions and check if the user has the permission to execute the action
-//         if (userPermissions.repositories && userPermissions.repositories['allowed-actions']) {
-//             var allowedActions = userPermissions.repositories['allowed-actions'];
-//         }
-//     }
-
-//     /**
-//      *  Define confirm box buttons depending on the allowed actions
-//      */
-//     if (allowedActions.includes('rename')) {
-//         buttons.push(
-//             {
-//                 'text': 'Rename',
-//                 'color': 'blue-alt',
-//                 'callback': function () {
-//                     executeAction('rename');
-//                 }
-//             }
-//         );
-//     }
-
-//     if (allowedActions.includes('edit')) {
-//         buttons.push(
-//             {
-//                 'text': 'Edit',
-//                 'color': 'blue-alt',
-//                 'callback': function () {
-//                     executeAction('edit')
-//                 }
-//             }
-//         );
-//     }
-
-//     myconfirmbox.print(
-//         {
-//             'title': 'Edit repository',
-//             'message': '',
-//             'id': 'repo-edit-confirm-box',
-//             'buttons': buttons
-//         }
-//     );
-// });
+    // Get panel
+    mypanel.get('repos/rename', {
+        repos: JSON.stringify([{
+            'repo-id': $(this).attr('repo-id')
+        }])
+    });
+});
 
 /**
  *  Event: submit repository edit form
@@ -155,7 +104,7 @@ $(document).on('submit','#edit-form',function () {
         // Controller:
         'repo/edit',
         // Action:
-        'validateForm',
+        'validate-execute',
         // Data:
         {
             params: paramsJson,
@@ -166,49 +115,171 @@ $(document).on('submit','#edit-form',function () {
         true
     ).then(function () {
         // Uncheck all checkboxes and remove all styles JQuery could have applied
-        $('.reposList').find('input[name=checkbox-repo]').prop('checked', false);
-        $('.reposList').find('input[name=checkbox-repo]').removeAttr('style');
+        $('#repositories-list').find('input[name=checkbox-repo]').prop('checked', false);
+        $('#repositories-list').find('input[name=checkbox-repo]').removeAttr('style');
     });
 
     return false;
 });
 
 /**
- *  Event: add placeholder to description input on mouse enter
- *  This is to prevent Firefox from always displaying the placeholder
+ *  Event: click on "Add a description" button (header)
  */
-$(document).on('mouseenter','input[type="text"].repo-description-input',function () {
-    $(this).attr('placeholder', '🖉 add a description');
+$(document).on('click', '.repo-add-description-btn', function () {
+    const btn = $(this);
+    const repoItem = btn.closest('.repo-item');
+    const container = repoItem.find('.repo-description-container');
+    const p = container.find('p.repo-description-input');
+
+    // Hide the button, reveal the description container and enter edit mode
+    btn.hide();
+    container.show();
+    myrepo.startEditDescription(p);
 });
 
 /**
- *  Event: remove placeholder on mouse leave
- *  This is to prevent Firefox from always displaying the placeholder
+ *  Event: single-click on an empty description to add one
  */
-$(document).on('mouseleave','input[type="text"].repo-description-input',function () {
-    $(this).attr('placeholder', '');
+$(document).on('click', 'p.repo-description-input.repo-description-empty', function () {
+    myrepo.startEditDescription($(this));
+});
+
+/**
+ *  Event: double-click on an existing description to edit it
+ */
+$(document).on('dblclick', 'p.repo-description-input', function () {
+    myrepo.startEditDescription($(this));
 });
 
 /**
  *  Event: edit repository description when pressing 'Enter' key
  */
-$(document).on('keypress','input[type="text"].repo-description-input',function (e) {
+$(document).on('keypress','.repo-description-input-edit',function (e) {
     e.stopPropagation();
 
     const keycode = (e.keyCode ? e.keyCode : e.which);
 
     if (keycode == '13') {
-        myenvironment.updateDescription($(this).attr('env-id'), $(this).val());
+        const input = $(this);
+        const p = input.closest('p.repo-description-input');
+        const repoItem = p.closest('.repo-item');
+        const newDescription = input.val().trim();
+
+        // Mark as saved to prevent blur from reverting.
+        // Use a native property (not jQuery .data) because p.text() below calls
+        // .empty()/cleanData on the input, which would wipe jQuery data before the
+        // synchronous blur (fired when the focused input is removed) can read it.
+        this._descSaved = true;
+
+        // Save description
+        myrepo.updateDescription(input.attr('repo-id'), newDescription);
+
+        // Revert to <p> with new value
+        p.text(newDescription);
+
+        // If description is now empty, hide the container and show the header button again
+        if (!newDescription) {
+            p.addClass('repo-description-empty');
+            repoItem.find('.repo-description-container').hide();
+            repoItem.find('.repo-add-description-btn').show();
+        } else {
+            p.removeClass('repo-description-empty');
+        }
     }
 });
 
 /**
- *  Event: create new repo: print description field only if an env is specified
+ *  Event: revert description input on blur (click outside)
  */
-$(document).on('change','#new-repo-target-env-select',function () {
-    if ($('#new-repo-target-env-select').val() == "") {
-        $('#new-repo-target-description-tr').hide();
-    } else {
-        $('#new-repo-target-description-tr').show();
+$(document).on('blur','.repo-description-input-edit',function () {
+    const input = $(this);
+
+    // If already saved via Enter, do nothing (native flag survives cleanData)
+    if (this._descSaved) {
+        return;
     }
-}).trigger('change');
+
+    const p = input.closest('p.repo-description-input');
+    const repoItem = p.closest('.repo-item');
+    const originalDescription = input.attr('data-original');
+
+    // Revert to <p> with original value
+    p.text(originalDescription);
+
+    // If description is empty, hide the container and show the header button again
+    if (!originalDescription) {
+        p.addClass('repo-description-empty');
+        repoItem.find('.repo-description-container').hide();
+        repoItem.find('.repo-add-description-btn').show();
+    } else {
+        p.removeClass('repo-description-empty');
+    }
+});
+
+/**
+ *  Event: click on "Add tags" button (header)
+ */
+$(document).on('click', '.repo-add-tags-btn', function () {
+    const btn = $(this);
+    const repoItem = btn.closest('.repo-item');
+    const container = repoItem.find('.repo-tags-container');
+    const display = container.find('div.repo-tags-display');
+
+    // Hide the button, reveal the tags container and enter edit mode
+    btn.hide();
+    container.show();
+    myrepo.startEditTags(display);
+});
+
+/**
+ *  Event: single-click on an empty tags area to add tags
+ */
+$(document).on('click', '.repo-tags-display.repo-tags-empty', function () {
+    myrepo.startEditTags($(this));
+});
+
+/**
+ *  Event: single-click on a tag to filter the repositories search by it
+ */
+$(document).on('click', '.repo-tag-item', function (e) {
+    e.stopPropagation();
+
+    const tag = $(this).find('p').text().trim();
+
+    if (tag) {
+        myrepo.searchByTag(tag);
+    }
+});
+
+/**
+ *  Event: double-click on existing tags to edit them
+ */
+$(document).on('dblclick', '.repo-tags-display', function () {
+    myrepo.startEditTags($(this));
+});
+
+/**
+ *  Event: save tags when clicking outside the tags editor
+ */
+$(document).on('mousedown', function (e) {
+    const editing = $('.repo-tags-display.editing');
+
+    if (editing.length === 0) {
+        return;
+    }
+
+    editing.each(function () {
+        const display = $(this);
+
+        // Ignore clicks inside the editor itself or inside the select2 dropdown/container
+        if ($(e.target).closest('.repo-tags-display').is(display)) {
+            return;
+        }
+
+        if ($(e.target).closest('.select2-container, .select2-dropdown').length > 0) {
+            return;
+        }
+
+        myrepo.saveRepoTags(display);
+    });
+});

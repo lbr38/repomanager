@@ -33,7 +33,7 @@ class Delete extends \Controllers\Task\Execution
     /**
      *  Delete a repository snapshot
      */
-    public function execute()
+    public function execute(): void
     {
         $deleted = true;
 

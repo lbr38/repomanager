@@ -36,38 +36,6 @@ class Rpm extends \Models\Model
     }
 
     /**
-     *  Return repository environment description
-     */
-    public function getDescriptionByName(string $name, string $releaseVersion, string $env) : string|null
-    {
-        $description = null;
-
-        try {
-            $stmt = $this->db->prepare("SELECT repos_env.Description FROM repos_env
-            INNER JOIN repos_snap
-                ON repos_snap.Id = repos_env.Id_snap
-            INNER JOIN repos
-                ON repos.Id = repos_snap.Id_repo
-            WHERE repos.Name = :name
-            AND repos.Releasever = :releaseVersion
-            AND repos_env.Env = :env
-            AND repos_snap.Status = 'active'");
-            $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':releaseVersion', $releaseVersion);
-            $stmt->bindValue(':env', $env);
-            $result = $stmt->execute();
-        } catch (Exception $e) {
-            DbLog::error($e);
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $description = $row['Description'];
-        }
-
-        return $description;
-    }
-
-    /**
      *  Return environment Id from repo name
      */
     public function getEnvIdFromRepoName(string $name, string $releaseVersion, string $env) : array
@@ -186,7 +154,7 @@ class Rpm extends \Models\Model
         try {
             $stmt = $this->db->prepare("INSERT INTO repos ('Name', 'Releasever', 'Source', 'Package_type') VALUES (:name, :releaseVersion, :source, 'rpm')");
             $stmt->bindValue(':name', $name, SQLITE3_TEXT);
-            $stmt->bindValue(':releaseVersion', $releaseVersion);
+            $stmt->bindValue(':releaseVersion', $releaseVersion, SQLITE3_TEXT);
             $stmt->bindValue(':source', $source, SQLITE3_TEXT);
             $stmt->execute();
         } catch (Exception $e) {

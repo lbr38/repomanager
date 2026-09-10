@@ -64,7 +64,7 @@ class Form
              */
             ob_start();
 
-            echo '<div class="edit-form-params" repo-id="' . $repoId . '" snap-id="' . $snapId . '">';
+            echo '<div class="edit-form-params form-block form-block-accent-' . ($packageType == 'deb' ? 'red' : 'blue') . '" repo-id="' . $repoId . '" snap-id="' . $snapId . '">';
 
             /**
              *  Include form template
@@ -72,8 +72,6 @@ class Form
             include(ROOT . '/views/includes/forms/edit.inc.php');
 
             echo '</div>';
-
-            echo '<br><hr>';
 
             $content .= ob_get_clean();
         }
@@ -151,13 +149,6 @@ class Form
             if ($repoController->getType() == 'mirror') {
                 $repoController->updateSource($param['repo-id'], $param['source']);
             }
-
-            /**
-             *  Update snapshot description
-             *  TODO: no editable description for now
-             */
-            // $repoController->updateDescription($param['snap-id'], $description);
-            // $snapshotController->updateDescription($param['snap-id'], $description);
 
             /**
              *  Add history

@@ -34,12 +34,13 @@ class Environment extends Model
     /**
      *  Add new environment in database
      */
-    public function add(string $name, string $color) : void
+    public function add(string $name, string $color, string $protected) : void
     {
         try {
-            $stmt = $this->db->prepare("INSERT INTO env (Name, Color) VALUES (:name, :color)");
+            $stmt = $this->db->prepare("INSERT INTO env (Name, Color, Protected) VALUES (:name, :color, :protected)");
             $stmt->bindValue(':name', $name);
             $stmt->bindValue(':color', $color);
+            $stmt->bindValue(':protected', $protected);
             $stmt->execute();
         } catch (Exception $e) {
             DbLog::error($e);
@@ -71,23 +72,39 @@ class Environment extends Model
     /**
      *  List all environments
      */
-    public function listAll()
+    public function listAll(): array
     {
-        $datas = [];
+        $data = [];
 
         $result = $this->db->query("SELECT * FROM env");
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $datas[] = $row;
+            $data[] = $row;
         }
 
-        return $datas;
+        return $data;
+    }
+
+    /**
+     *  Return the list of protected environments
+     */
+    public function getProtected(): array
+    {
+        $data = [];
+
+        $result = $this->db->query("SELECT Name FROM env WHERE Protected = 'true'");
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row['Name'];
+        }
+
+        return $data;
     }
 
     /**
      *  List default environment
      */
-    public function default()
+    public function default(): string
     {
         $default = '';
 

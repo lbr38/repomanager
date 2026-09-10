@@ -1,3 +1,52 @@
+## 6.0.0
+
+``6.0.0`` is a major upgrade including breaking changes.
+
+There should be no reason why this upgrade would fail, but here is a list of what to check and do before and after upgrading.
+
+### What to check/do before upgrading
+
+**Step 1:** Make sure to be on the latest ``5.14.0`` version before upgrading to ``6.0.0``
+
+**Step 2:** Make sure to back up your Repomanager data before upgrading. This includes volumes ``repomanager-data`` and ``repomanager-repo``. See [Backup and restore](/latest/administration/backup-restore/#what-should-be-backed-up).
+
+**Step 3:** If possible, **test the upgrade on a staging environment before doing it on production.**
+
+### What to check/do after upgrading
+
+**Step 1:** Once upgraded, check the Docker container output with:
+
+```bash
+docker logs -f repomanager
+```
+
+Make sure there are no error messages in the output. Otherwise, open a GitHub issue or ask for help in the [Discord server](https://discord.gg/xuNxGv9U9).
+
+```bash
+ ______  ____ ______   ____   _____ _____   ____  _____    ____   ___________
+ \_  _ \/ __ \\____ \ /  _ \ /     \\__  \ /     \\__  \  / ___\_/ __ \_  __ \
+ |  | \|  ___/|  |_> )  (_) )  Y Y  \/ __ \|   |  \/ __ \/ /_/  >  ___/|  | \/
+ |__|   \___  >   __/ \____/|__|_|  (____  /___|  (____  |___  / \___  >__|
+            \/|__|                \/     \/     \/     \/_____/      \/
+
+Version 6.0.0
+
+[Mon Sep 7 09:19:11][INF] Setting permissions... 
+[Mon Sep 7 09:19:11][INF] Starting php-fpm...
+[Mon Sep 7 09:19:12][INF] Starting nginx...
+[Mon Sep 7 09:19:12][INF] Starting postfix...
+[Mon Sep 7 09:19:14][INF] Databases check and initialization successful
+[Mon Sep 7 09:19:14][INF] Enabling maintenance page
+[Mon Sep 7 09:19:14][INF] Updating database
+[Mon Sep 7 09:19:14][INF] Disabling maintenance page
+[Mon Sep 7 09:19:14][INF] Starting repomanager service...
+```
+
+**Step 2:** Open Repomanager and go to the tasks tab. If you had any scheduled tasks, make sure they are still present and correctly configured. Also check that they are running as expected.
+
+[![Scheduled tasks](https://assets.repomanager.net/repomanager/6.0.0/administration/migrations/6.0.0-scheduled-tasks.png)](https://assets.repomanager.net/repomanager/6.0.0/administration/migrations/6.0.0-scheduled-tasks.png)
+
+
 ## 5.0.0
 
 ``5.0.0`` is a major upgrade including breaking changes.
@@ -8,9 +57,9 @@ There should be no reason why this upgrade would fail, but here is a list of wha
 
 **Step 1:** Make sure to be on the latest ``4.24.1`` version before upgrading to ``5.0.0``
 
-**Step 2:** Make sure to back up your Repomanager data before upgrading. This includes volumes ``repomanager-data`` and ``repomanager-repo``. See [Backup and restore](/administration/backup-restore/#what-should-be-backed-up).
+**Step 2:** Make sure to back up your Repomanager data before upgrading. This includes volumes ``repomanager-data`` and ``repomanager-repo``. See [Backup and restore](/latest/administration/backup-restore/#what-should-be-backed-up).
 
-**Step 3:** If possible, test the upgrade on a staging environment before doing it on production.
+**Step 3:** If possible, **test the upgrade on a staging environment before doing it on production.**
 
 ### What to check/do after upgrading
 

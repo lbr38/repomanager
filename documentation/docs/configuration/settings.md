@@ -87,7 +87,7 @@ It is currently not possible to modify the key Id or the passphrase on the fly f
 
 **Step 1:** Set a new key Id from the web interface respecting the format ``keyname@fqdn`` and **Save**.
 
-[![New key id](https://assets.repomanager.net/repomanager/configuration/settings/new-gpg-key-id.png)](https://assets.repomanager.net/repomanager/configuration/settings/new-gpg-key-id.png)
+[![New key id](https://assets.repomanager.net/repomanager/6.0.0/configuration/settings/new-gpg-key-id.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/settings/new-gpg-key-id.png)
 
 **Step 2:** Enter the container.
 
@@ -197,11 +197,11 @@ From the `SETTINGS` tab and the `USERS` section:
 
 **Step 1:** Specify a username and a role for the user.
 
-[![Create a user](https://assets.repomanager.net/repomanager/configuration/settings/create-user-1.png)](https://assets.repomanager.net/repomanager/configuration/settings/create-user-1.png)
+[![Create a user](https://assets.repomanager.net/repomanager/6.0.0/configuration/settings/create-user-1.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/settings/create-user-1.png)
 
 **Step 2:** A new random password is generated and the user is ready to use.
 
-[![Create a user](https://assets.repomanager.net/repomanager/configuration/settings/create-user-2.png)](https://assets.repomanager.net/repomanager/configuration/settings/create-user-2.png)
+[![Create a user](https://assets.repomanager.net/repomanager/6.0.0/configuration/settings/create-user-2.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/settings/create-user-2.png)
 
 !!! info "Notes"
 
@@ -219,7 +219,7 @@ From the `SETTINGS` tab and the `USERS` section:
 
 A new random password will be generated.
 
-[![Reset password](https://assets.repomanager.net/repomanager/configuration/settings/reset-password-btn.png)](https://assets.repomanager.net/repomanager/configuration/settings/reset-password.png)
+[![Reset password](https://assets.repomanager.net/repomanager/6.0.0/configuration/settings/reset-password-btn.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/settings/reset-password-btn.png)
 
 
 ### Edit user permissions
@@ -232,12 +232,12 @@ From the `SETTINGS` tab and the `USERS` section:
 
 **Step 1:** Use the `Edit permissions` icon to edit user permissions.
 
-[![Edit user permissions](https://assets.repomanager.net/repomanager/configuration/settings/edit-user-permissions-btn.png)](https://assets.repomanager.net/repomanager/configuration/settings/edit-user-permissions-btn.png)
+[![Edit user permissions](https://assets.repomanager.net/repomanager/6.0.0/configuration/settings/edit-user-permissions-btn.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/settings/edit-user-permissions-btn.png)
 
 
 **Step 2:** Select the permissions to allow the user to perform specific actions and save.
 
-[![Edit user permissions](https://assets.repomanager.net/repomanager/configuration/settings/edit-user-permissions.png)](https://assets.repomanager.net/repomanager/configuration/settings/edit-user-permissions.png)
+[![Edit user permissions](https://assets.repomanager.net/repomanager/6.0.0/configuration/settings/edit-user-permissions.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/settings/edit-user-permissions.png)
 
 **Step 3:** Save.
 

@@ -3,29 +3,19 @@
  */
 function newRepoFormPrintFields()
 {
-    /**
-     *  Search for the type of repo and the type of packages selected in the task form whose
-     *  action is 'create' (form for creating a new repo)
-     */
+    // Retrieve the value of the 'repoType' radio button
+    const repoType = $('.task-form-params[action="create"]').find('input:radio[name="repo-type"]:checked').val();
 
-    /**
-     *  Retrieve the value of the 'repoType' radio button
-     */
-    var repoType = $('.task-form-params[action="create"]').find('input:radio[name="repo-type"]:checked').val();
+    // Retrieve the value of the 'package-type' radio button
+    const packageType = $('.task-form-params[action="create"]').find('input:radio[name="package-type"]:checked').val();
 
-    /**
-     *  Retrieve the value of the 'package-type' radio button
-     */
-    var packageType = $('.task-form-params[action="create"]').find('input:radio[name="package-type"]:checked').val();
+    // Match the form block accent color with the selected package type
+    $('.task-form-params[action="create"]').removeClass('form-block-accent-blue form-block-accent-red').addClass(packageType == 'deb' ? 'form-block-accent-red' : 'form-block-accent-blue');
 
-    /**
-     *  Hide all fields
-     */
+    // Hide all fields
     $('.task-form-params').find('[field-type]').hide();
 
-    /**
-     *  Depending on the type of repo and packages selected, display only the fields related to this type of repo and packages.
-     */
+    // Depending on the type of repo and packages selected, display only the fields related to this type of repo and packages
     $('.task-form-params').find('[field-type~=' + repoType + '][field-type~=' + packageType + ']').show();
 }
 
@@ -130,64 +120,66 @@ $(document).on('change','select.task-param[param-name="schedule-frequency"]',fun
 }).trigger('change');
 
 /**
- *  Event: when a checkbox is checked/unchecked
+ *  Event: click on a snap-container to select the snapshot
+ *  Do not trigger if the user clicked on a link (<a>) or an environment tag (.snap-env)
  */
-$(document).on('click',"input[name=checkbox-repo]",function () {
-    /**
-     *  The buttons that will be displayed in the confirm box
-     */
-    var buttons = [];
-
-    /**
-     *  The list of allowed actions the user can execute on the selected repositories
-     *  By default: all, unless the user has specific permissions
-     *  Those permissions are later verified by the server so even if the user tries to execute an action he is not allowed to, it will not work
-     */
-    var allowedActions = ['update', 'duplicate', 'env', 'rebuild', 'rename', 'edit', 'install', 'delete'];
-
-    /**
-     *  Retrieve checkbox's group id
-     */
-    var groupId = $(this).attr('group-id');
-
-    /**
-     *  Count the number of checked checkboxes
-     */
-    var count_checked = $('.reposList').find('input[name=checkbox-repo]:checked').length;
-
-    /**
-     *  If all checkboxes are unchecked then we hide all action buttons
-     */
-    if (count_checked == 0) {
-        myconfirmbox.close();
-        $('.reposList').find('input[name=checkbox-repo]').removeAttr('style');
-        $('.repos-list-group[group-id=' + groupId + ']').find('.repos-list-group-select-all-btns').hide();
+$(document).on('click', '.snap-container', function (e) {
+    // Ignore clicks on links, environment tags/containers, or the checkbox itself
+    if ($(e.target).closest('a, .snap-env-container, .snap-env, input[name="checkbox-repo"]').length) {
         return;
     }
 
-    /**
-     *  Get permissions from cookie
-     */
-    if (mycookie.exists('user_permissions')) {
-        var userPermissions = JSON.parse(mycookie.get('user_permissions'));
+    // Find the checkbox inside this container and toggle it
+    var checkbox = $(this).find('input[name="checkbox-repo"]');
 
-        // Reset allowed actions array
-        var allowedActions = [];
+    if (checkbox.length) {
+        checkbox.click();
+    }
+});
 
-        // Loop through all permissions and check if the user has the permission to execute the action
-        if (userPermissions.repositories && userPermissions.repositories['allowed-actions']) {
-            var allowedActions = userPermissions.repositories['allowed-actions'];
-        }
+/**
+ *  Event: toggle selected state on snap-container when checkbox is checked/unchecked
+ */
+$(document).on('change', 'input[name="checkbox-repo"]', function () {
+    var container = $(this).closest('.snap-container');
+
+    if ($(this).is(':checked')) {
+        container.addClass('snap-selected');
+    } else {
+        container.removeClass('snap-selected');
+    }
+});
+
+/**
+ *  Event: when a checkbox is checked/unchecked
+ */
+$(document).on('click',"input[name=checkbox-repo]",function () {
+    // The buttons that will be displayed in the confirm box
+    var buttons = [];
+
+    // Retrieve checkbox's group id
+    const groupId = $(this).attr('group-id');
+
+    // Count the number of checked checkboxes
+    const count_checked = $('#repositories-list').find('input[name=checkbox-repo]:checked').length;
+
+    // If all checkboxes are unchecked then we hide all action buttons
+    if (count_checked == 0) {
+        myconfirmbox.close();
+        $('#repositories-list').find('input[name=checkbox-repo]').removeAttr('style');
+        $('#repositories-list').find('.snap-container').removeClass('snap-selected');
+        $('.repos-list-group[group-id=' + groupId + ']').find('.repos-list-group-select-latest-btns').addClass('hide').hide();
+        $('.repos-list-group[group-id=' + groupId + ']').find('.repos-list-select-all-btns').addClass('hide').hide();
+        $('.repos-list-group-select-latest-btns[group-id="' + groupId + '"]').attr('status', '').find('input[type="checkbox"]').prop('checked', false);
+        $('.repos-list-select-all-btns[group-id="' + groupId + '"]').attr('status', '').find('input[type="checkbox"]').prop('checked', false);
+        return;
     }
 
-    /**
-     *  Define confirm box buttons depending on the allowed actions
-     */
-    if (allowedActions.includes('update')) {
+    // Define confirm box buttons depending on the allowed actions
+    if (myrepopermission.allowedAction('update')) {
         buttons.push(
             {
                 'text': 'Update',
-                'color': 'blue-alt',
                 'callback': function () {
                     executeAction('update')
                 }
@@ -195,11 +187,10 @@ $(document).on('click',"input[name=checkbox-repo]",function () {
         );
     }
 
-    if (allowedActions.includes('duplicate')) {
+    if (myrepopermission.allowedAction('duplicate')) {
         buttons.push(
             {
                 'text': 'Duplicate',
-                'color': 'blue-alt',
                 'callback': function () {
                     executeAction('duplicate');
                 }
@@ -207,11 +198,10 @@ $(document).on('click',"input[name=checkbox-repo]",function () {
         );
     }
 
-    if (allowedActions.includes('env')) {
+    if (myrepopermission.allowedAction('env')) {
         buttons.push(
             {
                 'text': 'Point an environment',
-                'color': 'blue-alt',
                 'callback': function () {
                     executeAction('env');
                 }
@@ -219,11 +209,10 @@ $(document).on('click',"input[name=checkbox-repo]",function () {
         );
     }
 
-    if (allowedActions.includes('rebuild')) {
+    if (myrepopermission.allowedAction('rebuild')) {
         buttons.push(
             {
                 'text': 'Rebuild',
-                'color': 'blue-alt',
                 'callback': function () {
                     executeAction('rebuild');
                 }
@@ -231,23 +220,10 @@ $(document).on('click',"input[name=checkbox-repo]",function () {
         );
     }
 
-    if (allowedActions.includes('rename')) {
-        buttons.push(
-            {
-                'text': 'Rename',
-                'color': 'blue-alt',
-                'callback': function () {
-                    executeAction('rename');
-                }
-            }
-        );
-    }
-
-    if (allowedActions.includes('edit')) {
+    if (myrepopermission.allowedAction('edit')) {
         buttons.push(
             {
                 'text': 'Edit',
-                'color': 'blue-alt',
                 'callback': function () {
                     executeAction('edit')
                 }
@@ -259,14 +235,13 @@ $(document).on('click',"input[name=checkbox-repo]",function () {
     buttons.push(
         {
             'text': 'Install',
-            'color': 'blue-alt',
             'callback': function () {
                 executeAction('install')
             }
         }
     );
 
-    if (allowedActions.includes('delete')) {
+    if (myrepopermission.allowedAction('delete')) {
         buttons.push(
             {
                 'text': 'Delete',
@@ -287,18 +262,30 @@ $(document).on('click',"input[name=checkbox-repo]",function () {
         }
     );
 
-    /**
-     *  Show 'select all latest snapshots' buttons
-     */
-    $('.repos-list-group[group-id=' + groupId + ']').find('.repos-list-group-select-all-btns').css('display', 'flex');
+    // Show 'select all latest snapshots' buttons
+    $('.repos-list-group[group-id=' + groupId + ']').find('.repos-list-group-select-latest-btns').removeClass('hide').css('display', 'flex');
+    $('.repos-list-group[group-id=' + groupId + ']').find('.repos-list-select-all-btns').removeClass('hide').css('display', 'flex');
 
     /**
      *  If there is at least 1 checkbox checked then we display all the other checkboxes
      *  All checked checkboxes are set to opacity = 1
      */
-    $('.reposList').find('input[name=checkbox-repo]').css("visibility", "visible");
-    $('.reposList').find('input[name=checkbox-repo]:checked').css("opacity", "1");
+    $('#repositories-list').find('input[name=checkbox-repo]').css("visibility", "visible");
+    $('#repositories-list').find('input[name=checkbox-repo]:checked').css("opacity", "1");
+
+    syncRepoGroupSelectionButtons(groupId);
 });
+
+function syncRepoGroupSelectionButtons(groupId)
+{
+    const checkedInGroup = $('.repos-list-group[group-id=' + groupId + ']').find('input[name=checkbox-repo]:checked').length;
+
+    // Keep both buttons in sync when a group has no selected snapshots.
+    if (checkedInGroup === 0) {
+        $('.repos-list-group-select-latest-btns[group-id="' + groupId + '"]').attr('status', '').find('input[type="checkbox"]').prop('checked', false);
+        $('.repos-list-select-all-btns[group-id="' + groupId + '"]').attr('status', '').find('input[type="checkbox"]').prop('checked', false);
+    }
+}
 
 function executeAction(action)
 {
@@ -307,7 +294,7 @@ function executeAction(action)
     /**
      *  Loop through all checked repos and retrieve their id
      */
-    $('.reposList').find('input[name=checkbox-repo]:checked').each(function () {
+    $('#repositories-list').find('input[name=checkbox-repo]:checked').each(function () {
         var obj = {};
 
         /**
@@ -352,43 +339,41 @@ function executeAction(action)
 }
 
 /**
- *  Event: Click on 'select all latest snapshots' button
+ *  Event: Click on snapshots selection buttons ('latest' or 'all')
  */
-$(document).on('click',".repos-list-group-select-all-btns",function () {
-    /**
-     *  Retrieve group Id
-     */
-    var groupId = $(this).attr('group-id');
+$(document).on('click', '.repos-list-group-select-latest-btns, .repos-list-select-all-btns', function () {
+    var latestRepoId = '';
+    const isLatestButton = $(this).hasClass('repos-list-group-select-latest-btns');
+    const buttonSelector = isLatestButton ? '.repos-list-group-select-latest-btns' : '.repos-list-select-all-btns';
+    const oppositeButtonSelector = isLatestButton ? '.repos-list-select-all-btns' : '.repos-list-group-select-latest-btns';
 
-    /**
-     *  Retrieve all repos in the group
-     */
-    var reposCheckboxes = $('.repos-list-group[group-id=' + groupId + ']').find('input[name=checkbox-repo]');
+    // Retrieve group Id
+    const groupId = $(this).attr('group-id');
 
-    /**
-     *  Retrieve select status
-     */
-    var selectStatus = $(this).attr('status');
+    // Retrieve all repos in the group
+    const reposCheckboxes = $('.repos-list-group[group-id=' + groupId + ']').find('input[name=checkbox-repo]');
 
-    /**
-     *  If current status is not 'selected', then select all the latest snaps
-     */
-    if (selectStatus != 'selected') {
-        /**
-         *  Loop through all checkboxes and check the latest snap
-         *  The latest snap is the first snap in the list (the first checkbox of each repo)
-         */
-        latestRepoId = '';
+    // Retrieve select status
+    const status = $(this).attr('status');
+
+    // If current status is not 'selected', then select snapshots according to button type
+    if (status != 'selected') {
         reposCheckboxes.each(function () {
-            // Click the checkbox if it matches the latest snap
-            if ($(this).attr('repo-id') != latestRepoId) {
-                // Click the checkbox if not already checked
-                if (!$(this).is(':checked')) {
-                    $(this).click();
+            if (isLatestButton) {
+                // The latest snap is the first snap in the list for each repo.
+                if ($(this).attr('repo-id') != latestRepoId) {
+                    if (!$(this).is(':checked')) {
+                        $(this).click();
+                    }
+                } else {
+                    // Make sure only latest snapshots remain selected.
+                    if ($(this).is(':checked')) {
+                        $(this).click();
+                    }
                 }
-            // Otherwise, uncheck the checkbox to make sure only the latest snaps are checked
             } else {
-                if ($(this).is(':checked')) {
+                // Select all snapshots.
+                if (!$(this).is(':checked')) {
                     $(this).click();
                 }
             }
@@ -397,34 +382,36 @@ $(document).on('click',".repos-list-group-select-all-btns",function () {
         });
 
         // Set status
-        $(this).attr('status', 'selected');
+        $(buttonSelector + '[group-id="' + groupId + '"]').attr('status', 'selected');
+        $(oppositeButtonSelector + '[group-id="' + groupId + '"]').attr('status', '').find('input[type="checkbox"]').prop('checked', false);
 
-        // Make sure the 'Select latest snapshots' button is visible and its checkbox is checked
-        $('.repos-list-group-select-all-btns[group-id="' + groupId + '"]').css('display', 'flex');
-        $('.repos-list-group-select-all-btns[group-id="' + groupId + '"]').css('opacity', '1');
-        $('.repos-list-group-select-all-btns[group-id="' + groupId + '"]').css('filter', 'initial');
-        $('.repos-list-group-select-all-btns[group-id="' + groupId + '"]').find('input[type="checkbox"]').prop('checked', true);
+        // Make sure the active selection button is visible and checked.
+        $(buttonSelector + '[group-id="' + groupId + '"]').removeClass('hide').css('display', 'flex');
+        $(buttonSelector + '[group-id="' + groupId + '"]').css('opacity', '1');
+        $(buttonSelector + '[group-id="' + groupId + '"]').css('filter', 'initial');
+        $(buttonSelector + '[group-id="' + groupId + '"]').find('input[type="checkbox"]').prop('checked', true);
 
-    /**
-     *  Otherwise, uncheck all checkboxes
-     */
-    } else {
-        reposCheckboxes.each(function () {
-            if ($(this).is(':checked')) {
-                $(this).click();
-            }
-        });
+        return;
+    }
 
-        // Set status
-        $(this).attr('status', '');
+    // Otherwise, uncheck all checkboxes in the group
+    reposCheckboxes.each(function () {
+        if ($(this).is(':checked')) {
+            $(this).click();
+        }
+    });
 
-        // Make sure the 'Select latest snapshots' button is hidden and its checkbox is unchecked
-        $('.repos-list-group-select-all-btns[group-id="' + groupId + '"]').hide();
-        $('.repos-list-group-select-all-btns[group-id="' + groupId + '"]').css('opacity', '');
-        $('.repos-list-group-select-all-btns[group-id="' + groupId + '"]').css('filter', '');
-        $('.repos-list-group-select-all-btns[group-id="' + groupId + '"]').find('input[type="checkbox"]').prop('checked', false);
+    // Set status and visual state on both buttons when no selection remains.
+    syncRepoGroupSelectionButtons(groupId);
+
+    if ($('.repos-list-group[group-id=' + groupId + ']').find('input[name=checkbox-repo]:checked').length === 0) {
+        $('.repos-list-group-select-latest-btns[group-id="' + groupId + '"]').addClass('hide').hide().css('opacity', '').css('filter', '');
+        $('.repos-list-select-all-btns[group-id="' + groupId + '"]').addClass('hide').hide().css('opacity', '').css('filter', '');
     }
 });
+
+
+
 
 /**
  *  Event: Schedule a task
@@ -440,11 +427,13 @@ $(document).on('click',".task-schedule-btn", function () {
      */
     if ($(this).is(':checked')) {
         form.find('.task-schedule-params').show();
-        form.find('.task-confirm-btn').css('background-color', '#15bf7f');
+        form.find('.task-confirm-btn').removeClass('btn-large-red');
+        form.find('.task-confirm-btn').addClass('btn-large-green');
         form.find('.task-confirm-btn').html('Schedule');
     } else {
         form.find('.task-schedule-params').hide();
-        form.find('.task-confirm-btn').css('background-color', '#F32F63');
+        form.find('.task-confirm-btn').removeClass('btn-large-green');
+        form.find('.task-confirm-btn').addClass('btn-large-red');
         form.find('.task-confirm-btn').html('Execute now');
     }
 });
@@ -591,7 +580,7 @@ $(document).on('submit','#task-form',function (e) {
         // Controller:
         'task',
         // Action:
-        'validateForm',
+        'validate-execute',
         // Data:
         {
             taskParams: taskParamsJson,
@@ -604,8 +593,10 @@ $(document).on('submit','#task-form',function (e) {
         mypanel.close();
 
         // Uncheck all checkboxes and remove all styles JQuery could have applied
-        $('.reposList').find('input[name=checkbox-repo]').prop('checked', false);
-        $('.reposList').find('input[name=checkbox-repo]').removeAttr('style');
+        $('#repositories-list').find('input[name=checkbox-repo]').prop('checked', false);
+        $('#repositories-list').find('input[name=checkbox-repo]').removeAttr('style');
+
+        mycontainer.reload('repos/kpi');
     });
 
     return false;

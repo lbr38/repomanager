@@ -10,14 +10,9 @@
 <p class="note">The API key is used to authenticate for most of the API endpoints. Keep it secret.</p>
 <input type="text" id="user-apikey" value="(hashed) Generate a new key to retrieve it in clear." />
 
-<div class="flex column-gap-10 margin-top-5">
-    <button type="button" id="user-generate-apikey-btn" class="btn-medium-blue" title="Generate a new key">Generate new key</button>
+<div class="flex column-gap-10 margin-top-10">
+    <button type="button" id="user-generate-apikey-btn" class="btn-medium-tr" title="Generate a new key">Generate new key</button>
 </div>
-
-<h6 class="margin-bottom-5">LOGOUT FROM REPOMANAGER</h6>
-<a href="/logout" title="Logout">
-    <button class="btn-small-red" >Logout</button>
-</a>
 
 <h5>PERSONAL INFORMATIONS</h5>
 
@@ -60,8 +55,15 @@ if ($_SESSION['type'] == 'local') : ?>
         </form>
     </div>
     <?php
-endif;
+endif; ?>
 
+<h5>LOGOUT</h5>
+
+<a href="/logout" title="Logout">
+    <button class="btn-small-red" >Logout</button>
+</a>
+
+<?php
 $content = ob_get_clean();
 $slidePanelName = 'general/userspace';
 $slidePanelTitle = 'USERSPACE';

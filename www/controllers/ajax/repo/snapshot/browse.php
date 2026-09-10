@@ -84,7 +84,7 @@ if ($_POST['action'] == 'tree/search' and !empty($_POST['path']) and isset($_POS
 }
 
 /**
- *  Delete packages from repo
+ *  Delete packages from a snapshot
  */
 if ($action == 'delete-package' and !empty($_POST['snapId']) and !empty($_POST['packages'])) {
     $repoSnapshotPackageController = new \Controllers\Repo\Snapshot\Package($_POST['snapId']);
@@ -96,6 +96,28 @@ if ($action == 'delete-package' and !empty($_POST['snapId']) and !empty($_POST['
     }
 
     response(HTTP_OK, $deleted);
+}
+
+/**
+ *  Upload packages to a snapshot
+ */
+if ($action == 'upload-package' and !empty($_POST['snapId']) and is_numeric($_POST['snapId']) and !empty($_FILES['packages'])) {
+    $repoSnapshotPackageController = new \Controllers\Repo\Snapshot\Package($_POST['snapId']);
+
+    try {
+        // Validate the overwrite value if it has been provided
+        if (isset($_POST['overwrite']) and is_null($overwrite = \Controllers\Utils\Convert::toBool($_POST['overwrite']))) {
+            throw new Exception('Invalid overwrite value');
+        }
+
+        $uploaded = $repoSnapshotPackageController->upload(\Controllers\Utils\Array\Sort::byPostFiles($_FILES['packages']), $overwrite ?? false);
+    } catch (\Controllers\Exception\AppException $e) {
+        response(HTTP_BAD_REQUEST, $e->getDetails());
+    } catch (Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, $uploaded);
 }
 
 /**

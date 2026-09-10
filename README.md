@@ -29,20 +29,19 @@
 
 ## Demo
 
-[![Demo](https://github.com/user-attachments/assets/c6604e74-febb-4530-8839-26bbb1095b3c)](https://github.com/user-attachments/assets/c6604e74-febb-4530-8839-26bbb1095b3c)
-
+https://github.com/user-attachments/assets/46c0d0ac-f757-4034-9c5b-62ed234c36fa
 
 ## Screenshots
 
-[![Repositories](https://github.com/user-attachments/assets/6f561a84-d8f3-480e-90fa-df73a8f071c6)](https://github.com/user-attachments/assets/6f561a84-d8f3-480e-90fa-df73a8f071c6)
+[![Repositories](https://assets.repomanager.net/repomanager/6.0.0/index/index-1.png)](https://assets.repomanager.net/repomanager/6.0.0/index/index-1.png)
 
-[![Repository statistics](https://github.com/user-attachments/assets/af6df87d-8498-4c85-a64d-85a30472f4b9)](https://github.com/user-attachments/assets/af6df87d-8498-4c85-a64d-85a30472f4b9)
+[![Repository statistics](https://assets.repomanager.net/repomanager/6.0.0/index/index-2.png)](https://assets.repomanager.net/repomanager/6.0.0/index/index-2.png)
 
-[![Browse packages](https://github.com/user-attachments/assets/07a96fa6-97e3-4235-9547-10489b5bdbdc)](https://github.com/user-attachments/assets/07a96fa6-97e3-4235-9547-10489b5bdbdc)
+[![Browse packages](https://assets.repomanager.net/repomanager/6.0.0/index/index-3.png)](https://assets.repomanager.net/repomanager/6.0.0/index/index-3.png)
 
-[![Overview](https://github.com/user-attachments/assets/5d9de814-cb96-405d-ab18-41bc8d1715e7)](https://github.com/user-attachments/assets/5d9de814-cb96-405d-ab18-41bc8d1715e7)
+[![Overview](https://assets.repomanager.net/repomanager/6.0.0/index/index-4.png)](https://assets.repomanager.net/repomanager/6.0.0/index/index-4.png)
 
-[![Host dashboard](https://github.com/user-attachments/assets/95fe8023-f02c-4aa8-98e0-d5e154dff9a8)](https://github.com/user-attachments/assets/95fe8023-f02c-4aa8-98e0-d5e154dff9a8)
+[![Host dashboard](https://assets.repomanager.net/repomanager/6.0.0/index/index-5.png)](https://assets.repomanager.net/repomanager/6.0.0/index/index-5.png)
 
 
 ## Installation and usage

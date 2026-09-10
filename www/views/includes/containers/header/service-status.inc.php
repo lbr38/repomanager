@@ -1,4 +1,4 @@
-<article class="reloadable-container" container="header/service-status">
+<div class="reloadable-container width-100" container="header/service-status">
     <?php
     // Do not display the message if an update is running because it is normal that the service is not running during an update
     if (!\Controllers\Service\Service::isRunning() and !\Controllers\Update::running()) : ?>
@@ -10,4 +10,4 @@
         </section>
         <?php
     endif ?> 
-</article>
+</div>

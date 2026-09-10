@@ -174,7 +174,6 @@
 
         <script>
             $(document).ready(function() {
-                new EChart('nightingale', 'hosts-count-chart');
                 new EChart('bar', 'hosts-os-chart');
                 new EChart('nightingale', 'hosts-arch-chart');
                 new EChart('nightingale', 'hosts-env-chart');

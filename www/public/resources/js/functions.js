@@ -209,19 +209,24 @@ function empty(value)
  */
 function printEnv(env, selector)
 {
-    // Default colors
-    var background = '#ffffff';
-    var color = '#000000';
+    // Default: outlined style with subtle gray
+    var color = '#c0d0e2';
+    var border = '1.5px solid #c0d0e2';
+    var background = 'transparent';
 
     // Check if the environment color is set in localStorage
     if (localStorage.getItem('env/' + env) !== null) {
-        definition = JSON.parse(localStorage.getItem('env/' + env));
-        color = definition.color;
-        background = definition.background;
+        var definition = JSON.parse(localStorage.getItem('env/' + env));
+
+        if (definition.background && definition.background !== '#ffffff') {
+            // Use configured color for border and text (outlined style)
+            color = definition.background;
+            border = '1.5px solid ' + definition.background;
+        }
     }
 
     // Generate html
-    var html = '⸺<span class="env" style="background-color: ' + background + '; color: ' + color + ';">' + env + '</span>';
+    var html = '⸺<span class="env" style="background-color: ' + background + '; color: ' + color + '; border: ' + border + ';">' + env + '</span>';
 
     // Print environment
     $(selector).html(html);

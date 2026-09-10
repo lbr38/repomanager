@@ -18,7 +18,7 @@
             <p class="empty-state-title">No source repository configured yet.</p>
             <p class="note">Import a predefined list to get started quickly, or add a source repository manually.</p>
             <div class="empty-state-actions">
-                <button type="button" class="btn-medium-blue get-panel-btn" panel="repos/sources/import">Import</button>
+                <button type="button" class="btn-medium-green get-panel-btn" panel="repos/sources/import">Import</button>
                 <button type="button" class="btn-medium-tr get-panel-btn" panel="repos/sources/new">Manually add</button>
             </div>
         </div>
@@ -48,6 +48,8 @@
 
             // Case it is a deb source repository
             if ($type == 'deb') {
+                $accent = 'red';
+
                 if (isset($definition['distributions'])) {
                     $distAndComponent = $definition['distributions'];
                 }
@@ -55,6 +57,8 @@
 
             // Case it is a rpm source repository
             if ($type == 'rpm') {
+                $accent = 'blue';
+
                 if (isset($definition['releasever'])) {
                     $releasevers = $definition['releasever'];
                 }
@@ -71,17 +75,7 @@
                 $sslCaCertificate = $definition['ssl-authentication']['ca-certificate'];
             } ?>
 
-            <div class="table-container-3 bck-blue-alt pointer source-repo-edit-param-btn" source-id="<?= $item['Id'] ?>">
-                <div>
-                    <?php
-                    if ($type == 'rpm') {
-                        echo ' <span class="label-pkg-rpm">rpm</span>';
-                    }
-                    if ($type == 'deb') {
-                        echo ' <span class="label-pkg-deb">deb</span>';
-                    } ?>
-                </div>
-
+            <div class="table-container-2 panel-list-item accent-<?= $accent ?> pointer source-repo-edit-param-btn" source-id="<?= $item['Id'] ?>">
                 <div>
                     <p><?= $name ?></p>
                     <?php

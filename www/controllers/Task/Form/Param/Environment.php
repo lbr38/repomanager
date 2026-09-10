@@ -6,20 +6,27 @@ use Exception;
 
 class Environment
 {
-    public static function check(array $envs) : void
+    public static function check(array $envs): void
     {
-        $myenv = new \Controllers\Environment();
+        $envController = new \Controllers\Environment();
 
         if (empty($envs)) {
             throw new Exception('Environment must be specified');
         }
 
         foreach ($envs as $env) {
-            if (!$myenv->exists($env)) {
+            if (!$envController->exists($env)) {
                 throw new Exception('Specified environment does not exist');
             }
         }
 
-        unset($envs, $myenv);
+        // Check that the environment is not protected
+        foreach ($envs as $env) {
+            if ($envController->isProtected($env)) {
+                throw new Exception('Environment ' . $env . ' is protected and cannot be modified');
+            }
+        }
+
+        unset($envs, $envController);
     }
 }

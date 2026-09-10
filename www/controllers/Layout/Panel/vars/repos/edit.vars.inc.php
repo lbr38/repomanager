@@ -14,7 +14,7 @@ $myEditForm = new \Controllers\Repo\Edit\Form();
  *  Check that action and repos params have been sent
  */
 if (empty($item['repos'])) {
-    throw new Exception('Task repositories required');
+    throw new Exception('Repositories required');
 }
 
 $slidePanelTitle = 'EDIT REPOSITORY & SNAPSHOT PROPERTIES';

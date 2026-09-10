@@ -42,7 +42,7 @@
             
             <?php
             if (!empty(EMAIL_RECIPIENT)) {
-                echo '<button type="button" id="send-test-email-btn" class="btn-medium-blue margin-top-5" title="Send a test email">Send a test email</button>';
+                echo '<button type="button" id="send-test-email-btn" class="btn-medium-green margin-top-5" title="Send a test email">Send a test email</button>';
             } ?>
 
             <h6>SESSION TIMEOUT</h6>
@@ -183,6 +183,7 @@
                     <option value="7" <?php echo (RELEASEVER == 7) ? 'selected' : '' ?>>7 (Redhat 7 and derivatives)</option>
                     <option value="8" <?php echo (RELEASEVER == 8) ? 'selected' : '' ?>>8 (Redhat 8 and derivatives)</option>
                     <option value="9" <?php echo (RELEASEVER == 9) ? 'selected' : '' ?>>9 (Redhat 9 and derivatives)</option>
+                    <option value="10" <?php echo (RELEASEVER == 10) ? 'selected' : '' ?>>10 (Redhat 10 and derivatives)</option>
                 </select>
                 <?php
                 if (empty(RELEASEVER)) {
@@ -311,11 +312,11 @@
         <p class="note">You can edit environments names and colors. The default environment is the first one in the list, it will be pre-selected in tasks forms.</p>
         <p class="note">Renaming an environment here will not rename it in repositories, this to prevent breaking existing configurations.</p>
 
-        <div id="envs-div">
-            <div id="current-envs-div">
+        <div id="envs-container">
+            <div id="current-envs">
                 <?php
                 if (empty(ENVS)) {
-                    echo '<p class="note yellowtext"><img src="/assets/icons/warning.svg" class="icon" /> At least 1 environment must be configured</p>';
+                    echo '<p class="note yellowtext"><img src="/assets/icons/warning.svg" class="icon" /> At least one environment should be configured</p>';
                 }
 
                 if (!empty(ENVS)) :
@@ -324,9 +325,21 @@
                             $color = '#ffffff';
                         } else {
                             $color = $env['Color'];
+                        }
+
+                        if ($env['Protected'] == 'true') {
+                            $protected = 'true';
+                            $protectionIcon = 'locked-red';
+                            $protectedClass = 'icon';
+                            $title = 'Unprotect environment';
+                        } else {
+                            $protected = 'false';
+                            $protectionIcon = 'unlocked';
+                            $protectedClass = 'icon-lowopacity';
+                            $title = 'Protect environment';
                         } ?>
 
-                        <div class="env-line flex align-item-center column-gap-10" env-id="<?= $env['Id'] ?>">
+                        <div class="env-line flex align-item-center column-gap-15" env-id="<?= $env['Id'] ?>">
                             <div>
                                 <div class="input-color-wrapper">
                                     <input type="color" name="env-color" value="<?= $color ?>" /> 
@@ -334,36 +347,34 @@
                             </div>
 
                             <input type="text" name="env-name" value="<?= $env['Name'] ?>" autocomplete="off" />
+
+                            <img src="/assets/icons/<?= $protectionIcon ?>.svg" class="<?= $protectedClass ?> env-protection" env-id="<?= $env['Id'] ?>" env-name="<?= $env['Name'] ?>" title="<?= $title ?>" protected="<?= $protected ?>" />
                             
-                            <div>
-                                <span class="round-btn-tr-to-red delete-env-btn" env-id="<?= $env['Id'] ?>" env-name="<?= $env['Name'] ?>" title="Delete <?= $env['Name'] ?> environment">
-                                    <img src="/assets/icons/delete.svg" />
-                                </span>
-                            </div>
+                            <img src="/assets/icons/trash.svg" class="icon-lowopacity pointer delete-env-btn" env-id="<?= $env['Id'] ?>" env-name="<?= $env['Name'] ?>" title="Delete <?= $env['Name'] ?> environment" />
                         </div>
                         <?php
                     endforeach ?>
+
                     <br>
                     <button id="edit-env-btn" type="button" class="btn-small-green">Save</button>
                     <?php
                 endif ?>
             </div>
 
-            <h6>ADD NEW ENVIRONMENT</h6>
+            <h6>ADD A NEW ENVIRONMENT</h6>
             <p class="note">Choose a color and a name for the new environment.</p>
-            <div class="flex align-item-center column-gap-10">
+            <div class="flex align-item-center column-gap-15">
                 <div>
                     <div class="input-color-wrapper">
                         <input type="color" name="add-env-color" class="color-xsmall" value="#F32F63" /> 
                     </div>
                 </div>
-                
-                <input type="text" name="add-env-name" placeholder="Name" autocomplete="off" />
 
-                <div>
-                    <button type="button" id="add-env-btn" class="btn-xxsmall-green">+</button>
-                </div>
+                <input type="text" name="add-env-name" placeholder="Name" autocomplete="off" />
             </div>
+
+            <br>
+            <button type="button" id="add-env-btn" class="btn-small-green">Add</button>
         </div>
 
         <hr class="margin-top-20 margin-bottom-20">

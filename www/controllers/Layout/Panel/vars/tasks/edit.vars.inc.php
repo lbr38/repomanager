@@ -1,9 +1,13 @@
 <?php
+use \Controllers\User\Permission\Task as TaskPermission;
+use \Controllers\User\User;
+
 $taskController = new \Controllers\Task\Task();
+$userController = new User();
 $tasks = [];
 
-// If the user is not an admin, check if they have permissions to edit a task
-if (!IS_ADMIN and !in_array('edit', USER_PERMISSIONS['tasks']['allowed-actions'])) {
+// Check if the user has permission to edit tasks
+if (!TaskPermission::allowedAction('edit')) {
     throw new Exception('You are not allowed to edit a task.');
 }
 
@@ -11,6 +15,9 @@ if (!IS_ADMIN and !in_array('edit', USER_PERMISSIONS['tasks']['allowed-actions']
 if (empty($item['tasks'])) {
     throw new Exception('No task selected.');
 }
+
+// Get the list of users' email addresses for the task edit form
+$usersEmail = $userController->getEmails();
 
 // Loop through the provided tasks Ids and retrieve their details
 foreach ($item['tasks'] as $id) {
@@ -32,3 +39,5 @@ foreach ($item['tasks'] as $id) {
     // Add task details to tasks array
     $tasks[] = $task;
 }
+
+unset($taskController, $userController);

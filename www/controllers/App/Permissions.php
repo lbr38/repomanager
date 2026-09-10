@@ -12,7 +12,7 @@ class Permissions
     public static function load()
     {
         $userController = new \Controllers\User\User();
-        $userPermissionController = new \Controllers\User\Permission();
+        $userPermissionController = new \Controllers\User\Permission\Permission();
         $isAdmin = false;
         $isSuperAdmin = false;
 

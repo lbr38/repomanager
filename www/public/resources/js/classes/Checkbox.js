@@ -18,12 +18,6 @@ class Checkbox
 
         // If the 'Select all' checkbox is checked, check the child checkbox and make it visible, else uncheck the child checkbox and remove any custom visibility so it returns to default
         checkboxes.each(function () {
-            // If the checkbox is the latest one, directly simulate a click on it to trigger any event attached to it
-            if (--count === 0) {
-                $(this).trigger('click');
-                return;
-            }
-
             if (status) {
                 $(this).prop('checked', true);
                 $(this).css('opacity', '1');
@@ -31,7 +25,15 @@ class Checkbox
                 $(this).prop('checked', false);
                 $(this).css('opacity', '');
             }
+
+            // Trigger change event so visual state (e.g. task-selected) is updated
+            $(this).trigger('change');
         });
+
+        // Trigger select on the last checkbox to update the confirmbox, without toggling its state
+        if (checkboxes.length) {
+            this.select(checkboxes.last());
+        }
     }
 
     /**

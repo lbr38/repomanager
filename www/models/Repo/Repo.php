@@ -52,6 +52,8 @@ class Repo extends \Models\Model
                 repos.Section,
                 repos.Source,
                 repos.Package_type,
+                repos.Description,
+                repos.Tags,
                 repos_snap.Id AS snapId,
                 repos_snap.Date,
                 repos_snap.Time,
@@ -66,7 +68,6 @@ class Repo extends \Models\Model
                 repos_snap.Id_repo,
                 repos_env.Id AS envId,
                 repos_env.Env,
-                repos_env.Description,
                 repos_env.Id_snap
                 FROM repos 
                 INNER JOIN repos_snap
@@ -88,6 +89,8 @@ class Repo extends \Models\Model
                 repos.Section,
                 repos.Source,
                 repos.Package_type,
+                repos.Description,
+                repos.Tags,
                 repos_snap.Id AS snapId,
                 repos_snap.Date,
                 repos_snap.Time,
@@ -115,7 +118,9 @@ class Repo extends \Models\Model
                 repos.Dist,
                 repos.Section,
                 repos.Source,
-                repos.Package_type
+                repos.Package_type,
+                repos.Description,
+                repos.Tags
                 FROM repos
                 WHERE repos.Id = :repoId");
                 $stmt->bindValue(':repoId', $repoId);
@@ -128,6 +133,8 @@ class Repo extends \Models\Model
                 repos.Section,
                 repos.Source,
                 repos.Package_type,
+                repos.Description,
+                repos.Tags,
                 repos_snap.Id AS snapId,
                 repos_snap.Date,
                 repos_snap.Time,
@@ -154,6 +161,8 @@ class Repo extends \Models\Model
                 repos.Section,
                 repos.Source,
                 repos.Package_type,
+                repos.Description,
+                repos.Tags,
                 repos_snap.Id AS snapId,
                 repos_snap.Date,
                 repos_snap.Time,
@@ -168,7 +177,6 @@ class Repo extends \Models\Model
                 repos_snap.Id_repo,
                 repos_env.Id AS envId,
                 repos_env.Env,
-                repos_env.Description,
                 repos_env.Id_snap
                 FROM repos
                 INNER JOIN repos_snap
@@ -178,6 +186,7 @@ class Repo extends \Models\Model
                 WHERE repos_env.Id = :envId");
                 $stmt->bindValue(':envId', $envId);
             }
+
             $result = $stmt->execute();
         } catch (Exception $e) {
             DbLog::error($e);
@@ -518,5 +527,35 @@ class Repo extends \Models\Model
         }
 
         unset($stmt);
+    }
+
+    /**
+     *  Update description
+     */
+    public function updateDescription(int $id, string $description): void
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE repos SET Description = :description WHERE Id = :id");
+            $stmt->bindValue(':description', $description);
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+    }
+
+    /**
+     *  Update tags
+     */
+    public function updateTags(int $id, string $tags): void
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE repos SET Tags = :tags WHERE Id = :id");
+            $stmt->bindValue(':tags', $tags);
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
     }
 }

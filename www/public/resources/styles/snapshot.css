@@ -1,0 +1,47 @@
+#explorer,
+#browse-search-results {
+    font-size: 14px;
+}
+
+#explorer ul,
+#browse-search-results ul {
+    list-style-type: none;
+}
+
+#explorer a, #explorer li,
+#browse-search-results a, #browse-search-results li {
+    text-decoration: none;
+}
+
+#explorer li > div,
+#browse-search-results li > div {
+    min-height: 30px;
+    padding: 10px 15px;
+    margin-bottom: 6px;
+    border-radius: 20px;
+    box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
+}
+
+#explorer li span,
+#browse-search-results li span {
+    display: block;
+}
+
+#explorer ul,
+#browse-search-results ul {
+    padding-left: 15px;
+}
+
+#explorer ul:first-child,
+#browse-search-results ul:first-child {
+    padding-left: 0;
+}
+
+#delete-packages-btn {
+    margin-left: 15px;
+}
+
+input[type=file] {
+    background-color: #2b2b2b;
+    padding-left: 0;
+}

@@ -6,20 +6,18 @@ $datasets = [];
 $labels = [];
 $options = [];
 
-if (__ACTUAL_URI__[2] != 'repo') {
-    throw new Exception('Error: invalid URI specified.');
+// Check that repository Id is specified
+if (empty(__ACTUAL_URI__[2])) {
+    throw new Exception('no repository ID specified');
 }
 
-if (empty(__ACTUAL_URI__[3])) {
-    throw new Exception('Error: missing repository ID.');
-}
-
-if (!is_numeric(__ACTUAL_URI__[3])) {
-    throw new Exception('Error: invalid repository ID specified.');
+// Check that repository Id is valid
+if (!is_numeric(__ACTUAL_URI__[2])) {
+    throw new Exception('invalid repository ID');
 }
 
 // Get repository info
-$repoController->getAllById(__ACTUAL_URI__[3]);
+$repoController->getAllById(__ACTUAL_URI__[2]);
 
 // Get all snapshots of the repository
 $snapshots = $repoController->getSnapshots($repoController->getRepoId());
@@ -56,14 +54,16 @@ $options = [
 
     // Labels format and style
     'labelPosition' => 'auto', // 'top', 'bottom', 'left', 'right', 'inside', 'auto' (adaptive)
-    'labelColor' => '#FFFFFF',
+    'labelColor' => '#c0d0e2',
     'labelFontSize' => 12,
-    'labelFontWeight' => 'bold',
-    'labelFontFamily' => 'Arial, sans-serif',
-    'labelBackground' => 'rgb(46, 54, 58)',
-    'labelBorder' => false,
-    'labelBorderRadius' => 16,
-    'labelPadding' => [6, 15],
+    'labelFontWeight' => '600',
+    'labelFontFamily' => 'archivo',
+    'labelBackground' => 'transparent',
+    'labelBorder' => true,
+    'labelBorderColor' => '#c0d0e2',
+    'labelBorderWidth' => 0.5,
+    'labelBorderRadius' => 20,
+    'labelPadding' => [6, 10],
 
     // Drop shadow (optional)
     'labelShadow' => true,
@@ -92,7 +92,7 @@ $options = [
     // Configure click callback to redirect to snapshot page
     'clickCallback' => [
         'enabled' => true,
-        'url' => '/browse/{value}',
+        'url' => '/snapshot/{value}',
         'newTab' => false // '_self' for same tab, '_blank' for new tab
     ]
 ];
