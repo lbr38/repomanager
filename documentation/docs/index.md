@@ -6,6 +6,10 @@
     <img src="https://raw.githubusercontent.com/lbr38/repomanager/refs/heads/devel/images/readme/github-readme-white.png#gh-dark-mode-only" align="top" width=30%>
 </div>
 
+!!! warning
+
+    6.0.0 is currently in beta and may contain experimental features.
+
 <br><br>
 
 **Repomanager** is a web mirroring tool for `rpm` and `deb` package repositories.
@@ -23,20 +27,22 @@
 
 ## Demo
 
-[![Demo](https://assets.repomanager.net/repomanager/index/demo.gif)](https://assets.repomanager.net/repomanager/index/demo.gif)
+<video controls autoplay loop muted>
+    <source src="https://assets.repomanager.net/repomanager/6.0.0/index/demo.webm" type="video/webm">
+</video>
 
 
 ## Screenshots
 
-[![Repositories](https://assets.repomanager.net/repomanager/index/index-1.png)](https://assets.repomanager.net/repomanager/index/index-1.png)
+[![Repositories](https://assets.repomanager.net/repomanager/6.0.0/index/index-1.png)](https://assets.repomanager.net/repomanager/6.0.0/index/index-1.png)
 
-[![Repository statistics](https://assets.repomanager.net/repomanager/index/index-2.png)](https://assets.repomanager.net/repomanager/index/index-2.png)
+[![Repository statistics](https://assets.repomanager.net/repomanager/6.0.0/index/index-2.png)](https://assets.repomanager.net/repomanager/6.0.0/index/index-2.png)
 
-[![Browse packages](https://assets.repomanager.net/repomanager/index/index-3.png)](https://assets.repomanager.net/repomanager/index/index-3.png)
+[![Browse packages](https://assets.repomanager.net/repomanager/6.0.0/index/index-3.png)](https://assets.repomanager.net/repomanager/6.0.0/index/index-3.png)
 
-[![Overview](https://assets.repomanager.net/repomanager/index/index-4.png)](https://assets.repomanager.net/repomanager/index/index-4.png)
+[![Overview](https://assets.repomanager.net/repomanager/6.0.0/index/index-4.png)](https://assets.repomanager.net/repomanager/6.0.0/index/index-4.png)
 
-[![Host dashboard](https://assets.repomanager.net/repomanager/index/index-5.png)](https://assets.repomanager.net/repomanager/index/index-5.png)
+[![Host dashboard](https://assets.repomanager.net/repomanager/6.0.0/index/index-5.png)](https://assets.repomanager.net/repomanager/6.0.0/index/index-5.png)
 
 
 ## Installation and usage

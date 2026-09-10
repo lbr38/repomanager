@@ -4,11 +4,11 @@ Importing client hosts into **Repomanager** is possible by using a client-side t
 
 **Hosts overview**
 
-[![Hosts overview](https://assets.repomanager.net/repomanager/usage/hosts/overview.png)](https://assets.repomanager.net/repomanager/usage/hosts/overview.png)
+[![Hosts overview](https://assets.repomanager.net/repomanager/6.0.0/usage/hosts/overview.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/hosts/overview.png)
 
 **Host dashboard**
 
-[![Host dashboard](https://assets.repomanager.net/repomanager/usage/hosts/host-dashboard.png)](https://assets.repomanager.net/repomanager/usage/hosts/host-dashboard.png)
+[![Host dashboard](https://assets.repomanager.net/repomanager/6.0.0/usage/hosts/host-dashboard.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/hosts/host-dashboard.png)
 
 
 ### Register a new host
@@ -29,7 +29,7 @@ From the **HOSTS** tab:
 
 **Step 1:** Select the host(s) you want to reset.
 
-[![Select host](https://assets.repomanager.net/repomanager/usage/hosts/select-host.png)](https://assets.repomanager.net/repomanager/usage/hosts/select-host.png)
+[![Select host](https://assets.repomanager.net/repomanager/6.0.0/usage/hosts/select-host.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/hosts/select-host.png)
 
 **Step 2:** Click the `Reset` button.
 
@@ -40,7 +40,7 @@ From the **HOSTS** tab:
 
 **Step 1:** Select the host(s) you want to delete.
 
-[![Select host](https://assets.repomanager.net/repomanager/usage/hosts/select-host.png)](https://assets.repomanager.net/repomanager/usage/hosts/select-host.png)
+[![Select host](https://assets.repomanager.net/repomanager/6.0.0/usage/hosts/select-host.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/hosts/select-host.png)
 
 **Step 2:** Click the `Delete` button.
 
@@ -57,7 +57,7 @@ From the **HOSTS** tab:
 
 **Step 1:** Select the host(s) you want to request.
 
-[![Select host](https://assets.repomanager.net/repomanager/usage/hosts/select-host.png)](https://assets.repomanager.net/repomanager/usage/hosts/select-host.png)
+[![Select host](https://assets.repomanager.net/repomanager/6.0.0/usage/hosts/select-host.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/hosts/select-host.png)
 
 **Step 2:** Cick the `Request general information` button.
 
@@ -74,38 +74,38 @@ From the **HOSTS** tab:
 
 **Step 1:** Select the host(s) you want to update.
 
-[![Select host](https://assets.repomanager.net/repomanager/usage/hosts/select-host.png)](https://assets.repomanager.net/repomanager/usage/hosts/select-host.png)
+[![Select host](https://assets.repomanager.net/repomanager/6.0.0/usage/hosts/select-host.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/hosts/select-host.png)
 
 **Step 2:** Use the `Request package information` button.
 
 It can take some minutes to be sent depending on the number of packages installed on the host.
 
 
-### Request a host to execute packages update
+### Request a host to execute package updates
 
 From the **HOSTS** tab:
 
 **Step 1:** Select the host(s) you want to update.
 
-[![Select host](https://assets.repomanager.net/repomanager/usage/hosts/select-host.png)](https://assets.repomanager.net/repomanager/usage/hosts/select-host.png)
+[![Select host](https://assets.repomanager.net/repomanager/6.0.0/usage/hosts/select-host.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/hosts/select-host.png)
 
 **Step 2:** Click the `Update packages` button.
 
 **Step 3:** Select either `All packages` or `Specific packages` to specify which packages you want to update.
 
-[![Update packages](https://assets.repomanager.net/repomanager/usage/hosts/update-packages.png)](https://assets.repomanager.net/repomanager/usage/hosts/update-packages.png)
+[![Update packages](https://assets.repomanager.net/repomanager/6.0.0/usage/hosts/update-packages.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/hosts/update-packages.png)
 
 !!! info
 
     You can also select specific packages to be updated by going to the host details page and selecting the packages you want to update.
 
-    [![Select packages](https://assets.repomanager.net/repomanager/usage/hosts/select-packages-to-update.png)](https://assets.repomanager.net/repomanager/usage/hosts/select-packages-to-update.png)
+    [![Select packages](https://assets.repomanager.net/repomanager/6.0.0/usage/hosts/select-packages-to-update.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/hosts/select-packages-to-update.png)
 
 
 !!! info
     You can view the running requests and their status on the host details page.
 
-    [![Requests status](https://assets.repomanager.net/repomanager/usage/hosts/requests-status.png)](https://assets.repomanager.net/repomanager/usage/hosts/requests-status.png)
+    [![Requests status](https://assets.repomanager.net/repomanager/6.0.0/usage/hosts/requests-status.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/hosts/requests-status.png)
 
 
 ## Profiles
@@ -121,15 +121,15 @@ From the **HOSTS** tab:
 
 **Step 1:** Click the `Profiles` button to open the **MANAGE PROFILES** panel.
 
-[![Profiles button](https://assets.repomanager.net/repomanager/usage/hosts/profiles-btn.png)](https://assets.repomanager.net/repomanager/usage/hosts/profiles-btn.png)
+[![Profiles button](https://assets.repomanager.net/repomanager/6.0.0/usage/hosts/profiles-btn.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/hosts/profiles-btn.png)
 
 **Step 2:** Specify the name of the profile you want to create.
 
-[![Create profile](https://assets.repomanager.net/repomanager/usage/hosts/create-profile.png)](https://assets.repomanager.net/repomanager/usage/hosts/create-profile.png)
+[![Create profile](https://assets.repomanager.net/repomanager/6.0.0/usage/hosts/create-profile.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/hosts/create-profile.png)
 
 **Step 3:** Once the profile has been created, you can edit its configuration and define which repositories this profile will have access to and which packages must be excluded from updates.
 
-[![Edit a profile](https://assets.repomanager.net/repomanager/usage/hosts/edit-profile.png)](https://assets.repomanager.net/repomanager/usage/hosts/edit-profile.png)
+[![Edit a profile](https://assets.repomanager.net/repomanager/6.0.0/usage/hosts/edit-profile.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/hosts/edit-profile.png)
 
 **Step 4:** Save.
 
@@ -142,7 +142,7 @@ From the **HOSTS** tab:
 
 **Step 1:** Click the `Profiles` button to open the **MANAGE PROFILES** panel.
 
-[![Profiles button](https://assets.repomanager.net/repomanager/usage/hosts/profiles-btn.png)](https://assets.repomanager.net/repomanager/usage/hosts/profiles-btn.png)
+[![Profiles button](https://assets.repomanager.net/repomanager/6.0.0/usage/hosts/profiles-btn.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/hosts/profiles-btn.png)
 
 **Step 2:** Select the profile(s) you want to delete.
 

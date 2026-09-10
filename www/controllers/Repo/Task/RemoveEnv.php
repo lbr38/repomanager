@@ -28,14 +28,12 @@ class RemoveEnv extends \Controllers\Task\Execution
     /**
      *  Remove snapshot environment
      */
-    public function execute()
+    public function execute(): void
     {
         $this->taskLogStepController->new('removing', 'REMOVING');
         $this->taskLogSubStepController->new('delete-symlink', 'DELETE SYMLINK');
 
-        /**
-         *  Define environment symlink
-         */
+        // Define environment symlink
         if ($this->repoController->getPackageType() == 'rpm') {
             $symlink = REPOS_DIR . '/rpm/' . $this->repoController->getName() . '/' . $this->repoController->getReleasever() . '/' . $this->repoController->getEnv();
         }
@@ -44,9 +42,7 @@ class RemoveEnv extends \Controllers\Task\Execution
             $symlink = REPOS_DIR . '/deb/' . $this->repoController->getName() . '/' . $this->repoController->getDist() . '/' . $this->repoController->getSection() . '/' . $this->repoController->getEnv();
         }
 
-        /**
-         *  Delete environment symlink
-         */
+        // Delete environment symlink
         if (file_exists($symlink)) {
             if (!unlink($symlink)) {
                 throw new Exception('Failed to delete symlink: ' . $symlink);
@@ -55,9 +51,7 @@ class RemoveEnv extends \Controllers\Task\Execution
 
         $this->taskLogSubStepController->completed();
 
-        /**
-         *  Delete environment from database
-         */
+        // Delete environment from database
         $this->taskLogSubStepController->new('update-database', 'UPDATE DATABASE');
         $this->repoEnvController->remove($this->repoController->getEnvId());
         $this->taskLogSubStepController->completed();

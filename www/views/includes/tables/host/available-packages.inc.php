@@ -1,3 +1,7 @@
+<?php
+use \Controllers\Utils\Generate\Html\Icon;
+use \Controllers\Utils\Convert; ?>
+
 <div class="reloadable-table" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
     <?php
     if (!empty($reloadableTableContent)) :
@@ -25,36 +29,54 @@
             </div>
         </div>
 
-        <?php
-        foreach ($reloadableTableContent as $item) :
-            $checked = '';
-            $excluded = false;
-            $title = 'Select package'; ?>
+        <div class="flex flex-direction-column row-gap-10">
+            <?php
+            foreach ($reloadableTableContent as $item) :
+                $checked = '';
+                $excluded = false;
+                $securityUpdate = Convert::toBool($item['Security'] ?? false);
+                $title = 'Click to select';
 
-            <div class="table-container-3 bck-blue-alt">
-                <div class="text-center">
-                    <?= \Controllers\Utils\Generate\Html\Icon::product($item['Name']) ?>
-                </div>
+                // If the package is in the "exclude on major update" list
+                foreach ($packageExcludedMajor as $package) {
+                    if (preg_match('#' . $package . '#', $item['Name'])) {
+                        $excluded = true;
+                        $title = 'This package is marked as excluded on major update in the profile configuration';
+                        break;
+                    }
+                }
 
-                <div class="get-package-timeline pointer" hostid="<?= $id ?>" packagename="<?= $item['Name'] ?>" title="See package history">
-                    <div class="flex align-item-center column-gap-5">
-                        <p class="copy" title="Available package"><?= $item['Name'] ?></p>
-                        <p class="copy" title="Available version"><code class="wordbreakall"><?= $item['Current_version'] ?> ❯ <?= $item['Version'] ?></code></p>
+                // If the package is in the "always exclude" list
+                foreach ($packageExcluded as $package) {
+                    if (preg_match('#' . $package . '#', $item['Name'])) {
+                        $excluded = true;
+                        $title = 'This package is marked as excluded in the profile configuration';
+                        break;
+                    }
+                } ?>
+
+                <div class="host-package-item pointer <?= $excluded ? 'host-package-excluded' : '' ?>" title="<?= $title ?>">
+                    <div class="flex align-item-center column-gap-10">
+                        <?= Icon::product($item['Name']) ?>
+
+                        <div class="get-package-timeline" hostid="<?= $id ?>" packagename="<?= $item['Name'] ?>">
+                            <p class="copy" title="Available package"><?= $item['Name'] ?></p>
+
+                            <?php
+                            if (!empty($item['Repository'])) : ?>
+                                <p class="note wordbreakall copy" title="Repository"><?= $item['Repository'] ?></p>
+                                <?php
+                            endif ?>
+                        </div>
                     </div>
 
-                    <?php
-                    if (!empty($item['Repository'])) : ?>
-                        <p class="note wordbreakall copy" title="Repository"><?= $item['Repository'] ?></p>
-                        <?php
-                    endif ?>
-                </div>
+                    <div class="flex align-item-center column-gap-10">
+                        <p class="copy" title="<?= $securityUpdate ? 'Security update available' : 'Update available' ?>">
+                            <span class="label-<?= $securityUpdate ? 'yellow' : 'white' ?> wordbreakall"><?= $item['Current_version'] ?> ❯ <?= $item['Version'] ?></span>
+                        </p>
 
-                <div class="text-right margin-right-5">
-                    <div class="flex align-iten-center justify-end column-gap-10 row-gap-5 flex-wrap">
                         <?php
-                        /**
-                         *  If package was selected, we check the checkbox
-                         */
+                        // If package was selected, we check the checkbox
                         if (!empty($selectedPackages['packages'])) {
                             foreach ($selectedPackages['packages'] as $package) {
                                 if ($package['name'] === $item['Name'] and $package['available_version'] === $item['Version']) {
@@ -62,42 +84,30 @@
                                     break;
                                 }
                             }
-                        } ?>
+                        }
 
-                        <?php
                         if (IS_ADMIN) {
-                            // If the package is in the "exclude on major update" list, print a warning icon
-                            foreach ($packageExcludedMajor as $package) {
-                                if (preg_match('#' . $package . '#', $item['Name'])) {
-                                    $excluded = true;
-                                    $title = 'Warning: this package is marked as excluded on major update in the profile configuration';
-                                }
-                            }
-
-                            // If the package is in the "always exclude" list, print a warning icon
-                            foreach ($packageExcluded as $package) {
-                                if (preg_match('#' . $package . '#', $item['Name'])) {
-                                    $excluded = true;
-                                    $title = 'Warning: this package is marked as excluded in the profile configuration';
-                                }
-                            }
-
-                            // If there is no package update already running, display the checkbox
+                            // If there is no package update already running, add the checkbox
                             if ($packageUpdateRunning == false) { ?>
-                                <input type="checkbox" class="available-package-checkbox lowopacity <?= $excluded ? 'checkbox-warning' : '' ?>" host-id="<?= $id ?>" package="<?= $item['Name'] ?>" version="<?= $item['Version'] ?>" <?= $checked ?> <?= $excluded ? 'excluded="true"' : 'excluded="false"' ?> title="<?= $title ?>" />
+                                <input type="checkbox" class="available-package-checkbox <?= $excluded ? 'checkbox-warning' : '' ?>" host-id="<?= $id ?>" package="<?= $item['Name'] ?>" version="<?= $item['Version'] ?>" <?= $checked ?> <?= $excluded ? 'excluded="true"' : 'excluded="false"' ?> title="<?= $title ?>" />
                                 <?php
                             }
                         } ?>
                     </div>
                 </div>
+                <?php
+            endforeach; ?>
+            
+            <div class="flex justify-end margin-top-10">
+                <?php \Controllers\Layout\Table\Render::paginationBtn($reloadableTableCurrentPage, $reloadableTableTotalPages); ?>
             </div>
-            <?php
-        endforeach; ?>
-        
-        <div class="flex justify-end margin-top-10">
-            <?php \Controllers\Layout\Table\Render::paginationBtn($reloadableTableCurrentPage, $reloadableTableTotalPages); ?>
-        </div>
 
+            <script>
+            $(function() {
+                $('.available-package-checkbox:checked').closest('.host-package-item').addClass('host-package-selected');
+            });
+            </script>
+        </div>
         <?php
     endif ?>
 </div>

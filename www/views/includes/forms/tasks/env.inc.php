@@ -1,6 +1,3 @@
-<h6>POINT AN ENVIRONMENT</h6>
-<p class="note">The repository snapshot to point the environment(s) to.</p>
-
 <div class="flex align-item-center">
     <p class="label-white">
         <?php
@@ -36,9 +33,6 @@
         }
     } ?>
 </select>
-
-<h6>DESCRIPTION</h6>
-<input type="text" class="task-param" param-name="description" />
 
 <?php
 // Define schedule form action (useful for the schedule form)

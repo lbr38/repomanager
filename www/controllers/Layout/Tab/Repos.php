@@ -8,6 +8,7 @@ class Repos
 {
     public static function render()
     {
+        Render::render('repos/kpi');
         Render::render('repos/list');
     }
 }

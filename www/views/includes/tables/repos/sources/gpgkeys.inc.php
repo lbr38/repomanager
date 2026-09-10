@@ -12,7 +12,7 @@
 
         <?php
         foreach ($reloadableTableContent as $item) : ?>
-            <div class="table-container grid-fr-4-1 bck-blue-alt">
+            <div class="table-container-2 panel-list-item">
                 <div>
                     <p title="Key name"><?= $item['name'] ?></p>
                     <p title="Key ID" class="lowopacity-cst copy"><?= $item['id'] ?></p>

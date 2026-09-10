@@ -37,40 +37,6 @@ class Deb extends \Models\Model
     }
 
     /**
-     *  Return repository environment description
-     */
-    public function getDescriptionByName(string $name, string $dist, string $component, string $env) : string|null
-    {
-        $description = null;
-
-        try {
-            $stmt = $this->db->prepare("SELECT repos_env.Description FROM repos_env
-            INNER JOIN repos_snap
-                ON repos_snap.Id = repos_env.Id_snap
-            INNER JOIN repos
-                ON repos.Id = repos_snap.Id_repo
-            WHERE repos.Name = :name
-            AND repos.Dist = :dist
-            AND repos.Section = :component
-            AND repos_env.Env = :env
-            AND repos_snap.Status = 'active'");
-            $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':dist', $dist);
-            $stmt->bindValue(':component', $component);
-            $stmt->bindValue(':env', $env);
-            $result = $stmt->execute();
-        } catch (Exception $e) {
-            DbLog::error($e);
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $description = $row['Description'];
-        }
-
-        return $description;
-    }
-
-    /**
      *  Return environment Id from repo name
      */
     public function getEnvIdFromRepoName(string $name, string $dist, string $component, string $env) : array

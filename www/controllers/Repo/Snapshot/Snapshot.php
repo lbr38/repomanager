@@ -161,6 +161,24 @@ class Snapshot
     }
 
     /**
+     *  Return true if the snapshot has a protected environment
+     */
+    public function hasProtectedEnv(int $snapId): bool
+    {
+        $envController = new \Controllers\Environment();
+        $repoEnvController = new \Controllers\Repo\Environment();
+
+        // Get the list of environments associated with the snapshot and check if any of them is protected
+        foreach ($repoEnvController->getBySnapId($snapId) as $env) {
+            if ($envController->isProtected($env)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      *  Clean unused snapshots and return a message
      */
     public function clean(int $repoId) : string

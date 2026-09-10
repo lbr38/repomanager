@@ -13,18 +13,17 @@ class Environment extends \Models\Model
     }
 
     /**
-     *  Return all environments associated to a repository ID
+     *  Return all environments associated to a snapshot Id
      */
-    public function getByRepoId(int $repoId): array
+    public function getBySnapId(int $snapId): array
     {
         $data = [];
 
         try {
             $stmt = $this->db->prepare("SELECT Env FROM repos_env
             INNER JOIN repos_snap ON repos_snap.Id = repos_env.Id_snap
-            INNER JOIN repos ON repos.Id = repos_snap.Id_repo
-            WHERE repos.Id = :repoId");
-            $stmt->bindValue(':repoId', $repoId);
+            WHERE repos_snap.Id = :snapId");
+            $stmt->bindValue(':snapId', $snapId);
             $result = $stmt->execute();
         } catch (Exception $e) {
             DbLog::error($e);
@@ -40,12 +39,11 @@ class Environment extends \Models\Model
     /**
      *  Associate a new env to a snapshot
      */
-    public function add(int $snapId, string $env, string $description) : void
+    public function add(int $snapId, string $env) : void
     {
         try {
-            $stmt = $this->db->prepare("INSERT INTO repos_env ('Env', 'Description', 'Id_snap') VALUES (:env, :description, :snapId)");
+            $stmt = $this->db->prepare("INSERT INTO repos_env ('Env', 'Id_snap') VALUES (:env, :snapId)");
             $stmt->bindValue(':env', $env);
-            $stmt->bindValue(':description', $description);
             $stmt->bindValue(':snapId', $snapId);
             $stmt->execute();
         } catch (Exception $e) {
@@ -60,21 +58,6 @@ class Environment extends \Models\Model
     {
         try {
             $stmt = $this->db->prepare("DELETE FROM repos_env WHERE Id = :envId");
-            $stmt->bindValue(':envId', $id);
-            $stmt->execute();
-        } catch (Exception $e) {
-            DbLog::error($e);
-        }
-    }
-
-    /**
-     *  Update environment description
-     */
-    public function updateDescription(int $id, string $description) : void
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE repos_env SET Description = :description WHERE Id = :envId");
-            $stmt->bindValue(':description', $description);
             $stmt->bindValue(':envId', $id);
             $stmt->execute();
         } catch (Exception $e) {

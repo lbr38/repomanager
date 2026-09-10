@@ -3,7 +3,7 @@
     <p class="note">Packages installed and available updates.</p>
     
     <?php
-    if (empty($packagesInventored) and empty($packagesAvailable)) : ?>
+    if (empty($packagesInventoredTotal) and empty($packagesAvailableTotal)) : ?>
         <div class="empty-state">
             <p class="empty-state-title">Nothing for now!</p>
             <p class="note">The host did not send any packages inventory yet.</p>
@@ -11,7 +11,7 @@
         <?php
     endif;
 
-    if (!empty($packagesInventored) or !empty($packagesAvailable)) : ?>
+    if (!empty($packagesInventoredTotal) or !empty($packagesAvailableTotal)) : ?>
         <div class="flex align-item-center column-gap-40 margin-top-15 margin-bottom-15">
             <div>
                 <div id="installed-packages-btn" class="pointer">
@@ -50,36 +50,9 @@
         </div>
 
         <div id="installed-packages-div" class="hide">
-            <p class="mediumopacity-cst margin-top-15 margin-bottom-15"><?= count($packagesInventored) ?> packages inventored</p>
+            <input type="text" id="installed-packages-search" class="margin-bottom-5" autocomplete="off" placeholder="Search package" value="<?= !empty($_COOKIE['tables/host/installed-packages/search']) ? htmlspecialchars($_COOKIE['tables/host/installed-packages/search'], ENT_QUOTES) : '' ?>">
 
-            <input type="text" id="installed-packages-search" class="margin-bottom-5" onkeyup="filterPackage()" autocomplete="off" placeholder="Search package">
-
-            <div id="installed-packages-container" class="margin-top-15">
-                <?php
-                if (!empty($packagesInventored)) :
-                    foreach ($packagesInventored as $item) : ?>
-                        <div class="table-container-3 bck-blue-alt pointer package-row get-package-timeline" hostid="<?= $id ?>" packagename="<?= $item['Name'] ?>" packageversion="<?= $item['Version'] ?>" title="See package history">
-                            <div class="text-center">
-                                <?= \Controllers\Utils\Generate\Html\Icon::product($item['Name']);?>
-                            </div>
-
-                            <div>
-                                <p class="copy">
-                                    <?php
-                                    // If package is removed or purged, show it in red
-                                    if ($item['State'] == 'removed' or $item['State'] == 'purged') {
-                                        echo '<span class="redtext">' . $item['Name'] . ' (uninstalled)</span>';
-                                    } else {
-                                        echo $item['Name'];
-                                    } ?>
-                                </p>
-                                <p class="lowopacity-cst copy"><?= $item['Version'] ?></p>
-                            </div>
-                        </div>
-                        <?php
-                    endforeach;
-                endif ?>
-            </div>
+            <?php \Controllers\Layout\Table\Render::render('host/installed-packages'); ?>
         </div>
         <?php
     endif ?>

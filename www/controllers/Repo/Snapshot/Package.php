@@ -126,6 +126,11 @@ class Package
             throw new Exception('You are not allowed to upload packages');
         }
 
+        // Check if snapshot has a protected env
+        if ($this->repoSnapshotController->hasProtectedEnv($this->snapId)) {
+            throw new Exception('Snapshot has a protected environment and cannot be modified. Please contact your administrator.');
+        }
+
         // Both overwrite and ignoreIfExists cannot be true at the same time
         if ($overwrite && $ignoreIfExists) {
             throw new Exception('Options overwrite and ignore-if-exists are mutually exclusive');
@@ -329,6 +334,11 @@ class Package
         // If the user does not have permission to delete packages, prevent access to this action.
         if (!RepoPermission::allowedAction('delete-package')) {
             throw new Exception('You are not allowed to delete packages.');
+        }
+
+        // Check if snapshot has a protected env
+        if ($this->repoSnapshotController->hasProtectedEnv($this->snapId)) {
+            throw new Exception('Snapshot has a protected environment and cannot be modified. Please contact your administrator.');
         }
 
         foreach ($files as $file) {

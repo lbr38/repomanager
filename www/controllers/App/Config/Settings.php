@@ -229,11 +229,9 @@ class Settings
             if (!empty($settings['RELEASEVER'])) {
                 define('RELEASEVER', $settings['RELEASEVER']);
             } else {
-                define('RELEASEVER', '');
+                define('RELEASEVER', '10');
 
-                /**
-                 *  Print a message only if RPM repositories are enabled.
-                 */
+                // Print a message only if RPM repositories are enabled
                 if (RPM_REPO == 'true') {
                     $__LOAD_SETTINGS_MESSAGES[] = "<code>DEFAULT RELEASE VERSION</code> setting is not defined.";
                 }

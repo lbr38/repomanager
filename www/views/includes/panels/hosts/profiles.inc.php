@@ -8,13 +8,13 @@
 
 <h6>CREATE A NEW PROFILE</h6>
 <form id="create-new-profile-form" autocomplete="off">
-    <input id="profile-name" type="text" class="input-medium" placeholder="Profile name" />
-    <button type="submit" class="btn-xxsmall-green" title="Add">+</button>
+    <input id="profile-name" type="text" placeholder="Profile name" />
+    <button type="submit" class="btn-small-green margin-top-5" title="Create">Create</button>
 </form>
 
 <?php
 if (!empty($profiles)) :
-    echo '<h6 class="margin-bottom-5">CURRENT PROFILES</h6>';
+    echo '<h6 class="margin-top-30 margin-bottom-5">CURRENT PROFILES</h6>';
 
     foreach ($profiles as $profile) :
         $packageExclude         = explode(',', $profile['Package_exclude']);
@@ -87,7 +87,7 @@ if (!empty($profiles)) :
                     <h6>PACKAGE EXCLUSION</h6>
                     
                     <h6>EXCLUDE MAJOR VERSION</h6>
-                    <p class="note">Specify which packages the host should exclude from updates if the update is a major version change. You can use <code>.*</code> as a wildcard. <code>mysql.*</code></p>
+                    <p class="note">Specify which packages the host should exclude from updates if the update is a major version change. You can use <code>.*</code> as a wildcard.<br>For example: <code>mysql.*</code></p>
                     <select name="profile-exclude-major" multiple>
                         <?php
                         /**
@@ -112,7 +112,7 @@ if (!empty($profiles)) :
                     </select>
                     
                     <h6>ALWAYS EXCLUDE</h6>
-                    <p class="note">Specify which packages the host should exclude from updates (no matter the version). You can use <code>.*</code> as a wildcard. <code>mysql.*</code></p>
+                    <p class="note">Specify which packages the host should exclude from updates (no matter the version). You can use <code>.*</code> as a wildcard.<br>For example: <code>mysql.*</code></p>
                     <select name="profile-exclude" multiple>
                         <?php
                         foreach ($listPackages as $package) {

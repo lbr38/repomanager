@@ -1,7 +1,7 @@
 <?php ob_start(); ?>
 <h6 class="required">SELECT AN ENVIRONMENT</h6>
 
-<select id="repo-install-select-env">
+<select id="repo-install-select-env" class="margin-bottom-20">
     <option value=""></option>
     <?php
     foreach (ENVS as $env) {

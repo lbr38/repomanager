@@ -3,7 +3,7 @@
  *  Rename deb repo
  */
 $rawParams['action'] = 'rename';
-$rawParams['snap-id'] = '1';
+$rawParams['repo-id'] = '1';
 $rawParams['env-id'] = '';
 $rawParams['name'] = 'debian-rename';
 $rawParams['arch'] = ['amd64', 'armhf'];

@@ -8,6 +8,7 @@
     <link rel="stylesheet" type="text/css" href="/resources/styles/normalize.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/common.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/components/layout.css?<?= VERSION ?>">
+    <link rel="stylesheet" type="text/css" href="/resources/styles/components/card.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/components/alert.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/components/icon.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/components/input.css?<?= VERSION ?>">
@@ -28,19 +29,18 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
 
     <?php
-    /**
-     *  Load additional CSS files depending on the current URI
-     */
+    // Load additional CSS files depending on the current URI
     $additionalCss = [
-        "run"      => "run.css",
-        "browse"   => "browse.css",
-        "stat"     => "stats-hosts.css",
-        "stats"    => "stats-hosts.css",
-        "hosts"    => "stats-hosts.css",
-        "host"     => "stats-hosts.css",
-        "settings" => "settings.css",
-        "cves"     => "cve.css",
-        "cve"      => "cve.css"
+        'tasks'    => 'tasks',
+        'task'     => 'tasks.css',
+        'snapshot' => 'snapshot.css',
+        'stat'     => 'stats-hosts.css',
+        'stats'    => 'stats-hosts.css',
+        'hosts'    => 'stats-hosts.css',
+        'host'     => 'stats-hosts.css',
+        'settings' => 'settings.css',
+        'cves'     => 'cve.css',
+        'cve'      => 'cve.css'
     ];
 
     foreach ($additionalCss as $uri => $css) {
@@ -70,23 +70,21 @@
     <?php
     $title = 'Repomanager';
 
-    if (__ACTUAL_URI__[1] == "") {
+    if (__ACTUAL_URI__[1] == '') {
         $title .= ' - Repositories';
-    } elseif (__ACTUAL_URI__[1] == "run") {
+    } elseif (in_array(__ACTUAL_URI__[1], ['tasks', 'task'])) {
         $title .= ' - Tasks';
-    } elseif (__ACTUAL_URI__[1] == "browse") {
-        $title .= ' - Browse repo';
-    } elseif (__ACTUAL_URI__[1] == "stats") {
-        $title .= ' - Statistics and metrics';
-    } elseif (__ACTUAL_URI__[1] == "hosts") {
-        $title .= ' - Manage hosts';
-    } elseif (__ACTUAL_URI__[1] == "host") {
-        $title .= ' - Manage host';
-    } elseif (__ACTUAL_URI__[1] == "settings") {
+    } elseif (__ACTUAL_URI__[1] == 'repository') {
+        $title .= ' - Repository';
+    } elseif (__ACTUAL_URI__[1] == 'snapshot') {
+        $title .= ' - Snapshot';
+    } elseif (in_array(__ACTUAL_URI__[1], ['hosts', 'host'])) {
+        $title .= ' - Hosts';
+    } elseif (__ACTUAL_URI__[1] == 'settings') {
         $title .= ' - Settings';
-    } elseif (__ACTUAL_URI__[1] == "history") {
+    } elseif (__ACTUAL_URI__[1] == 'history') {
         $title .= ' - History';
-    } elseif (__ACTUAL_URI__[1] == "status") {
+    } elseif (__ACTUAL_URI__[1] == 'status') {
         $title .= ' - Status';
     } ?>
 

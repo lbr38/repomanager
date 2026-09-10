@@ -67,6 +67,30 @@ class ContainerReload extends \Models\Model
     }
 
     /**
+     *  Delete the specified layout container states
+     */
+    public function delete(array $names): void
+    {
+        if (empty($names)) {
+            return;
+        }
+
+        try {
+            $placeholders = implode(',', array_fill(0, count($names), '?'));
+
+            $stmt = $this->db->prepare("DELETE FROM layout_container_state WHERE Container IN (" . $placeholders . ")");
+
+            foreach (array_values($names) as $index => $name) {
+                $stmt->bindValue($index + 1, $name);
+            }
+
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+    }
+
+    /**
      *  Clean all containers entries
      */
     public function clean()
