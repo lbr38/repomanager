@@ -3,6 +3,8 @@
         <?= $reloadableTableTotalItems ?> package<?= $reloadableTableTotalItems > 1 ? 's' : '' ?> inventored<?= $search !== '' ? ' (filtered)' : '' ?>
     </p>
 
+    <input type="text" id="installed-packages-search" class="margin-bottom-10" autocomplete="off" placeholder="Search package" value="<?= !empty($_COOKIE['tables/host/installed-packages/search']) ? htmlspecialchars($_COOKIE['tables/host/installed-packages/search'], ENT_QUOTES) : '' ?>">
+
     <?php
     if (empty($reloadableTableContent)) : ?>
         <p class="note"><?= $search !== '' ? 'No package matches your search.' : 'No package inventored.' ?></p>
