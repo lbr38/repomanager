@@ -1,67 +1,43 @@
-<div class="timeline">
-    <?php
-    // The first block will be displayed on the left in the timeline
-    $contentPosition = 'right';
+<div class="timeline-wrapper">
+    <div class="timeline-header">
+        <h6>Date</h6>
+        <h6>State</h6>
+        <h6>Version</h6>
+    </div>
 
-    foreach ($events as $event) :
-        if ($event['State'] == "inventored") {
-            $icon = 'package';
-            $state = 'INVENTORED';
-        }
-        if ($event['State'] == "installed") {
-            $icon = 'package-installed';
-            $state = 'INSTALLED';
-        }
-        if ($event['State'] == "dep-installed") {
-            $icon = 'package-installed';
-            $state = 'INSTALLED (as depencency)';
-        }
-        if ($event['State'] == "reinstalled") {
-            $icon = 'package-installed';
-            $state = 'REINSTALLED';
-        }
-        if ($event['State'] == "upgraded") {
-            $icon = 'package-updated';
-            $state = 'UPDATED';
-        }
-        if ($event['State'] == "removed") {
-            $icon = 'package-removed';
-            $state = 'UNINSTALLED';
-        }
-        if ($event['State'] == "purged") {
-            $icon = 'package-removed';
-            $state = 'UNINSTALLED (purged)';
-        }
-        if ($event['State'] == "downgraded") {
-            $icon = 'package-updated';
-            $state = 'DOWNGRADED';
-        } ?>
+    <div class="timeline">
+        <?php
+        foreach ($events as $event) :
+            [$stateLabel, $stateClass, $stateTitle] = match ($event['State']) {
+                'inventored'     => ['Inventored', 'label-tr', 'Inventored'],
+                'installed'     => ['Installed', 'label-green', 'Installed'],
+                'dep-installed' => ['Dependency', 'label-green', 'Installed as dependency'],
+                'reinstalled'   => ['Reinstalled', 'label-green', 'Reinstalled'],
+                'upgraded'      => ['Updated', 'label-yellow', 'Updated'],
+                'removed'       => ['Uninstalled', 'label-red', 'Uninstalled'],
+                'purged'        => ['Purged', 'label-red', 'Uninstalled (purged)'],
+                'downgraded'    => ['Downgraded', 'label-yellow', 'Downgraded'],
+                default         => [$event['State'], 'label-tr', $event['State']],
+            }; ?>
 
-        <div class="timeline-container">
-            <div class="div-generic-blue bck-blue-alt grid grid-rfr-1-2 row-gap-20 column-gap-50">
-                <div class="grid grid-rfr-1-3 align-item-center column-gap-20 row-gap-20">
-                    <div class="flex flex-direction-column">
+            <div class="timeline-container timeline-state-<?= htmlspecialchars($event['State'], ENT_QUOTES) ?>">
+                <div class="timeline-event">
+                    <span class="timeline-pointer"></span>
+                    <div class="timeline-date">
                         <p><?= DateTime::createFromFormat('Y-m-d', $event['Date'])->format('d-m-Y') ?></p>
                         <p class="lowopacity-cst"><?= $event['Time'] ?></p>
                     </div>
-                    
-                    <div class="flex flex-direction-column row-gap-5">
-                        <div class="flex align-item-center column-gap-5">
-                            <img src="/assets/icons/<?=  $icon ?>.svg" class="icon-np" />
-                            <h6 class="margin-top-0"><?= $state ?></h6>
-                        </div>
+
+                    <div class="timeline-state">
+                        <span class="<?= $stateClass ?>" title="<?= $stateTitle ?>"><?= $stateLabel ?></span>
                     </div>
 
-                    <div class="flex flex-direction-column row-gap-5">
-                        <h6 class="margin-top-0">VERSION</h6>
+                    <div class="timeline-version">
                         <p class="copy"><span class="label-white"><?= $event['Version'] ?></span></p>
                     </div>
                 </div>
-
-                <div>
-                </div>
             </div>
-        </div>
-        <?php
-    endforeach ?>
+            <?php
+        endforeach ?>
+    </div>
 </div>

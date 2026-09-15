@@ -179,7 +179,7 @@ class Execute extends Host
                 break;
             }
 
-            $message .= '<span class="label-white">' . $host['hostname'] . ' (' . $host['ip'] . ')</span> ';
+            $message .= '<code>' . $host['hostname'] . ' (' . $host['ip'] . ')</code> ';
             $count++;
         }
 

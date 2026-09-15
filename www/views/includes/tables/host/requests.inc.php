@@ -257,7 +257,7 @@
                     continue;
                 } ?>
 
-                <div class="<?= $class ?>" request-id="<?= $item['Id'] ?>">
+                <div class="<?= $class ?> column-gap-15" request-id="<?= $item['Id'] ?>">
                     <div class="flex align-item-center column-gap-15">
                         <?php
                         if (!empty($requestStatusIcon)) {
@@ -274,7 +274,7 @@
                         </div>
                     </div>
 
-                    <div class="flex align-item-center column-gap-10">
+                    <div class="flex flex-grow justify-end column-gap-10">
                         <p class="lowopacity-cst font-size-12">
                             <?php
                             echo $requestStatus;
