@@ -393,8 +393,7 @@ class Connection extends SQLite3
         // Create indexes
         $this->exec("CREATE INDEX IF NOT EXISTS tasks_rawparams_status ON tasks (Raw_params, Status)");
         $this->exec("CREATE INDEX IF NOT EXISTS tasks_status ON tasks (Status)");
-        // TODO: uncomment this after 6.0.0
-        // $this->exec("CREATE INDEX IF NOT EXISTS tasks_parent_task_id ON tasks (Parent_task_id)");
+        $this->exec("CREATE INDEX IF NOT EXISTS tasks_parent_task_id ON tasks (Parent_task_id)");
 
         // profile_settings table
         $this->exec("CREATE TABLE IF NOT EXISTS profile_settings (

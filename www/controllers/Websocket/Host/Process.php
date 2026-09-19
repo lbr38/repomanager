@@ -72,8 +72,11 @@ class Process extends \Controllers\Websocket\WebsocketServer
         $info = '';
         $responseJson = '';
 
-        // Retrieve request Id
-        $requestId = $message['response-to-request']['request-id'];
+        if (!ctype_digit((string) $message['response-to-request']['request-id'])) {
+            throw new Exception('invalid request Id');
+        }
+
+        $requestId = (int) $message['response-to-request']['request-id'];
 
         // Retrieve request status
         $status = $message['response-to-request']['status'];
@@ -92,8 +95,17 @@ class Process extends \Controllers\Websocket\WebsocketServer
 
         // Retrieve log, if any
         if (!empty($message['response-to-request']['log'])) {
-            if (!file_put_contents(WS_REQUESTS_LOGS_DIR . '/request-' . $requestId . '.log', $message['response-to-request']['log'])) {
-                $this->logError('[conn #' . $conn->resourceId . '] Error while writing request #' . $requestId . ' log to file ' . WS_REQUESTS_LOGS_DIR . '/request-' . $requestId . '.log');
+            $logFile = WS_REQUESTS_LOGS_DIR . '/request-' . $requestId . '.log';
+
+            // Ensure the resolved path stays within the requests logs directory (defense in depth against traversal)
+            $logDirRealpath = realpath(WS_REQUESTS_LOGS_DIR);
+
+            if ($logDirRealpath === false || !str_starts_with(dirname($logFile) . DIRECTORY_SEPARATOR, $logDirRealpath . DIRECTORY_SEPARATOR)) {
+                throw new Exception('invalid log file path for request #' . $requestId);
+            }
+
+            if (!file_put_contents($logFile, $message['response-to-request']['log'])) {
+                $this->logError('[conn #' . $conn->resourceId . '] Error while writing request #' . $requestId . ' log to file ' . $logFile);
             }
         }
 
@@ -218,6 +230,9 @@ class Process extends \Controllers\Websocket\WebsocketServer
 
                 // First, retrieve websocket connection Id of target host
                 $hostWsConnectionId = $this->getWsConnectionIdByHostId($request['Id_host']);
+                // if ($hostWsConnectionId = $this->getWsConnectionIdByHostId($request['Id_host']) === null) {
+                //     throw new Exception('websocket connection not found for host #' . $request['Id_host']);
+                // }
 
                 // If request is 'disconnect', close connection and remove it from database
                 if ($requestDetails['request'] == 'disconnect') {

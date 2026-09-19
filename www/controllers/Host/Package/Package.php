@@ -103,7 +103,7 @@ class Package
 
         ob_start();
 
-        include_once(ROOT . '/views/includes/host/package/event-packages-details.inc.php');
+        include_once(ROOT . '/views/includes/modals/host/package/event-packages-details.inc.php');
 
         return ob_get_clean();
     }
@@ -120,7 +120,7 @@ class Package
 
         ob_start();
 
-        include_once(ROOT . '/views/includes/host/package/timeline.inc.php');
+        include_once(ROOT . '/views/includes/modals/host/package/timeline.inc.php');
 
         return ob_get_clean();
     }

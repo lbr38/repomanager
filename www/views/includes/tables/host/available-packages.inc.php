@@ -14,19 +14,24 @@ use \Controllers\Utils\Convert; ?>
         } ?>
 
         <div class="flex justify-space-between align-item-center">
-            <p class="margin-top-15 margin-bottom-15 mediumopacity-cst"><?=  $reloadableTableTotalItems ?> package<?= $reloadableTableTotalItems > 1 ? 's' : '' ?> to update</p>
-
-            <div class="margin-right-20">
+            <div class="flex align-item-center column-gap-10">
+                <p class="margin-top-15 margin-bottom-15 mediumopacity-cst"><?=  $reloadableTableTotalItems ?> package<?= $reloadableTableTotalItems > 1 ? 's' : '' ?> to update</p>
                 <?php
-                if (IS_ADMIN) {
-                    // If there is no package update already running, display the select all checkbox
-                    if ($packageUpdateRunning === false) {
-                        echo '<input type="checkbox" class="available-package-select-all lowopacity" title="Select all packages" />';
-                    } else {
-                        echo '<img src="/assets/icons/loading.svg" class="icon-np" title="A package update is already running" />';
-                    }
+                if ($packageUpdateRunning) {
+                    echo '<img src="/assets/icons/loading.svg" class="icon-np" title="A package update is running" />';
                 } ?>
             </div>
+
+            <?php
+            if (IS_ADMIN) {
+                // If there is no package update already running, display the select all button
+                if (!$packageUpdateRunning) {
+                    echo '<div class="select-all-btn btn-fit-tr align-item-center column-gap-8 pointer available-package-select-all" title="Select all packages">';
+                    echo '<span>Select all</span>';
+                    echo '<input type="checkbox" title="Select all packages" aria-hidden="true" tabindex="-1" />';
+                    echo '</div>';
+                }
+            } ?>
         </div>
 
         <div class="flex flex-direction-column row-gap-10">
@@ -71,9 +76,16 @@ use \Controllers\Utils\Convert; ?>
                     </div>
 
                     <div class="flex align-item-center column-gap-10">
-                        <p class="copy" title="<?= $securityUpdate ? 'Security update available' : 'Update available' ?>">
-                            <span class="label-<?= $securityUpdate ? 'yellow' : 'white' ?> wordbreakall"><?= $item['Current_version'] ?> ❯ <?= $item['Version'] ?></span>
-                        </p>
+                        <div class="flex align-item-center column-gap-10">
+                            <?php
+                            if ($securityUpdate) {
+                                echo '<img src="/assets/icons/shield-warning.svg" class="icon-medium icon-np" />';
+                            } ?>
+
+                            <p class="copy" title="<?= $securityUpdate ? 'Security update available' : 'Update available' ?>">
+                                <span class="label-<?= $securityUpdate ? 'yellow' : 'white' ?> wordbreakall"><?= $item['Current_version'] ?> ❯ <?= $item['Version'] ?></span>
+                            </p>
+                        </div>
 
                         <?php
                         // If package was selected, we check the checkbox

@@ -2,6 +2,7 @@ name: Deploy documentation
 on:
   push:
     branches:
+      - devel
       - main
 
 permissions:
@@ -34,3 +35,34 @@ jobs:
           cd documentation
           mike deploy --push --update-aliases ${{ env.VERSION }} latest
           mike set-default --push latest
+
+      # Root 404: redirect version-less URLs (/usage/operations/) to the latest version
+      - name: Publish root 404 redirect
+        run: |
+          git checkout gh-pages
+          cat > 404.html <<'EOF'
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="utf-8">
+              <title>Redirecting</title>
+              <script>
+                (function () {
+                  var path = window.location.pathname.replace(/^\/+/, "");
+                  var first = path.split("/")[0];
+                  // Avoid redirect loops on paths that are already version-scoped
+                  if (first === "latest" || /^\d+\.\d+\.\d+$/.test(first)) {
+                    document.write("Page not found.");
+                    return;
+                  }
+                  window.location.replace(
+                    "/latest/" + path + window.location.search + window.location.hash
+                  );
+                })();
+              </script>
+            </head>
+            <body>Redirecting to the latest version...</body>
+          </html>
+          EOF
+          git add 404.html
+          git diff --staged --quiet || (git commit -m "Update root 404 redirect" && git push origin gh-pages)
