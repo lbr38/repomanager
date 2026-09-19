@@ -1,3 +1,6 @@
+<?php
+use \Controllers\Utils\Convert; ?>
+
 <div class="timeline-wrapper">
     <div class="timeline-header">
         <h6>Date</h6>
@@ -8,6 +11,8 @@
     <div class="timeline">
         <?php
         foreach ($events as $event) :
+            $securityUpdate = Convert::toBool($event['Security'] ?? false);
+
             [$stateLabel, $stateClass, $stateTitle] = match ($event['State']) {
                 'inventored'     => ['Inventored', 'label-tr', 'Inventored'],
                 'installed'     => ['Installed', 'label-green', 'Installed'],
@@ -28,12 +33,19 @@
                         <p class="lowopacity-cst"><?= $event['Time'] ?></p>
                     </div>
 
-                    <div class="timeline-state">
+                    <div>
                         <span class="<?= $stateClass ?>" title="<?= $stateTitle ?>"><?= $stateLabel ?></span>
                     </div>
 
-                    <div class="timeline-version">
-                        <p class="copy"><span class="label-white"><?= $event['Version'] ?></span></p>
+                    <div class="flex align-item-center column-gap-10" title="<?= $securityUpdate ? 'Security update' : '' ?>">
+                        <?php
+                        if ($securityUpdate) {
+                            echo '<img src="/assets/icons/shield-warning.svg" class="icon-medium icon-np" />';
+                        } ?>
+
+                        <p class="copy">
+                            <span class="label-<?= $securityUpdate ? 'yellow' : 'white' ?>"><?= $event['Version'] ?></span>
+                        </p>
                     </div>
                 </div>
             </div>

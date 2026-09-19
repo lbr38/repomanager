@@ -76,9 +76,16 @@ use \Controllers\Utils\Convert; ?>
                     </div>
 
                     <div class="flex align-item-center column-gap-10">
-                        <p class="copy" title="<?= $securityUpdate ? 'Security update available' : 'Update available' ?>">
-                            <span class="label-<?= $securityUpdate ? 'yellow' : 'white' ?> wordbreakall"><?= $item['Current_version'] ?> ❯ <?= $item['Version'] ?></span>
-                        </p>
+                        <div class="flex align-item-center column-gap-10">
+                            <?php
+                            if ($securityUpdate) {
+                                echo '<img src="/assets/icons/shield-warning.svg" class="icon-medium icon-np" />';
+                            } ?>
+
+                            <p class="copy" title="<?= $securityUpdate ? 'Security update available' : 'Update available' ?>">
+                                <span class="label-<?= $securityUpdate ? 'yellow' : 'white' ?> wordbreakall"><?= $item['Current_version'] ?> ❯ <?= $item['Version'] ?></span>
+                            </p>
+                        </div>
 
                         <?php
                         // If package was selected, we check the checkbox

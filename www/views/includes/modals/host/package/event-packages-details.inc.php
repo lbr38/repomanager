@@ -1,4 +1,7 @@
 <?php
+use \Controllers\Utils\Generate\Html\Icon;
+use \Controllers\Utils\Convert;
+
 $eventGroups = [];
 
 foreach ($packages as $package) {
@@ -26,6 +29,8 @@ foreach ($packages as $package) {
             $firstRow = true;
 
             foreach ($timePackages as $package) :
+                $securityUpdate = Convert::toBool($package['Security'] ?? false);
+
                 [$stateLabel, $stateClass, $stateTitle] = match ($package['State']) {
                     'installed'     => ['Installed', 'label-green', 'Installed'],
                     'dep-installed' => ['Dependency', 'label-green', 'Installed as dependency'],
@@ -41,11 +46,20 @@ foreach ($packages as $package) {
                     <p class="event-packages-time"><?= $firstRow ? $time : '' ?></p>
 
                     <div class="flex align-item-center column-gap-5 min-width-200 pointer get-package-timeline" hostid="<?= $this->hostId ?>" packagename="<?= $package['Name'] ?>" title="See package history">
-                        <?= \Controllers\Utils\Generate\Html\Icon::product($package['Name']) ?>
+                        <?= Icon::product($package['Name']) ?>
                         <p class="copy"><?= $package['Name'] ?></p>
                     </div>
 
-                    <p class="copy"><span class="label-white"><?= $package['Version'] ?></span></p>
+                    <div class="flex align-item-center column-gap-10" title="<?= $securityUpdate ? 'Security update' : '' ?>">
+                        <?php
+                        if ($securityUpdate) {
+                            echo '<img src="/assets/icons/shield-warning.svg" class="icon-medium icon-np" />';
+                        } ?>
+
+                        <p class="copy">
+                            <span class="label-<?= $securityUpdate ? 'yellow' : 'white' ?>"><?= $package['Version'] ?></span>
+                        </p>
+                    </div>
 
                     <p><span class="<?= $stateClass ?>" title="<?= $stateTitle ?>"><?= $stateLabel ?></span></p>
 

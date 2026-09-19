@@ -410,8 +410,7 @@
     border-right: 16px solid #22384F;
 }
 
-.timeline-date p,
-.timeline-version p {
+.timeline-date p {
     margin: 0;
 }
 

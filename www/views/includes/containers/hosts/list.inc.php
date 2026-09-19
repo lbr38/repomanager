@@ -249,7 +249,7 @@ use \Controllers\Host\Package\Package; ?>
 
                                         $class = '';
                                         if (!$compliance['compliant']) {
-                                            $compliantIcon = 'warning-red.svg';
+                                            $compliantIcon = 'shield-warning.svg';
                                             $compliantTitle = 'Host is not compliant: ' . strtolower($compliance['reason']);
                                         }
 
