@@ -97,7 +97,7 @@ class Listing extends \Models\Model
                 LEFT JOIN repos_env 
                     ON repos_env.Id_snap = repos_snap.Id
                 WHERE repos_snap.Status = 'active' AND repos.Id NOT IN (SELECT Id_repo FROM group_members)
-                ORDER BY repos.Name ASC, repos.Releasever ASC, repos.Dist ASC, repos.Section ASC, repos_snap.Date DESC, repos_env.Env ASC");
+                ORDER BY repos.Name ASC, CAST(repos.Releasever AS INTEGER) ASC, repos.Dist ASC, repos.Section ASC, repos_snap.Date DESC, repos_env.Env ASC");
             } else {
                 $stmt = $this->db->prepare("SELECT DISTINCT
                 repos.Id AS repoId,
@@ -132,7 +132,7 @@ class Listing extends \Models\Model
                     ON groups.Id = group_members.Id_group
                 WHERE groups.Name = :groupname
                 AND repos_snap.Status = 'active'
-                ORDER BY repos.Name ASC, repos.Releasever ASC, repos.Dist ASC, repos.Section ASC, repos_snap.Date DESC, repos_env.Env ASC");
+                ORDER BY repos.Name ASC, CAST(repos.Releasever AS INTEGER) ASC, repos.Dist ASC, repos.Section ASC, repos_snap.Date DESC, repos_env.Env ASC");
                 $stmt->bindValue(':groupname', $groupName);
                 $result = $stmt->execute();
             }

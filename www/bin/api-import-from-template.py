@@ -49,11 +49,11 @@ def parse_arguments():
     parser.add_argument("--help", action="store_true", default='null')
     # Directory where the certificates are stored
     parser.add_argument("--certs-dir", action="store", nargs='?', default='null')
-    # Pattern to match the certificate
+    # Pattern to match the certificate
     parser.add_argument("--certificate-pattern", action="store", nargs='?', default='null')
-    # Pattern to match the private key
+    # Pattern to match the private key
     parser.add_argument("--private-key-pattern", action="store", nargs='?', default='null')
-    # Pattern to match the CA certificate
+    # Pattern to match the CA certificate
     parser.add_argument("--ca-certificate-pattern", action="store", nargs='?', default='null')
 
     # Direct path to certificate
@@ -108,7 +108,7 @@ def parse_arguments():
     if args.private_key_pattern == 'null' and args.private_key_path == 'null':
         raise Exception('You must specify either --private-key-pattern or --private-key-path')
 
-    # If a pattern is set, check that --certs-dir is set
+    # If a pattern is set, check that --certs-dir is set
     if (args.certificate_pattern != 'null' or args.private_key_pattern != 'null' or args.ca_certificate_pattern != 'null') and args.certs_dir == 'null':
         raise Exception('You must specify --certs-dir when using --certificate-pattern, --private-key-pattern or --ca-certificate-pattern')
 
@@ -149,7 +149,7 @@ try:
         if not Path(args.certs_dir).is_dir():
             raise Exception('Directory ' + args.certs_dir + ' does not exist')
 
-        # Get all files in the certs directory
+        # Get all files in the certs directory
         files = glob.glob(args.certs_dir + '/*')
 
         # Find the certificates and private key using the patterns

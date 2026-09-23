@@ -7,14 +7,218 @@ repositories:
     description: Ubuntu official archived (EOL) repositories
     url: https://old-releases.ubuntu.com/ubuntu
     distributions:
+      # Ubuntu 24.10
+      - name: oracular
+        description: Ubuntu 24.10
+        components:
+          - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+          - name: restricted
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+          - name: universe
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+          - name: multiverse
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+        gpgkeys:
+          - fingerprint: 871920D1991BC93C
+
+      # Ubuntu 23.10
+      - name: mantic
+        description: Ubuntu 23.10
+        components:
+          - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+          - name: restricted
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+          - name: universe
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+          - name: multiverse
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+        gpgkeys:
+          - fingerprint: 871920D1991BC93C
+
+      # Ubuntu 23.04
+      - name: lunar
+        description: Ubuntu 23.04
+        components:
+          - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+          - name: restricted
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+          - name: universe
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+          - name: multiverse
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+        gpgkeys:
+          - fingerprint: 871920D1991BC93C
+
+      # Ubuntu 22.10
+      - name: kinetic
+        description: Ubuntu 22.10
+        components:
+          - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+          - name: restricted
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+          - name: universe
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+          - name: multiverse
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+        gpgkeys:
+          - fingerprint: 871920D1991BC93C
+
       # Ubuntu 21.10
       - name: impish
         description: Ubuntu 21.10
         components:
           - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: restricted
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: universe
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: multiverse
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
         gpgkeys:
           - fingerprint: 871920D1991BC93C
 
@@ -23,9 +227,41 @@ repositories:
         description: Ubuntu 21.04
         components:
           - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: restricted
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: universe
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: multiverse
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
         gpgkeys:
           - fingerprint: 871920D1991BC93C
 
@@ -34,8 +270,410 @@ repositories:
         description: Ubuntu 20.10
         components:
           - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: restricted
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: universe
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: multiverse
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
         gpgkeys:
           - fingerprint: 871920D1991BC93C
+
+      # Ubuntu 19.10
+      - name: eoan
+        description: Ubuntu 19.10
+        components:
+          - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - s390x
+          - name: restricted
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - s390x
+          - name: universe
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - s390x
+          - name: multiverse
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - s390x
+        gpgkeys:
+          - fingerprint: 871920D1991BC93C
+
+      # Ubuntu 19.04
+      - name: disco
+        description: Ubuntu 19.04
+        components:
+          - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - s390x
+          - name: restricted
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - s390x
+          - name: universe
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - s390x
+          - name: multiverse
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - s390x
+        gpgkeys:
+          - fingerprint: 871920D1991BC93C
+
+      # Ubuntu 18.10
+      - name: cosmic
+        description: Ubuntu 18.10
+        components:
+          - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - s390x
+          - name: restricted
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - s390x
+          - name: universe
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - s390x
+          - name: multiverse
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - s390x
+        gpgkeys:
+          - fingerprint: 871920D1991BC93C
+
+      # Ubuntu 17.10
+      - name: artful
+        description: Ubuntu 17.10
+        components:
+          - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - s390x
+          - name: restricted
+            archs:
+              - amd64
+              - armhf
+              - i386
+          - name: universe
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - s390x
+          - name: multiverse
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - s390x
+        gpgkeys:
+          - fingerprint: 871920D1991BC93C
+
+      # Ubuntu 17.04
+      - name: zesty
+        description: Ubuntu 17.04
+        components:
+          - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - s390x
+          - name: restricted
+            archs:
+              - amd64
+              - armhf
+              - i386
+          - name: universe
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - s390x
+          - name: multiverse
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - s390x
+        gpgkeys:
+          - fingerprint: 871920D1991BC93C
+
+      # Ubuntu 16.10
+      - name: yakkety
+        description: Ubuntu 16.10
+        components:
+          - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - powerpc
+              - ppc64el
+              - s390x
+          - name: restricted
+            archs:
+              - amd64
+              - armhf
+              - i386
+          - name: universe
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - powerpc
+              - ppc64el
+              - s390x
+          - name: multiverse
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - powerpc
+              - ppc64el
+              - s390x
+        gpgkeys:
+          - fingerprint: 40976EAF437D05B5
+          - fingerprint: 790BC7277767219C42C86F933B4FE6ACC0B21F32
+
+      # Ubuntu 12.04
+      - name: precise
+        description: Ubuntu 12.04
+        components:
+          - name: main
+            archs:
+              - amd64
+              - armel
+              - armhf
+              - i386
+              - powerpc
+          - name: restricted
+            archs:
+              - amd64
+              - armhf
+              - i386
+          - name: universe
+            archs:
+              - amd64
+              - armel
+              - armhf
+              - i386
+              - powerpc
+          - name: multiverse
+            archs:
+              - amd64
+              - armel
+              - armhf
+              - i386
+              - powerpc
+        gpgkeys:
+          - fingerprint: 40976EAF437D05B5
+
+    ignored-distributions:
+      - breezy
+      - breezy-backports
+      - breezy-proposed
+      - breezy-security
+      - breezy-updates
+      - dapper
+      - dapper-backports
+      - dapper-proposed
+      - dapper-security
+      - dapper-updates
+      - edgy
+      - edgy-backports
+      - edgy-proposed
+      - edgy-security
+      - edgy-updates
+      - feisty
+      - feisty-backports
+      - feisty-proposed
+      - feisty-security
+      - feisty-updates
+      - gutsy
+      - gutsy-backports
+      - gutsy-proposed
+      - gutsy-security
+      - gutsy-updates
+      - hardy
+      - hardy-backports
+      - hardy-proposed
+      - hardy-security
+      - hardy-updates
+      - hoary
+      - hoary-backports
+      - hoary-proposed
+      - hoary-security
+      - hoary-updates
+      - intrepid
+      - intrepid-backports
+      - intrepid-proposed
+      - intrepid-security
+      - intrepid-updates
+      - jaunty
+      - jaunty-backports
+      - jaunty-proposed
+      - jaunty-security
+      - jaunty-updates
+      - karmic
+      - karmic-backports
+      - karmic-proposed
+      - karmic-security
+      - karmic-updates
+      - lucid
+      - lucid-backports
+      - lucid-proposed
+      - lucid-security
+      - lucid-updates
+      - maverick
+      - maverick-backports
+      - maverick-proposed
+      - maverick-security
+      - maverick-updates
+      - natty
+      - natty-backports
+      - natty-proposed
+      - natty-security
+      - natty-updates
+      - oneiric
+      - oneiric-backports
+      - oneiric-proposed
+      - oneiric-security
+      - oneiric-updates
+      - quantal
+      - quantal-backports
+      - quantal-proposed
+      - quantal-security
+      - quantal-updates
+      - raring
+      - raring-backports
+      - raring-proposed
+      - raring-security
+      - raring-updates
+      - saucy
+      - saucy-backports
+      - saucy-proposed
+      - saucy-security
+      - saucy-updates
+      - utopic
+      - utopic-backports
+      - utopic-proposed
+      - utopic-security
+      - utopic-updates
+      - vivid
+      - vivid-backports
+      - vivid-proposed
+      - vivid-security
+      - vivid-updates
+      - warty
+      - warty-backports
+      - warty-proposed
+      - warty-security
+      - warty-updates
+      - wily
+      - wily-backports
+      - wily-proposed
+      - wily-security
+      - wily-updates
+

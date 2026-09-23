@@ -12,7 +12,7 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
                     if ($compliance['compliant']) {
                         echo '<img src="/assets/icons/shield.svg" class="icon-np icon-medium" title="Host is compliant" />';
                     } else {
-                        echo '<img src="/assets/icons/warning-red.svg" class="icon-np icon-medium" title="Host is not compliant: ' . strtolower($compliance['reason']) . '" />';
+                        echo '<img src="/assets/icons/shield-warning.svg" class="icon-np icon-medium" title="Host is not compliant: ' . strtolower($compliance['reason']) . '" />';
                     } ?>
                 </div>
             </div>

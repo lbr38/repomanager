@@ -103,7 +103,7 @@ class Package
 
         ob_start();
 
-        include_once(ROOT . '/views/includes/host/package/event-packages-details.inc.php');
+        include_once(ROOT . '/views/includes/modals/host/package/event-packages-details.inc.php');
 
         return ob_get_clean();
     }
@@ -120,7 +120,7 @@ class Package
 
         ob_start();
 
-        include_once(ROOT . '/views/includes/host/package/timeline.inc.php');
+        include_once(ROOT . '/views/includes/modals/host/package/timeline.inc.php');
 
         return ob_get_clean();
     }
@@ -210,6 +210,9 @@ class Package
      */
     public function setPackageState(string $name, string $version, string $state, string $date, string $time, string $eventId = '') : void
     {
+        // Must be read before the package is removed from the available packages list below
+        $security = $this->model->getPackageAvailableSecurity($name, $version);
+
         /**
          *  If the package already exists in database, we update it
          */
@@ -228,12 +231,12 @@ class Package
             /**
              *  Then we update the package state and its version in the database with the information that has been transmitted
              */
-            $this->model->setPackageState($name, $version, $state, $date, $time, $eventId);
+            $this->model->setPackageState($name, $version, $state, $date, $time, $eventId, $security);
         } else {
             /**
              *  If the package does not exist, we add it directly in the specified state (installed, upgraded, removed...)
              */
-            $this->model->addPackage($name, $version, $state, 'package', $date, $time, $eventId);
+            $this->model->addPackage($name, $version, $state, 'package', $date, $time, $eventId, $security);
         }
 
         /**
@@ -279,7 +282,7 @@ class Package
         /**
          *  Then we copy this state in the packages_history table
          */
-        $this->model->setPackageHistory($packageName, $packageVersion, $packageState, $packageType, $packageDate, $packageTime, $packageEventId);
+        $this->model->setPackageHistory($packageName, $packageVersion, $packageState, $packageType, $packageDate, $packageTime, $packageEventId, $data['Security'] ?? null);
     }
 
     /**

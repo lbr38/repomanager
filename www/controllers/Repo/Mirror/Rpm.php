@@ -15,6 +15,10 @@ use Controllers\Utils\Compress\Zstd;
 class Rpm extends \Controllers\Repo\Mirror\Mirror
 {
     private $archUrls = [];
+    // Log substeps are keyed by identifier, so each URL needs its own suffix to avoid overwriting
+    private $urlIndex = 0;
+    // Per-arch metadata files are not merged: the first URL providing each type wins
+    private $metadataRetrievedFrom = [];
     private $updateInfoLocation;
     private $updateInfoChecksum;
     private $modulesLocation;
@@ -27,7 +31,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
      */
     private function downloadRepomd(string $url) : void
     {
-        $this->taskLogSubStepController->new('getting-repomd', 'GETTING REPOMD.XML', 'From ' . $url . '/repodata/repomd.xml');
+        $this->taskLogSubStepController->new('getting-repomd-' . $this->urlIndex, 'GETTING REPOMD.XML', 'From ' . $url . '/repodata/repomd.xml');
 
         if (!$this->download($url . '/repodata/repomd.xml', $this->workingDir . '/repomd.xml')) {
             throw new Exception('Could not download <code>repomd.xml</code>');
@@ -41,7 +45,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
      */
     private function downloadPrimary(string $url) : void
     {
-        $this->taskLogSubStepController->new('getting-primary', 'GETTING PRIMARY.XML.GZ', 'From ' . $url . '/' . $this->primaryLocation);
+        $this->taskLogSubStepController->new('getting-primary-' . $this->urlIndex, 'GETTING PRIMARY.XML.GZ', 'From ' . $url . '/' . $this->primaryLocation);
 
         if (!$this->download($url . '/' . $this->primaryLocation, $this->workingDir . '/primary.xml.gz')) {
             throw new Exception('Could not download <code>primary.xml.gz</code>');
@@ -65,11 +69,16 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             return;
         }
 
-        $this->taskLogSubStepController->new('getting-comps', 'GETTING COMPS.XML', 'From ' . $url . '/' . $this->compsLocation);
+        $this->taskLogSubStepController->new('getting-comps-' . $this->urlIndex, 'GETTING COMPS.XML', 'From ' . $url . '/' . $this->compsLocation);
 
         // If sync of comps.xml is disabled, skip it
         if ($this->advancedParams['metadata-sync']['comps'] == 'false') {
             $this->taskLogSubStepController->completed('Skipping (sync disabled)');
+            return;
+        }
+
+        if (isset($this->metadataRetrievedFrom['comps'])) {
+            $this->taskLogSubStepController->completed('Skipping (already retrieved from ' . $this->metadataRetrievedFrom['comps'] . ')');
             return;
         }
 
@@ -81,6 +90,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         if (!$this->checksum($this->workingDir . '/comps.xml', $this->compsChecksum)) {
             throw new Exception('<code>comps.xml</code> checksum does not match provided checksum');
         }
+
+        $this->metadataRetrievedFrom['comps'] = $url;
 
         $this->taskLogSubStepController->completed();
     }
@@ -95,11 +106,16 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             return;
         }
 
-        $this->taskLogSubStepController->new('getting-modules', 'GETTING MODULES', 'From ' . $url . '/' . $this->modulesLocation);
+        $this->taskLogSubStepController->new('getting-modules-' . $this->urlIndex, 'GETTING MODULES', 'From ' . $url . '/' . $this->modulesLocation);
 
         // If sync of modules.yaml is disabled, skip it
         if ($this->advancedParams['metadata-sync']['modules'] == 'false') {
             $this->taskLogSubStepController->completed('Skipping (sync disabled)');
+            return;
+        }
+
+        if (isset($this->metadataRetrievedFrom['modules'])) {
+            $this->taskLogSubStepController->completed('Skipping (already retrieved from ' . $this->metadataRetrievedFrom['modules'] . ')');
             return;
         }
 
@@ -154,6 +170,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             }
         }
 
+        $this->metadataRetrievedFrom['modules'] = $url;
+
         $this->taskLogSubStepController->completed();
     }
 
@@ -167,11 +185,16 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             return;
         }
 
-        $this->taskLogSubStepController->new('getting-updateinfo', 'GETTING UPDATEINFO.XML.GZ', 'From ' . $url . '/' . $this->updateInfoLocation);
+        $this->taskLogSubStepController->new('getting-updateinfo-' . $this->urlIndex, 'GETTING UPDATEINFO.XML.GZ', 'From ' . $url . '/' . $this->updateInfoLocation);
 
         // If sync of updateinfo.xml.gz is disabled, skip it
         if ($this->advancedParams['metadata-sync']['updateinfo'] == 'false') {
             $this->taskLogSubStepController->completed('Skipping (sync disabled)');
+            return;
+        }
+
+        if (isset($this->metadataRetrievedFrom['updateinfo'])) {
+            $this->taskLogSubStepController->completed('Skipping (already retrieved from ' . $this->metadataRetrievedFrom['updateinfo'] . ')');
             return;
         }
 
@@ -199,6 +222,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             throw new Exception('<code>' . $updateInfoFileTargetName . '</code> checksum does not match provided checksum');
         }
 
+        $this->metadataRetrievedFrom['updateinfo'] = $url;
+
         $this->taskLogSubStepController->completed();
     }
 
@@ -207,7 +232,13 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
      */
     private function parseRepoMd() : void
     {
-        $this->taskLogSubStepController->new('parsing-repomd', 'PARSING REPOMD.XML');
+        $this->taskLogSubStepController->new('parsing-repomd-' . $this->urlIndex, 'PARSING REPOMD.XML');
+
+        // Values found for the previous URL must not leak into this one
+        $this->primaryLocation = $this->primaryChecksum = null;
+        $this->compsLocation = $this->compsChecksum = null;
+        $this->modulesLocation = $this->modulesChecksum = null;
+        $this->updateInfoLocation = $this->updateInfoChecksum = null;
 
         if (!file_exists($this->workingDir . '/repomd.xml')) {
             throw new Exception('Could not parse <code>' . $this->workingDir . '/repomd.xml</code>: File not found');
@@ -336,11 +367,11 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
     /**
      *  Parse primary packages list file to find .rpm packages location and their checksum
      */
-    private function parsePrimaryPackagesList(string $primaryFile) : void
+    private function parsePrimaryPackagesList(string $primaryFile, string $url) : void
     {
         $this->rpmPackagesLocation = [];
 
-        $this->taskLogSubStepController->new('parsing-primary', 'PARSING PACKAGES LIST', 'From ' . $primaryFile);
+        $this->taskLogSubStepController->new('parsing-primary-' . $this->urlIndex, 'PARSING PACKAGES LIST', 'From ' . $primaryFile);
 
         /**
          *  Get primary.xml.gz mime type
@@ -451,9 +482,10 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
 
         $reader->close();
 
-        // Print error if no package location has been found
+        // Other arch URLs may still provide packages, so only warn here
         if (empty($this->rpmPackagesLocation)) {
-            throw new Exception('No package found');
+            $this->taskLogSubStepController->warning('No package found matching the selected architecture(s) (' . implode(', ', $this->arch) . ') on ' . $url);
+            return;
         }
 
         // Filter packages to keep only the X latest versions if 'keep-latest' is set
@@ -469,7 +501,14 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
      */
     private function downloadRpmPackages(string $url) : void
     {
-        $this->taskLogSubStepController->new('downloading-packages', 'DOWNLOADING PACKAGES', 'From ' . $url);
+        $this->taskLogSubStepController->new('downloading-packages-' . $this->urlIndex, 'DOWNLOADING PACKAGES', 'From ' . $url);
+
+        // Create packages directory
+        if (!is_dir($this->workingDir . '/packages')) {
+            if (!mkdir($this->workingDir . '/packages', 0770, true)) {
+                throw new Exception('Cannot create directory: ' . $this->workingDir . '/packages');
+            }
+        }
 
         // If GPG signature check is enabled, either use a distant http:// GPG key or use the repomanager keyring
         if ($this->checkSignature == 'true') {
@@ -495,7 +534,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             $packageCounter++;
 
             // Output package to download to log file
-            $this->taskLogSubStepController->new('downloading-package-' . $packageCounter, 'DOWNLOADING PACKAGE (' . $packageCounter . '/' . $totalPackages . ')', $url . '/' . $rpmPackageLocation);
+            $this->taskLogSubStepController->new('downloading-package-' . $this->urlIndex . '-' . $packageCounter, 'DOWNLOADING PACKAGE (' . $packageCounter . '/' . $totalPackages . ')', $url . '/' . $rpmPackageLocation);
 
             /**
              *  If a list of package(s) to include has been provided, check if the package is in the list
@@ -505,7 +544,10 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                 $isIn = false;
 
                 foreach ($this->advancedParams['packages']['include'] as $packageToInclude) {
-                    if (preg_match('/' . $packageToInclude . '/', $rpmPackageName)) {
+                    // Convert any '*' to '.*' for regex matching, only if preceded or followed by alphabetic character(s) and not if already '.*'
+                    $packageToInclude = preg_replace('/(?<!\.)\*/', '.*', $packageToInclude);
+
+                    if (preg_match('/^' . $packageToInclude . '/', $rpmPackageName)) {
                         $isIn = true;
                     }
                 }
@@ -525,7 +567,10 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                 $isIn = false;
 
                 foreach ($this->advancedParams['packages']['exclude'] as $packageToExclude) {
-                    if (preg_match('/' . $packageToExclude . '/', $rpmPackageName)) {
+                    // Convert any '*' to '.*' for regex matching, only if preceded or followed by alphabetic character(s) and not if already '.*'
+                    $packageToExclude = preg_replace('/(?<!\.)\*/', '.*', $packageToExclude);
+
+                    if (preg_match('/^' . $packageToExclude . '/', $rpmPackageName)) {
                         $isIn = true;
                     }
                 }
@@ -771,7 +816,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         }
 
         // Set the main substep as completed
-        $this->taskLogSubStepController->completed('', 'downloading-packages');
+        $this->taskLogSubStepController->completed('', 'downloading-packages-' . $this->urlIndex);
 
         unset($totalPackages, $packageCounter);
 
@@ -789,6 +834,15 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         // Quit if rpm is not present on the system and that signature check is enabled
         if ($this->checkSignature == 'true' and !file_exists('/usr/bin/rpm')) {
             throw new Exception('RPM binary is not present on the system (searched in <code>/usr/bin/rpm</code>)');
+        }
+
+        // A relaunched task reuses the previous working dir, remove the metadata files it may have left (including Metadata\Rpm temporary names)
+        foreach (['comps.xml', 'modules.yaml*', 'updateinfo.xml*', 'tmp-comps', 'tmp-modules', 'tmp-updateinfo'] as $pattern) {
+            foreach (glob($this->workingDir . '/' . $pattern) ?: [] as $file) {
+                if (!unlink($file)) {
+                    throw new Exception('Could not delete <code>' . $file . '</code>');
+                }
+            }
         }
 
         // Delete final slash if exist
@@ -885,8 +939,12 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
 
         $this->taskLogSubStepController->completed();
 
+        $totalPackagesFound = 0;
+
         // Retrieve packages for each URL
         foreach ($this->archUrls as $url) {
+            $this->urlIndex++;
+
             // Download repomd.xml
             $this->downloadRepomd($url);
 
@@ -906,13 +964,20 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             $this->downloadUpdateInfo($url);
 
             // Parse primary packages list file
-            $this->parsePrimaryPackagesList($this->workingDir . '/primary.xml.gz');
+            $this->parsePrimaryPackagesList($this->workingDir . '/primary.xml.gz', $url);
 
             // Download rpm packages
-            $this->downloadRpmPackages($url);
+            if (!empty($this->rpmPackagesLocation)) {
+                $totalPackagesFound += count($this->rpmPackagesLocation);
+                $this->downloadRpmPackages($url);
+            }
 
             // Clean remaining files
             $this->clean();
+        }
+
+        if ($totalPackagesFound == 0) {
+            throw new Exception('No package found matching the selected architecture(s) on any of the source repository URL(s)');
         }
     }
 }

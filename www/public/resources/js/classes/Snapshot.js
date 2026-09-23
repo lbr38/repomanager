@@ -60,9 +60,9 @@ class Snapshot {
                 success: function (data, textStatus, jqXHR) {
                     jsonValue = jQuery.parseJSON(jqXHR.responseText);
 
-                    // Reload the packages list and actions to show the newly uploaded packages
+                    // Reload the KPIs and the packages tree to show the newly uploaded packages
                     mycontainer.reload('snapshot/kpi');
-                    mycontainer.reload('snapshot/list');
+                    mysnapshot.reloadTree();
 
                     // Close the upload slide panel
                     mypanel.close('snapshot/upload');
@@ -115,9 +115,9 @@ class Snapshot {
             // Print error alert:
             true
         ).then(function () {
-            // Reload packages list and actions
+            // Reload the KPIs and the packages tree
             mycontainer.reload('snapshot/kpi');
-            mycontainer.reload('snapshot/list');
+            mysnapshot.reloadTree();
 
             // Print packages that have been deleted
             var deletedNames = jsonValue.message.map(function (pkg) { return pkg.name; });
@@ -155,10 +155,21 @@ class Snapshot {
             self._initTreeLevel($('#packages-list'));
             self._initLoadMore($('#packages-list'));
             self._initSearch(path);
-            $('#loading-tree').remove();
+            // Hidden rather than removed, so that container reloads keep matching it
+            $('#loading-tree').hide();
             // $('#browse-search-bar').show();
             $('#explorer').show();
         });
+    }
+
+    /**
+     *  Close the search and print the packages tree again
+     */
+    reloadTree()
+    {
+        $('#browse-search-input').val('');
+        $('#browse-search-results').hide().empty();
+        this.printTree($('.reloadable-container[container="snapshot/list"]').attr('data-snapshot-path'));
     }
 
     /**
@@ -265,7 +276,7 @@ class Snapshot {
     {
         let debounceTimer = null;
 
-        $('#browse-search-input').on('input', function () {
+        $('#browse-search-input').off('input.search').on('input.search', function () {
             clearTimeout(debounceTimer);
             const query = $(this).val().trim();
 
@@ -306,14 +317,14 @@ class Snapshot {
 
     /**
      *  Set up delegated "load more" handler on a root container.
-     *  Must be called once on the #packages-list root; event delegation handles
-     *  all .load-more-files buttons inserted dynamically inside it.
+     *  Event delegation handles all .load-more-files buttons inserted dynamically inside it.
      */
     _initLoadMore($root)
     {
         const self = this;
 
-        $root.on('click', 'li.load-more-files', function () {
+        // The root is kept across container reloads: avoid stacking handlers
+        $root.off('click.loadMore').on('click.loadMore', 'li.load-more-files', function () {
             const $li = $(this);
             const path = $li.data('path');
             const offset = $li.data('offset');
