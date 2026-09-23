@@ -36,36 +36,27 @@ class Listing extends \Models\Model
      *  Get all newest tasks
      *  It is possible to add an offset to the request
      */
-    public function getQueued(string $type, bool $withOffset, int $offset): array
+    public function getQueued(bool $withNoParent, bool $withOffset, int $offset): array
     {
         $data = [];
 
         try {
-            // Case where we want all types
-            if (empty($type)) {
-                $query = "SELECT * FROM tasks
-                WHERE Status = 'queued'
-                AND Parent_task_id IS NULL
-                ORDER BY Date DESC, Time DESC";
+            $query = "SELECT * FROM tasks WHERE Status = 'queued'";
+
+            // Only tasks without a parent (default behavior)
+            if ($withNoParent) {
+                $query .= ' AND Parent_task_id IS NULL';
             }
 
-            // Case where we want to filter by type
-            if (!empty($type)) {
-                $query = "SELECT * FROM tasks
-                WHERE Type = :type
-                AND Status = 'queued'
-                AND Parent_task_id IS NULL
-                ORDER BY Date DESC, Time DESC";
-            }
+            $query .= ' ORDER BY Date DESC, Time DESC';
 
             // Add offset if needed
             if ($withOffset === true) {
-                $query .= " LIMIT 10 OFFSET :offset";
+                $query .= ' LIMIT 10 OFFSET :offset';
             }
 
             // Prepare query
             $stmt = $this->db->prepare($query);
-            $stmt->bindValue(':type', $type);
             $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
             $result = $stmt->execute();
         } catch (Exception $e) {

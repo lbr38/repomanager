@@ -52,6 +52,7 @@ $(document).on('change','input:radio[param-name="schedule-type"]',function () {
         $(form).find('.task-schedule-recurring-day-input').hide();
         $(form).find('.task-schedule-recurring-monthly-input').hide();
         $(form).find('.task-schedule-recurring-cron-input').hide();
+        $(form).find('.task-schedule-reminder-input').show();
         $(form).find('input[type="checkbox"][param-name="schedule-notify-error"]').prop('checked', true);
         $(form).find('input[type="checkbox"][param-name="schedule-notify-success"]').prop('checked', true);
     }
@@ -61,6 +62,8 @@ $(document).on('change','input:radio[param-name="schedule-type"]',function () {
         $(form).find('.task-schedule-recurring-frequency-input').show();
         $(form).find('.task-schedule-unique-input').hide();
         $(form).find('.task-schedule-recurring-cron-input').hide();
+        // Hourly and daily tasks always run within the day, a reminder days before would never be sent
+        $(form).find('.task-schedule-reminder-input').toggle(!['hourly', 'daily'].includes($(form).find('select[param-name="schedule-frequency"]').val()));
         // Disable notification on success by default for recurring tasks to avoid spamming users with notifications
         $(form).find('input[type="checkbox"][param-name="schedule-notify-error"]').prop('checked', true);
         $(form).find('input[type="checkbox"][param-name="schedule-notify-success"]').prop('checked', false);
@@ -82,6 +85,8 @@ $(document).on('change','select.task-param[param-name="schedule-frequency"]',fun
     } else {
         var form = '.task-schedule-form-params';
     }
+
+    $(form).find('.task-schedule-reminder-input').toggle(!['hourly', 'daily'].includes(frequency));
 
     if (frequency == 'hourly') {
         $(form).find('.task-schedule-recurring-day-input').hide();
@@ -154,6 +159,13 @@ $(document).on('change', 'input[name="checkbox-repo"]', function () {
  *  Event: when a checkbox is checked/unchecked
  */
 $(document).on('click',"input[name=checkbox-repo]",function () {
+    // Selecting a snapshot cancels any environment selection, as the two selections are mutually exclusive
+    if ($(this).is(':checked')) {
+        $('#repositories-list').find('.select-env-checkbox:checked').each(function () {
+            $(this).prop('checked', false).trigger('change');
+        });
+    }
+
     // The buttons that will be displayed in the confirm box
     var buttons = [];
 
@@ -287,6 +299,23 @@ function syncRepoGroupSelectionButtons(groupId)
     }
 }
 
+/**
+ *  Unselect all snapshots and environments of the repositories list
+ */
+function clearReposSelection()
+{
+    const list = $('#repositories-list');
+
+    list.find('input[name=checkbox-repo]').prop('checked', false).removeAttr('style');
+    list.find('.snap-container').removeClass('snap-selected');
+    list.find('.select-env-checkbox').prop('checked', false);
+    list.find('.snap-env-container').removeClass('env-selected');
+
+    $('.repos-list-group-select-latest-btns, .repos-list-select-all-btns').attr('status', '').addClass('hide').hide().css({'opacity': '', 'filter': ''}).find('input[type="checkbox"]').prop('checked', false);
+
+    myconfirmbox.close();
+}
+
 function executeAction(action)
 {
     var repos = [];
@@ -410,21 +439,14 @@ $(document).on('click', '.repos-list-group-select-latest-btns, .repos-list-selec
     }
 });
 
-
-
-
 /**
  *  Event: Schedule a task
  */
 $(document).on('click',".task-schedule-btn", function () {
-    /**
-     *  Find parent task-form
-     */
-    var form = $(this).parents('#task-form');
+    // Find parent task-form
+    const form = $(this).parents('#task-form');
 
-    /**
-     *  Change button text and color if schedule is checked
-     */
+    // Change button text and color if schedule is checked
     if ($(this).is(':checked')) {
         form.find('.task-schedule-params').show();
         form.find('.task-confirm-btn').removeClass('btn-large-red');
@@ -592,10 +614,11 @@ $(document).on('submit','#task-form',function (e) {
     ).then(function () {
         mypanel.close();
 
-        // Uncheck all checkboxes and remove all styles JQuery could have applied
-        $('#repositories-list').find('input[name=checkbox-repo]').prop('checked', false);
-        $('#repositories-list').find('input[name=checkbox-repo]').removeAttr('style');
+        // Unselect all repositories and environments
+        clearReposSelection();
 
+        // A scheduled task does not trigger any server-side reload of the list, unlike an immediate one
+        mycontainer.reload('repos/list');
         mycontainer.reload('repos/kpi');
     });
 
@@ -746,34 +769,24 @@ $(document).on('change','select[param-name="source"]',function () {
  *  Event: on repository distribution selection
  */
 $(document).on('change','select[param-name="dist"]',function () {
-    /**
-     *  Get source and distribution
-     */
-    var source = $('select[param-name="source"][package-type="deb"]').val();
-    var distribution = $(this).val();
+    // Get source and distribution values
+    const source = $('select[param-name="source"][package-type="deb"]').val();
+    const distribution = $(this).val();
 
-    /**
-     *  Quit if no source selected
-     */
+    // Quit if no source selected
     if (source == '') {
         return;
     }
 
-    /**
-     *  Quit if no distribution selected
-     */
+    // Quit if no distribution selected
     if (distribution == '') {
         return;
     }
 
-    /**
-     *  Get predefined values
-     */
-
     // Get predefined components for the selected distribution
     ajaxRequest(
         // Controller:
-        'repo/source/distribution',
+        'repo/source/component',
         // Action:
         'get-predefined-components',
         // Data:
@@ -791,3 +804,88 @@ $(document).on('change','select[param-name="dist"]',function () {
     });
 
 }).trigger('change');
+
+/**
+ *  Event: on repository component selection
+ */
+$(document).on('change','select[param-name="section"]',function () {
+    // Get source and distribution values
+    const source = $('select[param-name="source"][package-type="deb"]').val();
+    const distribution = $('select[param-name="dist"]').val();
+    const components = $(this).val();
+
+    // Quit if no source selected
+    if (source == '') {
+        return;
+    }
+
+    // Quit if no distribution selected
+    if (distribution == '') {
+        return;
+    }
+
+    // Quit if no component selected
+    if (components == '') {
+        return;
+    }
+
+    // Get predefined architectures for the selected component
+    ajaxRequest(
+        // Controller:
+        'repo/source/component',
+        // Action:
+        'get-predefined-architectures',
+        // Data:
+        {
+            source: source,
+            distribution: distribution,
+            component: components
+        },
+        // Print success alert:
+        false,
+        // Print error alert:
+        true
+    ).then(function () {
+        // Update select2 with the new values
+        myselect2.update('.task-param[param-name="arch"]', jsonValue.message, 'Select architecture', true);
+    });
+});
+
+/**
+ *  Event: on repository release version selection
+ */
+$(document).on('change','select[param-name="releasever"]',function () {
+    // Get source and release version values
+    const source = $('select[param-name="source"][package-type="rpm"]').val();
+    const releasever = $(this).val();
+
+    // Quit if no source selected
+    if (source == '') {
+        return;
+    }
+
+    // Quit if no release version selected
+    if (releasever == '') {
+        return;
+    }
+
+    // Get predefined architectures for the selected release version
+    ajaxRequest(
+        // Controller:
+        'repo/source/releasever',
+        // Action:
+        'get-predefined-architectures',
+        // Data:
+        {
+            source: source,
+            releasever: releasever
+        },
+        // Print success alert:
+        false,
+        // Print error alert:
+        true
+    ).then(function () {
+        // Update select2 with the new values
+        myselect2.update('.task-param[param-name="arch"]', jsonValue.message, 'Select architecture', true);
+    });
+});

@@ -7,14 +7,191 @@ repositories:
     description: Linux Mint official repositories
     url: http://packages.linuxmint.com
     distributions:
+      # Linux Mint 27
+      - name: adrien
+        description: Linux Mint 27
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+          - name: backport
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 22
+      - name: zena
+        description: Linux Mint 22
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+          - name: backport
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 22
+      - name: zara
+        description: Linux Mint 22
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+          - name: backport
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 22
+      - name: xia
+        description: Linux Mint 22
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+          - name: backport
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
       # Linux Mint 22
       - name: wilma
         description: Linux Mint 22
         components:
           - name: main
+            archs:
+              - i386
+              - amd64
           - name: upstream
+            archs:
+              - i386
+              - amd64
           - name: import
+            archs:
+              - i386
+              - amd64
           - name: backport
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 21
+      - name: virginia
+        description: Linux Mint 21
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+          - name: backport
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 21
+      - name: victoria
+        description: Linux Mint 21
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+          - name: backport
+            archs:
+              - i386
+              - amd64
+          - name: romeo
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 21
+      - name: vera
+        description: Linux Mint 21
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+          - name: backport
+            archs:
+              - i386
+              - amd64
         gpgkeys:
           - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
 
@@ -23,9 +200,90 @@ repositories:
         description: Linux Mint 21
         components:
           - name: main
+            archs:
+              - i386
+              - amd64
           - name: upstream
+            archs:
+              - i386
+              - amd64
           - name: import
+            archs:
+              - i386
+              - amd64
           - name: backport
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 20
+      - name: una
+        description: Linux Mint 20
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+          - name: backport
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 20
+      - name: uma
+        description: Linux Mint 20
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+          - name: backport
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 20
+      - name: ulyssa
+        description: Linux Mint 20
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+          - name: backport
+            archs:
+              - i386
+              - amd64
         gpgkeys:
           - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
 
@@ -34,8 +292,460 @@ repositories:
         description: Linux Mint 20
         components:
           - name: main
+            archs:
+              - i386
+              - amd64
           - name: upstream
+            archs:
+              - i386
+              - amd64
           - name: import
+            archs:
+              - i386
+              - amd64
           - name: backport
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 19
+      - name: tricia
+        description: Linux Mint 19
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+          - name: backport
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 19
+      - name: tina
+        description: Linux Mint 19
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+          - name: backport
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 19
+      - name: tessa
+        description: Linux Mint 19
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+          - name: backport
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 19
+      - name: tara
+        description: Linux Mint 19
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+          - name: backport
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 18
+      - name: sylvia
+        description: Linux Mint 18
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+          - name: backport
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 18
+      - name: sonya
+        description: Linux Mint 18
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+          - name: backport
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 18
+      - name: serena
+        description: Linux Mint 18
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+          - name: backport
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 18
+      - name: sarah
+        description: Linux Mint 18
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+          - name: backport
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 17
+      - name: rosa
+        description: Linux Mint 17
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 17
+      - name: rafaela
+        description: Linux Mint 17
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 17
+      - name: rebecca
+        description: Linux Mint 17
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 17
+      - name: qiana
+        description: Linux Mint 17
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 13
+      - name: maya
+        description: Linux Mint 13
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+          - name: backport
+            archs:
+              - i386
+              - amd64
+          - name: romeo
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 7
+      - name: gigi
+        description: Linux Mint 7
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+          - name: backport
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 6
+      - name: faye
+        description: Linux Mint 6
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+          - name: backport
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 5
+      - name: elsie
+        description: Linux Mint 5
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+          - name: backport
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 4
+      - name: debbie
+        description: Linux Mint 4
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+          - name: backport
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 3
+      - name: cindy
+        description: Linux Mint 3
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+          - name: backport
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 2
+      - name: betsy
+        description: Linux Mint 2
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+
+      # Linux Mint 1
+      - name: debian
+        description: Linux Mint 1
+        components:
+          - name: main
+            archs:
+              - i386
+              - amd64
+          - name: upstream
+            archs:
+              - i386
+              - amd64
+          - name: import
+            archs:
+              - i386
+              - amd64
         gpgkeys:
           - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2

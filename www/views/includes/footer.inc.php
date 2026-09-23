@@ -110,6 +110,7 @@ if (__ACTUAL_URI__[1] == '') {
         'task',
         'source',
         'events/repo/source/distribution',
+        'events/repo/source/component',
         'events/repo/source/releasever',
         'events/repo/source/source',
         'events/repo/list',

@@ -1,13 +1,13 @@
 # This is a template to build a list of rpm repositories to import
 # Check out others YAML files in the same directory to see real examples
 ---
-# Quick description that describe this list of repositories
+# Quick description that describe this list of repositories
 # This description is what will be displayed in the UI when selecting the list of repositories to import
 # e.g. Debian official repositories
 description: Red Hat official repositories
 type: rpm
 repositories:
-    # Name of the source repository
+    # Name of the source repository
     # Must be unique to avoid conflicts and overwriting other repositories
     # e.g. redhat-baseos
   - name:
@@ -28,16 +28,16 @@ repositories:
         # e.g. Red Hat 9
         description:
         # The GPG keys used to sign the repository
-        # It can be a list of fingerprints or http(s) links to the GPG key
+        # It can be a list of fingerprints or http(s) links to the GPG key
         gpgkeys:
-            # The fingerprint of the GPG key
-            # e.g. 567E347AD0044ADE55BA8A5F199E2F91FD431D51
+            # The fingerprint of the GPG key
+            # e.g. 567E347AD0044ADE55BA8A5F199E2F91FD431D51
           - fingerprint:
-            # The URL to the GPG key
-            # e.g. https://cdn.redhat.com/content/dist/rhel$releasever/$releasever/$basearch/baseos/os/RPM-GPG-KEY-redhat-release
+            # The URL to the GPG key
+            # e.g. https://cdn.redhat.com/content/dist/rhel$releasever/$releasever/$basearch/baseos/os/RPM-GPG-KEY-redhat-release
           - link:
     # If the repository is protected by SSL authentication, you can provide the certificate, private key and CA certificate
-    # /!\ Remove this section if the repository is not protected by SSL authentication
+    # /!\ Remove this section if the repository is not protected by SSL authentication
     ssl-authentication:
       # The certificate used to authenticate the repository, plain text format
       certificate: |

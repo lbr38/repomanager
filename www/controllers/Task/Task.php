@@ -565,33 +565,34 @@ class Task
     /**
      *  Relaunch a task
      */
-    public function relaunch(int $id) : void
+    public function relaunch(int $id): int
     {
         if (!TaskPermission::allowedAction('relaunch')) {
             throw new Exception('You are not allowed to relaunch a task');
         }
 
-        /**
-         *  First, duplicate task in database
-         */
+        // Check if task exists
+        if (!$this->exists($id)) {
+            throw new Exception('Task #' . $id . ' does not exist');
+        }
+
+        // First, duplicate task in database
         $newTaskId = $this->duplicate($id, 'queued');
 
-        /**
-         *  If a temporary directory was used for the previous task, then rename it to be used for the new task
-         */
+        // If a temporary directory was used for the previous task, then rename it to be used for the new task
         if (file_exists(REPOS_DIR . '/temporary-task-' . $id) and is_dir(REPOS_DIR . '/temporary-task-' . $id)) {
             if (!rename(REPOS_DIR . '/temporary-task-' . $id, REPOS_DIR . '/temporary-task-' . $newTaskId)) {
                 throw new Exception('Could not rename temporary directory ' . REPOS_DIR . '/temporary-task-' . $id . ' to ' . REPOS_DIR . '/temporary-task-' . $newTaskId);
             }
         }
 
-        /**
-         *  Execute task
-         */
+        // Execute task
         $this->executeId($newTaskId);
 
         $this->layoutContainerReloadController->reload('tasks/logs');
         $this->layoutContainerReloadController->reload('tasks/tasks');
+
+        return $newTaskId;
     }
 
     /**
@@ -802,6 +803,18 @@ class Task
         }
 
         return false;
+    }
+
+    /**
+     *  Return true if repomanager.task-run process is running for the specified task ID
+     */
+    public static function processRunning(int $id): bool
+    {
+        $processController = new Process('/usr/bin/pgrep -f -x "repomanager[.]task-run[.]' . $id . '"');
+        $processController->execute();
+        $processController->close();
+
+        return $processController->getExitCode() == 0;
     }
 
     /**

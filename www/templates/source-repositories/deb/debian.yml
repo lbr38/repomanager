@@ -5,16 +5,78 @@ repositories:
   - name: debian
     type: deb
     description: Debian official repositories
-    url: https://deb.debian.org/debian
+    url: https://ftp.debian.org/debian
     distributions:
       # Debian 13
       - name: trixie
         description: Debian 13
+        eol: 2030-06-30
         components:
           - name: main
+            description: Main component
+            archs:
+              - amd64
+              - arm64
+              - armel
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: contrib
+            description: Contrib component
+            archs:
+              - amd64
+              - arm64
+              - armel
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: non-free
+            description: Non-free component
+            archs:
+              - amd64
+              - arm64
+              - armel
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: non-free-firmware
+            description: Non-free firmware component
+            archs:
+              - amd64
+              - arm64
+              - armel
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+        gpgkeys:
+          - fingerprint: 4CB50190207B4758A3F73A796ED0E7B82643E131
+          - fingerprint: B8E5F13176D2A7A75220028078DBA3BC47EF2265
+          - fingerprint: 41587F7DB8C774BCCF131416762F67A0B2C39DE4
+
+      # Debian 13 - Updates
+      - name: trixie-updates
+        description: Debian 13 - Updates
+        eol: 2030-06-30
+        components:
+          - name: main
+            description: Main component
+            archs:
+              - amd64
+              - arm64
+              - armel
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
         gpgkeys:
           - fingerprint: 4CB50190207B4758A3F73A796ED0E7B82643E131
           - fingerprint: B8E5F13176D2A7A75220028078DBA3BC47EF2265
@@ -23,11 +85,73 @@ repositories:
       # Debian 12
       - name: bookworm
         description: Debian 12
+        eol: 2028-06-30
         components:
           - name: main
+            archs:
+              - amd64
+              - arm64
+              - armel
+              - armhf
+              - i386
+              - mips64el
+              - mipsel
+              - ppc64el
+              - s390x
           - name: contrib
+            archs:
+              - amd64
+              - arm64
+              - armel
+              - armhf
+              - i386
+              - mips64el
+              - mipsel
+              - ppc64el
+              - s390x
           - name: non-free
+            archs:
+              - amd64
+              - arm64
+              - armel
+              - armhf
+              - i386
+              - mips64el
+              - mipsel
+              - ppc64el
+              - s390x
           - name: non-free-firmware
+            archs:
+              - amd64
+              - arm64
+              - armel
+              - armhf
+              - i386
+              - mips64el
+              - mipsel
+              - ppc64el
+              - s390x
+        gpgkeys:
+          - fingerprint: 4CB50190207B4758A3F73A796ED0E7B82643E131
+          - fingerprint: B8E5F13176D2A7A75220028078DBA3BC47EF2265
+          - fingerprint: 4D64FEC119C2029067D6E791F8D2585B8783D481
+
+      # Debian 12 - Updates
+      - name: bookworm-updates
+        description: Debian 12 - Updates
+        eol: 2028-06-30
+        components:
+          - name: main
+            archs:
+              - amd64
+              - arm64
+              - armel
+              - armhf
+              - i386
+              - mips64el
+              - mipsel
+              - ppc64el
+              - s390x
         gpgkeys:
           - fingerprint: 4CB50190207B4758A3F73A796ED0E7B82643E131
           - fingerprint: B8E5F13176D2A7A75220028078DBA3BC47EF2265
@@ -38,26 +162,82 @@ repositories:
         description: Debian 11
         components:
           - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
           - name: contrib
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
           - name: non-free
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
         gpgkeys:
           - fingerprint: A7236886F3CCCAAD148A27F80E98404D386FA1D9
           - fingerprint: 4CB50190207B4758A3F73A796ED0E7B82643E131
           - fingerprint: A4285295FC7B1A81600062A9605C66F00D6C9793
 
+      # Debian 11 - Updates
+      - name: bullseye-updates
+        description: Debian 11 - Updates
+        components:
+          - name: main
+            archs:
+              - amd64
+              - arm64
+              - armel
+              - armhf
+              - i386
+              - mips64el
+              - mipsel
+              - ppc64el
+              - s390x
+        gpgkeys:
+          - fingerprint: 4CB50190207B4758A3F73A796ED0E7B82643E131
+          - fingerprint: B8E5F13176D2A7A75220028078DBA3BC47EF2265
+          - fingerprint: 4D64FEC119C2029067D6E791F8D2585B8783D481
+
   - name: debian-security
     type: deb
     description: Debian security repositories
-    url: https://deb.debian.org/debian-security
+    url: https://security.debian.org/debian-security
     distributions:
       # Debian 13
       - name: trixie-security
         description: Debian 13
+        eol: 2030-06-30
         components:
           - name: main
+            archs:
+              - amd64
+              - arm64
+              - armel
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: contrib
-          - name: non-free
+            archs:
+              - amd64
+              - arm64
+              - armel
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: non-free-firmware
+            archs:
+              - amd64
+              - i386
         gpgkeys:
           - fingerprint: B0CAB9266E8C3929798B3EEEBDE6D2B9216EC7A8
           - fingerprint: 89C87ACEA5DD6B8E6A7068808E9F831205B4BA95
@@ -65,11 +245,34 @@ repositories:
       # Debian 12
       - name: bookworm-security
         description: Debian 12
+        eol: 2028-06-30
         components:
           - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
           - name: contrib
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
           - name: non-free
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
           - name: non-free-firmware
+            archs:
+              - amd64
+              - arm64
+              - i386
         gpgkeys:
           - fingerprint: ED541312A33F1128F10B1C6C54404762BBB6E853
           - fingerprint: B0CAB9266E8C3929798B3EEEBDE6D2B9216EC7A8
@@ -79,8 +282,23 @@ repositories:
         description: Debian 11
         components:
           - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
           - name: contrib
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
           - name: non-free
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
         gpgkeys:
           - fingerprint: 5237CEEEF212F3D51C74ABE0112695A0E562B32A
           - fingerprint: ED541312A33F1128F10B1C6C54404762BBB6E853

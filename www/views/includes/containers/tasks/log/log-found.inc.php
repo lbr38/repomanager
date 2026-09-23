@@ -16,6 +16,14 @@ use \Controllers\User\Permission\Task as TaskPermission; ?>
     </div>
 
     <?php
+    // Print the relaunch button if the task has an error or has been stopped
+    if ($taskInfo['Status'] == 'error' or $taskInfo['Status'] == 'stopped') :
+        if (TaskPermission::allowedAction('relaunch')) : ?>
+            <p id="relaunch-task-log-btn" class="label-yellow relaunch-task-btn pointer" redirect="true" task-id="<?= $taskId ?>" title="Relaunch the task">Relaunch</p>
+            <?php
+        endif;
+    endif;
+
     // Print the stop button if the task is running or waiting to be run, and the user has permission to stop it
     if ($taskInfo['Status'] == 'running' or $taskInfo['Status'] == 'queued') :
         if (TaskPermission::allowedAction('stop')) : ?>
@@ -77,10 +85,16 @@ use \Controllers\User\Permission\Task as TaskPermission; ?>
                 <p class="mediumopacity-cst">Action</p>
             </div>
 
-            <?php
-            if ((DEVEL or DebugMode::enabled()) and file_exists(MAIN_LOGS_DIR . '/repomanager-task-' . $taskId . '-log.process')) {
-                echo '<img src="/assets/icons/file.svg" class="icon view-task-process-log margin-left-auto" task-id="' . $taskId . '" title="Debug log" />';
-            } ?>
+            <div class="flex column-gap-10 margin-left-auto">
+                <?php
+                if ($taskInfo['Status'] == 'running' and !Task::processRunning($taskId)) {
+                    echo '<img src="/assets/icons/warning-red.svg" class="icon-np" task-id="' . $taskId . '" title="No running process found for this task, the process might have crashed, you should stop this task" />';
+                }
+
+                if ((DEVEL or DebugMode::enabled()) and file_exists(MAIN_LOGS_DIR . '/repomanager-task-' . $taskId . '-log.process')) {
+                    echo '<img src="/assets/icons/file.svg" class="icon view-task-process-log margin-left-auto" task-id="' . $taskId . '" title="Debug log" />';
+                } ?>
+            </div>
         </div>
 
         <?php

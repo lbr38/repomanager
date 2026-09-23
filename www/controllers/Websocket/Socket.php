@@ -8,6 +8,7 @@ namespace Controllers\Websocket;
 require ROOT . '/libs/vendor/autoload.php';
 
 use Exception;
+use Throwable;
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
 
@@ -51,7 +52,7 @@ class Socket extends WebsocketServer implements MessageComponentInterface
     /**
      *  On websocket connection open
      */
-    public function onOpen(ConnectionInterface $conn)
+    public function onOpen(ConnectionInterface $conn): void
     {
         $this->clients->attach($conn);
         $this->log('[connection #' . $conn->resourceId . '] New connection!');
@@ -76,7 +77,7 @@ class Socket extends WebsocketServer implements MessageComponentInterface
     /**
      *  On websocket message received
      */
-    public function onMessage(ConnectionInterface $conn, $message)
+    public function onMessage(ConnectionInterface $conn, $message): void
     {
         /**
          *  Decode JSON message
@@ -129,9 +130,19 @@ class Socket extends WebsocketServer implements MessageComponentInterface
                  *  If the host is sending a response to a request, with a request Id
                  */
                 if (isset($message['response-to-request']['request-id'])) {
+                    // Reject responses from connections that have not authenticated yet
+                    if (!$hostProcessController->isWsConnectionAuthenticated($conn->resourceId)) {
+                        throw new Exception('connection is not authenticated');
+                    }
+
+                    // Request Id must be a positive integer, reject anything else before it reaches the DB layer / filesystem
+                    if (!ctype_digit((string) $message['response-to-request']['request-id'])) {
+                        throw new Exception('invalid request Id');
+                    }
+
                     $hostProcessController->responseFromRequestId($conn, $message);
                 }
-            } catch (Exception $e) {
+            } catch (Throwable $e) {
                 /**
                  *  Print, send an error message to the host and close connection
                  */
@@ -152,7 +163,7 @@ class Socket extends WebsocketServer implements MessageComponentInterface
     /**
      *  On websocket connection close
      */
-    public function onClose(ConnectionInterface $conn)
+    public function onClose(ConnectionInterface $conn): void
     {
         $this->clients->detach($conn);
         $this->log('[connection #' . $conn->resourceId . '] Connection closed');
@@ -170,7 +181,7 @@ class Socket extends WebsocketServer implements MessageComponentInterface
     /**
      *  On websocket connection error
      */
-    public function onError(ConnectionInterface $conn, \Exception $e)
+    public function onError(ConnectionInterface $conn, Exception $e): void
     {
         $this->logError('[connection #' . $conn->resourceId . '] An error occurred with connection: ' . $e->getMessage());
         $conn->close();

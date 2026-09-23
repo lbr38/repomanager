@@ -4,6 +4,7 @@
  */
 const containersUsingMorphdom = [
     // 'repos/properties',
+    'tasks/log',
 ];
 
 /**
@@ -19,6 +20,19 @@ const containersUsingMorphdom = [
  */
 const containersPartialReload = {
     'repos/list': { item: '.repo-item-wrapper', key: 'repo-id' },
+};
+
+/**
+ *  Per-container Morphdom rules: element is a CSS selector; key identifies an item
+ *  by its attributes. skipIf prevents updates; preserveAttributes and preserveClasses
+ *  retain only the configured state while allowing content updates.
+ *  @type {Object}
+ */
+const morphdomSkipRules = {
+    'tasks/log': [
+        { element: '.task-step-content', key: ['task-id', 'step'], preserveAttributes: ['style'] },
+        { element: '.task-step', key: ['task-id', 'step'], preserveClasses: ['step-open'] },
+    ],
 };
 
 /**

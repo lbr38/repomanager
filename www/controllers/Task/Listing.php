@@ -24,9 +24,9 @@ class Listing
      *  It is possible to filter the type of task ('immediate' or 'scheduled')
      *  It is possible to add an offset to the request
      */
-    public function getQueued(string $type = '', bool $withOffset = false, int $offset = 0): array
+    public function getQueued(bool $withNoParent = true, bool $withOffset = false, int $offset = 0): array
     {
-        return $this->model->getQueued($type, $withOffset, $offset);
+        return $this->model->getQueued($withNoParent, $withOffset, $offset);
     }
 
     /**

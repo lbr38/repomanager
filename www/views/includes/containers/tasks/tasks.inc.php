@@ -15,9 +15,19 @@ use \Controllers\Layout\Table\Render as TableRender; ?>
 
         <div class="kpi-card">
             <img src="/assets/icons/rocket.svg" class="icon-np icon-medium" />
-            <div>
-                <p class="kpi-value"><?= $runningCount ?></p>
-                <p class="mediumopacity-cst">Running tasks</p>
+            <div class="width-100">
+                <div class="flex align-item-center column-gap-20 row-gap-15 justify-space-between">
+                    <div>
+                        <p class="kpi-value"><?= $runningCount ?></p>
+                        <p class="mediumopacity-cst">Running tasks</p>
+                    </div>
+
+                    <?php
+                    if ($queuedCount > 0) : ?>
+                        <span class="label-yellow" title="<?= $queuedCount . ' task' . ($queuedCount > 1 ? 's are' : ' is') . ' pending (in the queue)' ?>"><?= $queuedCount ?> pending</span>
+                        <?php
+                    endif ?>
+                </div>
             </div>
         </div>
 

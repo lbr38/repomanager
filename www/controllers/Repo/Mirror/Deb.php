@@ -233,6 +233,10 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
 
         // Process research for each Package file (could have multiple if multiple archs have been specified)
         foreach ($this->packagesIndicesLocation as $packageIndice) {
+            // TODO debug
+            $this->taskLogSubStepController->output('Processing package indice: ' . $packageIndice['location']);
+            $debugStart = microtime(true);
+
             $packageIndicesLocation = $packageIndice['location'];
             $packageIndicesChecksum = $packageIndice['checksum'];
             $packageIndicesName = preg_split('#/#', $packageIndicesLocation);
@@ -243,10 +247,16 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                 throw new Exception('Error while downloading <code>' . $packageIndicesName . '</code> indices file: <code>' . $url . '/' . $packageIndicesLocation . '</code>');
             }
 
+            // TODO debug
+            $this->taskLogSubStepController->output('  downloaded (' . filesize($this->workingDir . '/' . $packageIndicesName) . ' bytes, ' . round(microtime(true) - $debugStart, 2) . 's)');
+
             // Then check that the Packages.xx file's checksum matches the one that what specified in Release file
             if (!$this->checksum($this->workingDir . '/' . $packageIndicesName, $packageIndicesChecksum)) {
                 throw new Exception('<code>' . $packageIndicesName . '</code> indices file\'s checksum does not match the checksum specified in the <code>Release</code> file ' . $packageIndicesChecksum);
             }
+
+            // TODO debug
+            $this->taskLogSubStepController->output('  checksum OK (' . round(microtime(true) - $debugStart, 2) . 's)');
 
             // Get the file extension of the Packages.xx file (.gz, .bz2 or .xz)
             $packagesIndicesFileExtension = pathinfo($this->workingDir . '/' . $packageIndicesName, PATHINFO_EXTENSION);
@@ -269,56 +279,52 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                 throw new Exception('Error while uncompressing <code>' . $packageIndicesName . '</code><br><pre class="codeblock copy">' . $e->getMessage() . '</pre>');
             }
 
+            // TODO debug
+            $this->taskLogSubStepController->output('  uncompressed (' . (file_exists($this->workingDir . '/Packages') ? filesize($this->workingDir . '/Packages') . ' bytes' : 'Packages file NOT FOUND') . ', ' . round(microtime(true) - $debugStart, 2) . 's)');
+            $debugCountBefore = count($this->debPackagesLocation);
+
             // Get all .deb packages location from the uncompressed Packages file
-            $packageName = '';
-            $packageArch = '';
-            $packageLocation = '';
-            $packageChecksum = '';
             $handle = fopen($this->workingDir . '/Packages', 'r');
 
             if ($handle) {
-                while (($line = fgets($handle)) !== false) {
-                    // Get deb package name
-                    if (preg_match('/^Package:\s+(.*)/im', $line)) {
-                        $packageName = trim(str_replace('Package: ', '', $line));
+                $fields = [];
+
+                // Packages are blocks of "Field: value" lines separated by a blank line
+                do {
+                    $line = fgets($handle);
+
+                    if ($line !== false and trim($line) !== '') {
+                        // Continuation lines (leading space or tab, e.g. Description) do not match and are ignored
+                        if (preg_match('/^([^\s:]+):\s*(.*)$/', $line, $matches)) {
+                            // Field names are case-insensitive (e.g. MD5sum or MD5Sum)
+                            $fields[strtolower($matches[1])] = trim($matches[2]);
+                        }
+
+                        continue;
                     }
 
-                    // Get deb package architecture
-                    if (preg_match('/^Architecture:\s+(.*)/im', $line)) {
-                        $packageArch = trim(str_replace('Architecture: ', '', $line));
-                    }
+                    // End of block: blank line, or EOF for the last block
+                    // Strongest checksum first, old repositories (e.g. Debian potato) only provide MD5sum
+                    $checksum = $fields['sha512'] ?? $fields['sha256'] ?? $fields['sha1'] ?? $fields['md5sum'] ?? '';
 
-                    // Get deb location
-                    if (preg_match('/^Filename:\s+(.*)/im', $line)) {
-                        $packageLocation = trim(str_replace('Filename: ', '', $line));
-                    }
-
-                    // Get deb SHA256
-                    if (preg_match('/^SHA256:\s+(.*)/im', $line)) {
-                        $packageChecksum = trim(str_replace('SHA256: ', '', $line));
-                    }
-
-                    // If location and checksum have been parsed, add them to the global deb packages list array
-                    if (!empty($packageLocation) and !empty($packageChecksum)) {
-                        // If package location starts with './' then remove it
-                        $packageLocation = preg_replace('/^\.\//', '', $packageLocation);
-
+                    if (!empty($fields['filename']) and !empty($checksum)) {
                         $this->debPackagesLocation[] = [
-                            'name'     => $packageName,
-                            'arch'     => $packageArch,
-                            'location' => $packageLocation,
-                            'checksum' => $packageChecksum,
+                            'name'     => $fields['package'] ?? '',
+                            'arch'     => $fields['architecture'] ?? '',
+                            // Filename may start with './'
+                            'location' => preg_replace('/^\.\//', '', $fields['filename']),
+                            'checksum' => $checksum,
                         ];
-
-                        $packageName = '';
-                        $packageArch = '';
-                        $packageLocation = '';
-                        $packageChecksum = '';
                     }
-                }
+
+                    $fields = [];
+                } while ($line !== false);
 
                 fclose($handle);
             }
+
+            // TODO debug
+            $this->taskLogSubStepController->output('  parsed: ' . (count($this->debPackagesLocation) - $debugCountBefore) . ' packages (total ' . count($this->debPackagesLocation) . ', memory ' . round(memory_get_usage(true) / 1048576) . 'MB, ' . round(microtime(true) - $debugStart, 2) . 's)');
 
             // Delete Packages file once it has been parsed
             if (file_exists($this->workingDir . '/Packages')) {
@@ -327,6 +333,9 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                 }
             }
         }
+
+        // TODO debug
+        $this->taskLogSubStepController->output('All indices processed: ' . count($this->debPackagesLocation) . ' packages, memory ' . round(memory_get_usage(true) / 1048576) . 'MB (limit ' . ini_get('memory_limit') . ')');
 
         /**
          *  Quit if no packages have been found
@@ -340,7 +349,14 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
 
         // Filter packages to keep only the X latest versions if 'keep-latest' is set
         if (!empty($this->advancedParams['packages']['keep-latest'])) {
+            // TODO debug
+            $debugStart = microtime(true);
+            $this->taskLogSubStepController->output('Filtering to keep ' . (int) $this->advancedParams['packages']['keep-latest'] . ' latest versions...');
+
             $this->debPackagesLocation = $this->keepLatestVersions($this->debPackagesLocation, (int) $this->advancedParams['packages']['keep-latest']);
+
+            // TODO debug
+            $this->taskLogSubStepController->output('Filtering done: ' . count($this->debPackagesLocation) . ' packages kept (' . round(microtime(true) - $debugStart, 2) . 's)');
         }
 
         $this->taskLogSubStepController->completed(count($this->debPackagesLocation) . ' package' . (count($this->debPackagesLocation) > 1 ? 's' : '') . ' found');
@@ -682,7 +698,10 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                     $isIn = false;
 
                     foreach ($this->advancedParams['packages']['include'] as $packageToInclude) {
-                        if (preg_match('/' . $packageToInclude . '/', $debPackageName)) {
+                        // Convert any '*' to '.*' for regex matching, only if preceded or followed by alphabetic character(s) and not if already '.*'
+                        $packageToInclude = preg_replace('/(?<!\.)\*/', '.*', $packageToInclude);
+
+                        if (preg_match('/^' . $packageToInclude . '/', $debPackageName)) {
                             $isIn = true;
                         }
                     }
@@ -702,7 +721,10 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                     $isIn = false;
 
                     foreach ($this->advancedParams['packages']['exclude'] as $packageToExclude) {
-                        if (preg_match('/' . $packageToExclude . '/', $debPackageName)) {
+                        // Convert any '*' to '.*' for regex matching, only if preceded or followed by alphabetic character(s) and not if already '.*'
+                        $packageToExclude = preg_replace('/(?<!\.)\*/', '.*', $packageToExclude);
+
+                        if (preg_match('/^' . $packageToExclude . '/', $debPackageName)) {
                             $isIn = true;
                         }
                     }
