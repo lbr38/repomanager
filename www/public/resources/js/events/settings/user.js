@@ -32,7 +32,7 @@ $(document).on('submit','#new-user-form',function () {
         true
     ).then(function () {
         // Reload current users div
-        mylayout.reloadContentById('currentUsers');
+        mylayout.reloadContentById('current-users');
 
         // Print generated password for the new user
         $('#users-settings-container').find('#user-settings-generated-passwd').html('<p>Temporary password generated for <b>' + username + '</b>:<br><span class="greentext copy">' + jsonValue.message.password + '</span></p>');
@@ -111,7 +111,7 @@ $(document).on('click','.delete-user-btn',function () {
                         true
                     ).then(function () {
                         // Reload current users div
-                        mylayout.reloadContentById('currentUsers');
+                        mylayout.reloadContentById('current-users');
                     });
                 }
             }]

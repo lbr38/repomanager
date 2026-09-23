@@ -66,6 +66,21 @@ class Container {
                     } else if (useMorphdom) {
                         // Replace with new content using morphdom
                         morphdom($('.reloadable-container[container="' + container + '"]')[0], jsonValue.message, {
+                            getNodeKey: function (element) {
+                                const rules = (typeof morphdomSkipRules !== 'undefined' && morphdomSkipRules[container]) || [];
+
+                                for (const rule of rules) {
+                                    if (rule.key && this._elementMatches(element, rule.element)) {
+                                        const values = rule.key.map(attribute => element.getAttribute(attribute));
+
+                                        if (values.every(value => value !== null)) {
+                                            return JSON.stringify([rule.element, ...values]);
+                                        }
+                                    }
+                                }
+
+                                return element.id;
+                            }.bind(this),
                             // Avoid some elements to be updated
                             onBeforeElUpdated: function (fromEl, toEl) {
                                 // Check container-specific rules first
@@ -144,6 +159,18 @@ class Container {
         for (const rule of rules) {
             // Check if element matches the rule selector
             if (this._elementMatches(fromEl, rule.element)) {
+                for (const attribute of rule.preserveAttributes || []) {
+                    if (fromEl.hasAttribute(attribute)) {
+                        toEl.setAttribute(attribute, fromEl.getAttribute(attribute));
+                    } else {
+                        toEl.removeAttribute(attribute);
+                    }
+                }
+
+                for (const className of rule.preserveClasses || []) {
+                    toEl.classList.toggle(className, fromEl.classList.contains(className));
+                }
+
                 switch (rule.skipIf) {
                     case 'playing':
                         if (!fromEl.paused) {
@@ -175,19 +202,7 @@ class Container {
      * @returns {boolean}
      */
     _elementMatches(element, selector) {
-        // Handle simple cases like 'VIDEO', 'CANVAS', 'INPUT[type="checkbox"]'
-        if (selector === element.tagName) {
-            return true;
-        }
-        
-        // Handle attribute selectors like 'INPUT[type="checkbox"]'
-        const match = selector.match(/^(\w+)\[([^=]+)="([^"]+)"\]$/);
-        if (match) {
-            const [, tagName, attr, value] = match;
-            return element.tagName === tagName && element.getAttribute(attr) === value;
-        }
-        
-        return false;
+        return typeof element.matches === 'function' && element.matches(selector);
     }
 
     /**

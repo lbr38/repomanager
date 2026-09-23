@@ -24,9 +24,9 @@ class Listing
      *  It is possible to filter the type of task ('immediate' or 'scheduled')
      *  It is possible to add an offset to the request
      */
-    public function getQueued(string $type = '', bool $withOffset = false, int $offset = 0): array
+    public function getQueued(bool $withNoParent = true, bool $withOffset = false, int $offset = 0): array
     {
-        return $this->model->getQueued($type, $withOffset, $offset);
+        return $this->model->getQueued($withNoParent, $withOffset, $offset);
     }
 
     /**
@@ -43,9 +43,9 @@ class Listing
      *  Get all tasks having the given status that are actually executed
      *  Sub-tasks are included and parent tasks are excluded, as a parent task only groups sub-tasks and never runs itself
      */
-    public function getExecutable(string $status): array
+    public function getExecutable(string $status, bool $onlyId = false): array
     {
-        return $this->model->getExecutable($status);
+        return $this->model->getExecutable($status, $onlyId);
     }
 
     /**
@@ -65,6 +65,22 @@ class Listing
     public function getDone(string $type = 'immediate', bool $withOffset = false, int $offset = 0): array
     {
         return $this->model->getDone($type, $withOffset, $offset);
+    }
+
+    /**
+     *  Return all successful tasks
+     */
+    public function getSuccessful(bool $count = false): array|int
+    {
+        return $this->model->getSuccessful($count);
+    }
+
+    /**
+     *  Return tasks that have failed
+     */
+    public function getFailed(bool $count = false): array|int
+    {
+        return $this->model->getFailed($count);
     }
 
     /**

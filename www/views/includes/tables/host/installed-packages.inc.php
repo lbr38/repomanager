@@ -1,11 +1,25 @@
+<?php
+use \Controllers\Layout\Table\Render as TableRender;
+use \Controllers\Utils\Generate\Html\Icon; ?>
+
+<input type="text" id="installed-packages-search" class="margin-bottom-10" autocomplete="off" placeholder="Search package" value="<?= !empty($_COOKIE['tables/host/installed-packages/search']) ? htmlspecialchars($_COOKIE['tables/host/installed-packages/search'], ENT_QUOTES) : '' ?>">
+
 <div class="reloadable-table" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
     <p class="margin-top-15 margin-bottom-15 mediumopacity-cst">
-        <?= $reloadableTableTotalItems ?> package<?= $reloadableTableTotalItems > 1 ? 's' : '' ?> inventored<?= $search !== '' ? ' (filtered)' : '' ?>
+        <?php
+        if ($search !== '') {
+            echo $reloadableTableTotalItems . ' package' . ($reloadableTableTotalItems > 1 ? 's' : '') . ' found';
+        } else {
+            echo $reloadableTableTotalItems . ' package' . ($reloadableTableTotalItems > 1 ? 's' : '') . ' inventoried';
+        } ?>
     </p>
 
     <?php
-    if (empty($reloadableTableContent)) : ?>
-        <p class="note"><?= $search !== '' ? 'No package matches your search.' : 'No package inventored.' ?></p>
+    if (empty($reloadableTableContent) and $search === '') : ?>
+        <div class="empty-state">
+            <p class="empty-state-title">No package inventoried</p>
+            <p class="note">There are no packages inventoried at the moment.</p>
+        </div>
         <?php
     else : ?>
         <div class="flex flex-direction-column row-gap-10">
@@ -13,7 +27,7 @@
             foreach ($reloadableTableContent as $item) : ?>
                 <div class="host-package-item host-package-item-installed get-package-timeline pointer" hostid="<?= $id ?>" packagename="<?= $item['Name'] ?>" packageversion="<?= $item['Version'] ?>" title="See package history">
                     <div class="flex align-item-center column-gap-10">
-                        <?= \Controllers\Utils\Generate\Html\Icon::product($item['Name']); ?>
+                        <?= Icon::product($item['Name']); ?>
 
                         <div>
                             <p class="copy">
@@ -33,7 +47,10 @@
         </div>
 
         <div class="flex justify-end margin-top-10">
-            <?php \Controllers\Layout\Table\Render::paginationBtn($reloadableTableCurrentPage, $reloadableTableTotalPages); ?>
+            <?php
+            if ($reloadableTableTotalItems > 0) {
+                TableRender::paginationBtn($reloadableTableCurrentPage, $reloadableTableTotalPages);
+            } ?>
         </div>
         <?php
     endif ?>

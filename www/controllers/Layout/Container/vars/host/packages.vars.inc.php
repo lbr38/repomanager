@@ -7,10 +7,10 @@ $hostController = new \Controllers\Host\Host();
 $settings = $hostController->getSettings();
 
 // Get compliance threshold count
-$complianceThresholdCount = $settings['compliance_threshold_count'];
+$complianceThresholdCount = $settings['compliance']['thresholds']['count'];
 
 // Get compliance threshold days
-$complianceThresholdDays = $settings['compliance_threshold_days'];
+$complianceThresholdDays = $settings['compliance']['thresholds']['days'];
 
 // Get installed packages and its total
 $packagesInventoredTotal = $hostPackageController->countInventory();

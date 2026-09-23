@@ -3,7 +3,7 @@
         <div class="flex align-item-center column-gap-10">
             <img src="/assets/icons/folder.svg" class="group-header-icon lowopacity-cst" />
             <span class="group-header-name hide-repo-group pointer" group-id="<?= $groupId ?>" state="visible" title="Collapse group <?= $group['name'] ?>"><?= $group['name'] ?></span>
-            <span class="group-header-count"><?= $group['count'] ?></span>
+            <span class="label-count"><?= $group['count'] ?></span>
         </div>
 
         <div class="flex align-item-center column-gap-15 row-gap-15">

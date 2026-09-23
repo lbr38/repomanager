@@ -4,6 +4,21 @@
 $(document).on('submit','form#hosts-settings',function (e) {
     e.preventDefault();
 
+    var settings = {
+        compliance: {
+            thresholds: {
+                count: $('input[name="compliance-threshold-count"]').val(),
+                days: $('input[name="compliance-threshold-days"]').val(),
+                'security-update': $('input[name="compliance-security-update"]').is(':checked') ? 1 : 0,
+                'reboot-required': $('input[name="compliance-reboot-required"]').is(':checked') ? 1 : 0
+            },
+            exclusions: {
+                hosts: $('select[name="compliance-exclude-hosts"]').val() || [],
+                packages: $('select[name="compliance-exclude-packages"]').val() || []
+            }
+        }
+    };
+
     ajaxRequest(
         // Controller:
         'hosts/settings',
@@ -11,10 +26,7 @@ $(document).on('submit','form#hosts-settings',function (e) {
         'edit',
         // Data:
         {
-            complianceThresholdCount: $('input[name="compliance-threshold-count"').val(),
-            complianceThresholdDays: $('input[name="compliance-threshold-days"').val(),
-            complianceSecurityUpdate: $('input[name="compliance-security-update"').is(':checked') ? 1 : 0,
-            complianceRebootRequired: $('input[name="compliance-reboot-required"').is(':checked') ? 1 : 0
+            settings: settings
         },
         // Print success alert:
         true,

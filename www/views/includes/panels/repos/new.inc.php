@@ -134,6 +134,15 @@
                             }
                         } ?>
                     </select>
+
+                    <div field-type="mirror rpm">
+                        <div id="rpm-multiple-archs-warning" class="hide">
+                            <div class="flex align-item-center column-gap-5 margin-top-10">
+                                <img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" />
+                                <p class="note">Several architectures selected: if the source repository provides separate metadata for each architecture, only the <code>comps.xml</code>, <code>modules.yaml</code> and <code>updateinfo.xml.gz</code> files of the first one will be kept. Prefer one architecture per repository.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div field-type="mirror local deb">
@@ -227,12 +236,12 @@
             
                 <h6>ONLY INCLUDE PACKAGE(S)</h6>
                 <p class="note">Specify packages names to include. All other packages will be ignored from sync.</p>
-                <p class="note">You can use <code>.*</code> as a wildcard. e.g <code>nginx_1.24.*</code></p>
+                <p class="note">You can use <code>*</code> as a wildcard. e.g <code>nginx_1.24*</code></p>
                 <select class="task-param" param-name="advanced-params.packages.include" package-type="all" multiple></select>
 
                 <h6>EXCLUDE PACKAGE(S)</h6>
                 <p class="note">Specify packages names to exclude from sync.</p>
-                <p class="note">You can use <code>.*</code> as a wildcard. e.g <code>nginx_1.24.*</code></p>
+                <p class="note">You can use <code>*</code> as a wildcard. e.g <code>nginx_1.24*</code></p>
                 <select class="task-param" param-name="advanced-params.packages.exclude" package-type="all" multiple></select>
             </div>
 
@@ -307,6 +316,7 @@ $(document).ready(function(){
 
     // Show / hide the necessary fields
     newRepoFormPrintFields();
+    newRepoFormArchWarning();
 });
 </script>
 

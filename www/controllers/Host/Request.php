@@ -60,11 +60,11 @@ class Request
     }
 
     /**
-     *  Update request in database
+     *  Update request in database, only if it belongs to the specified host
      */
-    public function update(int $id, string $status, string $info, string $responseJson)
+    public function update(int $id, int $hostId, string $status, string $info, string $responseJson) : bool
     {
-        $this->model->update($id, $status, $info, $responseJson);
+        return $this->model->update($id, $hostId, $status, $info, $responseJson);
     }
 
     /**

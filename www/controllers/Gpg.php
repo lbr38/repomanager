@@ -339,7 +339,7 @@ class Gpg
              *  Import GPG key from fingerprint
              */
             if (!empty($gpgKeyFingerprint)) {
-                $fingerprints = $this->importFromUrl('https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x' . $gpgKeyFingerprint);
+                $fingerprints = $this->importFromKeyserver($gpgKeyFingerprint);
             }
 
             /**
@@ -448,7 +448,7 @@ class Gpg
      *  Import a key from a URL
      *  Return an array with all fingerprints found in the GPG key
      */
-    public function importFromUrl(string $url) : array
+    public function importFromUrl(string $url, int $connectTimeout = 10, int $timeout = 30) : array
     {
         /**
          *  Quit if the URL is not valid
@@ -461,8 +461,8 @@ class Gpg
         try {
             $output = $this->httpRequestController->get([
                 'url'            => $url,
-                'connectTimeout' => 10,
-                'timeout'        => 30,
+                'connectTimeout' => $connectTimeout,
+                'timeout'        => $timeout,
                 'proxy'          => PROXY ?? null,
                 'returnOutput'   => true
             ]);
@@ -471,13 +471,67 @@ class Gpg
                 throw new Exception('empty gpg key response (downloaded file is empty)');
             }
         } catch (Exception $e) {
-            throw new Exception('error while downloading GPG key: ' . $e->getMessage());
+            throw new Exception('error while downloading GPG key at ' . $url . ': ' . $e->getMessage());
         }
 
         /**
          *  Import GPG key
          */
         return $this->importRawContent($output);
+    }
+
+    /**
+     *  Import a key from its fingerprint (or long key Id), unless it is already in the trusted keyring
+     *  Try keyserver.ubuntu.com first, then keys.openpgp.org
+     *  Return an array with all fingerprints of the GPG key
+     */
+    public function importFromKeyserver(string $fingerprint): array
+    {
+        $fingerprint = strtoupper(preg_replace('/^0x/i', '', str_replace(' ', '', trim($fingerprint))));
+
+        if (!preg_match('/^([0-9A-F]{16}|[0-9A-F]{40})$/', $fingerprint)) {
+            throw new Exception('Invalid GPG key fingerprint: ' . $fingerprint);
+        }
+
+        $fingerprints = $this->getTrustedKeyFingerprints($fingerprint);
+
+        if (!empty($fingerprints)) {
+            return $fingerprints;
+        }
+
+        $urls = [
+            'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x' . $fingerprint,
+            'https://keys.openpgp.org/vks/v1/' . (strlen($fingerprint) == 40 ? 'by-fingerprint/' : 'by-keyid/') . $fingerprint
+        ];
+
+        $errors = [];
+
+        foreach ($urls as $url) {
+            try {
+                return $this->importFromUrl($url, 10, 15);
+            } catch (Exception $e) {
+                $errors[] = $e->getMessage();
+            }
+        }
+
+        throw new Exception(implode('<br>', $errors));
+    }
+
+    /**
+     *  Return all fingerprints (primary key and subkeys) of a key from the trusted keyring, or an empty array if not found
+     */
+    private function getTrustedKeyFingerprints(string $fingerprint) : array
+    {
+        $myprocess = new Process('/usr/bin/gpg --homedir ' . GPGHOME . ' --no-default-keyring --keyring ' . GPGHOME . '/trustedkeys.gpg --list-keys --with-colons --with-fingerprint ' . escapeshellarg('0x' . $fingerprint) . " 2>/dev/null | grep '^fpr' | cut -d: -f10");
+        $myprocess->execute();
+        $content = trim($myprocess->getOutput());
+        $myprocess->close();
+
+        if (empty($content)) {
+            return [];
+        }
+
+        return explode(PHP_EOL, $content);
     }
 
     /**

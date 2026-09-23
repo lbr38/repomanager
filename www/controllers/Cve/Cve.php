@@ -312,10 +312,10 @@ class Cve
             $affectedHosts = $this->getAffectedHosts($cveId, 'affected');
 
             if (!empty($affectedHosts)) {
-                $mailMessage .= '<p><a href="https://' . WWW_HOSTNAME . '/cve?nameid=' . $cveDetails['Name'] . '"><b>' . $cveDetails['Name'] . '</b></a> - Score: ' . $cveDetails['Cvss3_score'] . '<br>';
+                $mailMessage .= '<p><a href="https://' . WWW_HOSTNAME . '/cve?nameid=' . $cveDetails['Name'] . '" style="color:#15bf7f;"><b>' . $cveDetails['Name'] . '</b></a> - Score: ' . $cveDetails['Cvss3_score'] . '<br>';
                 $mailMessage .= '<b>Date</b>: ' . $cveDetails['Date'] . ' ' . $cveDetails['Time'] . '<br>';
                 $mailMessage .= '<b>Description</b>: ' . $cveDetails['Description'] . '<br>';
-                $mailMessage .= '<b>Total affected hosts</b>: ' . count($affectedHosts) . '<br></p><hr>';
+                $mailMessage .= '<b>Total affected hosts</b>: ' . count($affectedHosts) . '<br></p><hr style="border:0;border-top:1px solid #24405c;">';
             }
         }
 

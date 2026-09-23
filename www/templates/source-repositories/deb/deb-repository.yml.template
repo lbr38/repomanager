@@ -1,13 +1,13 @@
 # This is a template to build a list of deb repositories to import
 # Check out others YAML files in the same directory to see real examples
 ---
-# Quick description that describe this list of repositories
+# Quick description that describe this list of repositories
 # This description is what will be displayed in the UI when selecting the list of repositories to import
 # e.g. Debian official repositories
 description:
 type: deb
 repositories:
-    # Name of the source repository
+    # Name of the source repository
     # Must be unique to avoid conflicts and overwriting other repositories
     # e.g. debian
   - name:
@@ -29,23 +29,23 @@ repositories:
         # Description of the distribution or something to help identify it
         # e.g. Debian 12
         description:
-        # The components available in the distribution
+        # The components available in the distribution
         components:
-            # The name of the component
-            # The component name must exist in the 'dists/<distribution>' directory of the repository
-            # e.g. main
+            # The name of the component
+            # The component name must exist in the 'dists/<distribution>' directory of the repository
+            # e.g. main
           - name: 
         # The GPG keys used to sign the repository
-        # It can be a list of fingerprints or http(s) links to the GPG key
+        # It can be a list of fingerprints or http(s) links to the GPG key
         gpgkeys:
-            # The fingerprint of the GPG key
-            # e.g. A7236886F3CCCAAD148A27F80E98404D386FA1D9
+            # The fingerprint of the GPG key
+            # e.g. A7236886F3CCCAAD148A27F80E98404D386FA1D9
           - fingerprint: 
-            # The URL to the GPG key
-            # e.g. https://deb.debian.org/debian/project/trace/trace.gpg
+            # The URL to the GPG key
+            # e.g. https://deb.debian.org/debian/project/trace/trace.gpg
           - link: 
     # If the repository is protected by SSL authentication, you can provide the certificate, private key and CA certificate
-    # /!\ Remove this section if the repository is not protected by SSL authentication
+    # /!\ Remove this section if the repository is not protected by SSL authentication
     ssl-authentication:
       # The certificate used to authenticate the repository, plain text format
       certificate: |
