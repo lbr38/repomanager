@@ -390,16 +390,11 @@ $(document).on('click','input[type="checkbox"].available-package-checkbox',funct
     // Prevent parent to be triggered
     e.stopPropagation();
 
-    /**
-     *  Retrieve host Id
-     */
-    var hostId = $(this).attr('host-id');
+    const hostId = $(this).attr('host-id');
 
-    /**
-     *  If a cookie exists, retrieve it
-     */
-    if (mycookie.get('temp/host-av-package-selected')) {
-        var packages = JSON.parse(mycookie.get('temp/host-av-package-selected'));
+    // If a cookie exists, retrieve it
+    if (mycookie.get('tables/host/available-packages/selected')) {
+        var packages = JSON.parse(mycookie.get('tables/host/available-packages/selected'));
     } else {
         var packages = {
             packages: []
@@ -411,9 +406,7 @@ $(document).on('click','input[type="checkbox"].available-package-checkbox',funct
      *  Otherwise remove the package from the array
      */
     if (this.checked) {
-        /**
-         *  Check if the package is already in the array
-         */
+        // Check if the package is already in the array
         for (var i = 0; i < packages['packages'].length; i++) {
             if (packages['packages'][i]['name'] == $(this).attr('package')) {
                 return;
@@ -432,24 +425,18 @@ $(document).on('click','input[type="checkbox"].available-package-checkbox',funct
         }
     }
 
-    /**
-     *  Save the array in a cookie
-     */
-    mycookie.set('temp/host-av-package-selected', JSON.stringify(packages), 1);
+    // Save the array in a cookie
+    mycookie.set('tables/host/available-packages/selected', JSON.stringify(packages), 1);
 
-    /**
-     *  Count the number of checked checkboxes
-     */
-    var countChecked = $('input[type="checkbox"].available-package-checkbox:checked').length;
+    // Count the number of selected packages in the cookie
+    const count = packages['packages'].length;
 
-    /**
-     *  If number of checked checkboxes > 0 then display the action button
-     */
-    if (countChecked > 0) {
+    // If number of checked checkboxes > 0 then display the action button
+    if (count > 0) {
         myconfirmbox.print(
             {
                 'title': 'Update packages',
-                'message': countChecked + ' package' + (countChecked > 1 ? 's' : '') + ' selected.',
+                'message': count + ' package' + (count > 1 ? 's' : '') + ' selected.',
                 'id': 'update-available-packages-confirm-box',
                 'buttons': [
                 {
@@ -464,20 +451,16 @@ $(document).on('click','input[type="checkbox"].available-package-checkbox',funct
                             // Data:
                             {
                                 hostId: hostId,
-                                packages: packages
+                                packages: JSON.parse(mycookie.get('tables/host/available-packages/selected') || '{"packages":[]}')
                             },
                             // Print success alert:
                             true,
                             // Print error alert:
-                            true,
-                            // Reload container:
-                            [],
-                            // Execute functions on success:
-                            []
-                        );
-
-                        // Remove cookie
-                        mycookie.set('temp/host-av-package-selected', '', -1);
+                            true
+                        ).then(function() {
+                            // Remove cookie
+                            mycookie.set('tables/host/available-packages/selected', '', -1);
+                        }); 
                     }
                 }]
             }

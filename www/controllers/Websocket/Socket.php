@@ -8,6 +8,8 @@ namespace Controllers\Websocket;
 require ROOT . '/libs/vendor/autoload.php';
 
 use Exception;
+use JsonException;
+use Throwable;
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
 
@@ -16,6 +18,9 @@ use Ratchet\ConnectionInterface;
  */
 class Socket extends WebsocketServer implements MessageComponentInterface
 {
+    // Maximum message size before JSON decoding. Here it is set to 4MB.
+    private const MAX_MESSAGE_SIZE = 4 * 1024 * 1024;
+
     protected $clients;
 
     /**
@@ -24,9 +29,7 @@ class Socket extends WebsocketServer implements MessageComponentInterface
      */
     public function initialize()
     {
-        /**
-         *  Initialize clients storage
-         */
+        // Initialize clients storage
         $this->clients = new \SplObjectStorage;
 
         /**
@@ -51,14 +54,12 @@ class Socket extends WebsocketServer implements MessageComponentInterface
     /**
      *  On websocket connection open
      */
-    public function onOpen(ConnectionInterface $conn)
+    public function onOpen(ConnectionInterface $conn): void
     {
         $this->clients->attach($conn);
         $this->log('[connection #' . $conn->resourceId . '] New connection!');
 
-        /**
-         *  Adding connection Id to database, waiting for a message from the host to authenticate
-         */
+        // Adding connection Id to database, waiting for a message from the host to authenticate
         try {
             $this->newWsConnection($conn->resourceId);
         } catch (Exception $e) {
@@ -76,28 +77,37 @@ class Socket extends WebsocketServer implements MessageComponentInterface
     /**
      *  On websocket message received
      */
-    public function onMessage(ConnectionInterface $conn, $message)
+    public function onMessage(ConnectionInterface $conn, $message): void
     {
-        /**
-         *  Decode JSON message
-         */
+        // Reject oversized messages before decoding them
+        if (strlen($message) > self::MAX_MESSAGE_SIZE) {
+            $this->logError('[connection #' . $conn->resourceId . '] Websocket message is too large');
+            $conn->close();
+            return;
+        }
+
         try {
-            $message = json_decode($message, true);
-        } catch (Exception $e) {
+            $message = json_decode($message, true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
             $this->logError('[connection #' . $conn->resourceId . '] Error while decoding message: ' . $e->getMessage());
             return;
         }
 
-        /**
-         *  If the client is sending its connection type
-         */
+        // Expect a JSON object decoded as an associative array.
+        if (!is_array($message)) {
+            $this->logError('[connection #' . $conn->resourceId . '] Websocket message must be a JSON object');
+            return;
+        }
+
+        // If the client is sending its connection type
         if (!empty($message['connection-type'])) {
             // Connection type must be either 'host' or 'browser-client'
-            if (!in_array($message['connection-type'], array('host', 'browser-client'))) {
+            if (!in_array($message['connection-type'], array('host', 'browser-client'), true)) {
                 $this->logError('[connection #' . $conn->resourceId . '] Invalid connection type: ' . $message['connection-type']);
 
                 // Close connection
                 $conn->close();
+                return;
             }
 
             // Set connection type in database
@@ -118,23 +128,29 @@ class Socket extends WebsocketServer implements MessageComponentInterface
             try {
                 $hostProcessController = new \Controllers\Websocket\Host\Process();
 
-                /**
-                 *  If the host is trying to authenticate
-                 */
+                // If the host is trying to authenticate
                 if (isset($message['response-to-request']['request']) and $message['response-to-request']['request'] == 'authenticate') {
                     $hostProcessController->authenticate($conn, $message);
                 }
 
-                /**
-                 *  If the host is sending a response to a request, with a request Id
-                 */
+                // If the host is sending a response to a request, with a request Id
                 if (isset($message['response-to-request']['request-id'])) {
-                    $hostProcessController->responseFromRequestId($conn, $message);
+                    // Reject responses from connections that have not authenticated yet
+                    $hostId = $hostProcessController->getAuthenticatedWsHostId($conn->resourceId);
+
+                    if ($hostId === null) {
+                        throw new Exception('connection is not authenticated');
+                    }
+
+                    // Request Id must be a positive integer, reject anything else before it reaches the DB layer / filesystem
+                    if (!ctype_digit((string) $message['response-to-request']['request-id'])) {
+                        throw new Exception('invalid request Id');
+                    }
+
+                    $hostProcessController->responseFromRequestId($conn, $message, $hostId);
                 }
-            } catch (Exception $e) {
-                /**
-                 *  Print, send an error message to the host and close connection
-                 */
+            } catch (Throwable $e) {
+                // Print, send an error message to the host and close connection
                 if (isset($message['response-to-request']['request'])) {
                     $this->logError('[connection #' . $conn->resourceId . '] Error while processing host\'s response to request "' . $message['response-to-request']['request'] . '": ' . $e->getMessage());
                     $conn->send(json_encode(array('error' => 'error while processing response to request "' . $message['response-to-request']['request'] . '"')));
@@ -152,14 +168,12 @@ class Socket extends WebsocketServer implements MessageComponentInterface
     /**
      *  On websocket connection close
      */
-    public function onClose(ConnectionInterface $conn)
+    public function onClose(ConnectionInterface $conn): void
     {
         $this->clients->detach($conn);
         $this->log('[connection #' . $conn->resourceId . '] Connection closed');
 
-        /**
-         *  Removing connection Id from database
-         */
+        // Removing connection Id from database
         try {
             $this->deleteWsConnection($conn->resourceId);
         } catch (Exception $e) {
@@ -170,7 +184,7 @@ class Socket extends WebsocketServer implements MessageComponentInterface
     /**
      *  On websocket connection error
      */
-    public function onError(ConnectionInterface $conn, \Exception $e)
+    public function onError(ConnectionInterface $conn, Exception $e): void
     {
         $this->logError('[connection #' . $conn->resourceId . '] An error occurred with connection: ' . $e->getMessage());
         $conn->close();

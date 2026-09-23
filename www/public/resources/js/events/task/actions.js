@@ -292,6 +292,9 @@ $(document).on('click','.relaunch-task-btn',function (e) {
     // Prevent parent to be triggered
     e.stopPropagation();
 
+    // Check if the button has a redirect attribute
+    const redirect = $(this).attr('redirect') ? true : false;
+
     myalert.print('Relaunching task...');
 
     ajaxRequest(
@@ -304,10 +307,28 @@ $(document).on('click','.relaunch-task-btn',function (e) {
             id: $(this).attr('task-id')
         },
         // Print success alert:
-        true,
+        false,
         // Print error alert:
         true
     ).then(function () {
-        mycontainer.reload('tasks/tasks');
+        // Get the new task Id from the server response
+        const id = jsonValue.message && jsonValue.message.id ? jsonValue.message.id : null;
+
+        if (!id) {
+            myalert.print('Could not retrieve the new task Id', 'error');
+            return;
+        }
+
+        myalert.print('Task has been relaunched using the same parameters', 'success');
+
+        if (!redirect) {
+            return;
+        }
+
+        setTimeout(function () {
+            // Redirect to the newly relaunched task
+            window.location.href = '/task/' + id;
+        }, 1500);
+        
     });
 });

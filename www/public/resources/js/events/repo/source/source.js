@@ -59,7 +59,7 @@ $(document).on('submit','#import-source-repos',function () {
         // Controller:
         'repo/source/source',
         // Action:
-        'import-source-repos',
+        'import',
         // Data:
         {
             list: list

@@ -92,7 +92,7 @@ All the documentation lives on the [phpstan.org website](https://phpstan.org/):
 
 * [Getting Started & User Guide](https://phpstan.org/user-guide/getting-started)
 * [Config Reference](https://phpstan.org/config-reference)
-* [PHPDocs Basics](https://phpstan.org/writing-php-code/phpdocs-basics) & [PHPDoc Types](https://phpstan.org/writing-php-code/phpdoc-types)
+* [PHPDocs Basics](https://phpstan.org/writing-php-code/phpdocs-basics) & [PHPDoc Types](https://phpstan.org/writing-php-code/phpdoc-types)
 * [Extension Library](https://phpstan.org/user-guide/extension-library)
 * [Developing Extensions](https://phpstan.org/developing-extensions/extension-types)
 * [API Reference](https://apiref.phpstan.org/)

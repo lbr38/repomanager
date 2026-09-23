@@ -3,6 +3,7 @@ $groupController = new \Controllers\Group\Host();
 $hostController = new \Controllers\Host\Host();
 $hostListingController = new \Controllers\Host\Listing();
 $hostRequestController = new \Controllers\Host\Request();
+$hostComplianceController = new \Controllers\Host\Compliance();
 $compactView = true;
 
 // Get total hosts
@@ -15,10 +16,10 @@ $hostGroupsList = $groupController->listAll(true);
 $settings = $hostController->getSettings();
 
 // Threshold of the maximum number of available update above which the host is considered as 'not compliant'
-$complianceThresholdCount = $settings['compliance_threshold_count'];
+$complianceThresholdCount = $settings['compliance']['thresholds']['count'];
 
 // Threshold of the latest update age in days above which the host is considered as 'not compliant'
-$complianceThresholdDays = $settings['compliance_threshold_days'];
+$complianceThresholdDays = $settings['compliance']['thresholds']['days'];
 
 if (isset($_COOKIE['hosts/compact-view']) and $_COOKIE['hosts/compact-view'] == false) {
     $compactView = false;

@@ -384,8 +384,6 @@ class Connection extends SQLite3
         Date DATE,
         Time TIME,
         Raw_params TEXT NOT NULL,
-        Pid INTEGER,
-        Logfile VARCHAR(255),
         Duration INTEGER,
         Status CHAR(9), /* new, scheduled, running, done, stopped */
         Parent_task_id INTEGER)");
@@ -393,8 +391,7 @@ class Connection extends SQLite3
         // Create indexes
         $this->exec("CREATE INDEX IF NOT EXISTS tasks_rawparams_status ON tasks (Raw_params, Status)");
         $this->exec("CREATE INDEX IF NOT EXISTS tasks_status ON tasks (Status)");
-        // TODO: uncomment this after 6.0.0
-        // $this->exec("CREATE INDEX IF NOT EXISTS tasks_parent_task_id ON tasks (Parent_task_id)");
+        $this->exec("CREATE INDEX IF NOT EXISTS tasks_parent_task_id ON tasks (Parent_task_id)");
 
         // profile_settings table
         $this->exec("CREATE TABLE IF NOT EXISTS profile_settings (
@@ -627,7 +624,7 @@ class Connection extends SQLite3
                 'true',
                 'repomanager-',
                 'Europe/Paris',
-                '2048',
+                '512',
                 'false',
                 '3',
                 '730',
@@ -862,16 +859,29 @@ class Connection extends SQLite3
         Id_group INTEGER NOT NULL)");
 
         // settings table
-        $this->exec("CREATE TABLE IF NOT EXISTS settings (
-        compliance_threshold_count INTEGER NOT NULL DEFAULT 1,
-        compliance_threshold_days INTEGER NOT NULL DEFAULT 30,
-        compliance_security_update INTEGER NOT NULL DEFAULT 1,
-        compliance_reboot_required INTEGER NOT NULL DEFAULT 1)"); /* 1 = true, 0 = false */
+        $this->exec("CREATE TABLE IF NOT EXISTS settings (settings TEXT DEFAULT '{}')");
 
         // Insert default values in settings table, if empty
-        if ($this->isempty($this->query("SELECT * FROM settings"))) {
-            $this->query("INSERT INTO settings (compliance_threshold_count, compliance_threshold_days, compliance_reboot_required) VALUES (1, 30, 1)");
-        }
+        // TODO debug
+        // if ($this->isempty($this->query("SELECT * FROM settings"))) {
+        //     $settings = [
+        //         'compliance' => [
+        //             'thresholds' => [
+        //                 'count' => 1,
+        //                 'days' => 30,
+        //                 'security-update' => 1,
+        //                 'reboot-required' => 1
+        //             ],
+        //             'exclusions' => [
+        //                 'hosts' => [],
+        //                 'packages' => []
+        //             ]
+        //         ]
+        //     ];
+        //     $stmt = $this->prepare("INSERT INTO settings (settings) VALUES (:settings)");
+        //     $stmt->bindValue(':settings', json_encode($settings, JSON_THROW_ON_ERROR), SQLITE3_TEXT);
+        //     $stmt->execute();
+        // }
 
         // Create indexes
         // hosts table indexes:

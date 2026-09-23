@@ -278,6 +278,11 @@ class Schedule
         }
 
         if (isset($params['schedule']['schedule-type']) && $params['schedule']['schedule-type'] == 'recurring') {
+            // Hourly and daily tasks always run within the day, a reminder days before would never be sent
+            if (in_array($params['schedule']['schedule-frequency'] ?? '', ['hourly', 'daily'])) {
+                $params['schedule']['schedule-reminder'] = [];
+            }
+
             if (isset($params['schedule']['schedule-frequency'])) {
                 if ($params['schedule']['schedule-frequency'] == 'hourly') {
                     unset($params['schedule']['schedule-monthly-day-position']);
