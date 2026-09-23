@@ -4,6 +4,8 @@
  */
 const containersUsingMorphdom = [
     // 'repos/properties',
+    'tasks/log',
+    'snapshot/list',
 ];
 
 /**
@@ -19,6 +21,23 @@ const containersUsingMorphdom = [
  */
 const containersPartialReload = {
     'repos/list': { item: '.repo-item-wrapper', key: 'repo-id' },
+};
+
+/**
+ *  Per-container Morphdom rules: element is a CSS selector; key identifies an item
+ *  by its attributes. skipIf prevents updates; preserveAttributes and preserveClasses
+ *  retain only the configured state while allowing content updates.
+ *  @type {Object}
+ */
+const morphdomSkipRules = {
+    'tasks/log': [
+        { element: '.task-step-content', key: ['task-id', 'step'], preserveAttributes: ['style'] },
+        { element: '.task-step', key: ['task-id', 'step'], preserveClasses: ['step-open'] },
+    ],
+    'snapshot/list': [
+        // Filled client-side: the server always renders them in their initial state
+        { element: '#loading-tree, #browse-search-input, #browse-search-results, #explorer', skipIf: 'always' },
+    ],
 };
 
 /**
@@ -40,6 +59,20 @@ const postReloadFunctions = {
                 $(this).addClass('subtasks-expanded').attr('title', 'Collapse sub-tasks');
             }
         });
+    },
+
+    // Refresh the package tree only when the user is not exploring it (search, selection, expanded directory)
+    'snapshot/list': function () {
+        const explorer = $('#explorer');
+        const exploring = $('#browse-search-input').val().trim() !== ''
+            || explorer.find('input[type="checkbox"]:checked').length > 0
+            || explorer.find('.explorer-toggle').filter(function () {
+                return $(this).data('loaded') && $(this).next('ul').css('display') !== 'none';
+            }).length > 0;
+
+        if (!exploring) {
+            mysnapshot.reloadTree();
+        }
     },
 };
 

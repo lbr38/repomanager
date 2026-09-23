@@ -8,19 +8,34 @@ repositories:
     description: Oracle Linux BaseOS
     url: https://yum.oracle.com/repo/OracleLinux/OL$releasever/baseos/latest/$basearch
     releasever:
+      # Oracle Linux 10
       - name: 10
         description: Oracle Linux 10
+        eol: 2035-06-30
+        archs:
+          - x86_64
+          - aarch64
         gpgkeys:
           # Looks like they use the same as OL9 for OL10
           - link: https://yum.oracle.com/RPM-GPG-KEY-oracle-ol9
 
+      # Oracle Linux 9
       - name: 9
         description: Oracle Linux 9
+        eol: 2032-06-30
+        archs:
+          - x86_64
+          - aarch64
         gpgkeys:
           - link: https://yum.oracle.com/RPM-GPG-KEY-oracle-ol9
 
+      # Oracle Linux 8
       - name: 8
         description: Oracle Linux 8
+        eol: 2029-07-31
+        archs:
+          - x86_64
+          - aarch64
         gpgkeys:
           - link: https://yum.oracle.com/RPM-GPG-KEY-oracle-ol8
 
@@ -30,18 +45,33 @@ repositories:
     description: Oracle Linux AppStream
     url: https://yum.oracle.com/repo/OracleLinux/OL$releasever/appstream/$basearch
     releasever:
+      # Oracle Linux 10
       - name: 10
         description: Oracle Linux 10
+        eol: 2035-06-30
+        archs:
+          - x86_64
+          - aarch64
         gpgkeys:
           # Looks like they use the same as OL9 for OL10
           - link: https://yum.oracle.com/RPM-GPG-KEY-oracle-ol9
 
+      # Oracle Linux 9
       - name: 9
         description: Oracle Linux 9
+        eol: 2032-06-30
+        archs:
+          - x86_64
+          - aarch64
         gpgkeys:
           - link: https://yum.oracle.com/RPM-GPG-KEY-oracle-ol9
 
+      # Oracle Linux 8
       - name: 8
         description: Oracle Linux 8
+        eol: 2029-07-31
+        archs:
+          - x86_64
+          - aarch64
         gpgkeys:
           - link: https://yum.oracle.com/RPM-GPG-KEY-oracle-ol8

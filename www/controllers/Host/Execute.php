@@ -4,6 +4,7 @@ namespace Controllers\Host;
 
 use Exception;
 use Controllers\Utils\Validate;
+use Controllers\Utils\Generate\Html\Label;
 use Controllers\User\Permission\Host as HostPermission;
 
 class Execute extends Host
@@ -157,12 +158,12 @@ class Execute extends Host
         }
 
         if ($action == 'request-general-infos') {
-            $message = 'Requesting general informations to the following hosts:';
+            $message = 'Requesting general information to the following hosts:';
             $this->layoutContainerReloadController->reload('host/requests');
         }
 
         if ($action == 'request-packages-infos') {
-            $message = 'Requesting packages informations to the following hosts:';
+            $message = 'Requesting package information to the following hosts:';
             $this->layoutContainerReloadController->reload('host/requests');
         }
 
@@ -179,7 +180,7 @@ class Execute extends Host
                 break;
             }
 
-            $message .= '<span class="label-white">' . $host['hostname'] . ' (' . $host['ip'] . ')</span> ';
+            $message .= Label::mint($host['hostname'] . ' (' . $host['ip'] . ')');
             $count++;
         }
 
