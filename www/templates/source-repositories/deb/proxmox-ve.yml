@@ -38,7 +38,6 @@ repositories:
           - name: pvetest
         gpgkeys:
           - fingerprint: 353479F83781D7F8ED5F5AC57BF2812E8A6E88E0
-          - link: https://enterprise.proxmox.com/debian/proxmox-ve-release-6.x.gpg
       - name: stretch
         description: PVE 5 for Debian Stretch
         components:
@@ -46,7 +45,6 @@ repositories:
           - name: pvetest
         gpgkeys:
           - fingerprint: 359E95965E2C3D643159CD300D9A1950E2EF0603
-          - link: https://enterprise.proxmox.com/debian/proxmox-ve-release-5.x.gpg
       - name: stretch
         description: PVE 4 for Debian Jessie
         components:
@@ -54,7 +52,6 @@ repositories:
           - name: pvetest
         gpgkeys:
           - fingerprint: BE257BAA5D406D01157D323EC23AC7F49887F95A
-          - link: https://enterprise.proxmox.com/debian/proxmox-ve-release-4.x.gpg
       - name: stretch
         description: PVE 3 for Debian Wheezy
         components:
@@ -70,6 +67,7 @@ repositories:
         gpgkeys:
           - fingerprint: BE257BAA5D406D01157D323EC23AC7F49887F95A
           - link: https://enterprise.proxmox.com/debian/key.asc
+
   - name: pve-enterprise
     type: deb
     description: Proxmox Virtual Environment Enterprise Repositories
@@ -102,21 +100,18 @@ repositories:
           - name: pve-enterprise
         gpgkeys:
           - fingerprint: 353479F83781D7F8ED5F5AC57BF2812E8A6E88E0
-          - link: https://enterprise.proxmox.com/debian/proxmox-ve-release-6.x.gpg
       - name: stretch
         description: PVE 5 for Debian Stretch
         components:
           - name: pve-enterprise
         gpgkeys:
           - fingerprint: 359E95965E2C3D643159CD300D9A1950E2EF0603
-          - link: https://enterprise.proxmox.com/debian/proxmox-ve-release-5.x.gpg
       - name: stretch
         description: PVE 4 for Debian Jessie
         components:
           - name: pve-enterprise
         gpgkeys:
           - fingerprint: BE257BAA5D406D01157D323EC23AC7F49887F95A
-          - link: https://enterprise.proxmox.com/debian/proxmox-ve-release-4.x.gpg
       - name: stretch
         description: PVE 3 for Debian Wheezy
         components:

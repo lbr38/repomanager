@@ -32,6 +32,11 @@ $(document).on('change', '.select-env-checkbox', function (e) {
     // Toggle visual state
     if ($(this).is(':checked')) {
         container.addClass('env-selected');
+
+        // Selecting an environment cancels any snapshot selection, as the two selections are mutually exclusive
+        $('#repositories-list').find('input[name="checkbox-repo"]:checked').each(function () {
+            $(this).click();
+        });
     } else {
         container.removeClass('env-selected');
     }

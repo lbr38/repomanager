@@ -15,17 +15,16 @@
                         <option value="administrator">Administrator</option>
                     </select>
 
-                    <div>
-                        <button class="btn-xxsmall-green" type="submit">+</button>
-                    </div>
                 </div>
+
+                <button class="btn-small-green margin-top-5" type="submit">Create</button>
             </form>
 
             <div id="user-settings-generated-passwd"></div>
    
             <?php
             if (!empty($users)) : ?>
-                <div id="currentUsers">
+                <div id="current-users">
                     <h6 class="margin-bottom-5">CURRENT USERS</h6>
 
                     <?php

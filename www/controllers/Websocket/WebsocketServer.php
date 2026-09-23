@@ -46,7 +46,9 @@ class WebsocketServer
                     $this->socket
                 )
             ),
-            $port
+            $port,
+            // Bind to loopback only: the service is only meant to be reached through the nginx reverse proxy
+            '127.0.0.1'
         );
 
         /**
@@ -101,6 +103,14 @@ class WebsocketServer
     }
 
     /**
+     *  Return whether a given connection is authenticated
+     */
+    public function isWsConnectionAuthenticated(int $connectionId) : bool
+    {
+        return $this->model->isWsConnectionAuthenticated($connectionId);
+    }
+
+    /**
      *  Return all authenticated websocket connections from database
      */
     public function getAuthenticatedWsConnections()
@@ -119,7 +129,7 @@ class WebsocketServer
     /**
      *  Return websocket connection Id by host Id
      */
-    public function getWsConnectionIdByHostId(int $hostId)
+    public function getWsConnectionIdByHostId(int $hostId): null|int
     {
         return $this->model->getWsConnectionIdByHostId($hostId);
     }
@@ -127,7 +137,7 @@ class WebsocketServer
     /**
      *  Delete websocket connection from database
      */
-    public function deleteWsConnection(int $connectionId)
+    public function deleteWsConnection(int $connectionId): void
     {
         $this->model->deleteWsConnection($connectionId);
     }

@@ -42,7 +42,7 @@ class Source
     /**
      *  List all source repositories
      */
-    public function listAll(string|null $type = null, bool $withOffset = false, int $offset = 0)
+    public function listAll(string|null $type = null, bool $withOffset = false, int $offset = 0): array
     {
         return $this->model->listAll($type, $withOffset, $offset);
     }
@@ -581,7 +581,7 @@ class Source
                 $this->importYaml($content, $importMethod);
             }
         } catch (Exception $e) {
-            throw new Exception('Could not import source repositories: ' . $e->getMessage());
+            throw new Exception('Could not import source repositories ' . $listFile . ': ' . $e->getMessage());
         }
     }
 

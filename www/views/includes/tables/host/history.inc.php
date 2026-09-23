@@ -1,3 +1,6 @@
+<?php
+use \Controllers\Layout\Table\Render as TableRender; ?>
+
 <div class="reloadable-table margin-top-15" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
     <div class="flex flex-direction-column row-gap-10">
         <?php
@@ -72,7 +75,7 @@
             unset($date, $packageState, $state, $packages, $title, $icon, $count); ?>
 
             <div class="flex justify-end margin-top-10">
-                <?php \Controllers\Layout\Table\Render::paginationBtn($reloadableTableCurrentPage, $reloadableTableTotalPages); ?>
+                <?php TableRender::paginationBtn($reloadableTableCurrentPage, $reloadableTableTotalPages); ?>
             </div>
             <?php
         endif ?>
