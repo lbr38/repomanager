@@ -151,12 +151,12 @@ if ($_POST['action'] == 'delete' and !empty($_POST['id'])) {
  */
 if ($_POST['action'] == 'relaunch' and !empty($_POST['id'])) {
     try {
-        $taskController->relaunch($_POST['id']);
+        $taskId = $taskController->relaunch($_POST['id']);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, 'Task' . (is_array($_POST['id']) and count($_POST['id']) > 1 ? 's have' : ' has') . ' been relaunched using the same parameters');
+    response(HTTP_OK, ['id' => $taskId]);
 }
 
 /**

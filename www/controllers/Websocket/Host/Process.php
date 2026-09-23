@@ -18,7 +18,7 @@ class Process extends \Controllers\Websocket\WebsocketServer
     }
 
     // Process host authentication
-    public function authenticate($conn, $message)
+    public function authenticate($conn, $message): void
     {
         $this->log('[conn #' . $conn->resourceId . '] Authenticating...');
 
@@ -67,13 +67,16 @@ class Process extends \Controllers\Websocket\WebsocketServer
     /**
      *  Process host response to request message
      */
-    public function responseFromRequestId($conn, $message)
+    public function responseFromRequestId($conn, $message, int $hostId): void
     {
         $info = '';
         $responseJson = '';
 
-        // Retrieve request Id
-        $requestId = $message['response-to-request']['request-id'];
+        if (!ctype_digit((string) $message['response-to-request']['request-id'])) {
+            throw new Exception('invalid request Id');
+        }
+
+        $requestId = (int) $message['response-to-request']['request-id'];
 
         // Retrieve request status
         $status = $message['response-to-request']['status'];
@@ -90,17 +93,28 @@ class Process extends \Controllers\Websocket\WebsocketServer
             $responseJson = json_encode($message['response-to-request']['summary'], JSON_THROW_ON_ERROR);
         }
 
+        // Update request status and response in database
+        if (!$this->hostRequestController->update($requestId, $hostId, $status, $info, $responseJson)) {
+            throw new Exception('request #' . $requestId . ' does not exist or does not belong to this host');
+        }
+
         // Retrieve log, if any
         if (!empty($message['response-to-request']['log'])) {
-            if (!file_put_contents(WS_REQUESTS_LOGS_DIR . '/request-' . $requestId . '.log', $message['response-to-request']['log'])) {
-                $this->logError('[conn #' . $conn->resourceId . '] Error while writing request #' . $requestId . ' log to file ' . WS_REQUESTS_LOGS_DIR . '/request-' . $requestId . '.log');
+            $logFile = WS_REQUESTS_LOGS_DIR . '/request-' . $requestId . '.log';
+
+            // Ensure the resolved path stays within the requests logs directory (defense in depth against traversal)
+            $logDirRealpath = realpath(WS_REQUESTS_LOGS_DIR);
+
+            if ($logDirRealpath === false || !str_starts_with(dirname($logFile) . DIRECTORY_SEPARATOR, $logDirRealpath . DIRECTORY_SEPARATOR)) {
+                throw new Exception('invalid log file path for request #' . $requestId);
+            }
+
+            if (!file_put_contents($logFile, $message['response-to-request']['log'])) {
+                $this->logError('[conn #' . $conn->resourceId . '] Error while writing request #' . $requestId . ' log to file ' . $logFile);
             }
         }
 
         $this->log('[conn #' . $conn->resourceId . '] Sended response for request #' . $requestId . ' with status "' . $status . '"');
-
-        // Update request status and response in database
-        $this->hostRequestController->update($requestId, $status, $info, $responseJson);
 
         /**
          *  Send a message to the client to inform that the response was received
@@ -146,7 +160,7 @@ class Process extends \Controllers\Websocket\WebsocketServer
     /**
      *  Process and send requests to target hosts
      */
-    public function requests($socket)
+    public function requests($socket): void
     {
         // Retrieve all 'new' requests from database
         $requests = $this->hostRequestController->get('new');
@@ -218,6 +232,10 @@ class Process extends \Controllers\Websocket\WebsocketServer
 
                 // First, retrieve websocket connection Id of target host
                 $hostWsConnectionId = $this->getWsConnectionIdByHostId($request['Id_host']);
+
+                if ($hostWsConnectionId === null) {
+                    throw new Exception('websocket connection not found for host #' . $request['Id_host']);
+                }
 
                 // If request is 'disconnect', close connection and remove it from database
                 if ($requestDetails['request'] == 'disconnect') {
