@@ -11,18 +11,16 @@ new \Controllers\Autoloader();
 new \Controllers\App\Main('minimal');
 use \Controllers\Log\Cli as CliLog;
 
-$myupdate = new \Controllers\Update();
+$updateController = new \Controllers\Update();
 $error = 0;
 
 /**
- *  Check if a release version is specified (with --release=''). If so then only this version dedicated update file will be executed.
- *  Else all files will be executed
+ *  Check if a release version is specified (with --release=''). If so then only this version dedicated migration file will be executed.
+ *  Otherwise all files will be executed
  */
 $getOptions = getopt(null, ["release:"]);
 
-/**
- *  Retrieve the update ID to process
- */
+// Retrieve the target release version if specified
 if (!empty($getOptions['release'])) {
     $targetVersion = $getOptions['release'];
 }
@@ -30,29 +28,25 @@ if (!empty($getOptions['release'])) {
 try {
     CliLog::log('Enabling maintenance page');
 
-    $myupdate->setMaintenance('on');
+    $updateController->setMaintenance('on');
 
-    CliLog::log('Updating database');
+    CliLog::log('Executing migration scripts...');
 
-    /**
-     *  Only execute specified version update file
-     */
+    // Only execute specified version migration
     if (!empty($targetVersion)) {
-        CliLog::log('Executing ' . $targetVersion . ' release SQL queries if there are...');
-        $myupdate->updateDB($targetVersion);
+        CliLog::log('Executing ' . $targetVersion . ' migration...');
+        $updateController->updateDB($targetVersion);
 
-    /**
-     *  Else execute all update files
-     */
+    // Else execute all migrations
     } else {
-        $myupdate->updateDB();
+        $updateController->updateDB();
     }
 } catch (Exception $e) {
-    CliLog::error('There was an error while executing update', $e->getMessage());
+    CliLog::error('There was an error while executing migration scripts', $e->getMessage());
     $error++;
 } finally {
     CliLog::log('Disabling maintenance page');
-    $myupdate->setMaintenance('off');
+    $updateController->setMaintenance('off');
 }
 
 if ($error > 0) {

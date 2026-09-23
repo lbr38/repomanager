@@ -36,34 +36,25 @@ class Update
     }
 
     /**
-     *  Execute SQL queries to update database
+     *  Execute database migration
      */
-    public function updateDB(string $targetVersion = '') : void
+    public function updateDB(string $targetVersion = ''): void
     {
         if (!is_dir($this->sqlQueriesDir)) {
             return;
         }
 
-        /**
-         *  If a target release version is specified, only execute database update file that contains this version number
-         */
+        // If a target release is specified, only execute migration file that contains this version number
         if (!empty($targetVersion)) {
             $updateFile = $this->sqlQueriesDir . '/' . $targetVersion . '.php';
 
-            /**
-             *  Execute file if exist
-             */
             if (file_exists($updateFile)) {
-                /**
-                 *  Execute file if it has not been done yet
-                 */
+                // Execute file if it has not been done yet
                 if (!file_exists(DB_UPDATE_DONE_DIR . '/' . basename($targetVersion) . '.done')) {
                     try {
                         $this->model->updateDB($updateFile);
 
-                        /**
-                         *  Create a file to indicate that the update has been done
-                         */
+                        // Create a file to indicate that the update has been done
                         touch(DB_UPDATE_DONE_DIR . '/' . basename($targetVersion) . '.done');
                     } catch (Exception $e) {
                         throw new Exception('error while executing update file ' . $updateFile . ': ' . $e->getMessage());
@@ -74,25 +65,16 @@ class Update
             return;
         }
 
-        /**
-         *  Else execute all database update files
-         */
+        // Otherwise execute all database update files
 
-        /**
-         *  Get all the files
-         */
+        // Get all migration files
         $updateFiles = glob($this->sqlQueriesDir . '/*.php');
 
-        /**
-         *  Execute always-before file
-         */
+        // Execute always-before file
         if (file_exists($this->sqlQueriesDir . '/_always-before.php')) {
             $this->model->updateDB($this->sqlQueriesDir . '/_always-before.php');
         }
 
-        /**
-         *  For each files found execute its queries
-         */
         if (!empty($updateFiles)) {
             foreach ($updateFiles as $updateFile) {
                 /**
@@ -104,21 +86,15 @@ class Update
                 }
 
                 if (file_exists($updateFile)) {
-                    /**
-                     *  Get target version from filename
-                     */
+                    // Get target version from filename
                     $targetVersion = basename($updateFile, '.php');
 
-                    /**
-                     *  Execute file if it has not been done yet
-                     */
+                    // Execute file if it has not been done yet
                     if (!file_exists(DB_UPDATE_DONE_DIR . '/' . $targetVersion . '.done')) {
                         try {
                             $this->model->updateDB($updateFile);
 
-                            /**
-                             *  Create a file to indicate that the update has been done
-                             */
+                            // Create a file to indicate that the update has been done
                             touch(DB_UPDATE_DONE_DIR . '/' . $targetVersion . '.done');
                         } catch (Exception $e) {
                             throw new Exception('error while executing update file ' . $updateFile . ': ' . $e->getMessage());
@@ -128,9 +104,7 @@ class Update
             }
         }
 
-        /**
-         *  Execute always-after file
-         */
+        // Execute always-after file
         if (file_exists($this->sqlQueriesDir . '/_always-after.php')) {
             $this->model->updateDB($this->sqlQueriesDir . '/_always-after.php');
         }

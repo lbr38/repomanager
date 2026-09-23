@@ -682,7 +682,10 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                     $isIn = false;
 
                     foreach ($this->advancedParams['packages']['include'] as $packageToInclude) {
-                        if (preg_match('/' . $packageToInclude . '/', $debPackageName)) {
+                        // Convert any '*' to '.*' for regex matching, only if preceded or followed by alphabetic character(s) and not if already '.*'
+                        $packageToInclude = preg_replace('/(?<!\.)\*/', '.*', $packageToInclude);
+
+                        if (preg_match('/^' . $packageToInclude . '/', $debPackageName)) {
                             $isIn = true;
                         }
                     }
@@ -702,7 +705,10 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                     $isIn = false;
 
                     foreach ($this->advancedParams['packages']['exclude'] as $packageToExclude) {
-                        if (preg_match('/' . $packageToExclude . '/', $debPackageName)) {
+                        // Convert any '*' to '.*' for regex matching, only if preceded or followed by alphabetic character(s) and not if already '.*'
+                        $packageToExclude = preg_replace('/(?<!\.)\*/', '.*', $packageToExclude);
+
+                        if (preg_match('/^' . $packageToExclude . '/', $debPackageName)) {
                             $isIn = true;
                         }
                     }

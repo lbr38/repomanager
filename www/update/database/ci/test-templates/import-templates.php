@@ -161,8 +161,7 @@ foreach ($debSources as $source) {
 //         $params['alias']        = $source['name'];
 //         $params['releasever'][] = $releasever['name'];
 //         $params['schedule']['schedule-date'] = date('Y-m-d');
-           // TODO debug
-//         $params['schedule']['schedule-time'] = date('H:i', strtotime('+30 minutes')); // Now +5 minutes
+//         $params['schedule']['schedule-time'] = date('H:i', strtotime('+5 minutes')); // Now +5 minutes
 
 //         // Add the task parameters to the tasks array
 //         $tasks[] = $params;
