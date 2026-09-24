@@ -35,11 +35,11 @@ try {
     // Only execute specified version migration
     if (!empty($targetVersion)) {
         CliLog::log('Executing ' . $targetVersion . ' migration...');
-        $updateController->updateDB($targetVersion);
+        $updateController->migrate($targetVersion);
 
     // Else execute all migrations
     } else {
-        $updateController->updateDB();
+        $updateController->migrate();
     }
 } catch (Exception $e) {
     CliLog::error('There was an error while executing migration scripts', $e->getMessage());

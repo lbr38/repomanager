@@ -471,6 +471,13 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
     {
         $this->taskLogSubStepController->new('downloading-packages', 'DOWNLOADING PACKAGES', 'From ' . $url);
 
+        // Create packages directory
+        if (!is_dir($this->workingDir . '/packages')) {
+            if (!mkdir($this->workingDir . '/packages', 0770, true)) {
+                throw new Exception('Cannot create directory: ' . $this->workingDir . '/packages');
+            }
+        }
+
         // If GPG signature check is enabled, either use a distant http:// GPG key or use the repomanager keyring
         if ($this->checkSignature == 'true') {
             // Get all known editors GPG public keys imported into repomanager keyring

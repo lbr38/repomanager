@@ -17,28 +17,26 @@ class Update
     /**
      *  Enable / disable maintenance
      */
-    public function setMaintenance(string $status) : void
+    public function setMaintenance(string $status): void
     {
         if ($status == 'on') {
-            /**
-             *  Create 'update-running' file to enable maintenance page on the site
-             */
-            if (!file_exists(DATA_DIR . "/update-running")) {
-                touch(DATA_DIR . "/update-running");
+            // Create 'update-running' file to enable maintenance page on the site
+            if (!file_exists(DATA_DIR . '/update-running')) {
+                touch(DATA_DIR . '/update-running');
             }
         }
 
         if ($status == 'off') {
-            if (file_exists(DATA_DIR . "/update-running")) {
-                unlink(DATA_DIR . "/update-running");
+            if (file_exists(DATA_DIR . '/update-running')) {
+                unlink(DATA_DIR . '/update-running');
             }
         }
     }
 
     /**
-     *  Execute database migration
+     *  Execute migration scripts
      */
-    public function updateDB(string $targetVersion = ''): void
+    public function migrate(string $targetVersion = ''): void
     {
         if (!is_dir($this->sqlQueriesDir)) {
             return;
@@ -52,7 +50,7 @@ class Update
                 // Execute file if it has not been done yet
                 if (!file_exists(DB_UPDATE_DONE_DIR . '/' . basename($targetVersion) . '.done')) {
                     try {
-                        $this->model->updateDB($updateFile);
+                        $this->model->migrate($updateFile);
 
                         // Create a file to indicate that the update has been done
                         touch(DB_UPDATE_DONE_DIR . '/' . basename($targetVersion) . '.done');
@@ -72,7 +70,7 @@ class Update
 
         // Execute always-before file
         if (file_exists($this->sqlQueriesDir . '/_always-before.php')) {
-            $this->model->updateDB($this->sqlQueriesDir . '/_always-before.php');
+            $this->model->migrate($this->sqlQueriesDir . '/_always-before.php');
         }
 
         if (!empty($updateFiles)) {
@@ -92,7 +90,7 @@ class Update
                     // Execute file if it has not been done yet
                     if (!file_exists(DB_UPDATE_DONE_DIR . '/' . $targetVersion . '.done')) {
                         try {
-                            $this->model->updateDB($updateFile);
+                            $this->model->migrate($updateFile);
 
                             // Create a file to indicate that the update has been done
                             touch(DB_UPDATE_DONE_DIR . '/' . $targetVersion . '.done');
@@ -106,14 +104,14 @@ class Update
 
         // Execute always-after file
         if (file_exists($this->sqlQueriesDir . '/_always-after.php')) {
-            $this->model->updateDB($this->sqlQueriesDir . '/_always-after.php');
+            $this->model->migrate($this->sqlQueriesDir . '/_always-after.php');
         }
     }
 
     /**
      *  Return true if update is running
      */
-    public static function running() : bool
+    public static function running(): bool
     {
         if (file_exists(DATA_DIR . '/update-running')) {
             return true;
