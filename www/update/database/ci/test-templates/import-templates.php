@@ -68,7 +68,7 @@ $rpmParamsTemplate = [
     'advanced-params' => [
         'packages' => [
             'keep-latest' => '1',
-            'include' => ['a.*'],
+            'include' => ['aaaaaaa.*'],
             'exclude' => [],
         ],
         'metadata-custom-fields' => [
