@@ -1,3 +1,8 @@
+<?php
+use \Controllers\Layout\Table\Render as TableRender;
+use \Controllers\Utils\Generate\Html\Icon;
+use \Controllers\Utils\Convert; ?>
+
 <div class="reloadable-table" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
     <p class="note margin-bottom-15">Requests sent to the host.</p>
 
@@ -51,22 +56,22 @@
                 if (!empty($requestData['update-params'])) {
                     // Retrieve dry-run value
                     if (!empty($requestData['update-params']['dry-run'])) {
-                        $dryRun = \Controllers\Utils\Convert::toBool($requestData['update-params']['dry-run']);
+                        $dryRun = Convert::toBool($requestData['update-params']['dry-run']);
                     }
 
                     // Retrieve ignore-exclusions value
                     if (!empty($requestData['update-params']['ignore-exclusions'])) {
-                        $ignoreExclusions = \Controllers\Utils\Convert::toBool($requestData['update-params']['ignore-exclusions']);
+                        $ignoreExclusions = Convert::toBool($requestData['update-params']['ignore-exclusions']);
                     }
 
                     // Retrieve full-upgrade value
                     if (!empty($requestData['update-params']['full-upgrade'])) {
-                        $fullUpgrade = \Controllers\Utils\Convert::toBool($requestData['update-params']['full-upgrade']);
+                        $fullUpgrade = Convert::toBool($requestData['update-params']['full-upgrade']);
                     }
 
                     // Retrieve keep-config-files value
                     if (!empty($requestData['update-params']['keep-config-files'])) {
-                        $keepConfigFiles = \Controllers\Utils\Convert::toBool($requestData['update-params']['keep-config-files']);
+                        $keepConfigFiles = Convert::toBool($requestData['update-params']['keep-config-files']);
                     }
                 }
 
@@ -257,7 +262,7 @@
                     continue;
                 } ?>
 
-                <div class="<?= $class ?>" request-id="<?= $item['Id'] ?>">
+                <div class="<?= $class ?> column-gap-15" request-id="<?= $item['Id'] ?>">
                     <div class="flex align-item-center column-gap-15">
                         <?php
                         if (!empty($requestStatusIcon)) {
@@ -274,7 +279,7 @@
                         </div>
                     </div>
 
-                    <div class="flex align-item-center column-gap-10">
+                    <div class="flex flex-grow justify-end column-gap-10">
                         <p class="lowopacity-cst font-size-12">
                             <?php
                             echo $requestStatus;
@@ -379,7 +384,7 @@
                             // Print each package with its version and log
                             foreach ($successPackages as $package => $details) : ?>
                                 <div class="flex align-flex-start column-gap-5">
-                                    <?= \Controllers\Utils\Generate\Html\Icon::product($package) ?>
+                                    <?= Icon::product($package) ?>
                                     <p class="get-package-timeline pointer wordbreakall copy" hostid="<?= $id ?>" packagename="<?= $package ?>" title="See package timeline"><?= $package ?></p>
                                 </div>
 
@@ -411,7 +416,7 @@
                             // Print each package with its version and log
                             foreach ($failedPackages as $package => $details) : ?>
                                 <div class="flex align-flex-start column-gap-5">
-                                    <?= \Controllers\Utils\Generate\Html\Icon::product($package) ?>
+                                    <?= Icon::product($package) ?>
                                     <p class="get-package-timeline pointer wordbreakall copy" hostid="<?= $id ?>" packagename="<?= $package ?>" title="See package timeline"><?= $package ?></p>
                                 </div>
 
@@ -435,7 +440,7 @@
         </div>
         
         <div class="flex justify-end margin-top-10">
-            <?php \Controllers\Layout\Table\Render::paginationBtn($reloadableTableCurrentPage, $reloadableTableTotalPages); ?>
+            <?php TableRender::paginationBtn($reloadableTableCurrentPage, $reloadableTableTotalPages); ?>
         </div>
         <?php
     endif ?>

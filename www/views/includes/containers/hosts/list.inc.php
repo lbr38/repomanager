@@ -92,10 +92,14 @@ use \Controllers\Host\Package\Package; ?>
             </div>
 
             <div class="flex justify-self-end margin-bottom-10 margin-right-10">
-                <div id="select-all-hosts" class="select-all-btn btn-fit-tr align-item-center column-gap-8 pointer" title="Select all hosts">
-                    <span>Select all hosts</span>
-                    <input type="checkbox" title="Select all hosts" aria-hidden="true" tabindex="-1" />
-                </div>
+                <?php
+                if ($totalHosts > 1) : ?>
+                    <div id="select-all-hosts" class="select-all-btn btn-fit-tr align-item-center column-gap-8 pointer" title="Select all hosts">
+                        <span>Select all hosts</span>
+                        <input type="checkbox" title="Select all hosts" aria-hidden="true" tabindex="-1" />
+                    </div>
+                    <?php
+                endif ?>
             </div>
         </div>
 
@@ -249,7 +253,7 @@ use \Controllers\Host\Package\Package; ?>
 
                                         $class = '';
                                         if (!$compliance['compliant']) {
-                                            $compliantIcon = 'warning-red.svg';
+                                            $compliantIcon = 'shield-warning.svg';
                                             $compliantTitle = 'Host is not compliant: ' . strtolower($compliance['reason']);
                                         }
 

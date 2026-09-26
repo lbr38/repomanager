@@ -8,6 +8,36 @@ repositories:
     description: Fedora Linux
     url: https://download.fedoraproject.org/pub/fedora/linux/releases/$releasever/Everything/$basearch/os
     releasever:
+      # Fedora 46
+      - name: 46
+        description: Fedora 46
+        gpgkeys:
+          - fingerprint: 466CF2D8B60BC3057AA9453ED0622462E99D6AD1 # TODO
+
+      # Fedora 45
+      - name: 45
+        description: Fedora 45
+        gpgkeys:
+          - fingerprint: 466CF2D8B60BC3057AA9453ED0622462E99D6AD1 # TODO
+
+      # Fedora 44
+      - name: 44
+        description: Fedora 44
+        gpgkeys:
+          - fingerprint: 466CF2D8B60BC3057AA9453ED0622462E99D6AD1 # TODO
+
+      # Fedora 43
+      - name: 43
+        description: Fedora 43
+        gpgkeys:
+          - fingerprint: 466CF2D8B60BC3057AA9453ED0622462E99D6AD1 # TODO
+
+      # Fedora 42
+      - name: 42
+        description: Fedora 42
+        gpgkeys:
+          - fingerprint: 466CF2D8B60BC3057AA9453ED0622462E99D6AD1 # TODO
+
       # Fedora 41
       - name: 41
         description: Fedora 41
@@ -25,6 +55,36 @@ repositories:
     description: Fedora Linux Updates
     url: https://download.fedoraproject.org/pub/fedora/linux/updates/$releasever/Everything/$basearch/os
     releasever:
+      # Fedora 46
+      - name: 46
+        description: Fedora 46
+        gpgkeys:
+          - fingerprint: 466CF2D8B60BC3057AA9453ED0622462E99D6AD1 # TODO
+
+      # Fedora 45
+      - name: 45
+        description: Fedora 45
+        gpgkeys:
+          - fingerprint: 466CF2D8B60BC3057AA9453ED0622462E99D6AD1 # TODO
+
+      # Fedora 44
+      - name: 44
+        description: Fedora 44
+        gpgkeys:
+          - fingerprint: 466CF2D8B60BC3057AA9453ED0622462E99D6AD1 # TODO
+
+      # Fedora 43
+      - name: 43
+        description: Fedora 43
+        gpgkeys:
+          - fingerprint: 466CF2D8B60BC3057AA9453ED0622462E99D6AD1 # TODO
+
+      # Fedora 42
+      - name: 42
+        description: Fedora 42
+        gpgkeys:
+          - fingerprint: 466CF2D8B60BC3057AA9453ED0622462E99D6AD1 # TODO
+
       # Fedora 41
       - name: 41
         description: Fedora 41

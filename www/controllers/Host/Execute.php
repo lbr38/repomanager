@@ -4,6 +4,7 @@ namespace Controllers\Host;
 
 use Exception;
 use Controllers\Utils\Validate;
+use Controllers\Utils\Generate\Html\Label;
 use Controllers\User\Permission\Host as HostPermission;
 
 class Execute extends Host
@@ -179,7 +180,7 @@ class Execute extends Host
                 break;
             }
 
-            $message .= '<span class="label-white">' . $host['hostname'] . ' (' . $host['ip'] . ')</span> ';
+            $message .= Label::mint($host['hostname'] . ' (' . $host['ip'] . ')');
             $count++;
         }
 

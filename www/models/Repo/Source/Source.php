@@ -87,31 +87,24 @@ class Source extends \Models\Model
     /**
      *  List all source repositories
      */
-    public function listAll(string|null $type, bool $withOffset, int $offset)
+    public function listAll(string|null $type, bool $withOffset, int $offset): array
     {
         $data = [];
 
         $query = "SELECT * FROM sources";
 
-        /**
-         *  If a source type has been specified
-         */
+        // If a source type has been specified
         if (!empty($type)) {
             $query .= " WHERE json_extract(COALESCE(Definition, '{}'), '$.type') = :type";
         }
 
         $query .= " ORDER BY json_extract(COALESCE(Definition, '{}'), '$.type') ASC, json_extract(COALESCE(Definition, '{}'), '$.name') ASC";
 
-        /**
-         *  If offset is specified
-         */
+        // If offset is specified
         if ($withOffset) {
             $query .= " LIMIT 10 OFFSET :offset";
         }
 
-        /**
-         *  Prepare query
-         */
         $stmt = $this->db->prepare($query);
         $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
         if (!empty($type)) {

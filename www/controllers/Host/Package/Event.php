@@ -161,7 +161,7 @@ class Event
 
         ob_start();
 
-        include_once(ROOT . '/views/includes/host/package/event-details.inc.php');
+        include_once(ROOT . '/views/includes/modals/host/package/event-details.inc.php');
 
         return ob_get_clean();
     }

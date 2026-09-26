@@ -74,9 +74,28 @@ class WebsocketServer extends \Models\Model
     }
 
     /**
+     *  Return whether a given connection is authenticated
+     */
+    public function isWsConnectionAuthenticated(int $connectionId): bool
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT Authenticated FROM ws_connections WHERE Connection_id = :id");
+            $stmt->bindValue(':id', $connectionId);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+            return false;
+        }
+
+        $row = $result->fetchArray(SQLITE3_ASSOC);
+
+        return !empty($row) && $row['Authenticated'] === 'true';
+    }
+
+    /**
      *  Return all authenticated websocket connections from database
      */
-    public function getAuthenticatedWsConnections()
+    public function getAuthenticatedWsConnections(): array
     {
         $connections = [];
 
@@ -97,7 +116,7 @@ class WebsocketServer extends \Models\Model
     /**
      *  Return all websocket connections from database
      */
-    public function getWsConnections(string|null $type = null)
+    public function getWsConnections(string|null $type = null): array
     {
         $connections = [];
 
@@ -125,9 +144,9 @@ class WebsocketServer extends \Models\Model
     /**
      *  Return websocket connection Id by host Id
      */
-    public function getWsConnectionIdByHostId(int $hostId)
+    public function getWsConnectionIdByHostId(int $hostId): null|int
     {
-        $connectionId = '';
+        $connectionId = null;
 
         try {
             $stmt = $this->db->prepare("SELECT Connection_id FROM ws_connections WHERE Id_host = :hostId");
@@ -137,10 +156,8 @@ class WebsocketServer extends \Models\Model
             DbLog::error($e);
         }
 
-        $connectionId = '';
-
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $connectionId = $row['Connection_id'];
+            $connectionId = (int) $row['Connection_id'];
         }
 
         return $connectionId;
@@ -149,7 +166,7 @@ class WebsocketServer extends \Models\Model
     /**
      *  Delete ws connection from database
      */
-    public function deleteWsConnection(int $connectionId)
+    public function deleteWsConnection(int $connectionId): void
     {
         try {
             $stmt = $this->db->prepare("DELETE FROM ws_connections WHERE Connection_id = :id");

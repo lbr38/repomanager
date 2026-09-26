@@ -65,4 +65,12 @@ class Label
     {
         return '<span class="label-white">' . $string . '</span>';
     }
+
+    /**
+     *  Generate mint label
+     */
+    public static function mint(string $string): string
+    {
+        return '<span class="label-mint">' . $string . '</span>';
+    }
 }
