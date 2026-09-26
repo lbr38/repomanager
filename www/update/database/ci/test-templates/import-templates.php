@@ -182,8 +182,8 @@ foreach ($rpmSources as $source) {
     }
 
     $counter++;
-    // Stop if counter has reached 3
-    if ($counter >= 3) {
+    // Stop if counter has reached 10
+    if ($counter >= 10) {
         break;
     }
 }
