@@ -56,7 +56,9 @@ $rpmParamsTemplate = [
     'alias' => '',
     'releasever' => [],
     'arch' => [
-        'x86_64'
+        'x86_64',
+        'noarch',
+        'aarch64'
     ],
     'env' => [
         'preprod'
@@ -100,6 +102,12 @@ $templates = glob('*/*.yml');
 
 // Rename all templates to add github prefix and remove the .yml extension
 foreach ($templates as $template) {
+    // If the template has 'redhat' in its name, skip it and remove it from the list
+    if (strpos($template, 'redhat') !== false) {
+        unset($templates[array_search($template, $templates)]);
+        continue;
+    }
+
     $newName = str_replace('.yml', '', 'github/' . $template);
     $templates[array_search($template, $templates)] = $newName;
 }
@@ -111,6 +119,7 @@ $sourceController->import($templates);
 $debSources = $sourceController->listAll('deb');
 $rpmSources = $sourceController->listAll('rpm');
 
+// TODO debug
 // For each deb source, create a task
 // foreach ($debSources as $source) {
 //     $tasks = [];
@@ -143,6 +152,8 @@ $rpmSources = $sourceController->listAll('rpm');
 // }
 
 // TODO debug
+$counter = 0;
+
 // For each rpm source, create a task
 foreach ($rpmSources as $source) {
     $tasks = [];
@@ -168,5 +179,11 @@ foreach ($rpmSources as $source) {
 
         // Create a task for the rpm source releasever
         $taskController->execute($tasks);
+    }
+
+    $counter++;
+    // Stop if counter has reached 10
+    if ($counter >= 10) {
+        break;
     }
 }
