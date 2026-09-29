@@ -231,4 +231,107 @@ class Rpm extends \Controllers\Repo\Source\Source
 
         return $data;
     }
+
+    /**
+     *  Get predefined architectures for a given release version
+     *
+     *  @param string $source The source repository name
+     *  @param array $releasevers The list of release versions to consider
+     *  @return array The predefined architecture data
+     */
+    public function getPredefinedArchitectures(string $source, array $releasevers): array
+    {
+        $data = [];
+        $predefinedArchitectures = [];
+        $possibleArchitectures = [];
+        $source = Validate::string($source);
+
+        // Check if source is provided
+        if (empty($source)) {
+            throw new Exception('Source is required');
+        }
+
+        // Check if release versions are provided
+        if (empty($releasevers)) {
+            throw new Exception('Release version(s) required');
+        }
+
+        // Validate each release version string
+        foreach ($releasevers as $releasever) {
+            if (!Validate::alphaNumericHyphen($releasever, ['.', '/'])) {
+                throw new Exception('Release version ' . $releasever . ' contains invalid characters');
+            }
+        }
+
+        // Check if the source exists
+        if (!$this->exists('rpm', $source)) {
+            throw new Exception('Source ' . $source . ' does not exist');
+        }
+
+        // Get the source Id based on the type and name
+        $id = $this->getIdByTypeName('rpm', $source);
+
+        // Get source definition
+        $definition = $this->getDefinition($id);
+
+        // Build predefined architectures from the source definition, if any
+        if (!empty($definition['releasever'])) {
+            foreach ($definition['releasever'] as $releasever) {
+                // Continue if release version is not in the list of selected release versions by the user
+                if (!in_array($releasever['name'], $releasevers)) {
+                    continue;
+                }
+
+                if (!empty($releasever['archs'])) {
+                    foreach ($releasever['archs'] as $arch) {
+                        // Add architecture to the predefined architectures array
+                        $predefinedArchitectures[] = [
+                            'id' => $arch,
+                            'text' => $arch
+                        ];
+                    }
+                }
+            }
+        }
+
+        // Build possible architectures from the default values
+        foreach (RPM_ARCHS as $arch) {
+            // Check if arch is already in the predefined architectures, if so, skip it
+            if (!empty($predefinedArchitectures)) {
+                foreach ($predefinedArchitectures as $predefinedArchitecture) {
+                    if ($predefinedArchitecture['id'] == $arch) {
+                        continue 2;
+                    }
+                }
+            }
+
+            // Add arch to the possible architectures array
+            $possibleArchitectures[] = [
+                'id' => $arch,
+                'text' => $arch
+            ];
+        }
+
+        // Remove duplicates
+        $predefinedArchitectures = array_map("unserialize", array_unique(array_map("serialize", $predefinedArchitectures)));
+        $possibleArchitectures   = array_map("unserialize", array_unique(array_map("serialize", $possibleArchitectures)));
+
+        // Add predefined architectures if any
+        if (!empty($predefinedArchitectures)) {
+            $data[] = [
+                "text" => "Suggested architectures",
+                "children" => $predefinedArchitectures
+            ];
+        }
+
+        // Add possible architectures if any
+        if (!empty($possibleArchitectures)) {
+            $data[] = [
+                "text" => "Other possible architectures",
+                "children" => $possibleArchitectures
+            ];
+        }
+
+        return $data;
+    }
 }

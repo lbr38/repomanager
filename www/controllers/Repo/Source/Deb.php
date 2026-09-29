@@ -246,6 +246,7 @@ class Deb extends \Controllers\Repo\Source\Source
                     }
                 }
 
+                // Add distribution to the predefined distributions array
                 $predefinedDistributions[] = [
                     'id' => $name,
                     'text' => $name . ' ' . $description . ' ' . $eol
@@ -264,6 +265,7 @@ class Deb extends \Controllers\Repo\Source\Source
                 }
             }
 
+            // Add distribution to the possible distributions array
             $possibleDistributions[] = [
                 'id' => $distributionName,
                 'text' => $distributionName . ' (' . $distributionDescription . ')',
@@ -381,6 +383,7 @@ class Deb extends \Controllers\Repo\Source\Source
                 }
             }
 
+            // Add component to the possible components array
             $possibleComponents[] = [
                 'id' => $component,
                 'text' => $component,
@@ -405,6 +408,129 @@ class Deb extends \Controllers\Repo\Source\Source
             $data[] = [
                 "text" => "Possible components",
                 "children" => $possibleComponents
+            ];
+        }
+
+        return $data;
+    }
+
+    /**
+     *  Get predefined architectures for a given source, distributions, and components
+     *
+     *  @param string $source The source repository name
+     *  @param array $distributions The list of distributions to consider
+     *  @param array $components The list of components to consider
+     *  @return array The predefined architecture data
+     */
+    public function getPredefinedArchitectures(string $source, array $distributions, array $components): array
+    {
+        $data = [];
+        $predefinedArchitectures = [];
+        $possibleArchitectures = [];
+        $source = Validate::string($source);
+
+        // Check if source is provided
+        if (empty($source)) {
+            throw new Exception('Source is required');
+        }
+
+        // Check if distributions are provided
+        if (empty($distributions)) {
+            throw new Exception('Distribution(s) required');
+        }
+
+        // Check if components are provided
+        if (empty($components)) {
+            throw new Exception('Component(s) required');
+        }
+
+        // Validate each distribution string
+        foreach ($distributions as $distribution) {
+            if (!Validate::alphaNumericHyphen($distribution, ['.', '/'])) {
+                throw new Exception('Distribution ' . $distribution . ' contains invalid characters');
+            }
+        }
+
+        // Validate each component string
+        foreach ($components as $component) {
+            if (!Validate::alphaNumericHyphen($component)) {
+                throw new Exception('Component ' . $component . ' contains invalid characters');
+            }
+        }
+
+        // Check if the source exists
+        if (!$this->exists('deb', $source)) {
+            throw new Exception('Source ' . $source . ' does not exist');
+        }
+
+        // Get the source Id based on the type and name
+        $id = $this->getIdByTypeName('deb', $source);
+
+        // Get source definition
+        $definition = $this->getDefinition($id);
+
+        // Build predefined components from the source definition, if any
+        if (!empty($definition['distributions'])) {
+            foreach ($definition['distributions'] as $distribution) {
+                // Continue if distribution is not in the list of selected distributions by the user
+                if (!in_array($distribution['name'], $distributions)) {
+                    continue;
+                }
+
+                if (!empty($distribution['components'])) {
+                    foreach ($distribution['components'] as $component) {
+                        // Skip the component if it has no architectures defined
+                        if (empty($component['archs'])) {
+                            continue;
+                        }
+
+                        foreach ($component['archs'] as $arch) {
+                            // Add component to the predefined components array
+                            $predefinedArchitectures[] = [
+                                'id' => $arch,
+                                'text' => $arch
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+
+        // Build possible archs from the default values
+        foreach (DEB_ARCHS as $arch) {
+            // Check if arch is already in the predefined archs, if so, skip it
+            if (!empty($predefinedArchitectures)) {
+                foreach ($predefinedArchitectures as $predefinedArchitecture) {
+                    if ($predefinedArchitecture['id'] == $arch) {
+                        continue 2;
+                    }
+                }
+            }
+
+            // Add arch to the possible architectures array
+            $possibleArchitectures[] = [
+                'id' => $arch,
+                'text' => $arch
+            ];
+        }
+
+        // Remove duplicates
+        $predefinedArchitectures = array_map("unserialize", array_unique(array_map("serialize", $predefinedArchitectures)));
+        $possibleArchitectures   = array_map("unserialize", array_unique(array_map("serialize", $possibleArchitectures)));
+
+        // Add predefined architectures if any
+        if (!empty($predefinedArchitectures)) {
+            $data[] = [
+                "text" => "Suggested architectures",
+                "children" => $predefinedArchitectures
+            ];
+        }
+
+        // Add possible architectures if any
+        if (!empty($possibleArchitectures)) {
+            $data[] = [
+                "text" => "Other possible architectures",
+                "children" => $possibleArchitectures
             ];
         }
 

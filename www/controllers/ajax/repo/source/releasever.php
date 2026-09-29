@@ -91,4 +91,19 @@ if ($_POST['action'] == 'get-predefined-releasevers' and !empty($_POST['source']
     response(HTTP_OK, $content);
 }
 
+/**
+ *  Get predefined release version architectures values for a task
+ */
+if ($_POST['action'] == 'get-predefined-architectures' and !empty($_POST['source']) and !empty($_POST['releasever'])) {
+    $rpmSourceController = new RpmSourceRepo();
+
+    try {
+        $content = $rpmSourceController->getPredefinedArchitectures($_POST['source'], $_POST['releasever']);
+    } catch (Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, $content);
+}
+
 response(HTTP_BAD_REQUEST, 'Invalid action');

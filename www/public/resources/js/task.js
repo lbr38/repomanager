@@ -753,29 +753,19 @@ $(document).on('change','select[param-name="source"]',function () {
  *  Event: on repository distribution selection
  */
 $(document).on('change','select[param-name="dist"]',function () {
-    /**
-     *  Get source and distribution
-     */
-    var source = $('select[param-name="source"][package-type="deb"]').val();
-    var distribution = $(this).val();
+    // Get source and distribution values
+    const source = $('select[param-name="source"][package-type="deb"]').val();
+    const distribution = $(this).val();
 
-    /**
-     *  Quit if no source selected
-     */
+    // Quit if no source selected
     if (source == '') {
         return;
     }
 
-    /**
-     *  Quit if no distribution selected
-     */
+    // Quit if no distribution selected
     if (distribution == '') {
         return;
     }
-
-    /**
-     *  Get predefined values
-     */
 
     // Get predefined components for the selected distribution
     ajaxRequest(
@@ -798,3 +788,88 @@ $(document).on('change','select[param-name="dist"]',function () {
     });
 
 }).trigger('change');
+
+/**
+ *  Event: on repository component selection
+ */
+$(document).on('change','select[param-name="section"]',function () {
+    // Get source and distribution values
+    const source = $('select[param-name="source"][package-type="deb"]').val();
+    const distribution = $('select[param-name="dist"]').val();
+    const components = $(this).val();
+
+    // Quit if no source selected
+    if (source == '') {
+        return;
+    }
+
+    // Quit if no distribution selected
+    if (distribution == '') {
+        return;
+    }
+
+    // Quit if no component selected
+    if (components == '') {
+        return;
+    }
+
+    // Get predefined architectures for the selected component
+    ajaxRequest(
+        // Controller:
+        'repo/source/component',
+        // Action:
+        'get-predefined-architectures',
+        // Data:
+        {
+            source: source,
+            distribution: distribution,
+            component: components
+        },
+        // Print success alert:
+        false,
+        // Print error alert:
+        true
+    ).then(function () {
+        // Update select2 with the new values
+        myselect2.update('.task-param[param-name="arch"]', jsonValue.message, 'Select architecture', true);
+    });
+});
+
+/**
+ *  Event: on repository release version selection
+ */
+$(document).on('change','select[param-name="releasever"]',function () {
+    // Get source and release version values
+    const source = $('select[param-name="source"][package-type="rpm"]').val();
+    const releasever = $(this).val();
+
+    // Quit if no source selected
+    if (source == '') {
+        return;
+    }
+
+    // Quit if no release version selected
+    if (releasever == '') {
+        return;
+    }
+
+    // Get predefined architectures for the selected release version
+    ajaxRequest(
+        // Controller:
+        'repo/source/releasever',
+        // Action:
+        'get-predefined-architectures',
+        // Data:
+        {
+            source: source,
+            releasever: releasever
+        },
+        // Print success alert:
+        false,
+        // Print error alert:
+        true
+    ).then(function () {
+        // Update select2 with the new values
+        myselect2.update('.task-param[param-name="arch"]', jsonValue.message, 'Select architecture', true);
+    });
+});

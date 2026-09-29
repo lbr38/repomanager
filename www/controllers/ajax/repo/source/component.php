@@ -5,10 +5,10 @@ use \Controllers\Repo\Source\Deb as DebSourceRepo;
  *  Add a distribution component
  */
 if ($_POST['action'] == 'add' and !empty($_POST['id']) and isset($_POST['distributionId']) and isset($_POST['component'])) {
-    $rpmSourceController = new DebSourceRepo($_POST['id']);
+    $debSourceController = new DebSourceRepo($_POST['id']);
 
     try {
-        $rpmSourceController->addComponent($_POST['distributionId'], $_POST['component']);
+        $debSourceController->addComponent($_POST['distributionId'], $_POST['component']);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
@@ -35,10 +35,10 @@ if ($_POST['action'] == 'edit' and !empty($_POST['id']) and isset($_POST['distri
  *  Remove a distribution component
  */
 if ($_POST['action'] == 'remove' and !empty($_POST['id']) and isset($_POST['distributionId']) and isset($_POST['componentId'])) {
-    $rpmSourceController = new DebSourceRepo($_POST['id']);
+    $debSourceController = new DebSourceRepo($_POST['id']);
 
     try {
-        $rpmSourceController->removeComponent($_POST['distributionId'], $_POST['componentId']);
+        $debSourceController->removeComponent($_POST['distributionId'], $_POST['componentId']);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
@@ -50,10 +50,25 @@ if ($_POST['action'] == 'remove' and !empty($_POST['id']) and isset($_POST['dist
  *  Get predefined components values for a task
  */
 if ($_POST['action'] == 'get-predefined-components' and !empty($_POST['source']) and !empty($_POST['distribution'])) {
-    $rpmSourceController = new DebSourceRepo();
+    $debSourceController = new DebSourceRepo();
 
     try {
-        $content = $rpmSourceController->getPredefinedComponents($_POST['source'], $_POST['distribution']);
+        $content = $debSourceController->getPredefinedComponents($_POST['source'], $_POST['distribution']);
+    } catch (Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, $content);
+}
+
+/**
+ *  Get predefined components architectures values for a task
+ */
+if ($_POST['action'] == 'get-predefined-architectures' and !empty($_POST['source']) and !empty($_POST['distribution']) and !empty($_POST['component'])) {
+    $debSourceController = new DebSourceRepo();
+
+    try {
+        $content = $debSourceController->getPredefinedArchitectures($_POST['source'], $_POST['distribution'], $_POST['component']);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
