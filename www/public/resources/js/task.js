@@ -780,7 +780,7 @@ $(document).on('change','select[param-name="dist"]',function () {
     // Get predefined components for the selected distribution
     ajaxRequest(
         // Controller:
-        'repo/source/distribution',
+        'repo/source/component',
         // Action:
         'get-predefined-components',
         // Data:

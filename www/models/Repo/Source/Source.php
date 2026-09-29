@@ -13,9 +13,9 @@ class Source extends \Models\Model
     }
 
     /**
-     *  Get source repository definition
+     *  Get source repository
      */
-    public function get(string $sourceType, string $sourceName)
+    public function get(string $sourceType, string $sourceName): array
     {
         $data = [];
 
@@ -40,9 +40,9 @@ class Source extends \Models\Model
     /**
      *  Get source repo Id from its type and name
      */
-    public function getIdByTypeName(string $type, string $name)
+    public function getIdByTypeName(string $type, string $name): int
     {
-        $id = '';
+        $id = null;
 
         try {
             $stmt = $this->db->prepare("SELECT Id FROM sources
@@ -65,7 +65,7 @@ class Source extends \Models\Model
     /**
      *  Get source repo definition from its Id
      */
-    public function getDefinition(string $id)
+    public function getDefinition(string $id): string
     {
         $data = '';
 
@@ -122,7 +122,7 @@ class Source extends \Models\Model
     /**
      *  Add a new source repository
      */
-    public function new(string $definition, string $method) : void
+    public function new(string $definition, string $method): void
     {
         try {
             $stmt = $this->db->prepare("INSERT INTO sources ('Definition', 'Method') VALUES (:definition, :method)");
@@ -137,7 +137,7 @@ class Source extends \Models\Model
     /**
      *  Edit a source repository
      */
-    public function edit(string $id, string $definition)
+    public function edit(string $id, string $definition): void
     {
         try {
             $stmt = $this->db->prepare('UPDATE sources SET Definition = :definition WHERE Id = :id');
@@ -152,7 +152,7 @@ class Source extends \Models\Model
     /**
      *  Delete a source repository
      */
-    public function delete(int $id)
+    public function delete(int $id): void
     {
         try {
             $stmt = $this->db->prepare("DELETE FROM sources WHERE Id = :id");
@@ -167,7 +167,7 @@ class Source extends \Models\Model
      *  Check if source repo exists in database
      *  Using COALESCE to specify a default JSON value '{}' for the Definition column in case the column is empty (brand new table)
      */
-    public function exists(string $type, string $name)
+    public function exists(string $type, string $name): bool
     {
         try {
             $stmt = $this->db->prepare("SELECT Id FROM sources
@@ -190,7 +190,7 @@ class Source extends \Models\Model
     /**
      *  Check if source repo exists in database
      */
-    public function existsId(string $id)
+    public function existsId(string $id): bool
     {
         try {
             $stmt = $this->db->prepare("SELECT Id FROM sources WHERE Id = :id");
@@ -210,7 +210,7 @@ class Source extends \Models\Model
     /**
      *  Edit source repository definition params
      */
-    public function editDefinition(int $id, string $definition)
+    public function editDefinition(int $id, string $definition): void
     {
         try {
             $stmt = $this->db->prepare('UPDATE sources SET Definition = :definition WHERE Id = :id');

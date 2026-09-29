@@ -10,163 +10,92 @@ class Rpm extends \Controllers\Repo\Source\Source
     /**
      *  Add a new rpm source repository release version
      */
-    public function addReleasever(int $id, string $name)
+    public function addReleasever(string $name): void
     {
         $name = Validate::string($name);
 
-        /**
-         *  Check that the source repository exists
-         */
-        if (!$this->existsId($id)) {
-            throw new Exception('Source repository does not exist');
-        }
-
-        /**
-         *  Get complete source repository definition
-         */
-        $currentParams = json_decode($this->getDefinition($id), true);
-
-        /**
-         *  Check that a release version with the same name does not already exist
-         */
-        if (!empty($currentParams['releasever'])) {
-            foreach ($currentParams['releasever'] as $releasever) {
+        // Check that a release version with the same name does not already exist
+        if (!empty($this->currentDefinition['releasever'])) {
+            foreach ($this->currentDefinition['releasever'] as $releasever) {
                 if ($releasever['name'] === $name) {
                     throw new Exception('Release version ' . $name . ' already exists');
                 }
             }
         }
 
-        /**
-         *  Add the new release version
-         */
-        $currentParams['releasever'][] = [
+        // Add the new release version
+        $this->currentDefinition['releasever'][] = [
             'name' => $name,
             'description' => '',
+            'eol' => ''
         ];
 
-        /**
-         *  Save the new source repository definition
-         */
-        $this->editDefinition($id, json_encode($currentParams));
+        // Save the new source repository definition
+        $this->editDefinition($this->id, $this->currentDefinition);
     }
 
     /**
      *  Edit a rpm source repository release version
      */
-    public function editReleasever(int $id, string $releaseverId, array $params)
+    public function editReleasever(string $releaseverId, array $params): void
     {
-        /**
-         *  Check that the source repository exists
-         */
-        if (!$this->existsId($id)) {
-            throw new Exception('Source repository does not exist');
-        }
-
-        /**
-         *  Get complete source repository definition
-         */
-        $currentDefinition = json_decode($this->getDefinition($id), true);
-
-        /**
-         *  Check that release version Id exists in the source repository
-         */
-        if (!isset($currentDefinition['releasever'][$releaseverId])) {
+        // Check that release version Id exists in the source repository
+        if (!isset($this->currentDefinition['releasever'][$releaseverId])) {
             throw new Exception('Release version does not exist');
         }
 
-        /**
-         *  Check that release version name is not empty
-         */
+        // Check that release version name is not empty
         if (empty($params['name'])) {
             throw new Exception('Release version is required');
         }
 
-        /**
-         *  Check that a release version with the same name does not already exist
-         */
-        foreach ($currentDefinition['releasever'] as $currentReleaseverId => $releasever) {
+        // Check that a release version with the same name does not already exist
+        foreach ($this->currentDefinition['releasever'] as $currentReleaseverId => $releasever) {
             if ($currentReleaseverId != $releaseverId and $releasever['name'] === $params['name']) {
                 throw new Exception('Release version ' . $params['name'] . ' already exists');
             }
         }
 
-        /**
-         *  Set new release version params
-         */
-        $currentDefinition['releasever'][$releaseverId]['name'] = $params['name'];
-        $currentDefinition['releasever'][$releaseverId]['description'] = $params['description'];
+        // Set new release version params
+        $this->currentDefinition['releasever'][$releaseverId]['name'] = $params['name'];
+        $this->currentDefinition['releasever'][$releaseverId]['description'] = $params['description'];
+        $this->currentDefinition['releasever'][$releaseverId]['eol'] = $params['eol'];
+        $this->currentDefinition['releasever'][$releaseverId]['archs'] = $params['archs'] ?? [];
 
-        /**
-         *  Save the new source repository definition
-         */
-        $this->editDefinition($id, json_encode($currentDefinition));
+        // Save the new source repository definition
+        $this->editDefinition($this->id, $this->currentDefinition);
     }
 
     /**
      *  Remove a release version from a rpm source repository
      */
-    public function removeReleasever(int $sourceId, string $releaseverId)
+    public function removeReleasever(string $releaseverId): void
     {
-        /**
-         *  Check that the source repository exists
-         */
-        if (!$this->existsId($sourceId)) {
-            throw new Exception('Source repository does not exist');
-        }
-
-        /**
-         *  Get complete source repository definition
-         */
-        $currentDefinition = json_decode($this->getDefinition($sourceId), true);
-
-        /**
-         *  Check that release version Id exists in the source repository
-         */
-        if (!isset($currentDefinition['releasever'][$releaseverId])) {
+        // Check that the release version exists in the source repository
+        if (!isset($this->currentDefinition['releasever'][$releaseverId])) {
             throw new Exception('Release version does not exist');
         }
 
-        /**
-         *  Remove the release version
-         */
-        unset($currentDefinition['releasever'][$releaseverId]);
+        // Remove the release version from the source repository definition
+        unset($this->currentDefinition['releasever'][$releaseverId]);
 
-        /**
-         *  Save the new source repository definition
-         */
-        $this->editDefinition($sourceId, json_encode($currentDefinition));
+        // Save the updated source repository definition
+        $this->editDefinition($this->id, $this->currentDefinition);
     }
 
     /**
      *  Add a gpg key from a deb source repository release version
      */
-    public function addGpgKey(int $id, string $releaseverId, string $gpgKeyUrl, string $gpgKeyFingerprint, string $gpgKeyPlainText)
+    public function addGpgKey(string $releaseverId, string $gpgKeyUrl, string $gpgKeyFingerprint, string $gpgKeyPlainText): void
     {
         $gpgController = new \Controllers\Gpg();
 
-        /**
-         *  Check that the source repository exists
-         */
-        if (!$this->existsId($id)) {
-            throw new Exception('Source repository does not exist');
-        }
-
-        /**
-         *  Get complete source repository definition
-         */
-        $currentParams = json_decode($this->getDefinition($id), true);
-
-        /**
-         *  Check that release version Id exists in the source repository
-         */
-        if (!isset($currentParams['releasever'][$releaseverId])) {
+        // Check that the release version exists in the source repository
+        if (!isset($this->currentDefinition['releasever'][$releaseverId])) {
             throw new Exception('Release version Id ' . $releaseverId . ' does not exist');
         }
 
-        /**
-         *  Import the gpg key and get the fingerprints
-         */
+        // Import the gpg key and get the fingerprints
         $fingerprints = $gpgController->import($gpgKeyUrl, $gpgKeyFingerprint, $gpgKeyPlainText);
 
         /**
@@ -175,8 +104,8 @@ class Rpm extends \Controllers\Repo\Source\Source
          */
         foreach ($fingerprints as $fingerprint) {
             // Ignore fingerprint if already exists
-            if (!empty($currentParams['releasever'][$releaseverId]['gpgkeys'])) {
-                foreach ($currentParams['releasever'][$releaseverId]['gpgkeys'] as $gpgKeyDefinition) {
+            if (!empty($this->currentDefinition['releasever'][$releaseverId]['gpgkeys'])) {
+                foreach ($this->currentDefinition['releasever'][$releaseverId]['gpgkeys'] as $gpgKeyDefinition) {
                     if (isset($gpgKeyDefinition['fingerprint']) and $gpgKeyDefinition['fingerprint'] == $fingerprint) {
                         continue 2;
                     }
@@ -184,97 +113,65 @@ class Rpm extends \Controllers\Repo\Source\Source
             }
 
             // Otherwise add the fingerprint
-            $currentParams['releasever'][$releaseverId]['gpgkeys'][] = [
+            $this->currentDefinition['releasever'][$releaseverId]['gpgkeys'][] = [
                 'fingerprint' => $fingerprint
             ];
         }
 
-        /**
-         *  Save the new source repository definition
-         */
-        $this->editDefinition($id, json_encode($currentParams));
+        // Save the updated source repository definition
+        $this->editDefinition($this->id, $this->currentDefinition);
     }
 
     /**
      *  Remove a gpg key from a rpm source repository release version
      */
-    public function removeGpgKey(int $id, string $releaseverId, int $gpgKeyId)
+    public function removeGpgKey(string $releaseverId, int $gpgKeyId): void
     {
-        /**
-         *  Check that the source repository exists
-         */
-        if (!$this->existsId($id)) {
-            throw new Exception('Source repository does not exist');
-        }
-
-        /**
-         *  Get complete source repository definition
-         */
-        $currentParams = json_decode($this->getDefinition($id), true);
-
-        /**
-         *  Check that release version Id exists in the source repository
-         */
-        if (!isset($currentParams['releasever'][$releaseverId])) {
+        // Check that the release version exists in the source repository
+        if (!isset($this->currentDefinition['releasever'][$releaseverId])) {
             throw new Exception('Release version Id ' . $releaseverId . ' does not exist');
         }
 
-        /**
-         *  Check that the gpg key exists in the release version
-         */
-        if (!isset($currentParams['releasever'][$releaseverId]['gpgkeys'][$gpgKeyId])) {
+        // Check that the gpg key exists in the release version
+        if (!isset($this->currentDefinition['releasever'][$releaseverId]['gpgkeys'][$gpgKeyId])) {
             throw new Exception('GPG key Id does not exist');
         }
 
-        /**
-         *  Remove the gpg key
-         */
-        unset($currentParams['releasever'][$releaseverId]['gpgkeys'][$gpgKeyId]);
+        // Remove the gpg key from the release version
+        unset($this->currentDefinition['releasever'][$releaseverId]['gpgkeys'][$gpgKeyId]);
 
-        /**
-         *  Save the new source repository definition
-         */
-        $this->editDefinition($id, json_encode($currentParams));
+        // Save the updated source repository definition
+        $this->editDefinition($this->id, $this->currentDefinition);
     }
 
     /**
      *  Return an array of predefined release versions for a source repository
      *  The array is used in the frontend to populate the release versions select box
      */
-    public function getPredefinedReleasever(string $source)
+    public function getPredefinedReleasever(string $source): array
     {
         $data = [];
         $predefinedReleaseVersions = [];
         $possibleReleaseVersions = [];
         $source = Validate::string($source);
 
-        /**
-         *  Check if source is valid
-         */
+        // Check if source is valid
         if (empty($source)) {
             throw new Exception('Source is required');
         }
 
-        /**
-         *  Check if source exists
-         */
+        // Check if source exists
         if (!$this->exists('rpm', $source)) {
             throw new Exception('Source ' . $source . ' does not exist');
         }
 
-        /**
-         *  Get source Id
-         */
+        // Get the source Id based on the type and name
         $id = $this->getIdByTypeName('rpm', $source);
 
-        /**
-         *  Get source definition
-         */
-        $definition = json_decode($this->getDefinition($id), true);
+        // Get the source repository definition
+        $definition = $this->getDefinition($id);
 
-        /**
-         *  Build predefined releasever from definition, if any
-         */
+        // Build predefined releasever from definition, if any
         if (!empty($definition['releasever'])) {
             foreach ($definition['releasever'] as $releasever) {
                 $name = '';
@@ -294,9 +191,7 @@ class Rpm extends \Controllers\Repo\Source\Source
             }
         }
 
-        /**
-         *  Build possible release version from default values
-         */
+        // Build possible release version from default values
         foreach (RPM_RELEASEVERS as $releaseverName => $releaseverDescription) {
             // Check if release version is already in the predefined release versions, if so, skip it
             if (!empty($predefinedReleaseVersions)) {
@@ -318,9 +213,7 @@ class Rpm extends \Controllers\Repo\Source\Source
          *  This is the array which will be returned to the frontend and used to populate the release versions select
          */
 
-        /**
-         *  Add predefined release versions if any
-         */
+        // Add predefined release versions if any
         if (!empty($predefinedReleaseVersions)) {
             $data[] = [
                 "text" => "Suggested release versions",
@@ -328,9 +221,7 @@ class Rpm extends \Controllers\Repo\Source\Source
             ];
         }
 
-        /**
-         *  Add possible release versions
-         */
+        // Add possible release versions if any
         if (!empty($possibleReleaseVersions)) {
             $data[] = [
                 "text" => "Possible release versions",

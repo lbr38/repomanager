@@ -1,3 +1,6 @@
+<?php
+use \Controllers\Layout\Table\Render as TableRender; ?>
+
 <div class="reloadable-table" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
     <div class="flex justify-space-between align-flex-end margin-top-40 margin-bottom-15 margin-right-15">
         <div>
@@ -136,17 +139,30 @@
                         if (!empty($distAndComponent)) :
                             foreach ($distAndComponent as $distributionId => $distributionDetails) : ?>
                                 <!-- Distributions -->
-                                <div class="table-container grid-fr-4-1 bck-blue-alt source-repo-distribution-edit-param-btn pointer" source-id="<?= $item['Id'] ?>" distribution-id="<?= $distributionId ?>">
+                                <div class="table-container grid-fr-4-1 bck-blue-alt source-repo-distribution-edit-btn pointer" source-id="<?= $item['Id'] ?>" distribution-id="<?= $distributionId ?>">
                                     <div>
-                                        <p><?= $distributionDetails['name'] ?></p>
-                                        <p class="note"><?= $distributionDetails['description'] ?></p>
+                                        <div class="flex align-item-center column-gap-20">
+                                            <div>
+                                                <p><?= $distributionDetails['name'] ?></p>
+                                                <p class="note"><?= $distributionDetails['description'] ?></p>
+                                            </div>
 
-                                        <div class="flex column-gap-5">
                                             <?php
-                                            foreach ($distributionDetails['components'] as $componentId => $componentDetails) {
-                                                echo '<p class="label-black">' . $componentDetails['name'] . '</p>';
+                                            if (!empty($distributionDetails['eol']) and $distributionDetails['eol'] < DATE_YMD) {
+                                                echo '<span class="label-yellow" title="This distribution has reached End of Life on ' . $distributionDetails['eol'] . '">EOL</span>';
                                             } ?>
                                         </div>
+
+                                        <?php
+                                        if (!empty($distributionDetails['components'])) : ?>
+                                            <div class="flex column-gap-5 row-gap-5 margin-top-10">
+                                                <?php
+                                                foreach ($distributionDetails['components'] as $componentId => $componentDetails) {
+                                                    echo '<p class="label-black">' . $componentDetails['name'] . '</p>';
+                                                } ?>
+                                            </div>
+                                            <?php
+                                        endif ?>
                                     </div>
 
                                     <div class="flex justify-end">
@@ -170,11 +186,18 @@
 
                         if (!empty($releasevers)) :
                             foreach ($releasevers as $releaseverId => $releaseverDefinition) : ?>
-                                <!-- Distributions -->
+                                <!-- Release versions -->
                                 <div class="table-container grid-fr-4-1 bck-blue-alt source-repo-releasever-edit-param-btn pointer" source-id="<?= $item['Id'] ?>" releasever-id="<?= $releaseverId ?>">
-                                    <div>
-                                        <p><?= $releaseverDefinition['name'] ?></p>
-                                        <p class="note"><?= $releaseverDefinition['description'] ?></p>
+                                    <div class="flex align-item-center column-gap-20">
+                                        <div>
+                                            <p><?= $releaseverDefinition['name'] ?></p>
+                                            <p class="note"><?= $releaseverDefinition['description'] ?></p>
+                                        </div>
+
+                                        <?php
+                                        if (!empty($releaseverDefinition['eol']) and $releaseverDefinition['eol'] < DATE_YMD) {
+                                            echo '<span class="label-yellow" title="This release version has reached End of Life on ' . $releaseverDefinition['eol'] . '">EOL</span>';
+                                        } ?>
                                     </div>
 
                                     <div class="flex justify-end">
@@ -215,7 +238,7 @@
         endforeach; ?>
         
         <div class="flex justify-end margin-top-10">
-            <?php \Controllers\Layout\Table\Render::paginationBtn($reloadableTableCurrentPage, $reloadableTableTotalPages); ?>
+            <?php TableRender::paginationBtn($reloadableTableCurrentPage, $reloadableTableTotalPages); ?>
         </div>
 
         <?php
