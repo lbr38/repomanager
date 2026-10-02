@@ -52,6 +52,7 @@ $(document).on('change','input:radio[param-name="schedule-type"]',function () {
         $(form).find('.task-schedule-recurring-day-input').hide();
         $(form).find('.task-schedule-recurring-monthly-input').hide();
         $(form).find('.task-schedule-recurring-cron-input').hide();
+        $(form).find('.task-schedule-reminder-input').show();
         $(form).find('input[type="checkbox"][param-name="schedule-notify-error"]').prop('checked', true);
         $(form).find('input[type="checkbox"][param-name="schedule-notify-success"]').prop('checked', true);
     }
@@ -61,6 +62,8 @@ $(document).on('change','input:radio[param-name="schedule-type"]',function () {
         $(form).find('.task-schedule-recurring-frequency-input').show();
         $(form).find('.task-schedule-unique-input').hide();
         $(form).find('.task-schedule-recurring-cron-input').hide();
+        // Hourly and daily tasks always run within the day, a reminder days before would never be sent
+        $(form).find('.task-schedule-reminder-input').toggle(!['hourly', 'daily'].includes($(form).find('select[param-name="schedule-frequency"]').val()));
         // Disable notification on success by default for recurring tasks to avoid spamming users with notifications
         $(form).find('input[type="checkbox"][param-name="schedule-notify-error"]').prop('checked', true);
         $(form).find('input[type="checkbox"][param-name="schedule-notify-success"]').prop('checked', false);
@@ -82,6 +85,8 @@ $(document).on('change','select.task-param[param-name="schedule-frequency"]',fun
     } else {
         var form = '.task-schedule-form-params';
     }
+
+    $(form).find('.task-schedule-reminder-input').toggle(!['hourly', 'daily'].includes(frequency));
 
     if (frequency == 'hourly') {
         $(form).find('.task-schedule-recurring-day-input').hide();
@@ -294,6 +299,23 @@ function syncRepoGroupSelectionButtons(groupId)
     }
 }
 
+/**
+ *  Unselect all snapshots and environments of the repositories list
+ */
+function clearReposSelection()
+{
+    const list = $('#repositories-list');
+
+    list.find('input[name=checkbox-repo]').prop('checked', false).removeAttr('style');
+    list.find('.snap-container').removeClass('snap-selected');
+    list.find('.select-env-checkbox').prop('checked', false);
+    list.find('.snap-env-container').removeClass('env-selected');
+
+    $('.repos-list-group-select-latest-btns, .repos-list-select-all-btns').attr('status', '').addClass('hide').hide().css({'opacity': '', 'filter': ''}).find('input[type="checkbox"]').prop('checked', false);
+
+    myconfirmbox.close();
+}
+
 function executeAction(action)
 {
     var repos = [];
@@ -417,21 +439,14 @@ $(document).on('click', '.repos-list-group-select-latest-btns, .repos-list-selec
     }
 });
 
-
-
-
 /**
  *  Event: Schedule a task
  */
 $(document).on('click',".task-schedule-btn", function () {
-    /**
-     *  Find parent task-form
-     */
-    var form = $(this).parents('#task-form');
+    // Find parent task-form
+    const form = $(this).parents('#task-form');
 
-    /**
-     *  Change button text and color if schedule is checked
-     */
+    // Change button text and color if schedule is checked
     if ($(this).is(':checked')) {
         form.find('.task-schedule-params').show();
         form.find('.task-confirm-btn').removeClass('btn-large-red');
@@ -599,10 +614,11 @@ $(document).on('submit','#task-form',function (e) {
     ).then(function () {
         mypanel.close();
 
-        // Uncheck all checkboxes and remove all styles JQuery could have applied
-        $('#repositories-list').find('input[name=checkbox-repo]').prop('checked', false);
-        $('#repositories-list').find('input[name=checkbox-repo]').removeAttr('style');
+        // Unselect all repositories and environments
+        clearReposSelection();
 
+        // A scheduled task does not trigger any server-side reload of the list, unlike an immediate one
+        mycontainer.reload('repos/list');
         mycontainer.reload('repos/kpi');
     });
 

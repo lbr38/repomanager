@@ -1,6 +1,6 @@
 <?php
 /**
- *  6.0.1 update
+ *  6.1.0 update
  */
 
 try {

@@ -92,9 +92,8 @@ $(document).on('change', '.select-env-checkbox', function (e) {
                             );
                         }
 
-                        // A repo item still holding a checked checkbox is considered busy and would be
-                        // skipped by the repos list partial reload, hiding the environment removal
-                        checked.prop('checked', false).closest('.snap-env-container').removeClass('env-selected');
+                        // Unselect all repositories and environments
+                        clearReposSelection();
                     }
             }
             ]

@@ -306,23 +306,25 @@ class ScheduledTask extends \Controllers\Service\Service
                     continue;
                 }
 
-                /**
-                 *  If the task is a unique task
-                 */
-                if ($taskRawParams['schedule']['schedule-type'] == 'unique') {
-                    /**
-                     *  A scheduled task can have 1 or more reminders.
-                     *  For each reminder, check if its date corresponds to the current date less (-) the number of days of the reminder
-                     */
-                    foreach ($taskRawParams['schedule']['schedule-reminder'] as $reminder) {
-                        $reminderDate = date_create($taskRawParams['schedule']['schedule-date'])->modify('-' . $reminder . 'days')->format('Y-m-d');
+                if (empty($taskRawParams['schedule']['schedule-reminder'])) {
+                    continue;
+                }
 
-                        if ($reminderDate == $dateNow) {
-                            /**
-                             *  Task Id is added to the array of tasks to remind
-                             */
-                            $tasksToReminder[] = $task['Id'];
-                        }
+                // Only the next occurrence of a recurring task is reminded, so hourly and daily tasks never are
+                $nextDate = $this->taskController->getDayTimeLeft($task['Id'])['date'];
+
+                if (empty($nextDate)) {
+                    continue;
+                }
+
+                /**
+                 *  A scheduled task can have 1 or more reminders.
+                 *  The task is reminded if its next execution is in as many days as one of its reminders
+                 */
+                foreach ($taskRawParams['schedule']['schedule-reminder'] as $reminder) {
+                    if (date_create($dateNow)->modify('+' . $reminder . ' days')->format('Y-m-d') == $nextDate) {
+                        $tasksToReminder[] = $task['Id'];
+                        break;
                     }
                 }
             }
