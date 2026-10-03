@@ -13,8 +13,38 @@ repositories:
         eol: 2026-08-31
         components:
           - name: main
+            archs:
+              - amd64
+              - arm64
+              - armel
+              - armhf
+              - i386
+              - mips64el
+              - mipsel
+              - ppc64el
+              - s390x
           - name: contrib
+            archs:
+              - amd64
+              - arm64
+              - armel
+              - armhf
+              - i386
+              - mips64el
+              - mipsel
+              - ppc64el
+              - s390x
           - name: non-free
+            archs:
+              - amd64
+              - arm64
+              - armel
+              - armhf
+              - i386
+              - mips64el
+              - mipsel
+              - ppc64el
+              - s390x
         gpgkeys:
           - fingerprint: A7236886F3CCCAAD148A27F80E98404D386FA1D9
           - fingerprint: 4CB50190207B4758A3F73A796ED0E7B82643E131
@@ -26,8 +56,41 @@ repositories:
         eol: 2024-06-30
         components:
           - name: main
+            archs:
+              - amd64
+              - arm64
+              - armel
+              - armhf
+              - i386
+              - mips
+              - mips64el
+              - mipsel
+              - ppc64el
+              - s390x
           - name: contrib
+            archs:
+              - amd64
+              - arm64
+              - armel
+              - armhf
+              - i386
+              - mips
+              - mips64el
+              - mipsel
+              - ppc64el
+              - s390x
           - name: non-free
+            archs:
+              - amd64
+              - arm64
+              - armel
+              - armhf
+              - i386
+              - mips
+              - mips64el
+              - mipsel
+              - ppc64el
+              - s390x
         gpgkeys:
           - fingerprint: 0146DC6D4A0B2914BDED34DB648ACFD622F3D138
           - fingerprint: A7236886F3CCCAAD148A27F80E98404D386FA1D9
@@ -39,8 +102,41 @@ repositories:
         eol: 2022-07-01
         components:
           - name: main
+            archs:
+              - amd64
+              - arm64
+              - armel
+              - armhf
+              - i386
+              - mips
+              - mips64el
+              - mipsel
+              - ppc64el
+              - s390x
           - name: contrib
+            archs:
+              - amd64
+              - arm64
+              - armel
+              - armhf
+              - i386
+              - mips
+              - mips64el
+              - mipsel
+              - ppc64el
+              - s390x
           - name: non-free
+            archs:
+              - amd64
+              - arm64
+              - armel
+              - armhf
+              - i386
+              - mips
+              - mips64el
+              - mipsel
+              - ppc64el
+              - s390x
         gpgkeys:
           - fingerprint: 16E90B3FDF65EDE3AA7F323C04EE7237B7D453EC
           - fingerprint: 0146DC6D4A0B2914BDED34DB648ACFD622F3D138
@@ -52,8 +148,41 @@ repositories:
         eol: 2020-06-30
         components:
           - name: main
+            archs:
+              - amd64
+              - arm64
+              - armel
+              - armhf
+              - i386
+              - mips
+              - mipsel
+              - powerpc
+              - ppc64el
+              - s390x
           - name: contrib
+            archs:
+              - amd64
+              - arm64
+              - armel
+              - armhf
+              - i386
+              - mips
+              - mipsel
+              - powerpc
+              - ppc64el
+              - s390x
           - name: non-free
+            archs:
+              - amd64
+              - arm64
+              - armel
+              - armhf
+              - i386
+              - mips
+              - mipsel
+              - powerpc
+              - ppc64el
+              - s390x
         gpgkeys:
           - fingerprint: A1BD8E9D78F7FE5C3E65D8AF8B48AD6246925553
           - fingerprint: 126C0D24BD8A2942CC7DF8AC7638D0442B90D010
@@ -65,8 +194,326 @@ repositories:
         eol: 2016-05-31
         components:
           - name: main
+            archs:
+              - amd64
+              - armel
+              - armhf
+              - i386
+              - ia64
+              - kfreebsd-amd64
+              - kfreebsd-i386
+              - mips
+              - mipsel
+              - powerpc
+              - s390
+              - s390x
+              - sparc
           - name: contrib
+            archs:
+              - amd64
+              - armel
+              - armhf
+              - i386
+              - ia64
+              - kfreebsd-amd64
+              - kfreebsd-i386
+              - mips
+              - mipsel
+              - powerpc
+              - s390
+              - s390x
+              - sparc
           - name: non-free
+            archs:
+              - amd64
+              - armel
+              - armhf
+              - i386
+              - ia64
+              - kfreebsd-amd64
+              - kfreebsd-i386
+              - mips
+              - mipsel
+              - powerpc
+              - s390
+              - s390x
+              - sparc
+        gpgkeys:
+          - fingerprint: 8B48AD6246925553
+          - fingerprint: 7638D0442B90D010
+          - fingerprint: 6FB2A1C265FFB764
+
+      # Debian 6
+      - name: squeeze
+        description: Debian 6
+        components:
+          - name: main
+            archs:
+              - amd64
+              - armel
+              - i386
+              - ia64
+              - kfreebsd-amd64
+              - kfreebsd-i386
+              - mips
+              - mipsel
+              - powerpc
+              - s390
+              - sparc
+          - name: contrib
+            archs:
+              - amd64
+              - armel
+              - i386
+              - ia64
+              - kfreebsd-amd64
+              - kfreebsd-i386
+              - mips
+              - mipsel
+              - powerpc
+              - s390
+              - sparc
+          - name: non-free
+            archs:
+              - amd64
+              - armel
+              - i386
+              - ia64
+              - kfreebsd-amd64
+              - kfreebsd-i386
+              - mips
+              - mipsel
+              - powerpc
+              - s390
+              - sparc
+        gpgkeys:
+          - fingerprint: 8B48AD6246925553
+          - fingerprint: 7638D0442B90D010
+          - fingerprint: 6FB2A1C265FFB764
+
+      # Debian 5
+      - name: lenny
+        description: Debian 5
+        components:
+          - name: main
+            archs:
+              - alpha
+              - amd64
+              - arm
+              - armel
+              - hppa
+              - i386
+              - ia64
+              - mips
+              - mipsel
+              - powerpc
+              - s390
+              - sparc
+          - name: contrib
+            archs:
+              - alpha
+              - amd64
+              - arm
+              - armel
+              - hppa
+              - i386
+              - ia64
+              - mips
+              - mipsel
+              - powerpc
+              - s390
+              - sparc
+          - name: non-free
+            archs:
+              - alpha
+              - amd64
+              - arm
+              - armel
+              - hppa
+              - i386
+              - ia64
+              - mips
+              - mipsel
+              - powerpc
+              - s390
+              - sparc
+        gpgkeys:
+          - fingerprint: 8B48AD6246925553
+          - fingerprint: 7638D0442B90D010
+          - fingerprint: 6FB2A1C265FFB764
+
+      # Debian 4
+      - name: etch
+        description: Debian 4
+        components:
+          - name: main
+            archs:
+              - alpha
+              - amd64
+              - arm
+              - hppa
+              - i386
+              - ia64
+              - mips
+              - mipsel
+              - powerpc
+              - s390
+              - sparc
+          - name: contrib
+            archs:
+              - alpha
+              - amd64
+              - arm
+              - hppa
+              - i386
+              - ia64
+              - mips
+              - mipsel
+              - powerpc
+              - s390
+              - sparc
+          - name: non-free
+            archs:
+              - alpha
+              - amd64
+              - arm
+              - hppa
+              - i386
+              - ia64
+              - mips
+              - mipsel
+              - powerpc
+              - s390
+              - sparc
+        gpgkeys:
+          - fingerprint: 8B48AD6246925553
+          - fingerprint: 7638D0442B90D010
+          - fingerprint: 6FB2A1C265FFB764
+
+      # Debian 3
+      - name: sarge
+        description: Debian 3
+        components:
+          - name: main
+            archs:
+              - alpha
+              - arm
+              - hppa
+              - i386
+              - ia64
+              - m68k
+              - mips
+              - mipsel
+              - powerpc
+              - s390
+              - sparc
+          - name: contrib
+            archs:
+              - alpha
+              - arm
+              - hppa
+              - i386
+              - ia64
+              - m68k
+              - mips
+              - mipsel
+              - powerpc
+              - s390
+              - sparc
+          - name: non-free
+            archs:
+              - alpha
+              - arm
+              - hppa
+              - i386
+              - ia64
+              - m68k
+              - mips
+              - mipsel
+              - powerpc
+              - s390
+              - sparc
+        gpgkeys:
+          - fingerprint: 8B48AD6246925553
+          - fingerprint: 7638D0442B90D010
+          - fingerprint: 6FB2A1C265FFB764
+
+      # Debian 3
+      - name: woody
+        description: Debian 3
+        components:
+          - name: main
+            archs:
+              - alpha
+              - arm
+              - hppa
+              - i386
+              - ia64
+              - m68k
+              - mips
+              - mipsel
+              - powerpc
+              - s390
+              - sparc
+          - name: contrib
+            archs:
+              - alpha
+              - arm
+              - hppa
+              - i386
+              - ia64
+              - m68k
+              - mips
+              - mipsel
+              - powerpc
+              - s390
+              - sparc
+          - name: non-free
+            archs:
+              - alpha
+              - arm
+              - hppa
+              - i386
+              - ia64
+              - m68k
+              - mips
+              - mipsel
+              - powerpc
+              - s390
+              - sparc
+        gpgkeys:
+          - fingerprint: 8B48AD6246925553
+          - fingerprint: 7638D0442B90D010
+          - fingerprint: 6FB2A1C265FFB764
+
+      # Debian 2
+      - name: potato
+        description: Debian 2
+        components:
+          - name: main
+            archs:
+              - alpha
+              - arm
+              - i386
+              - m68k
+              - powerpc
+              - sparc
+          - name: contrib
+            archs:
+              - alpha
+              - arm
+              - i386
+              - m68k
+              - powerpc
+              - sparc
+          - name: non-free
+            archs:
+              - alpha
+              - arm
+              - i386
+              - m68k
+              - powerpc
+              - sparc
         gpgkeys:
           - fingerprint: 8B48AD6246925553
           - fingerprint: 7638D0442B90D010
@@ -95,8 +542,23 @@ repositories:
         eol: 2024-06-30
         components:
           - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
           - name: contrib
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
           - name: non-free
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
         gpgkeys:
           - fingerprint: 0146DC6D4A0B2914BDED34DB648ACFD622F3D138 # TODO: to check
           - fingerprint: A7236886F3CCCAAD148A27F80E98404D386FA1D9 # TODO: to check

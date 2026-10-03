@@ -77,10 +77,17 @@ use \Controllers\User\Permission\Task as TaskPermission; ?>
                 <p class="mediumopacity-cst">Action</p>
             </div>
 
-            <?php
-            if ((DEVEL or DebugMode::enabled()) and file_exists(MAIN_LOGS_DIR . '/repomanager-task-' . $taskId . '-log.process')) {
-                echo '<img src="/assets/icons/file.svg" class="icon view-task-process-log margin-left-auto" task-id="' . $taskId . '" title="Debug log" />';
-            } ?>
+            <div class="flex column-gap-8">
+                <?php
+                // TODO debug
+                if ($taskInfo['Status'] == 'running') {
+
+                }
+
+                if ((DEVEL or DebugMode::enabled()) and file_exists(MAIN_LOGS_DIR . '/repomanager-task-' . $taskId . '-log.process')) {
+                    echo '<img src="/assets/icons/file.svg" class="icon view-task-process-log margin-left-auto" task-id="' . $taskId . '" title="Debug log" />';
+                } ?>
+            </div>
         </div>
 
         <?php

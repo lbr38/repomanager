@@ -12,6 +12,9 @@ repositories:
         description: Debian 13
         components:
           - name: nginx
+            archs:
+              - amd64
+              - arm64
         gpgkeys:
           - link: https://nginx.org/keys/nginx_signing.key
 
@@ -20,6 +23,9 @@ repositories:
         description: Debian 12
         components:
           - name: nginx
+            archs:
+              - amd64
+              - arm64
         gpgkeys:
           - link: https://nginx.org/keys/nginx_signing.key
 
@@ -28,6 +34,20 @@ repositories:
         description: Debian 11
         components:
           - name: nginx
+            archs:
+              - amd64
+              - arm64
+        gpgkeys:
+          - link: https://nginx.org/keys/nginx_signing.key
+
+      # Debian 6
+      - name: squeeze
+        description: Debian 6
+        components:
+          - name: nginx
+            archs:
+              - i386
+              - amd64
         gpgkeys:
           - link: https://nginx.org/keys/nginx_signing.key
 
@@ -36,5 +56,36 @@ repositories:
         description: Debian 10
         components:
           - name: nginx
+            archs:
+              - i386
+              - amd64
+              - arm64
+        gpgkeys:
+          - link: https://nginx.org/keys/nginx_signing.key
+
+      - name: jessie
+        components:
+          - name: nginx
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - link: https://nginx.org/keys/nginx_signing.key
+
+      - name: stretch
+        components:
+          - name: nginx
+            archs:
+              - i386
+              - amd64
+        gpgkeys:
+          - link: https://nginx.org/keys/nginx_signing.key
+
+      - name: wheezy
+        components:
+          - name: nginx
+            archs:
+              - i386
+              - amd64
         gpgkeys:
           - link: https://nginx.org/keys/nginx_signing.key

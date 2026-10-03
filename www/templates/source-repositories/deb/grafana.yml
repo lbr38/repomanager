@@ -12,6 +12,10 @@ repositories:
         description: Stable releases of Grafana
         components:
           - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
         gpgkeys:
           - link: https://apt.grafana.com/gpg.key
 
@@ -20,5 +24,9 @@ repositories:
         description: Beta releases of Grafana
         components:
           - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
         gpgkeys:
           - link: https://apt.grafana.com/gpg.key
