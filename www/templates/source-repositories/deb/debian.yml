@@ -77,39 +77,39 @@ repositories:
               - ppc64el
               - riscv64
               - s390x
-          - name: contrib
-            description: Contrib component
-            archs:
-              - amd64
-              - arm64
-              - armel
-              - armhf
-              - i386
-              - ppc64el
-              - riscv64
-              - s390x
-          - name: non-free
-            description: Non-free component
-            archs:
-              - amd64
-              - arm64
-              - armel
-              - armhf
-              - i386
-              - ppc64el
-              - riscv64
-              - s390x
-          - name: non-free-firmware
-            description: Non-free firmware component
-            archs:
-              - amd64
-              - arm64
-              - armel
-              - armhf
-              - i386
-              - ppc64el
-              - riscv64
-              - s390x
+          # - name: contrib
+          #   description: Contrib component
+          #   archs:
+          #     - amd64
+          #     - arm64
+          #     - armel
+          #     - armhf
+          #     - i386
+          #     - ppc64el
+          #     - riscv64
+          #     - s390x
+          # - name: non-free
+          #   description: Non-free component
+          #   archs:
+          #     - amd64
+          #     - arm64
+          #     - armel
+          #     - armhf
+          #     - i386
+          #     - ppc64el
+          #     - riscv64
+          #     - s390x
+          # - name: non-free-firmware
+          #   description: Non-free firmware component
+          #   archs:
+          #     - amd64
+          #     - arm64
+          #     - armel
+          #     - armhf
+          #     - i386
+          #     - ppc64el
+          #     - riscv64
+          #     - s390x
         gpgkeys:
           - fingerprint: 4CB50190207B4758A3F73A796ED0E7B82643E131
           - fingerprint: B8E5F13176D2A7A75220028078DBA3BC47EF2265
