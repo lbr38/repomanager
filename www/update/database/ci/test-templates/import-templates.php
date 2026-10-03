@@ -12,9 +12,7 @@ $debParamsTemplate = [
     'alias' => '',
     'dist' => [],
     'section' => [],
-    'arch' => [
-        'amd64'
-    ],
+    'arch' => [],
     'env' => [
         'preprod'
     ],
@@ -55,11 +53,7 @@ $rpmParamsTemplate = [
     'source' => '',
     'alias' => '',
     'releasever' => [],
-    'arch' => [
-        'x86_64',
-        'noarch',
-        'aarch64'
-    ],
+    'arch' => [],
     'env' => [
         'preprod'
     ],
@@ -142,6 +136,7 @@ foreach ($debSources as $source) {
             $params['alias']     = $source['name'];
             $params['dist'][]    = $distribution['name'];
             $params['section'][] = $component['name'];
+            $params['arch'][]    = $component['arch'] ?? 'amd64'; // Use predefined architecture if defined, otherwise default to 'amd64'
             $params['schedule']['schedule-date'] = date('Y-m-d');
             $params['schedule']['schedule-time'] = date('H:i', strtotime('+5 minutes')); // Now +5 minutes
 
@@ -177,7 +172,8 @@ foreach ($debSources as $source) {
 //         $params = $rpmParamsTemplate;
 //         $params['source']       = $source['name'];
 //         $params['alias']        = $source['name'];
-//         $params['releasever'][] = $releasever['name'];
+        // $params['releasever'][] = $releasever['name'];
+        // $params['arch'][]       = $releasever['arch'] ?? 'x86_64'; // Use predefined architecture if defined, otherwise default to 'x86_64'
 //         $params['schedule']['schedule-date'] = date('Y-m-d');
 //         $params['schedule']['schedule-time'] = date('H:i', strtotime('+5 minutes')); // Now +5 minutes
 
