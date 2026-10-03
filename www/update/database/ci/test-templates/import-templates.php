@@ -2,6 +2,9 @@
 use \Controllers\Task\Task;
 use \Controllers\Repo\Source\Source;
 
+// Schedule for tasks in minutes
+$minutesSchedule = 1;
+
 $sourceController = new Source();
 $taskController = new Task();
 $debParamsTemplate = [
@@ -138,7 +141,7 @@ foreach ($debSources as $source) {
             $params['section'][] = $component['name'];
             $params['arch'][]    = $component['arch'] ?? 'amd64'; // Use predefined architecture if defined, otherwise default to 'amd64'
             $params['schedule']['schedule-date'] = date('Y-m-d');
-            $params['schedule']['schedule-time'] = date('H:i', strtotime('+5 minutes')); // Now +5 minutes
+            $params['schedule']['schedule-time'] = date('H:i', strtotime('+' . strval($minutesSchedule) . ' minutes')); // Now +$minutesSchedule minutes
 
             // Add the task parameters to the tasks array
             $tasks[] = $params;
