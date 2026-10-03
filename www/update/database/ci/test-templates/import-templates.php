@@ -120,42 +120,11 @@ $debSources = $sourceController->listAll('deb');
 $rpmSources = $sourceController->listAll('rpm');
 
 // TODO debug
-// For each deb source, create a task
-// foreach ($debSources as $source) {
-//     $tasks = [];
-//     $id = $source['Id'];
-
-//     try {
-//         $source = json_decode($source['Definition'], true, 512, JSON_THROW_ON_ERROR);
-//     } catch (JsonException $e) {
-//         throw new Exception('failed to decode JSON for source #' . $id);
-//     }
-
-//     foreach ($source['distributions'] as $distribution) {
-//         foreach ($distribution['components'] as $component) {
-//             $tasks = [];
-//             $params = $debParamsTemplate;
-//             $params['source']    = $source['name'];
-//             $params['alias']     = $source['name'];
-//             $params['dist'][]    = $distribution['name'];
-//             $params['section'][] = $component['name'];
-//             $params['schedule']['schedule-date'] = date('Y-m-d');
-//             $params['schedule']['schedule-time'] = date('H:i', strtotime('+5 minutes')); // Now +5 minutes
-
-//             // Add the task parameters to the tasks array
-//             $tasks[] = $params;
-
-//             // Create a task for the deb source distribution component
-//             $taskController->execute($tasks);
-//         }
-//     }
-// }
-
-// TODO debug
 $counter = 0;
 
-// For each rpm source, create a task
-foreach ($rpmSources as $source) {
+
+// For each deb source, create a task
+foreach ($debSources as $source) {
     $tasks = [];
     $id = $source['Id'];
 
@@ -165,20 +134,23 @@ foreach ($rpmSources as $source) {
         throw new Exception('failed to decode JSON for source #' . $id);
     }
 
-    foreach ($source['releasever'] as $releasever) {
-        $tasks = [];
-        $params = $rpmParamsTemplate;
-        $params['source']       = $source['name'];
-        $params['alias']        = $source['name'];
-        $params['releasever'][] = $releasever['name'];
-        $params['schedule']['schedule-date'] = date('Y-m-d');
-        $params['schedule']['schedule-time'] = date('H:i', strtotime('+5 minutes')); // Now +5 minutes
+    foreach ($source['distributions'] as $distribution) {
+        foreach ($distribution['components'] as $component) {
+            $tasks = [];
+            $params = $debParamsTemplate;
+            $params['source']    = $source['name'];
+            $params['alias']     = $source['name'];
+            $params['dist'][]    = $distribution['name'];
+            $params['section'][] = $component['name'];
+            $params['schedule']['schedule-date'] = date('Y-m-d');
+            $params['schedule']['schedule-time'] = date('H:i', strtotime('+5 minutes')); // Now +5 minutes
 
-        // Add the task parameters to the tasks array
-        $tasks[] = $params;
+            // Add the task parameters to the tasks array
+            $tasks[] = $params;
 
-        // Create a task for the rpm source releasever
-        $taskController->execute($tasks);
+            // Create a task for the deb source distribution component
+            $taskController->execute($tasks);
+        }
     }
 
     $counter++;
@@ -187,3 +159,38 @@ foreach ($rpmSources as $source) {
         break;
     }
 }
+
+// TODO debug
+// For each rpm source, create a task
+// foreach ($rpmSources as $source) {
+//     $tasks = [];
+//     $id = $source['Id'];
+
+//     try {
+//         $source = json_decode($source['Definition'], true, 512, JSON_THROW_ON_ERROR);
+//     } catch (JsonException $e) {
+//         throw new Exception('failed to decode JSON for source #' . $id);
+//     }
+
+//     foreach ($source['releasever'] as $releasever) {
+//         $tasks = [];
+//         $params = $rpmParamsTemplate;
+//         $params['source']       = $source['name'];
+//         $params['alias']        = $source['name'];
+//         $params['releasever'][] = $releasever['name'];
+//         $params['schedule']['schedule-date'] = date('Y-m-d');
+//         $params['schedule']['schedule-time'] = date('H:i', strtotime('+5 minutes')); // Now +5 minutes
+
+//         // Add the task parameters to the tasks array
+//         $tasks[] = $params;
+
+//         // Create a task for the rpm source releasever
+//         $taskController->execute($tasks);
+//     }
+
+//     $counter++;
+//     // Stop if counter has reached 10
+//     if ($counter >= 10) {
+//         break;
+//     }
+// }
