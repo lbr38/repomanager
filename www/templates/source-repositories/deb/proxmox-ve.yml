@@ -45,13 +45,6 @@ repositories:
         gpgkeys:
           - fingerprint: 28139A2F830BD68478A1A01FDD4BA3917E23BF59
           - link: https://enterprise.proxmox.com/debian/proxmox-release-bullseye.gpg
-      - name: stretch
-        description: PVE 5 for Debian Stretch
-        components:
-          - name: pve-no-subscription
-          - name: pvetest
-        gpgkeys:
-          - fingerprint: 359E95965E2C3D643159CD300D9A1950E2EF0603
 
   - name: pve-enterprise
     type: deb
