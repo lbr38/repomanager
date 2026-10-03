@@ -52,13 +52,6 @@ repositories:
           - name: pvetest
         gpgkeys:
           - fingerprint: 359E95965E2C3D643159CD300D9A1950E2EF0603
-      - name: stretch
-        description: PVE 4 for Debian Jessie
-        components:
-          - name: pve-no-subscription
-          - name: pvetest
-        gpgkeys:
-          - fingerprint: BE257BAA5D406D01157D323EC23AC7F49887F95A
 
   - name: pve-enterprise
     type: deb
