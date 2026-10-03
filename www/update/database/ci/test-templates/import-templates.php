@@ -154,7 +154,7 @@ foreach ($debSources as $source) {
 
     $counter++;
     // Stop if counter has reached 10
-    if ($counter >= 10) {
+    if ($counter >= 5) {
         break;
     }
 }
