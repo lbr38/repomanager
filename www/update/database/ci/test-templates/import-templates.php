@@ -140,7 +140,7 @@ foreach ($debSources as $source) {
             $params['alias']     = $source['name'];
             $params['dist'][]    = $distribution['name'];
             $params['section'][] = $component['name'];
-            $params['arch'][]    = $component['archs'] ?? 'amd64'; // Use predefined architecture if defined, otherwise default to 'amd64'
+            $params['arch']      = $component['archs'] ?? ['amd64']; // Use predefined architecture if defined, otherwise default to 'amd64'
             $params['schedule']['schedule-date'] = date('Y-m-d');
             $params['schedule']['schedule-time'] = date('H:i', strtotime('+' . strval($minutesSchedule) . ' minutes')); // Now +$minutesSchedule minutes
 
@@ -177,7 +177,7 @@ foreach ($debSources as $source) {
 //         $params['source']       = $source['name'];
 //         $params['alias']        = $source['name'];
         // $params['releasever'][] = $releasever['name'];
-        // $params['arch'][]       = $releasever['arch'] ?? 'x86_64'; // Use predefined architecture if defined, otherwise default to 'x86_64'
+        // $params['arch']          = $releasever['arch'] ?? ['x86_64']; // Use predefined architecture if defined, otherwise default to 'x86_64'
 //         $params['schedule']['schedule-date'] = date('Y-m-d');
 //         $params['schedule']['schedule-time'] = date('H:i', strtotime('+5 minutes')); // Now +5 minutes
 
