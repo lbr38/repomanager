@@ -167,7 +167,7 @@ SSO can be configured:
 | `EMAIL` | OIDC Claim for Email. |
 | `GROUPS` | OIDC Claim for Groups / Roles. |
 | `GROUP ADMINISTRATOR` | Groups value for Administrator. |
-| `HTTP PROXY` | HTTP proxy. |
+| `HTTP PROXY` | HTTP proxy. |
 | `CERTIFICATE FILE` | Path to certificate file. The certificate file must be stored under Repomanager's data directory to be valid. |
 
 ### Example with Okta

@@ -1,5 +1,5 @@
 ---
-# These repositories require SSL authentication.
+# These repositories require SSL authentication.
 description: Red Hat official repositories
 type: rpm
 repositories:

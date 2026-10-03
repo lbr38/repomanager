@@ -264,9 +264,9 @@ class ScheduledTask extends \Controllers\Service\Service
             /**
              *  Quit if current time != 00:00
              */
-            if (date('H:i') != '00:00') {
-                return;
-            }
+            // if (date('H:i') != '00:00') {
+            //     return;
+            // }
 
             parent::log('Sending scheduled tasks reminder if any...');
 

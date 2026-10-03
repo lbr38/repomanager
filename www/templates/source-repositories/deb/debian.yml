@@ -33,9 +33,49 @@ repositories:
           - fingerprint: B8E5F13176D2A7A75220028078DBA3BC47EF2265
           - fingerprint: 41587F7DB8C774BCCF131416762F67A0B2C39DE4
 
+      # Debian 13 - Updates
+      - name: trixie-updates
+        description: Debian 13 - Updates
+        eol: 2030-06-30
+        components:
+          - name: main
+            description: Main component
+            archs:
+              - amd64
+          - name: contrib
+            description: Contrib component
+            archs:
+              - amd64
+          - name: non-free
+            description: Non-free component
+            archs:
+              - amd64
+          - name: non-free-firmware
+            description: Non-free firmware component
+            archs:
+              - amd64
+        gpgkeys:
+          - fingerprint: 4CB50190207B4758A3F73A796ED0E7B82643E131
+          - fingerprint: B8E5F13176D2A7A75220028078DBA3BC47EF2265
+          - fingerprint: 41587F7DB8C774BCCF131416762F67A0B2C39DE4
+
       # Debian 12
       - name: bookworm
         description: Debian 12
+        eol: 2028-06-30
+        components:
+          - name: main
+          - name: contrib
+          - name: non-free
+          - name: non-free-firmware
+        gpgkeys:
+          - fingerprint: 4CB50190207B4758A3F73A796ED0E7B82643E131
+          - fingerprint: B8E5F13176D2A7A75220028078DBA3BC47EF2265
+          - fingerprint: 4D64FEC119C2029067D6E791F8D2585B8783D481
+
+      # Debian 12 - Updates
+      - name: bookworm-updates
+        description: Debian 12 - Updates
         eol: 2028-06-30
         components:
           - name: main
