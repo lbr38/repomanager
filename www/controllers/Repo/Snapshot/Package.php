@@ -342,7 +342,10 @@ class Package
         }
 
         foreach ($files as $file) {
-            $file = REPOS_DIR . '/' . $file;
+            // Make path absolute if it is not already an absolute path
+            if (!str_starts_with($file, '/')) {
+                $file = REPOS_DIR . '/' . $file;
+            }
 
             // Filename must not contain special characters
             // Only allow dashes and underscores and one more character: the dot (because package names contain dots)

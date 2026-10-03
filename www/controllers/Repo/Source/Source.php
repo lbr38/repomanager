@@ -9,16 +9,31 @@ use Controllers\Utils\Validate;
 class Source
 {
     private $model;
+    protected int $id;
+    protected array $currentDefinition;
 
-    public function __construct()
+    public function __construct(int|null $id = null)
     {
         $this->model = new \Models\Repo\Source\Source();
+
+        // If a source Id is provided
+        if (!is_null($id)) {
+            // Check if the source repository exists
+            if (!$this->existsId($id)) {
+                throw new Exception('Source repository #' . $id . ' does not exist');
+            }
+
+            $this->id = $id;
+
+            // Get current source repository definition
+            $this->currentDefinition = $this->getDefinition($id);
+        }
     }
 
     /**
-     *  Get source repository definition
+     *  Get source repository
      */
-    public function get(string $sourceType, string $sourceName)
+    public function get(string $sourceType, string $sourceName): array
     {
         return $this->model->get($sourceType, $sourceName);
     }
@@ -26,7 +41,7 @@ class Source
     /**
      *  Get source repo Id from its type and name
      */
-    public function getIdByTypeName(string $type, string $name)
+    public function getIdByTypeName(string $type, string $name): int
     {
         return $this->model->getIdByTypeName($type, $name);
     }
@@ -34,15 +49,19 @@ class Source
     /**
      *  Get source repo definition from its Id
      */
-    public function getDefinition(string $id)
+    public function getDefinition(string $id): array
     {
-        return $this->model->getDefinition($id);
+        try {
+            return json_decode($this->model->getDefinition($id), true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            throw new Exception('Failed to decode source repository definition: ' . $e->getMessage());
+        }
     }
 
     /**
      *  List all source repositories
      */
-    public function listAll(string|null $type = null, bool $withOffset = false, int $offset = 0)
+    public function listAll(string|null $type = null, bool $withOffset = false, int $offset = 0): array
     {
         return $this->model->listAll($type, $withOffset, $offset);
     }
@@ -50,7 +69,7 @@ class Source
     /**
      *  Add a new source repository
      */
-    public function new(string $method, array $params)
+    public function new(string $method, array $params): void
     {
         $gpgController = new \Controllers\Gpg();
 
@@ -74,62 +93,44 @@ class Source
             $url = substr($url, 0, -1);
         }
 
-        /**
-         *  Check that source repo name is valid
-         */
+        // Check that source repo name is valid
         if (!Validate::alphaNumericHyphen($name)) {
             throw new Exception('Source repository name cannot contain special characters except hyphen and underscore');
         }
 
-        /**
-         *  Check that type is valid
-         */
+        // Check that type is valid
         if (!in_array($type, ['deb', 'rpm'])) {
             throw new Exception('Invalid source repository type');
         }
 
-        /**
-         *  Check that URL starts with http(s)://
-         */
+        // Check that URL starts with http(s)://
         if (!preg_match('#^https?://#', $url)) {
             throw new Exception('Specified URL must start with <b>http(s)://</b>');
         }
 
-        /**
-         *  Check that URL is valid
-         */
+        // Check that URL is valid
         if (!Validate::alphaNumericHyphen($url, ['http://', 'https://', '/', '.', '?', '&', '$', '@', ':'])) {
             throw new Exception('Specified URL contains invalid characters');
         }
 
-        /**
-         *  Check if a source repo with the same name does not already exist
-         */
+        // Check if a source repository with the same name already exists
         if ($this->exists($type, $name) === true) {
             throw new Exception($name . ' source repository already exists');
         }
 
-        /**
-         *  If the method is manual, get the params template and rewrite it with the validated values
-         */
+        // If the method is manual, get the params template and rewrite it with the validated values
         if ($method == 'manual') {
-            /**
-             *  Get params template for the specified type
-             */
+            // Get params template for the specified type
             $template = $this->template($type);
 
-            /**
-             *  Rewrite template with the validated values
-             */
+            // Rewrite the template with the validated values
             $template['name'] = $name;
             $template['type'] = $type;
             $template['url'] = $url;
             $params = $template;
         }
 
-        /**
-         *  If the method is import-X, rewrite the params with the validated values
-         */
+        // Check if the method is an import method and rewrite the parameters accordingly
         if (preg_match('#^import-#', $method)) {
             $params['name'] = $name;
             $params['type'] = $type;
@@ -163,9 +164,7 @@ class Source
                                     throw new Exception('no fingerprints found');
                                 }
 
-                                /**
-                                 *  Rewrite all the distribution gpg keys with the new ones
-                                 */
+                                // Rewrite all the distribution gpg keys with the new ones
                                 foreach ($fingerprints as $fingerprint) {
                                     // Ignore fingerprint if already exists in $distributionGpgKeys[]
                                     foreach ($distributionGpgKeys as $gpgKeyDefinition) {
@@ -180,9 +179,7 @@ class Source
                                 }
                             }
 
-                            /**
-                             *  Rewrite the distribution gpg keys with the new ones
-                             */
+                            // Rewrite the distribution gpg keys with the new ones
                             $params['distributions'][$distributionId]['gpgkeys'] = $distributionGpgKeys;
                         }
                     }
@@ -211,9 +208,7 @@ class Source
                                     throw new Exception('no fingerprints found');
                                 }
 
-                                /**
-                                 *  Rewrite all the release version gpg keys with the new ones
-                                 */
+                                // Rewrite all the release version gpg keys with the new ones
                                 foreach ($fingerprints as $fingerprint) {
                                     // Ignore fingerprint if already exists in $releaseverGpgKeys[]
                                     foreach ($releaseverGpgKeys as $gpgKeyDefinition) {
@@ -227,9 +222,7 @@ class Source
                                     ];
                                 }
 
-                                /**
-                                 *  Rewrite the releasever gpg keys with the new ones
-                                 */
+                                // Update the releasever gpg keys in the parameters
                                 $params['releasever'][$releaseverId]['gpgkeys'] = $releaseverGpgKeys;
                             }
                         }
@@ -238,32 +231,30 @@ class Source
             }
         }
 
-        /**
-         *  Add source repository in database
-         */
-        $this->model->new(json_encode($params), $method);
+        // Add source repository in database
+        try {
+            $this->model->new(json_encode($params, JSON_THROW_ON_ERROR), $method);
+        } catch (JsonException $e) {
+            throw new Exception('Could not encode source repository definition: ' . $e->getMessage());
+        }
     }
 
     /**
      *  Edit a source repository
      */
-    public function edit(int $id, array $params)
+    public function edit(int $id, array $params): void
     {
         $description = '';
         $sslCertificate = '';
         $sslPrivateKey = '';
         $sslCaCertificate = '';
 
-        /**
-         *  Check that source repo exists
-         */
+        // Check that the source repository with the specified Id exists
         if (!$this->existsId($id)) {
             throw new Exception('Source repository does not exist');
         }
 
-        /**
-         *  Check that source repo name is valid
-         */
+        // Check that the 'name' field is specified
         if (empty($params['name'])) {
             throw new Exception('Source repository name is empty');
         }
@@ -272,9 +263,7 @@ class Source
             throw new Exception('Source repository name cannot contain special characters except hyphen and underscore');
         }
 
-        /**
-         *  Check that the type is valid
-         */
+        // Check that the 'type' field is specified
         if (empty($params['type'])) {
             throw new Exception('Source repository type is empty');
         }
@@ -283,20 +272,14 @@ class Source
             throw new Exception('Invalid source repository type');
         }
 
-        /**
-         *  Check that source repo name is not already used by another source repo
-         */
+        // Check if a source repository with the same name already exists
         if ($this->exists($params['type'], $params['name'])) {
-            /**
-             *  Retrieve the Id of the source repo with the same name
-             */
+            // Retrieve the Id of the source repository with the same name
             $testId = $this->getIdByTypeName($params['type'], $params['name']);
 
-            /**
-             *  If the Id is different from the one we are editing, then the name is already used
-             */
+            // Check if the source repository with the same name is different from the one being edited
             if ($testId !== false and $testId != $id) {
-                throw new Exception('<b>' . $params['name'] . '</b> source repository already exists');
+                throw new Exception($params['name'] . ' source repository already exists');
             }
         }
 
@@ -323,16 +306,12 @@ class Source
             throw new Exception('specified URL contains invalid characters');
         }
 
-        /**
-         *  Check that URL starts with http(s)://
-         */
+        // Ensure the URL starts with http(s)://
         if (!preg_match('#^https?://#', $url)) {
             throw new Exception('specified URL must start with <b>http(s)://</b>');
         }
 
-        /**
-         *  Check that non-compliant is valid
-         */
+        // Validate non-compliant value if specified
         if (!empty($params['non-compliant']) and !in_array($params['non-compliant'], ['true', 'false'])) {
             throw new Exception('invalid non-compliant value');
         }
@@ -341,39 +320,25 @@ class Source
             $description = Validate::string($params['description']);
         }
 
-        /**
-         *  SSL certificate file must be a file that exist and is readable
-         */
+        // Validate SSL certificate file if specified
         if (!empty($params['ssl-certificate'])) {
             $sslCertificate = Validate::string($params['ssl-certificate']);
         }
 
-        /**
-         *  SSL private key file must be a file that exists and is readable
-         */
+        // Validate SSL private key file if specified
         if (!empty($params['ssl-private-key'])) {
             $sslPrivateKey = Validate::string($params['ssl-private-key']);
         }
 
-        /**
-         *  SSL CA certificate file must be a file that exists and is readable
-         */
+        // Validate SSL CA certificate file if specified
         if (!empty($params['ssl-ca-certificate'])) {
             $sslCaCertificate = Validate::string($params['ssl-ca-certificate']);
         }
 
-        /**
-         *  Get current source repo params
-         */
-        try {
-            $currentParams = json_decode($this->getDefinition($id), true);
-        } catch (JsonException $e) {
-            throw new Exception('Could not decode source repository definition: ' . $e->getMessage());
-        }
+        // Get the current source repository parameters
+        $currentParams = $this->getDefinition($id);
 
-        /**
-         *  Modify current params with new ones
-         */
+        // Modify current params with new ones
         $currentParams['name'] = $params['name'];
         $currentParams['type'] = $params['type'];
         $currentParams['url'] = $url;
@@ -386,16 +351,17 @@ class Source
             $currentParams['non-compliant'] = $params['non-compliant'];
         }
 
-        /**
-         *  Edit source repo in database
-         */
-        $this->model->edit($id, json_encode($currentParams));
+        try {
+            $this->model->edit($id, json_encode($currentParams, JSON_THROW_ON_ERROR));
+        } catch (JsonException $e) {
+            throw new Exception('Could not encode source repository definition: ' . $e->getMessage());
+        }
     }
 
     /**
      *  Delete a source repository
      */
-    public function delete(array $sourcesId) : void
+    public function delete(array $sourcesId): void
     {
         foreach ($sourcesId as $id) {
             // Check that source repo exists
@@ -411,24 +377,18 @@ class Source
     /**
      *  Import a YAML file from the API
      */
-    public function importYamlFromApi($yamlFile)
+    public function importYamlFromApi($yamlFile): void
     {
         try {
-            /**
-             *  Get file content
-             */
+            // Get file content
             $content = file_get_contents($yamlFile);
 
-            /**
-             *  If an error occurred while reading the file content, throw an exception
-             */
+            // If an error occurred while reading the file content, throw an exception
             if ($content === false) {
                 throw new Exception('error while reading file content');
             }
 
-            /**
-             *  Import source repositories from the YAML content
-             */
+            // Import source repositories from the YAML content
             $this->importYaml($content, 'import-api');
         } catch (Exception $e) {
             throw new Exception('Could not import source repositories: ' . $e->getMessage());
@@ -438,30 +398,22 @@ class Source
     /**
      *  Import source repositories from a YAML content
      */
-    private function importYaml(string $content, string $importMethod)
+    private function importYaml(string $content, string $importMethod): void
     {
-        /**
-         *  Parse the YAML content
-         */
+        // Parse the YAML content
         $yaml = yaml_parse($content);
 
-        /**
-         *  Ignore invalid YAML content
-         */
+        // If the YAML content could not be parsed, throw an exception
         if ($yaml === false) {
             throw new Exception('error while reading list YAML content');
         }
 
-        /**
-         *  Check that the yaml file is not empty
-         */
+        // Check that the YAML content is not empty
         if (empty($yaml)) {
             throw new Exception('YAML content is empty');
         }
 
-        /**
-         *  Check that main fields are specified
-         */
+        // Check that the 'repositories' field is specified
         if (empty($yaml['repositories'])) {
             throw new Exception("'repositories' field is empty");
         }
@@ -484,9 +436,7 @@ class Source
                 throw new Exception('invalid source repository type');
             }
 
-            /**
-             *  Case it is a deb source repository
-             */
+            // Case it is a deb source repository
             if ($repo['type'] == 'deb') {
                 if (empty($repo['distributions'])) {
                     throw new Exception('source repository distributions is empty');
@@ -500,33 +450,23 @@ class Source
                 }
             }
 
-            /**
-             *  Case it is a rpm source repository
-             */
+            // Case it is a rpm source repository
             if ($repo['type'] == 'rpm') {
                 if (empty($repo['releasever'])) {
                     throw new Exception('source repository releasever is empty');
                 }
             }
 
-            /**
-             *  If a repository with the same name already exists, then delete it before adding the new one
-             */
+            // If a repository with the same name already exists, then delete it before adding the new one
             if ($this->exists($repo['type'], $repo['name'])) {
-                /**
-                 *  Get it's Id
-                 */
+                // Get the Id of the existing source repository
                 $id = $this->getIdByTypeName($repo['type'], $repo['name']);
 
-                /**
-                 *  Delete the existing source repository
-                 */
+                // Delete the existing source repository
                 $this->delete([$id]);
             }
 
-            /**
-             *  Add the new source repository
-             */
+            // Add the new source repository
             $this->new($importMethod, $repo);
         }
     }
@@ -534,22 +474,18 @@ class Source
     /**
      *  Import list(s) of source repositories
      */
-    public function import(array $lists)
+    public function import(array $lists): void
     {
         try {
             foreach ($lists as $sourceList) {
                 $listFile = Validate::string($sourceList);
 
-                /**
-                 *  If 'github/' string is found in the list name, then it is a default list
-                 */
+                // If 'github/' string is found in the list name, then it is a default list
                 if (preg_match('#^github/#', $listFile)) {
                     $listFile = str_replace('github/', '', $listFile);
                     $importMethod = 'import-github';
 
-                    /**
-                     *  Check that the list exists and load it
-                     */
+                    // Check that the list exists and load it
                     if (file_exists(DEFAULT_SOURCES_REPOS_LISTS_DIR . '/' . $listFile . '.yml') and is_readable(DEFAULT_SOURCES_REPOS_LISTS_DIR . '/' . $listFile . '.yml')) {
                         $content = file_get_contents(DEFAULT_SOURCES_REPOS_LISTS_DIR . '/' . $listFile . '.yml');
                     } else {
@@ -557,16 +493,12 @@ class Source
                     }
                 }
 
-                /**
-                 *  If 'custom/' string is found in the list name, then it is a custom list
-                 */
+                // If 'custom/' string is found in the list name, then it is a custom list
                 if (preg_match('#^custom/#', $listFile)) {
                     $listFile = str_replace('custom/', '', $listFile);
                     $importMethod = 'import-custom';
 
-                    /**
-                     *  Check that the list exists and load it
-                     */
+                    // Check that the list exists and load it
                     if (file_exists(CUSTOM_SOURCES_REPOS_LISTS_DIR . '/' . $listFile . '.yml') and is_readable(CUSTOM_SOURCES_REPOS_LISTS_DIR . '/' . $listFile . '.yml')) {
                         $content = file_get_contents(CUSTOM_SOURCES_REPOS_LISTS_DIR . '/' . $listFile . '.yml');
                     } else {
@@ -581,14 +513,14 @@ class Source
                 $this->importYaml($content, $importMethod);
             }
         } catch (Exception $e) {
-            throw new Exception('Could not import source repositories: ' . $e->getMessage());
+            throw new Exception('Could not import source repositories ' . $listFile . ': ' . $e->getMessage());
         }
     }
 
     /**
      *  Check if source repo exists in database
      */
-    public function exists(string $type, string $name)
+    public function exists(string $type, string $name): bool
     {
         return $this->model->exists($type, $name);
     }
@@ -596,7 +528,7 @@ class Source
     /**
      *  Check if source repo exists in database
      */
-    public function existsId(string $id)
+    public function existsId(string $id): bool
     {
         return $this->model->existsId($id);
     }
@@ -604,16 +536,22 @@ class Source
     /**
      *  Edit source repository definition params
      */
-    public function editDefinition(int $id, string $definition)
+    public function editDefinition(int $id, array $definition): void
     {
-        $this->model->editDefinition($id, $definition);
+        try {
+            $this->model->editDefinition($id, json_encode($definition, JSON_THROW_ON_ERROR));
+        } catch (JsonException $e) {
+            throw new Exception('Failed to edit source repository definition: ' . $e->getMessage());
+        }
     }
 
     /**
      *  Return the params template for the specified type
      */
-    public function template(string $type)
+    public function template(string $type): array
     {
+        $template = [];
+
         if ($type == 'deb') {
             $template = [
                 'name' => '',

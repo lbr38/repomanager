@@ -14,6 +14,24 @@
                 <h6>DESCRIPTION</h6>
                 <input type="text" class="releasever-param" param-name="description" value="<?= $description ?>" placeholder="Description" />
 
+                <h6>END OF LIFE DATE DATE</h6>
+                <p class="note">The end-of-life date for this release version.</p>
+                <input type="date" class="releasever-param" param-name="eol" value="<?= $eol ?>" placeholder="EOL Date" />
+
+                <h6>ARCHITECTURES</h6>
+                <p class="note">The supported architectures for this release version.</p>
+
+                <select class="releasever-param" param-name="archs" multiple>
+                    <?php
+                    foreach (RPM_ARCHS as $arch) {
+                        if (in_array($arch, $archs)) {
+                            echo '<option value="' . $arch . '" selected>' . $arch . '</option>';
+                        } else {
+                            echo '<option value="' . $arch . '">' . $arch . '</option>';
+                        }
+                    } ?>
+                </select>
+
                 <br><br>
                 <button type="submit" class="btn-medium-green">Save</button>
             </form>
@@ -33,9 +51,7 @@
                 <div class="table-container grid-2 bck-blue-alt pointer" source-id="<?= $sourceId ?>" releasever-id="<?= $releaseverId ?>">
                     <div>
                         <?php
-                        /**
-                         *  If the GPG key is in the trusted keyring, mark it as imported and retrieve its name
-                         */
+                        // If the GPG key is in the trusted keyring, mark it as imported and retrieve its name
                         if (in_array($gpgKey, array_column($trustedGpgKeys, 'id'))) {
                             $imported = true;
                             $gpgKeyName = $trustedGpgKeys[array_search($gpgKey, array_column($trustedGpgKeys, 'id'))]['name'];
@@ -80,5 +96,11 @@
                 <button type="submit" class="btn-medium-green">Import</button>
             </form>  
         </div>
+
+        <script>
+            $(document).ready(function(){
+                myselect2.convert('select.releasever-param[param-name="archs"]', 'Select architectures...');
+            });
+        </script>
     </div>
 </div>

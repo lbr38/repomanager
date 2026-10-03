@@ -548,7 +548,7 @@ a.task-item-child:hover {
 /* Group content wrapper */
 .group-content {
     margin-left: 15px;
-    padding-left: 22px;
+    padding-left: 10px;
     border-left: 2px solid #1e3a54;
 }
 

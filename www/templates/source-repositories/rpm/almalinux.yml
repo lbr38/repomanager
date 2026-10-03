@@ -31,6 +31,10 @@ repositories:
     releasever:
       - name: 10
         description: Alma Linux 10
+        eol: 2035-05-31
+        archs:
+          - x86_64
+          - aarch64
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-10
 

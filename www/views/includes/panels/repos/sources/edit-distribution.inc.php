@@ -14,6 +14,10 @@
                 <h6>DESCRIPTION</h6>
                 <input type="text" class="distribution-param" param-name="description" value="<?= $description ?>" placeholder="Description" />
 
+                <h6>END OF LIFE DATE</h6>
+                <p class="note">The end-of-life date for this distribution.</p>
+                <input type="date" class="distribution-param" param-name="eol" value="<?= $eol ?>" placeholder="EOL Date" />
+
                 <br><br>
                 <button type="submit" class="btn-medium-green">Save</button>
             </form>
@@ -22,22 +26,36 @@
             <p class="note">The components of the <?= $distribution ?> distribution.</p>
 
             <?php
-            foreach ($sections as $sectionId => $sectionDefinition) : ?>
-                <div class="table-container grid-2 bck-blue-alt pointer" source-id="<?= $sourceId ?>" distribution-id="<?= $distributionId ?>">
+            foreach ($components as $componentId => $componentDetails) : ?>
+                <div class="table-container grid-2 bck-blue-alt source-repo-component-edit-btn pointer" source-id="<?= $sourceId ?>" distribution-id="<?= $distributionId ?>" component-id="<?= $componentId ?>">
                     <div>
-                        <p><?= $sectionDefinition['name'] ?></p>
+                        <div>
+                            <p><?= $componentDetails['name'] ?></p>
+                            <p class="note"><?= $componentDetails['description'] ?? '' ?></p>
+                        </div>
+
+                        <?php
+                        if (!empty($componentDetails['archs'])) : ?>
+                            <div class="flex column-gap-5 row-gap-5 margin-top-10">
+                                <?php
+                                foreach ($componentDetails['archs'] as $arch) {
+                                    echo '<p class="label-white">' . $arch . '</p>';
+                                } ?>
+                            </div>
+                            <?php
+                        endif ?>
                     </div>
 
                     <div class="flex justify-end">
-                        <img src="/assets/icons/delete.svg" class="icon-lowopacity source-repo-edit-distribution-remove-section-btn" source-id="<?= $sourceId ?>" distribution-id="<?= $distributionId ?>" section-id="<?= $sectionId ?>" title="Delete <?= $sectionDefinition['name'] ?> component" />
+                        <img src="/assets/icons/delete.svg" class="icon-lowopacity source-repo-remove-component-btn" source-id="<?= $sourceId ?>" distribution-id="<?= $distributionId ?>" component-id="<?= $componentId ?>" title="Delete <?= $componentDetails['name'] ?> component" />
                     </div>
                 </div>
                 <?php
             endforeach; ?>
 
             <div class="flex align-item-center column-gap-5">
-                <input type="text" class="source-repo-edit-distribution-add-section-input" source-id="<?= $sourceId ?>" distribution-id="<?= $distributionId ?>" placeholder="Add component">
-                <button type="button" class="source-repo-edit-distribution-add-section-btn btn-xxsmall-green" source-id="<?= $sourceId ?>" distribution-id="<?= $distributionId ?>" title="Add component">+</button>
+                <input type="text" class="source-repo-edit-distribution-add-component-input" source-id="<?= $sourceId ?>" distribution-id="<?= $distributionId ?>" placeholder="Add component">
+                <button type="button" class="source-repo-add-component-btn btn-xxsmall-green" source-id="<?= $sourceId ?>" distribution-id="<?= $distributionId ?>" title="Add component">+</button>
             </div>
 
             <h6>GPG KEYS</h6>
@@ -75,7 +93,7 @@
                             echo '<img src="/assets/icons/warning-red.svg" class="icon-np" title="Unknown GPG key" />';
                         } ?>
 
-                        <img src="/assets/icons/delete.svg" class="icon-lowopacity source-repo-edit-distribution-remove-gpgkey-btn" source-id="<?= $sourceId ?>" distribution-id="<?= $distributionId ?>" gpgkey-id="<?= $gpgKeyId ?>" title="Remove GPG key <?= $gpgKey ?>" />
+                        <img src="/assets/icons/delete.svg" class="icon-lowopacity source-repo-distribution-remove-gpgkey-btn" source-id="<?= $sourceId ?>" distribution-id="<?= $distributionId ?>" gpgkey-id="<?= $gpgKeyId ?>" title="Remove GPG key <?= $gpgKey ?>" />
                     </div>
                 </div>
                 <?php
@@ -84,7 +102,7 @@
             <h6>IMPORT GPG KEY</h6>
             <p class="note">Import a GPG key and link it to the <?= $distribution ?> distribution.</p>
 
-            <form class="source-repo-edit-distribution-add-gpgkey-form" source-id="<?= $sourceId ?>" distribution-id="<?= $distributionId ?>">
+            <form class="source-repo-distribution-add-gpgkey" source-id="<?= $sourceId ?>" distribution-id="<?= $distributionId ?>">
                 <h6>IMPORT FROM LINK</h6>
                 <p class="note">URL to the key file.</p>
                 <input type="text" name="gpgkey-url" placeholder="http://..." />

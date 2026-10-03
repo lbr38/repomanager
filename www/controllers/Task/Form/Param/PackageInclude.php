@@ -7,15 +7,20 @@ use Controllers\Utils\Validate;
 
 class PackageInclude
 {
-    public static function check(array $packages) : void
+    public static function check(array $packages): void
     {
         if (empty($packages)) {
             return;
         }
 
         foreach ($packages as $package) {
-            if (!Validate::alphaNumericHyphen($package, ['.*', '.'])) {
+            if (!Validate::alphaNumericHyphen($package, ['.*', '.', '*'])) {
                 throw new Exception('List of packages to include contains invalid characters');
+            }
+
+            // Do not allow ** pattern
+            if (strpos($package, '**') !== false) {
+                throw new Exception('List of packages to include contains invalid pattern');
             }
         }
     }

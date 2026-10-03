@@ -9,6 +9,9 @@ jsconfig.json
 WIP
 ARCHIVES
 ./xdebug*
+__pycache__
+# TODO debug
+utils/repo-crawler.py
 
 
 # Compiled source #

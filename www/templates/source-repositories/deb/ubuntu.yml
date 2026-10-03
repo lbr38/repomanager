@@ -7,14 +7,187 @@ repositories:
     description: Ubuntu official repositories
     url: http://archive.ubuntu.com/ubuntu
     distributions:
+      # Ubuntu 26.10
+      - name: stonking
+        description: Ubuntu 26.10
+        components:
+          - name: main
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+          - name: restricted
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+          - name: universe
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+          - name: multiverse
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+        gpgkeys:
+          - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
+
       # Ubuntu 26.04
       - name: resolute
         description: Ubuntu 26.04
         components:
           - name: main
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: restricted
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: universe
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: multiverse
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+        gpgkeys:
+          - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
+
+      # Ubuntu 25.10
+      - name: questing
+        description: Ubuntu 25.10
+        components:
+          - name: main
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+          - name: restricted
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+          - name: universe
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+          - name: multiverse
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+        gpgkeys:
+          - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
+
+      # Ubuntu 25.04
+      - name: plucky
+        description: Ubuntu 25.04
+        components:
+          - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+          - name: restricted
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+          - name: universe
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+          - name: multiverse
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
 
@@ -23,9 +196,113 @@ repositories:
         description: Ubuntu 24.04
         components:
           - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: restricted
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: universe
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: multiverse
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+        gpgkeys:
+          - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
+
+      # Ubuntu 14.04
+      - name: trusty
+        description: Ubuntu 14.04
+        components:
+          - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - powerpc
+              - ppc64el
+          - name: restricted
+            archs:
+              - amd64
+              - i386
+          - name: universe
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - powerpc
+              - ppc64el
+          - name: multiverse
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - powerpc
+              - ppc64el
+        gpgkeys:
+          - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
+
+      - name: xenial
+        components:
+          - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - powerpc
+              - ppc64el
+              - s390x
+          - name: restricted
+            archs:
+              - amd64
+              - armhf
+              - i386
+          - name: universe
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - powerpc
+              - ppc64el
+              - s390x
+          - name: multiverse
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - powerpc
+              - ppc64el
+              - s390x
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
 
@@ -34,9 +311,41 @@ repositories:
         description: Ubuntu 22.04
         components:
           - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: restricted
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: universe
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: multiverse
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
 
@@ -45,9 +354,79 @@ repositories:
         description: Ubuntu 20.04
         components:
           - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: restricted
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: universe
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: multiverse
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
+        gpgkeys:
+          - fingerprint: 3B4FE6ACC0B21F32
+          - fingerprint: 871920D1991BC93C
+
+      - name: bionic
+        components:
+          - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - s390x
+          - name: restricted
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - s390x
+          - name: universe
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - s390x
+          - name: multiverse
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - s390x
         gpgkeys:
           - fingerprint: 3B4FE6ACC0B21F32
           - fingerprint: 871920D1991BC93C
@@ -62,9 +441,41 @@ repositories:
         description: Ubuntu 26.04 Security Updates
         components:
           - name: main
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: restricted
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: universe
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: multiverse
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - i386
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
 
@@ -73,9 +484,45 @@ repositories:
         description: Ubuntu 26.04 Updates
         components:
           - name: main
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: restricted
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: universe
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: multiverse
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
 
@@ -84,20 +531,84 @@ repositories:
         description: Ubuntu 24.04 Security Updates
         components:
           - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: restricted
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: universe
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: multiverse
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
-      
+
       # Ubuntu 22.04
       - name: jammy-updates
         description: Ubuntu 22.04 Security Updates
         components:
           - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: restricted
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: universe
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
           - name: multiverse
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - i386
+              - ppc64el
+              - riscv64
+              - s390x
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
-      
+

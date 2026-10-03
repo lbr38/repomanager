@@ -8,6 +8,11 @@ repositories:
     description: Rocky Linux BaseOS
     url: https://dl.rockylinux.org/vault/rocky/$releasever/BaseOS/$basearch/os
     releasever:
+      - name: 9.7
+        description: Rocky Linux 9.7
+        gpgkeys:
+          - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
+
       - name: 9.6
         description: Rocky Linux 9.6
         gpgkeys:
@@ -84,6 +89,11 @@ repositories:
     description: Rocky Linux AppStream
     url: https://dl.rockylinux.org/vault/rocky/$releasever/AppStream/$basearch/os
     releasever:
+      - name: 9.7
+        description: Rocky Linux 9.7
+        gpgkeys:
+          - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
+
       - name: 9.6
         description: Rocky Linux 9.6
         gpgkeys:
@@ -160,6 +170,11 @@ repositories:
     description: Rocky Linux Extras
     url: https://dl.rockylinux.org/vault/rocky/$releasever/extras/$basearch/os
     releasever:
+      - name: 9.7
+        description: Rocky Linux 9.7
+        gpgkeys:
+          - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
+
       - name: 9.6
         description: Rocky Linux 9.6
         gpgkeys:
@@ -237,6 +252,11 @@ repositories:
     description: Rocky Linux Plus
     url: https://dl.rockylinux.org/vault/rocky/$releasever/plus/$basearch/os
     releasever:
+      - name: 9.7
+        description: Rocky Linux 9.7
+        gpgkeys:
+          - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
+
       - name: 9.6
         description: Rocky Linux 9.6
         gpgkeys:
@@ -303,11 +323,17 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
   # Rocky Linux Vault Devel
+  # For URI with 'devel' in the path
   - name: rockylinux-vault-devel
     type: rpm
     description: Rocky Linux Devel
     url: https://dl.rockylinux.org/vault/rocky/$releasever/devel/$basearch/os
     releasever:
+      - name: 9.7
+        description: Rocky Linux 9.7
+        gpgkeys:
+          - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
+
       - name: 9.6
         description: Rocky Linux 9.6
         gpgkeys:
@@ -342,7 +368,15 @@ repositories:
         description: Rocky Linux 9.0
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
-          
+
+  # Rocky Linux Vault Devel
+  # For URI with 'Devel' in the path
+  # This is mainly for Rocky Linux 8
+  - name: rockylinux8-vault-devel
+    type: rpm
+    description: Rocky Linux Devel
+    url: https://dl.rockylinux.org/vault/rocky/$releasever/Devel/$basearch/os
+    releasever:
       - name: 8.9
         description: Rocky Linux 8.9
         gpgkeys:
@@ -420,6 +454,11 @@ repositories:
     description: Rocky Linux CRB
     url: https://dl.rockylinux.org/vault/rocky/$releasever/CRB/$basearch/os
     releasever:
+      - name: 9.7
+        description: Rocky Linux 9.7
+        gpgkeys:
+          - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
+
       - name: 9.6
         description: Rocky Linux 9.6
         gpgkeys:

@@ -239,30 +239,22 @@ function executeAction(action, hosts)
  *  Event: show/hide the list of packages available on the host
  */
 $(document).on('click','#available-packages-btn',function () {
-    $("#installed-packages-div").hide();
-
-    if ($("#available-packages-div").is(":visible")) {
-        $("#available-packages-div").hide();
-    } else {
-        $("#available-packages-div").show();
-    }
+    $('#available-packages-switch').prop('checked', true);
+    $("#installed-packages-div").addClass('hide');
+    $("#available-packages-div").removeClass('hide');
 });
 
 /**
  *  Event: show/hide the inventory of packages installed on the host
  */
 $(document).on('click','#installed-packages-btn',function () {
-    $("#available-packages-div").hide();
-
-    if ($("#installed-packages-div").is(":visible")) {
-        $("#installed-packages-div").hide();
-    } else {
-        $("#packagesContainerLoader").show();
-        setTimeout(function () {
-            $("#installed-packages-div").show();
-            $("#packagesContainerLoader").hide();
-        },100);
-    }
+    $('#installed-packages-switch').prop('checked', true);
+    $("#available-packages-div").addClass('hide');
+    $("#packagesContainerLoader").show();
+    $("#installed-packages-div").removeClass('hide');
+    setTimeout(function () {
+        $("#packagesContainerLoader").hide();
+    },100);
 });
 
 /**
