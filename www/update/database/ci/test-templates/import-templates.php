@@ -3,6 +3,8 @@ use \Controllers\Task\Task;
 use \Controllers\Repo\Source\Source;
 
 // Schedule for tasks in minutes
+// TODO debug
+// $minutesSchedule = 5;
 $minutesSchedule = 1;
 
 $sourceController = new Source();
@@ -119,7 +121,6 @@ $rpmSources = $sourceController->listAll('rpm');
 // TODO debug
 $counter = 0;
 
-
 // For each deb source, create a task
 foreach ($debSources as $source) {
     $tasks = [];
@@ -139,7 +140,7 @@ foreach ($debSources as $source) {
             $params['alias']     = $source['name'];
             $params['dist'][]    = $distribution['name'];
             $params['section'][] = $component['name'];
-            $params['arch'][]    = $component['arch'] ?? 'amd64'; // Use predefined architecture if defined, otherwise default to 'amd64'
+            $params['arch'][]    = $component['archs'] ?? 'amd64'; // Use predefined architecture if defined, otherwise default to 'amd64'
             $params['schedule']['schedule-date'] = date('Y-m-d');
             $params['schedule']['schedule-time'] = date('H:i', strtotime('+' . strval($minutesSchedule) . ' minutes')); // Now +$minutesSchedule minutes
 
