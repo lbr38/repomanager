@@ -9,7 +9,7 @@ if (!empty($_COOKIE['tables/tasks/list-queued/offset']) and is_numeric($_COOKIE[
 }
 
 // Get list of queued tasks, with offset
-$reloadableTableContent = $taskListingController->getQueued('', true, $reloadableTableOffset);
+$reloadableTableContent = $taskListingController->getQueued(true, true, $reloadableTableOffset);
 
 // Get list of ALL queued tasks, without offset, for the total count
 $reloadableTableTotalItems = count($taskListingController->getQueued());

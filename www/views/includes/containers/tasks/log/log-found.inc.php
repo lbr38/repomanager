@@ -16,6 +16,14 @@ use \Controllers\User\Permission\Task as TaskPermission; ?>
     </div>
 
     <?php
+    // Print the relaunch button if the task has an error or has been stopped
+    if ($taskInfo['Status'] == 'error' or $taskInfo['Status'] == 'stopped') :
+        if (TaskPermission::allowedAction('relaunch')) : ?>
+            <p id="relaunch-task-log-btn" class="label-yellow relaunch-task-btn pointer" redirect="true" task-id="<?= $taskId ?>" title="Relaunch the task">Relaunch</p>
+            <?php
+        endif;
+    endif;
+    
     // Print the stop button if the task is running or waiting to be run, and the user has permission to stop it
     if ($taskInfo['Status'] == 'running' or $taskInfo['Status'] == 'queued') :
         if (TaskPermission::allowedAction('stop')) : ?>

@@ -132,6 +132,10 @@ foreach ($debSources as $source) {
         throw new Exception('failed to decode JSON for source #' . $id);
     }
 
+    if (empty($source['distributions'])) {
+        throw new Exception('Source #' . $id . ' has no distributions, skipping.');
+    }
+
     foreach ($source['distributions'] as $distribution) {
         foreach ($distribution['components'] as $component) {
             $tasks = [];
@@ -152,11 +156,11 @@ foreach ($debSources as $source) {
         }
     }
 
-    // $counter++;
-    // // Stop if counter has reached 10
-    // if ($counter >= 5) {
-    //     break;
-    // }
+    $counter++;
+    // Stop if counter has reached 10
+    if ($counter >= 5) {
+        break;
+    }
 }
 
 // TODO debug

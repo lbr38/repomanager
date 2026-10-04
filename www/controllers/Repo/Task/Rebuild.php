@@ -39,6 +39,9 @@ class Rebuild extends \Controllers\Task\Execution
      */
     public function execute(): void
     {
+        // TODO debug
+        sleep(500000000000000);
+
         // Set snapshot metadata rebuild state in database
         $this->repoSnapshotController->updateRebuild($this->repoController->getSnapId(), 'running');
 
