@@ -1,0 +1,28 @@
+services:
+  repomanager:
+    container_name: repomanager-local
+    image: repomanager-local
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        branch: devel
+    environment:
+      FQDN: localhost
+      MAX_UPLOAD_SIZE: 64M
+      NGINX_LISTEN_PORT: 8888
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
+    ports:
+      - "8888:8888"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./www:/var/www/repomanager
+      - repomanager-local-data:/var/lib/repomanager
+      - repomanager-local-repo:/home/repo
+      - repomanager-local-logs:/var/log/nginx
+
+volumes:
+  repomanager-local-data:
+  repomanager-local-repo:
+  repomanager-local-logs:
