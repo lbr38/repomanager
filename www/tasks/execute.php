@@ -35,6 +35,10 @@ $fatalErrorHandlerController = new FatalErrorHandler();
 $getOptions = getopt(null, ["id:"]);
 
 try {
+    // TODO debug
+    ini_set('memory_limit', '16M');
+    echo 'Memory limit: ' . ini_get('memory_limit') . PHP_EOL;
+
     /**
      *  If a task Id is provided, use it.
      *  Otherwise, retrieve the latest task Id from the database.
@@ -135,6 +139,9 @@ try {
 
     // Set memory limit for task execution
     ini_set('memory_limit', TASK_EXECUTION_MEMORY_LIMIT . 'M');
+
+    // TODO debug
+    echo 'Memory limit: ' . ini_get('memory_limit') . PHP_EOL;
 
     // Instantiate the controller for the task
     echo 'Task #' . $taskId . ' is running...' . PHP_EOL;
