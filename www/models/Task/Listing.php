@@ -122,13 +122,18 @@ class Listing extends \Models\Model
      *  Sub-tasks are included as they are the ones being executed, unlike their parent task which only groups them
      *  Scheduled tasks come first as they have a specific time to be run, and a sub-task inherits the priority of the parent task holding the schedule
      */
-    public function getExecutable(string $status): array
+    public function getExecutable(string $status, bool $onlyId): array
     {
         $data = [];
 
         try {
-            $stmt = $this->db->prepare("SELECT tasks.* FROM tasks
-            LEFT JOIN tasks AS parent ON parent.Id = tasks.Parent_task_id
+            if ($onlyId) {
+                $query = "SELECT tasks.Id FROM tasks";
+            } else {
+                $query = "SELECT tasks.* FROM tasks";
+            }
+
+            $stmt = $this->db->prepare($query . " LEFT JOIN tasks AS parent ON parent.Id = tasks.Parent_task_id
             WHERE tasks.Status = :status
             AND tasks.Id NOT IN (SELECT Parent_task_id FROM tasks WHERE Parent_task_id IS NOT NULL)
             ORDER BY (COALESCE(parent.Type, tasks.Type) = 'scheduled') DESC, tasks.Id ASC");

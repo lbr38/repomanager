@@ -36,7 +36,7 @@ $getOptions = getopt(null, ["id:"]);
 
 try {
     // TODO debug
-    ini_set('memory_limit', '16M');
+    ini_set('memory_limit', '8M');
     echo 'Memory limit: ' . ini_get('memory_limit') . PHP_EOL;
 
     /**
@@ -107,10 +107,10 @@ try {
         // If task queuing is enabled and the maximum number of simultaneous tasks is set, check if the task can be started
         if ($settings['TASK_QUEUING'] == 'true' and !empty($settings['TASK_QUEUING_MAX_SIMULTANEOUS'])) {
             // Get all currently running tasks
-            $runningTasks = $taskListingController->getExecutable('running');
+            $runningTasks = $taskListingController->getExecutable('running', true);
 
             // Get all currently queued tasks
-            $queuedTasks = $taskListingController->getExecutable('queued');
+            $queuedTasks = $taskListingController->getExecutable('queued', true);
 
             /**
              *  First, retrieve the position of this task in the queue.

@@ -43,9 +43,9 @@ class Listing
      *  Get all tasks having the given status that are actually executed
      *  Sub-tasks are included and parent tasks are excluded, as a parent task only groups sub-tasks and never runs itself
      */
-    public function getExecutable(string $status): array
+    public function getExecutable(string $status, bool $onlyId = false): array
     {
-        return $this->model->getExecutable($status);
+        return $this->model->getExecutable($status, $onlyId);
     }
 
     /**
