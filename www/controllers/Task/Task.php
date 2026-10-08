@@ -507,10 +507,9 @@ class Task
      */
     public function executeId(int $id) : void
     {
-        // TODO debug
-        // $myprocess = new Process('/usr/bin/php ' . ROOT . '/tasks/execute.php --id="' . $id . '" > ' . MAIN_LOGS_DIR . '/repomanager-task-' . $id . '-log.process 2>&1 &');
-        // $myprocess->execute();
-        // $myprocess->close();
+        $myprocess = new Process('/usr/bin/php ' . ROOT . '/tasks/execute.php --id="' . $id . '" > ' . MAIN_LOGS_DIR . '/repomanager-task-' . $id . '-log.process 2>&1 &');
+        $myprocess->execute();
+        $myprocess->close();
     }
 
     /**
