@@ -63,41 +63,25 @@ repositories:
               - amd64
               - amd64v3
               - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: restricted
             archs:
               - amd64
               - amd64v3
               - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: universe
             archs:
               - amd64
               - amd64v3
               - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: multiverse
             archs:
               - amd64
               - amd64v3
               - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
 
@@ -110,41 +94,25 @@ repositories:
               - amd64
               - amd64v3
               - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: restricted
             archs:
               - amd64
               - amd64v3
               - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: universe
             archs:
               - amd64
               - amd64v3
               - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: multiverse
             archs:
               - amd64
               - amd64v3
               - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
 
@@ -155,39 +123,19 @@ repositories:
           - name: main
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: restricted
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: universe
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: multiverse
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
 
@@ -198,39 +146,19 @@ repositories:
           - name: main
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: restricted
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: universe
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: multiverse
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
 
@@ -241,11 +169,7 @@ repositories:
           - name: main
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - powerpc
-              - ppc64el
           - name: restricted
             archs:
               - amd64
@@ -253,19 +177,11 @@ repositories:
           - name: universe
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - powerpc
-              - ppc64el
           - name: multiverse
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - powerpc
-              - ppc64el
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
 
@@ -274,35 +190,19 @@ repositories:
           - name: main
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - powerpc
-              - ppc64el
-              - s390x
           - name: restricted
             archs:
               - amd64
-              - armhf
               - i386
           - name: universe
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - powerpc
-              - ppc64el
-              - s390x
           - name: multiverse
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - powerpc
-              - ppc64el
-              - s390x
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
 
@@ -313,39 +213,19 @@ repositories:
           - name: main
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: restricted
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: universe
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: multiverse
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
 
@@ -356,39 +236,19 @@ repositories:
           - name: main
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: restricted
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: universe
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: multiverse
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
         gpgkeys:
           - fingerprint: 3B4FE6ACC0B21F32
           - fingerprint: 871920D1991BC93C
@@ -398,35 +258,19 @@ repositories:
           - name: main
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - ppc64el
-              - s390x
           - name: restricted
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - ppc64el
-              - s390x
           - name: universe
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - ppc64el
-              - s390x
           - name: multiverse
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - ppc64el
-              - s390x
         gpgkeys:
           - fingerprint: 3B4FE6ACC0B21F32
           - fingerprint: 871920D1991BC93C
@@ -445,31 +289,19 @@ repositories:
               - amd64
               - amd64v3
               - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: restricted
             archs:
               - amd64
               - amd64v3
               - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: universe
             archs:
               - amd64
               - amd64v3
               - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: multiverse
             archs:
               - amd64
@@ -488,41 +320,25 @@ repositories:
               - amd64
               - amd64v3
               - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: restricted
             archs:
               - amd64
               - amd64v3
               - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: universe
             archs:
               - amd64
               - amd64v3
               - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: multiverse
             archs:
               - amd64
               - amd64v3
               - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
 
@@ -533,39 +349,19 @@ repositories:
           - name: main
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: restricted
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: universe
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: multiverse
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
 
@@ -576,39 +372,19 @@ repositories:
           - name: main
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: restricted
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: universe
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
           - name: multiverse
             archs:
               - amd64
-              - arm64
-              - armhf
               - i386
-              - ppc64el
-              - riscv64
-              - s390x
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
 

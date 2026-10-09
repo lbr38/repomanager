@@ -177,5 +177,8 @@ repositories:
           - name: test
             archs:
               - amd64
+          - name: nightly
+            archs:
+              - amd64
         gpgkeys:
           - link: https://download.docker.com/linux/debian/gpg
