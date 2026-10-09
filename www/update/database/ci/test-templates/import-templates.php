@@ -93,6 +93,11 @@ $rpmParamsTemplate = [
     ],
 ];
 
+// Deb repositories to ignore from import / test
+$ignoreDebRepositories = [
+    'pve-enterprise' // Requires a subscription
+];
+
 // Change dir
 chdir(ROOT . '/templates/source-repositories');
 
@@ -138,6 +143,11 @@ foreach ($debSources as $source) {
 
     foreach ($source['distributions'] as $distribution) {
         foreach ($distribution['components'] as $component) {
+            // Skip repositories that are in the ignore list
+            if (in_array($source['name'], $ignoreDebRepositories)) {
+                continue;
+            }
+
             $tasks = [];
             $params = $debParamsTemplate;
             $params['source']    = $source['name'];
