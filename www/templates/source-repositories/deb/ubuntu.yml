@@ -250,7 +250,7 @@ repositories:
               - amd64
               - i386
         gpgkeys:
-          - fingerprint: 790BC7277767219C42C86F933B4FE6ACC0B21F322
+          - fingerprint: 790BC7277767219C42C86F933B4FE6ACC0B21F32
           - fingerprint: 871920D1991BC93C
 
       - name: bionic
@@ -272,7 +272,7 @@ repositories:
               - amd64
               - i386
         gpgkeys:
-          - fingerprint: 790BC7277767219C42C86F933B4FE6ACC0B21F322
+          - fingerprint: 790BC7277767219C42C86F933B4FE6ACC0B21F32
           - fingerprint: 871920D1991BC93C
 
   - name: ubuntu-security

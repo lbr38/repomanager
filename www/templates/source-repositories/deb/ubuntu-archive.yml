@@ -183,7 +183,7 @@ repositories:
               - powerpc
         gpgkeys:
           - fingerprint: 40976EAF437D05B5
-          - fingerprint: 790BC7277767219C42C86F933B4FE6ACC0B21F322
+          - fingerprint: 790BC7277767219C42C86F933B4FE6ACC0B21F32
 
       # Ubuntu 12.04
       - name: precise
@@ -816,7 +816,7 @@ repositories:
               - ppc64el
         gpgkeys:
           - fingerprint: 40976EAF437D05B5
-          - fingerprint: 790BC7277767219C42C86F933B4FE6ACC0B21F322
+          - fingerprint: 790BC7277767219C42C86F933B4FE6ACC0B21F32
 
       - name: wily
         components:
@@ -851,7 +851,7 @@ repositories:
               - ppc64el
         gpgkeys:
           - fingerprint: 40976EAF437D05B5
-          - fingerprint: 790BC7277767219C42C86F933B4FE6ACC0B21F322
+          - fingerprint: 790BC7277767219C42C86F933B4FE6ACC0B21F32
 
       - name: yakkety
         components:
@@ -889,7 +889,7 @@ repositories:
               - s390x
         gpgkeys:
           - fingerprint: 40976EAF437D05B5
-          - fingerprint: 790BC7277767219C42C86F933B4FE6ACC0B21F322
+          - fingerprint: 790BC7277767219C42C86F933B4FE6ACC0B21F32
 
       - name: zesty
         components:
