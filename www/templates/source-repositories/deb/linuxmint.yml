@@ -511,7 +511,7 @@ repositories:
               - i386
               - amd64
         gpgkeys:
-          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+          - fingerprint: E1A38B8F144675D060EA666F3EE67F3D0FF405B2
 
       # Linux Mint 17
       - name: rafaela
@@ -530,7 +530,7 @@ repositories:
               - i386
               - amd64
         gpgkeys:
-          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+          - fingerprint: E1A38B8F144675D060EA666F3EE67F3D0FF405B2
 
       # Linux Mint 17
       - name: rebecca
@@ -549,7 +549,7 @@ repositories:
               - i386
               - amd64
         gpgkeys:
-          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+          - fingerprint: E1A38B8F144675D060EA666F3EE67F3D0FF405B2
 
       # Linux Mint 17
       - name: qiana
@@ -568,7 +568,7 @@ repositories:
               - i386
               - amd64
         gpgkeys:
-          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+          - fingerprint: E1A38B8F144675D060EA666F3EE67F3D0FF405B2
 
       # Linux Mint 13
       - name: maya
@@ -595,7 +595,7 @@ repositories:
               - i386
               - amd64
         gpgkeys:
-          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+          - fingerprint: E1A38B8F144675D060EA666F3EE67F3D0FF405B2
 
       # Linux Mint 7
       - name: gigi
@@ -729,7 +729,7 @@ repositories:
               - i386
               - amd64
         gpgkeys:
-          - fingerprint: 302F0738F465C1535761F965A6616109451BBBF2
+          - fingerprint: E1A38B8F144675D060EA666F3EE67F3D0FF405B2
 
       # Linux Mint 1
       - name: debian

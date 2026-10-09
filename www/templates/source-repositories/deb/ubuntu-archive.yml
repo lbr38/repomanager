@@ -84,7 +84,8 @@ repositories:
               - powerpc
               - ppc64el
         gpgkeys:
-          - fingerprint: 871920D1991BC93C
+          - fingerprint: 40976EAF437D05B5
+          - fingerprint: 3B4FE6ACC0B21F3
 
       # Ubuntu 13.10
       - name: saucy
@@ -116,7 +117,8 @@ repositories:
               - i386
               - powerpc
         gpgkeys:
-          - fingerprint: 871920D1991BC93C
+          - fingerprint: 40976EAF437D05B5
+          - fingerprint: 3B4FE6ACC0B21F3
 
       # Ubuntu 13.04
       - name: raring
@@ -146,7 +148,8 @@ repositories:
               - i386
               - powerpc
         gpgkeys:
-          - fingerprint: 871920D1991BC93C
+          - fingerprint: 40976EAF437D05B5
+          - fingerprint: 3B4FE6ACC0B21F3
 
       # Ubuntu 12.10
       - name: quantal
@@ -179,7 +182,8 @@ repositories:
               - i386
               - powerpc
         gpgkeys:
-          - fingerprint: 871920D1991BC93C
+          - fingerprint: 40976EAF437D05B5
+          - fingerprint: 3B4FE6ACC0B21F32
 
       # Ubuntu 12.04
       - name: precise
@@ -212,7 +216,7 @@ repositories:
               - i386
               - powerpc
         gpgkeys:
-          - fingerprint: 871920D1991BC93C
+          - fingerprint: 40976EAF437D05B5
 
       # Ubuntu 11.10
       - name: oneiric
@@ -241,7 +245,7 @@ repositories:
               - i386
               - powerpc
         gpgkeys:
-          - fingerprint: 871920D1991BC93C
+          - fingerprint: 40976EAF437D05B5
 
       # Ubuntu 11.04
       - name: natty
@@ -270,7 +274,7 @@ repositories:
               - i386
               - powerpc
         gpgkeys:
-          - fingerprint: 871920D1991BC93C
+          - fingerprint: 40976EAF437D05B5
 
       # Ubuntu 10.10
       - name: maverick
@@ -301,7 +305,7 @@ repositories:
               - i386
               - powerpc
         gpgkeys:
-          - fingerprint: 871920D1991BC93C
+          - fingerprint: 40976EAF437D05B5
 
       # Ubuntu 10.04
       - name: lucid
@@ -340,7 +344,7 @@ repositories:
               - powerpc
               - sparc
         gpgkeys:
-          - fingerprint: 871920D1991BC93C
+          - fingerprint: 40976EAF437D05B5
 
       # Ubuntu 9.10
       - name: karmic
@@ -383,7 +387,7 @@ repositories:
               - powerpc
               - sparc
         gpgkeys:
-          - fingerprint: 871920D1991BC93C
+          - fingerprint: 40976EAF437D05B5
 
       # Ubuntu 9.04
       - name: jaunty
@@ -430,7 +434,7 @@ repositories:
               - powerpc
               - sparc
         gpgkeys:
-          - fingerprint: 871920D1991BC93C
+          - fingerprint: 40976EAF437D05B5
 
       # Ubuntu 8.10
       - name: intrepid
@@ -473,7 +477,7 @@ repositories:
               - powerpc
               - sparc
         gpgkeys:
-          - fingerprint: 871920D1991BC93C
+          - fingerprint: 40976EAF437D05B5
 
       # Ubuntu 8.04
       - name: hardy
@@ -516,7 +520,7 @@ repositories:
               - powerpc
               - sparc
         gpgkeys:
-          - fingerprint: 871920D1991BC93C
+          - fingerprint: 40976EAF437D05B5
 
       # Ubuntu 7.10
       - name: gutsy
@@ -559,7 +563,7 @@ repositories:
               - powerpc
               - sparc
         gpgkeys:
-          - fingerprint: 871920D1991BC93C
+          - fingerprint: 40976EAF437D05B5
 
       # Ubuntu 7.04
       - name: feisty
@@ -598,7 +602,7 @@ repositories:
               - powerpc
               - sparc
         gpgkeys:
-          - fingerprint: 871920D1991BC93C
+          - fingerprint: 40976EAF437D05B5
 
       # Ubuntu 6.10
       - name: edgy
@@ -637,7 +641,7 @@ repositories:
               - powerpc
               - sparc
         gpgkeys:
-          - fingerprint: 871920D1991BC93C
+          - fingerprint: 40976EAF437D05B5
 
       # Ubuntu 6.06
       - name: dapper
@@ -676,7 +680,7 @@ repositories:
               - ia64
               - hppa
         gpgkeys:
-          - fingerprint: 871920D1991BC93C
+          - fingerprint: 40976EAF437D05B5
 
       # Ubuntu 5.10
       - name: breezy
@@ -715,7 +719,7 @@ repositories:
               - sparc
               - hppa
         gpgkeys:
-          - fingerprint: 871920D1991BC93C
+          - fingerprint: 40976EAF437D05B5
 
       # Ubuntu 5.04
       - name: hoary
@@ -750,7 +754,7 @@ repositories:
               - ia64
               - sparc
         gpgkeys:
-          - fingerprint: 871920D1991BC93C
+          - fingerprint: 40976EAF437D05B5
 
       # Ubuntu 4.10
       - name: warty
@@ -777,7 +781,7 @@ repositories:
               - amd64
               - powerpc
         gpgkeys:
-          - fingerprint: 871920D1991BC93C
+          - fingerprint: 40976EAF437D05B5
 
       - name: vivid
         components:
@@ -811,7 +815,8 @@ repositories:
               - powerpc
               - ppc64el
         gpgkeys:
-          - fingerprint: 871920D1991BC93C
+          - fingerprint: 40976EAF437D05B5
+          - fingerprint: 3B4FE6ACC0B21F32
 
       - name: wily
         components:
@@ -845,7 +850,8 @@ repositories:
               - powerpc
               - ppc64el
         gpgkeys:
-          - fingerprint: 871920D1991BC93C
+          - fingerprint: 40976EAF437D05B5
+          - fingerprint: 3B4FE6ACC0B21F32
 
       - name: yakkety
         components:
@@ -882,7 +888,8 @@ repositories:
               - ppc64el
               - s390x
         gpgkeys:
-          - fingerprint: 871920D1991BC93C
+          - fingerprint: 40976EAF437D05B5
+          - fingerprint: 3B4FE6ACC0B21F32
 
       - name: zesty
         components:
