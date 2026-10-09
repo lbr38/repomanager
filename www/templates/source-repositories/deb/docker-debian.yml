@@ -17,13 +17,6 @@ repositories:
               - armhf
               - s390x
               - ppc64el
-          - name: test
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - s390x
-              - ppc64el
         gpgkeys:
           - link: https://download.docker.com/linux/debian/gpg
 
@@ -38,21 +31,6 @@ repositories:
               - armhf
               - s390x
               - ppc64el
-
-          - name: test
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - s390x
-              - ppc64el
-
-          - name: nightly
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - ppc64el
         gpgkeys:
           - link: https://download.docker.com/linux/debian/gpg
 
@@ -61,20 +39,6 @@ repositories:
         description: Debian 11
         components:
           - name: stable
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - ppc64el
-
-          - name: test
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - ppc64el
-
-          - name: nightly
             archs:
               - amd64
               - arm64
@@ -99,20 +63,6 @@ repositories:
               - amd64
               - arm64
               - armhf
-
-          - name: test
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - ppc64el
-
-          - name: nightly
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - ppc64el
         gpgkeys:
           - link: https://download.docker.com/linux/debian/gpg
 
@@ -124,16 +74,6 @@ repositories:
               - arm64
               - armhf
           - name: edge
-            archs:
-              - amd64
-              - arm64
-              - armhf
-          - name: test
-            archs:
-              - amd64
-              - arm64
-              - armhf
-          - name: nightly
             archs:
               - amd64
               - arm64
@@ -153,16 +93,6 @@ repositories:
               - amd64
               - arm64
               - armhf
-          - name: test
-            archs:
-              - amd64
-              - arm64
-              - armhf
-          - name: nightly
-            archs:
-              - amd64
-              - arm64
-              - armhf
         gpgkeys:
           - link: https://download.docker.com/linux/debian/gpg
 
@@ -172,12 +102,6 @@ repositories:
             archs:
               - amd64
           - name: edge
-            archs:
-              - amd64
-          - name: test
-            archs:
-              - amd64
-          - name: nightly
             archs:
               - amd64
         gpgkeys:

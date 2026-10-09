@@ -18,14 +18,6 @@ repositories:
               - armhf
               - s390x
               - ppc64el
-
-          - name: test
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - s390x
-              - ppc64el
         gpgkeys:
           - link: https://download.docker.com/linux/ubuntu/gpg
 
@@ -40,22 +32,6 @@ repositories:
               - armhf
               - s390x
               - ppc64el
-
-          - name: test
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - s390x
-              - ppc64el
-
-          - name: nightly
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - s390x
-              - ppc64el
         gpgkeys:
           - link: https://download.docker.com/linux/ubuntu/gpg
 
@@ -64,22 +40,6 @@ repositories:
         description: Ubuntu 22.04
         components:
           - name: stable
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - s390x
-              - ppc64el
-
-          - name: test
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - s390x
-              - ppc64el
-
-          - name: nightly
             archs:
               - amd64
               - arm64
@@ -105,22 +65,6 @@ repositories:
             archs:
               - amd64
               - arm64
-
-          - name: test
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - s390x
-              - ppc64el
-
-          - name: nightly
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - s390x
-              - ppc64el
         gpgkeys:
           - link: https://download.docker.com/linux/ubuntu/gpg
 
@@ -133,18 +77,6 @@ repositories:
               - s390x
               - ppc64el
           - name: edge
-            archs:
-              - amd64
-              - armhf
-              - s390x
-              - ppc64el
-          - name: test
-            archs:
-              - amd64
-              - armhf
-              - s390x
-              - ppc64el
-          - name: nightly
             archs:
               - amd64
               - armhf
@@ -169,20 +101,6 @@ repositories:
               - armhf
               - s390x
               - ppc64el
-          - name: test
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - s390x
-              - ppc64el
-          - name: nightly
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - s390x
-              - ppc64el
         gpgkeys:
           - link: https://download.docker.com/linux/ubuntu/gpg
 
@@ -198,18 +116,6 @@ repositories:
               - amd64
               - arm64
               - armhf
-          - name: test
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - ppc64el
-          - name: nightly
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - ppc64el
         gpgkeys:
           - link: https://download.docker.com/linux/ubuntu/gpg
 
@@ -221,16 +127,6 @@ repositories:
               - arm64
               - armhf
           - name: edge
-            archs:
-              - amd64
-              - arm64
-              - armhf
-          - name: test
-            archs:
-              - amd64
-              - arm64
-              - armhf
-          - name: nightly
             archs:
               - amd64
               - arm64
@@ -250,16 +146,6 @@ repositories:
               - amd64
               - arm64
               - armhf
-          - name: test
-            archs:
-              - amd64
-              - arm64
-              - armhf
-          - name: nightly
-            archs:
-              - amd64
-              - arm64
-              - armhf
         gpgkeys:
           - link: https://download.docker.com/linux/ubuntu/gpg
 
@@ -271,38 +157,12 @@ repositories:
               - arm64
               - s390x
               - ppc64el
-          - name: test
-            archs:
-              - amd64
-              - arm64
-              - s390x
-              - ppc64el
-          - name: nightly
-            archs:
-              - amd64
-              - arm64
-              - s390x
-              - ppc64el
         gpgkeys:
           - link: https://download.docker.com/linux/ubuntu/gpg
 
       - name: hirsute
         components:
           - name: stable
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - s390x
-              - ppc64el
-          - name: test
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - s390x
-              - ppc64el
-          - name: nightly
             archs:
               - amd64
               - arm64
@@ -321,20 +181,6 @@ repositories:
               - armhf
               - s390x
               - ppc64el
-          - name: test
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - s390x
-              - ppc64el
-          - name: nightly
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - s390x
-              - ppc64el
         gpgkeys:
           - link: https://download.docker.com/linux/ubuntu/gpg
 
@@ -345,14 +191,6 @@ repositories:
               - amd64
               - armhf
           - name: edge
-            archs:
-              - amd64
-              - armhf
-          - name: test
-            archs:
-              - amd64
-              - armhf
-          - name: nightly
             archs:
               - amd64
               - armhf
@@ -375,20 +213,6 @@ repositories:
               - armhf
               - s390x
               - ppc64el
-          - name: test
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - s390x
-              - ppc64el
-          - name: nightly
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - s390x
-              - ppc64el
         gpgkeys:
           - link: https://download.docker.com/linux/ubuntu/gpg
 
@@ -400,11 +224,6 @@ repositories:
               - armhf
               - s390x
           - name: edge
-            archs:
-              - amd64
-              - armhf
-              - s390x
-          - name: test
             archs:
               - amd64
               - armhf
@@ -428,33 +247,12 @@ repositories:
               - armhf
               - s390x
               - ppc64el
-          - name: test
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - s390x
-              - ppc64el
         gpgkeys:
           - link: https://download.docker.com/linux/ubuntu/gpg
 
       - name: kinetic
         components:
           - name: stable
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - s390x
-              - ppc64el
-          - name: test
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - s390x
-              - ppc64el
-          - name: nightly
             archs:
               - amd64
               - arm64
@@ -473,40 +271,12 @@ repositories:
               - armhf
               - s390x
               - ppc64el
-          - name: test
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - s390x
-              - ppc64el
-          - name: nightly
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - s390x
-              - ppc64el
         gpgkeys:
           - link: https://download.docker.com/linux/ubuntu/gpg
 
       - name: mantic
         components:
           - name: stable
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - s390x
-              - ppc64el
-          - name: test
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - s390x
-              - ppc64el
-          - name: nightly
             archs:
               - amd64
               - arm64
@@ -525,13 +295,6 @@ repositories:
               - armhf
               - s390x
               - ppc64el
-          - name: test
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - s390x
-              - ppc64el
         gpgkeys:
           - link: https://download.docker.com/linux/ubuntu/gpg
 
@@ -544,26 +307,12 @@ repositories:
               - armhf
               - s390x
               - ppc64el
-          - name: test
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - s390x
-              - ppc64el
         gpgkeys:
           - link: https://download.docker.com/linux/ubuntu/gpg
 
       - name: questing
         components:
           - name: stable
-            archs:
-              - amd64
-              - arm64
-              - armhf
-              - s390x
-              - ppc64el
-          - name: test
             archs:
               - amd64
               - arm64
