@@ -12,6 +12,54 @@ repositories:
         description: Ubuntu 26.04
         components:
           - name: stable
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - s390x
+              - ppc64el
+        gpgkeys:
+          - link: https://download.docker.com/linux/ubuntu/gpg
+
+      # Ubuntu 25.10
+      - name: questing
+        description: Ubuntu 25.10
+        components:
+          - name: stable
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - s390x
+              - ppc64el
+        gpgkeys:
+          - link: https://download.docker.com/linux/ubuntu/gpg
+
+      # Ubuntu 25.04
+      - name: plucky
+        description: Ubuntu 25.04
+        components:
+          - name: stable
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - s390x
+              - ppc64el
+        gpgkeys:
+          - link: https://download.docker.com/linux/ubuntu/gpg
+
+      # Ubuntu 24.10
+      - name: oracular
+        description: Ubuntu 24.10
+        components:
+          - name: stable
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - s390x
+              - ppc64el
         gpgkeys:
           - link: https://download.docker.com/linux/ubuntu/gpg
 
@@ -20,6 +68,54 @@ repositories:
         description: Ubuntu 24.04
         components:
           - name: stable
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - s390x
+              - ppc64el
+        gpgkeys:
+          - link: https://download.docker.com/linux/ubuntu/gpg
+
+      # Ubuntu 23.10
+      - name: mantic
+        description: Ubuntu 23.10
+        components:
+          - name: stable
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - s390x
+              - ppc64el
+        gpgkeys:
+          - link: https://download.docker.com/linux/ubuntu/gpg
+
+      # Ubuntu 23.04
+      - name: lunar
+        description: Ubuntu 23.04
+        components:
+          - name: stable
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - s390x
+              - ppc64el
+        gpgkeys:
+          - link: https://download.docker.com/linux/ubuntu/gpg
+
+      # Ubuntu 22.10
+      - name: kinetic
+        description: Ubuntu 22.10
+        components:
+          - name: stable
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - s390x
+              - ppc64el
         gpgkeys:
           - link: https://download.docker.com/linux/ubuntu/gpg
 
@@ -28,6 +124,53 @@ repositories:
         description: Ubuntu 22.04
         components:
           - name: stable
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - s390x
+              - ppc64el
+        gpgkeys:
+          - link: https://download.docker.com/linux/ubuntu/gpg
+
+      # Ubuntu 21.10
+      - name: impish
+        description: Ubuntu 21.10
+        components:
+          - name: stable
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - s390x
+              - ppc64el
+        gpgkeys:
+          - link: https://download.docker.com/linux/ubuntu/gpg
+
+      # Ubuntu 21.04
+      - name: hirsute
+        description: Ubuntu 21.04
+        components:
+          - name: stable
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - s390x
+              - ppc64el
+        gpgkeys:
+          - link: https://download.docker.com/linux/ubuntu/gpg
+
+      # Ubuntu 20.10
+      - name: groovy
+        description: Ubuntu 20.10
+        components:
+          - name: stable
+            archs:
+              - amd64
+              - arm64
+              - s390x
+              - ppc64el
         gpgkeys:
           - link: https://download.docker.com/linux/ubuntu/gpg
 
@@ -36,5 +179,133 @@ repositories:
         description: Ubuntu 20.04
         components:
           - name: stable
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - s390x
+              - ppc64el
+
+          - name: edge
+            archs:
+              - amd64
+              - arm64
         gpgkeys:
           - link: https://download.docker.com/linux/ubuntu/gpg
+
+      # Ubuntu 19.10
+      - name: eoan
+        description: Ubuntu 19.10
+        components:
+          - name: stable
+            archs:
+              - amd64
+              - arm64
+              - armhf
+          - name: edge
+            archs:
+              - amd64
+              - arm64
+              - armhf
+        gpgkeys:
+          - link: https://download.docker.com/linux/ubuntu/gpg
+
+      # Ubuntu 19.04
+      - name: disco
+        description: Ubuntu 19.04
+        components:
+          - name: stable
+            archs:
+              - amd64
+              - arm64
+              - armhf
+          - name: edge
+            archs:
+              - amd64
+              - arm64
+              - armhf
+        gpgkeys:
+          - link: https://download.docker.com/linux/ubuntu/gpg
+
+      # Ubuntu 18.10
+      - name: cosmic
+        description: Ubuntu 18.10
+        components:
+          - name: stable
+            archs:
+              - amd64
+              - arm64
+              - armhf
+          - name: edge
+            archs:
+              - amd64
+              - arm64
+              - armhf
+        gpgkeys:
+          - link: https://download.docker.com/linux/ubuntu/gpg
+
+      # Ubuntu 18.04
+      - name: bionic
+        description: Ubuntu 18.04
+        components:
+          - name: stable
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - s390x
+              - ppc64el
+          - name: edge
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - s390x
+              - ppc64el
+        gpgkeys:
+          - link: https://download.docker.com/linux/ubuntu/gpg
+
+      # Ubuntu 17.10
+      - name: artful
+        description: Ubuntu 17.10
+        components:
+          - name: stable
+            archs:
+              - amd64
+              - armhf
+              - s390x
+              - ppc64el
+          - name: edge
+            archs:
+              - amd64
+              - armhf
+              - s390x
+              - ppc64el
+        gpgkeys:
+          - link: https://download.docker.com/linux/ubuntu/gpg
+
+      # Ubuntu 17.04
+      - name: zesty
+        description: Ubuntu 17.04
+        components:
+          - name: stable
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - s390x
+              - ppc64el
+          - name: edge
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - s390x
+              - ppc64el
+        gpgkeys:
+          - link: https://download.docker.com/linux/ubuntu/gpg
+
+    ignored-distributions:
+      - trusty
+      - xenial
+      - yakkety

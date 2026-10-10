@@ -120,15 +120,17 @@ foreach ($tasks as $task) :
             <span class="onoff-switch-slider"></span>
         </label>
 
-        <h6>SEND A REMINDER</h6>
-        <select class="task-param" param-name="schedule-reminder" multiple>
-            <?php
-            $reminderOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60];
-            foreach ($reminderOptions as $option) {
-                $selected = in_array($option, $params['schedule']['schedule-reminder'] ?? []) ? 'selected' : '';
-                echo '<option value="' . $option . '" ' . $selected . '>' . $option . ' day' . ($option > 1 ? 's' : '') . ' before</option>';
-            } ?>
-        </select>
+        <div class="task-schedule-reminder-input <?= $params['schedule']['schedule-type'] == 'recurring' && in_array($params['schedule']['schedule-frequency'] ?? '', ['hourly', 'daily']) ? 'hide' : '' ?>">
+            <h6>SEND A REMINDER</h6>
+            <select class="task-param" param-name="schedule-reminder" multiple>
+                <?php
+                $reminderOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60];
+                foreach ($reminderOptions as $option) {
+                    $selected = in_array($option, $params['schedule']['schedule-reminder'] ?? []) ? 'selected' : '';
+                    echo '<option value="' . $option . '" ' . $selected . '>' . $option . ' day' . ($option > 1 ? 's' : '') . ' before</option>';
+                } ?>
+            </select>
+        </div>
 
         <h6>RECIPIENT(S)</h6>
         <select class="task-param" param-name="schedule-recipient" multiple>

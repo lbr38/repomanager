@@ -2,12 +2,9 @@
  *  Event: Show/hide source repo release version params
  */
 $(document).on('click','.source-repo-releasever-edit-param-btn',function () {
-    var id = $(this).attr('source-id');
-    var releaseverId = $(this).attr('releasever-id');
-
     mypanel.get('repos/sources/edit-releasever', {
-        id: id,
-        releaseverId: releaseverId
+        id: $(this).attr('source-id'),
+        releaseverId: $(this).attr('releasever-id')
     });
 });
 
@@ -15,8 +12,8 @@ $(document).on('click','.source-repo-releasever-edit-param-btn',function () {
  *  Event: add source repository release version
  */
 $(document).on('click','button.source-repo-add-releasever-btn',function () {
-    var id = $(this).attr('source-id');
-    var name = $('input.source-repo-add-releasever-input[source-id="' + id + '"]').val();
+    const id = $(this).attr('source-id');
+    const name = $('input.source-repo-add-releasever-input[source-id="' + id + '"]').val();
 
     ajaxRequest(
         // Controller:
@@ -40,16 +37,13 @@ $(document).on('click','button.source-repo-add-releasever-btn',function () {
 /**
  *  Event: edit source repository release version
  */
-$(document).on('submit','form.source-repo-edit-releasever',function () {
-    event.preventDefault();
+$(document).on('submit','form.source-repo-edit-releasever',function (e) {
+    e.preventDefault();
 
-    var id = $(this).attr('source-id');
-    var releaseverId = $(this).attr('releasever-id');
+    const id = $(this).attr('source-id');
+    const releaseverId = $(this).attr('releasever-id');
     var params = {};
 
-    /**
-     *  Retrieve the parameters entered by the user and push them into the object
-     */
     $('form.source-repo-edit-releasever[source-id="' + id + '"][releasever-id="' + releaseverId + '"]').find('.releasever-param').each(function () {
         var name = $(this).attr('param-name');
         var value = $(this).val();
@@ -87,8 +81,8 @@ $(document).on('click','.source-repo-remove-releasever-btn',function (e) {
     // Prevent parent to be triggered
     e.stopPropagation();
 
-    var id = $(this).attr('source-id');
-    var releaseverId = $(this).attr('releasever-id');
+    const id = $(this).attr('source-id');
+    const releaseverId = $(this).attr('releasever-id');
 
     myconfirmbox.print(
         {
@@ -124,14 +118,14 @@ $(document).on('click','.source-repo-remove-releasever-btn',function (e) {
 /**
  *  Event: add gpg key to release version
  */
-$(document).on('submit','.source-repo-edit-releasever-add-gpgkey-form',function () {
-    event.preventDefault();
+$(document).on('submit','.source-repo-edit-releasever-add-gpgkey-form',function (e) {
+    e.preventDefault();
 
-    var id = $(this).attr('source-id');
-    var releaseverId = $(this).attr('releasever-id');
-    var gpgKeyUrl = $(this).find('input[type="text"][name="gpgkey-url"]').val();
-    var gpgKeyFingerprint = $(this).find('input[type="text"][name="gpgkey-fingerprint"]').val();
-    var gpgKeyPlainText = $(this).find('textarea[name="gpgkey-plaintext"]').val();
+    const id = $(this).attr('source-id');
+    const releaseverId = $(this).attr('releasever-id');
+    const gpgKeyUrl = $(this).find('input[type="text"][name="gpgkey-url"]').val();
+    const gpgKeyFingerprint = $(this).find('input[type="text"][name="gpgkey-fingerprint"]').val();
+    const gpgKeyPlainText = $(this).find('textarea[name="gpgkey-plaintext"]').val();
 
     ajaxRequest(
         // Controller:
@@ -165,9 +159,9 @@ $(document).on('click','.source-repo-edit-releasever-remove-gpgkey-btn',function
     // Prevent parent to be triggered
     e.stopPropagation();
 
-    var id = $(this).attr('source-id');
-    var releaseverId = $(this).attr('releasever-id');
-    var gpgkeyId = $(this).attr('gpgkey-id');
+    const id = $(this).attr('source-id');
+    const releaseverId = $(this).attr('releasever-id');
+    const gpgkeyId = $(this).attr('gpgkey-id');
 
     myconfirmbox.print(
         {

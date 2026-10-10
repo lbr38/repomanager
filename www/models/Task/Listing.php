@@ -36,36 +36,27 @@ class Listing extends \Models\Model
      *  Get all newest tasks
      *  It is possible to add an offset to the request
      */
-    public function getQueued(string $type, bool $withOffset, int $offset): array
+    public function getQueued(bool $withNoParent, bool $withOffset, int $offset): array
     {
         $data = [];
 
         try {
-            // Case where we want all types
-            if (empty($type)) {
-                $query = "SELECT * FROM tasks
-                WHERE Status = 'queued'
-                AND Parent_task_id IS NULL
-                ORDER BY Date DESC, Time DESC";
+            $query = "SELECT * FROM tasks WHERE Status = 'queued'";
+
+            // Only tasks without a parent (default behavior)
+            if ($withNoParent) {
+                $query .= ' AND Parent_task_id IS NULL';
             }
 
-            // Case where we want to filter by type
-            if (!empty($type)) {
-                $query = "SELECT * FROM tasks
-                WHERE Type = :type
-                AND Status = 'queued'
-                AND Parent_task_id IS NULL
-                ORDER BY Date DESC, Time DESC";
-            }
+            $query .= ' ORDER BY Date DESC, Time DESC';
 
             // Add offset if needed
             if ($withOffset === true) {
-                $query .= " LIMIT 10 OFFSET :offset";
+                $query .= ' LIMIT 10 OFFSET :offset';
             }
 
             // Prepare query
             $stmt = $this->db->prepare($query);
-            $stmt->bindValue(':type', $type);
             $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
             $result = $stmt->execute();
         } catch (Exception $e) {
@@ -131,13 +122,18 @@ class Listing extends \Models\Model
      *  Sub-tasks are included as they are the ones being executed, unlike their parent task which only groups them
      *  Scheduled tasks come first as they have a specific time to be run, and a sub-task inherits the priority of the parent task holding the schedule
      */
-    public function getExecutable(string $status): array
+    public function getExecutable(string $status, bool $onlyId): array
     {
         $data = [];
 
         try {
-            $stmt = $this->db->prepare("SELECT tasks.* FROM tasks
-            LEFT JOIN tasks AS parent ON parent.Id = tasks.Parent_task_id
+            if ($onlyId) {
+                $query = "SELECT tasks.Id FROM tasks";
+            } else {
+                $query = "SELECT tasks.* FROM tasks";
+            }
+
+            $stmt = $this->db->prepare($query . " LEFT JOIN tasks AS parent ON parent.Id = tasks.Parent_task_id
             WHERE tasks.Status = :status
             AND tasks.Id NOT IN (SELECT Parent_task_id FROM tasks WHERE Parent_task_id IS NOT NULL)
             ORDER BY (COALESCE(parent.Type, tasks.Type) = 'scheduled') DESC, tasks.Id ASC");

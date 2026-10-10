@@ -21,7 +21,7 @@ jobs:
       # Format them to a key-value array
       # Start from release index which is 5.1.0
       # Pull images starting from release 5.1.0
-      # Then pull the next image of the index, etc..
+      # Then pull the next image of the index, etc..
       - name: Test all release updates from lbr38/repomanager
         run: |
           RELEASES=$(curl -s https://api.github.com/repos/lbr38/repomanager/releases?per_page=10000 | jq -r '.[].name' | tac)

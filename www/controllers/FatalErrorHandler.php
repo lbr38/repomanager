@@ -2,9 +2,6 @@
 
 namespace Controllers;
 
-use Error;
-use Exception;
-
 class FatalErrorHandler
 {
     private $taskId;

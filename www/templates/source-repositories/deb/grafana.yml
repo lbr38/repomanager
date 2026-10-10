@@ -7,18 +7,26 @@ repositories:
     description: Grafana repository
     url: https://apt.grafana.com
     distributions:
-      # Stable
+      # Stable releases of Grafana
       - name: stable
         description: Stable releases of Grafana
         components:
           - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
         gpgkeys:
           - link: https://apt.grafana.com/gpg.key
 
-      # Beta
+      # Beta releases of Grafana
       - name: beta
         description: Beta releases of Grafana
         components:
           - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
         gpgkeys:
           - link: https://apt.grafana.com/gpg.key

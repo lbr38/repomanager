@@ -16,11 +16,8 @@
     width: 25px !important;
     height: 25px !important;
 }
-.icon-lowopacity {
+.icon-lowopacity, .icon-mediumopacity {
     opacity: 0.60;
-}
-.icon-mediumopacity {
-    opacity: 0.55;
 }
 .icon-lowopacity:hover, .icon-mediumopacity:hover {
     opacity: 1;

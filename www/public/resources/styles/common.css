@@ -118,7 +118,6 @@ h6 {
     padding: 18px;
     margin-top: 15px;
     margin-bottom: 15px;
-    /* border: 1px dashed #5473e8; */
     border: 1px dashed #24405c;
     border-radius: 20px;
     background-color: #13263a;
@@ -309,9 +308,7 @@ code {
     border-radius: 50px;
 }
 
-/**
- *  Generic table with pagination
- */
+/* Generic table with pagination */
 [class^="table-container"] {
     display: grid;
     grid-template-columns: 5% fit-content(200px) auto 10%;
@@ -336,9 +333,7 @@ code {
     grid-template-columns: auto 10%;
 }
 
-/**
- *  Generic modern list items for slide panels
- */
+/* Generic modern list items for slide panel */
 .panel-list-item {
     padding: 12px 18px;
     border: 1px solid rgba(52, 97, 136, 0.45);
@@ -406,9 +401,6 @@ code {
     border-radius: 60px;
 }
 
-/**
- *  Slider div
- */
 .slide-panel-container {
     width: 100vw;
     height: 100%;
@@ -446,9 +438,6 @@ code {
     cursor: pointer;
 }
 
-/**
- *  Loading div
- */
 #loading {
     position: fixed;
     bottom: 15px;
@@ -463,9 +452,6 @@ code {
     height: 18px;
 }
 
-/**
- *  Loading veil
- */
 .loading-veil {
     display: flex;
     justify-content: center;

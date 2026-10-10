@@ -7,11 +7,31 @@ repositories:
     description: Docker repository
     url: https://download.docker.com/linux/debian
     distributions:
+      # Debian 13
+      - name: trixie
+        description: Debian 13
+        components:
+          - name: stable
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - s390x
+              - ppc64el
+        gpgkeys:
+          - link: https://download.docker.com/linux/debian/gpg
+
       # Debian 12
       - name: bookworm
         description: Debian 12
         components:
           - name: stable
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - s390x
+              - ppc64el
         gpgkeys:
           - link: https://download.docker.com/linux/debian/gpg
 
@@ -20,6 +40,11 @@ repositories:
         description: Debian 11
         components:
           - name: stable
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - ppc64el
         gpgkeys:
           - link: https://download.docker.com/linux/debian/gpg
 
@@ -28,5 +53,53 @@ repositories:
         description: Debian 10
         components:
           - name: stable
+            archs:
+              - amd64
+              - arm64
+              - armhf
+              - ppc64el
+
+          - name: edge
+            archs:
+              - amd64
+              - arm64
+              - armhf
         gpgkeys:
           - link: https://download.docker.com/linux/debian/gpg
+
+      # Debian 9
+      - name: stretch
+        description: Debian 9
+        components:
+          - name: stable
+            archs:
+              - amd64
+              - arm64
+              - armhf
+          - name: edge
+            archs:
+              - amd64
+              - arm64
+              - armhf
+        gpgkeys:
+          - link: https://download.docker.com/linux/debian/gpg
+
+      # Debian 8
+      - name: jessie
+        description: Debian 8
+        components:
+          - name: stable
+            archs:
+              - amd64
+              - arm64
+              - armhf
+          - name: edge
+            archs:
+              - amd64
+              - arm64
+              - armhf
+        gpgkeys:
+          - link: https://download.docker.com/linux/debian/gpg
+
+    ignored-distributions:
+      - wheezy

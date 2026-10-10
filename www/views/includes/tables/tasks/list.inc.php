@@ -69,7 +69,7 @@ use \Controllers\Task\Task; ?>
                 $actionBtn = in_array($item['Status'], ['scheduled', 'queued', 'disabled']) ? 'task-item-selectable' : ''; ?>
 
                 <div class="task-item <?= $taskAccent ?> <?= $actionBtn ?> pointer" task-id="<?= $item['Id'] ?>" title="<?= in_array($item['Status'], ['scheduled', 'queued', 'disabled']) ? 'Click to select' : 'View task details' ?>">
-                    <a <?= in_array($item['Status'], ['scheduled', 'queued', 'disabled']) ? '' : 'href="/task/' . $item['Id'] . '"'; ?>>
+                    <a <?= in_array($item['Status'], ['scheduled', 'queued', 'disabled']) ? '' : 'href="/task/' . $item['Id'] . '"'; ?> target="_blank" rel="noopener noreferrer">
                         <div class="flex align-item-center column-gap-20">
                             <?php
                             // Checkbox for scheduled/queued tasks (hidden like snap checkboxes)
@@ -80,77 +80,80 @@ use \Controllers\Task\Task; ?>
                                 endif;
                             endif ?>
 
-                            <img class="icon-np <?= $itemStatus != 'running' ? 'icon-lowopacity' : '' ?>" src="/assets/icons/<?= $icon ?>" title="<?= $title ?>" />
+                            <img class="icon-np <?= $itemStatus != 'running' ? 'lowopacity-cst' : '' ?>" src="/assets/icons/<?= $icon ?>" title="<?= $title ?>" />
 
-                            <div class="flex flex-direction-column row-gap-2">
-                                <?php
-                                // Date and time for immediate tasks
-                                if (!empty($item['Date']) and !empty($item['Time'])) : ?>
-                                    <p class="task-item-date"><?= $item['Status'] == 'scheduled' ? 'Last execution: ' : '' ?><?= DateTime::createFromFormat('Y-m-d', $item['Date'])->format('d-m-Y') ?> <?= $item['Time'] ?></p>
+                            <div class="flex flex-direction-column row-gap-5">
+                                <div class="flex align-item-center column-gap-6">
+                                    <span class="task-item-id">#<?= $item['Id'] ?></span>
+
                                     <?php
-                                endif;
-
-                                if ($item['Status'] == 'queued') : ?>
-                                    <div class="flex align-item-center column-gap-8">
-                                        <span class="mediumopacity-cst">Task #<?= $item['Id'] ?></span>
-                                        <span class="label-yellow">Pending</span>
-                                    </div>
-                                    <?php
-                                endif;
-
-                                // Schedule info for scheduled tasks
-                                if ($item['Type'] == 'scheduled') : ?>
-                                    <div class="task-item-schedule flex align-item-center column-gap-8">
-                                        <span class="mediumopacity-cst">
-                                            <?php
-                                            if ($taskRawParams['schedule']['schedule-type'] == 'unique') {
-                                                echo 'Scheduled on ' . DateTime::createFromFormat('Y-m-d', $taskRawParams['schedule']['schedule-date'])->format('d-m-Y') . ' ' . $taskRawParams['schedule']['schedule-time'] . ':00';
-                                            }
-                                            if ($taskRawParams['schedule']['schedule-type'] == 'recurring') {
-                                                $scheduleTime = ' at ' . htmlspecialchars($taskRawParams['schedule']['schedule-time'] ?? '', ENT_QUOTES, 'UTF-8') . ':00';
-
-                                                if ($taskRawParams['schedule']['schedule-frequency'] == 'hourly') {
-                                                    echo 'Hourly';
-                                                }
-                                                if ($taskRawParams['schedule']['schedule-frequency'] == 'daily') {
-                                                    echo 'Daily' . $scheduleTime;
-                                                }
-                                                if ($taskRawParams['schedule']['schedule-frequency'] == 'weekly') {
-                                                    echo 'Weekly' . $scheduleTime;
-                                                }
-                                                if ($taskRawParams['schedule']['schedule-frequency'] == 'monthly') {
-                                                    echo 'Monthly' . $scheduleTime;
-                                                }
-                                                if ($taskRawParams['schedule']['schedule-frequency'] == 'cron') {
-                                                    echo 'Cron: ' . htmlspecialchars($taskRawParams['schedule']['schedule-cron'] ?? '', ENT_QUOTES, 'UTF-8');
-                                                }
-                                            } ?>
-                                        </span>
-
+                                    // Date and time for immediate tasks
+                                    if (!empty($item['Date']) and !empty($item['Time'])) : ?>
+                                        <span class="dot mediumopacity-cst">●</span>
+                                        <span class="task-item-date"><?= $item['Status'] == 'scheduled' ? 'Last execution: ' : '' ?><?= DateTime::createFromFormat('Y-m-d', $item['Date'])->format('d-m-Y') ?> <?= $item['Time'] ?></span>
                                         <?php
-                                        // If task date schedule is in the past, print a label
-                                        if (!empty($taskRawParams['schedule']['schedule-date']) and !empty($taskRawParams['schedule']['schedule-time']) and $item['Status'] == 'scheduled') {
-                                            $taskDateTime = DateTime::createFromFormat('Y-m-d H:i:s', $taskRawParams['schedule']['schedule-date'] . ' ' . $taskRawParams['schedule']['schedule-time'] . ':00');
-                                            $now = new DateTime();
+                                    endif;
 
-                                            if ($taskDateTime < $now) {
-                                                echo '<span class="label-red" title="This task is scheduled in the past and will not be executed">Past schedule</span>';
-                                            }
-                                        }
+                                    if ($item['Status'] == 'queued') : ?>
+                                        <span class="label-yellow label-medium">Pending</span>
+                                        <?php
+                                    endif;
 
-                                        // If the task is scheduled, queued or disabled, print a button to view its parameters
-                                        if (in_array($item['Status'], ['scheduled', 'queued', 'disabled']) and $item['Type'] == 'scheduled') {
-                                            echo '<img class="icon-lowopacity show-scheduled-task-info-btn" src="/assets/icons/view.svg" task-id="' . $item['Id'] . '" title="Show task details" />';
-                                        }
+                                    // Schedule info for scheduled tasks
+                                    if ($item['Type'] == 'scheduled') : ?>
+                                        <div class="task-item-schedule flex align-item-center column-gap-8">
+                                            <span class="dot mediumopacity-cst">●</span>
+                                            <span class="mediumopacity-cst">
+                                                <?php
+                                                if ($taskRawParams['schedule']['schedule-type'] == 'unique') {
+                                                    echo 'Scheduled on ' . DateTime::createFromFormat('Y-m-d', $taskRawParams['schedule']['schedule-date'])->format('d-m-Y') . ' ' . $taskRawParams['schedule']['schedule-time'] . ':00';
+                                                }
+                                                if ($taskRawParams['schedule']['schedule-type'] == 'recurring') {
+                                                    $scheduleTime = ' at ' . htmlspecialchars($taskRawParams['schedule']['schedule-time'] ?? '', ENT_QUOTES, 'UTF-8') . ':00';
 
-                                        // If the task is disabled, print a label
-                                        if ($item['Status'] == 'disabled') : ?>
-                                            <span class="label-white">Disabled</span>
+                                                    if ($taskRawParams['schedule']['schedule-frequency'] == 'hourly') {
+                                                        echo 'Hourly';
+                                                    }
+                                                    if ($taskRawParams['schedule']['schedule-frequency'] == 'daily') {
+                                                        echo 'Daily' . $scheduleTime;
+                                                    }
+                                                    if ($taskRawParams['schedule']['schedule-frequency'] == 'weekly') {
+                                                        echo 'Weekly' . $scheduleTime;
+                                                    }
+                                                    if ($taskRawParams['schedule']['schedule-frequency'] == 'monthly') {
+                                                        echo 'Monthly' . $scheduleTime;
+                                                    }
+                                                    if ($taskRawParams['schedule']['schedule-frequency'] == 'cron') {
+                                                        echo 'Cron: ' . htmlspecialchars($taskRawParams['schedule']['schedule-cron'] ?? '', ENT_QUOTES, 'UTF-8');
+                                                    }
+                                                } ?>
+                                            </span>
+
                                             <?php
-                                        endif; ?>
-                                    </div>
-                                    <?php
-                                endif ?>
+                                            // If task date schedule is in the past, print a label
+                                            if (!empty($taskRawParams['schedule']['schedule-date']) and !empty($taskRawParams['schedule']['schedule-time']) and $item['Status'] == 'scheduled') {
+                                                $taskDateTime = DateTime::createFromFormat('Y-m-d H:i:s', $taskRawParams['schedule']['schedule-date'] . ' ' . $taskRawParams['schedule']['schedule-time'] . ':00');
+                                                $now = new DateTime();
+
+                                                if ($taskDateTime < $now) {
+                                                    echo '<span class="label-red" title="This task is scheduled in the past and will not be executed">Past schedule</span>';
+                                                }
+                                            }
+
+                                            // If the task is scheduled, queued or disabled, print a button to view its parameters
+                                            if (in_array($item['Status'], ['scheduled', 'queued', 'disabled']) and $item['Type'] == 'scheduled') {
+                                                echo '<img class="icon-mediumopacity show-scheduled-task-info-btn" src="/assets/icons/view.svg" task-id="' . $item['Id'] . '" title="Show task details" />';
+                                            }
+
+                                            // If the task is disabled, print a label
+                                            if ($item['Status'] == 'disabled') : ?>
+                                                <span class="label-white">Disabled</span>
+                                                <?php
+                                            endif; ?>
+                                        </div>
+                                        <?php
+                                    endif ?>
+                                </div>
 
                                 <span class="task-item-action mediumopacity-cst"><?= $title ?></span>
                             </div>
@@ -197,13 +200,18 @@ use \Controllers\Task\Task; ?>
                         // Show the relaunch button only for tasks that have no sub-tasks
                         if (!$hasSubTasks and ($item['Status'] == 'error' or $item['Status'] == 'stopped') and !empty($item['Id'])) {
                             if (TaskPermission::allowedAction('relaunch')) {
-                                echo '<img class="icon-lowopacity relaunch-task-btn" src="/assets/icons/update.svg" task-id="' . $item['Id'] . '" title="Relaunch this task" />';
+                                echo '<img class="icon-mediumopacity relaunch-task-btn" src="/assets/icons/update.svg" task-id="' . $item['Id'] . '" title="Relaunch this task" />';
                             }
                         }
 
                         if ($item['Status'] == 'running' or $item['Status'] == 'queued') {
+                            // If the task has no running process and is not a parent task, display a warning icon (only if the task is not a parent task itself)
+                            if (!$hasSubTasks and !Task::processRunning($item['Id'])) {
+                                echo '<img src="/assets/icons/warning-red.svg" class="icon-np" task-id="' . $item['Id'] . '" title="No running process found for this task, the process might have crashed, you should stop this task" />';
+                            }
+
                             if (TaskPermission::allowedAction('stop')) {
-                                echo '<span title="Stop task" class="stop-task-btn" task-id="' . $item['Id'] . '"><img src="/assets/icons/stop.svg" class="icon-lowopacity"></span>';
+                                echo '<img src="/assets/icons/stop.svg" class="icon-mediumopacity stop-task-btn" task-id="' . $item['Id'] . '" title="Stop task" />';
                             }
                         } ?>
                     </div>
@@ -226,7 +234,7 @@ use \Controllers\Task\Task; ?>
                             } ?>
 
                             <div class="task-item-child div-generic-blue accent-<?= $subTaskAccent ?>">
-                                <a class="flex align-item-center column-gap-10" href="/task/<?= $subTask['Id'] ?>" title="View sub-task #<?= $subTask['Id'] ?> details">
+                                <a class="flex align-item-center column-gap-10" href="/task/<?= $subTask['Id'] ?>" title="View sub-task #<?= $subTask['Id'] ?> details" target="_blank" rel="noopener noreferrer">
                                     <?php
                                     if ($subTask['Status'] == 'running') {
                                         echo '<img class="icon-np" src="/assets/icons/loading.svg" title="Running" />';
@@ -238,14 +246,19 @@ use \Controllers\Task\Task; ?>
                                 <div class="task-item-status">
                                     <?php
                                     if ($subTask['Status'] == 'running' or $subTask['Status'] == 'queued') {
+                                        // If the task has no running process, display a warning icon
+                                        if (!Task::processRunning($item['Id'])) {
+                                            echo '<img src="/assets/icons/warning-red.svg" class="icon-np" task-id="' . $item['Id'] . '" title="No running process found for this task, the process might have crashed, you should stop this task" />';
+                                        }
+
                                         if (TaskPermission::allowedAction('stop')) {
-                                            echo '<span title="Stop task" class="stop-task-btn" task-id="' . $subTask['Id'] . '"><img src="/assets/icons/stop.svg" class="icon-lowopacity"></span>';
+                                            echo '<span title="Stop task" class="stop-task-btn" task-id="' . $subTask['Id'] . '"><img src="/assets/icons/stop.svg" class="icon-mediumopacity"></span>';
                                         }
                                     }
 
                                     if ($subTask['Status'] == 'error' or $subTask['Status'] == 'stopped') {
                                         if (TaskPermission::allowedAction('relaunch')) {
-                                            echo '<img class="icon-lowopacity relaunch-task-btn" src="/assets/icons/update.svg" task-id="' . $subTask['Id'] . '" title="Relaunch this task" />';
+                                            echo '<img class="icon-mediumopacity relaunch-task-btn" src="/assets/icons/update.svg" task-id="' . $subTask['Id'] . '" title="Relaunch this task" />';
                                         }
                                     } ?>
                                 </div>

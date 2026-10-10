@@ -471,7 +471,7 @@ class Gpg
                 throw new Exception('empty gpg key response (downloaded file is empty)');
             }
         } catch (Exception $e) {
-            throw new Exception('error while downloading GPG key: ' . $e->getMessage());
+            throw new Exception('error while downloading GPG key at ' . $url . ': ' . $e->getMessage());
         }
 
         /**

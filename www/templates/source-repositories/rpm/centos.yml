@@ -8,13 +8,25 @@ repositories:
     description: CentOS Stream BaseOS
     url: https://mirror.stream.centos.org/$releasever-stream/BaseOS/$basearch/os
     releasever:
+      # CentOS 10 Stream
       - name: 10
         description: CentOS 10 Stream
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
         gpgkeys:
           - fingerprint: 99DB70FAE1D7CE227FB6488205B555B38483C65D
 
+      # CentOS 9 Stream
       - name: 9
         description: CentOS 9 Stream
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
         gpgkeys:
           - fingerprint: 99DB70FAE1D7CE227FB6488205B555B38483C65D
 
@@ -24,28 +36,52 @@ repositories:
     description: CentOS Stream AppStream
     url: https://mirror.stream.centos.org/$releasever-stream/AppStream/$basearch/os
     releasever:
+      # CentOS 10 Stream
       - name: 10
         description: CentOS 10 Stream
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
         gpgkeys:
           - fingerprint: 99DB70FAE1D7CE227FB6488205B555B38483C65D
 
+      # CentOS 9 Stream
       - name: 9
         description: CentOS 9 Stream
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
         gpgkeys:
           - fingerprint: 99DB70FAE1D7CE227FB6488205B555B38483C65D
-  
+
   # CentOS Extras Common
   - name: centos-extras-common
     type: rpm
     description: CentOS Stream Extras Common
     url: https://mirror.stream.centos.org/SIGs/$releasever-stream/extras/$basearch/extras-common
     releasever:
+      # CentOS 10 Stream
       - name: 10
         description: CentOS 10 Stream
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
         gpgkeys:
           - fingerprint: 363FC0972F64B699AED3968E1FF6A2171D997668
 
+      # CentOS 9 Stream
       - name: 9
         description: CentOS 9 Stream
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
         gpgkeys:
           - fingerprint: 363FC0972F64B699AED3968E1FF6A2171D997668

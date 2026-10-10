@@ -12,6 +12,10 @@ repositories:
         description: Debian 13
         components:
           - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
         gpgkeys:
           - fingerprint: 15058500A0235D97F5D10063B188E2B695BD4743
 
@@ -20,6 +24,10 @@ repositories:
         description: Debian 12
         components:
           - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
         gpgkeys:
           - fingerprint: 15058500A0235D97F5D10063B188E2B695BD4743
 
@@ -28,5 +36,45 @@ repositories:
         description: Debian 11
         components:
           - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+        gpgkeys:
+          - fingerprint: 15058500A0235D97F5D10063B188E2B695BD4743
+
+      # Ubuntu 26.04
+      - name: resolute
+        description: Ubuntu 26.04
+        components:
+          - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+        gpgkeys:
+          - fingerprint: 15058500A0235D97F5D10063B188E2B695BD4743
+
+      # Ubuntu 24.04
+      - name: noble
+        description: Ubuntu 24.04
+        components:
+          - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
+        gpgkeys:
+          - fingerprint: 15058500A0235D97F5D10063B188E2B695BD4743
+
+      # Ubuntu 22.04
+      - name: jammy
+        description: Ubuntu 22.04
+        components:
+          - name: main
+            archs:
+              - amd64
+              - arm64
+              - armhf
         gpgkeys:
           - fingerprint: 15058500A0235D97F5D10063B188E2B695BD4743
