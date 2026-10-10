@@ -52,7 +52,7 @@ repositories:
         description: OpenSUSE Leap 15.0
         gpgkeys:
           - link: http://download.opensuse.org/distribution/leap/15.0/repo/oss/repodata/repomd.xml.key
-    
+
   # OpenSUSE Leap Non-OSS
   - name: opensuse-leap-non-oss
     type: rpm
@@ -107,6 +107,12 @@ repositories:
     description: OpenSUSE Leap Update
     url: http://download.opensuse.org/update/leap/$releasever/oss
     releasever:
+      # OpenSUSE Leap 42.3
+      - name: '42.3'
+        description: OpenSUSE Leap 42.3
+        gpgkeys:
+          - link: http://download.opensuse.org/update/leap/42.3/oss/repodata/repomd.xml.key
+
       # OpenSUSE Leap 15.6
       - name: 15.6
         description: OpenSUSE Leap 15.6

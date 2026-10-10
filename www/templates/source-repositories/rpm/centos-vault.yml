@@ -15,6 +15,10 @@ repositories:
       # CentOS 8 Stream
       - name: 8
         description: CentOS 8 Stream
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
         gpgkeys:
           - fingerprint: 99DB70FAE1D7CE227FB6488205B555B38483C65D
 
@@ -27,6 +31,10 @@ repositories:
       # CentOS 8 Stream
       - name: 8
         description: CentOS 8 Stream
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
         gpgkeys:
           - fingerprint: 99DB70FAE1D7CE227FB6488205B555B38483C65D
 
@@ -39,6 +47,10 @@ repositories:
       # CentOS 8 Stream
       - name: 8
         description: CentOS 8 Stream
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
         gpgkeys:
           - fingerprint: 99DB70FAE1D7CE227FB6488205B555B38483C65D
 
@@ -55,6 +67,8 @@ repositories:
       # CentOS 7
       - name: 7
         description: CentOS 7
+        archs:
+          - x86_64
         gpgkeys:
           - fingerprint: 6341AB2753D78A78A7C27BB124C6A8A7F4A80EB5
 
@@ -67,9 +81,11 @@ repositories:
       # CentOS 7
       - name: 7
         description: CentOS 7
+        archs:
+          - x86_64
         gpgkeys:
           - fingerprint: 6341AB2753D78A78A7C27BB124C6A8A7F4A80EB5
-  
+
   # CentOS 7 Extras
   - name: extras
     type: rpm
@@ -79,5 +95,7 @@ repositories:
       # CentOS 7
       - name: 7
         description: CentOS 7
+        archs:
+          - x86_64
         gpgkeys:
           - fingerprint: 6341AB2753D78A78A7C27BB124C6A8A7F4A80EB5

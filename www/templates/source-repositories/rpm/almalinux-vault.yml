@@ -8,87 +8,222 @@ repositories:
     description: Alma Linux BaseOS
     url: https://vault.almalinux.org/$releasever/BaseOS/$basearch/os
     releasever:
+      # Alma Linux 10.2
+      - name: '10.2'
+        description: Alma Linux 10.2
+        archs:
+          - i686
+        gpgkeys:
+          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-10
+
+      # Alma Linux 10.1
+      - name: '10.1'
+        description: Alma Linux 10.1
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+        gpgkeys:
+          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-10
+
+      # Alma Linux 10.0
+      - name: '10.0'
+        description: Alma Linux 10.0
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+        gpgkeys:
+          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-10
+
+      # Alma Linux 9.8
+      - name: '9.8'
+        description: Alma Linux 9.8
+        archs:
+          - i686
+        gpgkeys:
+          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
+
+      # Alma Linux 9.7
+      - name: '9.7'
+        description: Alma Linux 9.7
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
+        gpgkeys:
+          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
+
       # Alma Linux 9.6
       - name: 9.6
         description: Alma Linux 9.6
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
 
       # Alma Linux 9.5
       - name: 9.5
         description: Alma Linux 9.5
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
 
       # Alma Linux 9.4
       - name: 9.4
         description: Alma Linux 9.4
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
 
       # Alma Linux 9.3
       - name: 9.3
         description: Alma Linux 9.3
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
 
       # Alma Linux 9.2
       - name: 9.2
         description: Alma Linux 9.2
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
 
       # Alma Linux 9.1
       - name: 9.1
         description: Alma Linux 9.1
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
 
       # Alma Linux 9.0
       - name: 9.0
         description: Alma Linux 9.0
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
+        gpgkeys:
+          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
+
+      # Alma Linux 8.10
+      - name: '8.10'
+        description: Alma Linux 8.10
+        archs:
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
 
       # Alma Linux 8.9
       - name: 8.9
         description: Alma Linux 8.9
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
 
       # Alma Linux 8.8
       - name: 8.8
         description: Alma Linux 8.8
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
 
       # Alma Linux 8.7
       - name: 8.7
         description: Alma Linux 8.7
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
 
       # Alma Linux 8.6
       - name: 8.6
         description: Alma Linux 8.6
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
 
       # Alma Linux 8.5
       - name: 8.5
         description: Alma Linux 8.5
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
 
       # Alma Linux 8.4
       - name: 8.4
         description: Alma Linux 8.4
+        archs:
+          - x86_64
+          - aarch64
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
 
       # Alma Linux 8.3
       - name: 8.3
         description: Alma Linux 8.3
+        archs:
+          - x86_64
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
 
@@ -98,87 +233,222 @@ repositories:
     description: Alma Linux AppStream
     url: https://vault.almalinux.org/$releasever/AppStream/$basearch/os
     releasever:
+      # Alma Linux 10.2
+      - name: '10.2'
+        description: Alma Linux 10.2
+        archs:
+          - i686
+        gpgkeys:
+          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-10
+
+      # Alma Linux 10.1
+      - name: '10.1'
+        description: Alma Linux 10.1
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+        gpgkeys:
+          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-10
+
+      # Alma Linux 10.0
+      - name: '10.0'
+        description: Alma Linux 10.0
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+        gpgkeys:
+          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-10
+
+      # Alma Linux 9.8
+      - name: '9.8'
+        description: Alma Linux 9.8
+        archs:
+          - i686
+        gpgkeys:
+          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
+
+      # Alma Linux 9.7
+      - name: '9.7'
+        description: Alma Linux 9.7
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
+        gpgkeys:
+          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
+
       # Alma Linux 9.6
       - name: 9.6
         description: Alma Linux 9.6
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
 
       # Alma Linux 9.5
       - name: 9.5
         description: Alma Linux 9.5
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
 
       # Alma Linux 9.4
       - name: 9.4
         description: Alma Linux 9.4
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
 
       # Alma Linux 9.3
       - name: 9.3
         description: Alma Linux 9.3
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
 
       # Alma Linux 9.2
       - name: 9.2
         description: Alma Linux 9.2
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
 
       # Alma Linux 9.1
       - name: 9.1
         description: Alma Linux 9.1
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
 
       # Alma Linux 9.0
       - name: 9.0
         description: Alma Linux 9.0
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
+        gpgkeys:
+          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
+
+      # Alma Linux 8.10
+      - name: '8.10'
+        description: Alma Linux 8.10
+        archs:
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
 
       # Alma Linux 8.9
       - name: 8.9
         description: Alma Linux 8.9
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
 
       # Alma Linux 8.8
       - name: 8.8
         description: Alma Linux 8.8
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
 
       # Alma Linux 8.7
       - name: 8.7
         description: Alma Linux 8.7
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
 
       # Alma Linux 8.6
       - name: 8.6
         description: Alma Linux 8.6
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
 
       # Alma Linux 8.5
       - name: 8.5
         description: Alma Linux 8.5
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
 
       # Alma Linux 8.4
       - name: 8.4
         description: Alma Linux 8.4
+        archs:
+          - x86_64
+          - aarch64
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
 
       # Alma Linux 8.3
       - name: 8.3
         description: Alma Linux 8.3
+        archs:
+          - x86_64
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
 
@@ -188,87 +458,222 @@ repositories:
     description: Alma Linux Extras
     url: https://vault.almalinux.org/$releasever/extras/$basearch/os
     releasever:
+      # Alma Linux 10.2
+      - name: '10.2'
+        description: Alma Linux 10.2
+        archs:
+          - i686
+        gpgkeys:
+          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-10
+
+      # Alma Linux 10.1
+      - name: '10.1'
+        description: Alma Linux 10.1
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+        gpgkeys:
+          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-10
+
+      # Alma Linux 10.0
+      - name: '10.0'
+        description: Alma Linux 10.0
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+        gpgkeys:
+          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-10
+
+      # Alma Linux 9.8
+      - name: '9.8'
+        description: Alma Linux 9.8
+        archs:
+          - i686
+        gpgkeys:
+          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
+
+      # Alma Linux 9.7
+      - name: '9.7'
+        description: Alma Linux 9.7
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
+        gpgkeys:
+          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
+
       # Alma Linux 9.6
       - name: 9.6
         description: Alma Linux 9.6
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
 
       # Alma Linux 9.5
       - name: 9.5
         description: Alma Linux 9.5
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
 
       # Alma Linux 9.4
       - name: 9.4
         description: Alma Linux 9.4
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
 
       # Alma Linux 9.3
       - name: 9.3
         description: Alma Linux 9.3
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
 
       # Alma Linux 9.2
       - name: 9.2
         description: Alma Linux 9.2
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
 
       # Alma Linux 9.1
       - name: 9.1
         description: Alma Linux 9.1
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
 
       # Alma Linux 9.0
       - name: 9.0
         description: Alma Linux 9.0
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
+        gpgkeys:
+          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
+
+      # Alma Linux 8.10
+      - name: '8.10'
+        description: Alma Linux 8.10
+        archs:
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
 
       # Alma Linux 8.9
       - name: 8.9
         description: Alma Linux 8.9
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
 
       # Alma Linux 8.8
       - name: 8.8
         description: Alma Linux 8.8
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
 
       # Alma Linux 8.7
       - name: 8.7
         description: Alma Linux 8.7
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
 
       # Alma Linux 8.6
       - name: 8.6
         description: Alma Linux 8.6
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
 
       # Alma Linux 8.5
       - name: 8.5
         description: Alma Linux 8.5
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
 
       # Alma Linux 8.4
       - name: 8.4
         description: Alma Linux 8.4
+        archs:
+          - x86_64
+          - aarch64
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
 
       # Alma Linux 8.3
       - name: 8.3
         description: Alma Linux 8.3
+        archs:
+          - x86_64
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
 
@@ -278,87 +683,100 @@ repositories:
     description: Alma Linux Plus
     url: https://vault.almalinux.org/$releasever/plus/$basearch/os
     releasever:
-      # Alma Linux 9.6
-      - name: 9.6
-        description: Alma Linux 9.6
-        gpgkeys:
-          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
-
-      # Alma Linux 9.5
-      - name: 9.5
-        description: Alma Linux 9.5
-        gpgkeys:
-          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
-
-      # Alma Linux 9.4
-      - name: 9.4
-        description: Alma Linux 9.4
-        gpgkeys:
-          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
-
       # Alma Linux 9.3
       - name: 9.3
         description: Alma Linux 9.3
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
 
       # Alma Linux 9.2
       - name: 9.2
         description: Alma Linux 9.2
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
 
       # Alma Linux 9.1
       - name: 9.1
         description: Alma Linux 9.1
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
 
       # Alma Linux 9.0
       - name: 9.0
         description: Alma Linux 9.0
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
 
       # Alma Linux 8.9
       - name: 8.9
         description: Alma Linux 8.9
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
 
       # Alma Linux 8.8
       - name: 8.8
         description: Alma Linux 8.8
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
 
       # Alma Linux 8.7
       - name: 8.7
         description: Alma Linux 8.7
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
 
       # Alma Linux 8.6
       - name: 8.6
         description: Alma Linux 8.6
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
 
       # Alma Linux 8.5
       - name: 8.5
         description: Alma Linux 8.5
-        gpgkeys:
-          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
-
-      # Alma Linux 8.4
-      - name: 8.4
-        description: Alma Linux 8.4
-        gpgkeys:
-          - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
-
-      # Alma Linux 8.3
-      - name: 8.3
-        description: Alma Linux 8.3
+        archs:
+          - x86_64
+          - aarch64
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8
 
@@ -371,17 +789,23 @@ repositories:
       # Alma Linux 10
       - name: 10
         description: Alma Linux 10
+        archs:
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-10
 
       # Alma Linux 9
       - name: 9
         description: Alma Linux 9
+        archs:
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-9
 
       # Alma Linux 8
       - name: 8
         description: Alma Linux 8
+        archs:
+          - i686
         gpgkeys:
           - link: https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux-8

@@ -48,9 +48,6 @@ class Rebuild extends \Controllers\Task\Execution
         // Create repository and symlinks
         $this->createMetadata();
 
-        // TODO debug
-        sleep(500000000000000);
-
         // Finalize repository (update database, clean temporary files, etc.)
         $this->finalize();
     }

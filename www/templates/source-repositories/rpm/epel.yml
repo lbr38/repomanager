@@ -17,12 +17,22 @@ repositories:
       # EPEL 9
       - name: 9
         description: EPEL 9
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
         gpgkeys:
           - link: https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-9
 
       # EPEL 8
       - name: 8
         description: EPEL 8
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
         gpgkeys:
           - link: https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-8
 
@@ -35,5 +45,9 @@ repositories:
       # EPEL 7
       - name: 7
         description: EPEL 7
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
         gpgkeys:
           - link: https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7

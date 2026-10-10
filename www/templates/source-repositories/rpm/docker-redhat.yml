@@ -28,5 +28,7 @@ repositories:
       # Redhat 7
       - name: 7
         description: Redhat 7
+        archs:
+          - s390x
         gpgkeys:
           - link: https://download.docker.com/linux/rhel/gpg

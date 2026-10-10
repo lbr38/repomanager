@@ -94,6 +94,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             $checksumPriority = [128 => 4, 64 => 3, 40 => 2, 32 => 1];
             $bestCandidate = null;
             $bestPriority = 0;
+            $unreachableIndices = [];
 
             foreach ($content as $line) {
                 // Clean line
@@ -135,6 +136,8 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                         'proxy' => PROXY ?? null,
                     ]);
                 } catch (Exception $e) {
+                    $unreachableIndices[$url . '/' . $location] = $e->getMessage();
+
                     if (DebugMode::enabled()) {
                         echo $url . '/' . $location . ' is not reachable' . PHP_EOL;
                     }
@@ -148,7 +151,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             }
 
             if ($bestCandidate !== null) {
-            // If URL is reachable, then add the Packages/Sources file location to the global array
+                // If URL is reachable, then add the Packages/Sources file location to the global array
                 if ($arch == 'src') {
                     $this->sourcesIndicesLocation[] = $bestCandidate;
                 }
@@ -162,13 +165,21 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                 continue;
             }
 
-            // If no Packages.xx/Sources.xx file has been found for this arch, throw an error
-            if ($arch == 'src') {
-                throw new Exception('No ' . $arch . ' <code>Sources</code> indices file has been found in the <code>' . $this->validReleaseFile . '</code> file.');
+            $indexName = $arch == 'src' ? 'Sources' : 'Packages';
+            $indexDescription = '<code>' . $indexName . '</code> indices for architecture <code>' . htmlspecialchars($arch, ENT_QUOTES, 'UTF-8') . '</code> and component <code>' . htmlspecialchars($this->section, ENT_QUOTES, 'UTF-8') . '</code>';
+            $releaseDescription = '<code>' . htmlspecialchars($this->validReleaseFile, ENT_QUOTES, 'UTF-8') . '</code>';
+
+            if (!empty($unreachableIndices)) {
+                $errors = [];
+
+                foreach ($unreachableIndices as $indexUrl => $error) {
+                    $errors[] = $indexUrl . ': ' . $error;
+                }
+
+                throw new Exception($indexDescription . ' are listed in ' . $releaseDescription . ', but none could be accessed.<br><pre class="codeblock">' . htmlspecialchars(implode(PHP_EOL, $errors), ENT_QUOTES, 'UTF-8') . '</pre>');
             }
-            if ($arch != 'src') {
-                throw new Exception('No ' . $arch . ' <code>Packages</code> indices file has been found in the <code>' . $this->validReleaseFile . '</code> file.');
-            }
+
+            throw new Exception('No ' . $indexDescription . ' with a supported checksum is listed in ' . $releaseDescription . '.');
         }
 
         // Throw an error if no Packages indices file location has been found

@@ -8,18 +8,6 @@ repositories:
     description: Fedora Linux
     url: https://download.fedoraproject.org/pub/fedora/linux/releases/$releasever/Everything/$basearch/os
     releasever:
-      # Fedora 46
-      - name: 46
-        description: Fedora 46
-        gpgkeys:
-          - fingerprint: 466CF2D8B60BC3057AA9453ED0622462E99D6AD1 # TODO
-
-      # Fedora 45
-      - name: 45
-        description: Fedora 45
-        gpgkeys:
-          - fingerprint: 466CF2D8B60BC3057AA9453ED0622462E99D6AD1 # TODO
-
       # Fedora 44
       - name: 44
         description: Fedora 44
@@ -41,15 +29,12 @@ repositories:
       # Fedora 41
       - name: 41
         description: Fedora 41
+        archs:
+          - x86_64
+          - aarch64
         gpgkeys:
           - fingerprint: 466CF2D8B60BC3057AA9453ED0622462E99D6AD1
 
-      # Fedora 40
-      - name: 40
-        description: Fedora 40
-        gpgkeys:
-          - fingerprint: 115DF9AEF857853EE8445D0A0727707EA15B79CC
-  
   - name: fedora-updates
     type: rpm
     description: Fedora Linux Updates

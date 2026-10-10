@@ -11,6 +11,9 @@ repositories:
       # Oracle Linux 10
       - name: 10
         description: Oracle Linux 10
+        archs:
+          - x86_64
+          - aarch64
         gpgkeys:
           # Looks like they use the same as OL9 for OL10
           - link: https://yum.oracle.com/RPM-GPG-KEY-oracle-ol9
@@ -18,12 +21,18 @@ repositories:
       # Oracle Linux 9
       - name: 9
         description: Oracle Linux 9
+        archs:
+          - x86_64
+          - aarch64
         gpgkeys:
           - link: https://yum.oracle.com/RPM-GPG-KEY-oracle-ol9
 
       # Oracle Linux 8
       - name: 8
         description: Oracle Linux 8
+        archs:
+          - x86_64
+          - aarch64
         gpgkeys:
           - link: https://yum.oracle.com/RPM-GPG-KEY-oracle-ol8
 
@@ -36,6 +45,9 @@ repositories:
       # Oracle Linux 10
       - name: 10
         description: Oracle Linux 10
+        archs:
+          - x86_64
+          - aarch64
         gpgkeys:
           # Looks like they use the same as OL9 for OL10
           - link: https://yum.oracle.com/RPM-GPG-KEY-oracle-ol9
@@ -43,11 +55,17 @@ repositories:
       # Oracle Linux 9
       - name: 9
         description: Oracle Linux 9
+        archs:
+          - x86_64
+          - aarch64
         gpgkeys:
           - link: https://yum.oracle.com/RPM-GPG-KEY-oracle-ol9
 
       # Oracle Linux 8
       - name: 8
         description: Oracle Linux 8
+        archs:
+          - x86_64
+          - aarch64
         gpgkeys:
           - link: https://yum.oracle.com/RPM-GPG-KEY-oracle-ol8

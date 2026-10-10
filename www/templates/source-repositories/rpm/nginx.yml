@@ -10,23 +10,54 @@ repositories:
       # RHEL 10 and derivatives
       - name: 10
         description: RHEL 10 and derivatives
+        archs:
+          - x86_64
+          - aarch64
         gpgkeys:
           - link: https://nginx.org/keys/nginx_signing.key
 
       # RHEL 9 and derivatives
       - name: 9
         description: RHEL 9 and derivatives
+        archs:
+          - x86_64
+          - aarch64
+          - s390x
         gpgkeys:
           - link: https://nginx.org/keys/nginx_signing.key
 
       # RHEL 8 and derivatives
       - name: 8
         description: RHEL 8 and derivatives
+        archs:
+          - x86_64
+          - aarch64
+          - s390x
         gpgkeys:
           - link: https://nginx.org/keys/nginx_signing.key
 
       # RHEL 7 and derivatives
       - name: 7
         description: RHEL 7 and derivatives
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+        gpgkeys:
+          - link: https://nginx.org/keys/nginx_signing.key
+
+      # RHEL 6 and derivatives
+      - name: 6
+        description: RHEL 6 and derivatives
+        archs:
+          - x86_64
+        gpgkeys:
+          - link: https://nginx.org/keys/nginx_signing.key
+
+      # RHEL 5 and derivatives
+      - name: 5
+        description: RHEL 5 and derivatives
+        archs:
+          - x86_64
         gpgkeys:
           - link: https://nginx.org/keys/nginx_signing.key

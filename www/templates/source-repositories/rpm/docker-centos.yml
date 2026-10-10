@@ -22,11 +22,19 @@ repositories:
       # CentOS 8
       - name: 8
         description: CentOS 8
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
         gpgkeys:
           - link: https://download.docker.com/linux/centos/gpg
 
       # CentOS 7
       - name: 7
         description: CentOS 7
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
         gpgkeys:
           - link: https://download.docker.com/linux/centos/gpg

@@ -11,18 +11,31 @@ repositories:
       # Rocky Linux 10
       - name: 10
         description: Rocky Linux 10
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-10
 
       # Rocky Linux 9
       - name: 9
         description: Rocky Linux 9
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 8
       - name: 8
         description: Rocky Linux 8
+        archs:
+          - x86_64
+          - aarch64
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
@@ -35,18 +48,31 @@ repositories:
       # Rocky Linux 10
       - name: 10
         description: Rocky Linux 10
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-10
 
       # Rocky Linux 9
       - name: 9
         description: Rocky Linux 9
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 8
       - name: 8
         description: Rocky Linux 8
+        archs:
+          - x86_64
+          - aarch64
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
@@ -59,18 +85,31 @@ repositories:
       # Rocky Linux 10
       - name: 10
         description: Rocky Linux 10
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-10
 
       # Rocky Linux 9
       - name: 9
         description: Rocky Linux 9
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 8
       - name: 8
         description: Rocky Linux 8
+        archs:
+          - x86_64
+          - aarch64
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
@@ -83,18 +122,31 @@ repositories:
       # Rocky Linux 10
       - name: 10
         description: Rocky Linux 10
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-10
 
       # Rocky Linux 9
       - name: 9
         description: Rocky Linux 9
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 8
       - name: 8
         description: Rocky Linux 8
+        archs:
+          - x86_64
+          - aarch64
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
@@ -107,18 +159,33 @@ repositories:
       # Rocky Linux 10
       - name: 10
         description: Rocky Linux 10
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-10
 
       # Rocky Linux 9
       - name: 9
         description: Rocky Linux 9
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
+          - i686
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 8
       - name: 8
         description: Rocky Linux 8
+        archs:
+          - x86_64
+          - aarch64
+          - i686
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
@@ -127,10 +194,13 @@ repositories:
     type: rpm
     description: Rocky Linux PowerTools
     url: https://download.rockylinux.org/pub/rocky/$releasever/PowerTools/$basearch/os
-    releasever:      
+    releasever:
       # Rocky Linux 8
       - name: 8
         description: Rocky Linux 8
+        archs:
+          - x86_64
+          - aarch64
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
@@ -143,11 +213,21 @@ repositories:
       # Rocky Linux 10
       - name: 10
         description: Rocky Linux 10
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-10
 
       # Rocky Linux 9
       - name: 9
         description: Rocky Linux 9
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
