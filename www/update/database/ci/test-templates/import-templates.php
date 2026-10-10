@@ -127,55 +127,7 @@ $rpmSources = $sourceController->listAll('rpm');
 $counter = 0;
 
 // For each deb source, create a task
-foreach ($debSources as $source) {
-    $tasks = [];
-    $id = $source['Id'];
-
-    try {
-        $source = json_decode($source['Definition'], true, 512, JSON_THROW_ON_ERROR);
-    } catch (JsonException $e) {
-        throw new Exception('failed to decode JSON for source #' . $id);
-    }
-
-    if (empty($source['distributions'])) {
-        throw new Exception('Source #' . $id . ' has no distributions, skipping.');
-    }
-
-    foreach ($source['distributions'] as $distribution) {
-        foreach ($distribution['components'] as $component) {
-            // Skip repositories that are in the ignore list
-            if (in_array($source['name'], $ignoreDebRepositories)) {
-                continue;
-            }
-
-            $tasks = [];
-            $params = $debParamsTemplate;
-            $params['source']    = $source['name'];
-            $params['alias']     = $source['name'];
-            $params['dist'][]    = $distribution['name'];
-            $params['section'][] = $component['name'];
-            $params['arch']      = $component['archs'] ?? ['amd64']; // Use predefined architecture if defined, otherwise default to 'amd64'
-            $params['schedule']['schedule-date'] = date('Y-m-d');
-            $params['schedule']['schedule-time'] = date('H:i', strtotime('+' . strval($minutesSchedule) . ' minutes')); // Now +$minutesSchedule minutes
-
-            // Add the task parameters to the tasks array
-            $tasks[] = $params;
-
-            // Create a task for the deb source distribution component
-            $taskController->execute($tasks);
-        }
-    }
-
-    $counter++;
-    // Stop if counter has reached 10
-    // if ($counter >= 10) {
-    //     break;
-    // }
-}
-
-// TODO debug
-// For each rpm source, create a task
-// foreach ($rpmSources as $source) {
+// foreach ($debSources as $source) {
 //     $tasks = [];
 //     $id = $source['Id'];
 
@@ -185,26 +137,74 @@ foreach ($debSources as $source) {
 //         throw new Exception('failed to decode JSON for source #' . $id);
 //     }
 
-//     foreach ($source['releasever'] as $releasever) {
-//         $tasks = [];
-//         $params = $rpmParamsTemplate;
-//         $params['source']       = $source['name'];
-//         $params['alias']        = $source['name'];
-        // $params['releasever'][] = $releasever['name'];
-        // $params['arch']          = $releasever['arch'] ?? ['x86_64']; // Use predefined architecture if defined, otherwise default to 'x86_64'
-//         $params['schedule']['schedule-date'] = date('Y-m-d');
-//         $params['schedule']['schedule-time'] = date('H:i', strtotime('+5 minutes')); // Now +5 minutes
+//     if (empty($source['distributions'])) {
+//         throw new Exception('Source #' . $id . ' has no distributions, skipping.');
+//     }
 
-//         // Add the task parameters to the tasks array
-//         $tasks[] = $params;
+//     foreach ($source['distributions'] as $distribution) {
+//         foreach ($distribution['components'] as $component) {
+//             // Skip repositories that are in the ignore list
+//             if (in_array($source['name'], $ignoreDebRepositories)) {
+//                 continue;
+//             }
 
-//         // Create a task for the rpm source releasever
-//         $taskController->execute($tasks);
+//             $tasks = [];
+//             $params = $debParamsTemplate;
+//             $params['source']    = $source['name'];
+//             $params['alias']     = $source['name'];
+//             $params['dist'][]    = $distribution['name'];
+//             $params['section'][] = $component['name'];
+//             $params['arch']      = $component['archs'] ?? ['amd64']; // Use predefined architecture if defined, otherwise default to 'amd64'
+//             $params['schedule']['schedule-date'] = date('Y-m-d');
+//             $params['schedule']['schedule-time'] = date('H:i', strtotime('+' . strval($minutesSchedule) . ' minutes')); // Now +$minutesSchedule minutes
+
+//             // Add the task parameters to the tasks array
+//             $tasks[] = $params;
+
+//             // Create a task for the deb source distribution component
+//             $taskController->execute($tasks);
+//         }
 //     }
 
 //     $counter++;
 //     // Stop if counter has reached 10
-//     if ($counter >= 10) {
-//         break;
-//     }
+//     // if ($counter >= 10) {
+//     //     break;
+//     // }
 // }
+
+// TODO debug
+// For each rpm source, create a task
+foreach ($rpmSources as $source) {
+    $tasks = [];
+    $id = $source['Id'];
+
+    try {
+        $source = json_decode($source['Definition'], true, 512, JSON_THROW_ON_ERROR);
+    } catch (JsonException $e) {
+        throw new Exception('failed to decode JSON for source #' . $id);
+    }
+
+    foreach ($source['releasever'] as $releasever) {
+        $tasks = [];
+        $params = $rpmParamsTemplate;
+        $params['source']       = $source['name'];
+        $params['alias']        = $source['name'];
+        $params['releasever'][] = $releasever['name'];
+        $params['arch']          = $releasever['arch'] ?? ['x86_64']; // Use predefined architecture if defined, otherwise default to 'x86_64'
+        $params['schedule']['schedule-date'] = date('Y-m-d');
+        $params['schedule']['schedule-time'] = date('H:i', strtotime('+5 minutes')); // Now +5 minutes
+
+        // Add the task parameters to the tasks array
+        $tasks[] = $params;
+
+        // Create a task for the rpm source releasever
+        $taskController->execute($tasks);
+    }
+
+    $counter++;
+    // Stop if counter has reached 10
+    // if ($counter >= 10) {
+    //     break;
+    // }
+}
