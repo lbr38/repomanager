@@ -10,18 +10,30 @@ repositories:
       # Redhat 10
       - name: 10
         description: Redhat 10
+        archs:
+          - x86_64
+          - aarch64
+          - s390x
         gpgkeys:
           - link: https://download.docker.com/linux/rhel/gpg
 
       # Redhat 9
       - name: 9
         description: Redhat 9
+        archs:
+          - x86_64
+          - aarch64
+          - s390x
         gpgkeys:
           - link: https://download.docker.com/linux/rhel/gpg
 
       # Redhat 8
       - name: 8
         description: Redhat 8
+        archs:
+          - x86_64
+          - aarch64
+          - s390x
         gpgkeys:
           - link: https://download.docker.com/linux/rhel/gpg
 

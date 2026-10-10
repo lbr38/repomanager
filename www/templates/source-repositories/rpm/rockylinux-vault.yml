@@ -31,7 +31,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-10
 
       # Rocky Linux 9.7
-      - name: 9.7
+      - name: '9.7'
         description: Rocky Linux 9.7
         archs:
           - x86_64
@@ -42,7 +42,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.6
-      - name: 9.6
+      - name: '9.6'
         description: Rocky Linux 9.6
         archs:
           - x86_64
@@ -53,7 +53,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.5
-      - name: 9.5
+      - name: '9.5'
         description: Rocky Linux 9.5
         archs:
           - x86_64
@@ -64,7 +64,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.4
-      - name: 9.4
+      - name: '9.4'
         description: Rocky Linux 9.4
         archs:
           - x86_64
@@ -75,7 +75,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.3
-      - name: 9.3
+      - name: '9.3'
         description: Rocky Linux 9.3
         archs:
           - x86_64
@@ -86,7 +86,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.2
-      - name: 9.2
+      - name: '9.2'
         description: Rocky Linux 9.2
         archs:
           - x86_64
@@ -97,7 +97,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.1
-      - name: 9.1
+      - name: '9.1'
         description: Rocky Linux 9.1
         archs:
           - x86_64
@@ -119,7 +119,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 8.9
-      - name: 8.9
+      - name: '8.9'
         description: Rocky Linux 8.9
         archs:
           - x86_64
@@ -128,7 +128,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.8
-      - name: 8.8
+      - name: '8.8'
         description: Rocky Linux 8.8
         archs:
           - x86_64
@@ -137,7 +137,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.7
-      - name: 8.7
+      - name: '8.7'
         description: Rocky Linux 8.7
         archs:
           - x86_64
@@ -146,7 +146,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.6
-      - name: 8.6
+      - name: '8.6'
         description: Rocky Linux 8.6
         archs:
           - x86_64
@@ -155,7 +155,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.5
-      - name: 8.5
+      - name: '8.5'
         description: Rocky Linux 8.5
         archs:
           - x86_64
@@ -164,7 +164,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.4
-      - name: 8.4
+      - name: '8.4'
         description: Rocky Linux 8.4
         archs:
           - x86_64
@@ -173,7 +173,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.3
-      - name: 8.3
+      - name: '8.3'
         description: Rocky Linux 8.3
         archs:
           - x86_64
@@ -210,7 +210,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-10
 
       # Rocky Linux 9.7
-      - name: 9.7
+      - name: '9.7'
         description: Rocky Linux 9.7
         archs:
           - x86_64
@@ -221,7 +221,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.6
-      - name: 9.6
+      - name: '9.6'
         description: Rocky Linux 9.6
         archs:
           - x86_64
@@ -232,7 +232,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.5
-      - name: 9.5
+      - name: '9.5'
         description: Rocky Linux 9.5
         archs:
           - x86_64
@@ -243,7 +243,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.4
-      - name: 9.4
+      - name: '9.4'
         description: Rocky Linux 9.4
         archs:
           - x86_64
@@ -254,7 +254,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.3
-      - name: 9.3
+      - name: '9.3'
         description: Rocky Linux 9.3
         archs:
           - x86_64
@@ -265,7 +265,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.2
-      - name: 9.2
+      - name: '9.2'
         description: Rocky Linux 9.2
         archs:
           - x86_64
@@ -276,7 +276,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.1
-      - name: 9.1
+      - name: '9.1'
         description: Rocky Linux 9.1
         archs:
           - x86_64
@@ -298,7 +298,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 8.9
-      - name: 8.9
+      - name: '8.9'
         description: Rocky Linux 8.9
         archs:
           - x86_64
@@ -307,7 +307,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.8
-      - name: 8.8
+      - name: '8.8'
         description: Rocky Linux 8.8
         archs:
           - x86_64
@@ -316,7 +316,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.7
-      - name: 8.7
+      - name: '8.7'
         description: Rocky Linux 8.7
         archs:
           - x86_64
@@ -325,7 +325,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.6
-      - name: 8.6
+      - name: '8.6'
         description: Rocky Linux 8.6
         archs:
           - x86_64
@@ -334,7 +334,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.5
-      - name: 8.5
+      - name: '8.5'
         description: Rocky Linux 8.5
         archs:
           - x86_64
@@ -343,7 +343,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.4
-      - name: 8.4
+      - name: '8.4'
         description: Rocky Linux 8.4
         archs:
           - x86_64
@@ -352,7 +352,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.3
-      - name: 8.3
+      - name: '8.3'
         description: Rocky Linux 8.3
         archs:
           - x86_64
@@ -389,7 +389,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-10
 
       # Rocky Linux 9.7
-      - name: 9.7
+      - name: '9.7'
         description: Rocky Linux 9.7
         archs:
           - x86_64
@@ -400,7 +400,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.6
-      - name: 9.6
+      - name: '9.6'
         description: Rocky Linux 9.6
         archs:
           - x86_64
@@ -411,7 +411,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.5
-      - name: 9.5
+      - name: '9.5'
         description: Rocky Linux 9.5
         archs:
           - x86_64
@@ -422,7 +422,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.4
-      - name: 9.4
+      - name: '9.4'
         description: Rocky Linux 9.4
         archs:
           - x86_64
@@ -433,7 +433,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.3
-      - name: 9.3
+      - name: '9.3'
         description: Rocky Linux 9.3
         archs:
           - x86_64
@@ -444,7 +444,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.2
-      - name: 9.2
+      - name: '9.2'
         description: Rocky Linux 9.2
         archs:
           - x86_64
@@ -455,7 +455,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.1
-      - name: 9.1
+      - name: '9.1'
         description: Rocky Linux 9.1
         archs:
           - x86_64
@@ -477,7 +477,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 8.9
-      - name: 8.9
+      - name: '8.9'
         description: Rocky Linux 8.9
         archs:
           - x86_64
@@ -486,7 +486,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.8
-      - name: 8.8
+      - name: '8.8'
         description: Rocky Linux 8.8
         archs:
           - x86_64
@@ -495,7 +495,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.7
-      - name: 8.7
+      - name: '8.7'
         description: Rocky Linux 8.7
         archs:
           - x86_64
@@ -504,7 +504,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.6
-      - name: 8.6
+      - name: '8.6'
         description: Rocky Linux 8.6
         archs:
           - x86_64
@@ -514,7 +514,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.5
-      - name: 8.5
+      - name: '8.5'
         description: Rocky Linux 8.5
         archs:
           - x86_64
@@ -524,7 +524,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.4
-      - name: 8.4
+      - name: '8.4'
         description: Rocky Linux 8.4
         archs:
           - x86_64
@@ -534,7 +534,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.3
-      - name: 8.3
+      - name: '8.3'
         description: Rocky Linux 8.3
         archs:
           - x86_64
@@ -572,7 +572,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-10
 
       # Rocky Linux 9.7
-      - name: 9.7
+      - name: '9.7'
         description: Rocky Linux 9.7
         archs:
           - x86_64
@@ -583,7 +583,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.6
-      - name: 9.6
+      - name: '9.6'
         description: Rocky Linux 9.6
         archs:
           - x86_64
@@ -594,7 +594,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.5
-      - name: 9.5
+      - name: '9.5'
         description: Rocky Linux 9.5
         archs:
           - x86_64
@@ -605,7 +605,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.4
-      - name: 9.4
+      - name: '9.4'
         description: Rocky Linux 9.4
         archs:
           - x86_64
@@ -616,7 +616,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.3
-      - name: 9.3
+      - name: '9.3'
         description: Rocky Linux 9.3
         archs:
           - x86_64
@@ -627,7 +627,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.2
-      - name: 9.2
+      - name: '9.2'
         description: Rocky Linux 9.2
         archs:
           - x86_64
@@ -638,7 +638,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.1
-      - name: 9.1
+      - name: '9.1'
         description: Rocky Linux 9.1
         archs:
           - x86_64
@@ -660,7 +660,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 8.9
-      - name: 8.9
+      - name: '8.9'
         description: Rocky Linux 8.9
         archs:
           - aarch64
@@ -668,7 +668,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.8
-      - name: 8.8
+      - name: '8.8'
         description: Rocky Linux 8.8
         archs:
           - aarch64
@@ -676,7 +676,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.7
-      - name: 8.7
+      - name: '8.7'
         description: Rocky Linux 8.7
         archs:
           - x86_64
@@ -685,7 +685,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.6
-      - name: 8.6
+      - name: '8.6'
         description: Rocky Linux 8.6
         archs:
           - x86_64
@@ -694,7 +694,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.5
-      - name: 8.5
+      - name: '8.5'
         description: Rocky Linux 8.5
         archs:
           - x86_64
@@ -703,7 +703,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.4
-      - name: 8.4
+      - name: '8.4'
         description: Rocky Linux 8.4
         archs:
           - x86_64
@@ -741,7 +741,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-10
 
       # Rocky Linux 9.7
-      - name: 9.7
+      - name: '9.7'
         description: Rocky Linux 9.7
         archs:
           - x86_64
@@ -753,7 +753,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.6
-      - name: 9.6
+      - name: '9.6'
         description: Rocky Linux 9.6
         archs:
           - x86_64
@@ -764,7 +764,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.5
-      - name: 9.5
+      - name: '9.5'
         description: Rocky Linux 9.5
         archs:
           - x86_64
@@ -776,7 +776,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.4
-      - name: 9.4
+      - name: '9.4'
         description: Rocky Linux 9.4
         archs:
           - x86_64
@@ -788,7 +788,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.3
-      - name: 9.3
+      - name: '9.3'
         description: Rocky Linux 9.3
         archs:
           - x86_64
@@ -800,7 +800,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.2
-      - name: 9.2
+      - name: '9.2'
         description: Rocky Linux 9.2
         archs:
           - x86_64
@@ -812,7 +812,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.1
-      - name: 9.1
+      - name: '9.1'
         description: Rocky Linux 9.1
         archs:
           - x86_64
@@ -883,7 +883,7 @@ repositories:
     url: https://dl.rockylinux.org/vault/rocky/$releasever/Devel/$basearch/os
     releasever:
       # Rocky Linux 8.9
-      - name: 8.9
+      - name: '8.9'
         description: Rocky Linux 8.9
         archs:
           - x86_64
@@ -893,7 +893,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.8
-      - name: 8.8
+      - name: '8.8'
         description: Rocky Linux 8.8
         archs:
           - x86_64
@@ -903,7 +903,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.7
-      - name: 8.7
+      - name: '8.7'
         description: Rocky Linux 8.7
         archs:
           - x86_64
@@ -913,7 +913,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.6
-      - name: 8.6
+      - name: '8.6'
         description: Rocky Linux 8.6
         archs:
           - x86_64
@@ -922,7 +922,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.5
-      - name: 8.5
+      - name: '8.5'
         description: Rocky Linux 8.5
         archs:
           - x86_64
@@ -931,7 +931,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.4
-      - name: 8.4
+      - name: '8.4'
         description: Rocky Linux 8.4
         archs:
           - x86_64
@@ -946,7 +946,7 @@ repositories:
     url: https://dl.rockylinux.org/vault/rocky/$releasever/PowerTools/$basearch/os
     releasever:
       # Rocky Linux 8.9
-      - name: 8.9
+      - name: '8.9'
         description: Rocky Linux 8.9
         archs:
           - x86_64
@@ -955,7 +955,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.8
-      - name: 8.8
+      - name: '8.8'
         description: Rocky Linux 8.8
         archs:
           - x86_64
@@ -964,7 +964,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.7
-      - name: 8.7
+      - name: '8.7'
         description: Rocky Linux 8.7
         archs:
           - x86_64
@@ -973,7 +973,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.6
-      - name: 8.6
+      - name: '8.6'
         description: Rocky Linux 8.6
         archs:
           - x86_64
@@ -982,7 +982,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.5
-      - name: 8.5
+      - name: '8.5'
         description: Rocky Linux 8.5
         archs:
           - x86_64
@@ -991,7 +991,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.4
-      - name: 8.4
+      - name: '8.4'
         description: Rocky Linux 8.4
         archs:
           - x86_64
@@ -1000,7 +1000,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-8
 
       # Rocky Linux 8.3
-      - name: 8.3
+      - name: '8.3'
         description: Rocky Linux 8.3
         archs:
           - x86_64
@@ -1037,7 +1037,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-10
 
       # Rocky Linux 9.7
-      - name: 9.7
+      - name: '9.7'
         description: Rocky Linux 9.7
         archs:
           - x86_64
@@ -1048,7 +1048,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.6
-      - name: 9.6
+      - name: '9.6'
         description: Rocky Linux 9.6
         archs:
           - x86_64
@@ -1059,7 +1059,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.5
-      - name: 9.5
+      - name: '9.5'
         description: Rocky Linux 9.5
         archs:
           - x86_64
@@ -1070,7 +1070,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.4
-      - name: 9.4
+      - name: '9.4'
         description: Rocky Linux 9.4
         archs:
           - x86_64
@@ -1081,7 +1081,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.3
-      - name: 9.3
+      - name: '9.3'
         description: Rocky Linux 9.3
         archs:
           - x86_64
@@ -1092,7 +1092,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.2
-      - name: 9.2
+      - name: '9.2'
         description: Rocky Linux 9.2
         archs:
           - x86_64
@@ -1103,7 +1103,7 @@ repositories:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
       # Rocky Linux 9.1
-      - name: 9.1
+      - name: '9.1'
         description: Rocky Linux 9.1
         archs:
           - x86_64

@@ -11,6 +11,11 @@ repositories:
       # EPEL 10
       - name: 10
         description: EPEL 10
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
+          - s390x
         gpgkeys:
           - link: https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-10
 

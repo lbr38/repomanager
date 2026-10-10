@@ -10,12 +10,20 @@ repositories:
       # CentOS 10
       - name: 10
         description: CentOS 10
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
         gpgkeys:
           - link: https://download.docker.com/linux/centos/gpg
 
       # CentOS 9
       - name: 9
         description: CentOS 9
+        archs:
+          - x86_64
+          - aarch64
+          - ppc64le
         gpgkeys:
           - link: https://download.docker.com/linux/centos/gpg
 
