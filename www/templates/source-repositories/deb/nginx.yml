@@ -40,17 +40,6 @@ repositories:
         gpgkeys:
           - link: https://nginx.org/keys/nginx_signing.key
 
-      # Debian 6
-      - name: squeeze
-        description: Debian 6
-        components:
-          - name: nginx
-            archs:
-              - i386
-              - amd64
-        gpgkeys:
-          - link: https://nginx.org/keys/nginx_signing.key
-
       # Debian 10
       - name: buster
         description: Debian 10
@@ -73,15 +62,6 @@ repositories:
           - link: https://nginx.org/keys/nginx_signing.key
 
       - name: stretch
-        components:
-          - name: nginx
-            archs:
-              - i386
-              - amd64
-        gpgkeys:
-          - link: https://nginx.org/keys/nginx_signing.key
-
-      - name: wheezy
         components:
           - name: nginx
             archs:

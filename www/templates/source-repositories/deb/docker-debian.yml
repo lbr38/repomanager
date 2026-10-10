@@ -95,14 +95,3 @@ repositories:
               - armhf
         gpgkeys:
           - link: https://download.docker.com/linux/debian/gpg
-
-      - name: wheezy
-        components:
-          - name: stable
-            archs:
-              - amd64
-          - name: edge
-            archs:
-              - amd64
-        gpgkeys:
-          - link: https://download.docker.com/linux/debian/gpg
