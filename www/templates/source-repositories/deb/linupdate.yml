@@ -35,9 +35,9 @@ repositories:
         gpgkeys:
           - link: https://packages.repomanager.net/repo/gpgkeys/packages.repomanager.net.pub
 
-      # Ubuntu 24.04 LTS
+      # Ubuntu 24.04
       - name: noble
-        description: Ubuntu 24.04 LTS
+        description: Ubuntu 24.04
         components:
           - name: main
             archs:
@@ -49,9 +49,9 @@ repositories:
         gpgkeys:
           - link: https://packages.repomanager.net/repo/gpgkeys/packages.repomanager.net.pub
 
-      # Ubuntu 22.04 LTS
+      # Ubuntu 22.04
       - name: jammy
-        description: Ubuntu 22.04 LTS
+        description: Ubuntu 22.04
         components:
           - name: main
             archs:

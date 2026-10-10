@@ -12,6 +12,7 @@ repositories:
     type: rpm
     url: http://vault.centos.org/8-stream/BaseOS/$basearch/os
     releasever:
+      # CentOS 8 Stream
       - name: 8
         description: CentOS 8 Stream
         gpgkeys:
@@ -23,6 +24,7 @@ repositories:
     type: rpm
     url: http://vault.centos.org/8-stream/AppStream/$basearch/os
     releasever:
+      # CentOS 8 Stream
       - name: 8
         description: CentOS 8 Stream
         gpgkeys:
@@ -34,6 +36,7 @@ repositories:
     type: rpm
     url: https://vault.centos.org/8-stream/extras/$basearch/os
     releasever:
+      # CentOS 8 Stream
       - name: 8
         description: CentOS 8 Stream
         gpgkeys:
@@ -49,6 +52,7 @@ repositories:
     description: CentOS 7 Base
     url: https://vault.centos.org/7.9.2009/os/$basearch
     releasever:
+      # CentOS 7
       - name: 7
         description: CentOS 7
         gpgkeys:
@@ -60,6 +64,7 @@ repositories:
     description: CentOS 7 Updates
     url: https://vault.centos.org/7.9.2009/updates/$basearch
     releasever:
+      # CentOS 7
       - name: 7
         description: CentOS 7
         gpgkeys:
@@ -71,6 +76,7 @@ repositories:
     description: CentOS 7 Extras
     url: https://vault.centos.org/7.9.2009/extras/$basearch
     releasever:
+      # CentOS 7
       - name: 7
         description: CentOS 7
         gpgkeys:

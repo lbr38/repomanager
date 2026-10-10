@@ -7,21 +7,25 @@ repositories:
     description: Nginx webserver
     url: http://nginx.org/packages/centos/$releasever/$basearch
     releasever:
+      # RHEL 10 and derivatives
       - name: 10
         description: RHEL 10 and derivatives
         gpgkeys:
           - link: https://nginx.org/keys/nginx_signing.key
 
+      # RHEL 9 and derivatives
       - name: 9
         description: RHEL 9 and derivatives
         gpgkeys:
           - link: https://nginx.org/keys/nginx_signing.key
 
+      # RHEL 8 and derivatives
       - name: 8
         description: RHEL 8 and derivatives
         gpgkeys:
           - link: https://nginx.org/keys/nginx_signing.key
 
+      # RHEL 7 and derivatives
       - name: 7
         description: RHEL 7 and derivatives
         gpgkeys:

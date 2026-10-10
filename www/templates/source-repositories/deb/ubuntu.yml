@@ -162,50 +162,6 @@ repositories:
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
 
-      # Ubuntu 14.04
-      - name: trusty
-        description: Ubuntu 14.04
-        components:
-          - name: main
-            archs:
-              - amd64
-              - i386
-          - name: restricted
-            archs:
-              - amd64
-              - i386
-          - name: universe
-            archs:
-              - amd64
-              - i386
-          - name: multiverse
-            archs:
-              - amd64
-              - i386
-        gpgkeys:
-          - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
-
-      - name: xenial
-        components:
-          - name: main
-            archs:
-              - amd64
-              - i386
-          - name: restricted
-            archs:
-              - amd64
-              - i386
-          - name: universe
-            archs:
-              - amd64
-              - i386
-          - name: multiverse
-            archs:
-              - amd64
-              - i386
-        gpgkeys:
-          - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
-
       # Ubuntu 22.04
       - name: jammy
         description: Ubuntu 22.04
@@ -253,7 +209,9 @@ repositories:
           - fingerprint: 790BC7277767219C42C86F933B4FE6ACC0B21F32
           - fingerprint: 871920D1991BC93C
 
+      # Ubuntu 18.04
       - name: bionic
+        description: Ubuntu 18.04
         components:
           - name: main
             archs:
@@ -275,14 +233,60 @@ repositories:
           - fingerprint: 790BC7277767219C42C86F933B4FE6ACC0B21F32
           - fingerprint: 871920D1991BC93C
 
+      # Ubuntu 16.04
+      - name: xenial
+        description: Ubuntu 16.04
+        components:
+          - name: main
+            archs:
+              - amd64
+              - i386
+          - name: restricted
+            archs:
+              - amd64
+              - i386
+          - name: universe
+            archs:
+              - amd64
+              - i386
+          - name: multiverse
+            archs:
+              - amd64
+              - i386
+        gpgkeys:
+          - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
+
+      # Ubuntu 14.04
+      - name: trusty
+        description: Ubuntu 14.04
+        components:
+          - name: main
+            archs:
+              - amd64
+              - i386
+          - name: restricted
+            archs:
+              - amd64
+              - i386
+          - name: universe
+            archs:
+              - amd64
+              - i386
+          - name: multiverse
+            archs:
+              - amd64
+              - i386
+        gpgkeys:
+          - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
+
   - name: ubuntu-security
     type: deb
     url: http://security.ubuntu.com/ubuntu
     description: Ubuntu security repositories
     distributions:
-      # Ubuntu 26.04
+      # Ubuntu 26.04 - Security Updates
       - name: resolute-security
-        description: Ubuntu 26.04 Security Updates
+        description: Ubuntu 26.04 - Security Updates
         components:
           - name: main
             archs:
@@ -311,9 +315,9 @@ repositories:
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
 
-      # Ubuntu 26.04
+      # Ubuntu 26.04 - Updates
       - name: resolute-updates
-        description: Ubuntu 26.04 Updates
+        description: Ubuntu 26.04 - Updates
         components:
           - name: main
             archs:
@@ -342,9 +346,9 @@ repositories:
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
 
-      # Ubuntu 24.04
+      # Ubuntu 24.04 - Updates
       - name: noble-updates
-        description: Ubuntu 24.04 Security Updates
+        description: Ubuntu 24.04 - Updates
         components:
           - name: main
             archs:
@@ -365,9 +369,9 @@ repositories:
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
 
-      # Ubuntu 22.04
+      # Ubuntu 22.04 - Updates
       - name: jammy-updates
-        description: Ubuntu 22.04 Security Updates
+        description: Ubuntu 22.04 - Updates
         components:
           - name: main
             archs:
@@ -387,4 +391,3 @@ repositories:
               - i386
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
-

@@ -8,16 +8,19 @@ repositories:
     description: Rocky Linux BaseOS
     url: https://download.rockylinux.org/pub/rocky/$releasever/BaseOS/$basearch/os
     releasever:
+      # Rocky Linux 10
       - name: 10
         description: Rocky Linux 10
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-10
- 
+
+      # Rocky Linux 9
       - name: 9
         description: Rocky Linux 9
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
+      # Rocky Linux 8
       - name: 8
         description: Rocky Linux 8
         gpgkeys:
@@ -29,16 +32,19 @@ repositories:
     description: Rocky Linux AppStream
     url: https://download.rockylinux.org/pub/rocky/$releasever/AppStream/$basearch/os
     releasever:
+      # Rocky Linux 10
       - name: 10
         description: Rocky Linux 10
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-10
 
+      # Rocky Linux 9
       - name: 9
         description: Rocky Linux 9
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
+      # Rocky Linux 8
       - name: 8
         description: Rocky Linux 8
         gpgkeys:
@@ -50,16 +56,19 @@ repositories:
     description: Rocky Linux Extras
     url: https://download.rockylinux.org/pub/rocky/$releasever/extras/$basearch/os
     releasever:
+      # Rocky Linux 10
       - name: 10
         description: Rocky Linux 10
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-10
 
+      # Rocky Linux 9
       - name: 9
         description: Rocky Linux 9
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
-      
+
+      # Rocky Linux 8
       - name: 8
         description: Rocky Linux 8
         gpgkeys:
@@ -71,16 +80,19 @@ repositories:
     description: Rocky Linux Plus
     url: https://download.rockylinux.org/pub/rocky/$releasever/plus/$basearch/os
     releasever:
+      # Rocky Linux 10
       - name: 10
         description: Rocky Linux 10
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-10
 
+      # Rocky Linux 9
       - name: 9
         description: Rocky Linux 9
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
+      # Rocky Linux 8
       - name: 8
         description: Rocky Linux 8
         gpgkeys:
@@ -92,16 +104,19 @@ repositories:
     description: Rocky Linux Devel
     url: https://download.rockylinux.org/pub/rocky/$releasever/devel/$basearch/os
     releasever:
+      # Rocky Linux 10
       - name: 10
         description: Rocky Linux 10
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-10
 
+      # Rocky Linux 9
       - name: 9
         description: Rocky Linux 9
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-9
 
+      # Rocky Linux 8
       - name: 8
         description: Rocky Linux 8
         gpgkeys:
@@ -113,6 +128,7 @@ repositories:
     description: Rocky Linux PowerTools
     url: https://download.rockylinux.org/pub/rocky/$releasever/PowerTools/$basearch/os
     releasever:      
+      # Rocky Linux 8
       - name: 8
         description: Rocky Linux 8
         gpgkeys:
@@ -124,11 +140,13 @@ repositories:
     description: Rocky Linux CRB
     url: https://download.rockylinux.org/pub/rocky/$releasever/CRB/$basearch/os
     releasever:
+      # Rocky Linux 10
       - name: 10
         description: Rocky Linux 10
         gpgkeys:
           - link: https://download.rockylinux.org/pub/rocky/RPM-GPG-KEY-Rocky-10
 
+      # Rocky Linux 9
       - name: 9
         description: Rocky Linux 9
         gpgkeys:

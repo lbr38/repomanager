@@ -209,9 +209,9 @@ repositories:
     description: Debian security repositories
     url: https://security.debian.org/debian-security
     distributions:
-      # Debian 13
+      # Debian 13 - Security Updates
       - name: trixie-security
-        description: Debian 13
+        description: Debian 13 - Security Updates
         eol: 2030-06-30
         components:
           - name: main
@@ -242,9 +242,9 @@ repositories:
           - fingerprint: B0CAB9266E8C3929798B3EEEBDE6D2B9216EC7A8
           - fingerprint: 89C87ACEA5DD6B8E6A7068808E9F831205B4BA95
 
-      # Debian 12
+      # Debian 12 - Security Updates
       - name: bookworm-security
-        description: Debian 12
+        description: Debian 12 - Security Updates
         eol: 2028-06-30
         components:
           - name: main
@@ -277,9 +277,9 @@ repositories:
           - fingerprint: ED541312A33F1128F10B1C6C54404762BBB6E853
           - fingerprint: B0CAB9266E8C3929798B3EEEBDE6D2B9216EC7A8
 
-      # Debian 11
+      # Debian 11 - Security Updates
       - name: bullseye-security
-        description: Debian 11
+        description: Debian 11 - Security Updates
         components:
           - name: main
             archs:

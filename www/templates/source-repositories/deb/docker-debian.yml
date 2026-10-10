@@ -9,6 +9,7 @@ repositories:
     distributions:
       # Debian 13
       - name: trixie
+        description: Debian 13
         components:
           - name: stable
             archs:
@@ -66,7 +67,9 @@ repositories:
         gpgkeys:
           - link: https://download.docker.com/linux/debian/gpg
 
-      - name: jessie
+      # Debian 9
+      - name: stretch
+        description: Debian 9
         components:
           - name: stable
             archs:
@@ -81,7 +84,9 @@ repositories:
         gpgkeys:
           - link: https://download.docker.com/linux/debian/gpg
 
-      - name: stretch
+      # Debian 8
+      - name: jessie
+        description: Debian 8
         components:
           - name: stable
             archs:
@@ -95,3 +100,6 @@ repositories:
               - armhf
         gpgkeys:
           - link: https://download.docker.com/linux/debian/gpg
+
+    ignored-distributions:
+      - wheezy

@@ -13,7 +13,7 @@ repositories:
         description: EPEL 10
         gpgkeys:
           - link: https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-10
-      
+
       # EPEL 9
       - name: 9
         description: EPEL 9

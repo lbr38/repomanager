@@ -7,6 +7,7 @@ repositories:
     description: Proxmox Virtual Environment Public Repositories
     url: http://download.proxmox.com/debian/pve
     distributions:
+      # PVE 9 for Debian Trixie
       - name: trixie
         description: PVE 9 for Debian Trixie
         components:
@@ -21,6 +22,8 @@ repositories:
         gpgkeys:
           - fingerprint: 24B30F06ECC1836A4E5EFECBA7BCD1420BFE778E
           - link: https://enterprise.proxmox.com/debian/proxmox-release-trixie.gpg
+
+      # PVE 8 for Debian Bookworm
       - name: bookworm
         description: PVE 8 for Debian Bookworm
         components:
@@ -33,6 +36,8 @@ repositories:
         gpgkeys:
           - fingerprint: F4E136C67CDCE41AE6DE6FC81140AF8F639E0C39
           - link: https://enterprise.proxmox.com/debian/proxmox-release-bookworm.gpg
+
+      # PVE 7 for Debian Bullseye
       - name: bullseye
         description: PVE 7 for Debian Bullseye
         components:
@@ -51,6 +56,7 @@ repositories:
     description: Proxmox Virtual Environment Enterprise Repositories
     url: https://enterprise.proxmox.com/debian/pve
     distributions:
+      # PVE 9 for Debian Trixie
       - name: trixie
         description: PVE 9 for Debian Trixie
         components:
@@ -58,6 +64,8 @@ repositories:
         gpgkeys:
           - fingerprint: 24B30F06ECC1836A4E5EFECBA7BCD1420BFE778E
           - link: https://enterprise.proxmox.com/debian/proxmox-release-trixie.gpg
+
+      # PVE 8 for Debian Bookworm
       - name: bookworm
         description: PVE 8 for Debian Bookworm
         components:
@@ -65,6 +73,8 @@ repositories:
         gpgkeys:
           - fingerprint: F4E136C67CDCE41AE6DE6FC81140AF8F639E0C39
           - link: https://enterprise.proxmox.com/debian/proxmox-release-bookworm.gpg
+
+      # PVE 7 for Debian Bullseye
       - name: bullseye
         description: PVE 7 for Debian Bullseye
         components:
@@ -72,24 +82,32 @@ repositories:
         gpgkeys:
           - fingerprint: 28139A2F830BD68478A1A01FDD4BA3917E23BF59
           - link: https://enterprise.proxmox.com/debian/proxmox-release-bullseye.gpg
+
+      # PVE 6 for Debian Buster
       - name: buster
         description: PVE 6 for Debian Buster
         components:
           - name: pve-enterprise
         gpgkeys:
           - fingerprint: 353479F83781D7F8ED5F5AC57BF2812E8A6E88E0
+
+      # PVE 5 for Debian Stretch
       - name: stretch
         description: PVE 5 for Debian Stretch
         components:
           - name: pve-enterprise
         gpgkeys:
           - fingerprint: 359E95965E2C3D643159CD300D9A1950E2EF0603
+
+      # PVE 4 for Debian Jessie
       - name: stretch
         description: PVE 4 for Debian Jessie
         components:
           - name: pve-enterprise
         gpgkeys:
           - fingerprint: BE257BAA5D406D01157D323EC23AC7F49887F95A
+
+      # PVE 3 for Debian Wheezy
       - name: stretch
         description: PVE 3 for Debian Wheezy
         components:

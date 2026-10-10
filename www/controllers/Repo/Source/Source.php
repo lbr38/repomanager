@@ -467,6 +467,7 @@ class Source
             }
 
             // Add the new source repository
+            unset($repo['ignored-distributions']);
             $this->new($importMethod, $repo);
         }
     }

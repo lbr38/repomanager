@@ -52,7 +52,9 @@ repositories:
         gpgkeys:
           - link: https://nginx.org/keys/nginx_signing.key
 
-      - name: jessie
+      # Debian 9
+      - name: stretch
+        description: Debian 9
         components:
           - name: nginx
             archs:
@@ -61,7 +63,9 @@ repositories:
         gpgkeys:
           - link: https://nginx.org/keys/nginx_signing.key
 
-      - name: stretch
+      # Debian 8
+      - name: jessie
+        description: Debian 8
         components:
           - name: nginx
             archs:
@@ -69,3 +73,7 @@ repositories:
               - amd64
         gpgkeys:
           - link: https://nginx.org/keys/nginx_signing.key
+
+    ignored-distributions:
+      - wheezy
+      - squeeze

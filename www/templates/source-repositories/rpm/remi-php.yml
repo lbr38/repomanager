@@ -7,25 +7,25 @@ repositories:
     description: Remi Collet's PHP packages repository for RHEL and derivatives
     url: http://rpms.remirepo.net/enterprise/$releasever/remi/$basearch/
     releasever:
-      # RHEL/CentOS 10
+      # RHEL 10 and derivatives
       - name: 10
         description: RHEL 10 and derivatives
         gpgkeys:
           - link: https://rpms.remirepo.net/enterprise/10/RPM-GPG-KEY-remi
 
-      # RHEL/CentOS 9
+      # RHEL 9 and derivatives
       - name: 9
         description: RHEL 9 and derivatives
         gpgkeys:
           - link: https://rpms.remirepo.net/RPM-GPG-KEY-remi2021
 
-      # RHEL/CentOS 8
+      # RHEL 8 and derivatives
       - name: 8
         description: RHEL 8 and derivatives
         gpgkeys:
           - link: https://rpms.remirepo.net/RPM-GPG-KEY-remi2018
 
-      # RHEL/CentOS 7
+      # RHEL 7 and derivatives
       - name: 7
         description: RHEL 7 and derivatives
         gpgkeys:
