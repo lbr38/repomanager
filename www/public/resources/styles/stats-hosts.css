@@ -498,15 +498,14 @@
     }
 }
 
-/**
- *  Host detail page items (packages, events, requests)
- */
+/* Host detail page items (packages, events, requests) */
 .host-package-item,
 .host-event-item,
 .host-request-item {
-    display: flex;
     align-items: center;
     justify-content: space-between;
+    column-gap: 20px;
+    row-gap: 15px;
     padding: 12px 18px;
     background: linear-gradient(135deg, #121f30, #162a3e);
     border: 1px solid #1e3a54;
@@ -515,11 +514,24 @@
     transition: border-color 0.2s ease, background 0.2s ease;
 }
 
+.host-event-item,
+.host-request-item {
+    display: flex;
+}
+
 .host-package-item:hover,
 .host-event-item:hover,
 .host-request-item:hover {
     border-color: #2d5575;
     background: linear-gradient(135deg, #152538, #1a2f44);
+}
+
+/* Copy icon goes in the reserved left padding so the label does not move on hover */
+.host-package-versions > .icon-copy {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
 }
 
 /* Selectable packages */

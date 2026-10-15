@@ -61,7 +61,7 @@ use \Controllers\Utils\Convert; ?>
                     }
                 } ?>
 
-                <div class="host-package-item pointer <?= $excluded ? 'host-package-excluded' : '' ?>" title="<?= $title ?>">
+                <div class="host-package-item grid grid-rfr-1-2 pointer <?= $securityUpdate ? 'accent-yellow' : '' ?> <?= $excluded ? 'host-package-excluded' : '' ?>" title="<?= $title ?>">
                     <div class="flex align-item-center column-gap-10">
                         <?= Icon::product($item['Name']) ?>
 
@@ -70,22 +70,15 @@ use \Controllers\Utils\Convert; ?>
 
                             <?php
                             if (!empty($item['Repository'])) : ?>
-                                <p class="note wordbreakall copy" title="Repository"><?= $item['Repository'] ?></p>
+                                <p class="note wordbreakall copy" title="Repository: <?= $item['Repository'] ?>"><?= $item['Repository'] ?></p>
                                 <?php
                             endif ?>
                         </div>
                     </div>
 
-                    <div class="flex align-item-center column-gap-10">
-                        <div class="flex align-item-center column-gap-10">
-                            <?php
-                            if ($securityUpdate) {
-                                echo '<img src="/assets/icons/shield-warning.svg" class="icon-medium icon-np" />';
-                            } ?>
-
-                            <p class="copy" title="<?= $securityUpdate ? 'Security update available' : 'Update available' ?>">
-                                <span class="label-<?= $securityUpdate ? 'yellow' : 'white' ?> wordbreakall"><?= $item['Current_version'] ?> ❯ <?= $item['Version'] ?></span>
-                            </p>
+                    <div class="flex align-item-center justify-end column-gap-10 min-width-0">
+                        <div class="host-package-versions copy flex relative padding-left-30 min-width-0" title="<?= $securityUpdate ? 'Security update available' : 'Update available' ?>: <?= $item['Current_version'] ?> ❯ <?= $item['Version'] ?>">
+                            <span class="label-white text-ellipsis"><?= $item['Current_version'] ?> ❯ <?= $item['Version'] ?></span>
                         </div>
 
                         <?php
