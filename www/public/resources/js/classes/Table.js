@@ -28,8 +28,13 @@ class Table {
                     // Print error alert:
                     true
                 ).then(() => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(jsonValue.message, 'text/html');
+                    const element = doc.querySelector('.reloadable-table[table="' + table + '"]');
+                    const html = element ? element.outerHTML : '';
+
                     // Replace table with itself, with new content
-                    $('.reloadable-table[table="' + table + '"]').replaceWith(jsonValue.message);
+                    $('.reloadable-table[table="' + table + '"]').replaceWith(html);
 
                     // Resolve promise
                     resolve('Table reloaded');

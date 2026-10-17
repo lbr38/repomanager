@@ -330,13 +330,14 @@ class Package extends \Models\Model
     /**
      *  Add package state in database
      */
-    public function setPackageState(string $name, string $version, string $state, string $date, string $time, string|null $id_event) : void
+    public function setPackageState(string $name, string $version, string $state, string $date, string $time, string|null $id_event, string|null $security) : void
     {
         try {
-            $stmt = $this->db->prepare("UPDATE packages SET Version = :version, Date = :date, Time = :time, State = :state, Id_event = :id_event WHERE Name = :name");
+            $stmt = $this->db->prepare("UPDATE packages SET Version = :version, Date = :date, Time = :time, State = :state, Security = :security, Id_event = :id_event WHERE Name = :name");
             $stmt->bindValue(':name', $name);
             $stmt->bindValue(':version', $version);
             $stmt->bindValue(':state', $state);
+            $stmt->bindValue(':security', $security);
             $stmt->bindValue(':date', $date);
             $stmt->bindValue(':time', $time);
             $stmt->bindValue(':id_event', $id_event);
@@ -349,14 +350,15 @@ class Package extends \Models\Model
     /**
      *  Copy the current state of a package from the packages table to the packages_history table to keep track of this state
      */
-    public function setPackageHistory(string $packageName, string $packageVersion, string $packageState, string $packageType, string $packageDate, string $packageTime, string $eventId) : void
+    public function setPackageHistory(string $packageName, string $packageVersion, string $packageState, string $packageType, string $packageDate, string $packageTime, string $eventId, string|null $security) : void
     {
         try {
-            $stmt = $this->db->prepare("INSERT INTO packages_history ('Name', 'Version', 'State', 'Type', 'Date', 'Time', 'Id_event') VALUES (:name, :version, :state, :type, :date, :time, :id_event)");
+            $stmt = $this->db->prepare("INSERT INTO packages_history ('Name', 'Version', 'State', 'Type', 'Security', 'Date', 'Time', 'Id_event') VALUES (:name, :version, :state, :type, :security, :date, :time, :id_event)");
             $stmt->bindValue(':name', $packageName);
             $stmt->bindValue(':version', $packageVersion);
             $stmt->bindValue(':state', $packageState);
             $stmt->bindValue(':type', $packageType);
+            $stmt->bindValue(':security', $security);
             $stmt->bindValue(':date', $packageDate);
             $stmt->bindValue(':time', $packageTime);
             $stmt->bindValue(':id_event', $eventId);
@@ -433,11 +435,12 @@ class Package extends \Models\Model
     /**
      *  Add a new package in database
      */
-    public function addPackage(string $name, string $version, string $state, string $type, string $date, string $time, string|null $eventId) : void
+    public function addPackage(string $name, string $version, string $state, string $type, string $date, string $time, string|null $eventId, string|null $security = null) : void
     {
         try {
             if (!empty($eventId)) {
-                $stmt = $this->db->prepare("INSERT INTO packages ('Name', 'Version', 'State', 'Type', 'Date', 'Time', 'Id_event') VALUES (:name, :version, :state, :type, :date, :time, :id_event)");
+                $stmt = $this->db->prepare("INSERT INTO packages ('Name', 'Version', 'State', 'Type', 'Security', 'Date', 'Time', 'Id_event') VALUES (:name, :version, :state, :type, :security, :date, :time, :id_event)");
+                $stmt->bindValue(':security', $security);
                 $stmt->bindValue(':id_event', $eventId);
             } else {
                 $stmt = $this->db->prepare("INSERT INTO packages ('Name', 'Version', 'State', 'Type', 'Date', 'Time') VALUES (:name, :version, 'inventored', 'package', :date, :time)");
@@ -501,6 +504,29 @@ class Package extends \Models\Model
         } catch (Exception $e) {
             DbLog::error($e);
         }
+    }
+
+    /**
+     *  Return the Security flag of an available package version, null if it is not in the available packages list
+     */
+    public function getPackageAvailableSecurity(string $name, string $version): string|null
+    {
+        $security = null;
+
+        try {
+            $stmt = $this->db->prepare("SELECT Security FROM packages_available WHERE Name = :name and Version = :version");
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':version', $version);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $security = $row['Security'];
+        }
+
+        return $security;
     }
 
     /**

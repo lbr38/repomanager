@@ -92,10 +92,14 @@ use \Controllers\Host\Package\Package; ?>
             </div>
 
             <div class="flex justify-self-end margin-bottom-10 margin-right-10">
-                <div id="select-all-hosts" class="select-all-btn btn-fit-tr align-item-center column-gap-8 pointer" title="Select all hosts">
-                    <span>Select all hosts</span>
-                    <input type="checkbox" title="Select all hosts" aria-hidden="true" tabindex="-1" />
-                </div>
+                <?php
+                if ($totalHosts > 1) : ?>
+                    <div id="select-all-hosts" class="select-all-btn btn-fit-tr align-item-center column-gap-8 pointer" title="Select all hosts">
+                        <span>Select all hosts</span>
+                        <input type="checkbox" title="Select all hosts" aria-hidden="true" tabindex="-1" />
+                    </div>
+                    <?php
+                endif ?>
             </div>
         </div>
 
@@ -142,7 +146,7 @@ use \Controllers\Host\Package\Package; ?>
                                 <div class="hosts-group-header-left">
                                     <img src="/assets/icons/folder.svg" class="icon-np lowopacity-cst" />
                                     <span class="hosts-group-header-name"><?= $groupName ?></span>
-                                    <span class="hosts-group-header-count"><?= $hostsCount ?></span>
+                                    <span class="label-count"><?= $hostsCount ?></span>
                                 </div>
 
                                 <?php
@@ -249,7 +253,7 @@ use \Controllers\Host\Package\Package; ?>
 
                                         $class = '';
                                         if (!$compliance['compliant']) {
-                                            $compliantIcon = 'warning-red.svg';
+                                            $compliantIcon = 'shield-warning.svg';
                                             $compliantTitle = 'Host is not compliant: ' . strtolower($compliance['reason']);
                                         }
 
@@ -453,11 +457,11 @@ use \Controllers\Host\Package\Package; ?>
 
                                                                 // Request title
                                                                 if ($request == 'request-general-infos') {
-                                                                    $requestTitle = 'Requested the host to send its general informations';
+                                                                    $requestTitle = 'Requested the host to send its general information';
                                                                     $requestTitleShort = 'Request general information';
                                                                 }
                                                                 if ($request == 'request-packages-infos') {
-                                                                    $requestTitle = 'Requested the host to send its packages informations';
+                                                                    $requestTitle = 'Requested the host to send its package information';
                                                                     $requestTitleShort = 'Request package information';
                                                                 }
                                                                 if ($request == 'request-packages-update') {

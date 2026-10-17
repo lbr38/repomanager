@@ -1,11 +1,13 @@
 <?php
 use \Controllers\Layout\Table\Render as TableRender;
+use \Controllers\Exception\TaskNotExecutedYet;
 
 $taskController = new \Controllers\Task\Task();
 $taskListingController = new \Controllers\Task\Listing();
 $repoController = new \Controllers\Repo\Repo();
 $legacyLog = false;
 $output = '';
+$taskNotExecutedYet = false;
 $taskFound = true;
 
 // Get the log file of the task
@@ -69,7 +71,7 @@ try {
             if (empty($childTasks)) {
                 // A scheduled task has no log until it has been executed at least once
                 if (in_array($taskInfo['Status'], ['scheduled', 'disabled'])) {
-                    throw new Exception('This task has not been executed yet');
+                    throw new TaskNotExecutedYet();
                 }
 
                 throw new Exception('No log found for this task');
@@ -160,8 +162,9 @@ try {
             $output .= '</div>';
         }
     }
+} catch (TaskNotExecutedYet) {
+    $taskNotExecutedYet = true;
 } catch (Exception $e) {
     $taskFound = false;
     $taskErrorMessage = $e->getMessage();
-    $output = '<p class="note">' . $taskErrorMessage . '</p>';
 }

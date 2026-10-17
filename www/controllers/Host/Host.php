@@ -9,6 +9,8 @@ use Controllers\Host\Request as HostRequest;
 use Controllers\Group\Host as HostGroup;
 use Controllers\Layout\ContainerReload;
 use Controllers\Filesystem\Directory;
+use Controllers\Utils\Validate;
+use JsonException;
 use Exception;
 
 class Host
@@ -89,15 +91,22 @@ class Host
     /**
      *  Edit the display settings on the hosts page
      */
-    public function setSettings(int $complianceThresholdCount, int $complianceThresholdDays, int $complianceSecurityUpdate, int $complianceRebootRequired): void
+    public function setSettings(int $complianceThresholdCount, int $complianceThresholdDays, int $complianceSecurityUpdate, int $complianceRebootRequired, array $complianceExcludePackages): void
     {
         if (!HostPermission::allowedAction('edit-settings')) {
             throw new Exception('You are not allowed to perform this action');
         }
 
-        // Settings must be numeric
+        // Some settings must be numeric
         if (!is_numeric($complianceThresholdCount) or !is_numeric($complianceThresholdDays) or !is_numeric($complianceSecurityUpdate) or !is_numeric($complianceRebootRequired)) {
             throw new Exception('Setting must be numeric');
+        }
+
+        // Validate compliance exclude packages
+        foreach ($complianceExcludePackages as $package) {
+            if (!Validate::alphaNumericHyphen(str_replace('*', '', $package))) {
+                throw new Exception('Package contains invalid characters');
+            }
         }
 
         // Value must be greater than 0
@@ -113,7 +122,11 @@ class Host
             throw new Exception('Invalid value for compliance reboot required setting');
         }
 
-        $this->model->setSettings($complianceThresholdCount, $complianceThresholdDays, $complianceSecurityUpdate, $complianceRebootRequired);
+        try {
+            $this->model->setSettings($complianceThresholdCount, $complianceThresholdDays, $complianceSecurityUpdate, $complianceRebootRequired, json_encode($complianceExcludePackages, JSON_THROW_ON_ERROR));
+        } catch (JsonException $e) {
+            throw new Exception('Failed to encode compliance exclude packages: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -237,20 +250,44 @@ class Host
         $hostPackageEventController = new PackageEvent($hostId);
         $host = $this->get($hostId);
         $settings = $this->getSettings();
-
         $securityUpdate = false;
+        $complianceSecurityUpdate = false;
         $compliant = true;
         $reason = '';
+
+        try {
+            $excludedPackages = json_decode($settings['compliance_exclude_packages'], true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            throw new Exception('Failed to decode compliance exclude packages: ' . $e->getMessage());
+        }
 
         // Retrieve the total number of available packages
         $available = $hostPackageController->getAvailable();
         $availableCount = count($available);
+        $complianceAvailableCount = 0;
 
         // Check if there is at least one security update available in the list of available packages ('security' field is set to true)
         foreach ($available as $package) {
+            $excluded = false;
+            // setSettings() only allows letters, digits, '-', '_' and '*' in patterns
+            foreach ($excludedPackages as $excludedPackage) {
+                // If the package name matches the excluded pattern, ignore it for compliance checks
+                if (fnmatch($excludedPackage, $package['Name'])) {
+                    $excluded = true;
+                    break;
+                }
+            }
+
+            if (!$excluded) {
+                $complianceAvailableCount++;
+            }
+
             if (!empty($package['Security']) and $package['Security'] == 'true') {
                 $securityUpdate = true;
-                break;
+
+                if (!$excluded) {
+                    $complianceSecurityUpdate = true;
+                }
             }
         }
 
@@ -261,9 +298,9 @@ class Host
         $thresholdDate = strtotime('-' . $settings['compliance_threshold_days'] . ' days');
 
         // The host is not compliant if the available updates count is >= threshold
-        if ($availableCount >= $settings['compliance_threshold_count']) {
+        if ($complianceAvailableCount >= $settings['compliance_threshold_count']) {
             $compliant = false;
-            $reason = 'Pending updates count (' . $availableCount . ') is greater than or equal to the threshold (' . $settings['compliance_threshold_count'] . ')';
+            $reason = 'Pending updates count (' . $complianceAvailableCount . ') is greater than or equal to the threshold (' . $settings['compliance_threshold_count'] . ')';
         }
 
         // The host is not compliant if no package update has been performed yet
@@ -279,7 +316,7 @@ class Host
         }
 
         // Optional rule: host is not compliant when there is a security update available
-        if ((int) $settings['compliance_security_update'] === 1 and $securityUpdate) {
+        if ((int) $settings['compliance_security_update'] === 1 and $complianceSecurityUpdate) {
             $compliant = false;
             $reason = 'Host has a security update available';
         }

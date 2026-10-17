@@ -123,14 +123,15 @@ class Host extends \Models\Model
     /**
      *  Edit the display settings on the hosts page
      */
-    public function setSettings(int $complianceThresholdCount, int $complianceThresholdDays, int $complianceSecurityUpdate, int $complianceRebootRequired): void
+    public function setSettings(int $complianceThresholdCount, int $complianceThresholdDays, int $complianceSecurityUpdate, int $complianceRebootRequired, string $complianceExcludePackages): void
     {
         try {
-            $stmt = $this->db->prepare("UPDATE settings SET compliance_threshold_count = :compliance_threshold_count, compliance_threshold_days = :compliance_threshold_days, compliance_security_update = :compliance_security_update, compliance_reboot_required = :compliance_reboot_required");
+            $stmt = $this->db->prepare("UPDATE settings SET compliance_threshold_count = :compliance_threshold_count, compliance_threshold_days = :compliance_threshold_days, compliance_security_update = :compliance_security_update, compliance_reboot_required = :compliance_reboot_required, compliance_exclude_packages = :compliance_exclude_packages");
             $stmt->bindValue(':compliance_threshold_count', $complianceThresholdCount, SQLITE3_INTEGER);
             $stmt->bindValue(':compliance_threshold_days', $complianceThresholdDays, SQLITE3_INTEGER);
             $stmt->bindValue(':compliance_security_update', $complianceSecurityUpdate, SQLITE3_INTEGER);
             $stmt->bindValue(':compliance_reboot_required', $complianceRebootRequired, SQLITE3_INTEGER);
+            $stmt->bindValue(':compliance_exclude_packages', $complianceExcludePackages, SQLITE3_TEXT);
             $stmt->execute();
         } catch (Exception $e) {
             DbLog::error($e);
@@ -224,7 +225,7 @@ class Host extends \Models\Model
     public function reset(int $hostId): void
     {
         try {
-            // Reset host general informations
+            // Reset host general information
             $stmt = $this->db->prepare("UPDATE hosts SET
             Os = null,
             Os_version = null,

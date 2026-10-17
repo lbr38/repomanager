@@ -12,10 +12,16 @@ if (!empty($_COOKIE['tables/tasks/list-done/offset']) and is_numeric($_COOKIE['t
 $reloadableTableContent = $taskListingController->getDone('', true, $reloadableTableOffset);
 
 // Get list of ALL done tasks, without offset, for the total count
-$reloadableTableTotalItems = count($taskListingController->getDone());
+$reloadableTableTotalItems = count($taskListingController->getDone(''));
 
 // Count total pages for the pagination
 $reloadableTableTotalPages = ceil($reloadableTableTotalItems / 10);
 
 // Calculate current page number
 $reloadableTableCurrentPage = ceil($reloadableTableOffset / 10) + 1;
+
+// Get successful tasks count
+$successfulCount = $taskListingController->getSuccessful(true);
+
+// Get failed tasks count
+$failedCount = $taskListingController->getFailed(true);

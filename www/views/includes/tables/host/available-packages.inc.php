@@ -1,4 +1,5 @@
 <?php
+use \Controllers\Layout\Table\Render as TableRender;
 use \Controllers\Utils\Generate\Html\Icon;
 use \Controllers\Utils\Convert; ?>
 
@@ -14,19 +15,24 @@ use \Controllers\Utils\Convert; ?>
         } ?>
 
         <div class="flex justify-space-between align-item-center">
-            <p class="margin-top-15 margin-bottom-15 mediumopacity-cst"><?=  $reloadableTableTotalItems ?> package<?= $reloadableTableTotalItems > 1 ? 's' : '' ?> to update</p>
-
-            <div class="margin-right-20">
+            <div class="flex align-item-center column-gap-10">
+                <p class="margin-top-15 margin-bottom-15 mediumopacity-cst"><?=  $reloadableTableTotalItems ?> package<?= $reloadableTableTotalItems > 1 ? 's' : '' ?> to update</p>
                 <?php
-                if (IS_ADMIN) {
-                    // If there is no package update already running, display the select all checkbox
-                    if ($packageUpdateRunning === false) {
-                        echo '<input type="checkbox" class="available-package-select-all lowopacity" title="Select all packages" />';
-                    } else {
-                        echo '<img src="/assets/icons/loading.svg" class="icon-np" title="A package update is already running" />';
-                    }
+                if ($packageUpdateRunning) {
+                    echo '<img src="/assets/icons/loading.svg" class="icon-np" title="A package update is running" />';
                 } ?>
             </div>
+
+            <?php
+            if (IS_ADMIN) {
+                // If there is no package update already running, display the select all button
+                if (!$packageUpdateRunning) {
+                    echo '<div class="select-all-btn btn-fit-tr align-item-center column-gap-8 pointer available-package-select-all" title="Select all packages">';
+                    echo '<span>Select all</span>';
+                    echo '<input type="checkbox" title="Select all packages" aria-hidden="true" tabindex="-1" />';
+                    echo '</div>';
+                }
+            } ?>
         </div>
 
         <div class="flex flex-direction-column row-gap-10">
@@ -55,7 +61,7 @@ use \Controllers\Utils\Convert; ?>
                     }
                 } ?>
 
-                <div class="host-package-item pointer <?= $excluded ? 'host-package-excluded' : '' ?>" title="<?= $title ?>">
+                <div class="host-package-item grid grid-rfr-1-2 pointer <?= $securityUpdate ? 'accent-yellow' : '' ?> <?= $excluded ? 'host-package-excluded' : '' ?>" title="<?= $title ?>">
                     <div class="flex align-item-center column-gap-10">
                         <?= Icon::product($item['Name']) ?>
 
@@ -64,16 +70,16 @@ use \Controllers\Utils\Convert; ?>
 
                             <?php
                             if (!empty($item['Repository'])) : ?>
-                                <p class="note wordbreakall copy" title="Repository"><?= $item['Repository'] ?></p>
+                                <p class="note wordbreakall copy" title="Repository: <?= $item['Repository'] ?>"><?= $item['Repository'] ?></p>
                                 <?php
                             endif ?>
                         </div>
                     </div>
 
-                    <div class="flex align-item-center column-gap-10">
-                        <p class="copy" title="<?= $securityUpdate ? 'Security update available' : 'Update available' ?>">
-                            <span class="label-<?= $securityUpdate ? 'yellow' : 'white' ?> wordbreakall"><?= $item['Current_version'] ?> ❯ <?= $item['Version'] ?></span>
-                        </p>
+                    <div class="flex align-item-center justify-end column-gap-10 min-width-0">
+                        <div class="host-package-versions copy flex relative padding-left-30 min-width-0" title="<?= $securityUpdate ? 'Security update available' : 'Update available' ?>: <?= $item['Current_version'] ?> ❯ <?= $item['Version'] ?>">
+                            <span class="label-white text-ellipsis"><?= $item['Current_version'] ?> ❯ <?= $item['Version'] ?></span>
+                        </div>
 
                         <?php
                         // If package was selected, we check the checkbox
@@ -99,7 +105,7 @@ use \Controllers\Utils\Convert; ?>
             endforeach; ?>
             
             <div class="flex justify-end margin-top-10">
-                <?php \Controllers\Layout\Table\Render::paginationBtn($reloadableTableCurrentPage, $reloadableTableTotalPages); ?>
+                <?php TableRender::paginationBtn($reloadableTableCurrentPage, $reloadableTableTotalPages); ?>
             </div>
 
             <script>
