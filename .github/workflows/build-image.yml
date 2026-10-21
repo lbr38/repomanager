@@ -1,8 +1,13 @@
 name: Build Docker image
 
+# TODO debug
 on:
-  release:
-    types: [ published ]
+  push:
+    branches: [ devel ]
+# on:
+#   release:
+#     types: [ published ]
+
 
 jobs:
   push_to_registry:
@@ -37,6 +42,8 @@ jobs:
       - name: Build and push docker
         uses: docker/build-push-action@v2
         with:
+          # Without context, the action clones the triggering ref and ignores the checkout above
+          context: .
           file: Dockerfile
           push: true
           tags: lbr38/repomanager:latest, lbr38/repomanager:${{ env.VERSION }}
