@@ -1,13 +1,13 @@
 name: Build Docker image
 
 # TODO debug
-on:
-  push:
-    branches: [ devel ]
 # on:
-#   release:
-#     types: [ published ]
-
+#   push:
+#     branches: [ devel ]
+on:
+  release:
+    types: [ published ]
+  workflow_dispatch:
 
 jobs:
   push_to_registry:
