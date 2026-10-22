@@ -82,13 +82,49 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             return;
         }
 
-        if (!$this->download($url . '/' . $this->compsLocation, $this->workingDir . '/comps.xml')) {
-            throw new Exception('Could not download <code>comps.xml</code>');
+        // Download with a temporary compressed name if the remote file is compressed, to avoid it being compressed twice later
+        $compsExtension = pathinfo($this->compsLocation, PATHINFO_EXTENSION);
+        $compsTargetName = 'comps.xml' . ($compsExtension != 'xml' ? '.' . $compsExtension : '');
+
+        if (!$this->download($url . '/' . $this->compsLocation, $this->workingDir . '/' . $compsTargetName)) {
+            throw new Exception('Could not download <code>' . $compsTargetName . '</code>');
         }
 
         // Check that downloaded file checksum is the same as the provided checksum from repomd.xml
-        if (!$this->checksum($this->workingDir . '/comps.xml', $this->compsChecksum)) {
-            throw new Exception('<code>comps.xml</code> checksum does not match provided checksum');
+        if (!$this->checksum($this->workingDir . '/' . $compsTargetName, $this->compsChecksum)) {
+            throw new Exception('<code>' . $compsTargetName . '</code> checksum does not match provided checksum');
+        }
+
+        // Uncompress the file to a plain comps.xml based on its actual mime type
+        $mime = mime_content_type($this->workingDir . '/' . $compsTargetName);
+
+        try {
+            if ($mime == 'application/gzip') {
+                if ($compsTargetName != 'comps.xml.gz') {
+                    rename($this->workingDir . '/' . $compsTargetName, $this->workingDir . '/comps.xml.gz');
+                    $compsTargetName = 'comps.xml.gz';
+                }
+                Gzip::uncompress($this->workingDir . '/comps.xml.gz');
+            } elseif ($mime == 'application/x-bzip2') {
+                Bzip2::uncompress($this->workingDir . '/' . $compsTargetName, $this->workingDir . '/comps.xml');
+            } elseif ($mime == 'application/x-xz') {
+                Xz::uncompress($this->workingDir . '/' . $compsTargetName, $this->workingDir . '/comps.xml');
+            } elseif ($mime == 'application/zstd') {
+                if ($compsTargetName != 'comps.xml.zst') {
+                    rename($this->workingDir . '/' . $compsTargetName, $this->workingDir . '/comps.xml.zst');
+                    $compsTargetName = 'comps.xml.zst';
+                }
+                Zstd::uncompress($this->workingDir . '/comps.xml.zst');
+            }
+        } catch (Exception $e) {
+            throw new Exception('Error while uncompressing <code>' . $compsTargetName . '</code><br><pre class="codeblock">' . $e->getMessage() . '</pre>');
+        }
+
+        // Delete the original compressed file
+        if ($compsTargetName != 'comps.xml' and file_exists($this->workingDir . '/' . $compsTargetName)) {
+            if (!unlink($this->workingDir . '/' . $compsTargetName)) {
+                throw new Exception('Could not delete <code>' . $this->workingDir . '/' . $compsTargetName . '</code>');
+            }
         }
 
         $this->metadataRetrievedFrom['comps'] = $url;
