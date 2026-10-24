@@ -42,14 +42,6 @@ class Event
     }
 
     /**
-     *  Return latest event date/time where at least one package was upgraded
-     */
-    public function getLastPackageUpgradeEvent(): array
-    {
-        return $this->model->getLastPackageUpgradeEvent();
-    }
-
-    /**
      *  Add events to the database
      */
     public function setHistory(array $events) : void
@@ -161,7 +153,7 @@ class Event
 
         ob_start();
 
-        include_once(ROOT . '/views/includes/host/package/event-details.inc.php');
+        include_once(ROOT . '/views/includes/modals/host/package/event-details.inc.php');
 
         return ob_get_clean();
     }

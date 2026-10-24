@@ -13,9 +13,7 @@ use \Controllers\Log\Cli as CliLog;
 try {
     $databases = ['main', 'stats', 'hosts', 'ws'];
 
-    /**
-     *  Open a connection to each database and create tables if they do not exist
-     */
+    // Open a connection to each database and create tables if they do not exist
     foreach ($databases as $database) {
         $myconn = new \Models\Connection($database, null, false);
         $myconn->close();

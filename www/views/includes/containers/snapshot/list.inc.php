@@ -1,7 +1,9 @@
-<section class="section-main reloadable-container" container="snapshot/list">
-    <div id="loading-tree" class="flex align-item-center column-gap-5">
-        <img src="/assets/icons/loading.svg" class="icon" />
-        <p class="note">Generating tree structure...</p>
+<section class="section-main reloadable-container" container="snapshot/list" data-snapshot-path="<?= htmlspecialchars($snapshotPath, ENT_QUOTES) ?>">
+    <div id="loading-tree">
+        <div class="flex align-item-center column-gap-5">
+            <img src="/assets/icons/loading.svg" class="icon" />
+            <p class="note">Generating tree structure...</p>
+        </div>
     </div>
 
     <div class="flex flex-direction-column row-gap-10 margin-top-15 margin-bottom-15">

@@ -47,7 +47,7 @@ if ($_POST['action'] == 'delete' and !empty($_POST['id'])) {
 /**
  *  Import source repositories from list
  */
-if ($_POST['action'] == 'import-source-repos' and !empty($_POST['list'])) {
+if ($_POST['action'] == 'import' and !empty($_POST['list'])) {
     $mysource = new \Controllers\Repo\Source\Source();
 
     try {
