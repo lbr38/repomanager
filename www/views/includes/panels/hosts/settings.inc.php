@@ -48,7 +48,7 @@
     <div class="flex flex-direction-column row-gap-10 form-block margin-top-15 margin-bottom-15">
         <div>
             <p>Hosts to exclude from compliance checks</p>
-            <p class="note">You can specify multiple hosts to exclude from the compliance calculation. They will not count toward the pending updates.</p>
+            <p class="note">You can specify multiple hosts to exclude from the compliance calculation. You can use <code>*</code> as a wildcard.</p>
             <select class="settings" name="compliance.exclusions.hosts" multiple>
                 <?php
                 foreach ($settings['compliance']['exclusions']['hosts'] as $host) {
@@ -59,7 +59,7 @@
 
         <div>
             <p>Packages to exclude from compliance checks</p>
-            <p class="note">You can specify multiple packages to exclude from the compliance calculation. They will not count toward the pending updates.</p>
+            <p class="note">You can specify multiple packages to exclude from the compliance calculation. They will not count toward the pending updates. You can use <code>*</code> as a wildcard.</p>
             <select class="settings" name="compliance.exclusions.packages" multiple>
                 <?php
                 foreach ($settings['compliance']['exclusions']['packages'] as $package) {

@@ -23,6 +23,7 @@ $host = $hostController->get($id);
 // Get list of available packages updates with offset
 $reloadableTableContent = $hostPackageController->getAvailable(true, $reloadableTableOffset);
 
+// Get the list of all available packages without offset for further processing
 $availablePackages = $hostPackageController->getAvailable();
 
 // Get list of ALL available packages updates, without offset, for the total count

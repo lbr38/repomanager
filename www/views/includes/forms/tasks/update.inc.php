@@ -126,20 +126,32 @@ if ($repoController->getType() == 'mirror' or ($repoController->getType() == 'lo
             <h6>METADATA SYNC</h6>
             <p class="note">Sync additional metadata files from the source repository.</p>
 
-            <div class="grid grid-2 column-gap-15">
-                <p><code>comps.xml</code></p>
+            <div class="margin-left-15">
+                <div class="flex align-flex-end column-gap-10">
+                    <h6>GROUPS</h6>
+                    <span class="label-white label-medium">comps.xml</span>
+                </div>
+                <p class="note">Optional. Sync the group metadata from the source repository, if available.</p>
                 <label class="onoff-switch-label justify-self-end">
                     <input type="checkbox" param-name="advanced-params.metadata-sync.comps" class="onoff-switch-input task-param" value="true" <?php echo ($repoController->getAdvancedParams()['metadata-sync']['comps'] ?? 'true') == 'true' ? 'checked' : ''; ?>>
                     <span class="onoff-switch-slider"></span>
                 </label>
 
-                <p><code>modules.yaml</code></p>
+                <div class="flex align-flex-end column-gap-10">
+                    <h6>MODULES</h6>
+                    <span class="label-white label-medium">modules.yaml</span>
+                </div>
+                <p class="note">Optional. Sync the module metadata from the source repository, if available.</p>
                 <label class="onoff-switch-label justify-self-end">
                     <input type="checkbox" param-name="advanced-params.metadata-sync.modules" class="onoff-switch-input task-param" value="true" <?php echo ($repoController->getAdvancedParams()['metadata-sync']['modules'] ?? 'true') == 'true' ? 'checked' : ''; ?>>
                     <span class="onoff-switch-slider"></span>
                 </label>
 
-                <p><code>updateinfo.xml.gz</code></p>
+                <div class="flex align-flex-end column-gap-10">
+                    <h6>UPDATE INFORMATION</h6>
+                    <span class="label-white label-medium">updateinfo.xml.gz</span>
+                </div>
+                <p class="note">Optional. Sync the update information metadata from the source repository, if available.</p>
                 <label class="onoff-switch-label justify-self-end">
                     <input type="checkbox" param-name="advanced-params.metadata-sync.updateinfo" class="onoff-switch-input task-param" value="true" <?php echo ($repoController->getAdvancedParams()['metadata-sync']['updateinfo'] ?? 'true') == 'true' ? 'checked' : ''; ?>>
                     <span class="onoff-switch-slider"></span>
@@ -151,17 +163,19 @@ if ($repoController->getType() == 'mirror' or ($repoController->getType() == 'lo
         if ($repoController->getPackageType() == 'deb') : ?>
             <h6>METADATA CUSTOM FIELDS</h6>
 
-            <h6>ORIGIN</h6>
-            <p class="note">Optional. Configure the <code>Origin</code> value in <code>Release</code> metadata file for this repository.</p>
-            <input type="text" class="task-param" param-name="advanced-params.metadata-custom-fields.origin" value="<?= $repoController->getAdvancedParams()['metadata-custom-fields']['origin'] ?? '' ?>" placeholder="e.g. repository > distribution > component" />
+            <div class="margin-left-15">
+                <h6>ORIGIN</h6>
+                <p class="note">Optional. Configure the <code>Origin</code> value in <code>Release</code> metadata file for this repository.</p>
+                <input type="text" class="task-param" param-name="advanced-params.metadata-custom-fields.origin" value="<?= $repoController->getAdvancedParams()['metadata-custom-fields']['origin'] ?? '' ?>" placeholder="e.g. repository > distribution > component" />
 
-            <h6>LABEL</h6>
-            <p class="note">Optional. Configure the <code>Label</code> value in <code>Release</code> metadata file for this repository.</p>
-            <input type="text" class="task-param" param-name="advanced-params.metadata-custom-fields.label" value="<?= $repoController->getAdvancedParams()['metadata-custom-fields']['label'] ?? '' ?>" placeholder="e.g. deb packages repository" />
+                <h6>LABEL</h6>
+                <p class="note">Optional. Configure the <code>Label</code> value in <code>Release</code> metadata file for this repository.</p>
+                <input type="text" class="task-param" param-name="advanced-params.metadata-custom-fields.label" value="<?= $repoController->getAdvancedParams()['metadata-custom-fields']['label'] ?? '' ?>" placeholder="e.g. deb packages repository" />
 
-            <h6>DESCRIPTION</h6>
-            <p class="note">Optional. Configure the <code>Description</code> value in <code>Release</code> metadata file for this repository.</p>
-            <input type="text" class="task-param" param-name="advanced-params.metadata-custom-fields.description" value="<?= $repoController->getAdvancedParams()['metadata-custom-fields']['description'] ?? '' ?>" placeholder="e.g. repository > distribution > component" />
+                <h6>DESCRIPTION</h6>
+                <p class="note">Optional. Configure the <code>Description</code> value in <code>Release</code> metadata file for this repository.</p>
+                <input type="text" class="task-param" param-name="advanced-params.metadata-custom-fields.description" value="<?= $repoController->getAdvancedParams()['metadata-custom-fields']['description'] ?? '' ?>" placeholder="e.g. repository > distribution > component" />
+            </div>
             <?php
         endif ?>
     </div>
