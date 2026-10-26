@@ -7,97 +7,385 @@ repositories:
     description: Ubuntu official repositories
     url: http://archive.ubuntu.com/ubuntu
     distributions:
-      # Ubuntu 26.04
-      - name: resolute
-        description: Ubuntu 26.04
+      # Ubuntu 26.10
+      - name: stonking
+        description: Ubuntu 26.10
+        eol: 2027-07-01
         components:
           - name: main
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - i386
           - name: restricted
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - i386
           - name: universe
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - i386
           - name: multiverse
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - i386
+        gpgkeys:
+          - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
+
+      # Ubuntu 26.04
+      - name: resolute
+        description: Ubuntu 26.04 LTS
+        eol: 2031-05-29
+        components:
+          - name: main
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - i386
+          - name: restricted
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - i386
+          - name: universe
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - i386
+          - name: multiverse
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - i386
+        gpgkeys:
+          - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
+
+      # Ubuntu 25.10
+      - name: questing
+        description: Ubuntu 25.10
+        eol: 2026-07-09
+        components:
+          - name: main
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - i386
+          - name: restricted
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - i386
+          - name: universe
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - i386
+          - name: multiverse
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - i386
+        gpgkeys:
+          - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
+
+      # Ubuntu 25.04
+      - name: plucky
+        description: Ubuntu 25.04
+        eol: 2026-01-17
+        components:
+          - name: main
+            archs:
+              - amd64
+              - i386
+          - name: restricted
+            archs:
+              - amd64
+              - i386
+          - name: universe
+            archs:
+              - amd64
+              - i386
+          - name: multiverse
+            archs:
+              - amd64
+              - i386
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
 
       # Ubuntu 24.04
       - name: noble
-        description: Ubuntu 24.04
+        description: Ubuntu 24.04 LTS
+        eol: 2029-05-31
         components:
           - name: main
+            archs:
+              - amd64
+              - i386
           - name: restricted
+            archs:
+              - amd64
+              - i386
           - name: universe
+            archs:
+              - amd64
+              - i386
           - name: multiverse
+            archs:
+              - amd64
+              - i386
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
 
       # Ubuntu 22.04
       - name: jammy
-        description: Ubuntu 22.04
+        description: Ubuntu 22.04 LTS
+        eol: 2027-06-01
         components:
           - name: main
+            archs:
+              - amd64
+              - i386
           - name: restricted
+            archs:
+              - amd64
+              - i386
           - name: universe
+            archs:
+              - amd64
+              - i386
           - name: multiverse
+            archs:
+              - amd64
+              - i386
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
 
       # Ubuntu 20.04
       - name: focal
-        description: Ubuntu 20.04
+        description: Ubuntu 20.04 LTS
+        eol: 2025-05-31
         components:
           - name: main
+            archs:
+              - amd64
+              - i386
           - name: restricted
+            archs:
+              - amd64
+              - i386
           - name: universe
+            archs:
+              - amd64
+              - i386
           - name: multiverse
+            archs:
+              - amd64
+              - i386
         gpgkeys:
-          - fingerprint: 3B4FE6ACC0B21F32
+          - fingerprint: 790BC7277767219C42C86F933B4FE6ACC0B21F32
           - fingerprint: 871920D1991BC93C
+
+      # Ubuntu 18.04
+      - name: bionic
+        description: Ubuntu 18.04
+        eol: 2023-05-31
+        components:
+          - name: main
+            archs:
+              - amd64
+              - i386
+          - name: restricted
+            archs:
+              - amd64
+              - i386
+          - name: universe
+            archs:
+              - amd64
+              - i386
+          - name: multiverse
+            archs:
+              - amd64
+              - i386
+        gpgkeys:
+          - fingerprint: 790BC7277767219C42C86F933B4FE6ACC0B21F32
+          - fingerprint: 871920D1991BC93C
+
+      # Ubuntu 16.04
+      - name: xenial
+        description: Ubuntu 16.04
+        eol: 2021-04-30
+        components:
+          - name: main
+            archs:
+              - amd64
+              - i386
+          - name: restricted
+            archs:
+              - amd64
+              - i386
+          - name: universe
+            archs:
+              - amd64
+              - i386
+          - name: multiverse
+            archs:
+              - amd64
+              - i386
+        gpgkeys:
+          - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
+
+      # Ubuntu 14.04
+      - name: trusty
+        description: Ubuntu 14.04
+        eol: 2019-04-25
+        components:
+          - name: main
+            archs:
+              - amd64
+              - i386
+          - name: restricted
+            archs:
+              - amd64
+              - i386
+          - name: universe
+            archs:
+              - amd64
+              - i386
+          - name: multiverse
+            archs:
+              - amd64
+              - i386
+        gpgkeys:
+          - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
 
   - name: ubuntu-security
     type: deb
     url: http://security.ubuntu.com/ubuntu
     description: Ubuntu security repositories
     distributions:
-      # Ubuntu 26.04
+      # Ubuntu 26.04 - Security Updates
       - name: resolute-security
-        description: Ubuntu 26.04 Security Updates
+        description: Ubuntu 26.04 - Security Updates
+        eol: 2031-05-29
         components:
           - name: main
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - i386
           - name: restricted
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - i386
           - name: universe
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - i386
           - name: multiverse
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - i386
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
 
-      # Ubuntu 26.04
+      # Ubuntu 26.04 - Updates
       - name: resolute-updates
-        description: Ubuntu 26.04 Updates
+        description: Ubuntu 26.04 - Updates
+        eol: 2031-05-29
         components:
           - name: main
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - i386
           - name: restricted
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - i386
           - name: universe
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - i386
           - name: multiverse
+            archs:
+              - amd64
+              - amd64v3
+              - arm64
+              - i386
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
 
-      # Ubuntu 24.04
+      # Ubuntu 24.04 - Updates
       - name: noble-updates
-        description: Ubuntu 24.04 Security Updates
+        description: Ubuntu 24.04 - Updates
+        eol: 2029-05-31
         components:
           - name: main
+            archs:
+              - amd64
+              - i386
           - name: restricted
+            archs:
+              - amd64
+              - i386
           - name: universe
+            archs:
+              - amd64
+              - i386
           - name: multiverse
+            archs:
+              - amd64
+              - i386
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
-      
-      # Ubuntu 22.04
+
+      # Ubuntu 22.04 - Updates
       - name: jammy-updates
-        description: Ubuntu 22.04 Security Updates
+        description: Ubuntu 22.04 - Updates
+        eol: 2027-06-01
         components:
           - name: main
+            archs:
+              - amd64
+              - i386
           - name: restricted
+            archs:
+              - amd64
+              - i386
           - name: universe
+            archs:
+              - amd64
+              - i386
           - name: multiverse
+            archs:
+              - amd64
+              - i386
         gpgkeys:
           - fingerprint: F6ECB3762474EDA9D21B7022871920D1991BC93C
-      

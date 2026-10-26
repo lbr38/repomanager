@@ -9,9 +9,6 @@ class Request extends \Models\Model
 {
     public function __construct()
     {
-        /**
-         *  Open database
-         */
         $this->getConnection('hosts');
     }
 
@@ -65,7 +62,7 @@ class Request extends \Models\Model
      *  Return the list of requests sent to the host
      *  It is possible to add an offset to the request
      */
-    public function getByHostId(int $id, bool $withOffset, int $offset)
+    public function getByHostId(int $id, bool $withOffset, int $offset): array
     {
         $data = [];
 
@@ -100,7 +97,7 @@ class Request extends \Models\Model
     /**
      *  Return the last pending request sent to the host
      */
-    public function getLastPendingRequest(int $id)
+    public function getLastPendingRequest(int $id): array
     {
         $data = [];
 
@@ -120,20 +117,25 @@ class Request extends \Models\Model
     }
 
     /**
-     *  Update request in database
+     *  Update request in database, only if it belongs to the specified host
      */
-    public function update(int $id, string $status, string $info, string $responseJson) : void
+    public function update(int $id, int $hostId, string $status, string $info, string $responseJson): bool
     {
         try {
-            $stmt = $this->db->prepare("UPDATE requests SET Status = :status, Info = :info, Response_json = :responseJson WHERE Id = :id");
+            $stmt = $this->db->prepare("UPDATE requests SET Status = :status, Info = :info, Response_json = :responseJson WHERE Id = :id AND Id_host = :hostId");
             $stmt->bindValue(':status', $status);
             $stmt->bindValue(':info', $info);
             $stmt->bindValue(':responseJson', $responseJson);
             $stmt->bindValue(':id', $id);
+            $stmt->bindValue(':hostId', $hostId);
             $stmt->execute();
         } catch (Exception $e) {
             DbLog::error($e);
+
+            return false;
         }
+
+        return $this->db->changes() === 1;
     }
 
     /**

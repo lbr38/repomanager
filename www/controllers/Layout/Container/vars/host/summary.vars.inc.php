@@ -52,6 +52,7 @@ if ($hostProperties['Online_status_date'] != DATE_YMD or $hostProperties['Online
 }
 
 // Check if the host is compliant
-$compliance = $myhost->getCompliance($id);
+$hostComplianceController = new \Controllers\Host\Compliance();
+$compliance = $hostComplianceController->get($hostProperties);
 
-unset($myhost, $hostPackageController, $hostProperties);
+unset($myhost, $hostPackageController, $hostProperties, $hostComplianceController);

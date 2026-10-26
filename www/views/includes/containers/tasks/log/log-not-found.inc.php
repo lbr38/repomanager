@@ -12,4 +12,4 @@
     </div>
 </div>
 
-<p class="note">Go back to the <a href="/tasks" class="font-size-13"><b>tasks list</b></a></p>
+<a href="/tasks"><button type="button" class="btn-fit-tr">Go back to tasks list</button></a>

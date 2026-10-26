@@ -9,7 +9,7 @@ jsconfig.json
 WIP
 ARCHIVES
 ./xdebug*
-
+__pycache__
 
 # Compiled source #
 ###################

@@ -262,7 +262,9 @@ class Mirror
         // Keep only the X last entries of each group (assumes metadata lists them oldest -> newest)
         $filtered = [];
         foreach ($grouped as $group) {
-            $filtered = array_merge($filtered, array_slice($group, -$keepLatest));
+            foreach (array_slice($group, -$keepLatest) as $package) {
+                $filtered[] = $package;
+            }
         }
 
         return $filtered;

@@ -134,6 +134,15 @@
                             }
                         } ?>
                     </select>
+
+                    <div field-type="mirror rpm">
+                        <div id="rpm-multiple-archs-warning" class="hide">
+                            <div class="flex align-item-center column-gap-5 margin-top-10">
+                                <img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" />
+                                <p class="note">Several architectures selected: if the source repository provides separate metadata for each architecture, only the <code>comps.xml</code>, <code>modules.yaml</code> and <code>updateinfo.xml.gz</code> files of the first one will be kept. Prefer one architecture per repository.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div field-type="mirror local deb">
@@ -227,12 +236,12 @@
             
                 <h6>ONLY INCLUDE PACKAGE(S)</h6>
                 <p class="note">Specify packages names to include. All other packages will be ignored from sync.</p>
-                <p class="note">You can use <code>.*</code> as a wildcard. e.g <code>nginx_1.24.*</code></p>
+                <p class="note">You can use <code>*</code> as a wildcard. e.g <code>nginx_1.24*</code></p>
                 <select class="task-param" param-name="advanced-params.packages.include" package-type="all" multiple></select>
 
                 <h6>EXCLUDE PACKAGE(S)</h6>
                 <p class="note">Specify packages names to exclude from sync.</p>
-                <p class="note">You can use <code>.*</code> as a wildcard. e.g <code>nginx_1.24.*</code></p>
+                <p class="note">You can use <code>*</code> as a wildcard. e.g <code>nginx_1.24*</code></p>
                 <select class="task-param" param-name="advanced-params.packages.exclude" package-type="all" multiple></select>
             </div>
 
@@ -240,20 +249,32 @@
                 <h6>METADATA SYNC</h6>
                 <p class="note">Sync additional metadata files from the source repository.</p>
 
-                <div class="grid grid-2 column-gap-15">
-                    <p><code>comps.xml</code></p>
+                <div class="margin-left-15">
+                    <div class="flex align-flex-end column-gap-10">
+                        <h6>GROUPS</h6>
+                        <span class="label-white label-medium">comps.xml</span>
+                    </div>
+                    <p class="note">Optional. Sync the group metadata from the source repository, if available.</p>
                     <label class="onoff-switch-label justify-self-end">
                         <input type="checkbox" class="onoff-switch-input task-param" value="true" param-name="advanced-params.metadata-sync.comps" package-type="rpm" checked />
                         <span class="onoff-switch-slider"></span>
                     </label>
 
-                    <p><code>modules.yaml</code></p>
+                    <div class="flex align-flex-end column-gap-10">
+                        <h6>MODULES</h6>
+                        <span class="label-white label-medium">modules.yaml</span>
+                    </div>
+                    <p class="note">Optional. Sync the module metadata from the source repository, if available.</p>
                     <label class="onoff-switch-label justify-self-end">
                         <input type="checkbox" class="onoff-switch-input task-param" value="true" param-name="advanced-params.metadata-sync.modules" package-type="rpm" checked />
                         <span class="onoff-switch-slider"></span>
                     </label>
 
-                    <p><code>updateinfo.xml.gz</code></p>
+                    <div class="flex align-flex-end column-gap-10">
+                        <h6>UPDATE INFORMATION</h6>
+                        <span class="label-white label-medium">updateinfo.xml.gz</span>
+                    </div>
+                    <p class="note">Optional. Sync the update information metadata from the source repository, if available.</p>
                     <label class="onoff-switch-label justify-self-end">
                         <input type="checkbox" class="onoff-switch-input task-param" value="true" param-name="advanced-params.metadata-sync.updateinfo" package-type="rpm" checked />
                         <span class="onoff-switch-slider"></span>
@@ -264,17 +285,19 @@
             <div field-type="mirror local deb">
                 <h6>METADATA CUSTOM FIELDS</h6>
 
-                <h6>ORIGIN</h6>
-                <p class="note">Optional. Configure the <code>Origin</code> value in <code>Release</code> metadata file for this repository.</p>
-                <input type="text" class="task-param" param-name="advanced-params.metadata-custom-fields.origin" package-type="deb" placeholder="e.g. repository > distribution > component" />
+                <div class="margin-left-15">
+                    <h6>ORIGIN</h6>
+                    <p class="note">Optional. Configure the <code>Origin</code> value in <code>Release</code> metadata file for this repository.</p>
+                    <input type="text" class="task-param" param-name="advanced-params.metadata-custom-fields.origin" package-type="deb" placeholder="e.g. repository > distribution > component" />
 
-                <h6>LABEL</h6>
-                <p class="note">Optional. Configure the <code>Label</code> value in <code>Release</code> metadata file for this repository.</p>
-                <input type="text" class="task-param" param-name="advanced-params.metadata-custom-fields.label" package-type="deb" placeholder="e.g. deb packages repository" />
+                    <h6>LABEL</h6>
+                    <p class="note">Optional. Configure the <code>Label</code> value in <code>Release</code> metadata file for this repository.</p>
+                    <input type="text" class="task-param" param-name="advanced-params.metadata-custom-fields.label" package-type="deb" placeholder="e.g. deb packages repository" />
 
-                <h6>DESCRIPTION</h6>
-                <p class="note">Optional. Configure the <code>Description</code> value in <code>Release</code> metadata file for this repository.</p>
-                <input type="text" class="task-param" param-name="advanced-params.metadata-custom-fields.description" package-type="deb" placeholder="e.g. repository > distribution > component" />
+                    <h6>DESCRIPTION</h6>
+                    <p class="note">Optional. Configure the <code>Description</code> value in <code>Release</code> metadata file for this repository.</p>
+                    <input type="text" class="task-param" param-name="advanced-params.metadata-custom-fields.description" package-type="deb" placeholder="e.g. repository > distribution > component" />
+                </div>
             </div>
         </div>
     </div>
@@ -307,6 +330,7 @@ $(document).ready(function(){
 
     // Show / hide the necessary fields
     newRepoFormPrintFields();
+    newRepoFormArchWarning();
 });
 </script>
 

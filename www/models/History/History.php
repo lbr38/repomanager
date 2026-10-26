@@ -53,7 +53,7 @@ class History extends \Models\Model
         $data = [];
 
         try {
-            $query = "SELECT history.Id, history.Date, history.Time, history.Action, history.State, users.First_name, users.Last_name, users.Username
+            $query = "SELECT history.*
             FROM history JOIN users ON history.Id_user = users.Id
             WHERE history.Id_user = :id
             ORDER BY Date DESC, Time DESC";

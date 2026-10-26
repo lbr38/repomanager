@@ -27,6 +27,16 @@ class MarshallingSessionHandler implements \SessionHandlerInterface, \SessionUpd
         $this->marshaller = $marshaller;
     }
 
+    public function __serialize(): array
+    {
+        throw new \BadMethodCallException('Cannot serialize '.__CLASS__);
+    }
+
+    public function __unserialize(array $data): void
+    {
+        throw new \BadMethodCallException('Cannot unserialize '.__CLASS__);
+    }
+
     public function open(string $savePath, string $name): bool
     {
         return $this->handler->open($savePath, $name);
@@ -35,6 +45,14 @@ class MarshallingSessionHandler implements \SessionHandlerInterface, \SessionUpd
     public function close(): bool
     {
         return $this->handler->close();
+    }
+
+    /**
+     * @return string
+     */
+    public function create_sid()
+    {
+        return session_create_id() ?: throw new \RuntimeException('Unable to create a session ID.');
     }
 
     public function destroy(#[\SensitiveParameter] string $sessionId): bool
@@ -47,9 +65,18 @@ class MarshallingSessionHandler implements \SessionHandlerInterface, \SessionUpd
         return $this->handler->gc($maxlifetime);
     }
 
-    public function read(#[\SensitiveParameter] string $sessionId): string
+    public function read(#[\SensitiveParameter] string $sessionId): string|false
     {
-        return $this->marshaller->unmarshall($this->handler->read($sessionId));
+        if (false === $data = $this->handler->read($sessionId)) {
+            return false;
+        }
+
+        try {
+            return $this->marshaller->unmarshall($data);
+        } catch (\DomainException $e) {
+            // data that cannot be unmarshalled is treated as a missing session, as PHP does with data it cannot decode
+            return '';
+        }
     }
 
     public function write(#[\SensitiveParameter] string $sessionId, string $data): bool

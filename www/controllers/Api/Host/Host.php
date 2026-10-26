@@ -110,7 +110,7 @@ class Host extends \Controllers\Api\Controller
              */
             if (defined('HOST_AUTH_ID') and !empty($this->hostId)) {
                 /**
-                 *  Host sends general informations and status
+                 *  Host sends general information and status
                  *  https://repomanager.mydomain.net/api/v2/host/status
                  */
                 if ($this->uri[4] == 'status' and $this->method == 'PUT') {
@@ -280,7 +280,7 @@ class Host extends \Controllers\Api\Controller
                 }
 
                 /**
-                 *  Host send packages informations
+                 *  Host send package information
                  *  https://repomanager.mydomain.net/api/v2/host/packages
                  */
                 if ($this->uri[4] == 'packages' and $this->method == 'PUT') {

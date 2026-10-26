@@ -21,59 +21,6 @@ class Notify extends Task
     }
 
     /**
-     *  Generate task action details
-     */
-    private function generateAction(array $taskRawParams) : string
-    {
-        $action = 'Unknown action';
-
-        // Case the action is 'create'
-        if ($taskRawParams['action'] == 'create') {
-            $action = 'Create new repository';
-        }
-
-        // Case the action is 'update', 'env', 'removeEnv', 'duplicate', 'rebuild', 'rename' or 'delete'
-        if (in_array($taskRawParams['action'], ['update', 'duplicate', 'env', 'removeEnv', 'rebuild', 'rename', 'delete'])) {
-            // Case the action is 'update'
-            if ($taskRawParams['action'] == 'update') {
-                $action = 'Update repository';
-            }
-
-            // Case the action is 'duplicate'
-            if ($taskRawParams['action'] == 'duplicate') {
-                $action = 'Duplicate';
-            }
-
-            // Case the action is 'env'
-            if ($taskRawParams['action'] == 'env') {
-                $action = 'Point environment';
-            }
-
-            // Case the action is 'removeEnv'
-            if ($taskRawParams['action'] == 'removeEnv') {
-                $action = 'Remove environment';
-            }
-
-            // Case the action is 'rebuild'
-            if ($taskRawParams['action'] == 'rebuild') {
-                $action = 'Rebuild repository metadata';
-            }
-
-            // Case the action is 'rename'
-            if ($taskRawParams['action'] == 'rename') {
-                $action = 'Rename repository';
-            }
-
-            // Case the action is 'delete'
-            if ($taskRawParams['action'] == 'delete') {
-                $action = 'Delete repository snapshot';
-            }
-        }
-
-        return $action;
-    }
-
-    /**
      *  Generate repository details for the task
      */
     private function generateRepository(array $taskRawParams) : array
@@ -207,21 +154,45 @@ class Notify extends Task
     }
 
     /**
-     *  Generate and send tasks reminders
-     *  https://mjml.io/
+     *  Send a single reminder summarizing all the upcoming tasks of each recipient
      */
     public function reminder(array $taskIds) : void
     {
-        try {
-            foreach ($taskIds as $taskId) {
-                $this->send(
-                    $taskId,
-                    '📅​ Reminder: scheduled task #' . $taskId . ' on ' . WWW_HOSTNAME,
-                    'scheduled'
-                );
+        $tasksByRecipient = [];
+
+        foreach ($taskIds as $taskId) {
+            try {
+                $task = $this->getById($taskId);
+                $taskRawParams = json_decode($task['Raw_params'], true, 512, JSON_THROW_ON_ERROR);
+
+                $details = [
+                    'taskId' => $task['Id'],
+                    'rows'   => $this->details($task, $taskRawParams, true)
+                ];
+            } catch (Exception $e) {
+                $this->logController->log('error', 'Service', 'Error while preparing scheduled task #' . $taskId . ' reminder: ' . $e->getMessage());
+                continue;
             }
-        } catch (Exception $e) {
-            $this->logController->log('error', 'Service', 'Error while sending scheduled tasks reminder: ' . $e->getMessage());
+
+            foreach ($taskRawParams['schedule']['schedule-recipient'] as $recipient) {
+                $tasksByRecipient[$recipient][] = $details;
+            }
+        }
+
+        foreach ($tasksByRecipient as $recipient => $tasks) {
+            $count = count($tasks);
+
+            try {
+                new Mail(
+                    $recipient,
+                    '📅​ Reminder: ' . $count . ' upcoming scheduled task' . ($count > 1 ? 's' : '') . ' on ' . WWW_HOSTNAME,
+                    Mail::render('reminder', ['tasks' => $tasks]),
+                    __SERVER_PROTOCOL__ . '://' . WWW_HOSTNAME . '/tasks',
+                    'Go to tasks list'
+                );
+            } catch (Exception $e) {
+                $this->logController->log('error', 'Service', 'Error while sending scheduled tasks reminder to ' . $recipient . ': ' . $e->getMessage());
+            }
         }
     }
 
@@ -257,149 +228,86 @@ class Notify extends Task
     }
 
     /**
-     *  Generate and send task message
+     *  Generate and send task result message
      */
-    private function send(int $taskId, string $mailSubject, string $status, array $summary = []) : void
+    private function send(int $taskId, string $mailSubject, string $status, array $summary) : void
     {
-        $btn = 'View task log';
-
         try {
-            // Status must be either 'success', 'error' or 'scheduled'
-            if (!in_array($status, ['success', 'error', 'scheduled'])) {
-                throw new Exception('invalid task status ' . $status);
-            }
-
-            if ($status == 'scheduled') {
-                $btn = 'Go to tasks list';
-            }
-
-            // Get task details
             $task = $this->getById($taskId);
+            $taskRawParams = json_decode($task['Raw_params'], true, 512, JSON_THROW_ON_ERROR);
 
-            try {
-                $taskRawParams = json_decode($task['Raw_params'], true);
-            } catch (JsonException $e) {
-                throw new Exception('cannot decode JSON parameters: ' . $e->getMessage());
-            }
+            $message = Mail::render('task', [
+                'taskId'   => $task['Id'],
+                'status'   => $status,
+                'rows'     => $this->details($task, $taskRawParams, false),
+                'summary'  => $summary,
+                'duration' => $task['Duration'] ?? ''
+            ]);
 
-            // Task Id
-            $message  = '<h1 style="margin:0px">Task #' . $task['Id'] . '</h1>';
-            $message .= '<hr style="margin-top:25px; margin-bottom:20px;">';
-
-            // Date and time
-
-            // Case it is a done task (success or error), show date and time
-            if (in_array($status, ['success', 'error'])) {
-                if (!empty($task['Date']) and !empty($task['Time'])) {
-                    $message .= '<p>Date: <b>' . DateTime::createFromFormat('Y-m-d', $task['Date'])->format('d-m-Y') . ' ' . $task['Time'] . '</b></p>';
-                }
-            }
-
-            // Case it is a scheduled task (reminder), show scheduled date and time
-            if ($status == 'scheduled') {
-                if ($taskRawParams['schedule']['schedule-type'] == 'unique') {
-                    $scheduleDate = $taskRawParams['schedule']['schedule-date'];
-                    $scheduleTime = $taskRawParams['schedule']['schedule-time'];
-
-                    $message .= '<p>Scheduled date: <b>' . DateTime::createFromFormat('Y-m-d', $scheduleDate)->format('d-m-Y') . ' ' . $scheduleTime . '</b></p>';
-                }
-
-                // TODO: reccuring tasks are not yet supported for reminders (see sendReminders() in ScheduledTask.php)
-                if ($taskRawParams['schedule']['schedule-type'] == 'recurring') {
-                    // Hourly
-                    if ($taskRawParams['schedule']['schedule-frequency'] == 'hourly') {
-                        $message .= '<p>Scheduled interval: <b>Every hour<b></p>';
-                    }
-
-                    // Daily
-                    if ($taskRawParams['schedule']['schedule-frequency'] == 'daily') {
-                        $message .= '<p>Scheduled interval: <b>Every day at ' . $taskRawParams['schedule']['schedule-time'] . '<b></p>';
-                    }
-
-                    // Weekly
-                    if ($taskRawParams['schedule']['schedule-frequency'] == 'weekly') {
-                        $message .= '<p>Scheduled interval: <b>Every ' . ucfirst($taskRawParams['schedule']['schedule-day']) . ' at ' . $taskRawParams['schedule']['schedule-time'] . '<b></p>';
-                    }
-
-                    // Monthly
-                    if ($taskRawParams['schedule']['schedule-frequency'] == 'monthly') {
-                        $message .= '<p>Scheduled interval: <b>Every month on day ' . $taskRawParams['schedule']['schedule-day'] . ' at ' . $taskRawParams['schedule']['schedule-time'] . '<b></p>';
-                    }
-
-                    // Cron
-                    if ($taskRawParams['schedule']['schedule-frequency'] == 'cron') {
-                        $message .= '<p>Scheduled interval: <b>Cron ' . htmlspecialchars($taskRawParams['schedule']['schedule-cron'] ?? '', ENT_QUOTES, 'UTF-8') . '<b></p>';
-                    }
-                }
-            }
-
-            // Action
-            $message .= '<p>Action: <b>' . $this->generateAction($taskRawParams) . '</b></p>';
-
-            /**
-             *  A task targeting several repositories or a dynamic set of them has no repository of
-             *  its own, only its sub-tasks have one
-             */
-            if (Target::isDynamic($taskRawParams)) {
-                $message .= '<p>Target: <b>' . Target::describe($taskRawParams['target']) . '</b></p>';
-            } elseif (empty($taskRawParams['tasks'])) {
-                // Repository details
-                foreach ($this->generateRepository($taskRawParams) as $key => $value) {
-                    if ($key == 'repository') {
-                        $message .= '<p>Repository: <span class="label-transparent">' . $value . '</span></p>';
-                    }
-
-                    if ($key == 'snapshot-date') {
-                        $message .= '<p>Snapshot date: <span class="label-black">' . $value . '</span></p>';
-                    }
-
-                    if ($key == 'environment') {
-                        $message .= '<p>Environment: ';
-
-                        foreach ($value as $env) {
-                            $message .= Label::envtag($env) . ' ';
-                        }
-
-                        $message .= '</p>';
-                    }
-
-                    if ($key == 'target-repo') {
-                        $message .= '<p>Target repository: <span class="label-transparent">' . $value . '</span></p>';
-                    }
-                }
-            }
-
-            // Sub-tasks results, if the task dispatched any
-            if (!empty($summary['total'])) {
-                $message .= '<p>Sub-tasks: <b>' . $summary['success'] . '</b> succeeded, <b>' . $summary['failed'] . '</b> failed, out of <b>' . $summary['total'] . '</b></p>';
-            }
-
-            // Duration
-            if (!empty($task['Duration'])) {
-                $message .= 'Total duration: <b>' . $task['Duration'] . '</b></p>';
-            }
-
-            // Status (success, error, scheduled)
-            $message .= '<p>Status: <b>';
-
-            if ($status == 'success') {
-                $message .= '✅ Success';
-            }
-            if ($status == 'error') {
-                $message .= '❌ Error';
-            }
-            if ($status == 'scheduled') {
-                $message .= '📅 Scheduled';
-            }
-
-            $message .= '</b></p>';
-
-            $message .= '<br>';
-
-            // Send email
-            new Mail(implode(',', $taskRawParams['schedule']['schedule-recipient']), $mailSubject, $message, __SERVER_PROTOCOL__ . '://' . WWW_HOSTNAME . '/run/' . $task['Id'], $btn);
+            new Mail(implode(',', $taskRawParams['schedule']['schedule-recipient']), $mailSubject, $message, __SERVER_PROTOCOL__ . '://' . WWW_HOSTNAME . '/run/' . $task['Id'], 'View task log');
         } catch (Exception $e) {
             $this->logController->log('error', 'Service', 'Error while sending scheduled task #' . $taskId . ' notification: ' . $e->getMessage());
         }
+    }
+
+    /**
+     *  Generate task details rows, as label => HTML value
+     */
+    private function details(array $task, array $taskRawParams, bool $upcoming) : array
+    {
+        $rows = [
+            'Action' => self::generateLiteralAction($task)['title']
+        ];
+
+        if ($upcoming) {
+            $schedule = $taskRawParams['schedule'];
+
+            if ($schedule['schedule-type'] == 'recurring') {
+                $rows['Frequency'] = match ($schedule['schedule-frequency']) {
+                    'hourly'  => 'Every hour',
+                    'daily'   => 'Every day at ' . $schedule['schedule-time'],
+                    'weekly'  => 'Every ' . implode(', ', array_map('ucfirst', $schedule['schedule-day'])) . ' at ' . $schedule['schedule-time'],
+                    'monthly' => 'Every ' . $schedule['schedule-monthly-day-position'] . ' ' . ucfirst($schedule['schedule-monthly-day']) . ' of the month at ' . $schedule['schedule-time'],
+                    'cron'    => 'Cron ' . htmlspecialchars($schedule['schedule-cron'] ?? '', ENT_QUOTES, 'UTF-8'),
+                    default   => 'Unknown'
+                };
+            }
+
+            $next = $this->getDayTimeLeft($task['Id']);
+
+            if (!empty($next['date'])) {
+                $rows['Next run'] = DateTime::createFromFormat('Y-m-d', $next['date'])->format('d-m-Y') . ' ' . $next['time'];
+            }
+        } elseif (!empty($task['Date']) and !empty($task['Time'])) {
+            $rows['Started'] = DateTime::createFromFormat('Y-m-d', $task['Date'])->format('d-m-Y') . ' ' . $task['Time'];
+        }
+
+        /**
+         *  A task targeting several repositories or a dynamic set of them has no repository of
+         *  its own, only its sub-tasks have one
+         */
+        if (Target::isDynamic($taskRawParams)) {
+            $rows['Target'] = Target::describe($taskRawParams['target']);
+        } elseif (empty($taskRawParams['tasks'])) {
+            foreach ($this->generateRepository($taskRawParams) as $key => $value) {
+                if ($key == 'repository') {
+                    $rows['Repository'] = Label::white(htmlspecialchars($value, ENT_QUOTES, 'UTF-8'), true);
+                }
+
+                if ($key == 'snapshot-date') {
+                    $rows['Snapshot date'] = $value;
+                }
+
+                if ($key == 'environment') {
+                    $rows['Environment'] = implode(' ', array_map([Label::class, 'envtag'], $value));
+                }
+
+                if ($key == 'target-repo') {
+                    $rows['Target repository'] = Label::white(htmlspecialchars($value, ENT_QUOTES, 'UTF-8'), true);
+                }
+            }
+        }
+
+        return $rows;
     }
 }
