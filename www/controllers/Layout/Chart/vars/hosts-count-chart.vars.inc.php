@@ -1,5 +1,5 @@
 <?php
-$hostController = new \Controllers\Host\Host();
+$hostComplianceController = new \Controllers\Host\Compliance();
 $hostListingController = new \Controllers\Host\Listing();
 $datasets = [];
 $labels = [];
@@ -12,7 +12,7 @@ $hosts = $hostListingController->get();
 
 // Loop through the list of hosts to determine the number of hosts up to date and not up to date
 foreach ($hosts as $host) {
-    if ($hostController->getCompliance($host['Id'])['compliant']) {
+    if ($hostComplianceController->get($host)['compliant']) {
         $totalUptodate++;
     } else {
         $totalNotUptodate++;
@@ -28,4 +28,4 @@ $options['title']['text'] = round(($totalUptodate / ($totalUptodate + $totalNotU
 $options['title']['align'] = 'left';
 $options['title']['fontSize'] = 12;
 
-unset($hostController, $hostListingController, $hosts, $totalUptodate, $totalNotUptodate);
+unset($hostComplianceController, $hostListingController, $hosts, $totalUptodate, $totalNotUptodate);

@@ -4,6 +4,38 @@
 $(document).on('submit','form#hosts-settings',function (e) {
     e.preventDefault();
 
+    // Get all settings 'setting-name' attributes and their values
+    var obj = {};
+    $('.settings').each(function() {
+        var name = $(this).attr('name');
+        var value;
+
+        if ($(this).attr('type') == 'checkbox') {
+            value = $(this).is(':checked') ? 1 : 0;
+        } else {
+            value = $(this).val()
+        }
+
+        // If the parameter name contains dots, we create nested sub-objects accordingly
+        if (name.includes('.')) {
+            var parts = name.split('.');
+            var ref = obj;
+
+            for (var i = 0; i < parts.length; i++) {
+                if (i === parts.length - 1) {
+                    ref[parts[i]] = value;
+                } else {
+                    if (typeof ref[parts[i]] !== 'object' || ref[parts[i]] === null) {
+                        ref[parts[i]] = {};
+                    }
+                    ref = ref[parts[i]];
+                }
+            }
+        } else {
+            obj[name] = value;
+        }
+    });
+
     ajaxRequest(
         // Controller:
         'hosts/settings',
@@ -11,10 +43,7 @@ $(document).on('submit','form#hosts-settings',function (e) {
         'edit',
         // Data:
         {
-            complianceThresholdCount: $('input[name="compliance-threshold-count"').val(),
-            complianceThresholdDays: $('input[name="compliance-threshold-days"').val(),
-            complianceSecurityUpdate: $('input[name="compliance-security-update"').is(':checked') ? 1 : 0,
-            complianceRebootRequired: $('input[name="compliance-reboot-required"').is(':checked') ? 1 : 0
+            settings: obj
         },
         // Print success alert:
         true,

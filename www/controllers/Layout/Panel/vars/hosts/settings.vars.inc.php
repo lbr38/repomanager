@@ -8,19 +8,7 @@ if (!HostPermission::allowedAction('edit-settings')) {
 
 $hostController = new Host();
 
-// Get hosts settings
+// Get hosts compliance settings
 $settings = $hostController->getSettings();
 
-// Get compliance threshold count
-$complianceThresholdCount = $settings['compliance_threshold_count'];
-
-// Get compliance threshold days
-$complianceThresholdDays = $settings['compliance_threshold_days'];
-
-// Get compliance security update
-$complianceSecurityUpdate = $settings['compliance_security_update'];
-
-// Get compliance reboot required
-$complianceRebootRequired = $settings['compliance_reboot_required'];
-
-unset($hostController, $settings);
+unset($hostController);

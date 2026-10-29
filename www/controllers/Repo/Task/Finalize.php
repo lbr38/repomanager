@@ -113,7 +113,6 @@ trait Finalize
              */
             $this->repoSnapshotController->updateGpgSignature($this->repoController->getSnapId(), $this->repoController->getGpgSign());
 
-
             // Set snapshot metadata rebuild state in database
             $this->repoSnapshotController->updateRebuild($this->repoController->getSnapId(), '');
         }

@@ -1,6 +1,6 @@
 # Dockerfile for Repomanager
 
-# Base image
+# Base image
 FROM debian:13-slim AS base
 
 # Metadata
@@ -69,7 +69,7 @@ COPY docker/config/postfix/master.cf /etc/postfix/master.cf
 
 RUN mkdir -p $WWW_DIR $DATA_DIR $REPOS_DIR
 
-# Copy repomanager files
+# Copy repomanager files
 COPY www/ $WWW_DIR/
 
 # Some basic configurations
@@ -90,7 +90,7 @@ EXPOSE 8080
 # Set working dir
 WORKDIR ${DATA_DIR}
 
-# Set healthcheck
+# Set healthcheck
 # Check if nginx is responding on the expected port (default 8080 if NGINX_LISTEN_PORT is not set)
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
             CMD /bin/sh -c 'curl -fsS http://127.0.0.1:${NGINX_LISTEN_PORT:-8080} || exit 1'

@@ -281,6 +281,22 @@ class Task extends \Models\Model
     }
 
     /**
+     *  Return true if the task has generated sub-tasks
+     */
+    public function isParent(int $id): bool
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT Id FROM tasks WHERE Parent_task_id = :id LIMIT 1");
+            $stmt->bindValue(':id', $id);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+
+        return !$this->db->isempty($result);
+    }
+
+    /**
      *  Add a new task to the database
      *  If $parentTaskId is provided, the task is linked to the task that generated it
      *  (e.g. a scheduled task targeting a group of repositories)

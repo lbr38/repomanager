@@ -9,11 +9,9 @@ use Exception;
 class Listing
 {
     private $model;
-    private $hostController;
 
     public function __construct()
     {
-        $this->hostController = new Host();
         $this->model = new \Models\Host\Listing();
     }
 
@@ -285,9 +283,12 @@ class Listing
     private function getByCompliance(bool $compliant, bool $listPackages = false): array
     {
         $data = [];
+        $hostComplianceController = new Compliance();
 
         foreach ($this->get() as $host) {
-            $compliance = $this->hostController->getCompliance($host['Id']);
+            // Opened once per host and shared with Compliance
+            $hostPackageController = new HostPackage($host['Id']);
+            $compliance = $hostComplianceController->get($host, $hostPackageController);
 
             // If the host's compliance status does not match the requested compliance status, continue to the next host
             if ($compliance['compliant'] !== $compliant) {
@@ -316,7 +317,6 @@ class Listing
 
             // If the user requested to list the available updates, get the list of packages
             if ($listPackages) {
-                $hostPackageController = new HostPackage($host['Id']);
                 $array['Available_updates']['Packages'] = $hostPackageController->getAvailable();
             }
 

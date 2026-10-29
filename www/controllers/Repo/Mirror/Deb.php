@@ -94,6 +94,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             $checksumPriority = [128 => 4, 64 => 3, 40 => 2, 32 => 1];
             $bestCandidate = null;
             $bestPriority = 0;
+            $unreachableIndices = [];
 
             foreach ($content as $line) {
                 // Clean line
@@ -135,6 +136,8 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                         'proxy' => PROXY ?? null,
                     ]);
                 } catch (Exception $e) {
+                    $unreachableIndices[$url . '/' . $location] = $e->getMessage();
+
                     if (DebugMode::enabled()) {
                         echo $url . '/' . $location . ' is not reachable' . PHP_EOL;
                     }
@@ -148,7 +151,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             }
 
             if ($bestCandidate !== null) {
-            // If URL is reachable, then add the Packages/Sources file location to the global array
+                // If URL is reachable, then add the Packages/Sources file location to the global array
                 if ($arch == 'src') {
                     $this->sourcesIndicesLocation[] = $bestCandidate;
                 }
@@ -162,13 +165,21 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                 continue;
             }
 
-            // If no Packages.xx/Sources.xx file has been found for this arch, throw an error
-            if ($arch == 'src') {
-                throw new Exception('No ' . $arch . ' <code>Sources</code> indices file has been found in the <code>' . $this->validReleaseFile . '</code> file.');
+            $indexName = $arch == 'src' ? 'Sources' : 'Packages';
+            $indexDescription = '<code>' . $indexName . '</code> indices for architecture <code>' . htmlspecialchars($arch, ENT_QUOTES, 'UTF-8') . '</code> and component <code>' . htmlspecialchars($this->section, ENT_QUOTES, 'UTF-8') . '</code>';
+            $releaseDescription = '<code>' . htmlspecialchars($this->validReleaseFile, ENT_QUOTES, 'UTF-8') . '</code>';
+
+            if (!empty($unreachableIndices)) {
+                $errors = [];
+
+                foreach ($unreachableIndices as $indexUrl => $error) {
+                    $errors[] = $indexUrl . ': ' . $error;
+                }
+
+                throw new Exception($indexDescription . ' are listed in ' . $releaseDescription . ', but none could be accessed.<br><pre class="codeblock">' . htmlspecialchars(implode(PHP_EOL, $errors), ENT_QUOTES, 'UTF-8') . '</pre>');
             }
-            if ($arch != 'src') {
-                throw new Exception('No ' . $arch . ' <code>Packages</code> indices file has been found in the <code>' . $this->validReleaseFile . '</code> file.');
-            }
+
+            throw new Exception('No ' . $indexDescription . ' with a supported checksum is listed in ' . $releaseDescription . '.');
         }
 
         // Throw an error if no Packages indices file location has been found
@@ -270,52 +281,41 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             }
 
             // Get all .deb packages location from the uncompressed Packages file
-            $packageName = '';
-            $packageArch = '';
-            $packageLocation = '';
-            $packageChecksum = '';
             $handle = fopen($this->workingDir . '/Packages', 'r');
 
             if ($handle) {
-                while (($line = fgets($handle)) !== false) {
-                    // Get deb package name
-                    if (preg_match('/^Package:\s+(.*)/im', $line)) {
-                        $packageName = trim(str_replace('Package: ', '', $line));
+                $fields = [];
+
+                // Packages are blocks of "Field: value" lines separated by a blank line
+                do {
+                    $line = fgets($handle);
+
+                    if ($line !== false and trim($line) !== '') {
+                        // Continuation lines (leading space or tab, e.g. Description) do not match and are ignored
+                        if (preg_match('/^([^\s:]+):\s*(.*)$/', $line, $matches)) {
+                            // Field names are case-insensitive (e.g. MD5sum or MD5Sum)
+                            $fields[strtolower($matches[1])] = trim($matches[2]);
+                        }
+
+                        continue;
                     }
 
-                    // Get deb package architecture
-                    if (preg_match('/^Architecture:\s+(.*)/im', $line)) {
-                        $packageArch = trim(str_replace('Architecture: ', '', $line));
-                    }
+                    // End of block: blank line, or EOF for the last block
+                    // Strongest checksum first, old repositories (e.g. Debian potato) only provide MD5sum
+                    $checksum = $fields['sha512'] ?? $fields['sha256'] ?? $fields['sha1'] ?? $fields['md5sum'] ?? '';
 
-                    // Get deb location
-                    if (preg_match('/^Filename:\s+(.*)/im', $line)) {
-                        $packageLocation = trim(str_replace('Filename: ', '', $line));
-                    }
-
-                    // Get deb SHA256
-                    if (preg_match('/^SHA256:\s+(.*)/im', $line)) {
-                        $packageChecksum = trim(str_replace('SHA256: ', '', $line));
-                    }
-
-                    // If location and checksum have been parsed, add them to the global deb packages list array
-                    if (!empty($packageLocation) and !empty($packageChecksum)) {
-                        // If package location starts with './' then remove it
-                        $packageLocation = preg_replace('/^\.\//', '', $packageLocation);
-
+                    if (!empty($fields['filename']) and !empty($checksum)) {
                         $this->debPackagesLocation[] = [
-                            'name'     => $packageName,
-                            'arch'     => $packageArch,
-                            'location' => $packageLocation,
-                            'checksum' => $packageChecksum,
+                            'name'     => $fields['package'] ?? '',
+                            'arch'     => $fields['architecture'] ?? '',
+                            // Filename may start with './'
+                            'location' => preg_replace('/^\.\//', '', $fields['filename']),
+                            'checksum' => $checksum,
                         ];
-
-                        $packageName = '';
-                        $packageArch = '';
-                        $packageLocation = '';
-                        $packageChecksum = '';
                     }
-                }
+
+                    $fields = [];
+                } while ($line !== false);
 
                 fclose($handle);
             }
@@ -682,7 +682,10 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                     $isIn = false;
 
                     foreach ($this->advancedParams['packages']['include'] as $packageToInclude) {
-                        if (preg_match('/' . $packageToInclude . '/', $debPackageName)) {
+                        // Convert any '*' to '.*' for regex matching, only if preceded or followed by alphabetic character(s) and not if already '.*'
+                        $packageToInclude = preg_replace('/(?<!\.)\*/', '.*', $packageToInclude);
+
+                        if (preg_match('/^' . $packageToInclude . '/', $debPackageName)) {
                             $isIn = true;
                         }
                     }
@@ -702,7 +705,10 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                     $isIn = false;
 
                     foreach ($this->advancedParams['packages']['exclude'] as $packageToExclude) {
-                        if (preg_match('/' . $packageToExclude . '/', $debPackageName)) {
+                        // Convert any '*' to '.*' for regex matching, only if preceded or followed by alphabetic character(s) and not if already '.*'
+                        $packageToExclude = preg_replace('/(?<!\.)\*/', '.*', $packageToExclude);
+
+                        if (preg_match('/^' . $packageToExclude . '/', $debPackageName)) {
                             $isIn = true;
                         }
                     }

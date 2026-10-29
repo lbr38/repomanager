@@ -132,29 +132,31 @@ $showScheduleToggle = $scheduleForm['show-toggle'] ?? true; ?>
             <span class="onoff-switch-slider"></span>
         </label>
 
-        <h6>SEND A REMINDER</h6>
-        <select class="task-param" param-name="schedule-reminder" multiple>
-            <option value="1">1 day before</option>
-            <option value="2">2 days before</option>
-            <option value="3" selected>3 days before</option>
-            <option value="4">4 days before</option>
-            <option value="5">5 days before</option>
-            <option value="6">6 days before</option>
-            <option value="7" selected>7 days before</option>
-            <option value="8">8 days before</option>
-            <option value="9">9 days before</option>
-            <option value="10">10 days before</option>
-            <option value="15">15 days before</option>
-            <option value="20">20 days before</option>
-            <option value="25">25 days before</option>
-            <option value="30">30 days before</option>
-            <option value="35">35 days before</option>
-            <option value="40">40 days before</option>
-            <option value="45">45 days before</option>
-            <option value="50">50 days before</option>
-            <option value="55">55 days before</option>
-            <option value="60">60 days before</option>
-        </select>
+        <div class="task-schedule-reminder-input">
+            <h6>SEND A REMINDER</h6>
+            <select class="task-param" param-name="schedule-reminder" multiple>
+                <option value="1">1 day before</option>
+                <option value="2">2 days before</option>
+                <option value="3" selected>3 days before</option>
+                <option value="4">4 days before</option>
+                <option value="5">5 days before</option>
+                <option value="6">6 days before</option>
+                <option value="7" selected>7 days before</option>
+                <option value="8">8 days before</option>
+                <option value="9">9 days before</option>
+                <option value="10">10 days before</option>
+                <option value="15">15 days before</option>
+                <option value="20">20 days before</option>
+                <option value="25">25 days before</option>
+                <option value="30">30 days before</option>
+                <option value="35">35 days before</option>
+                <option value="40">40 days before</option>
+                <option value="45">45 days before</option>
+                <option value="50">50 days before</option>
+                <option value="55">55 days before</option>
+                <option value="60">60 days before</option>
+            </select>
+        </div>
 
         <h6>RECIPIENT(S)</h6>
         <select class="task-param" param-name="schedule-recipient" multiple>
