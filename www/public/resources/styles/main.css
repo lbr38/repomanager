@@ -376,6 +376,27 @@ article {
     letter-spacing: 0.3px;
 }
 
+/* Link between a task and its relaunch, printed next to the task date */
+.task-item-relaunch {
+    display: inline-flex;
+    align-items: center;
+    column-gap: 5px;
+    font-family: 'archivo';
+    font-size: 13px;
+    color: #97a5b4;
+    letter-spacing: 0.3px;
+}
+
+/* A task that has been relaunched is replaced by its relaunch, so it is dimmed */
+.task-item-relaunched {
+    opacity: 0.55;
+    transition: opacity 0.2s ease;
+}
+
+.task-item-relaunched:hover {
+    opacity: 1;
+}
+
 .task-item-action {
     font-size: 13px;
     font-weight: 600;

@@ -588,8 +588,25 @@ class Task
             throw new Exception('Task #' . $id . ' is a parent task and cannot be relaunched, relaunch its sub-tasks instead');
         }
 
-        // First, duplicate task in database
-        $newTaskId = $this->duplicate($id, 'queued');
+        // Only the latest attempt of a task can be relaunched, so that a task has at most one relaunch
+        $relaunchTaskId = $this->getRelaunchTaskId($id);
+
+        if (!empty($relaunchTaskId)) {
+            throw new Exception('Task #' . $id . ' has already been relaunched by task #' . $relaunchTaskId);
+        }
+
+        $task = $this->getById($id);
+
+        // First, create the new task in database, linked to the task it relaunches and to its parent task
+        $newTaskId = $this->model->relaunch($id);
+
+        /**
+         *  The parent task of a relaunched sub-task may already be closed: it is reopened so that it
+         *  is closed again, with an updated summary and notification, once the relaunch has ended
+         */
+        if (!empty($task['Parent_task_id'])) {
+            $this->updateStatus($task['Parent_task_id'], 'running');
+        }
 
         // If a temporary directory was used for the previous task, then rename it to be used for the new task
         if (file_exists(REPOS_DIR . '/temporary-task-' . $id) and is_dir(REPOS_DIR . '/temporary-task-' . $id)) {
@@ -601,10 +618,18 @@ class Task
         // Execute task
         $this->executeId($newTaskId);
 
-        $this->layoutContainerReloadController->reload('tasks/logs');
+        $this->layoutContainerReloadController->reload('tasks/log');
         $this->layoutContainerReloadController->reload('tasks/tasks');
 
         return $newTaskId;
+    }
+
+    /**
+     *  Return the Id of the task that relaunched the task $id, or null if it has not been relaunched
+     */
+    public function getRelaunchTaskId(int $id): int|null
+    {
+        return $this->model->getRelaunchTaskId($id);
     }
 
     /**

@@ -385,12 +385,15 @@ class Connection extends SQLite3
         Raw_params TEXT NOT NULL,
         Duration INTEGER,
         Status CHAR(9), /* new, scheduled, running, done, stopped */
-        Parent_task_id INTEGER)");
+        Parent_task_id INTEGER,
+        Relaunched_from_task_id INTEGER)");
 
         // Create indexes
         $this->exec("CREATE INDEX IF NOT EXISTS tasks_rawparams_status ON tasks (Raw_params, Status)");
         $this->exec("CREATE INDEX IF NOT EXISTS tasks_status ON tasks (Status)");
         $this->exec("CREATE INDEX IF NOT EXISTS tasks_parent_task_id ON tasks (Parent_task_id)");
+        // TODO 6.2+
+        // $this->exec("CREATE INDEX IF NOT EXISTS tasks_relaunched_from_task_id ON tasks (Relaunched_from_task_id)");
 
         // profile_settings table
         $this->exec("CREATE TABLE IF NOT EXISTS profile_settings (

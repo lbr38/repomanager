@@ -39,6 +39,9 @@ try {
     // Check if the task is a parent task
     $isParent = $taskController->isParent($taskId);
 
+    // Id of the task that relaunched this task, if any
+    $relaunchTaskId = $taskController->getRelaunchTaskId($taskId);
+
     // If the task has a log file (old format)
     if (!empty($taskInfo['Logfile']) and file_exists(MAIN_LOGS_DIR . '/' . $taskInfo['Logfile'])) {
         $logfile = $taskInfo['Logfile'];

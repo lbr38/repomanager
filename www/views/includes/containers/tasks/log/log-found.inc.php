@@ -12,12 +12,28 @@ use \Controllers\User\Permission\Task as TaskPermission; ?>
         if (!empty($taskInfo['Parent_task_id'])) : ?>
             <a href="/task/<?= $taskInfo['Parent_task_id'] ?>" title="View the scheduled task that generated this task"><p id="stop-task-log-btn" class="label-white pointer" task-id="<?= $taskId ?>">View parent task</p></a>
             <?php
+        endif;
+
+        // If the task is a relaunch of a previous task, print a link to it
+        if (!empty($taskInfo['Relaunched_from_task_id'])) : ?>
+            <a href="/task/<?= $taskInfo['Relaunched_from_task_id'] ?>" title="This task is a relaunch of task #<?= $taskInfo['Relaunched_from_task_id'] ?>, click to view it">
+                <p class="label-white pointer">Relaunch of task #<?= $taskInfo['Relaunched_from_task_id'] ?></p>
+            </a>
+            <?php
+        endif;
+
+        // If the task has been relaunched, print a link to its relaunch
+        if (!empty($relaunchTaskId)) : ?>
+            <a href="/task/<?= $relaunchTaskId ?>" title="This task has been relaunched by task #<?= $relaunchTaskId ?>, click to view it">
+                <p class="label-white pointer">Relaunched by task #<?= $relaunchTaskId ?></p>
+            </a>
+            <?php
         endif; ?>
     </div>
 
     <?php
-    // Show the relaunch button only if the task is not a parent task
-    if (($taskInfo['Status'] == 'error' or $taskInfo['Status'] == 'stopped') and !$isParent) :
+    // Show the relaunch button only if the task is not a parent task and has not already been relaunched
+    if (($taskInfo['Status'] == 'error' or $taskInfo['Status'] == 'stopped') and !$isParent and empty($relaunchTaskId)) :
         if (TaskPermission::allowedAction('relaunch')) : ?>
             <p id="relaunch-task-log-btn" class="label-yellow relaunch-task-btn pointer" redirect="true" task-id="<?= $taskId ?>" title="Relaunch the task">Relaunch</p>
             <?php

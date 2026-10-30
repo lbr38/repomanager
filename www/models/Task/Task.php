@@ -342,6 +342,47 @@ class Task extends \Models\Model
     }
 
     /**
+     *  Create a new task relaunching the task $id, and return the new task Id
+     *  The new task keeps the parent task of the relaunched one, so that a sub-task stays grouped
+     *  with the other sub-tasks of the same operation, and is linked to the task it relaunches
+     */
+    public function relaunch(int $id) : int
+    {
+        try {
+            $stmt = $this->db->prepare("INSERT INTO tasks (Type, Raw_params, Status, Parent_task_id, Relaunched_from_task_id)
+            SELECT Type, Raw_params, 'queued', Parent_task_id, Id FROM tasks WHERE Id = :id");
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+
+        return $this->db->lastInsertRowID();
+    }
+
+    /**
+     *  Return the Id of the task that relaunched the task $id, or null if it has not been relaunched
+     */
+    public function getRelaunchTaskId(int $id) : int|null
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT Id FROM tasks WHERE Relaunched_from_task_id = :id LIMIT 1");
+            $stmt->bindValue(':id', $id);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+
+        $row = $result->fetchArray(SQLITE3_ASSOC);
+
+        if (empty($row)) {
+            return null;
+        }
+
+        return (int) $row['Id'];
+    }
+
+    /**
      *  Close a task
      */
     public function close(int $id, string $status, string $duration) : void

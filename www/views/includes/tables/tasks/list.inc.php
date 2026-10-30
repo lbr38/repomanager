@@ -65,6 +65,9 @@ use \Controllers\Task\Task; ?>
                 $subTasks = $taskListingController->getByParentId($item['Id']);
                 $hasSubTasks = (!empty($subTasks) or !empty($taskRawParams['tasks']));
 
+                // Id of the task that relaunched this task, if any
+                $relaunchTaskId = $taskController->getRelaunchTaskId($item['Id']);
+
                 // Determine status accent color
                 if ($itemStatus == 'done') {
                     $taskAccent = 'accent-green';
@@ -86,7 +89,7 @@ use \Controllers\Task\Task; ?>
                 // Determine click behavior class
                 $actionBtn = in_array($item['Status'], ['scheduled', 'queued', 'disabled']) ? 'task-item-selectable' : ''; ?>
 
-                <div class="task-item <?= $taskAccent ?> <?= $actionBtn ?> pointer" task-id="<?= $item['Id'] ?>" title="<?= in_array($item['Status'], ['scheduled', 'queued', 'disabled']) ? 'Click to select' : 'View task details' ?>">
+                <div class="task-item <?= $taskAccent ?> <?= $actionBtn ?> <?= !empty($relaunchTaskId) ? 'task-item-relaunched' : '' ?> pointer" task-id="<?= $item['Id'] ?>" title="<?= in_array($item['Status'], ['scheduled', 'queued', 'disabled']) ? 'Click to select' : 'View task details' ?>">
                     <a <?= in_array($item['Status'], ['scheduled', 'queued', 'disabled']) ? '' : 'href="/task/' . $item['Id'] . '"'; ?> target="_blank" rel="noopener noreferrer">
                         <div class="flex align-item-center column-gap-20">
                             <?php
@@ -109,6 +112,19 @@ use \Controllers\Task\Task; ?>
                                     if (!empty($item['Date']) and !empty($item['Time'])) : ?>
                                         <span class="dot mediumopacity-cst">●</span>
                                         <span class="task-item-date"><?= $item['Status'] == 'scheduled' ? 'Last execution: ' : '' ?><?= DateTime::createFromFormat('Y-m-d', $item['Date'])->format('d-m-Y') ?> <?= $item['Time'] ?></span>
+                                        <?php
+                                    endif;
+
+                                    // Link between a task and its relaunch
+                                    if (!empty($item['Relaunched_from_task_id'])) : ?>
+                                        <span class="dot mediumopacity-cst">●</span>
+                                        <span class="task-item-relaunch" title="This task is a relaunch of task #<?= $item['Relaunched_from_task_id'] ?>"><img src="/assets/icons/update.svg" class="icon-small mediumopacity-cst" />Relaunch of #<?= $item['Relaunched_from_task_id'] ?></span>
+                                        <?php
+                                    endif;
+
+                                    if (!empty($relaunchTaskId)) : ?>
+                                        <span class="dot mediumopacity-cst">●</span>
+                                        <span class="task-item-relaunch" title="This task has been relaunched by task #<?= $relaunchTaskId ?>"><img src="/assets/icons/update.svg" class="icon-small mediumopacity-cst" />Relaunched by #<?= $relaunchTaskId ?></span>
                                         <?php
                                     endif;
 
@@ -215,8 +231,8 @@ use \Controllers\Task\Task; ?>
 
                     <div class="task-item-status">
                         <?php
-                        // Show the relaunch button only if the task is not a parent task
-                        if (!$hasSubTasks and ($item['Status'] == 'error' or $item['Status'] == 'stopped') and !empty($item['Id'])) {
+                        // Show the relaunch button only if the task is not a parent task and has not already been relaunched
+                        if (!$hasSubTasks and empty($relaunchTaskId) and ($item['Status'] == 'error' or $item['Status'] == 'stopped') and !empty($item['Id'])) {
                             if (TaskPermission::allowedAction('relaunch')) {
                                 echo '<img class="icon-mediumopacity relaunch-task-btn" src="/assets/icons/update.svg" task-id="' . $item['Id'] . '" title="Relaunch this task" />';
                             }
@@ -243,6 +259,9 @@ use \Controllers\Task\Task; ?>
                         foreach ($subTasks as $subTask) :
                             $subTaskAccent = 'yellow';
 
+                            // A sub-task that has been relaunched is replaced by its relaunch, so it is dimmed
+                            $subTaskRelaunchId = $taskController->getRelaunchTaskId($subTask['Id']);
+
                             if ($subTask['Status'] == 'done') {
                                 $subTaskAccent = 'green';
                             } elseif ($subTask['Status'] == 'error' or $subTask['Status'] == 'stopped') {
@@ -251,7 +270,7 @@ use \Controllers\Task\Task; ?>
                                 $subTaskAccent = 'cyan';
                             } ?>
 
-                            <div class="task-item-child div-generic-blue accent-<?= $subTaskAccent ?>">
+                            <div class="task-item-child div-generic-blue accent-<?= $subTaskAccent ?> <?= !empty($subTaskRelaunchId) ? 'task-item-relaunched' : '' ?>">
                                 <a class="flex align-item-center column-gap-10" href="/task/<?= $subTask['Id'] ?>" title="View sub-task #<?= $subTask['Id'] ?> details" target="_blank" rel="noopener noreferrer">
                                     <?php
                                     if ($subTask['Status'] == 'running') {
@@ -259,14 +278,23 @@ use \Controllers\Task\Task; ?>
                                     } ?>
 
                                     <span class="label-white"><?= $taskController->getRepo($subTask['Id']) ?></span>
+
+                                    <?php
+                                    if (!empty($subTask['Relaunched_from_task_id'])) {
+                                        echo '<span class="task-item-relaunch" title="This task is a relaunch of task #' . $subTask['Relaunched_from_task_id'] . '"><img src="/assets/icons/update.svg" class="icon-small mediumopacity-cst" />Relaunch of #' . $subTask['Relaunched_from_task_id'] . '</span>';
+                                    }
+
+                                    if (!empty($subTaskRelaunchId)) {
+                                        echo '<span class="task-item-relaunch" title="This task has been relaunched by task #' . $subTaskRelaunchId . '"><img src="/assets/icons/update.svg" class="icon-small mediumopacity-cst" />Relaunched by #' . $subTaskRelaunchId . '</span>';
+                                    } ?>
                                 </a>
 
                                 <div class="task-item-status">
                                     <?php
                                     if ($subTask['Status'] == 'running' or $subTask['Status'] == 'queued') {
                                         // If the task has no running process, display a warning icon
-                                        if (!Task::processRunning($item['Id'])) {
-                                            echo '<img src="/assets/icons/warning-red.svg" class="icon-np" task-id="' . $item['Id'] . '" title="No running process found for this task, the process might have crashed, you should stop this task" />';
+                                        if (!Task::processRunning($subTask['Id'])) {
+                                            echo '<img src="/assets/icons/warning-red.svg" class="icon-np" task-id="' . $subTask['Id'] . '" title="No running process found for this task, the process might have crashed, you should stop this task" />';
                                         }
 
                                         if (TaskPermission::allowedAction('stop')) {
@@ -274,7 +302,7 @@ use \Controllers\Task\Task; ?>
                                         }
                                     }
 
-                                    if ($subTask['Status'] == 'error' or $subTask['Status'] == 'stopped') {
+                                    if (empty($subTaskRelaunchId) and ($subTask['Status'] == 'error' or $subTask['Status'] == 'stopped')) {
                                         if (TaskPermission::allowedAction('relaunch')) {
                                             echo '<img class="icon-mediumopacity relaunch-task-btn" src="/assets/icons/update.svg" task-id="' . $subTask['Id'] . '" title="Relaunch this task" />';
                                         }
