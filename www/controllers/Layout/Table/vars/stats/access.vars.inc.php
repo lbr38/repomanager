@@ -7,18 +7,25 @@ $timeStart = strtotime(DATE_YMD . ' 00:00:00');
 $timeEnd = strtotime(DATE_YMD . ' 23:59:59');
 $envs = [];
 
+// Mirror page (/repository/mirror/<id>)
+$isMirror = (__ACTUAL_URI__[2] ?? '') == 'mirror';
+
 // Check that repository Id is specified
-if (empty(__ACTUAL_URI__[2])) {
+if (!$isMirror && empty(__ACTUAL_URI__[2])) {
     throw new Exception('no repository ID specified');
 }
 
 // Check that repository Id is valid
-if (!is_numeric(__ACTUAL_URI__[2])) {
+if (!$isMirror && !is_numeric(__ACTUAL_URI__[2])) {
     throw new Exception('invalid repository ID');
 }
 
-// Get repository info
-$repoController->getAllById(__ACTUAL_URI__[2]);
+// Get repository or mirror info
+if ($isMirror) {
+    $mirror = (new \Controllers\Mirror\Mirror())->getForPage(__ACTUAL_URI__[3] ?? '');
+} else {
+    $repoController->getAllById(__ACTUAL_URI__[2]);
+}
 
 // Retrieve period from cookie if exists
 if (!empty($_COOKIE['tables/stats/access/period'])) {
@@ -37,19 +44,27 @@ if (!empty($_COOKIE['tables/stats/access/offset']) and is_numeric($_COOKIE['tabl
 }
 
 // Retrieve last access logs, with offset
-if ($repoController->getPackageType() == 'rpm') {
+if (!$isMirror && $repoController->getPackageType() == 'rpm') {
     $reloadableTableContent = $rpmRepoStatController->getAccess($repoController->getName(), $repoController->getReleasever(), $envs, $timeStart, $timeEnd, false, true, $reloadableTableOffset);
 }
-if ($repoController->getPackageType() == 'deb') {
+if (!$isMirror && $repoController->getPackageType() == 'deb') {
     $reloadableTableContent = $debRepoStatController->getAccess($repoController->getName(), $repoController->getDist(), $repoController->getSection(), $envs, $timeStart, $timeEnd, false, true, $reloadableTableOffset);
 }
 
 // Retrieve last access logs, without offset, for the total count
-if ($repoController->getPackageType() == 'rpm') {
+if (!$isMirror && $repoController->getPackageType() == 'rpm') {
     $reloadableTableTotalItems = $rpmRepoStatController->getAccess($repoController->getName(), $repoController->getReleasever(), $envs, $timeStart, $timeEnd, true);
 }
-if ($repoController->getPackageType() == 'deb') {
+if (!$isMirror && $repoController->getPackageType() == 'deb') {
     $reloadableTableTotalItems = $debRepoStatController->getAccess($repoController->getName(), $repoController->getDist(), $repoController->getSection(), $envs, $timeStart, $timeEnd, true);
+}
+
+// Mirror accesses, with offset, then without offset for the total count
+if ($isMirror) {
+    $mirrorStatController = new \Controllers\Mirror\Statistic();
+    $reloadableTableContent = $mirrorStatController->getAccess($mirror['Id'], $envs, $timeStart, $timeEnd, false, true, $reloadableTableOffset);
+    $reloadableTableTotalItems = $mirrorStatController->getAccess($mirror['Id'], $envs, $timeStart, $timeEnd, true);
+    unset($mirrorStatController, $mirror);
 }
 
 // Count total pages for the pagination

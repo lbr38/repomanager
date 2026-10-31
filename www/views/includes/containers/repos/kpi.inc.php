@@ -32,6 +32,40 @@ use \Controllers\Utils\Generate\Html\Label; ?>
         </div>
 
         <?php
+        // KPI card: mirrors
+        if ($totalMirrors > 0) : ?>
+            <div class="kpi-card">
+                <img src="/assets/icons/duplicate.svg" class="icon-np icon-medium" />
+                <div>
+                    <p class="kpi-value"><?= $totalMirrors ?></p>
+                    <p class="mediumopacity-cst"><?= $totalMirrors <= 1 ? 'Mirror' : 'Mirrors' ?></p>
+                </div>
+            </div>
+            <?php
+        endif;
+
+        // KPI card: mirrors storage, only if mirrors are stored on another filesystem than repositories
+        if (!empty($mirrorsStorage)) : ?>
+            <div class="kpi-card">
+                <img src="/assets/icons/disk.svg" class="icon-np icon-medium" />
+                <div class="flex flex-direction-column flex-wrap width-100">
+                    <div class="flex flex-wrap-mobile align-item-center column-gap-30 justify-space-between">
+                        <p class="kpi-value"><?= $mirrorsStorage['percent'] ?>%</p>
+
+                        <div class="<?= $mirrorsStorage['class'] ?>" title="<?= $mirrorsStorage['percent'] ?>% used storage">
+                            <span style="width: <?= $mirrorsStorage['percent'] ?>%"></span>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap align-item-center column-gap-10 row-gap-5 justify-space-between">
+                        <p class="mediumopacity-cst">Mirrors storage</p>
+                        <p class="mediumopacity-cst margin-top-5"><?= $mirrorsStorage['used'] ?> used / <?= $mirrorsStorage['free'] ?> free</p>
+                    </div>
+                </div>
+            </div>
+            <?php
+        endif;
+
         // KPI card: last scheduled task status
         if (!empty($lastScheduledTask) and !empty($lastScheduledTask['Date']) and !empty($lastScheduledTask['Time']) and (time() - strtotime($lastScheduledTask['Date'] . ' ' . $lastScheduledTask['Time']) <= 1296000)) :
             if ($lastScheduledTask['Status'] == 'error' or $lastScheduledTask['Status'] == 'stopped') {

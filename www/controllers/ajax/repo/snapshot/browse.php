@@ -1,18 +1,22 @@
 <?php
 if ($action == 'view-file' and !empty($_POST['path'])) {
     try {
+        // File path is relative to the repositories directory, or to the mirrors directory when browsing a mirror snapshot
+        $rootDir = ($_POST['root'] ?? '') == 'mirror' ? MIRRORS_DIR : REPOS_DIR;
+        $file = $rootDir . '/' . $_POST['path'];
+
         /**
-         *  Check that the file path starts with REPOS_DIR
+         *  Check that the file path is inside the repositories or mirrors directory
          *  Prevents a malicious person from providing a path that has nothing to do with the repo directory (e.g. /etc/...)
          */
-        if (!preg_match("#^" . REPOS_DIR . "#", realpath(REPOS_DIR . '/' . $_POST['path']))) {
-            throw new Exception('invalid path ' . REPOS_DIR . '/' . $_POST['path']);
+        if (!\Controllers\Repo\Browse::allowedPath($file)) {
+            throw new Exception('invalid path ' . $file);
         }
 
-        $content = file_get_contents(REPOS_DIR . '/' . $_POST['path']);
+        $content = file_get_contents($file);
 
         if ($content === false) {
-            throw new Exception('could not read file ' . REPOS_DIR . '/' . $_POST['path']);
+            throw new Exception('could not read file ' . $file);
         }
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
@@ -26,11 +30,8 @@ if ($action == 'view-file' and !empty($_POST['path'])) {
  */
 if ($_POST['action'] == 'tree' and !empty($_POST['path'])) {
     try {
-        /**
-         *  Check that the file path starts with REPOS_DIR
-         *  Prevents a malicious person from providing a path that has nothing to do with the repo directory (e.g. /etc/...)
-         */
-        if (!preg_match("#^" . REPOS_DIR . "#", realpath($_POST['path']))) {
+        // Check that the path is inside the repositories or mirrors directory
+        if (!\Controllers\Repo\Browse::allowedPath($_POST['path'])) {
             throw new Exception('invalid path ' . $_POST['path']);
         }
 
@@ -47,7 +48,7 @@ if ($_POST['action'] == 'tree' and !empty($_POST['path'])) {
  */
 if ($_POST['action'] == 'tree/page' and !empty($_POST['path']) and isset($_POST['offset'])) {
     try {
-        if (!preg_match("#^" . REPOS_DIR . "#", realpath($_POST['path']))) {
+        if (!\Controllers\Repo\Browse::allowedPath($_POST['path'])) {
             throw new Exception('invalid path ' . $_POST['path']);
         }
 
@@ -65,7 +66,7 @@ if ($_POST['action'] == 'tree/page' and !empty($_POST['path']) and isset($_POST[
  */
 if ($_POST['action'] == 'tree/search' and !empty($_POST['path']) and isset($_POST['query'])) {
     try {
-        if (!preg_match("#^" . REPOS_DIR . "#", realpath($_POST['path']))) {
+        if (!\Controllers\Repo\Browse::allowedPath($_POST['path'])) {
             throw new Exception('invalid path ' . $_POST['path']);
         }
 

@@ -3,6 +3,17 @@ use \Controllers\Filesystem\Directory;
 use \Controllers\Filesystem\File;
 use \Controllers\Utils\Convert;
 
+// Mirror snapshot (/snapshot/mirror/<id>): read-only, its content is an exact copy of the source repository
+$isMirror = (__ACTUAL_URI__[2] ?? '') == 'mirror';
+
+if ($isMirror) {
+    $snapId = __ACTUAL_URI__[3] ?? '';
+    $snapshotPath = (new \Controllers\Mirror\Snapshot())->getBrowseInfo($snapId)['path'];
+    $protectedEnv = false;
+    $taskRunning = false;
+    return;
+}
+
 $repoController = new \Controllers\Repo\Repo();
 $repoSnapshotController = new \Controllers\Repo\Snapshot\Snapshot();
 

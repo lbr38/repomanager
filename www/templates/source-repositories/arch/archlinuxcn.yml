@@ -1,0 +1,15 @@
+---
+description: Arch Linux CN community repository
+type: arch
+repositories:
+  # Arch Linux CN community repository, from its main server
+  - name: archlinuxcn
+    type: arch
+    description: Arch Linux CN community repository
+    url: https://repo.archlinuxcn.org/$arch
+    repos:
+      - name: archlinuxcn
+        description: Arch Linux CN
+    archs:
+      - name: x86_64
+      - name: aarch64

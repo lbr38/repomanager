@@ -47,7 +47,7 @@ use \Controllers\User\Permission\Repo as RepoPermission; ?>
 
                     <?php
                     if (RepoPermission::allowedAction('create')) : ?>
-                        <div class="slide-btn slide-btn-green get-panel-btn" panel="repos/new" title="Create a new mirror or local repository">
+                        <div class="slide-btn slide-btn-green get-panel-btn" panel="repos/new" title="Create a new curated repository, local repository or mirror">
                             <img src="/assets/icons/plus.svg" />
                             <span>Create a new repository</span>
                         </div>

@@ -5,7 +5,7 @@ use \Controllers\Layout\Table\Render as TableRender; ?>
     <div class="flex justify-space-between align-flex-end margin-top-40 margin-bottom-15 margin-right-20">
         <div>
             <h6 class="margin-top-0">CURRENT SOURCE REPOSITORIES</h6>
-            <p class="note">Source repositories to be mirrored.</p>
+            <p class="note">Source repositories used by curated repositories and mirrors.</p>
         </div>
 
         <?php
@@ -65,6 +65,11 @@ use \Controllers\Layout\Table\Render as TableRender; ?>
                 if (isset($definition['releasever'])) {
                     $releasevers = $definition['releasever'];
                 }
+            }
+
+            // Case it is an arch source repository
+            if ($type == 'arch') {
+                $accent = 'cyan';
             }
 
             // SSL authentication
@@ -215,6 +220,51 @@ use \Controllers\Layout\Table\Render as TableRender; ?>
                         <?php
                     endif ?>
                     
+                    <?php
+                    if ($type == 'arch') :
+                        // Repositories (e.g. core, extra) replace $repo in the URL, architectures replace $arch
+                        $archItems = [
+                            'repos' => ['title' => 'REPOSITORIES', 'note' => 'Repositories that can be mirrored, they replace <code>$repo</code> in the URL.', 'placeholder' => 'Add repository (e.g. core)'],
+                            'archs' => ['title' => 'ARCHITECTURES', 'note' => 'Architectures that can be mirrored, they replace <code>$arch</code> in the URL.', 'placeholder' => 'Add architecture (e.g. x86_64)']
+                        ];
+
+                        foreach ($archItems as $field => $archItem) : ?>
+                            <h6><?= $archItem['title'] ?></h6>
+                            <p class="note"><?= $archItem['note'] ?></p>
+
+                            <div class="flex flex-wrap column-gap-5 row-gap-5 margin-bottom-10">
+                                <?php
+                                foreach ($definition[$field] ?? [] as $itemId => $itemDefinition) : ?>
+                                    <p class="label-black flex align-item-center column-gap-5" title="<?= htmlspecialchars($itemDefinition['description'] ?? '') ?>">
+                                        <?= htmlspecialchars($itemDefinition['name']) ?>
+                                        <img src="/assets/icons/close.svg" class="source-repo-arch-remove-btn icon-small pointer lowopacity" source-id="<?= $item['Id'] ?>" field="<?= $field ?>" item-id="<?= $itemId ?>" title="Remove <?= htmlspecialchars($itemDefinition['name']) ?>" />
+                                    </p>
+                                    <?php
+                                endforeach ?>
+                            </div>
+
+                            <div class="flex align-item-center column-gap-5">
+                                <input type="text" class="source-repo-arch-add-input" source-id="<?= $item['Id'] ?>" field="<?= $field ?>" placeholder="<?= $archItem['placeholder'] ?>">
+                                <button type="button" class="source-repo-arch-add-btn btn-xxsmall-green" source-id="<?= $item['Id'] ?>" field="<?= $field ?>" title="Add">+</button>
+                            </div>
+                            <?php
+                        endforeach;
+
+                        if (!empty($definition['gpgkeys'])) : ?>
+                            <h6>GPG KEYS</h6>
+                            <p class="note">Imported in Repomanager keyring, used to verify the database signature when the source repository signs it.</p>
+                            <div class="flex flex-wrap column-gap-5 row-gap-5">
+                                <?php
+                                foreach ($definition['gpgkeys'] as $gpgKey) {
+                                    if (!empty($gpgKey['fingerprint'])) {
+                                        echo '<p class="label-black copy">' . htmlspecialchars($gpgKey['fingerprint']) . '</p>';
+                                    }
+                                } ?>
+                            </div>
+                            <?php
+                        endif;
+                    endif ?>
+
                     <h6>SSL AUTHENTICATION</h6>
                     <p class="note">Use a SSL certificate and private key to authenticate to the source repository.</p>
 

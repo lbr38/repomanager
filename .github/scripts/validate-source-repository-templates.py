@@ -7,7 +7,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 TEMPLATES_DIR = ROOT / "www" / "templates" / "source-repositories"
-VALID_TYPES = {"deb", "rpm"}
+VALID_TYPES = {"deb", "rpm", "arch"}
 
 
 def error(errors, path, message):
@@ -83,6 +83,23 @@ def validate_rpm_releasever(errors, path, releasever, context):
     validate_gpgkeys(errors, path, releasever.get("gpgkeys"), context)
 
 
+def validate_arch_items(errors, path, items, context, require_description):
+    if not require_list(errors, path, items, context):
+        return
+
+    for index, item in enumerate(items):
+        item_context = f"{context}[{index}]"
+
+        if not isinstance(item, dict):
+            error(errors, path, f"`{item_context}` must be a mapping")
+            continue
+
+        require_non_empty_string(errors, path, item.get("name"), f"{item_context}.name")
+
+        if require_description:
+            require_non_empty_string(errors, path, item.get("description"), f"{item_context}.description")
+
+
 def validate_repository(errors, path, repository, index, expected_type):
     context = f"repositories[{index}]"
 
@@ -103,6 +120,14 @@ def validate_repository(errors, path, repository, index, expected_type):
         if require_list(errors, path, distributions, f"{context}.distributions"):
             for distribution_index, distribution in enumerate(distributions):
                 validate_deb_distribution(errors, path, distribution, f"{context}.distributions[{distribution_index}]")
+
+    # Arch Linux repositories (core, extra...) and architectures, GPG keys are optional as most repositories do not sign their database
+    if expected_type == "arch":
+        validate_arch_items(errors, path, repository.get("repos"), f"{context}.repos", True)
+        validate_arch_items(errors, path, repository.get("archs"), f"{context}.archs", False)
+
+        if "gpgkeys" in repository:
+            validate_gpgkeys(errors, path, repository.get("gpgkeys"), context)
 
     if expected_type == "rpm":
         releasevers = repository.get("releasever")
@@ -129,7 +154,7 @@ def validate_file(path):
 
     template_type = data.get("type")
     if template_type not in VALID_TYPES:
-        error(errors, path, "`type` must be `deb` or `rpm`")
+        error(errors, path, "`type` must be `deb`, `rpm` or `arch`")
 
     repositories = data.get("repositories")
     if require_list(errors, path, repositories, "repositories") and template_type in VALID_TYPES:

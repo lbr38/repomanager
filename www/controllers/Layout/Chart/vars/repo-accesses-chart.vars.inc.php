@@ -11,13 +11,16 @@ $envs = [];
 $allTimestamps = [];
 $envData = [];
 
+// Mirror page (/repository/mirror/<id>)
+$isMirror = (__ACTUAL_URI__[2] ?? '') == 'mirror';
+
 // Check that repository Id is specified
-if (empty(__ACTUAL_URI__[2])) {
+if (!$isMirror && empty(__ACTUAL_URI__[2])) {
     throw new Exception('no repository ID specified');
 }
 
 // Check that repository Id is valid
-if (!is_numeric(__ACTUAL_URI__[2])) {
+if (!$isMirror && !is_numeric(__ACTUAL_URI__[2])) {
     throw new Exception('invalid repository ID');
 }
 
@@ -33,15 +36,21 @@ if (!empty($_COOKIE['chart/stats/accesses/envs'])) {
 //     $timeEnd = strtotime(explode(' - ', $_COOKIE['chart/stats/repo-accesses/period'])[1]);
 // }
 
-// Retrieve repo infos from DB
-$repoController->getAllById(__ACTUAL_URI__[2], '', '');
-
 // Get statistics directly from database for all environments
 $results = [];
-if ($repoController->getPackageType() == 'rpm') {
+
+if ($isMirror) {
+    $mirror = (new \Controllers\Mirror\Mirror())->getForPage(__ACTUAL_URI__[3] ?? '');
+    $results = (new \Controllers\Mirror\Statistic())->getAccessByPeriod($mirror['Id'], $envs, $timeStart, $timeEnd);
+} else {
+    // Retrieve repo infos from DB
+    $repoController->getAllById(__ACTUAL_URI__[2], '', '');
+}
+
+if (!$isMirror && $repoController->getPackageType() == 'rpm') {
     $results = $rpmRepoStatController->getAccessByPeriod($repoController->getName(), $repoController->getReleasever(), $envs, $timeStart, $timeEnd);
 }
-if ($repoController->getPackageType() == 'deb') {
+if (!$isMirror && $repoController->getPackageType() == 'deb') {
     $results = $debRepoStatController->getAccessByPeriod($repoController->getName(), $repoController->getDist(), $repoController->getSection(), $envs, $timeStart, $timeEnd);
 }
 
