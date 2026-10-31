@@ -120,6 +120,7 @@ if (__ACTUAL_URI__[1] == '') {
         'events/repo/install',
         'events/repo/group',
         'events/repo/scheduled-task',
+        'events/mirror/actions',
         'events/task/stop'
     ];
 }

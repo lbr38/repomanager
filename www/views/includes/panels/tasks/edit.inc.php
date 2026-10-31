@@ -18,9 +18,12 @@ foreach ($tasks as $task) :
         <h5 class="margin-top-0">TASK #<?= strtoupper($task['Id']) ?></h5>
 
         <h6>ACTION</h6>
-        <p><?= $taskConfig['description'] ?></p>
+        <?php
+        // Mirrors tasks share the repositories tasks configuration, use their own title instead
+        $isMirror = ($params['domain'] ?? '') == 'mirror'; ?>
+        <p><?= $isMirror ? \Controllers\Task\Task::generateLiteralAction($task)['title'] : $taskConfig['description'] ?></p>
 
-        <h6>REPOSITORY</h6>
+        <h6><?= $isMirror ? 'MIRROR' : 'REPOSITORY' ?></h6>
         <p><?= Label::white($task['Repository']) ?></p>
 
         <h6 class="required">SCHEDULE TYPE</h6>

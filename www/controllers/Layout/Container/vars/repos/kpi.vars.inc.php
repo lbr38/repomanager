@@ -24,6 +24,30 @@ if ($diskUsedSpacePercent <= 50) {
     $diskUsedSpaceClass = 'storage-meter-accent-red';
 }
 
+// Mirrors count, and mirrors storage if mirrors are stored on another filesystem than repositories
+$totalMirrors = 0;
+$mirrorsStorage = [];
+
+// Only count the mirrors the user can view
+foreach ((new \Controllers\Mirror\Mirror())->get() as $mirror) {
+    if (\Controllers\User\Permission\Repo::allowedToViewMirror($mirror['Id'])) {
+        $totalMirrors++;
+    }
+}
+
+unset($mirror);
+
+if ($totalMirrors > 0 and is_dir(MIRRORS_DIR) and stat(MIRRORS_DIR)['dev'] != stat(REPOS_DIR)['dev']) {
+    $mirrorsTotalSpace = disk_total_space(MIRRORS_DIR);
+    $mirrorsFreeSpace = disk_free_space(MIRRORS_DIR);
+    $mirrorsStorage['percent'] = round((($mirrorsTotalSpace - $mirrorsFreeSpace) / $mirrorsTotalSpace) * 100);
+    $mirrorsStorage['used'] = Convert::sizeToHuman($mirrorsTotalSpace - $mirrorsFreeSpace);
+    $mirrorsStorage['free'] = Convert::sizeToHuman($mirrorsFreeSpace);
+    $mirrorsStorage['class'] = $mirrorsStorage['percent'] <= 50 ? 'storage-meter-accent-green' : ($mirrorsStorage['percent'] <= 80 ? 'storage-meter-accent-yellow' : 'storage-meter-accent-red');
+
+    unset($mirrorsTotalSpace, $mirrorsFreeSpace);
+}
+
 // Get last and next scheduled tasks
 $lastScheduledTask = $taskController->getLastScheduledTask();
 $nextScheduledTasks = $taskController->getNextScheduledTask();

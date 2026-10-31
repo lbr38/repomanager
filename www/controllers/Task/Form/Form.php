@@ -135,6 +135,12 @@ class Form
                 throw new Exception('No action has been specified');
             }
 
+            // Mirrors tasks have their own validation
+            if (($task['domain'] ?? '') == 'mirror') {
+                \Controllers\Mirror\Task\Form::validate($task);
+                continue;
+            }
+
             if (!in_array($task['action'], $this->validActions)) {
                 throw new Exception('Invalid action: ' . $task['action']);
             }

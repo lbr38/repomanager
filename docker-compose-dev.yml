@@ -22,3 +22,4 @@ services:
       - /var/lib/docker/volumes/repomanager-dev-www:/var/www/repomanager
       - /var/lib/docker/volumes/repomanager-dev-data:/var/lib/repomanager
       - /var/lib/docker/volumes/repomanager-dev-repo:/home/repo
+      - /var/lib/docker/volumes/repomanager-dev-mirrors:/home/mirrors

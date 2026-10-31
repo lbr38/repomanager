@@ -135,7 +135,7 @@ class Connection extends SQLite3
      */
     public function checkMainTables(): bool
     {
-        $this->required = 29;
+        $this->required = 33;
         $this->count = $this->countTables();
 
         // If the number of required tables != $required then try to regenerate the tables
@@ -273,6 +273,51 @@ class Connection extends SQLite3
 
         // Create indexes
         $this->exec("CREATE INDEX IF NOT EXISTS idx_repos_env_id_snap ON repos_env (Id_snap)");
+
+        // mirrors table
+        $this->exec("CREATE TABLE IF NOT EXISTS mirrors (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Name VARCHAR(255) NOT NULL,
+        Releasever VARCHAR(255) NOT NULL DEFAULT '', /* rpm only */
+        Package_type VARCHAR(10) NOT NULL,
+        Source VARCHAR(255) NOT NULL,
+        Params TEXT, /* JSON */
+        Description VARCHAR(255),
+        Tags VARCHAR(255))");
+
+        // Create indexes
+        $this->exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_mirrors_type_name_releasever ON mirrors (Package_type, Name, Releasever)");
+
+        // mirrors_snap table
+        $this->exec("CREATE TABLE IF NOT EXISTS mirrors_snap (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Date DATE NOT NULL,
+        Time TIME NOT NULL,
+        Size INTEGER, /* size in bytes */
+        Status CHAR(8) NOT NULL, /* active, deleted */
+        Id_mirror INTEGER NOT NULL)");
+
+        // Create indexes
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_mirrors_snap_status_id_mirror ON mirrors_snap (Status, Id_mirror)");
+
+        // mirrors_env table
+        $this->exec("CREATE TABLE IF NOT EXISTS mirrors_env (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Env VARCHAR(255) NOT NULL,
+        Id_snap INTEGER NOT NULL)");
+
+        // Create indexes
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_mirrors_env_id_snap ON mirrors_env (Id_snap)");
+
+        // mirror_group_members table (repositories groups members are in group_members)
+        $this->exec("CREATE TABLE IF NOT EXISTS mirror_group_members (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Id_mirror INTEGER NOT NULL,
+        Id_group INTEGER NOT NULL)");
+
+        // Create indexes
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_mirror_group_members_id_mirror ON mirror_group_members (Id_mirror)");
+        $this->exec("CREATE INDEX IF NOT EXISTS idx_mirror_group_members_id_group ON mirror_group_members (Id_group)");
 
         // env table
         $this->exec("CREATE TABLE IF NOT EXISTS env (

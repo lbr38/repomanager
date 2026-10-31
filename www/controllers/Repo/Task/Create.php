@@ -25,8 +25,8 @@ class Create extends \Controllers\Task\Execution
             $this->repoController->setName($this->params['alias']);
         }
 
-        // Set parameters in case the task is a mirror repo
-        if ($this->params['repo-type'] == 'mirror') {
+        // Set parameters in case the task is a curated repo
+        if ($this->params['repo-type'] == 'curated') {
             // Alias parameter can be empty, if it's the case, the value will be 'source'
             if (!empty($this->params['alias'])) {
                 $this->repoController->setName($this->params['alias']);
@@ -58,8 +58,8 @@ class Create extends \Controllers\Task\Execution
      */
     public function execute(): void
     {
-        if ($this->type == 'mirror') {
-            $this->mirror();
+        if ($this->type == 'curated') {
+            $this->curated();
         }
 
         if ($this->type == 'local') {
@@ -68,11 +68,11 @@ class Create extends \Controllers\Task\Execution
     }
 
     /**
-     *  Create a mirror repository
+     *  Create a curated repository
      */
-    private function mirror(): void
+    private function curated(): void
     {
-        // Define the date and time of the new mirror snapshot
+        // Define the date and time of the new curated repository snapshot
         $this->repoController->setDate(date('Y-m-d'));
         $this->repoController->setTime(date('H:i'));
 

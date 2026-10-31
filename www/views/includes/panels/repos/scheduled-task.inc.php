@@ -1,6 +1,6 @@
 <?php ob_start(); ?>
 
-<p class="note">Schedule a task on the <b>latest snapshot</b> of every repository matching the filters below.</p>
+<p class="note">Schedule a task on the <b>latest snapshot</b> of every repository matching the filters below. Mirrors are included in <b>update</b> (sync) and <b>point an environment</b> tasks.</p>
 <p class="note margin-bottom-10">Repositories created later are automatically included, so the task never has to be recreated.</p>
 
 <form id="scheduled-task-form" autocomplete="off">
@@ -26,7 +26,7 @@
         </select>
 
         <h6>TAGS</h6>
-        <p class="note">Only repositories having <b>all</b> the selected tags will be targeted.</p>
+        <p class="note">Only repositories and mirrors having <b>all</b> the selected tags will be targeted.</p>
         <select id="scheduled-task-target-tags" class="scheduled-task-target-param" param-name="tags" multiple>
             <?php
             foreach ($tags as $tag) {
@@ -58,14 +58,14 @@
             </select>
 
             <h6>CHECK GPG SIGNATURES</h6>
-            <p class="note">Check GPG signature of repository / packages. Only applies to mirror repositories.</p>
+            <p class="note">Check GPG signature of repository / packages. Only applies to curated repositories, mirrors keep their own setting.</p>
             <label class="onoff-switch-label">
                 <input type="checkbox" class="onoff-switch-input scheduled-task-param" param-name="gpg-check" value="true" checked />
                 <span class="onoff-switch-slider"></span>
             </label>
 
             <h6>SIGN WITH GPG</h6>
-            <p class="note">Sign repository / packages with GPG.</p>
+            <p class="note">Sign repository / packages with GPG. Does not apply to mirrors, their upstream signatures are kept.</p>
             <label class="onoff-switch-label">
                 <input type="checkbox" class="onoff-switch-input scheduled-task-param" param-name="gpg-sign" value="true" checked />
                 <span class="onoff-switch-slider"></span>
@@ -92,7 +92,7 @@
         <!-- Parameters for the 'rebuild' action -->
         <div class="scheduled-task-action-params hide" action="rebuild">
             <h6>SIGN WITH GPG</h6>
-            <p class="note">Sign repository / packages with GPG.</p>
+            <p class="note">Sign repository / packages with GPG. Does not apply to mirrors, their upstream signatures are kept.</p>
             <label class="onoff-switch-label">
                 <input type="checkbox" class="onoff-switch-input scheduled-task-param" param-name="gpg-sign" value="true" checked />
                 <span class="onoff-switch-slider"></span>

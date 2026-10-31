@@ -120,6 +120,43 @@ class Target
     }
 
     /**
+     *  Return the list of mirrors matching the target, with the same filters as repositories, and their latest active snapshot
+     */
+    public function resolveMirrors(array $target): array
+    {
+        $target = $this->validate($target);
+        $mirrors = [];
+
+        $mirrorController = new \Controllers\Mirror\Mirror();
+        $mirrorSnapshotController = new \Controllers\Mirror\Snapshot();
+        $mirrorsGroupsIds = $mirrorController->getGroupsIds();
+
+        foreach ($mirrorController->get() as $mirror) {
+            // Filter on package type
+            if ($target['package-type'] !== '' and $mirror['Package_type'] != $target['package-type']) {
+                continue;
+            }
+
+            // Filter on group, group Id 0 is the fictitious 'Default' group containing the mirrors that do not belong to any group
+            if ($target['group'] !== '' and strval($mirrorsGroupsIds[$mirror['Id']] ?? 0) !== $target['group']) {
+                continue;
+            }
+
+            // Filter on tags, a mirror must have ALL the specified tags to be selected
+            $mirrorTags = array_filter(explode(',', $mirror['Tags'] ?? ''));
+
+            if (!empty(array_diff($target['tags'], $mirrorTags))) {
+                continue;
+            }
+
+            $mirror['latestSnapId'] = $mirrorSnapshotController->getByMirrorId($mirror['Id'])[0]['Id'] ?? null;
+            $mirrors[] = $mirror;
+        }
+
+        return $mirrors;
+    }
+
+    /**
      *  Return a human readable description of the target
      *  The group name is resolved from its Id, so the description always reflects the current name
      */
@@ -230,8 +267,8 @@ class Target
                 $params['advanced-params'] = $repoController->getAdvancedParams();
                 $params['gpg-sign'] = $taskParams['gpg-sign'] ?? 'false';
 
-                // GPG check only applies to mirror repositories
-                if ($repoController->getType() == 'mirror') {
+                // GPG check only applies to curated repositories
+                if ($repoController->getType() == 'curated') {
                     $params['gpg-check'] = $taskParams['gpg-check'] ?? 'false';
                 }
 
@@ -252,6 +289,39 @@ class Target
             unset($repoController);
 
             $tasksParams[] = $params;
+        }
+
+        // Mirrors matching the target, the rebuild action does not apply to mirrors (their metadata are never rebuilt)
+        if (in_array($action, ['update', 'env'])) {
+            foreach ($this->resolveMirrors($taskParams['target']) as $mirror) {
+                $params = [
+                    'domain' => 'mirror',
+                    'action' => $action,
+                    'mirror-id' => strval($mirror['Id']),
+
+                    // Generated tasks are executed immediately, the recurrence is carried by the parent task
+                    'schedule' => [
+                        'scheduled' => 'false'
+                    ]
+                ];
+
+                // Environments to point to the new snapshot are optional
+                if ($action == 'update' and !empty($taskParams['env'])) {
+                    $params['env'] = $taskParams['env'];
+                }
+
+                // Environments are pointed to the latest snapshot of the mirror, a mirror without snapshot is ignored
+                if ($action == 'env') {
+                    if (empty($mirror['latestSnapId'])) {
+                        continue;
+                    }
+
+                    $params['mirror-snap-id'] = strval($mirror['latestSnapId']);
+                    $params['env'] = $taskParams['env'] ?? [];
+                }
+
+                $tasksParams[] = $params;
+            }
         }
 
         return $tasksParams;

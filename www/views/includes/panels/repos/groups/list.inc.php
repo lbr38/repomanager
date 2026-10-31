@@ -16,7 +16,7 @@ if (!empty($repoGroupsList)) : ?>
         // Retrieve repos members and repos not members of the group
         $reposIn = $mygroup->getReposMembers($group['Id']);
         $reposNotIn = $mygroup->getReposNotMembers();
-        $reposInCount = count($reposIn); ?>
+        $reposInCount = count($reposIn) + count(array_keys($mirrorsGroupsIds, $group['Id'])); ?>
 
         <div class="table-container-2 panel-list-item group-config-btn pointer veil-on-reload" group-id="<?= $group['Id'] ?>">
             <div>
@@ -59,6 +59,24 @@ if (!empty($repoGroupsList)) : ?>
                                 echo '<option value="' . $repo['repoId'] . '">' . $repo['Name'] . ' ❯ ' . $repo['Dist'] . ' ❯ ' . $repo['Section'] . '</option>';
                             }
                         }
+                    }
+
+                    // Mirrors members of the group (selected) and mirrors not member of any group (unselected)
+                    foreach ($mirrorsList as $mirror) {
+                        $mirrorGroupId = $mirrorsGroupsIds[$mirror['Id']] ?? null;
+
+                        if (!is_null($mirrorGroupId) and $mirrorGroupId != $group['Id']) {
+                            continue;
+                        }
+
+                        $mirrorParams = json_decode($mirror['Params'] ?? '', true) ?? [];
+                        $mirrorLabel = \Controllers\Mirror\Mirror::getLabel($mirror['Name'], $mirror['Releasever']);
+
+                        if (!empty($mirrorParams['dists'])) {
+                            $mirrorLabel .= ' ❯ ' . implode(', ', $mirrorParams['dists']);
+                        }
+
+                        echo '<option value="mirror-' . $mirror['Id'] . '"' . ($mirrorGroupId == $group['Id'] ? ' selected' : '') . '>' . htmlspecialchars($mirrorLabel) . ' (mirror)</option>';
                     } ?>
                 </select>
 

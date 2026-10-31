@@ -46,6 +46,7 @@ Once everything is ready, pull and run the Docker image with the environment var
         -v /etc/localtime:/etc/localtime:ro \
         -v /var/lib/docker/volumes/repomanager-data:/var/lib/repomanager \
         -v /var/lib/docker/volumes/repomanager-repo:/home/repo \
+        -v /var/lib/docker/volumes/repomanager-mirrors:/home/mirrors \
         lbr38/repomanager:latest
     ```
 
@@ -61,14 +62,16 @@ Once everything is ready, pull and run the Docker image with the environment var
         -v /etc/localtime:/etc/localtime:ro \
         -v /var/lib/docker/volumes/repomanager-data:/var/lib/repomanager \
         -v /var/lib/docker/volumes/repomanager-repo:/home/repo \
+        -v /var/lib/docker/volumes/repomanager-mirrors:/home/mirrors \
         lbr38/repomanager:latest
     ```
 </div>
 
-Two persistent volumes will be created on your local host:
+Three persistent volumes will be created on your local host:
 
 - ``repomanager-data`` (default path: ``/var/lib/docker/volumes/repomanager-data/``): contains database and log files
 - ``repomanager-repo`` (default path: ``/var/lib/docker/volumes/repomanager-repo/``): contains repository packages (deb/rpm), this directory might grow large depending on your usage
+- ``repomanager-mirrors`` (default path: ``/var/lib/docker/volumes/repomanager-mirrors/``): contains [mirrors](/usage/exact-mirrors/), this directory might grow very large depending on the mirrored repositories
 
 ## Check that the container is running
 

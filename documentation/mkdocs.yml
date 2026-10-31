@@ -98,6 +98,7 @@ nav:
     - Settings: configuration/settings.md
   - Usage:
     - Operations on repositories: usage/operations.md
+    - Mirrors: usage/exact-mirrors.md
     - Scheduling tasks: usage/scheduling.md
     - Hosts: usage/hosts.md
     - Stats and monitoring: usage/stats-monitoring.md

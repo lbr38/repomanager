@@ -528,8 +528,20 @@ $(document).on('submit','#task-form',function (e) {
         // Retrieve the task action
         obj['action'] = $(this).attr('action');
 
+        // Mirrors tasks are identified by their domain and target a mirror Id
+        if ($(this).attr('domain')) {
+            obj['domain'] = $(this).attr('domain');
+
+            if (obj['action'] != 'create') {
+                obj['mirror-id'] = $(this).attr('mirror-id');
+            }
+
+            if ($(this).attr('mirror-snap-id')) {
+                obj['mirror-snap-id'] = $(this).attr('mirror-snap-id');
+            }
+
         // If action is not 'create' then we retrieve the snap id and env id
-        if (obj['action'] != 'create') {
+        } else if (obj['action'] != 'create') {
             obj['repo-id'] = $(this).attr('repo-id');
             obj['snap-id'] = $(this).attr('snap-id');
             obj['env-id']  = $(this).attr('env-id');

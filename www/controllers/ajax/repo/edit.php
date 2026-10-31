@@ -3,6 +3,38 @@ use \Controllers\Repo\Repo;
 use \Controllers\User\Permission\Repo as RepoPermission;
 
 /**
+ *  Edit mirror description or tags
+ *  Mirrors are listed with repositories and use the same edit fields, their Id is prefixed with 'mirror-'
+ */
+if (in_array($_POST['action'], ['description', 'tags']) and !empty($_POST['repoId']) and str_starts_with($_POST['repoId'], 'mirror-')) {
+    $mirrorController = new \Controllers\Mirror\Mirror();
+    $mirrorId = (int) substr($_POST['repoId'], strlen('mirror-'));
+
+    try {
+        if (!RepoPermission::allowedAction('edit')) {
+            throw new Exception('You do not have permission to edit repositories');
+        }
+
+        if (empty($mirrorController->getById($mirrorId)) or !RepoPermission::allowedToViewMirror($mirrorId)) {
+            throw new Exception('You do not have permission to edit this mirror');
+        }
+
+        if ($_POST['action'] == 'description' and isset($_POST['description'])) {
+            $mirrorController->updateDescription($mirrorId, $_POST['description']);
+            response(HTTP_OK, 'Description has been saved');
+        }
+
+        if ($_POST['action'] == 'tags' and isset($_POST['tags'])) {
+            // Tags are sent as a comma-separated string
+            $mirrorController->updateTags($mirrorId, explode(',', $_POST['tags']));
+            response(HTTP_OK, 'Tags have been saved');
+        }
+    } catch (Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+}
+
+/**
  *  Edit repository description
  */
 if ($_POST['action'] == 'description' and !empty($_POST['repoId']) and isset($_POST['description'])) {

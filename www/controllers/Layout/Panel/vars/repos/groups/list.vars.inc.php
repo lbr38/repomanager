@@ -13,3 +13,11 @@ $mygroup = new \Controllers\Group\Repo();
  *  Get repos groups list
  */
 $repoGroupsList = $mygroup->listAll();
+
+/**
+ *  Mirrors can be members of groups too, as an array mirror Id => group Id
+ */
+$mirrorController = new \Controllers\Mirror\Mirror();
+$mirrorsList = $mirrorController->get();
+$mirrorsGroupsIds = $mirrorController->getGroupsIds();
+unset($mirrorController);

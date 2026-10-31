@@ -18,7 +18,7 @@ tail -f /var/log/nginx/repomanager_error.log
 
 List of errors that can occur during Repomanager operations, with their meaning and how to resolve them.
 
-### Mirroring repository
+### Syncing a curated repository
 
 
 **DEB**

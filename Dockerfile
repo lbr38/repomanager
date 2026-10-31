@@ -10,6 +10,7 @@ LABEL version="2.0" maintainer="lbr38 <repomanager@protonmail.com>"
 ARG WWW_DIR="/var/www/repomanager"
 ARG DATA_DIR="/var/lib/repomanager"
 ARG REPOS_DIR="/home/repo"
+ARG MIRRORS_DIR="/home/mirrors"
 ARG PHP_VERSION="8.4"
 ARG DEBIAN_FRONTEND=noninteractive
 ARG branch=main
@@ -42,6 +43,7 @@ FROM base AS run
 ARG WWW_DIR="/var/www/repomanager"
 ARG DATA_DIR="/var/lib/repomanager"
 ARG REPOS_DIR="/home/repo"
+ARG MIRRORS_DIR="/home/mirrors"
 ARG branch=main
 
 # SERVICES CONFIG
@@ -67,7 +69,7 @@ COPY docker/config/postfix/main.cf /etc/postfix/main.cf
 # Copy master.cf with custom listening port 2525 (to avoid conflict with other mail services on the host) (when networking=host)
 COPY docker/config/postfix/master.cf /etc/postfix/master.cf
 
-RUN mkdir -p $WWW_DIR $DATA_DIR $REPOS_DIR
+RUN mkdir -p $WWW_DIR $DATA_DIR $REPOS_DIR $MIRRORS_DIR
 
 # Copy repomanager files
 COPY www/ $WWW_DIR/

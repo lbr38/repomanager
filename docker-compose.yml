@@ -18,3 +18,4 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /var/lib/docker/volumes/repomanager-data:/var/lib/repomanager
       - /var/lib/docker/volumes/repomanager-repo:/home/repo
+      - /var/lib/docker/volumes/repomanager-mirrors:/home/mirrors

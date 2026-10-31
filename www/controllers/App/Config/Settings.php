@@ -55,6 +55,15 @@ class Settings
             $__LOAD_SETTINGS_MESSAGES[] = "Repositories main directory <code>" . REPOS_DIR . "</code> is not writeable.";
         }
 
+        if (!defined('MIRRORS_DIR')) {
+            define('MIRRORS_DIR', '/home/mirrors');
+        }
+
+        if (!is_writable(MIRRORS_DIR)) {
+            ++$__LOAD_SETTINGS_ERROR;
+            $__LOAD_SETTINGS_MESSAGES[] = "Mirrors main directory <code>" . MIRRORS_DIR . "</code> is not writeable.";
+        }
+
         if (!defined('TIMEZONE')) {
             if (!empty($settings['TIMEZONE'])) {
                 define('TIMEZONE', $settings['TIMEZONE']);
@@ -148,6 +157,10 @@ class Settings
 
         if (!defined('WWW_REPOS_DIR_URL')) {
             define('WWW_REPOS_DIR_URL', __SERVER_PROTOCOL__ . '://' . WWW_HOSTNAME . '/repo');
+        }
+
+        if (!defined('WWW_MIRRORS_DIR_URL')) {
+            define('WWW_MIRRORS_DIR_URL', __SERVER_PROTOCOL__ . '://' . WWW_HOSTNAME . '/mirrors');
         }
 
         if (!defined('WWW_USER')) {

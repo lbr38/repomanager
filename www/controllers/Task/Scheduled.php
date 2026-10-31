@@ -75,6 +75,24 @@ class Scheduled extends Task
     }
 
     /**
+     *  Delete scheduled tasks of a mirror
+     */
+    public function deleteByMirrorId(int $id) : void
+    {
+        foreach ($this->taskListingController->getScheduled() as $scheduledTask) {
+            try {
+                $taskParams = json_decode($scheduledTask['Raw_params'], true, 512, JSON_THROW_ON_ERROR);
+            } catch (JsonException $e) {
+                throw new Exception('Cannot decode scheduled task #' . $scheduledTask['Id'] . ' parameters: ' . $e->getMessage());
+            }
+
+            if (($taskParams['domain'] ?? '') == 'mirror' and ($taskParams['mirror-id'] ?? '') == $id) {
+                $this->model->delete($scheduledTask['Id']);
+            }
+        }
+    }
+
+    /**
      *  Edit a scheduled task
      */
     public function edit(array $tasks): void

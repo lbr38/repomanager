@@ -8,7 +8,7 @@ class RepoType
 {
     public static function check(string $type) : void
     {
-        $valid = ['mirror', 'local'];
+        $valid = ['curated', 'local'];
 
         if (empty($type)) {
             throw new Exception('Repository type must be specified');

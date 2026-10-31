@@ -23,51 +23,56 @@
         <?php
         $previousName = null;
 
-        // Count how many repos share the same Name within this group, so we know
-        // whether a repo is alone on its row (and can then be expanded on full width)
-        $repoNameCounts = [];
+        // Group items: repositories and mirrors, sorted by name so that items sharing the same name are displayed on the same row
+        $groupItems = [];
+
         foreach ($group['repos'] as $repoId) {
+            // Find the repo in the $repos array using array_filter
             $groupRepo = array_filter($repos, function ($repo) use ($repoId) {
                 return $repo['repoId'] == $repoId;
             });
 
+            // If the repo is not found, skip to the next one
             if (empty($groupRepo)) {
                 continue;
             }
 
-            $groupRepoName = array_values($groupRepo)[0]['Name'];
-            $repoNameCounts[$groupRepoName] = ($repoNameCounts[$groupRepoName] ?? 0) + 1;
+            // Get the first element of the array (there should be only one element since repoId is unique)
+            $groupRepo = array_values($groupRepo)[0];
+
+            $groupItems[] = ['type' => 'repo', 'name' => $groupRepo['Name'], 'data' => $groupRepo];
         }
 
+        foreach ($group['mirrors'] ?? [] as $groupMirror) {
+            $groupItems[] = ['type' => 'mirror', 'name' => $groupMirror['Name'], 'data' => $groupMirror];
+        }
+
+        // The sort is stable: repositories sharing the same name keep their order (release version, distribution...)
+        usort($groupItems, function ($a, $b) {
+            return strcmp($a['name'], $b['name']);
+        });
+
+        // Count how many items share the same Name within this group, so we know
+        // whether an item is alone on its row (and can then be expanded on full width)
+        $repoNameCounts = array_count_values(array_column($groupItems, 'name'));
         $repoNameIndex = [];
 
-        foreach ($group['repos'] as $repoId) {
-            // Find the repo in the $repos array using array_filter
-            $repo = array_filter($repos, function ($repo) use ($repoId) {
-                return $repo['repoId'] == $repoId;
-            });
+        foreach ($groupItems as $groupItem) {
+            $itemName = $groupItem['name'];
 
-            // If the repo is not found, skip to the next one
-            if (empty($repo)) {
-                continue;
-            }
-
-            // Get the first element of the array (there should be only one element since repoId is unique)
-            $repo = array_values($repo)[0];
-
-            // Track the position of this repo among the ones sharing the same Name
-            $repoNameIndex[$repo['Name']] = ($repoNameIndex[$repo['Name']] ?? 0) + 1;
+            // Track the position of this item among the ones sharing the same Name
+            $repoNameIndex[$itemName] = ($repoNameIndex[$itemName] ?? 0) + 1;
 
             $class = 'grid grid-rfr-1-2';
             $expandAlone = false;
 
             // If expand is enabled, expand the repo container if it's the only one on its row
             if ($userPreferences['repositories']['list']['expand']) {
-                if ($repoNameCounts[$repo['Name']] == 1) {
-                    // Only one repo with this Name: expand the whole wrapper on full width
+                if ($repoNameCounts[$itemName] == 1) {
+                    // Only one item with this Name: expand the whole wrapper on full width
                     $class = '';
-                } elseif ($repoNameCounts[$repo['Name']] % 2 != 0 && $repoNameIndex[$repo['Name']] == $repoNameCounts[$repo['Name']]) {
-                    // Odd number of repos with this Name: the last one ends up alone
+                } elseif ($repoNameCounts[$itemName] % 2 != 0 && $repoNameIndex[$itemName] == $repoNameCounts[$itemName]) {
+                    // Odd number of items with this Name: the last one ends up alone
                     // on its row, so make it span the full width of the grid
                     $expandAlone = true;
                 }
@@ -77,21 +82,28 @@
                 $class = 'grid';
             }
 
-            if ($previousName != $repo['Name']) :
+            if ($previousName != $itemName) :
                 // Close previous repo div if it's not the first repo
                 if ($previousName != null) {
                     echo '</div>';
                 } ?>
              
                 <!-- Opening repo div -->
-                <!-- <div class="<?= $class ?> repos-row row-gap-20 column-gap-30 margin-bottom-40"> -->
                 <div class="<?= $class ?> repos-row row-gap-20 column-gap-30">
                 <?php
             endif;
 
-            include(ROOT . '/views/includes/containers/repos/repo.inc.php');
+            if ($groupItem['type'] == 'repo') {
+                $repo = $groupItem['data'];
+                include(ROOT . '/views/includes/containers/repos/repo.inc.php');
+            }
 
-            $previousName = $repo['Name'];
+            if ($groupItem['type'] == 'mirror') {
+                $mirror = $groupItem['data'];
+                include(ROOT . '/views/includes/containers/repos/mirror.inc.php');
+            }
+
+            $previousName = $itemName;
         }
 
         // Close the last opened repos-row div, if any repo was rendered

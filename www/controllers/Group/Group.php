@@ -113,10 +113,25 @@ class Group
         // Edit group name
         $this->updateName($id, $name);
 
-        // If group type is 'repo'
+        // If group type is 'repo', members can be repositories (Id) or mirrors ('mirror-<Id>')
         if ($this->type == 'repo') {
+            $reposId = [];
+            $mirrorsId = [];
+
+            foreach ($data as $memberId) {
+                if (str_starts_with($memberId, 'mirror-')) {
+                    $mirrorsId[] = substr($memberId, strlen('mirror-'));
+                    continue;
+                }
+
+                $reposId[] = $memberId;
+            }
+
             $repoController = new Repo();
-            $repoController->addReposIdToGroup($id, $data);
+            $repoController->addReposIdToGroup($id, $reposId);
+
+            $mirrorController = new \Controllers\Mirror\Mirror();
+            $mirrorController->setGroupMembers($id, $mirrorsId);
         }
 
         // If group type is 'host'
@@ -133,7 +148,7 @@ class Group
             History::set('Host group <code>' . $name . '</code> edited');
         }
 
-        unset($repoController, $hostController);
+        unset($repoController, $hostController, $mirrorController);
     }
 
     /**
@@ -152,6 +167,11 @@ class Group
 
             // Delete group in database
             $this->model->delete($id);
+
+            // Mirrors members of the group go back to the 'Default' group
+            if ($this->type == 'repo') {
+                (new \Controllers\Mirror\Mirror())->removeGroupMembers($id);
+            }
 
             if ($this->type == 'repo') {
                 History::set('Delete repository group <code>' . $name . '</code>');

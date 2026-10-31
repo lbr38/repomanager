@@ -15,7 +15,7 @@
 |---|---|
 | `TASK QUEUING` | Enable or disable the task queuing. |
 | `MAXIMUM NUMBER OF SIMULTANEOUS TASKS` | Maximum number of tasks that can run simultaneously. The other tasks will be queued. |
-| `TASK EXECUTION MEMORY LIMIT (in MB)` | Set PHP memory limit for task execution. It is recommended to set this value to a higher value when mirroring large repositories. |
+| `TASK EXECUTION MEMORY LIMIT (in MB)` | Set PHP memory limit for task execution. It is recommended to set this value to a higher value when syncing large repositories. |
 
 ### Task cleanup
 
@@ -32,16 +32,16 @@
 |---|---|
 | `REPOSITORIES URL` | Root URL for accessing repositories. This URL is not browsable for security reasons. To explore the content of a repository snapshot, use the snapshot browsing system, see [Browse repository content](/usage/operations/#browse-repository-content). |
 | `DEDUPLICATION` | Enable or disable deduplication of packages in snapshots. When enabled, identical packages in snapshots will be stored only once, saving disk space. Default: enabled.<br>Note: deduplication uses hard links. Disable this feature if your repositories are stored on a filesystem that does not support hard links (e.g. S3 buckets). |
-| `RETENTION` | Maximum number of unused snapshots to keep per repository. Set to 0 to disable retention. |
+| `RETENTION` | Maximum number of unused snapshots (snapshots not used by any environment) to keep per repository. Older unused snapshots are deleted after each task. Set to 0 to delete all unused snapshots.<br>Note: [mirrors](/usage/exact-mirrors/#snapshots-retention) always keep at least one unused snapshot. |
 | `REPOSITORY CONFIGURATION FILE NAME PREFIX` | Prefix added to repository configuration files when installing on client hosts. Leave empty if you want no prefix.<br>e.g. `<myprefix>-almalinux-baseos.repo` or `<myprefix>-ubuntu-noble-main.list` |
 
 
-### Global mirroring settings
+### Global sync settings
 
 | Parameter | Description |
 |---|---|
-| `PACKAGE DOWNLOAD TIMEOUT (in seconds)` | Maximum time allowed to download a package during a mirroring process. |
-| `PACKAGE DOWNLOAD RETRIES` | Number of retries to download a package during a mirroring process in case of failure. |
+| `PACKAGE DOWNLOAD TIMEOUT (in seconds)` | Maximum time allowed to download a package during a sync (curated repositories and mirrors). |
+| `PACKAGE DOWNLOAD RETRIES` | Number of retries to download a package during a curated repository sync in case of failure. |
 | `PACKAGE CHECKSUM MATCH FAILURE` | If a package checksum does not match the expected checksum, this parameter allows you to choose what to do in this case. |
 
 ### Rpm
@@ -49,11 +49,11 @@
 | Parameter | Description |
 |---|---|
 | `ENABLE RPM REPOSITORIES` | Enable RPM package repositories. |
-| `SIGN PACKAGES WITH GPG` | Enable the signing of RPM packages when creating a RPM package repository (mirror or local repository). Packages will be signed using the GPG signing key specified by the `GPG KEY ID` parameter. |
+| `SIGN PACKAGES WITH GPG` | Enable the signing of RPM packages when creating a RPM package repository (curated or local repository). Packages will be signed using the GPG signing key specified by the `GPG KEY ID` parameter. |
 | `DEFAULT RELEASE VERSION` | Default release version to use when creating RPM repositories. |
 | `DEFAULT PACKAGE ARCHITECTURE` | Default package architecture to use when creating RPM repositories. |
 
-#### Rpm mirroring settings
+#### Rpm curated repositories settings
 
 | Parameter | Description |
 |---|---|
@@ -67,14 +67,14 @@
 | Parameter | Description |
 |---|---|
 | `ENABLE DEB REPOSITORIES` | Enable DEB package repositories. |
-| `SIGN REPOSITORIES WITH GPG` | Enable the signing of DEB repositories when creating a DEB package repository (mirror or local repository). The repository metadata will be signed using the GPG signing key specified by the `GPG KEY ID` parameter. |
+| `SIGN REPOSITORIES WITH GPG` | Enable the signing of DEB repositories when creating a DEB package repository (curated or local repository). The repository metadata will be signed using the GPG signing key specified by the `GPG KEY ID` parameter. |
 | `DEFAULT PACKAGE ARCHITECTURE` | Default package architecture to use when creating DEB repositories. |
 
-#### Deb mirroring settings
+#### Deb curated repositories settings
 
 | Parameter | Description |
 |---|---|
-| `ALLOW SYNC OF EMPTY REPOSITORIES` | Allow the mirroring of empty repositories (repositories with empty `Packages` indices file). |
+| `ALLOW SYNC OF EMPTY REPOSITORIES` | Allow the sync of empty source repositories (repositories with empty `Packages` indices file). |
 | `WHEN RELEASE FILE SIGNATURE IS INVALID` | The `InRelease` / `Release` file retrieved from a remote repository may have an invalid signature (because the GPG key used to sign the file was not imported, or because the publisher signed the file with a different GPG key, or because the file's signature is corrupted or somehow broken). This parameter allows you to choose what to do in this case. |
 
 ### Gpg signing key

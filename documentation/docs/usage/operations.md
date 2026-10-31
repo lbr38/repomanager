@@ -1,21 +1,26 @@
-## :material-plus-circle: Create a mirror repository
+## :material-plus-circle: Create a curated repository
+
+!!! info "Curated repositories and mirrors"
+    A **curated repository** is built from a source repository: you select the packages to sync (architectures, include / exclude, latest versions), then Repomanager rebuilds the metadata and can sign them with its own GPG key. Curated repositories were named *mirror repositories* before version `6.2.0`.
+
+    To copy an upstream repository as is, with its original metadata and signatures, create a [mirror](/usage/exact-mirrors/) instead.
 
 From the **REPOSITORIES** tab:
 
-**Step 1:** You must first add one or more source repositories to mirror from. See [Source repositories](/configuration/source-repositories/).
+**Step 1:** You must first add one or more source repositories to get packages from. See [Source repositories](/configuration/source-repositories/).
 
 **Step 2:** Click the ``Create a new repository`` button to show the **NEW REPOSITORY** panel.
 
-[![Create a mirror repository](https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository-btn.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository-btn.png)
+[![Create a curated repository](https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository-btn.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository-btn.png)
 
-**Step 3:** Select ``mirror`` as the repository type then complete all the required fields.
+**Step 3:** Select ``Curated`` as the repository type then complete all the required fields.
 
-[![Create a mirror repository](https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository.png)
+[![Create a curated repository](https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository.png)
 
-**Step 4:** Click the `Execute now` button to launch the mirroring task.
+**Step 4:** Click the `Execute now` button to launch the sync task.
 
 !!! info
-    The `REPOSITORY NAME` field is optional. If none is specified, the repository will have the same name as the source repository (e.g., if the source repository is named `nginx`, then the mirror repository will also be named `nginx`).
+    The `REPOSITORY NAME` field is optional. If none is specified, the repository will have the same name as the source repository (e.g., if the source repository is named `nginx`, then the curated repository will also be named `nginx`).
 
 
 ## :material-plus-circle: Create a local repository
@@ -36,21 +41,21 @@ From the **REPOSITORIES** tab:
     Local repositories are always empty when created. You must then add your own `rpm` or `deb` packages by uploading them. See [Upload package(s) in a repository](#upload-packages-in-a-repository).
 
 
-## :material-autorenew: Update an existing mirror repository
+## :material-autorenew: Update an existing curated repository
 
 From the **REPOSITORIES** tab:
 
-**Step 1:** Select the repository snapshot from which you want to update the mirror.
+**Step 1:** Select the repository snapshot from which you want to update the curated repository.
 
 [![Select a snapshot](https://assets.repomanager.net/repomanager/6.0.0/usage/operations/select-snapshot.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/operations/select-snapshot.png)
 
 **Step 2:** Click the ``Update`` button.
 
-**Step 3:** Specify the mirroring parameters.
+**Step 3:** Specify the sync parameters.
 
 [![Update repository](https://assets.repomanager.net/repomanager/6.0.0/usage/operations/update-repository-2.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/operations/update-repository-2.png)
 
-**Step 4:** Click the `Execute now` button to launch the mirroring task.
+**Step 4:** Click the `Execute now` button to launch the sync task.
 
 
 ## :material-arrow-left-top: Point an environment to a repository

@@ -94,8 +94,14 @@ try {
                 throw new Exception('No action found in the task');
             }
 
+            $taskTemplate = $rawParams['action'];
+
+            // Mirrors tasks have their own template, the mirror info is retrieved from the raw params or the database
+            if (($rawParams['domain'] ?? '') == 'mirror') {
+                $taskTemplate = 'mirror';
+
             // If the action is create, the repository info is in the raw params
-            if ($rawParams['action'] == 'create') {
+            } elseif ($rawParams['action'] == 'create') {
                 $repoController->setType($rawParams['repo-type']);
 
                 if (!empty($rawParams['source'])) {
@@ -151,7 +157,7 @@ try {
 
             // Include table template for the task
             ob_start();
-            include_once(ROOT . '/views/templates/tasks/' . $rawParams['action'] . '.inc.php');
+            include_once(ROOT . '/views/templates/tasks/' . $taskTemplate . '.inc.php');
             $output .= ob_get_clean();
 
             // The container which will contain all the steps

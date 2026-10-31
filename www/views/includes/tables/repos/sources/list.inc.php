@@ -5,7 +5,7 @@ use \Controllers\Layout\Table\Render as TableRender; ?>
     <div class="flex justify-space-between align-flex-end margin-top-40 margin-bottom-15 margin-right-20">
         <div>
             <h6 class="margin-top-0">CURRENT SOURCE REPOSITORIES</h6>
-            <p class="note">Source repositories to be mirrored.</p>
+            <p class="note">Source repositories used by curated repositories and mirrors.</p>
         </div>
 
         <?php

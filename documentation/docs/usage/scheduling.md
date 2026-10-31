@@ -59,5 +59,8 @@ From the **REPOSITORIES** tab:
 
 [![Schedule a task](https://assets.repomanager.net/repomanager/6.0.0/usage/scheduling/schedule-a-task-2.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/scheduling/schedule-a-task-2.png)
 
+!!! info "Mirrors"
+    [Mirrors](/usage/exact-mirrors/) matching the filters are included in **update** (sync) and **point an environment** tasks, with the same group, tags and package type filters as repositories. They are not included in **rebuild** tasks, as their metadata are never rebuilt. GPG options do not apply to mirrors: they keep their own signature check setting and their upstream signatures.
+
 
 <script data-goatcounter="https://repomanager.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>

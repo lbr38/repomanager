@@ -1,6 +1,6 @@
 A **source repository** is a remote repository of packages (``deb`` or ``rpm``) from a third-party publisher (e.g. **Debian official repos**).
 
-Typically, this is the repository from which you will create a mirror.
+Typically, this is the repository from which you will create a curated repository or a mirror.
 
 
 ## Add a source repository manually
@@ -21,12 +21,12 @@ From the **REPOSITORIES** tab:
 
 **Step 4:** Click the `Add` button to add the source repository to the list of available source repositories.
 
-**Step 5:** You should now edit the source repository to add more information like distributions and components or release version and import its GPG signing key if any. It is recommended to add as much information as you can as this is used for suggestions when creating a mirror. See [Edit a source repository](#edit-a-source-repository).
+**Step 5:** You should now edit the source repository to add more information like distributions and components or release version and import its GPG signing key if any. It is recommended to add as much information as you can as this is used for suggestions when creating a curated repository or a mirror. See [Edit a source repository](#edit-a-source-repository).
 
 !!! info "RPM repositories URLs information"
 
       - Please only provide **direct** URLs to the source repository. Mirrorlist URLs are **not supported**.
-      - ``$releasever`` and ``$basearch`` variables inside URLs **are supported**. They will be automatically replaced during the repo mirroring process by the value you have defined for **Release version** and **Architecture** (when creating or updating a repo).
+      - ``$releasever`` and ``$basearch`` variables inside URLs **are supported**. They will be automatically replaced during the sync process by the value you have defined for **Release version** and **Architecture** (when creating or updating a repo).
       - Examples of supported URLs:
 
         `https://dl.fedoraproject.org/pub/epel/$releasever/Everything/$basearch`
@@ -35,7 +35,7 @@ From the **REPOSITORIES** tab:
 
 !!! info "DEB repositories URLs information"
 
-    - ``$dist`` and ``$component`` variables inside URLs **are supported**. They will be automatically replaced during the repo mirroring process by the value you have defined for **Distribution** and **Component** (when creating or updating a repo).
+    - ``$dist`` and ``$component`` variables inside URLs **are supported**. They will be automatically replaced during the sync process by the value you have defined for **Distribution** and **Component** (when creating or updating a repo).
 
 
 ## Import source repositories from predefined or custom lists
@@ -137,7 +137,7 @@ From the **REPOSITORIES** tab:
 
 Import their GPG signing key if any.
 
-It is recommended to add as much information as you can as this is used for suggestions when creating a mirror.
+It is recommended to add as much information as you can as this is used for suggestions when creating a curated repository or a mirror.
 
 [![Edit a source repository](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/edit-source-repository-2.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/edit-source-repository-2.png)
 

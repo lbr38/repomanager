@@ -9,6 +9,7 @@ PWD=$(dirname "$0")
 WWW_DIR="/var/www/repomanager"
 DATA_DIR="/var/lib/repomanager"
 REPOS_DIR="/home/repo"
+MIRRORS_DIR="/home/mirrors"
 GPGHOME="$DATA_DIR/.gnupg"
 PROCEED_PERMISSIONS="0"
 
@@ -49,18 +50,23 @@ function permissions
         echo -e "[$YELLOW ERROR $RESET] '$REPOS_DIR' repos directory not found."
         exit 1
     fi
+    # Mirrors directory has been added in 6.2.0, create it if missing (e.g. no volume mounted yet)
+    if [ ! -d "$MIRRORS_DIR" ];then
+        mkdir -p "$MIRRORS_DIR"
+    fi
 
     echo "["$(date +"%a %b %-d %H:%M:%S")"][INF] Setting permissions... "
  
     # Make sure owner and group and permissions are correct on parent directories
-    chown www-data:www-data "$WWW_DIR" "$DATA_DIR" "$REPOS_DIR"
-    chmod 770 "$WWW_DIR" "$DATA_DIR" "$REPOS_DIR"
+    chown www-data:www-data "$WWW_DIR" "$DATA_DIR" "$REPOS_DIR" "$MIRRORS_DIR"
+    chmod 770 "$WWW_DIR" "$DATA_DIR" "$REPOS_DIR" "$MIRRORS_DIR"
 
     # Now go deeper and set permissions recursively
     chown -R www-data:www-data "$WWW_DIR" > /dev/null 2>&1
     chown -R www-data:www-data "$DATA_DIR" > /dev/null 2>&1
     # For repositories, run in background to avoid long wait
     chown -R www-data:www-data "$REPOS_DIR" > /dev/null 2>&1 &
+    chown -R www-data:www-data "$MIRRORS_DIR" > /dev/null 2>&1 &
 
     # Permissions on /.gnupg directory
     if [ -d "$GPGHOME" ];then

@@ -33,6 +33,15 @@ $actionsTitles = [
 // Retrieve the groups, the tags and the recipients to build the target selectors
 $groups = $groupController->listAll(true);
 $tags = $repoListingController->listTags();
+
+// Mirrors can be targeted by their tags too
+foreach ((new \Controllers\Mirror\Mirror())->get() as $mirror) {
+    $tags = array_merge($tags, array_filter(explode(',', $mirror['Tags'] ?? '')));
+}
+
+$tags = array_unique($tags);
+sort($tags);
+unset($mirror);
 $usersEmail = $userController->getEmails();
 
 unset($targetController, $groupController, $repoListingController, $userController);

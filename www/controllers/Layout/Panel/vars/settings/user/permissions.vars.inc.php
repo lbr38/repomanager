@@ -39,3 +39,10 @@ foreach ($repoListingController->list() as $repo) {
 
     $reposList[$repo['repoId']] = $label;
 }
+
+// Get mirrors, they can be granted individually as repositories
+$mirrorsList = [];
+
+foreach ((new \Controllers\Mirror\Mirror())->get() as $mirror) {
+    $mirrorsList[$mirror['Id']] = \Controllers\Mirror\Mirror::getLabel($mirror['Name'], $mirror['Releasever']) . ' (' . $mirror['Package_type'] . ')';
+}
