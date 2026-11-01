@@ -8,7 +8,6 @@ $datasets = [];
 $labels = [];
 $options = [];
 $envs = [];
-$allTimestamps = [];
 $envData = [];
 
 // Mirror page (/repository/mirror/<id>)
@@ -29,13 +28,6 @@ if (!empty($_COOKIE['chart/stats/accesses/envs'])) {
     $envs = json_decode($_COOKIE['chart/stats/accesses/envs'], true);
 }
 
-// Retrieve period from cookie if exists
-// TODO: ranges
-// if (!empty($_COOKIE['chart/stats/repo-accesses/period'])) {
-//     $timeStart = strtotime(explode(' - ', $_COOKIE['chart/stats/repo-accesses/period'])[0]);
-//     $timeEnd = strtotime(explode(' - ', $_COOKIE['chart/stats/repo-accesses/period'])[1]);
-// }
-
 // Get statistics directly from database for all environments
 $results = [];
 
@@ -55,48 +47,68 @@ if (!$isMirror && $repoController->getPackageType() == 'deb') {
 }
 
 if (!empty($results)) {
-    // Group results by environment
+    /**
+     *  Group accesses into intervals, so that the chart has a regular number of points whatever the period, with 0 for intervals without access
+     *  Use the smallest interval giving at most 1000 points over the period
+     */
+    $intervals = [
+        60 => '1 minute',
+        300 => '5 minutes',
+        600 => '10 minutes',
+        900 => '15 minutes',
+        1800 => '30 minutes',
+        3600 => '1 hour',
+        10800 => '3 hours',
+        21600 => '6 hours',
+        43200 => '12 hours',
+        86400 => '1 day',
+        604800 => '1 week'
+    ];
+
+    foreach ($intervals as $interval => $intervalName) {
+        if (($timeEnd - $timeStart) / $interval <= 1000) {
+            break;
+        }
+    }
+
+    // Intervals are aligned on the server current local time (e.g. daily intervals start at midnight)
+    $offset = (int) date('Z');
+
+    // Group results by environment and interval
     foreach ($results as $row) {
         $env = $row['Env'];
-        $timestamp = $row['Timestamp'] * 1000;
-        $count = $row['Count'];
+        $intervalStart = intdiv((int) $row['Timestamp'] + $offset, $interval) * $interval - $offset;
 
         // Initialize environment data if not exists
         if (!isset($envData[$env])) {
             $envData[$env] = [
                 'name' => $env,
-                'timestamps' => [],
+                'counts' => [],
                 'color' => \Controllers\Environment::getEnvColor($env)
             ];
         }
 
-        // Store timestamp data
-        $envData[$env]['timestamps'][$timestamp] = $count;
-
-        // Collect unique timestamps
-        $allTimestamps[] = $timestamp;
+        $envData[$env]['counts'][$intervalStart] = ($envData[$env]['counts'][$intervalStart] ?? 0) + $row['Count'];
     }
 
-    // Add final point for each environment and convert to indexed array
-    $currentTimestamp = time() * 1000;
-    $allTimestamps[] = $currentTimestamp;
-    $envData = array_values(array_map(function ($env) use ($currentTimestamp) {
-        $env['timestamps'][$currentTimestamp] = 0;
-        return $env;
-    }, $envData));
+    // Generate labels: start of each interval of the period, without going beyond the current time
+    $periodEnd = min($timeEnd, time());
 
-    // Create unique and sorted labels
-    $labels = array_values(array_unique($allTimestamps));
-    sort($labels);
+    for ($intervalStart = intdiv($timeStart + $offset, $interval) * $interval - $offset; $intervalStart <= $periodEnd; $intervalStart += $interval) {
+        $labels[] = $intervalStart;
+    }
 
-    // Build the final datasets using array_map for optimization
-    $datasets = array_map(function ($env) use ($labels) {
+    // Build the final datasets
+    $datasets = array_values(array_map(function ($env) use ($labels) {
         return [
             'name' => $env['name'],
-            'data' => array_map(fn($timestamp) => $env['timestamps'][$timestamp] ?? 0, $labels),
+            'data' => array_map(fn($intervalStart) => $env['counts'][$intervalStart] ?? 0, $labels),
             'color' => $env['color']
         ];
-    }, $envData);
+    }, $envData));
+
+    // Labels in milliseconds for the chart
+    $labels = array_map(fn($intervalStart) => $intervalStart * 1000, $labels);
 
     // Calculate totals for each timestamp and add Total dataset
     // $totalData = [];
@@ -115,8 +127,11 @@ if (!empty($results)) {
     //     'color' => '#15bf7f'
     // ];
 
-    // Configure tooltip options with axis pointer for line charts
+    // Configure tooltip options with axis pointer for line charts, and display the interval in the title
     $options = [
+        'title' => [
+            'text' => 'Accesses per ' . $intervalName
+        ],
         'tooltip' => [
             'trigger' => 'axis',
             'axisPointer' => [
@@ -130,4 +145,4 @@ if (!empty($results)) {
     ];
 }
 
-unset($repoController, $repoEnvController, $debRepoStatController, $rpmRepoStatController, $envData, $allTimestamps, $envTimestamps, $results);
+unset($repoController, $repoEnvController, $debRepoStatController, $rpmRepoStatController, $envData, $results, $intervals, $interval, $intervalName, $intervalStart, $offset, $periodEnd, $row, $env);

@@ -42,15 +42,9 @@ use \Controllers\Layout\Table\Render as TableRender; ?>
             <div class="flex flex-wrap align-item-center column-gap-20 row-gap-15">
                 <div>
                     <h6 class="margin-0">SELECT PERIOD</h6>
-                    <select class="select-medium echart-period" chart-id="repo-accesses-chart">
-                        <option value="1" selected>1 day</option>
-                        <option value="3">3 days</option>
-                        <option value="7">1 week</option>
-                        <option value="30">1 month</option>
-                        <option value="90">3 months</option>
-                        <option value="180">6 months</option>
-                        <option value="365">1 year</option>
-                    </select>
+                    <div class="pointer input-daterangepicker input-large echart-range" chart-id="repo-accesses-chart" range="Last 24 Hours">
+                        <p>Last 24 Hours</p>
+                    </div>
                 </div>
 
                 <div>
@@ -62,8 +56,6 @@ use \Controllers\Layout\Table\Render as TableRender; ?>
                         } ?>
                     </select>
                 </div>
-                <!-- TODO: ranges -->
-                <!-- <input type="text" class="input-large echart-range" chart-id="repo-accesses-chart" value="" /> -->
             </div>
         </div>
 
@@ -144,6 +136,7 @@ use \Controllers\Layout\Table\Render as TableRender; ?>
 
 <script>
     $(document).ready(function(){
+        mydaterangepicker.convert('div.echart-range[chart-id="repo-accesses-chart"]', 'Last 24 Hours');
         myselect2.convert('select#accesses-env', 'Select environment...', true);
 
         mydaterangepicker.convert('div#access-requests-range');
@@ -151,8 +144,5 @@ use \Controllers\Layout\Table\Render as TableRender; ?>
 
         mydaterangepicker.convert('div#ip-access-range');
         myselect2.convert('select#ip-access-env', 'Select environment...', true);
-
-        // TODO: ranges
-        // mydaterangepicker.convert('input.echart-range[chart-id="repo-accesses-chart"]');
     });
 </script>

@@ -1,3 +1,6 @@
+<?php
+use \Controllers\Utils\Generate\Html\Label; ?>
+
 <div class="div-generic-blue bck-blue-alt">
     <div>
         <h6 class="margin-top-0">STARTED ON</h6>
@@ -22,55 +25,22 @@
     endif ?>
 
     <h6 class="margin-top-15">PACKAGES DETAILS</h6>
-    <div class="flex align-item-center column-gap-20 row-gap-15 margin-top-5">
+    <div class="package-states margin-top-5">
         <?php
-        $count = count($installed);
-        if ($count > 0) {
-            $title = 'INSTALLED';
-            $icon = 'package-installed.svg';
-            include(ROOT . '/views/includes/labels/label-icon-tr.inc.php');
-        }
+        $states = [
+            'installed'     => $installed,
+            'dep-installed' => $depInstalled,
+            'reinstalled'   => $reinstalled,
+            'upgraded'      => $updated,
+            'removed'       => $removed,
+            'downgraded'    => $downgraded,
+            'purged'        => $purged
+        ];
 
-        $count = count($depInstalled);
-        if ($count > 0) {
-            $title = 'DEP. INSTALLED';
-            $icon = 'package-installed.svg';
-            include(ROOT . '/views/includes/labels/label-icon-tr.inc.php');
-        }
-
-        $count = count($reinstalled);
-        if ($count > 0) {
-            $title = 'REINSTALLED';
-            $icon = 'package-installed.svg';
-            include(ROOT . '/views/includes/labels/label-icon-tr.inc.php');
-        }
-
-        $count = count($updated);
-        if ($count > 0) {
-            $title = 'UPDATED';
-            $icon = 'package-updated.svg';
-            include(ROOT . '/views/includes/labels/label-icon-tr.inc.php');
-        }
-
-        $count = count($removed);
-        if ($count > 0) {
-            $title = 'REMOVED';
-            $icon = 'package-removed.svg';
-            include(ROOT . '/views/includes/labels/label-icon-tr.inc.php');
-        }
-
-        $count = count($downgraded);
-        if ($count > 0) {
-            $title = 'DOWNGRADED';
-            $icon = 'package-updated.svg';
-            include(ROOT . '/views/includes/labels/label-icon-tr.inc.php');
-        }
-
-        $count = count($purged);
-        if ($count > 0) {
-            $title = 'PURGED';
-            $icon = 'package-removed.svg';
-            include(ROOT . '/views/includes/labels/label-icon-tr.inc.php');
+        foreach ($states as $state => $statePackages) {
+            if (!empty($statePackages)) {
+                echo Label::packageState($state, count($statePackages));
+            }
         } ?>
     </div>
 </div>

@@ -17,7 +17,7 @@ foreach ($archs as $arch) {
     }
 
     $datasets[0]['data'][] = $arch['Count'];
-    $datasets[0]['colors'][] = Color::random();
+    $datasets[0]['colors'][] = Color::random($datasets[0]['colors'] ?? []);
 }
 
 unset($hostListingController, $archs, $arch);

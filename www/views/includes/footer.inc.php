@@ -193,8 +193,7 @@ if (__ACTUAL_URI__[1] == 'cves') {
 
 if (__ACTUAL_URI__[1] == 'status') {
     $jsFiles = [
-        'events/status/service',
-        'events/status/chart'
+        'events/status/service'
     ];
 }
 

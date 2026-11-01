@@ -7,13 +7,9 @@
 
         <div>
             <h6 class="margin-0">SELECT PERIOD</h6>
-            <select id="monitoring-days-select" class="select-medium">
-                <option value="1" selected>1 day</option>
-                <option value="3">3 days</option>
-                <option value="7">7 days</option>
-                <option value="15">15 days</option>
-                <option value="30">30 days</option>
-            </select>
+            <div class="pointer input-daterangepicker input-large echart-range" chart-id="system-cpu-usage-chart system-memory-usage-chart system-disk-usage-chart" range="Last 24 Hours">
+                <p>Last 24 Hours</p>
+            </div>
         </div>
     </div>
 
@@ -43,3 +39,9 @@
         </div>
     </div>
 </section>
+
+<script>
+    $(document).ready(function(){
+        mydaterangepicker.convert('div.echart-range[chart-id~="system-cpu-usage-chart"]', 'Last 24 Hours');
+    });
+</script>
