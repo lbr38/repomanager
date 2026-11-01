@@ -77,7 +77,7 @@
             endif ?>
 
             <h6 class="required">TASK EXECUTION MEMORY LIMIT (in MB)</h6>
-            <p class="note">Set PHP memory limit for task execution. It is recommended to set this value to a higher value when mirroring large repositories.</p>
+            <p class="note">Set PHP memory limit for task execution. It is recommended to set this value to a higher value when syncing large repositories.</p>
             <input class="settings-param" param-name="task-execution-memory-limit" type="number" min="2" value="<?= TASK_EXECUTION_MEMORY_LIMIT ?>" placeholder="Default is 512">
 
             <br><br>
@@ -110,7 +110,7 @@
             </label>
 
             <h6 class="required">RETENTION</h6>
-            <p class="note">Maximum number of unused snapshots to keep per repository. Set to 0 to disable retention.</p>
+            <p class="note">Maximum number of unused snapshots (not used by any environment) to keep per repository, older ones are deleted after each task. Set to 0 to delete all unused snapshots.</p>
             <input class="settings-param" param-name="retention" type="number" min="0" value="<?= RETENTION ?>">
             <?php
             if (RETENTION == 0) {
@@ -135,20 +135,20 @@
 
             <hr class="margin-top-20 margin-bottom-20">
 
-            <h5>GLOBAL MIRRORING SETTINGS</h5>
+            <h5>GLOBAL SYNC SETTINGS</h5>
 
             <h6 class="required">PACKAGE DOWNLOAD TIMEOUT (in seconds)</h6>
-            <p class="note">Maximum time allowed to download a package during a mirroring process.</p>
+            <p class="note">Maximum time allowed to download a package during a sync (curated repositories and mirrors).</p>
             <input class="settings-param" param-name="mirrorPackageDownloadTimeout" min="1" type="number" value="<?= MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT ?>" placeholder="Default is 300">
 
             <h6 class="required">PACKAGE DOWNLOAD RETRIES</h6>
-            <p class="note">Number of retries to download a package during a mirroring process in case of failure.</p>
+            <p class="note">Number of retries to download a package during a curated repository sync in case of failure.</p>
             <input class="settings-param" param-name="mirror-package-download-retries" min="0" type="number" value="<?= MIRRORING_PACKAGE_DOWNLOAD_RETRIES ?>" placeholder="Default is 3">
 
             <h6 class="required">PACKAGE CHECKSUM MATCH FAILURE</h6>
             <p class="note">If a package checksum does not match the expected checksum, this parameter allows you to choose what to do in this case.</p>
             <select class="settings-param" param-name="mirrorPackageChecksumFailure">
-                <option value="error" <?php echo (MIRRORING_PACKAGE_CHECKSUM_FAILURE == 'error') ? 'selected' : '' ?>>End mirroring task with error</option>
+                <option value="error" <?php echo (MIRRORING_PACKAGE_CHECKSUM_FAILURE == 'error') ? 'selected' : '' ?>>End sync task with error</option>
                 <option value="ignore" <?php echo (MIRRORING_PACKAGE_CHECKSUM_FAILURE == 'ignore') ? 'selected' : '' ?>>Ignore package (delete it) and continue</option>
                 <option value="keep" <?php echo (MIRRORING_PACKAGE_CHECKSUM_FAILURE == 'keep') ? 'selected' : '' ?>>Keep the package anyway (not recommended)</option>
             </select>            
@@ -167,7 +167,7 @@
             <?php
             if (RPM_REPO == 'true') : ?>
                 <h6>SIGN PACKAGES WITH GPG</h6>
-                <p class="note">Enable the signing of RPM packages when creating a RPM package repository (mirror or local repository). Packages will be signed using the GPG signing key specified by the <code>GPG KEY ID</code> parameter.</p>
+                <p class="note">Enable the signing of RPM packages when creating a RPM package repository (curated or local repository). Packages will be signed using the GPG signing key specified by the <code>GPG KEY ID</code> parameter.</p>
                 <label class="onoff-switch-label">
                     <input class="settings-param onoff-switch-input" param-name="rpmSignPackages" type="checkbox" value="true" <?php echo (RPM_SIGN_PACKAGES == "true") ? 'checked' : ''; ?>>
                     <span class="onoff-switch-slider"></span>
@@ -205,14 +205,14 @@
 
                 <hr class="margin-top-20 margin-bottom-20">
 
-                <h5 title="RPM mirroring settings">RPM MIRRORING SETTINGS</h5>
+                <h5 title="RPM curated repositories settings">RPM CURATED REPOSITORIES SETTINGS</h5>
 
                 <h6 class="required">WHEN PACKAGE SIGNATURE IS MISSING</h6>
                 <p class="note">A package retrieved from a remote repository may not be signed at all (for example, the publisher released the package forgetting to sign it). This parameter allows you to choose what to do in this case.</p>
                 <select class="settings-param" param-name="rpm-missing-signature">
                     <option value="download" <?php echo (RPM_MISSING_SIGNATURE == 'download') ? 'selected' : '' ?>>Download package anyway</option>
                     <option value="ignore" <?php echo (RPM_MISSING_SIGNATURE == 'ignore') ? 'selected' : '' ?>>Ignore package (do not download)</option>
-                    <option value="error" <?php echo (RPM_MISSING_SIGNATURE == 'error') ? 'selected' : '' ?>>End mirroring task with error</option>
+                    <option value="error" <?php echo (RPM_MISSING_SIGNATURE == 'error') ? 'selected' : '' ?>>End sync task with error</option>
                 </select>
 
                 <h6 class="required">WHEN PACKAGE SIGNATURE IS INVALID</h6>
@@ -220,7 +220,7 @@
                 <select class="settings-param" param-name="rpm-invalid-signature">
                     <option value="download" <?php echo (RPM_INVALID_SIGNATURE == 'download') ? 'selected' : '' ?>>Download package anyway</option>
                     <option value="ignore" <?php echo (RPM_INVALID_SIGNATURE == 'ignore') ? 'selected' : '' ?>>Ignore package (do not download)</option>
-                    <option value="error" <?php echo (RPM_INVALID_SIGNATURE == 'error') ? 'selected' : '' ?>>End mirroring task with error</option>
+                    <option value="error" <?php echo (RPM_INVALID_SIGNATURE == 'error') ? 'selected' : '' ?>>End sync task with error</option>
                 </select>
 
                 <h6 class="required">WHEN PACKAGE SIGNATURE FAILS</h6>
@@ -247,7 +247,7 @@
             <?php
             if (DEB_REPO == 'true') : ?>
                 <h6>SIGN REPOSITORIES WITH GPG</h6>
-                <p class="note">Enable the signing of DEB repositories when creating a DEB package repository (mirror or local repository). The repository metadata will be signed using the GPG signing key specified by the <code>GPG KEY ID</code> parameter.</p>
+                <p class="note">Enable the signing of DEB repositories when creating a DEB package repository (curated or local repository). The repository metadata will be signed using the GPG signing key specified by the <code>GPG KEY ID</code> parameter.</p>
                 <label class="onoff-switch-label">
                     <input class="settings-param onoff-switch-input" param-name="debSignRepo" type="checkbox" value="true" <?php echo (DEB_SIGN_REPO == 'true') ? 'checked' : ''; ?>>
                     <span class="onoff-switch-slider"></span>
@@ -272,10 +272,10 @@
 
                 <hr class="margin-top-20 margin-bottom-20">
 
-                <h5 title="DEB mirroring settings">DEB MIRRORING SETTINGS</h5>
+                <h5 title="DEB curated repositories settings">DEB CURATED REPOSITORIES SETTINGS</h5>
 
                 <h6 class="required">ALLOW SYNC OF EMPTY REPOSITORIES</h6>
-                <p class="note">Allow the mirroring of empty repositories (repositories with empty <code>Packages</code> indices file).</p>
+                <p class="note">Allow the sync of empty source repositories (repositories with empty <code>Packages</code> indices file).</p>
                 <label class="onoff-switch-label">
                     <input class="settings-param onoff-switch-input" param-name="deb-allow-empty-repo" type="checkbox" value="true" <?php echo (DEB_ALLOW_EMPTY_REPO == 'true') ? 'checked' : ''; ?>>
                     <span class="onoff-switch-slider"></span>
@@ -285,7 +285,7 @@
                 <p class="note">The InRelease / Release file retrieved from a remote repository may have an invalid signature (because the GPG key used to sign the file was not imported, or because the publisher signed the file with a different GPG key, or because the file's signature is corrupted or somehow broken). This parameter allows you to choose what to do in this case.</p>
                 <select class="settings-param" param-name="deb-invalid-signature">
                     <option value="ignore" <?php echo (DEB_INVALID_SIGNATURE == 'ignore') ? 'selected' : '' ?>>Ignore and try another Release file if possible</option>
-                    <option value="error" <?php echo (DEB_INVALID_SIGNATURE == 'error') ? 'selected' : '' ?>>End mirroring task with error</option>
+                    <option value="error" <?php echo (DEB_INVALID_SIGNATURE == 'error') ? 'selected' : '' ?>>End sync task with error</option>
                 </select>
                 <?php
             endif;

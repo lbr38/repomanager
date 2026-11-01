@@ -1,0 +1,28 @@
+---
+description: Arch Linux official repositories
+type: arch
+repositories:
+  # Arch Linux official repositories, from the Arch Linux worldwide geo mirror
+  - name: archlinux
+    type: arch
+    description: Arch Linux official repositories
+    url: https://geo.mirror.pkgbuild.com/$repo/os/$arch
+    repos:
+      - name: core
+        description: Arch Linux core
+      - name: extra
+        description: Arch Linux extra
+      - name: multilib
+        description: Arch Linux multilib (32-bit libraries)
+      - name: core-testing
+        description: Arch Linux core testing
+      - name: extra-testing
+        description: Arch Linux extra testing
+      - name: multilib-testing
+        description: Arch Linux multilib testing
+      - name: gnome-unstable
+        description: Arch Linux GNOME unstable
+      - name: kde-unstable
+        description: Arch Linux KDE unstable
+    archs:
+      - name: x86_64

@@ -9,8 +9,14 @@
     <div class="flex flex-direction-column row-gap-10 margin-top-15 margin-bottom-15">
         <div class="flex flex-wrap align-item-center column-gap-10 row-gap-10">
             <?php
+            if ($isMirror) : ?>
+                <div class="flex align-item-center column-gap-5">
+                    <img src="/assets/icons/info.svg" class="icon" />
+                    <span class="note">This is a mirror snapshot: its content is an exact copy of the source repository and cannot be modified.</span>
+                </div>
+                <?php
             // If the snapshot does not have a protected environment, display the upload and rebuild buttons
-            if (!$protectedEnv) : ?>
+            elseif (!$protectedEnv) : ?>
                 <div class="slide-btn get-panel-btn mediumopacity" panel="snapshot/upload" title="Upload packages to this snapshot">
                     <img src="/assets/icons/upload.svg" />
                     <span>Upload packages</span>
@@ -40,7 +46,7 @@
     <div id="browse-search-results" class="hide"></div>
 
     <div id="explorer" class="hide">
-        <form id="packages-list" snap-id="<?= $snapId ?>">
+        <form id="packages-list" snap-id="<?= htmlspecialchars($snapId) ?>" <?= $isMirror ? 'read-only' : '' ?>>
         </form>
     </div>
 

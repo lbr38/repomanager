@@ -112,7 +112,7 @@ class Form
             /**
              *  Check that the selected source repository is valid
              */
-            if ($repoController->getType() == 'mirror') {
+            if ($repoController->getType() == 'curated') {
                 \Controllers\Task\Form\Param\Source::check($param['source'], $repoController->getPackageType());
             }
 
@@ -146,7 +146,7 @@ class Form
             /**
              *  Update repository source
              */
-            if ($repoController->getType() == 'mirror') {
+            if ($repoController->getType() == 'curated') {
                 $repoController->updateSource($param['repo-id'], $param['source']);
             }
 

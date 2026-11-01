@@ -9,7 +9,7 @@ class Snapshot {
 
         // Get all selected checkboxes and their file-id (media) attribute
         $('#packages-list, #browse-search-results').find('input[name=packageName\\[\\]]:checked').each(function () {
-            packages.push({ filename: $(this).attr('filename'), path: $(this).attr('path') });
+            packages.push({ filename: $(this).attr('filename'), path: $(this).attr('path'), root: $(this).attr('root') || 'repo' });
         });
 
         // Append a temporary <a> element to download files
@@ -20,7 +20,8 @@ class Snapshot {
 
         for (var n = 0; n < packages.length; n++) {
             var download = packages[n];
-            temporaryDownloadLink.setAttribute('href', '/repo/' + download.path);
+            // Repositories files are published under /repo/, mirrors files under /mirror/
+            temporaryDownloadLink.setAttribute('href', '/' + download.root + '/' + download.path);
             temporaryDownloadLink.setAttribute('download', download.filename);
 
             // Click on the <a> element to start download

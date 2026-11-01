@@ -3,6 +3,21 @@ use \Controllers\Filesystem\Directory;
 use \Controllers\Filesystem\File;
 use \Controllers\Utils\Convert;
 
+// Mirror snapshot (/snapshot/mirror/<id>): read-only, its content is an exact copy of the source repository
+$isMirror = (__ACTUAL_URI__[2] ?? '') == 'mirror';
+
+if ($isMirror) {
+    $mirrorBrowse = (new \Controllers\Mirror\Snapshot())->getBrowseInfo(__ACTUAL_URI__[3] ?? '');
+    $repository = $mirrorBrowse['label'];
+    $accent = $mirrorBrowse['accent'];
+    $dateFormatted = $mirrorBrowse['date'];
+    $repoSize = Convert::sizeToHuman($mirrorBrowse['size']);
+    $packagesCount = $mirrorBrowse['packagesCount'];
+    $rebuild = null;
+    unset($mirrorBrowse);
+    return;
+}
+
 $repoController = new \Controllers\Repo\Repo();
 $repoSnapshotController = new \Controllers\Repo\Snapshot\Snapshot();
 
@@ -55,5 +70,7 @@ $repoSize = Convert::sizeToHuman($repoSize);
 
 // Retrieve snapshot rebuild status
 $rebuild = $repoController->getRebuild();
+
+$dateFormatted = $repoController->getDateFormatted();
 
 unset($repoSnapshotController);

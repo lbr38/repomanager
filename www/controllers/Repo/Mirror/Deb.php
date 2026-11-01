@@ -605,11 +605,13 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
          *    Please remember that the signature file (.sig or .asc)
          *    should be the first file given on the command line.
          *  e.g. gpgv --homedir /var/lib/repomanager/.gnupg/ Release.gpg Release
+         *
+         *  Keys are imported in trustedkeys.gpg, it must be specified: gpgv reads trustedkeys.kbx by default when it exists
          */
         if (!empty($clearFile)) {
-            $myprocess = new Process('/usr/bin/gpgv --homedir ' . GPGHOME . ' ' . $signedFile . ' ' . $clearFile);
+            $myprocess = new Process('/usr/bin/gpgv --homedir ' . GPGHOME . ' --keyring ' . GPGHOME . '/trustedkeys.gpg ' . $signedFile . ' ' . $clearFile);
         } else {
-            $myprocess = new Process('/usr/bin/gpgv --homedir ' . GPGHOME . ' ' . $signedFile);
+            $myprocess = new Process('/usr/bin/gpgv --homedir ' . GPGHOME . ' --keyring ' . GPGHOME . '/trustedkeys.gpg ' . $signedFile);
         }
 
         $myprocess->execute();

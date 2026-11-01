@@ -13,10 +13,10 @@
 
 ## Main features
 
-- Create `deb` and `rpm` mirror repositories
+- Create `deb` and `rpm` curated repositories (selected packages from a source repository, rebuilt and signed metadata) and mirrors (upstream repositories copied as is)
 - Sign packages and repositories with GPG
 - Upload packages into repositories
-- Create environments (e.g., `preprod`, `prod`) and make mirrors available only for specific environments
+- Create environments (e.g., `preprod`, `prod`) and make repositories available only for specific environments
 - Manage host package updates
 - Schedule tasks
 

@@ -212,6 +212,57 @@ class Task
         $repoController = new Repo();
 
         try {
+            // Case of a mirror task, the mirror name is in the params (create) or in the database (other actions)
+            if (($taskRawParams['domain'] ?? '') == 'mirror') {
+                unset($repoController);
+
+                // A task grouping sub-tasks targets the mirrors of its sub-tasks
+                if (!empty($taskRawParams['tasks'])) {
+                    $labels = [];
+
+                    foreach ($taskRawParams['tasks'] as $subTaskParams) {
+                        $labels[] = $this->getRepoFromParams($subTaskParams);
+                    }
+
+                    $labels = array_unique($labels);
+                    $description = count($labels) == 1 ? $labels[0] : count($labels) . ' mirrors';
+
+                    if ($string) {
+                        return $description;
+                    }
+
+                    return [
+                        'type' => 'group',
+                        'name' => $description
+                    ];
+                }
+
+                $mirror = [
+                    'Name' => $taskRawParams['name'] ?? '',
+                    'Releasever' => ($taskRawParams['package-type'] ?? '') == 'rpm' ? ($taskRawParams['releasever'] ?? '') : '',
+                    'Package_type' => $taskRawParams['package-type'] ?? ''
+                ];
+
+                if (!empty($taskRawParams['mirror-id']) and is_numeric($taskRawParams['mirror-id'])) {
+                    $mirror = (new \Controllers\Mirror\Mirror())->getById((int) $taskRawParams['mirror-id']);
+                }
+
+                if (empty($mirror['Name'])) {
+                    throw new Exception('unknown mirror');
+                }
+
+                $label = \Controllers\Mirror\Mirror::getLabel($mirror['Name'], $mirror['Releasever']);
+
+                if ($string) {
+                    return $label;
+                }
+
+                return [
+                    'type' => $mirror['Package_type'],
+                    'name' => $label
+                ];
+            }
+
             // Case where the task groups sub-tasks, the repositories are the ones of its sub-tasks
             if (!empty($taskRawParams['tasks'])) {
                 unset($repoController);
@@ -413,13 +464,20 @@ class Task
          *  a parent task so that they are listed, followed and reported as a single operation
          */
         if (count($tasksParams) > 1 and empty($parentTaskId)) {
-            $parentTaskId = $this->new([
+            $parentTaskParams = [
                 'action'   => $tasksParams[0]['action'],
                 'schedule' => $tasksParams[0]['schedule'],
 
                 // Kept so that a scheduled parent task can create its sub-tasks when it runs
                 'tasks'    => $tasksParams
-            ]);
+            ];
+
+            // Mirrors tasks are identified by their domain
+            if (!empty($tasksParams[0]['domain'])) {
+                $parentTaskParams['domain'] = $tasksParams[0]['domain'];
+            }
+
+            $parentTaskId = $this->new($parentTaskParams);
 
             /**
              *  A scheduled parent task only creates its sub-tasks when it reaches its execution time,
@@ -479,7 +537,8 @@ class Task
         $params = [];
 
         foreach ($tasksParams as $taskParams) {
-            if ($taskParams['action'] != 'create') {
+            // Mirrors creation is never split, a mirror contains all its distributions / components / archs
+            if ($taskParams['action'] != 'create' or ($taskParams['domain'] ?? '') == 'mirror') {
                 $params[] = $taskParams;
                 continue;
             }
@@ -1278,7 +1337,7 @@ class Task
 
             $title = match ($repoType) {
                 'local' => 'New local repository',
-                'mirror' => 'New mirror repository',
+                'curated' => 'New curated repository',
                 default => 'New repository',
             };
             $icon = 'plus.svg';
@@ -1311,6 +1370,27 @@ class Task
         if ($taskRawParams['action'] == 'delete') {
             $title = 'Delete snapshot';
             $icon = 'delete.svg';
+        }
+
+        // Mirrors tasks
+        if (($taskRawParams['domain'] ?? '') == 'mirror') {
+            if ($taskRawParams['action'] == 'create') {
+                $title = 'New mirror';
+            }
+            if ($taskRawParams['action'] == 'update') {
+                $title = 'Sync mirror';
+            }
+            if ($taskRawParams['action'] == 'env') {
+                $title = 'Point an environment (mirror)';
+            }
+            if ($taskRawParams['action'] == 'removeEnv') {
+                $title = 'Remove an environment (mirror)';
+            }
+            if ($taskRawParams['action'] == 'delete') {
+                // A task grouping sub-tasks does not target a snapshot itself, its sub-tasks do
+                $deleteSnapshot = !empty($taskRawParams['mirror-snap-id']) || !empty($taskRawParams['tasks'][0]['mirror-snap-id']);
+                $title = $deleteSnapshot ? 'Delete snapshot (mirror)' : 'Delete mirror';
+            }
         }
 
         // If task is running, override icon

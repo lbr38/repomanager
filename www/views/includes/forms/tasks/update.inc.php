@@ -56,7 +56,7 @@
 <h6>GPG PARAMETERS</h6>
 
 <?php
-if ($repoController->getType() == 'mirror') : ?>
+if ($repoController->getType() == 'curated') : ?>
     <h6>CHECK GPG SIGNATURES</h6>
     <p class="note">Check GPG signature of repository / packages.</p>
     <label class="onoff-switch-label">
@@ -83,7 +83,7 @@ endif ?>
 </label>
 
 <?php
-if ($repoController->getType() == 'mirror' or ($repoController->getType() == 'local' and $repoController->getPackageType() == 'deb')) : ?>
+if ($repoController->getType() == 'curated' or ($repoController->getType() == 'local' and $repoController->getPackageType() == 'deb')) : ?>
     <div class="flex align-item-center column-gap-5 toggle-btn pointer margin-top-20 mediumopacity" toggle="div#advanced-params-<?= $repoController->getSnapId() ?>">
         <h6 class="margin-top-0">ADVANCED PARAMETERS</h6>
         <img src="/assets/icons/next.svg" class="icon toggle-icon" />
@@ -91,7 +91,7 @@ if ($repoController->getType() == 'mirror' or ($repoController->getType() == 'lo
 
     <div id="advanced-params-<?= $repoController->getSnapId() ?>" class="hide">
         <?php
-        if ($repoController->getType() == 'mirror') : ?>
+        if ($repoController->getType() == 'curated') : ?>
             <h6>KEEP LATEST x VERSIONS OF PACKAGES</h6>
             <p class="note">Keep only the latest x versions of packages in the repository. Older versions will be ignored.</p>
             <input type="number" class="task-param" param-name="advanced-params.packages.keep-latest" package-type="all" min="1" placeholder="e.g. 5" value="<?= $repoController->getAdvancedParams()['packages']['keep-latest'] ?? '' ?>" />

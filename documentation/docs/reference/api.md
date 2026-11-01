@@ -37,6 +37,8 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
 
     ``<SNAPSHOT_ID>`` can be retrieved from the URL when you browse a snapshot from the repositories list or from the API when you list snapshots of a repository.
 
+    ``<MIRROR_ID>`` can be retrieved from the URL when you browse mirror statistics or from the API when you list mirrors.
+
   ### Global query parameters
 
   - ``normalize`` (optional): when set on a request, all keys in the JSON response are converted to lowercase recursively.
@@ -75,7 +77,7 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
     <tr>
       <td>/source/<code>&lt;TYPE&gt;</code>/<br><code>GET</code></td>
       <td><code>&lt;APIKEY&gt;</code></td>
-      <td><code>type</code> (required, in URL: <code>deb</code> or <code>rpm</code>)</td>
+      <td><code>type</code> (required, in URL: <code>deb</code>, <code>rpm</code> or <code>arch</code>)</td>
       <td>List all source repositories of a specific type</td>
       <td markdown="block">
         ```bash
@@ -86,7 +88,7 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
     <tr>
       <td>/source/<code>&lt;TYPE&gt;</code>/<code>&lt;NAME&gt;</code><br><code>GET</code></td>
       <td><code>&lt;APIKEY&gt;</code></td>
-      <td><code>type</code> (required, in URL: <code>deb</code> or <code>rpm</code>)<br><code>name</code> (required, in URL)</td>
+      <td><code>type</code> (required, in URL: <code>deb</code>, <code>rpm</code> or <code>arch</code>)<br><code>name</code> (required, in URL)</td>
       <td>Retrieve source repository details by name</td>
       <td markdown="block">
         ```bash
@@ -291,6 +293,79 @@ Once generated, copy the key and keep it safe. This key is used to authenticate 
       </td>
     </tr>
 </tbody>
+</table>
+
+### Mirrors
+
+Mirrors use the repositories permissions of the user owning the API key: only the mirrors the user is allowed to view are listed, and actions require the corresponding permission (`update` to sync, `env` to point an environment). Actions start a task, its status can be followed with the [Tasks](#tasks) endpoints.
+
+<table>
+  <thead>
+    <tr>
+      <th style="min-width: 250px">Endpoint and method</th>
+      <th style="min-width: 150px">Authentication</th>
+      <th style="min-width: 200px">Parameter(s)</th>
+      <th style="min-width: 300px">Description</th>
+      <th>Example</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>/mirror/<br><code>GET</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td></td>
+      <td>List all mirrors</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/mirror/
+        ```
+      </td>
+    </tr>
+    <tr>
+      <td>/mirror/<br><code>GET</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td></td>
+      <td>Get the ID of the <code>debian</code> deb mirror</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/mirror/ | jq -r '.results[] | select(.Name == "debian" and .Package_type == "deb") | .Id'
+        ```
+      </td>
+    </tr>
+    <tr>
+      <td>/mirror/<code>&lt;MIRROR_ID&gt;</code>/<br><code>GET</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td></td>
+      <td>Get mirror details and its snapshots (most recent first), with the environments pointing to each snapshot and their URL</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" https://repomanager.mydomain.net/api/v2/mirror/<MIRROR_ID>/
+        ```
+      </td>
+    </tr>
+    <tr>
+      <td>/mirror/<code>&lt;MIRROR_ID&gt;</code>/sync<br><code>POST</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td><code>env</code> (optional, JSON: environment name or list of names)</td>
+      <td>Sync the mirror into a new snapshot, then point the specified environments to it. Returns the task ID</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X POST -H "Authorization: Bearer <APIKEY>" -H "Content-Type: application/json" -d '{"env": ["preprod"]}' https://repomanager.mydomain.net/api/v2/mirror/<MIRROR_ID>/sync
+        ```
+      </td>
+    </tr>
+    <tr>
+      <td>/mirror/<code>&lt;MIRROR_ID&gt;</code>/env<br><code>POST</code></td>
+      <td><code>&lt;APIKEY&gt;</code></td>
+      <td><code>snap-id</code> (required, JSON)<br><code>env</code> (required, JSON: environment name or list of names)</td>
+      <td>Point environments to a snapshot of the mirror. Returns the task ID</td>
+      <td markdown="block">
+        ```bash
+        curl --fail-with-body -L -s -X POST -H "Authorization: Bearer <APIKEY>" -H "Content-Type: application/json" -d '{"snap-id": 42, "env": ["prod"]}' https://repomanager.mydomain.net/api/v2/mirror/<MIRROR_ID>/env
+        ```
+      </td>
+    </tr>
+  </tbody>
 </table>
 
 ### Environment

@@ -6,28 +6,47 @@ $datasets = [];
 $labels = [];
 $options = [];
 
+// Mirror page (/repository/mirror/<id>): snapshots size is stored in database
+$isMirror = (__ACTUAL_URI__[2] ?? '') == 'mirror';
+
+if ($isMirror) {
+    $mirror = (new \Controllers\Mirror\Mirror())->getForPage(__ACTUAL_URI__[3] ?? '');
+    $datasets[0] = ['name' => 'Snapshot size (MB)', 'data' => [], 'snapshotIds' => []];
+
+    // Most recent first in database, the chart is a timeline
+    foreach (array_reverse((new \Controllers\Mirror\Snapshot())->getByMirrorId($mirror['Id'])) as $snapshot) {
+        $labels[] = strtotime($snapshot['Date'] . ' ' . $snapshot['Time']) * 1000;
+        $datasets[0]['data'][] = (int) $snapshot['Size'] / (1024 * 1024);
+        $datasets[0]['snapshotIds'][] = $snapshot['Id'];
+    }
+}
+
 // Check that repository Id is specified
-if (empty(__ACTUAL_URI__[2])) {
+if (!$isMirror && empty(__ACTUAL_URI__[2])) {
     throw new Exception('no repository ID specified');
 }
 
 // Check that repository Id is valid
-if (!is_numeric(__ACTUAL_URI__[2])) {
+if (!$isMirror && !is_numeric(__ACTUAL_URI__[2])) {
     throw new Exception('invalid repository ID');
 }
 
-// Get repository info
-$repoController->getAllById(__ACTUAL_URI__[2]);
+// Get repository info and all its snapshots
+$snapshots = [];
 
-// Get all snapshots of the repository
-$snapshots = $repoController->getSnapshots($repoController->getRepoId());
+if (!$isMirror) {
+    $repoController->getAllById(__ACTUAL_URI__[2]);
+    $snapshots = $repoController->getSnapshots($repoController->getRepoId());
+}
 
 // Initialize dataset with proper name
-$datasets[0] = [
-    'name' => 'Snapshot size (MB)',
-    'data' => [],
-    'snapshotIds' => [] // Store snapshot IDs for click handling
-];
+if (!$isMirror) {
+    $datasets[0] = [
+        'name' => 'Snapshot size (MB)',
+        'data' => [],
+        'snapshotIds' => [] // Store snapshot IDs for click handling
+    ];
+}
 
 foreach ($snapshots as $snapshot) {
     $labels[] = strtotime($snapshot['Date']) * 1000;
@@ -75,7 +94,7 @@ $options = [
         'day' => '2-digit',
         'month' => '2-digit',
         'year' => 'numeric'
-    ],
+    ] + ($isMirror ? ['hour' => '2-digit', 'minute' => '2-digit'] : []), // A mirror can have several snapshots a day
 
     'legend' => [
         'show' => false
@@ -92,9 +111,9 @@ $options = [
     // Configure click callback to redirect to snapshot page
     'clickCallback' => [
         'enabled' => true,
-        'url' => '/snapshot/{value}',
+        'url' => $isMirror ? '/snapshot/mirror/{value}' : '/snapshot/{value}',
         'newTab' => false // '_self' for same tab, '_blank' for new tab
     ]
 ];
 
-unset($snapshotPath, $size, $snapshot, $snapshots, $repoController);
+unset($snapshotPath, $size, $snapshot, $snapshots, $repoController, $mirror, $isMirror);

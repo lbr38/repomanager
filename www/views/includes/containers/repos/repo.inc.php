@@ -74,9 +74,9 @@ if ($repo['Package_type'] == 'rpm') {
                     if ($repo['Type'] == 'local') {
                         echo '<img src="/assets/icons/pin.svg" class="icon-np icon-medium" title="This is a local repository." />';
                         echo '<span class="font-size-13">local</span>';
-                    } elseif ($repo['Type'] == 'mirror') {
-                        echo '<img src="/assets/icons/internet.svg" class="icon-np icon-medium" title="This repository is a mirror of an external repository." />';
-                        echo '<span class="font-size-13">mirror</span>';
+                    } elseif ($repo['Type'] == 'curated') {
+                        echo '<img src="/assets/icons/internet.svg" class="icon-np icon-medium" title="This repository is built from an external source repository (packages selected, metadata rebuilt)." />';
+                        echo '<span class="font-size-13">curated</span>';
                     } ?>
                 </div>
 

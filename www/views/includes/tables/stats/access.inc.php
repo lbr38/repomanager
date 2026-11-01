@@ -24,7 +24,7 @@
                  *  It retrieves only an occurence composed of letters, numbers and some special characters like - _ . and %
                  */
                 preg_match('#/[a-zA-Z0-9\%_\.-]+[[:space:]]#i', $item['Request'], $accessTarget);
-                $accessTarget[0] = str_replace('/', '', $accessTarget[0]); ?>
+                $accessTarget[0] = str_replace('/', '', $accessTarget[0] ?? ''); ?>
 
                 <div class="table-container grid-rfr-1-2 bck-blue-alt column-gap-15 row-gap-15 stats-access-request">
                     <div class="flex flex-wrap align-item-center column-gap-100 row-gap-15">
@@ -54,14 +54,15 @@
                         </div>
 
                         <div>
-                            <p class="copy" title="Source host"><?= $item['Source'] ?></p>
-                            <p class="lowopacity-cst copy" title="Source IP"><?= $item['IP'] ?></p>
+                            <!-- Source, IP and request come from the clients requests (reverse DNS, X-Forwarded-For header, requested URL), they are escaped -->
+                            <p class="copy" title="Source host"><?= htmlspecialchars($item['Source']) ?></p>
+                            <p class="lowopacity-cst copy" title="Source IP"><?= htmlspecialchars($item['IP']) ?></p>
                         </div>
                     </div>
 
                     <div>
-                        <p class="copy wordbreakall" title="Requested file"><?= $accessTarget[0] ?></p>
-                        <p class="lowopacity-cst wordbreakall copy" title="Full request"><?= str_replace('"', '', $item['Request']) ?></p>
+                        <p class="copy wordbreakall" title="Requested file"><?= htmlspecialchars($accessTarget[0] ?? '') ?></p>
+                        <p class="lowopacity-cst wordbreakall copy" title="Full request"><?= htmlspecialchars(str_replace('"', '', $item['Request'])) ?></p>
                     </div>
                 </div>
                 <?php

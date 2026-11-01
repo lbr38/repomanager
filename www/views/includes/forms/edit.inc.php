@@ -7,18 +7,18 @@ if ($repoController->getPackageType() == 'deb') {
 } ?>
 
 <?php
-if ($repoController->getType() == 'mirror') : ?>
+if ($repoController->getType() == 'curated') : ?>
     <h6 class="required">SOURCE REPOSITORY</h6>
-    <p class="note">The repository to mirror from. Want more? <span class="note pointer lowopacity get-panel-btn" panel="repos/sources/list">Add or import a source repository</span>.</p>
+    <p class="note">The repository to get packages from. Want more? <span class="note pointer lowopacity get-panel-btn" panel="repos/sources/list">Add or import a source repository</span>.</p>
     
     <?php
     if ($repoController->getPackageType() == 'rpm') {
         if (empty($newRepoRpmSourcesList)) {
-            echo '<div class="flex align-item-center column-gap-5 margin-top-10" field-type="mirror rpm"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /><p class="note">No rpm source repositories available. Please add a source repository first.</p></div>';
+            echo '<div class="flex align-item-center column-gap-5 margin-top-10" field-type="curated rpm"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /><p class="note">No rpm source repositories available. Please add a source repository first.</p></div>';
         }
 
         if (!empty($newRepoRpmSourcesList)) : ?>
-            <select class="edit-param" param-name="source" field-type="mirror rpm" package-type="rpm">
+            <select class="edit-param" param-name="source" field-type="curated rpm" package-type="rpm">
                 <option value="">Select a source repository</option>
                 <?php
                 foreach ($newRepoRpmSourcesList as $source) {
@@ -39,11 +39,11 @@ if ($repoController->getType() == 'mirror') : ?>
 
     if ($repoController->getPackageType() == 'deb') {
         if (empty($newRepoDebSourcesList)) {
-            echo '<div class="flex align-item-center column-gap-5 margin-top-10" field-type="mirror deb"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /><p class="note">No deb source repositories available. Please add a source repository first.</p></div>';
+            echo '<div class="flex align-item-center column-gap-5 margin-top-10" field-type="curated deb"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /><p class="note">No deb source repositories available. Please add a source repository first.</p></div>';
         }
 
         if (!empty($newRepoDebSourcesList)) : ?>
-            <select class="edit-param" param-name="source" field-type="mirror deb" package-type="deb">
+            <select class="edit-param" param-name="source" field-type="curated deb" package-type="deb">
                 <option value="">Select a source repository</option>
                 <?php
                 foreach ($newRepoDebSourcesList as $source) {

@@ -36,6 +36,16 @@
                 echo '<option value="repo-' . $repoId . '" ' . $selected . '>' . $repoLabel . '</option>';
             } ?>
         </optgroup>
+
+        <optgroup label="Mirrors">
+            <?php
+            // Display mirrors and select them if they are in the permissions (permissions saved before mirrors existed have no 'mirrors' key)
+            foreach ($mirrorsList as $mirrorId => $mirrorLabel) {
+                $selected = in_array($mirrorId, $permissions['repositories']['view']['mirrors'] ?? []) ? 'selected' : '';
+
+                echo '<option value="mirror-' . $mirrorId . '" ' . $selected . '>' . htmlspecialchars($mirrorLabel) . '</option>';
+            } ?>
+        </optgroup>
     </select>
 
     <h6>ALLOW ACTIONS ON REPOSITORIES</h6>

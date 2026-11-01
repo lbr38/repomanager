@@ -82,6 +82,11 @@ try {
     // Generate controller name based on the action specified in the task parameters
     $controllerPath = '\Controllers\Repo\Task\\' . ucfirst($taskRawParams['action']);
 
+    // Mirrors tasks have their own controllers
+    if (($taskRawParams['domain'] ?? '') == 'mirror') {
+        $controllerPath = '\Controllers\Mirror\Task\\' . ucfirst($taskRawParams['action']);
+    }
+
     // Check if class exists, otherwise the action might be invalid
     if (!class_exists($controllerPath)) {
         throw new Exception('Invalid action: ' . $taskRawParams['action']);
