@@ -44,6 +44,8 @@ abstract class Sync
     protected string|null $sslCertificate = null;
     protected string|null $sslPrivateKey = null;
     protected string|null $sslCaCertificate = null;
+    protected string|null $basicAuthUsername = null;
+    protected string|null $basicAuthPassword = null;
     protected array $expectedFiles = [];
     protected int $totalSize = 0;
     protected array $stats = [];
@@ -69,7 +71,7 @@ abstract class Sync
     abstract protected function upstreamChanged(): bool;
 
     /**
-     *  Set source repository definition (URL, SSL authentication...)
+     *  Set source repository definition (URL, SSL and basic authentication...)
      */
     public function setSource(array $definition): void
     {
@@ -99,6 +101,12 @@ abstract class Sync
             }
 
             $this->$property = $this->tempDir . '/ssl-' . $key;
+        }
+
+        // Basic authentication credentials
+        if (!empty($definition['basic-authentication']['username'])) {
+            $this->basicAuthUsername = $definition['basic-authentication']['username'];
+            $this->basicAuthPassword = $definition['basic-authentication']['password'] ?? '';
         }
     }
 
@@ -441,6 +449,12 @@ abstract class Sync
         }
         if (!empty($this->sslCaCertificate)) {
             curl_setopt($handle, CURLOPT_CAINFO, $this->sslCaCertificate);
+        }
+        // Basic authentication credentials are not sent to other hosts on redirect
+        if (!empty($this->basicAuthUsername)) {
+            curl_setopt($handle, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+            curl_setopt($handle, CURLOPT_USERNAME, $this->basicAuthUsername);
+            curl_setopt($handle, CURLOPT_PASSWORD, $this->basicAuthPassword ?? '');
         }
 
         return $handle;

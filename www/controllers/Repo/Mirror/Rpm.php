@@ -951,6 +951,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                     'sslCertificatePath' => $this->sslCustomCertificate,
                     'sslPrivateKeyPath' => $this->sslCustomPrivateKey,
                     'sslCaCertificatePath' => $this->sslCustomCaCertificate,
+                    'basicAuthUsername' => $this->basicAuthUsername,
+                    'basicAuthPassword' => $this->basicAuthPassword,
                     'proxy' => PROXY ?? null
                 ]);
             } catch (Exception $e) {

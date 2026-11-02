@@ -373,6 +373,29 @@ class Source
         $currentParams['ssl-authentication']['certificate'] = $sslCertificate;
         $currentParams['ssl-authentication']['private-key'] = $sslPrivateKey;
         $currentParams['ssl-authentication']['ca-certificate'] = $sslCaCertificate;
+
+        /**
+         *  Basic authentication
+         *  Credentials are stored as is (not HTML encoded) as they are sent to the source repository
+         *  If the username is empty, credentials are removed
+         */
+        $basicAuthUsername = trim($params['basic-auth-username'] ?? '');
+        $basicAuthPassword = $params['basic-auth-password'] ?? '';
+
+        if (empty($basicAuthUsername)) {
+            unset($currentParams['basic-authentication']);
+        } else {
+            // A colon is not allowed in a basic authentication username (RFC 7617)
+            if (str_contains($basicAuthUsername, ':')) {
+                throw new Exception('Basic authentication username cannot contain a colon');
+            }
+
+            $currentParams['basic-authentication'] = [
+                'username' => $basicAuthUsername,
+                'password' => $basicAuthPassword
+            ];
+        }
+
         // Additional param for deb source repos
         if ($params['type'] == 'deb') {
             $currentParams['non-compliant'] = $params['non-compliant'];

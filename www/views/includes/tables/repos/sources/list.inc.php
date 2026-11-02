@@ -81,7 +81,11 @@ use \Controllers\Layout\Table\Render as TableRender; ?>
             }
             if (isset($definition['ssl-authentication']['ca-certificate'])) {
                 $sslCaCertificate = $definition['ssl-authentication']['ca-certificate'];
-            } ?>
+            }
+
+            // Basic authentication
+            $basicAuthUsername = $definition['basic-authentication']['username'] ?? '';
+            $basicAuthPassword = $definition['basic-authentication']['password'] ?? ''; ?>
 
             <div class="table-container-2 panel-list-item accent-<?= $accent ?> pointer source-repo-edit-param-btn" source-id="<?= $item['Id'] ?>">
                 <div>
@@ -279,6 +283,15 @@ use \Controllers\Layout\Table\Render as TableRender; ?>
                     <h6>SSL CA CERTIFICATE</h6>
                     <p class="note">Plain text format.</p>
                     <textarea class="source-param textarea-100 resize-disabled" param-name="ssl-ca-certificate" placeholder="-----BEGIN CERTIFICATE-----"><?= $sslCaCertificate ?></textarea>
+
+                    <h6>BASIC AUTHENTICATION</h6>
+                    <p class="note">Use a username and password to authenticate to the source repository. Leave the username empty to disable.</p>
+
+                    <h6>USERNAME</h6>
+                    <input type="text" class="source-param" param-name="basic-auth-username" value="<?= htmlspecialchars($basicAuthUsername) ?>" autocomplete="off" />
+
+                    <h6>PASSWORD</h6>
+                    <input type="password" class="source-param" param-name="basic-auth-password" value="<?= htmlspecialchars($basicAuthPassword) ?>" autocomplete="new-password" />
 
                     <br><br>
                     <button type="button" class="source-repo-form-submit-btn btn-medium-green" source-id="<?= $item['Id'] ?>" title="Save">Save</button>

@@ -157,6 +157,8 @@ It is recommended to add as much information as you can as this is used for sugg
 
     You can provide an **SSL certificate and private key** to authenticate to the source repository. This is useful if the source repository access is protected (for example, Red Hat official repositories ``cdn.redhat.com`` require a private key/certificate to access them).
 
+    You can also provide a **username and password** if the source repository is protected by HTTP basic authentication. Credentials are sent to the source repository host only (not to other hosts in case of redirection). Empty the username to remove the credentials. Basic authentication can also be defined in custom lists with the ``basic-authentication`` section (``username`` and ``password``). Prefer this over embedding credentials in the URL.
+
 
 ## Delete a source repository
 

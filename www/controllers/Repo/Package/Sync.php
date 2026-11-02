@@ -228,6 +228,13 @@ trait Sync
             $mymirror->setSslCustomCaCertificate($sslCaCertificate);
         }
 
+        /**
+         *  If the source repo requires basic authentication, then the credentials will be used
+         */
+        if (!empty($sourceDefinition['basic-authentication']['username'])) {
+            $mymirror->setBasicAuth($sourceDefinition['basic-authentication']['username'], $sourceDefinition['basic-authentication']['password'] ?? '');
+        }
+
         $this->taskLogSubStepController->completed();
 
         unset($mysource, $source);
