@@ -444,13 +444,23 @@ class EChart
      * Build series array formatted for EChart
      * Each series gets a stable id, so that updates (replaceMerge) update the existing series instead of recreating them
      * (which would replay the whole animation)
+     * Several series can share the same name (e.g. one series per point in labels mode), so duplicates get an index suffix
      */
     buildSeries()
     {
-        return this.buildSeriesByType().map((serie, index) => ({
-            ...serie,
-            id: serie.name ?? 'series-' + index
-        }));
+        const nameCount = {};
+
+        return this.buildSeriesByType().map((serie, index) => {
+            const name = serie.name ?? 'series-' + index;
+            const count = nameCount[name] ?? 0;
+
+            nameCount[name] = count + 1;
+
+            return {
+                ...serie,
+                id: count === 0 ? name : name + '-' + count
+            };
+        });
     }
 
     /**
