@@ -3,6 +3,7 @@
 namespace Controllers\Mirror;
 
 use Controllers\Filesystem\Directory;
+use Controllers\Repo\Snapshot\Retention;
 use Exception;
 
 class Snapshot
@@ -106,16 +107,22 @@ class Snapshot
     }
 
     /**
-     *  Delete snapshots that are not used by any environment, except the most recent ones (RETENTION setting)
+     *  Delete snapshots that are not used by any environment, except the most recent ones (mirror retention, or RETENTION setting if not set)
      *  At least one unused snapshot is always kept: the one an environment has just been switched from,
      *  as clients may still be reading it
      *  Return the deleted snapshots directory names
      */
-    public function clean(int $mirrorId, string $mirrorDir): array
+    public function clean(int $mirrorId, string $mirrorDir, int|null $retention): array
     {
         $deleted = [];
+        $retention = Retention::get($retention);
 
-        foreach ($this->model->getUnused($mirrorId, max(RETENTION, 1)) as $snapshot) {
+        // All unused snapshots must be kept
+        if ($retention === null) {
+            return $deleted;
+        }
+
+        foreach ($this->model->getUnused($mirrorId, max($retention, 1)) as $snapshot) {
             $dirName = Mirror::getSnapshotDirName($snapshot['Date'], $snapshot['Time']);
             $path = Mirror::getPath($mirrorDir) . '/' . $dirName;
 

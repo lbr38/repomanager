@@ -250,17 +250,6 @@ $(document).on('click',"input[name=checkbox-repo]",function () {
         );
     }
 
-    if (myrepopermission.allowedAction('edit')) {
-        buttons.push(
-            {
-                'text': 'Edit',
-                'callback': function () {
-                    executeAction('edit')
-                }
-            }
-        );
-    }
-
     // Install is always allowed by default
     buttons.push(
         {
@@ -367,13 +356,9 @@ function executeAction(action)
     var repos = JSON.stringify(repos);
 
     /**
-     *  If the action is 'edit', then get the edit panel
+     *  If the action is 'install', then get the install panel
      */
-    if (action == 'edit') {
-        mypanel.get('repos/edit', {
-            repos: repos
-        });
-    } else if (action == 'install') {
+    if (action == 'install') {
         mypanel.get('repos/install', {
             repos: repos
         });

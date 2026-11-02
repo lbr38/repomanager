@@ -113,6 +113,21 @@ class Mirror extends \Models\Model
     }
 
     /**
+     *  Update mirror snapshots retention (null: global setting)
+     */
+    public function updateRetention(int $id, int|null $retention): void
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE mirrors SET Retention = :retention WHERE Id = :id");
+            $stmt->bindValue(':retention', $retention, $retention === null ? SQLITE3_NULL : SQLITE3_INTEGER);
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+    }
+
+    /**
      *  Update mirror tags (comma-separated)
      */
     public function updateTags(int $id, string $tags): void

@@ -511,6 +511,41 @@ $(document).on('click', '.mirror-sync-btn', function () {
 });
 
 /**
+ *  Event: open the edit panel of a mirror
+ */
+$(document).on('click', '.mirror-edit-btn', function () {
+    mypanel.get('mirrors/edit', {
+        'mirror-id': $(this).attr('mirror-id')
+    });
+});
+
+/**
+ *  Event: submit mirror edit form
+ */
+$(document).on('submit', '#mirror-edit-form', function (e) {
+    e.preventDefault();
+
+    const form = $(this);
+
+    ajaxRequest(
+        // Controller:
+        'repo/edit',
+        // Action:
+        'retention',
+        // Data:
+        {
+            repoId: 'mirror-' + form.attr('mirror-id'),
+            retention: form.find('.mirror-edit-param[param-name="retention"]').val(),
+            keepAll: form.find('.mirror-edit-param[param-name="retention-keep-all"]').is(':checked') ? 'true' : 'false'
+        },
+        // Print success alert:
+        true,
+        // Print error alert:
+        true
+    );
+});
+
+/**
  *  Event: print mirrors installation commands on environment change
  *  Commands are templates in which __ENV__ is replaced by the selected environment
  */

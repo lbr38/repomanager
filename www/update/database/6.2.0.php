@@ -31,3 +31,16 @@ try {
 } catch (Exception $e) {
     throw new Exception('could not rename mirror repositories to curated repositories: ' . $e->getMessage());
 }
+
+// Add 'Retention' column to repos and mirrors tables (NULL: global setting, -1: keep all snapshots)
+foreach (['repos', 'mirrors'] as $table) {
+    if (!$this->db->tableExist($table) or $this->db->columnExist($table, 'Retention')) {
+        continue;
+    }
+
+    try {
+        $this->db->exec("ALTER TABLE " . $table . " ADD COLUMN Retention INTEGER");
+    } catch (Exception $e) {
+        throw new Exception('could not add Retention column to ' . $table . ' table: ' . $e->getMessage());
+    }
+}

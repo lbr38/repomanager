@@ -309,6 +309,7 @@ article {
 }
 
 .repo-rename-btn,
+.repo-header-btn,
 .repo-add-description-btn,
 .repo-add-tags-btn {
     display: inline-flex;
@@ -320,6 +321,7 @@ article {
 }
 
 .repo-rename-btn:hover,
+.repo-header-btn:hover,
 .repo-add-description-btn:hover,
 .repo-add-tags-btn:hover {
     opacity: 1;
@@ -600,12 +602,14 @@ a.task-item-child:hover {
    The display:none logic (button only present when the field is empty) is kept;
    this only controls the hover reveal, uniform with the rename button. */
 .repo-item .repo-rename-btn,
+.repo-item .repo-header-btn,
 .repo-item .repo-add-description-btn,
 .repo-item .repo-add-tags-btn {
     visibility: hidden;
 }
 
 .repo-item:hover .repo-rename-btn,
+.repo-item:hover .repo-header-btn,
 .repo-item:hover .repo-add-description-btn,
 .repo-item:hover .repo-add-tags-btn {
     visibility: visible;

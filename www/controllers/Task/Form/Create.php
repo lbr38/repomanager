@@ -5,6 +5,7 @@ namespace Controllers\Task\Form;
 use Exception;
 use Controllers\Repo\Rpm;
 use Controllers\Repo\Deb;
+use Controllers\Repo\Snapshot\Retention;
 use Controllers\History\Save as History;
 
 class Create
@@ -55,6 +56,9 @@ class Create
 
         // Check tags
         Param\Tags::check($formParams['tags']);
+
+        // Check snapshots retention
+        Retention::fromInput($formParams['retention'] ?? null, $formParams['retention-keep-all'] ?? 'false');
 
         // Check group
         if (!empty($formParams['group'])) {

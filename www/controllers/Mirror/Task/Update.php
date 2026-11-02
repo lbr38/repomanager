@@ -3,6 +3,7 @@
 namespace Controllers\Mirror\Task;
 
 use Controllers\Mirror\Mirror;
+use Controllers\Repo\Snapshot\Retention;
 use Exception;
 
 /**
@@ -68,9 +69,10 @@ class Update extends Execution
         $this->addSnapshot($mirrorId, $dir, $this->publishSnapshot($dir), $sync, $envs);
 
         // Delete old unused snapshots
-        $this->taskLogSubStepController->new('clean-snapshots', 'CLEANING OLD SNAPSHOTS', 'Snapshots without environment are kept according to the retention setting (' . max(RETENTION, 1) . ')');
+        $retention = Retention::get($mirror['Retention'] ?? null);
+        $this->taskLogSubStepController->new('clean-snapshots', 'CLEANING OLD SNAPSHOTS', 'Snapshots without environment are kept according to the retention setting (' . ($retention === null ? 'keep all' : max($retention, 1)) . ')');
 
-        $deleted = $this->mirrorSnapshotController->clean($mirrorId, $dir);
+        $deleted = $this->mirrorSnapshotController->clean($mirrorId, $dir, $mirror['Retention'] ?? null);
 
         foreach ($deleted as $dirName) {
             $this->taskLogSubStepController->output('Snapshot ' . Mirror::getSnapshotLabel($dirName) . ' deleted');

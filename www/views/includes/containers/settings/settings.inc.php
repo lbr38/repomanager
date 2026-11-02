@@ -110,7 +110,7 @@
             </label>
 
             <h6 class="required">RETENTION</h6>
-            <p class="note">Maximum number of unused snapshots (not used by any environment) to keep per repository, older ones are deleted after each task. Set to 0 to delete all unused snapshots.</p>
+            <p class="note">Maximum number of unused snapshots (not used by any environment) to keep per repository, older ones are deleted after each task. Set to 0 to delete all unused snapshots. Can be overridden per repository or mirror from its edit form.</p>
             <input class="settings-param" param-name="retention" type="number" min="0" value="<?= RETENTION ?>">
             <?php
             if (RETENTION == 0) {

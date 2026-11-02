@@ -4,166 +4,80 @@ namespace Controllers\Repo\Edit;
 
 use Exception;
 use Controllers\History\Save as History;
-use Controllers\Utils\Validate;
+use Controllers\Repo\Repo;
+use Controllers\Repo\Snapshot\Retention;
+use Controllers\User\Permission\Repo as RepoPermission;
 
 class Form
 {
     /**
-     *  Get edit repository form
-     *  TODO : refacto avec \Controllers\Task\Form\Form
+     *  Return the repository to edit
+     *  Repository properties are common to all its snapshots, the latest snapshot is only used to retrieve the repository type
      */
-    public function get(array $repos) : string
+    public function getRepo(mixed $repoId): Repo
     {
-        $mysource = new \Controllers\Repo\Source\Source();
+        $repoController = new Repo();
 
-        /**
-         *  Get source repositories
-         */
-        $newRepoRpmSourcesList = $mysource->listAll('rpm');
-        $newRepoDebSourcesList = $mysource->listAll('deb');
-
-        $content = '<form id="edit-form" autocomplete="off">';
-
-        foreach ($repos as $repo) {
-            $repoController = new \Controllers\Repo\Repo();
-            $repoId = Validate::string($repo['repo-id']);
-            $snapId = Validate::string($repo['snap-id']);
-
-            /**
-             *  Check that the Ids are numeric
-             */
-            if (!is_numeric($repoId)) {
-                throw new Exception('Repository Id is invalid');
-            }
-            if (!is_numeric($snapId)) {
-                throw new Exception('Snapshot Id is invalid');
-            }
-
-            /**
-             *  Check that the Ids exist in the database
-             */
-            if (!$repoController->existsId($repoId)) {
-                throw new Exception('Repository Id does not exist');
-            }
-            if (!$repoController->existsSnapId($snapId)) {
-                throw new Exception('Snapshot Id does not exist');
-            }
-
-            /**
-             *  Retrieve all repo data from the Ids
-             */
-            $repoController->getAllById($repoId, $snapId);
-
-            /**
-             *  Retrieve the package type of the repo
-             */
-            $packageType = $repoController->getPackageType();
-
-            /**
-             *  Build the form from a template
-             */
-            ob_start();
-
-            echo '<div class="edit-form-params form-block form-block-accent-' . ($packageType == 'deb' ? 'red' : 'blue') . '" repo-id="' . $repoId . '" snap-id="' . $snapId . '">';
-
-            /**
-             *  Include form template
-             */
-            include(ROOT . '/views/includes/forms/edit.inc.php');
-
-            echo '</div>';
-
-            $content .= ob_get_clean();
+        if (empty($repoId) or !is_numeric($repoId) or !$repoController->existsId((string) $repoId)) {
+            throw new Exception('Repository Id is invalid');
         }
 
-        $content .= '<br><button class="task-confirm-btn btn-large-red">Edit</button></form><br><br>';
-        $content .= '</form>';
+        if (!RepoPermission::allowedToView((int) $repoId)) {
+            throw new Exception('You do not have permission to edit this repository');
+        }
 
-        return $content;
+        $snapId = $repoController->getLatestSnapId((int) $repoId);
+
+        if (empty($snapId)) {
+            throw new Exception('Repository has no active snapshot');
+        }
+
+        $repoController->getAllById($repoId, $snapId);
+
+        return $repoController;
     }
 
     /**
      *  Validate the edit form filled by the user
-     *  TODO : on utilise les mêmes controllers de vérification utilisés dans \Controllers\Task\Form\Form(), à refacto
      */
-    public function validate(array $params) : void
+    public function validate(array $params): void
     {
-        foreach ($params as $param) {
-            $repoController = new \Controllers\Repo\Repo();
+        $repoController = $this->getRepo($params['repo-id'] ?? null);
 
-            if (empty($param['repo-id'])) {
-                throw new Exception('Repository Id is missing');
-            }
-
-            if (empty($param['snap-id'])) {
-                throw new Exception('Snapshot Id is missing');
-            }
-
-            /**
-             *  Check that the snapshot id is valid
-             */
-            \Controllers\Task\Form\Param\Snapshot::checkId($param['snap-id']);
-
-            /**
-             *  Retrieve all repo data from the Ids
-             */
-            $repoController->getAllById($param['repo-id'], $param['snap-id']);
-
-            /**
-             *  Check that the selected source repository is valid
-             */
-            if ($repoController->getType() == 'curated') {
-                \Controllers\Task\Form\Param\Source::check($param['source'], $repoController->getPackageType());
-            }
-
-            /**
-             *  Check that the specified description is valid
-             *  Description cannot contain single quotes or backslashes
-             *  TODO: no editable description for now
-             */
-            // if (str_contains($param['description'], "'") || str_contains($param['description'], "\\")) {
-            //     throw new Exception('Description contains invalid characters');
-            // }
-            // $description = Validate::string($param['description']);
+        // Check that the selected source repository is valid
+        if ($repoController->getType() == 'curated') {
+            \Controllers\Task\Form\Param\Source::check($params['source'] ?? '', $repoController->getPackageType());
         }
+
+        // Check that the snapshots retention is valid
+        Retention::fromInput($params['retention'] ?? null, $params['retention-keep-all'] ?? 'false');
     }
 
     /**
-     *  Edit the repositories
+     *  Edit the repository
      */
-    public function edit(array $params) : void
+    public function edit(array $params): void
     {
-        $layoutContainerReloadController = new \Controllers\Layout\ContainerReload();
+        $repoController = $this->getRepo($params['repo-id']);
+        $repoId = $repoController->getRepoId();
 
-        foreach ($params as $param) {
-            $repoController = new \Controllers\Repo\Repo();
-
-            /**
-             *  Retrieve all repo data from the Ids
-             */
-            $repoController->getAllById($param['repo-id'], $param['snap-id']);
-
-            /**
-             *  Update repository source
-             */
-            if ($repoController->getType() == 'curated') {
-                $repoController->updateSource($param['repo-id'], $param['source']);
-            }
-
-            /**
-             *  Add history
-             */
-            if ($repoController->getPackageType() == 'rpm') {
-                History::set('Editing <span class="label-white">' . $repoController->getName() . '</span> repository properties (' . $repoController->getType() . ')');
-            }
-            if ($repoController->getPackageType() == 'deb') {
-                History::set('Editing <span class="label-white">' . $repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection() . '</span> repository properties (' . $repoController->getType() . ')');
-            }
-
-            /**
-             *  Reload repositories list
-             */
-            $layoutContainerReloadController->reload('repos/list');
+        // Update repository source
+        if ($repoController->getType() == 'curated') {
+            $repoController->updateSource($repoId, $params['source']);
         }
+
+        // Update snapshots retention
+        $repoController->updateRetention($repoId, Retention::fromInput($params['retention'] ?? null, $params['retention-keep-all'] ?? 'false'));
+
+        // Add history
+        if ($repoController->getPackageType() == 'rpm') {
+            History::set('Editing <span class="label-white">' . $repoController->getName() . ' ❯ ' . $repoController->getReleasever() . '</span> repository properties (' . $repoController->getType() . ')');
+        }
+        if ($repoController->getPackageType() == 'deb') {
+            History::set('Editing <span class="label-white">' . $repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection() . '</span> repository properties (' . $repoController->getType() . ')');
+        }
+
+        // Reload repositories list
+        (new \Controllers\Layout\ContainerReload())->reload('repos/list');
     }
 }

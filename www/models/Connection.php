@@ -237,7 +237,8 @@ class Connection extends SQLite3
         Source VARCHAR(255) NOT NULL,
         Package_type VARCHAR(10) NOT NULL,
         Description VARCHAR(255),
-        Tags VARCHAR(255))");
+        Tags VARCHAR(255),
+        Retention INTEGER /* NULL: global setting, -1: keep all */)");
 
         // Create indexes
         $this->exec("CREATE INDEX IF NOT EXISTS repos_ALL_index ON repos (Name, Releasever, Dist, Section, Source, Package_type)");
@@ -283,7 +284,8 @@ class Connection extends SQLite3
         Source VARCHAR(255) NOT NULL,
         Params TEXT, /* JSON */
         Description VARCHAR(255),
-        Tags VARCHAR(255))");
+        Tags VARCHAR(255),
+        Retention INTEGER /* NULL: global setting, -1: keep all */)");
 
         // Create indexes
         $this->exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_mirrors_type_name_releasever ON mirrors (Package_type, Name, Releasever)");

@@ -3,6 +3,7 @@
 namespace Controllers\Mirror\Task;
 
 use Controllers\Mirror\Mirror;
+use Controllers\Repo\Snapshot\Retention;
 use Controllers\Task\Form\Param;
 use Controllers\Utils\Validate;
 use Controllers\History\Save as History;
@@ -118,6 +119,8 @@ class Form
                 throw new Exception('Tag ' . htmlspecialchars($tag) . ' contains invalid characters');
             }
         }
+
+        Retention::fromInput($task['retention'] ?? null, $task['retention-keep-all'] ?? 'false');
 
         if (!empty($task['group']) and (!is_numeric($task['group']) or !(new \Controllers\Group\Repo())->existsId((int) $task['group']))) {
             throw new Exception('Group does not exist');

@@ -22,7 +22,7 @@ if ($repo['Package_type'] == 'rpm') {
 
 <div class="repo-item-wrapper <?= !empty($expandAlone) ? 'repo-span-full' : '' ?> <?= !empty($userPreferences['repositories']['list']['expand']) ? 'height-100' : '' ?>" repo-id="<?= $repo['repoId'] ?>">
     <div class="div-generic-blue margin-0 repo-item accent-<?= $accent ?> overflowx-auto" data-name="<?= $repo['Name'] ?>" data-dist="<?= $repo['Dist'] ?? '' ?>" data-section="<?= $repo['Section'] ?? '' ?>" data-releasever="<?= $repo['Releasever'] ?? '' ?>" data-type="<?= $repo['Type'] ?>" data-package-type="<?= $repo['Package_type'] ?>" data-description="<?= htmlspecialchars($repo['Description'] ?? '') ?>" data-tags="<?= $repo['Tags'] ?? '' ?>">
-        <div class="flex row-gap-15 column-gap-20 justify-space-between">
+        <div class="repo-item-header flex row-gap-15 column-gap-20 justify-space-between">
             <div class="flex flex-wrap align-item-center row-gap-15 column-gap-15">
                 <p class="font-size-16 mediumopacity-cst">
                     <a href="/repository/<?= $repo['repoId'] ?>" class="flex align-item-center column-gap-5">
@@ -55,6 +55,11 @@ if ($repo['Package_type'] == 'rpm') {
                 endif;
 
                 if ($canEditRepo) : ?>
+                    <div class="repo-header-btn repo-edit-btn" repo-id="<?= $repo['repoId'] ?>" title="Edit repository properties">
+                        <img src="/assets/icons/cog.svg" class="icon-np icon-small" />
+                        <span>Edit</span>
+                    </div>
+
                     <div class="repo-add-description-btn" repo-id="<?= $repo['repoId'] ?>" title="Add a description"<?= empty($repo['Description']) ? '' : ' style="display: none;"' ?>>
                         <img src="/assets/icons/plus.svg" class="icon-np icon-small" />
                         <span>Description</span>

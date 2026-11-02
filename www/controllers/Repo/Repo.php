@@ -28,6 +28,7 @@ class Repo
     private $env = [];
     private $description;
     private $tags = [];
+    private $retention;
     private $group;
     private $advancedParams = [];
     private $signed;
@@ -121,6 +122,11 @@ class Repo
     public function setTags(array $tags = []): void
     {
         $this->tags = $tags;
+    }
+
+    public function setRetention(int|null $retention): void
+    {
+        $this->retention = $retention;
     }
 
     public function setSource(string $source): void
@@ -269,6 +275,11 @@ class Repo
         return $this->tags;
     }
 
+    public function getRetention(): int|null
+    {
+        return $this->retention;
+    }
+
     public function getGroup(): string|null
     {
         return $this->group;
@@ -362,6 +373,9 @@ class Repo
             if (!empty($data['Tags'])) {
                 $tags = explode(',', $data['Tags']);
                 $this->setTags($tags);
+            }
+            if (isset($data['Retention'])) {
+                $this->setRetention($data['Retention']);
             }
 
             /**
@@ -559,6 +573,14 @@ class Repo
         }
 
         $this->model->updateDescription($id, Validate::string($description));
+    }
+
+    /**
+     *  Update snapshots retention (null: global setting)
+     */
+    public function updateRetention(int $repoId, int|null $retention): void
+    {
+        $this->model->updateRetention($repoId, $retention);
     }
 
     /**

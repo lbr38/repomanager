@@ -65,7 +65,7 @@ if ($repoController->getType() == 'curated') : ?>
     <?php
 endif ?>
 
-<h6>SNAPSHOT</h6>
-<span class="label-black"><?= $repoController->getDateFormatted() ?></span>
-
-<p class="note margin-top-5">Nothing editable for now!</p>
+<?php
+$retention = $repoController->getRetention();
+$retentionParamClass = 'edit-param';
+include(ROOT . '/views/includes/forms/retention.inc.php'); ?>

@@ -134,6 +134,14 @@ class Mirror
     }
 
     /**
+     *  Update mirror snapshots retention (null: global setting)
+     */
+    public function updateRetention(int $id, int|null $retention): void
+    {
+        $this->model->updateRetention($id, $retention);
+    }
+
+    /**
      *  Update mirror tags, same rules as repositories tags
      */
     public function updateTags(int $id, array $tags): void

@@ -3,10 +3,10 @@ use \Controllers\Repo\Repo;
 use \Controllers\User\Permission\Repo as RepoPermission;
 
 /**
- *  Edit mirror description or tags
+ *  Edit mirror description, tags or snapshots retention
  *  Mirrors are listed with repositories and use the same edit fields, their Id is prefixed with 'mirror-'
  */
-if (in_array($_POST['action'], ['description', 'tags']) and !empty($_POST['repoId']) and str_starts_with($_POST['repoId'], 'mirror-')) {
+if (in_array($_POST['action'], ['description', 'tags', 'retention']) and !empty($_POST['repoId']) and str_starts_with($_POST['repoId'], 'mirror-')) {
     $mirrorController = new \Controllers\Mirror\Mirror();
     $mirrorId = (int) substr($_POST['repoId'], strlen('mirror-'));
 
@@ -28,6 +28,11 @@ if (in_array($_POST['action'], ['description', 'tags']) and !empty($_POST['repoI
             // Tags are sent as a comma-separated string
             $mirrorController->updateTags($mirrorId, explode(',', $_POST['tags']));
             response(HTTP_OK, 'Tags have been saved');
+        }
+
+        if ($_POST['action'] == 'retention') {
+            $mirrorController->updateRetention($mirrorId, \Controllers\Repo\Snapshot\Retention::fromInput($_POST['retention'] ?? null, $_POST['keepAll'] ?? 'false'));
+            response(HTTP_OK, 'Retention has been saved');
         }
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
@@ -86,12 +91,16 @@ if ($_POST['action'] == 'tags' and !empty($_POST['repoId']) and isset($_POST['ta
 }
 
 /**
- *  Validate form and edit repositories
+ *  Validate form and edit repository properties
  */
 if ($_POST['action'] == 'validate-execute' and !empty($_POST['params'])) {
     $repoEditForm = new \Controllers\Repo\Edit\Form();
 
     try {
+        if (!RepoPermission::allowedAction('edit')) {
+            throw new Exception('You do not have permission to edit repositories');
+        }
+
         try {
             $params = json_decode($_POST['params'], true, 512, JSON_THROW_ON_ERROR);
         } catch (JsonException $e) {

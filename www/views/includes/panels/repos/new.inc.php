@@ -182,6 +182,10 @@
         </select>
 
         <?php
+        $retention = null;
+        $retentionParamClass = 'task-param';
+        include(ROOT . '/views/includes/forms/retention.inc.php');
+
         // Possibility to add to a group, if there is at least one group
         if (!empty($groups)) : ?>
             <h6>ADD TO GROUP</h6>

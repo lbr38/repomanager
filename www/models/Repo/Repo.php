@@ -54,6 +54,7 @@ class Repo extends \Models\Model
                 repos.Package_type,
                 repos.Description,
                 repos.Tags,
+                repos.Retention,
                 repos_snap.Id AS snapId,
                 repos_snap.Date,
                 repos_snap.Time,
@@ -91,6 +92,7 @@ class Repo extends \Models\Model
                 repos.Package_type,
                 repos.Description,
                 repos.Tags,
+                repos.Retention,
                 repos_snap.Id AS snapId,
                 repos_snap.Date,
                 repos_snap.Time,
@@ -120,7 +122,8 @@ class Repo extends \Models\Model
                 repos.Source,
                 repos.Package_type,
                 repos.Description,
-                repos.Tags
+                repos.Tags,
+                repos.Retention
                 FROM repos
                 WHERE repos.Id = :repoId");
                 $stmt->bindValue(':repoId', $repoId);
@@ -135,6 +138,7 @@ class Repo extends \Models\Model
                 repos.Package_type,
                 repos.Description,
                 repos.Tags,
+                repos.Retention,
                 repos_snap.Id AS snapId,
                 repos_snap.Date,
                 repos_snap.Time,
@@ -163,6 +167,7 @@ class Repo extends \Models\Model
                 repos.Package_type,
                 repos.Description,
                 repos.Tags,
+                repos.Retention,
                 repos_snap.Id AS snapId,
                 repos_snap.Date,
                 repos_snap.Time,
@@ -520,6 +525,23 @@ class Repo extends \Models\Model
         try {
             $stmt = $this->db->prepare("UPDATE repos SET Source = :source WHERE Id = :repoId");
             $stmt->bindValue(':source', $source);
+            $stmt->bindValue(':repoId', $repoId);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+
+        unset($stmt);
+    }
+
+    /**
+     *  Update snapshots retention (null: global setting)
+     */
+    public function updateRetention(int $repoId, int|null $retention): void
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE repos SET Retention = :retention WHERE Id = :repoId");
+            $stmt->bindValue(':retention', $retention, $retention === null ? SQLITE3_NULL : SQLITE3_INTEGER);
             $stmt->bindValue(':repoId', $repoId);
             $stmt->execute();
         } catch (Exception $e) {

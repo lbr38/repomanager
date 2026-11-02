@@ -204,8 +204,16 @@ class Snapshot
             $repoReleasever = $repoController->getReleasever();
         }
 
+        // Repository retention, or global retention if not set
+        $retention = Retention::get($repoController->getRetention());
+
+        // All unused snapshots must be kept
+        if ($retention === null) {
+            return 'Retention is set to keep all snapshots';
+        }
+
         // Get the list of unused snapshots for this repository
-        $unusedSnapshots = $this->getUnused($repoId, RETENTION);
+        $unusedSnapshots = $this->getUnused($repoId, $retention);
 
         // Process each snapshots
         foreach ($unusedSnapshots as $unusedSnapshot) {

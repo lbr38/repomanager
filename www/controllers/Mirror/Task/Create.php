@@ -3,6 +3,7 @@
 namespace Controllers\Mirror\Task;
 
 use Controllers\Mirror\Mirror;
+use Controllers\Repo\Snapshot\Retention;
 use Exception;
 
 /**
@@ -72,6 +73,7 @@ class Create extends Execution
 
         $mirrorId = $this->mirrorController->add($name, $releasever, $packageType, $source, $mirrorParams, $description);
         $this->mirrorController->updateTags($mirrorId, (array) ($this->params['tags'] ?? []));
+        $this->mirrorController->updateRetention($mirrorId, Retention::fromInput($this->params['retention'] ?? null, $this->params['retention-keep-all'] ?? 'false'));
 
         if (!empty($this->params['group']) and is_numeric($this->params['group'])) {
             $this->mirrorController->addToGroup($mirrorId, (int) $this->params['group']);

@@ -23,7 +23,7 @@ if ($canEditMirror && empty($mirror['Tags'])) {
 <!-- repo-id is used as a unique key by the repositories list partial reload, it must not collide with repositories Ids -->
 <div class="repo-item-wrapper <?= !empty($expandAlone) ? 'repo-span-full' : '' ?> <?= !empty($userPreferences['repositories']['list']['expand']) ? 'height-100' : '' ?>" repo-id="mirror-<?= $mirror['Id'] ?>" mirror-id="<?= $mirror['Id'] ?>">
     <div class="div-generic-blue margin-0 repo-item accent-<?= $accent ?> overflowx-auto" data-name="<?= htmlspecialchars($mirror['Name']) ?>" data-dist="<?= htmlspecialchars(implode(' ', array_merge($mirror['params']['dists'] ?? [], $mirror['params']['repos'] ?? []))) ?>" data-section="<?= htmlspecialchars(implode(' ', $mirror['params']['components'] ?? [])) ?>" data-releasever="<?= htmlspecialchars($mirror['Releasever']) ?>" data-type="mirror" data-package-type="<?= $mirror['Package_type'] ?>" data-description="<?= htmlspecialchars($mirror['Description'] ?? '') ?>" data-tags="<?= htmlspecialchars($mirror['Tags'] ?? '') ?>">
-        <div class="flex row-gap-15 column-gap-20 justify-space-between">
+        <div class="repo-item-header flex row-gap-15 column-gap-20 justify-space-between">
             <div class="flex flex-wrap align-item-center row-gap-15 column-gap-15">
                 <p class="font-size-16 mediumopacity-cst">
                     <a href="/repository/mirror/<?= $mirror['Id'] ?>" class="flex align-item-center column-gap-5">
@@ -53,15 +53,23 @@ if ($canEditMirror && empty($mirror['Tags'])) {
 
                 <?php
                 if (RepoPermission::allowedAction('update')) : ?>
-                    <div class="repo-rename-btn mirror-sync-btn" mirror-id="<?= $mirror['Id'] ?>" title="Sync this mirror into a new snapshot">
+                    <div class="repo-header-btn mirror-sync-btn" mirror-id="<?= $mirror['Id'] ?>" title="Sync this mirror into a new snapshot">
                         <img src="/assets/icons/update.svg" class="icon-np icon-small" />
                         <span>Sync</span>
                     </div>
                     <?php
                 endif;
 
+                if ($canEditMirror) : ?>
+                    <div class="repo-header-btn mirror-edit-btn" mirror-id="<?= $mirror['Id'] ?>" title="Edit mirror properties">
+                        <img src="/assets/icons/cog.svg" class="icon-np icon-small" />
+                        <span>Edit</span>
+                    </div>
+                    <?php
+                endif;
+
                 if (RepoPermission::allowedAction('delete')) : ?>
-                    <div class="repo-rename-btn mirror-delete-btn" mirror-id="<?= $mirror['Id'] ?>" mirror-name="<?= htmlspecialchars(Mirror::getLabel($mirror['Name'], $mirror['Releasever'])) ?>" title="Delete this mirror with all its snapshots">
+                    <div class="repo-header-btn mirror-delete-btn" mirror-id="<?= $mirror['Id'] ?>" mirror-name="<?= htmlspecialchars(Mirror::getLabel($mirror['Name'], $mirror['Releasever'])) ?>" title="Delete this mirror with all its snapshots">
                         <img src="/assets/icons/delete.svg" class="icon-np icon-small" />
                         <span>Delete</span>
                     </div>
