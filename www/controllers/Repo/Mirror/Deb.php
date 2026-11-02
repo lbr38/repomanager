@@ -728,10 +728,18 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                  *  e.g. elasticsearch deb repository has a package named 'filebeat-8.0.0-amd64.deb'. In this case arch is incorrect and should use underscore instead of dash.
                  */
 
-                // First check if package has arch in its name, else ignore it
-                if (!preg_match('/(amd64|x64|arm64|armel|armhf|i386|mips|mips64el|mipsel|ppc64el|s390x|all).deb$/', $debPackageName)) {
-                    $this->taskLogSubStepController->warning('Package does not have a valid arch in its name (ignoring)');
-                    continue;
+                /**
+                 *  If package does not have arch in its name, use the arch specified in the Packages indices file
+                 *  e.g. rudesktop-server-stable-2.9.1147.deb -> rudesktop-server-stable-2.9.1147_amd64.deb
+                 *  If the arch is not specified or is not valid, ignore the package
+                 */
+                if (!preg_match('/[-._](amd64|x64|arm64|armel|armhf|i386|mips|mips64el|mipsel|ppc64el|s390x|all)\.deb$/', $debPackageName)) {
+                    if (!preg_match('/^(amd64|arm64|armel|armhf|i386|mips|mips64el|mipsel|ppc64el|s390x|all)$/', $debPackage['arch'])) {
+                        $this->taskLogSubStepController->warning('Package does not have a valid arch in its name or in the Packages indices file (ignoring)');
+                        continue;
+                    }
+
+                    $debPackageName = preg_replace('/\.deb$/', '_' . $debPackage['arch'] . '.deb', $debPackageName);
                 }
 
                 /**
