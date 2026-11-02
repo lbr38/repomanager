@@ -137,6 +137,7 @@ if (__ACTUAL_URI__[1] == 'hosts' or __ACTUAL_URI__[1] == 'host') {
         'events/hosts/settings',
         'events/hosts/layout',
         'events/host/actions',
+        'events/host/summary',
         'events/task/stop'
     ];
 }
