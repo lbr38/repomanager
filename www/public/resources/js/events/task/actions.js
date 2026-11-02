@@ -332,3 +332,22 @@ $(document).on('click','.relaunch-task-btn',function (e) {
         
     });
 });
+/**
+ *  Event: click on successful/failed label to filter done tasks by status
+ *  Clicking again on the active filter removes it
+ */
+$(document).on('click','.done-tasks-filter-btn',function () {
+    var status = $(this).attr('status');
+
+    // Delete offset cookie to reset pagination to the first page after reloading tasks list
+    mycookie.delete('tables/tasks/list-done/offset');
+
+    // Set or remove the status cookie for PHP to load the right content
+    if (mycookie.get('tables/tasks/list-done/status') == status) {
+        mycookie.delete('tables/tasks/list-done/status');
+    } else {
+        mycookie.set('tables/tasks/list-done/status', status, 1);
+    }
+
+    mytable.reload('tasks/list-done');
+});

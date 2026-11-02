@@ -74,16 +74,24 @@ if ($repo['Package_type'] == 'rpm') {
             </div>
 
             <div class="flex align-item-start column-gap-15 mediumopacity-cst">
-                <div class="flex align-item-center column-gap-5">
+                <?php
+                if ($repo['Type'] == 'local') : ?>
+                    <div class="flex align-item-center column-gap-5" title="This is a local repository.">
+                        <img src="/assets/icons/pin.svg" class="icon-np icon-medium" />
+                        <span class="font-size-13">local</span>
+                    </div>
                     <?php
-                    if ($repo['Type'] == 'local') {
-                        echo '<img src="/assets/icons/pin.svg" class="icon-np icon-medium" title="This is a local repository." />';
-                        echo '<span class="font-size-13">local</span>';
-                    } elseif ($repo['Type'] == 'curated') {
-                        echo '<img src="/assets/icons/internet.svg" class="icon-np icon-medium" title="This repository is built from an external source repository (packages selected, metadata rebuilt)." />';
-                        echo '<span class="font-size-13">curated</span>';
-                    } ?>
-                </div>
+                endif;
+
+                // Source repository, followed by the repository type in a discreet way
+                if ($repo['Type'] == 'curated') : ?>
+                    <div class="flex align-item-center column-gap-5" title="Curated repository, built from the <?= htmlspecialchars($repo['Source']) ?> source repository (packages selected, metadata rebuilt).">
+                        <img src="/assets/icons/internet.svg" class="icon-np icon-medium" />
+                        <span class="font-size-13"><?= htmlspecialchars($repo['Source']) ?></span>
+                        <span class="font-size-13 lowopacity-cst">● curated</span>
+                    </div>
+                    <?php
+                endif ?>
 
                 <div class="flex align-item-center column-gap-5">
                     <?php

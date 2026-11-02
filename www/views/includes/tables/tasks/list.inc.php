@@ -19,11 +19,12 @@ use \Controllers\Task\Task; ?>
 
                 // Print successful and failed tasks count for done tasks
                 if ($taskTableType == 'done') {
+                    // Labels are clickable to filter tasks by status, the active filter is highlighted and can be clicked again to be removed
                     if ($successfulCount > 0) {
-                        echo '<span class="label-green label-medium">' . $successfulCount . ' successful</span>';
+                        echo '<span class="label-green label-medium done-tasks-filter-btn pointer' . ($statusFilter == 'failed' ? ' opacity-30' : '') . '" status="successful" title="' . ($statusFilter == 'successful' ? 'Show all tasks' : 'Show successful tasks only') . '">' . $successfulCount . ' successful</span>';
                     }
                     if ($failedCount > 0) {
-                        echo '<span class="label-red label-medium">' . $failedCount . ' failed</span>';
+                        echo '<span class="label-red label-medium done-tasks-filter-btn pointer' . ($statusFilter == 'successful' ? ' opacity-30' : '') . '" status="failed" title="' . ($statusFilter == 'failed' ? 'Show all tasks' : 'Show failed tasks only') . '">' . $failedCount . ' failed</span>';
                     }
                 } ?>
             </div>

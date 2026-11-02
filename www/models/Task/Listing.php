@@ -188,33 +188,33 @@ class Listing extends \Models\Model
     /**
      *  Get all done tasks (with or without errors)
      *  It is possible to filter the type of task ('immediate' or 'scheduled')
+     *  It is possible to filter the status of task ('successful' or 'failed')
      *  It is possible to add an offset to the request
      */
-    public function getDone(string $type, bool $withOffset, int $offset): array
+    public function getDone(string $type, bool $withOffset, int $offset, string $status = ''): array
     {
         $data = [];
 
         try {
-            // Case where we want all types
-            if (empty($type)) {
-                $query = "SELECT * FROM tasks
-                WHERE (Status = 'error'
-                OR Status = 'done'
-                OR Status = 'stopped')
-                AND Parent_task_id IS NULL
-                ORDER BY Date DESC, Time DESC";
+            // Filter by status: successful tasks are 'done', failed tasks are 'error' or 'stopped'
+            if ($status == 'successful') {
+                $statusCondition = "Status = 'done'";
+            } elseif ($status == 'failed') {
+                $statusCondition = "(Status = 'error' OR Status = 'stopped')";
+            } else {
+                $statusCondition = "(Status = 'error' OR Status = 'done' OR Status = 'stopped')";
             }
+
+            $query = "SELECT * FROM tasks
+            WHERE " . $statusCondition . "
+            AND Parent_task_id IS NULL";
 
             // Case where we want to filter by type
             if (!empty($type)) {
-                $query = "SELECT * FROM tasks
-                WHERE Type = :type
-                AND (Status = 'error'
-                OR Status = 'done'
-                OR Status = 'stopped')
-                AND Parent_task_id IS NULL
-                ORDER BY Date DESC, Time DESC";
+                $query .= " AND Type = :type";
             }
+
+            $query .= " ORDER BY Date DESC, Time DESC";
 
             // Add offset if needed
             if ($withOffset === true) {
@@ -277,9 +277,9 @@ class Listing extends \Models\Model
 
         try {
             if ($count) {
-                $query = "SELECT COUNT(*) AS Count FROM tasks WHERE Status = 'error' or Status = 'stopped' AND Parent_task_id IS NULL";
+                $query = "SELECT COUNT(*) AS Count FROM tasks WHERE (Status = 'error' OR Status = 'stopped') AND Parent_task_id IS NULL";
             } else {
-                $query = "SELECT * FROM tasks WHERE Status = 'error' AND Parent_task_id IS NULL ORDER BY Date DESC, Time DESC";
+                $query = "SELECT * FROM tasks WHERE (Status = 'error' OR Status = 'stopped') AND Parent_task_id IS NULL ORDER BY Date DESC, Time DESC";
             }
 
             $stmt = $this->db->prepare($query);

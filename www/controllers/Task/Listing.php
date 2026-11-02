@@ -60,11 +60,12 @@ class Listing
     /**
      *  Get all done tasks (with or without errors)
      *  It is possible to filter the type of task ('immediate' or 'scheduled')
+     *  It is possible to filter the status of task ('successful' or 'failed')
      *  It is possible to add an offset to the request
      */
-    public function getDone(string $type = 'immediate', bool $withOffset = false, int $offset = 0): array
+    public function getDone(string $type = 'immediate', bool $withOffset = false, int $offset = 0, string $status = ''): array
     {
-        return $this->model->getDone($type, $withOffset, $offset);
+        return $this->model->getDone($type, $withOffset, $offset, $status);
     }
 
     /**

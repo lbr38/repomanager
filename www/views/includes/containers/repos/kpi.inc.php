@@ -11,6 +11,18 @@ use \Controllers\Utils\Generate\Html\Label; ?>
                 <p class="kpi-value"><?= $totalRepos ?></p>
                 <p class="mediumopacity-cst"><?= $totalRepos <= 1 ? 'Repository' : 'Repositories' ?></p>
             </div>
+
+            <?php
+            // Mirrors count, displayed in the same card as repositories
+            if ($totalMirrors > 0) : ?>
+                <span class="kpi-divider"></span>
+                <img src="/assets/icons/duplicate.svg" class="icon-np icon-medium" />
+                <div>
+                    <p class="kpi-value"><?= $totalMirrors ?></p>
+                    <p class="mediumopacity-cst"><?= $totalMirrors <= 1 ? 'Mirror' : 'Mirrors' ?></p>
+                </div>
+                <?php
+            endif ?>
         </div>
 
         <div class="kpi-card">
@@ -32,18 +44,6 @@ use \Controllers\Utils\Generate\Html\Label; ?>
         </div>
 
         <?php
-        // KPI card: mirrors
-        if ($totalMirrors > 0) : ?>
-            <div class="kpi-card">
-                <img src="/assets/icons/duplicate.svg" class="icon-np icon-medium" />
-                <div>
-                    <p class="kpi-value"><?= $totalMirrors ?></p>
-                    <p class="mediumopacity-cst"><?= $totalMirrors <= 1 ? 'Mirror' : 'Mirrors' ?></p>
-                </div>
-            </div>
-            <?php
-        endif;
-
         // KPI card: mirrors storage, only if mirrors are stored on another filesystem than repositories
         if (!empty($mirrorsStorage)) : ?>
             <div class="kpi-card">

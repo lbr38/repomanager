@@ -91,9 +91,11 @@ if ($canEditMirror && empty($mirror['Tags'])) {
             </div>
 
             <div class="flex align-item-start column-gap-15 mediumopacity-cst">
-                <div class="flex align-item-center column-gap-5" title="This repository is a mirror of the <?= htmlspecialchars($mirror['Source']) ?> source repository: upstream metadata and signatures are copied as is, clients use the upstream GPG key.">
-                    <img src="/assets/icons/duplicate.svg" class="icon-np icon-medium" />
-                    <span class="font-size-13">mirror</span>
+                <!-- Source repository, followed by the repository type in a discreet way -->
+                <div class="flex align-item-center column-gap-5" title="Mirror of the <?= htmlspecialchars($mirror['Source']) ?> source repository: upstream metadata and signatures are copied as is, clients use the upstream GPG key.">
+                    <img src="/assets/icons/internet.svg" class="icon-np icon-medium" />
+                    <span class="font-size-13"><?= htmlspecialchars($mirror['Source']) ?></span>
+                    <span class="font-size-13 lowopacity-cst">● mirror</span>
                 </div>
 
                 <div class="flex align-item-center column-gap-5" title="This is a <?= $mirror['Package_type'] ?> mirror. Architectures: <?= htmlspecialchars(implode(', ', $mirror['params']['arch'] ?? [])) ?>">
