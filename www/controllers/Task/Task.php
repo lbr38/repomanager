@@ -822,6 +822,17 @@ class Task
         // Update task in database, set status to 'stopped'
         $this->updateStatus($taskId, 'stopped');
 
+        /**
+         *  A killed rebuild task cannot reset the snapshot rebuild state itself, which would stay
+         *  'running' forever and block any further rebuild or package upload on the snapshot
+         */
+        $taskRawParams = json_decode($taskInfo['Raw_params'], true);
+
+        if (!empty($taskRawParams['action']) and $taskRawParams['action'] == 'rebuild' and !empty($taskRawParams['snap-id']) and is_numeric($taskRawParams['snap-id'])) {
+            $repoSnapshotController = new \Controllers\Repo\Snapshot\Snapshot();
+            $repoSnapshotController->updateRebuild((int) $taskRawParams['snap-id'], 'needed');
+        }
+
         $taskLogStepController = new Step($taskId);
         $taskLogSubStepController = new SubStep($taskId);
 
