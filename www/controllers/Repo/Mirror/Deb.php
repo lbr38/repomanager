@@ -611,9 +611,9 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
          *  Keys are imported in trustedkeys.gpg, it must be specified: gpgv reads trustedkeys.kbx by default when it exists
          */
         if (!empty($clearFile)) {
-            $myprocess = new Process('/usr/bin/gpgv --homedir ' . GPGHOME . ' --keyring ' . GPGHOME . '/trustedkeys.gpg ' . $signedFile . ' ' . $clearFile);
+            $myprocess = new Process('/usr/bin/gpgv --homedir ' . GPGHOME . ' --keyring ' . GPGHOME . '/trustedkeys.gpg ' . escapeshellarg($signedFile) . ' ' . escapeshellarg($clearFile));
         } else {
-            $myprocess = new Process('/usr/bin/gpgv --homedir ' . GPGHOME . ' --keyring ' . GPGHOME . '/trustedkeys.gpg ' . $signedFile);
+            $myprocess = new Process('/usr/bin/gpgv --homedir ' . GPGHOME . ' --keyring ' . GPGHOME . '/trustedkeys.gpg ' . escapeshellarg($signedFile));
         }
 
         $myprocess->execute();

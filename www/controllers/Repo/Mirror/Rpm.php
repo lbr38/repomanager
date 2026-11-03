@@ -84,6 +84,11 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
 
         // Download with a temporary compressed name if the remote file is compressed, to avoid it being compressed twice later
         $compsExtension = pathinfo($this->compsLocation, PATHINFO_EXTENSION);
+
+        // The location comes from the remote repomd.xml file, the extension must only contain letters and numbers
+        if (!preg_match('/^[a-zA-Z0-9]+$/', $compsExtension)) {
+            throw new Exception('Invalid comps.xml file extension: ' . htmlspecialchars($compsExtension));
+        }
         $compsTargetName = 'comps.xml' . ($compsExtension != 'xml' ? '.' . $compsExtension : '');
 
         if (!$this->download($url . '/' . $this->compsLocation, $this->workingDir . '/' . $compsTargetName)) {

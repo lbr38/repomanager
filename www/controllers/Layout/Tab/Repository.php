@@ -12,6 +12,7 @@ class Repository
         // If the user does not have permission to view repository statistics, redirect to the home page
         if (!RepoPermission::allowedAction('view-stats')) {
             header('Location: /');
+            exit;
         }
 
         Render::render('repo/kpi');

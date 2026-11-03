@@ -20,6 +20,11 @@ class Chart
                 throw new Exception('invalid chart ID');
             }
 
+            // System charts are only available to administrators (status tab)
+            if (str_starts_with($id, 'system-') and !IS_ADMIN) {
+                throw new Exception('You are not allowed to access this chart');
+            }
+
             if (!file_exists(ROOT . '/controllers/Layout/Chart/vars/' . $id . '.vars.inc.php')) {
                 throw new Exception('could not retrieve chart data for chart ID ' . $id);
             }

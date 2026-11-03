@@ -1,4 +1,6 @@
 <?php
+use Controllers\Task\Form\Form as TaskForm;
+
 if ($action == 'view-file' and !empty($_POST['path'])) {
     try {
         // File path is relative to the repositories directory, or to the mirrors directory when browsing a mirror snapshot
@@ -145,6 +147,12 @@ if ($action == 'rebuild' and !empty($_POST['snapId']) and !empty($_POST['gpgSign
         $params['snap-id'] = $_POST['snapId'];
         $params['gpg-sign'] = $_POST['gpgSign'];
         $params['schedule']['scheduled'] = 'false';
+
+        /**
+         *  Validate the task like any other task form (user permission, protected environment...)
+         */
+        $taskFormController = new TaskForm();
+        $taskFormController->validate(array($params));
 
         /**
          *  Execute the task

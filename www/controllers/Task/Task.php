@@ -786,6 +786,11 @@ class Task
                 foreach ($subpids[0] as $subpid) {
                     $subpid = trim(str_replace('"', '', $subpid));
 
+                    // A PID must be a positive integer
+                    if (!ctype_digit($subpid)) {
+                        continue;
+                    }
+
                     // Check if the PID is still running
                     $myprocess = new Process('/usr/bin/ps --pid ' . $subpid);
                     $myprocess->execute();

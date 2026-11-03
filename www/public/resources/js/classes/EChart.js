@@ -1226,6 +1226,13 @@ class EChart
             options.dataZoom[1].show = true;
             // Adjust grid bottom to make room for the slider
             options.grid.bottom = '45px';
+
+            // If legend is shown, place a thinner slider above it
+            if (options.legend.show) {
+                options.dataZoom[1].height = 20;
+                options.dataZoom[1].bottom = '32px';
+                options.grid.bottom = '64px';
+            }
         }
 
         // Window size for initial zoom (default 15 points) - only for line and points/scatter charts

@@ -4,10 +4,16 @@
 namespace Controllers\Repo;
 
 use Controllers\Utils\Convert;
+use Controllers\App\Session;
 
 class Browse
 {
     private const FILES_PER_PAGE = 300;
+
+    /**
+     *  Maximum number of snapshot directories the user is allowed to browse, kept in session
+     */
+    private const MAX_ALLOWED_ROOTS = 20;
 
     /**
      *  Render the repository tree structure (first page of files only)
@@ -55,8 +61,32 @@ class Browse
     }
 
     /**
-     *  Return true if the specified path exists and is inside the repositories or the mirrors directory
+     *  Allow the current user to browse the specified snapshot directory
+     *  Must only be called once the user's permissions to view the snapshot have been checked
+     */
+    public static function allowRoot(string $path): void
+    {
+        $realpath = realpath($path);
+
+        if ($realpath === false) {
+            return;
+        }
+
+        $roots = $_SESSION['browse-roots'] ?? [];
+
+        // Move the directory to the end of the list, then only keep the most recent directories
+        $roots = array_values(array_diff($roots, [$realpath]));
+        $roots[] = $realpath;
+        $roots = array_slice($roots, -self::MAX_ALLOWED_ROOTS);
+
+        Session::set(['browse-roots' => $roots]);
+    }
+
+    /**
+     *  Return true if the specified path exists, is inside the repositories or the mirrors directory,
+     *  and is inside a snapshot directory the user has been allowed to browse
      *  Prevents a malicious person from providing a path that has nothing to do with the repo directory (e.g. /etc/...)
+     *  or the path of a snapshot he is not allowed to view
      */
     public static function allowedPath(string $path): bool
     {
@@ -66,7 +96,20 @@ class Browse
             return false;
         }
 
-        return preg_match('#^' . REPOS_DIR . '#', $realpath) or str_starts_with($realpath, MIRRORS_DIR . '/');
+        $reposDir = realpath(REPOS_DIR) ?: REPOS_DIR;
+        $mirrorsDir = realpath(MIRRORS_DIR) ?: MIRRORS_DIR;
+
+        if (!str_starts_with($realpath, $reposDir . '/') and !str_starts_with($realpath, $mirrorsDir . '/')) {
+            return false;
+        }
+
+        foreach ($_SESSION['browse-roots'] ?? [] as $root) {
+            if ($realpath === $root or str_starts_with($realpath, $root . '/')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

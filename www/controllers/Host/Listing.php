@@ -20,7 +20,7 @@ class Listing
      */
     public function get(): array
     {
-        return $this->model->get();
+        return self::hideSecrets($this->model->get());
     }
 
     /**
@@ -28,7 +28,7 @@ class Listing
      */
     public function getByOs(string $os, string $osVersion = ''): array
     {
-        return $this->model->getByOs(Validate::string($os), Validate::string($osVersion));
+        return self::hideSecrets($this->model->getByOs(Validate::string($os), Validate::string($osVersion)));
     }
 
     /**
@@ -36,7 +36,7 @@ class Listing
      */
     public function getByKernel(string $kernel): array
     {
-        return $this->model->getByKernel(Validate::string($kernel));
+        return self::hideSecrets($this->model->getByKernel(Validate::string($kernel)));
     }
 
     /**
@@ -44,7 +44,7 @@ class Listing
      */
     public function getByArch(string $arch): array
     {
-        return $this->model->getByArch(Validate::string($arch));
+        return self::hideSecrets($this->model->getByArch(Validate::string($arch)));
     }
 
     /**
@@ -52,7 +52,7 @@ class Listing
      */
     public function getByProfile(string $profile): array
     {
-        return $this->model->getByProfile(Validate::string($profile));
+        return self::hideSecrets($this->model->getByProfile(Validate::string($profile)));
     }
 
     /**
@@ -60,7 +60,7 @@ class Listing
      */
     public function getByEnvironment(string $environment): array
     {
-        return $this->model->getByEnvironment(Validate::string($environment));
+        return self::hideSecrets($this->model->getByEnvironment(Validate::string($environment)));
     }
 
     /**
@@ -68,7 +68,7 @@ class Listing
      */
     public function getByGroup(string $group): array
     {
-        return $this->model->getByGroup(Validate::string($group));
+        return self::hideSecrets($this->model->getByGroup(Validate::string($group)));
     }
 
     /**
@@ -131,7 +131,7 @@ class Listing
      */
     public function getOs(): array
     {
-        return $this->model->getOs();
+        return self::hideSecrets($this->model->getOs());
     }
 
     /**
@@ -139,7 +139,7 @@ class Listing
      */
     public function getKernel(): array
     {
-        return $this->model->getKernel();
+        return self::hideSecrets($this->model->getKernel());
     }
 
     /**
@@ -147,7 +147,7 @@ class Listing
      */
     public function getArch(): array
     {
-        return $this->model->getArch();
+        return self::hideSecrets($this->model->getArch());
     }
 
     /**
@@ -155,7 +155,7 @@ class Listing
      */
     public function getProfile(): array
     {
-        return $this->model->getProfile();
+        return self::hideSecrets($this->model->getProfile());
     }
 
     /**
@@ -163,7 +163,7 @@ class Listing
      */
     public function getEnvironment(): array
     {
-        return $this->model->getEnvironment();
+        return self::hideSecrets($this->model->getEnvironment());
     }
 
     /**
@@ -171,7 +171,7 @@ class Listing
      */
     public function getRebootRequired(): array
     {
-        return $this->model->getRebootRequired();
+        return self::hideSecrets($this->model->getRebootRequired());
     }
 
     /**
@@ -179,7 +179,7 @@ class Listing
      */
     public function getAgentStatus() : array
     {
-        return $this->model->getAgentStatus();
+        return self::hideSecrets($this->model->getAgentStatus());
     }
 
     /**
@@ -187,7 +187,7 @@ class Listing
      */
     public function getAgentVersion(): array
     {
-        return $this->model->getAgentVersion();
+        return self::hideSecrets($this->model->getAgentVersion());
     }
 
     /**
@@ -321,6 +321,26 @@ class Listing
             }
 
             $data[] = $array;
+        }
+
+        return $data;
+    }
+
+    /**
+     *  Remove the authentication Id and token of hosts from the specified data
+     *  They allow to authenticate as the host and must never be returned (API, ajax...)
+     */
+    private static function hideSecrets(array $data): array
+    {
+        foreach ($data as $key => $value) {
+            if ($key === 'AuthId' or $key === 'Token') {
+                unset($data[$key]);
+                continue;
+            }
+
+            if (is_array($value)) {
+                $data[$key] = self::hideSecrets($value);
+            }
         }
 
         return $data;

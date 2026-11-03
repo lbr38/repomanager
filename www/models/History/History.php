@@ -13,6 +13,33 @@ class History extends \Models\Model
     }
 
     /**
+     *  Return the number of failed local authentications for the specified username and IP address since the specified date and time
+     */
+    public function countFailedLogins(string $username, string $ip, string $date, string $time) : int
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT COUNT(*) AS Count FROM history
+            WHERE (Date > :date OR (Date = :date AND Time >= :time))
+            AND State = 'error'
+            AND Username = :username
+            AND Ip = :ip
+            AND Action LIKE 'Authentication failed for %(local account)%'");
+            $stmt->bindValue(':date', $date);
+            $stmt->bindValue(':time', $time);
+            $stmt->bindValue(':username', $username);
+            $stmt->bindValue(':ip', $ip);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+            return 0;
+        }
+
+        $row = $result->fetchArray(SQLITE3_ASSOC);
+
+        return (int) ($row['Count'] ?? 0);
+    }
+
+    /**
      *  Retrieve all history
      *  It is possible to add an offset to the request
      */

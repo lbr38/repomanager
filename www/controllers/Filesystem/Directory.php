@@ -3,6 +3,7 @@
 namespace Controllers\Filesystem;
 
 use Exception;
+use Controllers\Process;
 
 class Directory
 {
@@ -130,7 +131,7 @@ class Directory
             return true;
         }
 
-        $myprocess = new \Controllers\Process('/usr/bin/rm -rf "' . $directoryPath . '"');
+        $myprocess = new Process('/usr/bin/rm -rf ' . escapeshellarg($directoryPath));
         $myprocess->execute();
         $myprocess->close();
 

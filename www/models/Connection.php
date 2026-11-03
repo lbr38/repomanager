@@ -409,6 +409,9 @@ class Connection extends SQLite3
         Action VARCHAR(255) NOT NULL,
         State CHAR(7))"); /* success or error */
 
+        // Index used to count recent failed authentications
+        $this->exec("CREATE INDEX IF NOT EXISTS history_date_time ON history (Date, Time)");
+
         // groups table
         $this->exec("CREATE TABLE IF NOT EXISTS groups (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,

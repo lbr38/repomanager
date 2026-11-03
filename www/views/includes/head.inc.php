@@ -31,7 +31,7 @@
     <?php
     // Load additional CSS files depending on the current URI
     $additionalCss = [
-        'tasks'    => 'tasks',
+        'tasks'    => 'tasks.css',
         'task'     => 'tasks.css',
         'snapshot' => 'snapshot.css',
         'stat'     => 'stats-hosts.css',

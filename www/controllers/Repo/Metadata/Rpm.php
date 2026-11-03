@@ -69,7 +69,7 @@ class Rpm extends Metadata
         }
 
         // Launch createrepo_c to generate repository metadata
-        $process = new Process($this->createrepo . ' ' . $this->createrepoArgs . ' ' . $this->root . '/');
+        $process = new Process($this->createrepo . ' ' . $this->createrepoArgs . ' ' . escapeshellarg($this->root . '/'));
         $process->setBackground(true);
         $process->execute();
 
@@ -102,7 +102,10 @@ class Rpm extends Metadata
             }
 
             // Add the file to the repository metadata using modifyrepo_c
-            $process = new Process($this->modifyrepo . ' ' . $this->modifyrepoArgs . ' --mdtype=' . $value['mdtype'] . ' ' . $this->root . '/' . $file . ' ' . $this->root . '/repodata/');
+            $process = new Process(
+                $this->modifyrepo . ' ' . $this->modifyrepoArgs . ' --mdtype=' . escapeshellarg($value['mdtype'])
+                . ' ' . escapeshellarg($this->root . '/' . $file) . ' ' . escapeshellarg($this->root . '/repodata/')
+            );
             $process->setBackground(true);
             $process->execute();
 

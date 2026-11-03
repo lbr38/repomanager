@@ -2,6 +2,7 @@
 use \Controllers\Filesystem\Directory;
 use \Controllers\Filesystem\File;
 use \Controllers\Utils\Convert;
+use \Controllers\User\Permission\Repo as RepoPermission;
 
 // Mirror snapshot (/snapshot/mirror/<id>): read-only, its content is an exact copy of the source repository
 $isMirror = (__ACTUAL_URI__[2] ?? '') == 'mirror';
@@ -38,6 +39,11 @@ if (!$repoSnapshotController->exists($snapId)) {
 
 // Retrieve repository infos from DB
 $repoController->getAllById(null, $snapId, null);
+
+// Check that the user is allowed to view the repository
+if (!RepoPermission::allowedToView($repoController->getRepoId())) {
+    throw new Exception('repository snapshot #' . $snapId . ' does not exist.');
+}
 
 // Define repository name
 if ($repoController->getPackageType() == 'rpm') {

@@ -3,6 +3,7 @@
 namespace Controllers\Api\Hosts;
 
 use Controllers\Host\Listing;
+use Controllers\User\Permission\Host as HostPermission;
 use Exception;
 
 class Hosts extends \Controllers\Api\Controller
@@ -10,6 +11,11 @@ class Hosts extends \Controllers\Api\Controller
     public function execute(): array
     {
         $hostListingController = new Listing();
+
+        // Only users with permissions on hosts can list hosts (API key authentication)
+        if (!defined('API_KEY') or !HostPermission::allowed()) {
+            throw new Exception('You are not allowed to list hosts');
+        }
 
         /**
          *  List all hosts

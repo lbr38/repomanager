@@ -7,6 +7,8 @@ use Controllers\Repo\Repo;
 use Controllers\Host\Host;
 use Controllers\Utils\Validate;
 use Controllers\History\Save as History;
+use Controllers\User\Permission\Repo as RepoPermission;
+use Controllers\User\Permission\Host as HostPermission;
 
 class Group
 {
@@ -62,10 +64,28 @@ class Group
     }
 
     /**
+     *  Throw an exception if the user is not allowed to create, edit or delete groups of this type
+     */
+    private function checkEditPermission(): void
+    {
+        if ($this->type == 'repo' and RepoPermission::allowedAction('edit-groups')) {
+            return;
+        }
+
+        if ($this->type == 'host' and HostPermission::allowedAction('edit-groups')) {
+            return;
+        }
+
+        throw new Exception('You are not allowed to perform this action');
+    }
+
+    /**
      *  Create a new group
      */
     public function new(string $name): void
     {
+        $this->checkEditPermission();
+
         $name = Validate::string($name);
 
         // Check that the group name does not contain invalid characters
@@ -100,6 +120,8 @@ class Group
      */
     public function edit(int $id, string $name, array $data): void
     {
+        $this->checkEditPermission();
+
         // Check if group exists
         if (!$this->existsId($id)) {
             throw new Exception('Group does not exist');
@@ -156,6 +178,8 @@ class Group
      */
     public function delete(array $groups): void
     {
+        $this->checkEditPermission();
+
         foreach ($groups as $id) {
             // Check if group exists
             if (!$this->existsId($id)) {

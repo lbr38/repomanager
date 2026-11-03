@@ -126,6 +126,11 @@ class Package
             throw new Exception('You are not allowed to upload packages');
         }
 
+        // If the user is not allowed to view the repository, prevent access to this action
+        if (!RepoPermission::allowedToView($this->repoController->getRepoId())) {
+            throw new Exception('You are not allowed to upload packages');
+        }
+
         // Check if snapshot has a protected env
         if ($this->repoSnapshotController->hasProtectedEnv($this->snapId)) {
             throw new Exception('Snapshot has a protected environment and cannot be modified. Please contact your administrator.');
@@ -163,9 +168,17 @@ class Package
                 continue;
             }
 
+            // If the package is a .rpm package, check that it has the .rpm extension
+            // Uploaded files are served as is by the web server, any other extension could be interpreted (e.g. .html)
+            if ($this->repoController->getPackageType() == 'rpm' and !str_ends_with($package['name'], '.rpm')) {
+                $uploadError++;
+                $packageInvalidName[] = $package['name'];
+                continue;
+            }
+
             // If the package is a .deb package, check that it contains the architecture in its name
             if ($this->repoController->getPackageType() == 'deb') {
-                if (!preg_match('/(amd64|arm64|armel|armhf|i386|mips|mips64el|mipsel|ppc64el|s390x|all).deb$/', $package['name'])) {
+                if (!preg_match('/(amd64|arm64|armel|armhf|i386|mips|mips64el|mipsel|ppc64el|s390x|all)\.deb$/', $package['name'])) {
                     throw new Exception('Package(s) name must contain the architecture in its name (e.g. package_amd64.deb).');
                 }
             }
@@ -336,6 +349,13 @@ class Package
             throw new Exception('You are not allowed to delete packages.');
         }
 
+        // If the user is not allowed to view the repository, prevent access to this action
+        if (!RepoPermission::allowedToView($this->repoController->getRepoId())) {
+            throw new Exception('You are not allowed to delete packages.');
+        }
+
+        $snapshotRealPath = realpath($this->snapshotPath);
+
         // Check if snapshot has a protected env
         if ($this->repoSnapshotController->hasProtectedEnv($this->snapId)) {
             throw new Exception('Snapshot has a protected environment and cannot be modified. Please contact your administrator.');
@@ -354,9 +374,11 @@ class Package
                 continue;
             }
 
-            // Check that the file path starts with REPOS_DIR
-            // Prevents a malicious person from providing a path that has nothing to do with the repo directory (e.g. /etc/...)
-            if (!preg_match("#^" . REPOS_DIR . "#", realpath($file))) {
+            // Check that the file is located inside the snapshot directory
+            // Prevents a malicious person from providing a path that has nothing to do with the snapshot (e.g. /etc/..., another snapshot)
+            $fileRealPath = realpath($file);
+
+            if ($snapshotRealPath === false or $fileRealPath === false or !str_starts_with($fileRealPath, $snapshotRealPath . '/')) {
                 throw new Exception('Invalid file path ' . $file);
             }
 
@@ -366,7 +388,7 @@ class Package
             }
 
             // Delete file
-            if (!unlink($file)) {
+            if (!unlink($fileRealPath)) {
                 throw new Exception('Unable to delete file ' . $file);
             }
 

@@ -4,14 +4,14 @@ use \Controllers\Utils\Generate\Html\Label; ?>
 <div class="div-generic-blue bck-blue-alt">
     <div>
         <h6 class="margin-top-0">STARTED ON</h6>
-        <p><?= $event['Time'] ?></p>
+        <p><?= htmlspecialchars($event['Time'] ?? '') ?></p>
     </div>
 
     <?php
     if (!empty($event['Time_end'])) : ?>
         <div>
             <h6>ENDED ON</h6>
-            <p><?= $event['Time_end'] ? : 'Unknown' ?></p>
+            <p><?= htmlspecialchars($event['Time_end']) ?></p>
         </div>
         <?php
     endif;
@@ -19,7 +19,7 @@ use \Controllers\Utils\Generate\Html\Label; ?>
     if (!empty($event['Command'])) : ?>
         <div>
             <h6>COMMAND</h6>
-            <pre class="codeblock copy margin-top-5"><?= $event['Command'] ? : 'Unknown' ?></pre>
+            <pre class="codeblock copy margin-top-5"><?= htmlspecialchars($event['Command']) ?></pre>
         </div>
         <?php
     endif ?>

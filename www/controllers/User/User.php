@@ -6,6 +6,7 @@ require_once ROOT . '/libs/vendor/autoload.php';
 
 use Exception;
 use Controllers\Utils\Validate;
+use Controllers\Utils\Random;
 
 class User
 {
@@ -14,6 +15,18 @@ class User
     protected $validTypes = ['local', 'sso'];
     protected $validRoles = ['administrator', 'usage'];
     protected $rolesId = ['administrator' => 2, 'usage' => 3];
+
+    /**
+     *  API keys are stored as a SHA-256 hash with this prefix
+     *  API keys are long random strings, a fast hash is enough and allows to check a key without any CPU cost
+     *  Older API keys are stored as a bcrypt hash, they are converted the first time they are used
+     */
+    private const API_KEY_HASH_PREFIX = 'sha256:';
+
+    /**
+     *  Users matching the API keys already checked during the current request
+     */
+    private static array $apiKeyUsers = [];
 
     public function __construct()
     {
@@ -57,18 +70,68 @@ class User
      */
     public function getIdByApiKey(string $apiKey) : int|null
     {
-        // Get all users to retrieve their API key
-        $usersList = $this->getUsers();
+        $user = $this->getUserByApiKey($apiKey);
 
-        // Loop through all users API key
-        foreach ($usersList as $user) {
-            //  Test if specified API key is one of the users API key
-            if (password_verify($apiKey, $user['Api_key'])) {
-                return $user['Id'];
+        if ($user === null) {
+            return null;
+        }
+
+        return $user['Id'];
+    }
+
+    /**
+     *  Return the hash of an API key, as stored in database
+     */
+    private function hashApiKey(string $apiKey) : string
+    {
+        return self::API_KEY_HASH_PREFIX . hash('sha256', $apiKey);
+    }
+
+    /**
+     *  Return the user matching the specified API key, or null if no user matches
+     */
+    private function getUserByApiKey(string $apiKey) : array|null
+    {
+        if (empty($apiKey)) {
+            return null;
+        }
+
+        $hashedApiKey = $this->hashApiKey($apiKey);
+
+        // Return the result if this API key has already been checked during the current request
+        if (array_key_exists($hashedApiKey, self::$apiKeyUsers)) {
+            return self::$apiKeyUsers[$hashedApiKey];
+        }
+
+        $users = $this->getUsers();
+        $matchingUser = null;
+
+        // Compare the hash of the API key with the hash of every user API key
+        foreach ($users as $user) {
+            if (!empty($user['Api_key']) and hash_equals($user['Api_key'], $hashedApiKey)) {
+                $matchingUser = $user;
+                break;
             }
         }
 
-        return null;
+        // Otherwise check older API keys (bcrypt hash), then convert the matching one to the new format
+        if ($matchingUser === null) {
+            foreach ($users as $user) {
+                if (empty($user['Api_key']) or str_starts_with($user['Api_key'], self::API_KEY_HASH_PREFIX)) {
+                    continue;
+                }
+
+                if (password_verify($apiKey, $user['Api_key'])) {
+                    $matchingUser = $user;
+                    $this->model->updateApiKeyById($user['Id'], $hashedApiKey);
+                    break;
+                }
+            }
+        }
+
+        self::$apiKeyUsers[$hashedApiKey] = $matchingUser;
+
+        return $matchingUser;
     }
 
     /**
@@ -156,10 +219,9 @@ class User
      */
     protected function generateRandomPassword()
     {
-        $combinaison = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@$+-=%|{}[]&";
-        $shuffle = str_shuffle($combinaison);
+        $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@$+-=%|{}[]&';
 
-        return substr($shuffle, 0, 16);
+        return Random::strongString(16, $characters);
     }
 
     /**
@@ -171,9 +233,7 @@ class User
          *  API key must be unique, loop until we get a unique one
          */
         while (empty($apiKey) or $this->apiKeyValid($apiKey) === true) {
-            $combinaison = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            $shuffle = str_shuffle($combinaison);
-            $apiKey = 'ak_' . substr($shuffle, 0, 32);
+            $apiKey = 'ak_' . bin2hex(random_bytes(24));
         }
 
         return $apiKey;
@@ -184,24 +244,7 @@ class User
      */
     public function apiKeyValid(string $apiKey)
     {
-        /**
-         *  Get all users to retrieve their API key
-         */
-        $usersList = $this->getUsers();
-
-        /**
-         *  Loop through all users API key
-         */
-        foreach ($usersList as $user) {
-            /**
-             *  Test if specified API key is one of the users API key
-             */
-            if (password_verify($apiKey, $user['Api_key'])) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->getUserByApiKey($apiKey) !== null;
     }
 
     /**
@@ -209,31 +252,13 @@ class User
      */
     public function apiKeyIsAdmin(string $apiKey)
     {
-        /**
-         *  Get all users to retrieve their API key
-         */
-        $users = $this->getUsers();
+        $user = $this->getUserByApiKey($apiKey);
 
-        /**
-         *  Loop through all users API key
-         */
-        foreach ($users as $user) {
-            /**
-             *  Test if specified API key is one of the users API key
-             */
-            if (password_verify($apiKey, $user['Api_key'])) {
-                /**
-                 *  Then check if user is an Admin
-                 */
-                if ($user['Role_name'] === 'super-administrator' or $user['Role_name'] === 'administrator') {
-                    return true;
-                }
-
-                return false;
-            }
+        if ($user === null) {
+            return false;
         }
 
-        return false;
+        return $user['Role_name'] === 'super-administrator' or $user['Role_name'] === 'administrator';
     }
 
     /**
@@ -255,16 +280,16 @@ class User
         }
 
         /**
-         *  Hashing API key with salt
+         *  Hashing API key
          */
-        $hashedApiKey = password_hash($apiKey, PASSWORD_BCRYPT);
-        if ($hashedApiKey === false) {
-            throw new Exception('Error while hashing API key');
-        }
+        $hashedApiKey = $this->hashApiKey($apiKey);
 
         /**
          *  Update API key in database
          */
         $this->model->updateApiKey($username, $hashedApiKey);
+
+        // Forget the API keys checked during the current request, as they may no longer be valid (or became valid)
+        self::$apiKeyUsers = [];
     }
 }

@@ -12,10 +12,17 @@ use Exception;
 use Jumbojett\OpenIDConnectClient;
 use Controllers\App\DebugMode;
 use Controllers\History\Save as History;
+use Controllers\History\History as HistoryController;
 use Controllers\Utils\Validate;
 
 class Login extends User
 {
+    /**
+     *  Maximum number of failed local authentications for a username from an IP address, during the specified period
+     */
+    private const MAX_FAILED_LOGINS = 10;
+    private const FAILED_LOGINS_PERIOD = 15; // minutes
+
     /**
      *  Login local user
      */
@@ -23,6 +30,14 @@ class Login extends User
     {
         try {
             $username = Validate::string($username);
+
+            // Refuse authentication if too many failed attempts have been made recently (prevents brute force)
+            $historyController = new HistoryController();
+
+            if ($historyController->countFailedLogins($username, self::FAILED_LOGINS_PERIOD) >= self::MAX_FAILED_LOGINS) {
+                $tooManyAttempts = true;
+                throw new Exception('Too many failed attempts');
+            }
 
             // Get user Id from username
             $id = $this->getIdByUsername($username, 'local');
@@ -38,6 +53,9 @@ class Login extends User
             // Getting all user informations in database
             $informations = $this->get($id);
 
+            // Generate a new session Id now that the user is authenticated (prevents session fixation)
+            Session::regenerate();
+
             // Saving user informations in session variables
             Session::set([
                 'username'   => $username,
@@ -52,8 +70,8 @@ class Login extends User
             // Add history
             History::set('Authentication (local account)');
 
-            // If an 'origin' cookie exists then redirect the user to the specified URI
-            if (!empty($_COOKIE['origin'])) {
+            // If an 'origin' cookie exists then redirect the user to the specified URI (only a local path)
+            if (!empty($_COOKIE['origin']) and self::localPath($_COOKIE['origin'])) {
                 if ($_COOKIE['origin'] != '/logout') {
                     header('Location: ' . $_COOKIE['origin']);
                     exit();
@@ -67,6 +85,10 @@ class Login extends User
         } catch (Exception $e) {
             // Add history
             History::set('Authentication failed for <code>' . $username . '</code> (local account): ' . $e->getMessage(), 'error', $username);
+
+            if (isset($tooManyAttempts)) {
+                throw new Exception('Too many failed login attempts, please try again in ' . self::FAILED_LOGINS_PERIOD . ' minutes');
+            }
 
             // Throw back an exception with generic message to display on login page
             throw new Exception('Invalid login and/or password');
@@ -152,6 +174,9 @@ class Login extends User
                 // }
             }
 
+            // Generate a new session Id now that the user is authenticated (prevents session fixation)
+            Session::regenerate();
+
             // Saving user informations in session variable
             Session::set([
                 'username'   => $username,
@@ -173,8 +198,8 @@ class Login extends User
             // Add history
             History::set('Authentication (SSO account)');
 
-            // If an 'origin' cookie exists then redirect the user to the specified URI
-            if (!empty($_COOKIE['origin'])) {
+            // If an 'origin' cookie exists then redirect the user to the specified URI (only a local path)
+            if (!empty($_COOKIE['origin']) and self::localPath($_COOKIE['origin'])) {
                 if ($_COOKIE['origin'] != '/logout') {
                     header('Location: ' . $_COOKIE['origin']);
                     exit();
@@ -190,20 +215,23 @@ class Login extends User
              *  Add history
              *  Specify the username if it has been found
              */
-            History::set('Authentication failed (SSO account): ' . $e->getMessage(), 'error', $username ?? 'unknown');
+            History::set('Authentication failed (SSO account): ' . htmlspecialchars($e->getMessage()), 'error', $username ?? 'unknown');
 
             /**
              *  If debug mode is enabled, display error message and try to get verified claims and user info for debugging
              */
             if (DebugMode::enabled()) {
-                $error = 'Could not connect through SSO: ' . $e->getMessage();
+                $error = 'Could not connect through SSO: ' . htmlspecialchars($e->getMessage());
 
                 // Try to get verified claims and user info if defined
                 if (isset($oidc)) {
                     try {
                         $verifiedClaims = $oidc->getVerifiedClaims();
                         $requestUserInfo = $oidc->requestUserInfo();
-                        $error .= '<br><h5>DEBUG</h5><p>Verified claims:</p><pre class="codeblock">' . print_r($verifiedClaims, true) . '</pre><br><p>Request user info:</p><pre class="codeblock">' . print_r($requestUserInfo, true) . '</pre>';
+                        $error .= '<br><h5>DEBUG</h5><p>Verified claims:</p>';
+                        $error .= '<pre class="codeblock">' . htmlspecialchars(print_r($verifiedClaims, true)) . '</pre>';
+                        $error .= '<br><p>Request user info:</p>';
+                        $error .= '<pre class="codeblock">' . htmlspecialchars(print_r($requestUserInfo, true)) . '</pre>';
                     // It's not necessary to print the error if it fails, so just catch the exception and do nothing
                     } catch (Exception $e) {
                     }
@@ -215,8 +243,17 @@ class Login extends User
             // If debug mode is disabled, just display the error message
             } else {
                 // Throw exception to display error message on login page
-                throw new Exception('Could not connect through SSO: ' . $e->getMessage());
+                throw new Exception('Could not connect through SSO: ' . htmlspecialchars($e->getMessage()));
             }
         }
+    }
+
+    /**
+     *  Return true if the specified URI is a local path of the application
+     *  Prevents redirecting the user to another site (e.g. '//evil.com', '/\\evil.com')
+     */
+    private static function localPath(string $uri): bool
+    {
+        return (bool) preg_match('#^/(?![/\\\\])[a-zA-Z0-9/_.~%-]*$#', $uri);
     }
 }

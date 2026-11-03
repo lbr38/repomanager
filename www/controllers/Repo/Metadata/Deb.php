@@ -130,7 +130,7 @@ class Deb extends Metadata
         }
 
         // Create Packages file
-        $myprocess = new Process($this->aptftparchive . ' generate ' . $this->root . '/apt-ftparchive.conf');
+        $myprocess = new Process($this->aptftparchive . ' generate ' . escapeshellarg($this->root . '/apt-ftparchive.conf'));
         $myprocess->setBackground(true);
         $myprocess->execute();
 
@@ -149,7 +149,11 @@ class Deb extends Metadata
         $myprocess->close();
 
         // Generate Release file
-        $myprocess = new Process($this->aptftparchive . ' -c ' . $this->root . '/dist.conf release ' . $this->root . '/dists/' . $this->dist . ' > ' . $this->root . '/dists/' . $this->dist . '/Release');
+        $myprocess = new Process(
+            $this->aptftparchive . ' -c ' . escapeshellarg($this->root . '/dist.conf')
+            . ' release ' . escapeshellarg($this->root . '/dists/' . $this->dist)
+            . ' > ' . escapeshellarg($this->root . '/dists/' . $this->dist . '/Release')
+        );
         $myprocess->setBackground(true);
         $myprocess->execute();
 
@@ -186,7 +190,11 @@ class Deb extends Metadata
         }
 
         // Sign Release file with GPG key
-        $myprocess = new Process('/usr/bin/gpg --homedir ' . GPGHOME . ' -u ' . GPG_SIGNING_KEYID . ' --output ' . $this->root . '/dists/' . $this->dist . '/Release.gpg -ba ' . $this->root . '/dists/' . $this->dist . '/Release');
+        $myprocess = new Process(
+            '/usr/bin/gpg --homedir ' . escapeshellarg(GPGHOME) . ' -u ' . escapeshellarg(GPG_SIGNING_KEYID)
+            . ' --output ' . escapeshellarg($this->root . '/dists/' . $this->dist . '/Release.gpg')
+            . ' -ba ' . escapeshellarg($this->root . '/dists/' . $this->dist . '/Release')
+        );
         $myprocess->execute();
 
         // Retrieve PID of the launched process, then write PID to main PID file

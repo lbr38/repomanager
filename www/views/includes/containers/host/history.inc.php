@@ -6,11 +6,8 @@
                 <p class="note">Packages events over the selected period.</p>
             </div>
 
-            <div>
-                <h6 class="margin-0">SELECT PERIOD</h6>
-                <div class="pointer input-daterangepicker input-large echart-range" chart-id="host-packages-status-chart" range="Last 30 Days">
-                    <p>Last 30 Days</p>
-                </div>
+            <div class="pointer input-daterangepicker input-large echart-range" chart-id="host-packages-status-chart" range="Last 30 Days">
+                <p>Last 30 Days</p>
             </div>
         </div>
 
@@ -18,7 +15,7 @@
             <img src="/assets/icons/loading.svg" class="icon-np" />
         </div>
 
-        <div id="host-packages-status-chart" class="echart"></div>
+        <div id="host-packages-status-chart" class="echart min-height-300"></div>
     </div>
 
     <div class="div-generic-blue">
