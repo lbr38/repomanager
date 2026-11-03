@@ -1,8 +1,8 @@
 <?php
 use \Controllers\Utils\Generate\Html\Label;
 
-// Mirror info is in the database, or in the raw params (create, or repo-info stored by the other actions, used once the mirror has been deleted)
-$storedInfo = $rawParams['repo-info'] ?? $rawParams;
+// Mirror info is in the database, or in the repo-info stored when the task was created (mirror to create, or mirror deleted since)
+$storedInfo = $rawParams['repo-info'] ?? [];
 $mirrorInfo = [
     'Name'         => $storedInfo['name'] ?? '',
     'Releasever'   => ($storedInfo['package-type'] ?? '') == 'rpm' ? ($storedInfo['releasever'] ?? '') : '',

@@ -119,7 +119,7 @@ try {
 /**
  *  Repositories and mirrors snapshots are now deleted from the database instead of being marked as 'deleted', and
  *  repositories with no snapshot left are deleted too. Tasks now store the details of the repository or mirror they
- *  target (repo-info) so that they can still be described once it is deleted.
+ *  target (repo-info, also for create tasks instead of the repo-id field) so that they can still be described once it is deleted.
  *  These details are stored in the existing tasks, while the repositories and mirrors are still in the database.
  *  Snapshots already marked as 'deleted' are kept for now, they will be purged in a next release.
  */
@@ -174,7 +174,40 @@ try {
             return $params;
         }
 
-        if (($params['action'] ?? '') == 'create' or !empty($params['repo-info'])) {
+        // Create tasks of repositories stored the name / dist / section in the repo-id field, replaced by repo-info
+        if (($params['action'] ?? '') == 'create' and ($params['domain'] ?? '') != 'mirror' and isset($params['repo-id']) and !is_numeric($params['repo-id'])) {
+            unset($params['repo-id']);
+        }
+
+        if (!empty($params['repo-info'])) {
+            return $params;
+        }
+
+        // The repository or mirror to create is described by the task parameters
+        if (($params['action'] ?? '') == 'create') {
+            $packageType = $params['package-type'] ?? '';
+            $isMirror = ($params['domain'] ?? '') == 'mirror';
+            $name = $params['name'] ?? '';
+
+            if (!$isMirror) {
+                $name = !empty($params['alias']) ? $params['alias'] : ($params['source'] ?? '');
+            }
+
+            $info = array_filter([
+                'name'         => $name,
+                'package-type' => $packageType,
+                'releasever'   => $packageType == 'rpm' ? ($params['releasever'] ?? '') : '',
+                'dist'         => ($packageType == 'deb' && !$isMirror) ? ($params['dist'] ?? '') : '',
+                'section'      => ($packageType == 'deb' && !$isMirror) ? ($params['section'] ?? '') : '',
+                'source'       => $params['source'] ?? '',
+                'arch'         => !$isMirror ? ($params['arch'] ?? []) : []
+            ]);
+
+            // Values are single strings once the task has been split (one task per release version / distribution / section)
+            if (!empty($info['name']) and !is_array($info['releasever'] ?? '') and !is_array($info['dist'] ?? '') and !is_array($info['section'] ?? '')) {
+                $params['repo-info'] = $info;
+            }
+
             return $params;
         }
 
