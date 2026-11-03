@@ -130,7 +130,7 @@ class Snapshot
                 throw new Exception('Could not delete snapshot directory ' . $path);
             }
 
-            $this->model->updateStatus($snapshot['Id'], 'deleted');
+            $this->model->delete((int) $snapshot['Id']);
             $deleted[] = $dirName;
         }
 
@@ -138,8 +138,7 @@ class Snapshot
     }
 
     /**
-     *  Delete a snapshot directory and mark it as deleted in database
-     *  Environments pointing to the snapshot must have been removed before
+     *  Delete a snapshot directory, and the snapshot from the database
      */
     public function delete(array $snapshot, string $mirrorDir): void
     {
@@ -149,7 +148,7 @@ class Snapshot
             throw new Exception('Could not delete snapshot directory ' . $path);
         }
 
-        $this->model->updateStatus($snapshot['Id'], 'deleted');
+        $this->model->delete((int) $snapshot['Id']);
     }
 
     /**
@@ -160,14 +159,6 @@ class Snapshot
         $this->model->add($date, $time, $status, $mirrorId);
 
         return $this->model->getLastInsertRowID();
-    }
-
-    /**
-     *  Update snapshot status
-     */
-    public function updateStatus(int $id, string $status): void
-    {
-        $this->model->updateStatus($id, $status);
     }
 
     /**

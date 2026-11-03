@@ -114,11 +114,11 @@ class Snapshot
     }
 
     /**
-     *  Update snapshot status in the database
+     *  Delete a snapshot and its environments from the database
      */
-    public function updateStatus(int $snapId, string $status): void
+    public function delete(int $snapId): void
     {
-        $this->model->updateStatus($snapId, $status);
+        $this->model->delete($snapId);
     }
 
     /**
@@ -278,8 +278,8 @@ class Snapshot
                 $removedSnaps[] = '<span class="label-white">' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</span>⸺<span class="label-black">' . $snapDateFormatted . '</span> snapshot has been deleted';
             }
 
-            // Change the status in the database
-            $this->updateStatus($snapId, 'deleted');
+            // Delete the snapshot and its environments from the database
+            $this->delete($snapId);
 
             // Delete any scheduled tasks that were using this snapshot
             try {
@@ -288,6 +288,9 @@ class Snapshot
                 $removedSnapsError[] = 'Error while deleting scheduled tasks using snapshot <span class="label-white">' . $repoName . '</span>⸺<span class="label-black">' . $snapDateFormatted . '</span>: ' . $e->getMessage();
             }
         }
+
+        // Delete the repository from the database if it has no snapshot left
+        $repoController->deleteIfEmpty($repoId);
 
         // Merge the two arrays containing deletion or error messages
         if (!empty($removedSnapsError)) {

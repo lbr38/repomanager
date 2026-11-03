@@ -115,3 +115,111 @@ try {
 } catch (Exception $e) {
     throw new Exception('could not create history_date_time index: ' . $e->getMessage());
 }
+
+/**
+ *  Repositories and mirrors snapshots are now deleted from the database instead of being marked as 'deleted', and
+ *  repositories with no snapshot left are deleted too. Tasks now store the details of the repository or mirror they
+ *  target (repo-info) so that they can still be described once it is deleted.
+ *  These details are stored in the existing tasks, while the repositories and mirrors are still in the database.
+ *  Snapshots already marked as 'deleted' are kept for now, they will be purged in a next release.
+ */
+try {
+    $snaps = [];
+    $repos = [];
+    $mirrors = [];
+
+    $result = $this->db->query("SELECT repos.Id AS repoId, repos.Name, repos.Releasever, repos.Dist, repos.Section, repos.Source, repos.Package_type, repos_snap.Id AS snapId, repos_snap.Arch, repos_snap.Date
+    FROM repos
+    LEFT JOIN repos_snap ON repos_snap.Id_repo = repos.Id");
+
+    while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+        $info = array_filter([
+            'name'         => $row['Name'],
+            'package-type' => $row['Package_type'],
+            'releasever'   => $row['Releasever'],
+            'dist'         => $row['Dist'],
+            'section'      => $row['Section'],
+            'source'       => $row['Source'],
+            'arch'         => !empty($row['Arch']) ? explode(',', $row['Arch']) : [],
+            'date'         => $row['Date']
+        ]);
+
+        if (!empty($row['snapId'])) {
+            $snaps[$row['snapId']] = $info;
+        }
+
+        // A task targeting a repository by its Id has no snapshot details
+        unset($info['arch'], $info['date']);
+        $repos[$row['repoId']] = $info;
+    }
+
+    $result = $this->db->query("SELECT Id, Name, Releasever, Package_type, Source FROM mirrors");
+
+    while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+        $mirrors[$row['Id']] = array_filter([
+            'name'         => $row['Name'],
+            'package-type' => $row['Package_type'],
+            'releasever'   => $row['Package_type'] == 'rpm' ? $row['Releasever'] : '',
+            'source'       => $row['Source']
+        ]);
+    }
+
+    // Add the details of the targeted repository or mirror to the parameters of a task, and of its sub-tasks
+    $addInfo = function (array $params) use (&$addInfo, $snaps, $repos, $mirrors): array {
+        if (!empty($params['tasks']) and is_array($params['tasks'])) {
+            foreach ($params['tasks'] as $key => $subTaskParams) {
+                $params['tasks'][$key] = $addInfo($subTaskParams);
+            }
+
+            return $params;
+        }
+
+        if (($params['action'] ?? '') == 'create' or !empty($params['repo-info'])) {
+            return $params;
+        }
+
+        if (($params['domain'] ?? '') == 'mirror') {
+            $mirrorId = $params['mirror-id'] ?? '';
+
+            if (is_numeric($mirrorId) and isset($mirrors[$mirrorId])) {
+                $params['repo-info'] = $mirrors[$mirrorId];
+            }
+
+            return $params;
+        }
+
+        $snapId = $params['snap-id'] ?? '';
+        $repoId = $params['repo-id'] ?? '';
+
+        if (is_numeric($snapId) and isset($snaps[$snapId])) {
+            $params['repo-info'] = $snaps[$snapId];
+        } elseif (is_numeric($repoId) and isset($repos[$repoId])) {
+            $params['repo-info'] = $repos[$repoId];
+        }
+
+        return $params;
+    };
+
+    $result = $this->db->query("SELECT Id, Raw_params FROM tasks");
+
+    while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+        $params = json_decode($row['Raw_params'], true);
+
+        if (!is_array($params)) {
+            continue;
+        }
+
+        $newParams = $addInfo($params);
+
+        if ($newParams == $params) {
+            continue;
+        }
+
+        $stmt = $this->db->prepare("UPDATE tasks SET Raw_params = :params WHERE Id = :id");
+        $stmt->bindValue(':params', json_encode($newParams, JSON_THROW_ON_ERROR));
+        $stmt->bindValue(':id', $row['Id']);
+        $stmt->execute();
+    }
+} catch (Exception $e) {
+    throw new Exception('could not store repositories details in tasks parameters: ' . $e->getMessage());
+}

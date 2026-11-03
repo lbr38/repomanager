@@ -30,16 +30,7 @@
             </div>
 
             <h6>GPG KEY</h6>
-            <p class="note">
-                This is a mirror: clients check the upstream signature, not the Repomanager one. The upstream GPG key must be trusted on the host (it is usually already the case for the official repositories of the host distribution).
-                <?php
-                if (!empty($install['fingerprints'])) {
-                    echo 'Key(s) declared in the source repository: ';
-                    echo implode(', ', array_map(function ($fingerprint) {
-                        return '<code class="copy">' . htmlspecialchars($fingerprint) . '</code>';
-                    }, $install['fingerprints']));
-                } ?>
-            </p>
+            <p class="note">The upstream GPG key(s) must be trusted on the host.</p>
 
             <h6>INSTALLATION</h6>
 

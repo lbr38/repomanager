@@ -1,21 +1,23 @@
 <?php
 use \Controllers\Utils\Generate\Html\Label;
 
-// Mirror info is in the raw params (create) or in the database (update)
+// Mirror info is in the database, or in the raw params (create, or repo-info stored by the other actions, used once the mirror has been deleted)
+$storedInfo = $rawParams['repo-info'] ?? $rawParams;
 $mirrorInfo = [
-    'Name'         => $rawParams['name'] ?? '',
-    'Releasever'   => ($rawParams['package-type'] ?? '') == 'rpm' ? ($rawParams['releasever'] ?? '') : '',
-    'Package_type' => $rawParams['package-type'] ?? '',
-    'Source'       => $rawParams['source'] ?? ''
+    'Name'         => $storedInfo['name'] ?? '',
+    'Releasever'   => ($storedInfo['package-type'] ?? '') == 'rpm' ? ($storedInfo['releasever'] ?? '') : '',
+    'Package_type' => $storedInfo['package-type'] ?? '',
+    'Source'       => $storedInfo['source'] ?? ''
 ];
 $mirrorParams = $rawParams;
 
 if (!empty($rawParams['mirror-id']) and is_numeric($rawParams['mirror-id'])) {
     $mirrorController = new \Controllers\Mirror\Mirror();
-    $mirrorInfo = $mirrorController->getById((int) $rawParams['mirror-id']);
+    $mirror = $mirrorController->getById((int) $rawParams['mirror-id']);
 
-    if (!empty($mirrorInfo)) {
-        $mirrorParams = $mirrorController->getParams($mirrorInfo);
+    if (!empty($mirror)) {
+        $mirrorInfo = $mirror;
+        $mirrorParams = $mirrorController->getParams($mirror);
     }
 } ?>
 
@@ -23,7 +25,7 @@ if (!empty($rawParams['mirror-id']) and is_numeric($rawParams['mirror-id'])) {
     <div class="grid grid-2 row-gap-10 column-gap-20">
         <div>
             <h6 class="margin-top-0">MIRROR</h6>
-            <?= Label::white(htmlspecialchars(isset($mirrorInfo['Name']) ? \Controllers\Mirror\Mirror::getLabel($mirrorInfo['Name'], $mirrorInfo['Releasever'] ?? '') : 'Unknown (deleted)')) ?>
+            <?= Label::white(htmlspecialchars(!empty($mirrorInfo['Name']) ? \Controllers\Mirror\Mirror::getLabel($mirrorInfo['Name'], $mirrorInfo['Releasever'] ?? '') : 'Unknown (deleted)')) ?>
         </div>
 
         <div>
@@ -135,4 +137,4 @@ if (!empty($rawParams['mirror-id']) and is_numeric($rawParams['mirror-id'])) {
     </div>
 </div>
 <?php
-unset($mirrorInfo, $mirrorParams, $mirrorController, $mirrorSnapshot, $mirrorDists);
+unset($storedInfo, $mirror, $mirrorInfo, $mirrorParams, $mirrorController, $mirrorSnapshot, $mirrorDists);

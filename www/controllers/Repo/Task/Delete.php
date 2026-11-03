@@ -63,11 +63,6 @@ class Delete extends \Controllers\Task\Execution
             throw new Exception('Cannot delete <span class="label-black">' . $this->repoController->getDateFormatted() . ' snapshot</span>');
         }
 
-        $this->taskLogSubStepController->new('updating-database', 'UPDATING DATABASE');
-
-        // Set snapshot status to 'deleted' in database
-        $this->repoSnapshotController->updateStatus($this->repoController->getSnapId(), 'deleted');
-
         $this->taskLogSubStepController->new('cleaning', 'CLEANING');
 
         // Retrieve environment Ids pointing to this snapshot
@@ -100,15 +95,14 @@ class Delete extends \Controllers\Task\Execution
             }
         }
 
-        // Clean unused repos in groups
-        try {
-            $this->repoController->cleanGroups();
-        } catch (Exception $e) {
-            throw new Exception('Error while cleaning groups: ' . $e->getMessage());
-        }
-
         // Delete any scheduled tasks that were using this snapshot
         $this->scheduledTaskController->deleteBySnapId($this->repoController->getSnapId());
+
+        $this->taskLogSubStepController->new('updating-database', 'UPDATING DATABASE');
+
+        // Delete the snapshot and its environments from the database, then the repository if it has no snapshot left
+        $this->repoSnapshotController->delete($this->repoController->getSnapId());
+        $this->repoController->deleteIfEmpty($this->repoController->getRepoId());
 
         // Delete the parent directories if they are empty
         if ($this->repoController->getPackageType() == 'rpm') {

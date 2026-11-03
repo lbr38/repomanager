@@ -80,9 +80,9 @@ class Delete extends Execution
         // Make sure no sync is running on the mirror
         $this->lock($dir);
 
+        // Delete each snapshot with its environments, the mirror directory is deleted afterwards
         foreach ($this->mirrorSnapshotController->getByMirrorId((int) $mirror['Id']) as $snapshot) {
-            $this->mirrorEnvController->removeBySnapId((int) $snapshot['Id']);
-            $this->mirrorSnapshotController->updateStatus((int) $snapshot['Id'], 'deleted');
+            $this->mirrorSnapshotController->delete($snapshot, $dir);
         }
 
         (new \Controllers\Task\Scheduled())->deleteByMirrorId((int) $mirror['Id']);

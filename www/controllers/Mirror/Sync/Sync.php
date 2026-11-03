@@ -2,6 +2,7 @@
 
 namespace Controllers\Mirror\Sync;
 
+use Controllers\Download\Parallel;
 use Controllers\Filesystem\Directory;
 use Controllers\Process;
 use Controllers\Utils\Convert;
@@ -15,23 +16,14 @@ use Exception;
  *
  *  Each package type (Deb, Rpm...) parses its metadata to build the list of files to retrieve, with
  *  their expected size and checksum, and relies on this class to:
- *   - download files in parallel and verify them
+ *   - download files in parallel and verify them (see Controllers\Download\Parallel)
  *   - hard link unchanged files from the previous snapshot
  *   - delete files that are no longer referenced upstream
  */
 abstract class Sync
 {
-    // Number of simultaneous downloads
-    protected const PARALLEL_DOWNLOADS = 6;
-
-    // Number of retries for failed downloads
-    protected const RETRIES = 3;
-
     // Number of full sync attempts if upstream repository changes during the sync
     protected const MAX_ATTEMPTS = 3;
-
-    // Number of processed files between each progress output
-    protected const PROGRESS_STEP = 1000;
 
     protected int $taskId;
     protected string $workingDir;
@@ -41,15 +33,11 @@ abstract class Sync
     protected bool $checkSignature = true;
     protected array $params = [];
     protected string|null $previousSnapshotDir = null;
-    protected string|null $sslCertificate = null;
-    protected string|null $sslPrivateKey = null;
-    protected string|null $sslCaCertificate = null;
-    protected string|null $basicAuthUsername = null;
-    protected string|null $basicAuthPassword = null;
     protected array $expectedFiles = [];
     protected int $totalSize = 0;
     protected array $stats = [];
     protected $taskLogSubStepController;
+    protected $downloader;
 
     public function __construct(int $taskId, string $workingDir)
     {
@@ -57,6 +45,7 @@ abstract class Sync
         $this->workingDir = $workingDir;
         $this->tempDir = TEMP_DIR . '/mirror-task-' . $taskId;
         $this->taskLogSubStepController = new \Controllers\Task\Log\SubStep($taskId);
+        $this->downloader = new \Controllers\Download\Parallel($taskId);
     }
 
     /**
@@ -83,13 +72,9 @@ abstract class Sync
         $this->nonCompliant = ($definition['non-compliant'] ?? 'false') == 'true';
 
         // SSL authentication material is written to temporary files, as expected by curl
-        $sslFiles = [
-            'certificate'    => 'sslCertificate',
-            'private-key'    => 'sslPrivateKey',
-            'ca-certificate' => 'sslCaCertificate'
-        ];
+        $sslFiles = [];
 
-        foreach ($sslFiles as $key => $property) {
+        foreach (['certificate', 'private-key', 'ca-certificate'] as $key) {
             if (empty($definition['ssl-authentication'][$key])) {
                 continue;
             }
@@ -100,13 +85,14 @@ abstract class Sync
                 throw new Exception('Could not write SSL ' . $key . ' to temporary file');
             }
 
-            $this->$property = $this->tempDir . '/ssl-' . $key;
+            $sslFiles[$key] = $this->tempDir . '/ssl-' . $key;
         }
+
+        $this->downloader->setSslAuthentication($sslFiles['certificate'] ?? null, $sslFiles['private-key'] ?? null, $sslFiles['ca-certificate'] ?? null);
 
         // Basic authentication credentials
         if (!empty($definition['basic-authentication']['username'])) {
-            $this->basicAuthUsername = $definition['basic-authentication']['username'];
-            $this->basicAuthPassword = $definition['basic-authentication']['password'] ?? '';
+            $this->downloader->setBasicAuthentication($definition['basic-authentication']['username'], $definition['basic-authentication']['password'] ?? '');
         }
     }
 
@@ -193,14 +179,15 @@ abstract class Sync
      *  $force: always download the file, even if it already exists (used for files without known checksum)
      *  $verifyExisting: verify the checksum of an existing file before keeping it, otherwise its size is enough
      *  (files are only renamed to their final name once verified, so an existing file has already been verified)
+     *  $substepTitle: display each download as a task sub-step with this title, otherwise the progress is displayed in the current sub-step
      *
      *  Return the relative paths of the files that are present after retrieval
      */
-    protected function fetch(array $files, bool $optional = false, bool $force = false, bool $verifyExisting = false): array
+    protected function fetch(array $files, bool $optional = false, bool $force = false, bool $verifyExisting = false, string|null $substepTitle = null): array
     {
         $queue = [];
         $present = [];
-        $this->stats = ['total' => 0, 'processed' => 0, 'downloaded' => 0, 'downloadedBytes' => 0, 'linked' => 0, 'existing' => 0];
+        $this->stats = ['total' => 0, 'downloaded' => 0, 'downloadedBytes' => 0, 'linked' => 0, 'existing' => 0];
 
         // Remove duplicates (e.g. 'Architecture: all' packages are listed in each arch index)
         $files = array_column($files, null, 'path');
@@ -217,7 +204,6 @@ abstract class Sync
                     $present[] = $file['path'];
                     $this->addExpected($file['path']);
                     $this->stats['existing']++;
-                    $this->progress();
                     continue;
                 }
 
@@ -230,16 +216,19 @@ abstract class Sync
                         $present[] = $file['path'];
                         $this->addExpected($file['path']);
                         $this->stats['linked']++;
-                        $this->progress();
                         continue;
                     }
                 }
             }
 
-            $queue[] = $file;
+            $file['target'] = $target;
+            $queue[$file['path']] = $file;
         }
 
-        $missing = $this->download($queue, $optional);
+        // Files are queued by path, the downloader returns the paths of the optional files not found
+        $missing = $this->downloader->download($queue, $optional, $substepTitle);
+        $this->stats['downloaded'] = $this->downloader->getDownloadedCount();
+        $this->stats['downloadedBytes'] = $this->downloader->getDownloadedBytes();
 
         foreach ($queue as $file) {
             if (!in_array($file['path'], $missing)) {
@@ -249,6 +238,17 @@ abstract class Sync
         }
 
         return $present;
+    }
+
+    /**
+     *  Retrieve the packages into the working directory, as repositories do: a 'DOWNLOADING PACKAGES' sub-step
+     *  followed by a sub-step for each downloaded package, unchanged packages are only counted in the summary
+     */
+    protected function fetchPackages(array $packages, string $note = ''): void
+    {
+        $this->taskLogSubStepController->new('retrieve-packages', 'DOWNLOADING PACKAGES', $note);
+        $this->fetch($packages, false, false, false, 'DOWNLOADING PACKAGE');
+        $this->taskLogSubStepController->completed($this->stats['total'] . ' package(s): ' . $this->fetchSummary(), 'retrieve-packages');
     }
 
     /**
@@ -286,187 +286,12 @@ abstract class Sync
     }
 
     /**
-     *  Download files in parallel, verify them and move them to their final path
-     *  Return the relative paths of the optional files that were not found (404)
-     */
-    private function download(array $files, bool $optional): array
-    {
-        $missing = [];
-        $pending = array_values($files);
-
-        for ($round = 0; $round <= self::RETRIES and !empty($pending); $round++) {
-            if ($round > 0) {
-                $this->taskLogSubStepController->output('Retrying ' . count($pending) . ' failed download(s) (' . $round . '/' . self::RETRIES . ')', 'warning');
-            }
-
-            $failed = [];
-            $active = [];
-            $index = 0;
-            $multiHandle = curl_multi_init();
-
-            while ($index < count($pending) or !empty($active)) {
-                // Fill the download slots
-                while (count($active) < self::PARALLEL_DOWNLOADS and $index < count($pending)) {
-                    $file = $pending[$index++];
-                    $target = $this->workingDir . '/' . $file['path'];
-
-                    $this->createParentDir($target);
-
-                    $fp = fopen($target . '.part', 'w');
-
-                    if ($fp === false) {
-                        throw new Exception('Could not open ' . $target . '.part for writing');
-                    }
-
-                    $handle = $this->curlInit($file['url'], $fp);
-                    curl_multi_add_handle($multiHandle, $handle);
-                    $active[spl_object_id($handle)] = ['handle' => $handle, 'fp' => $fp, 'file' => $file];
-                }
-
-                do {
-                    $status = curl_multi_exec($multiHandle, $running);
-                } while ($status == CURLM_CALL_MULTI_PERFORM);
-
-                if ($status != CURLM_OK) {
-                    throw new Exception('Download error: ' . curl_multi_strerror($status));
-                }
-
-                if (curl_multi_select($multiHandle, 1.0) == -1) {
-                    usleep(100000);
-                }
-
-                // Process finished downloads
-                while ($info = curl_multi_info_read($multiHandle)) {
-                    $id = spl_object_id($info['handle']);
-                    $file = $active[$id]['file'];
-                    $target = $this->workingDir . '/' . $file['path'];
-                    $httpCode = curl_getinfo($info['handle'], CURLINFO_RESPONSE_CODE);
-
-                    fclose($active[$id]['fp']);
-                    curl_multi_remove_handle($multiHandle, $info['handle']);
-                    curl_close($info['handle']);
-                    unset($active[$id]);
-
-                    if ($info['result'] == CURLE_OK and $this->verify($target . '.part', $file['size'], $file['hash'], $file['algo'])) {
-                        if (!rename($target . '.part', $target)) {
-                            throw new Exception('Could not rename ' . $target . '.part');
-                        }
-
-                        $this->stats['downloaded']++;
-                        $this->stats['downloadedBytes'] += filesize($target);
-                        $this->progress();
-                        continue;
-                    }
-
-                    unlink($target . '.part');
-
-                    if ($optional and $httpCode == 404) {
-                        $missing[] = $file['path'];
-                        $this->progress();
-                        continue;
-                    }
-
-                    if ($info['result'] != CURLE_OK) {
-                        $file['error'] = curl_strerror($info['result']) . ($httpCode > 0 ? ' (HTTP ' . $httpCode . ')' : '');
-                    } else {
-                        $file['error'] = 'size or checksum mismatch';
-                    }
-
-                    $failed[] = $file;
-                }
-            }
-
-            curl_multi_close($multiHandle);
-
-            $pending = $failed;
-        }
-
-        if (!empty($pending)) {
-            $message = count($pending) . ' file(s) could not be retrieved:';
-
-            foreach (array_slice($pending, 0, 10) as $file) {
-                // URLs contain file names coming from upstream metadata
-                $message .= '<br> 🠶 <span class="copy wordbreakall">' . htmlspecialchars($file['url']) . '</span>: ' . htmlspecialchars($file['error']);
-            }
-
-            throw new Exception($message);
-        }
-
-        return $missing;
-    }
-
-    /**
-     *  Download a single file without verification, return false if it could not be downloaded
-     */
-    protected function downloadFile(string $url, string $savePath): bool
-    {
-        $this->createParentDir($savePath);
-
-        $fp = fopen($savePath, 'w');
-
-        if ($fp === false) {
-            throw new Exception('Could not open ' . $savePath . ' for writing');
-        }
-
-        $handle = $this->curlInit($url, $fp);
-        $result = curl_exec($handle);
-        curl_close($handle);
-        fclose($fp);
-
-        if ($result === false) {
-            unlink($savePath);
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     *  Initialize a curl handle writing to the specified file pointer
-     */
-    private function curlInit(string $url, $fp)
-    {
-        $handle = curl_init();
-
-        curl_setopt($handle, CURLOPT_URL, $url);
-        curl_setopt($handle, CURLOPT_FILE, $fp);
-        curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, 15);
-        curl_setopt($handle, CURLOPT_TIMEOUT, MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT);
-        curl_setopt($handle, CURLOPT_FAILONERROR, true);
-        curl_setopt($handle, CURLOPT_FOLLOWLOCATION, true);
-        // Use http version to 1.1 to avoid curl error 16 (fix https://github.com/lbr38/repomanager/issues/127)
-        curl_setopt($handle, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
-        curl_setopt($handle, CURLOPT_USERAGENT, 'Repomanager (+https://github.com/lbr38/repomanager)');
-
-        if (!empty(PROXY)) {
-            curl_setopt($handle, CURLOPT_PROXY, PROXY);
-        }
-        if (!empty($this->sslCertificate)) {
-            curl_setopt($handle, CURLOPT_SSLCERT, $this->sslCertificate);
-        }
-        if (!empty($this->sslPrivateKey)) {
-            curl_setopt($handle, CURLOPT_SSLKEY, $this->sslPrivateKey);
-        }
-        if (!empty($this->sslCaCertificate)) {
-            curl_setopt($handle, CURLOPT_CAINFO, $this->sslCaCertificate);
-        }
-        // Basic authentication credentials are not sent to other hosts on redirect
-        if (!empty($this->basicAuthUsername)) {
-            curl_setopt($handle, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-            curl_setopt($handle, CURLOPT_USERNAME, $this->basicAuthUsername);
-            curl_setopt($handle, CURLOPT_PASSWORD, $this->basicAuthPassword ?? '');
-        }
-
-        return $handle;
-    }
-
-    /**
      *  Return true if an existing file matches the expected size (and checksum if required)
      */
     private function matches(string $path, array $file, bool $verifyChecksum): bool
     {
         if ($verifyChecksum) {
-            return $this->verify($path, $file['size'], $file['hash'], $file['algo']);
+            return Parallel::verify($path, $file['size'], $file['hash'], $file['algo']);
         }
 
         // Without known size, an existing file cannot be trusted
@@ -475,22 +300,6 @@ abstract class Sync
         }
 
         return filesize($path) == $file['size'];
-    }
-
-    /**
-     *  Verify file size and checksum, if known
-     */
-    protected function verify(string $path, int|null $size, string|null $hash, string|null $algo): bool
-    {
-        if (!is_null($size) and filesize($path) != $size) {
-            return false;
-        }
-
-        if (!empty($hash) and !empty($algo)) {
-            return hash_equals(strtolower($hash), hash_file($algo, $path));
-        }
-
-        return true;
     }
 
     /**
@@ -693,21 +502,6 @@ abstract class Sync
         }
 
         $this->closeFile($file);
-    }
-
-    /**
-     *  Output download progress
-     */
-    private function progress(): void
-    {
-        $this->stats['processed']++;
-
-        // Only output progress periodically, the final summary is given by fetchSummary()
-        if ($this->stats['processed'] % self::PROGRESS_STEP != 0 or $this->stats['processed'] == $this->stats['total']) {
-            return;
-        }
-
-        $this->taskLogSubStepController->output($this->stats['processed'] . ' / ' . $this->stats['total'] . ' (' . $this->fetchSummary() . ')', 'note');
     }
 
     /**

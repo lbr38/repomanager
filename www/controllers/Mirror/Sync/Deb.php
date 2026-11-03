@@ -115,9 +115,7 @@ class Deb extends Sync
 
         $this->taskLogSubStepController->completed(count(array_unique(array_column($packages, 'path'))) . ' package(s) found');
 
-        $this->taskLogSubStepController->new('retrieve-packages', 'RETRIEVING PACKAGES', 'From ' . $this->url);
-        $this->fetch($packages);
-        $this->taskLogSubStepController->completed($this->stats['total'] . ' package(s): ' . $this->fetchSummary());
+        $this->fetchPackages($packages, 'From ' . htmlspecialchars($this->url));
     }
 
     /**
@@ -128,7 +126,7 @@ class Deb extends Sync
         foreach ($this->rootFiles as $rootFile) {
             $tempFile = $this->tempDir . '/release.check';
 
-            if (!$this->downloadFile($rootFile['url'], $tempFile)) {
+            if (!$this->downloader->downloadFile($rootFile['url'], $tempFile)) {
                 return true;
             }
 

@@ -127,9 +127,7 @@ class Rpm extends Sync
             throw new Exception('No package found in the source repository');
         }
 
-        $this->taskLogSubStepController->new('retrieve-packages', 'RETRIEVING PACKAGES');
-        $this->fetch($packages);
-        $this->taskLogSubStepController->completed($this->stats['total'] . ' package(s): ' . $this->fetchSummary());
+        $this->fetchPackages($packages);
     }
 
     /**
@@ -140,7 +138,7 @@ class Rpm extends Sync
         foreach ($this->repos as $repo) {
             $tempFile = $this->tempDir . '/repomd.xml.check';
 
-            if (!$this->downloadFile($repo['url'] . '/repodata/repomd.xml', $tempFile)) {
+            if (!$this->downloader->downloadFile($repo['url'] . '/repodata/repomd.xml', $tempFile)) {
                 return true;
             }
 

@@ -106,13 +106,16 @@ class Snapshot extends \Models\Model
     }
 
     /**
-     *  Update snapshot status
+     *  Delete a snapshot and its environments from the database
      */
-    public function updateStatus(int $id, string $status): void
+    public function delete(int $id): void
     {
         try {
-            $stmt = $this->db->prepare("UPDATE mirrors_snap SET Status = :status WHERE Id = :id");
-            $stmt->bindValue(':status', $status);
+            $stmt = $this->db->prepare("DELETE FROM mirrors_env WHERE Id_snap = :id");
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+
+            $stmt = $this->db->prepare("DELETE FROM mirrors_snap WHERE Id = :id");
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (Exception $e) {

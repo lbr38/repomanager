@@ -251,23 +251,17 @@ class Repo extends \Models\Model
     }
 
     /**
-     *  Retourne tous les Id de repos
+     *  Delete a repository from the database
      */
-    public function getAllRepoId()
+    public function delete(int $repoId): void
     {
-        $id = [];
-
         try {
-            $result = $this->db->query("SELECT Id FROM repos");
+            $stmt = $this->db->prepare("DELETE FROM repos WHERE Id = :repoId");
+            $stmt->bindValue(':repoId', $repoId);
+            $stmt->execute();
         } catch (Exception $e) {
             DbLog::error($e);
         }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $id[] = $row;
-        }
-
-        return $id;
     }
 
     /**

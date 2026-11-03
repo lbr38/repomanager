@@ -87,12 +87,4 @@ class Environment
 
         $this->model->removeFromMirror($mirrorId, $env);
     }
-
-    /**
-     *  Remove all environments associated to a snapshot Id (database only)
-     */
-    public function removeBySnapId(int $snapId): void
-    {
-        $this->model->removeBySnapId($snapId);
-    }
 }

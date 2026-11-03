@@ -56,6 +56,11 @@ class Notify extends Task
             // Retrieve repository details
             $repoController->getAllById(null, $taskRawParams['snap-id']);
 
+            // The repository may have been deleted by the task, use the info stored in the task parameters
+            if (empty($repoController->getTaskInfo()['name']) and !empty($taskRawParams['repo-info'])) {
+                $repoController->setFromTaskInfo($taskRawParams['repo-info']);
+            }
+
             // Case it's a deb repository
             if ($repoController->getPackageType() == 'deb') {
                 $repo = $repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection();

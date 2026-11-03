@@ -89,18 +89,4 @@ class Environment extends \Models\Model
             DbLog::error($e);
         }
     }
-
-    /**
-     *  Remove all environments associated to a snapshot Id
-     */
-    public function removeBySnapId(int $snapId): void
-    {
-        try {
-            $stmt = $this->db->prepare("DELETE FROM mirrors_env WHERE Id_snap = :snapId");
-            $stmt->bindValue(':snapId', $snapId);
-            $stmt->execute();
-        } catch (Exception $e) {
-            DbLog::error($e);
-        }
-    }
 }

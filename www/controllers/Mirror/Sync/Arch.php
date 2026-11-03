@@ -70,9 +70,7 @@ class Arch extends Sync
             throw new Exception('No package found in the source repository');
         }
 
-        $this->taskLogSubStepController->new('retrieve-packages', 'RETRIEVING PACKAGES');
-        $this->fetch($packages);
-        $this->taskLogSubStepController->completed($this->stats['total'] . ' package(s): ' . $this->fetchSummary());
+        $this->fetchPackages($packages);
 
         $this->taskLogSubStepController->new('retrieve-signatures', 'RETRIEVING PACKAGES SIGNATURES');
         $this->retrieveSignatures($signatures);
@@ -86,7 +84,7 @@ class Arch extends Sync
         foreach ($this->repos as $repo) {
             $tempFile = $this->tempDir . '/database.check';
 
-            if (!$this->downloadFile($repo['url'] . '/' . $repo['name'] . '.db', $tempFile)) {
+            if (!$this->downloader->downloadFile($repo['url'] . '/' . $repo['name'] . '.db', $tempFile)) {
                 return true;
             }
 
