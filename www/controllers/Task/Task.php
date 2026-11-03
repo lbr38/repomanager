@@ -303,18 +303,22 @@ class Task
                 ];
             }
 
-            if (!empty($taskRawParams['source-snap-id'])) {
-                if (is_numeric($taskRawParams['source-snap-id'])) {
-                    $repoController->getAllById('', $taskRawParams['source-snap-id'], '');
+            try {
+                if (!empty($taskRawParams['source-snap-id'])) {
+                    if (is_numeric($taskRawParams['source-snap-id'])) {
+                        $repoController->getAllById('', $taskRawParams['source-snap-id'], '');
+                    }
+                } else if (!empty($taskRawParams['repo-id'])) {
+                    if (is_numeric($taskRawParams['repo-id'])) {
+                        $repoController->getAllById($taskRawParams['repo-id'], '', '');
+                    }
+                } else if (!empty($taskRawParams['snap-id'])) {
+                    if (is_numeric($taskRawParams['snap-id'])) {
+                        $repoController->getAllById('', $taskRawParams['snap-id'], '');
+                    }
                 }
-            } else if (!empty($taskRawParams['repo-id'])) {
-                if (is_numeric($taskRawParams['repo-id'])) {
-                    $repoController->getAllById($taskRawParams['repo-id'], '', '');
-                }
-            } else if (!empty($taskRawParams['snap-id'])) {
-                if (is_numeric($taskRawParams['snap-id'])) {
-                    $repoController->getAllById('', $taskRawParams['snap-id'], '');
-                }
+            } catch (Exception $e) {
+                // Repository has been deleted, its details are retrieved from the task parameters below
             }
 
             // Repository details from the database, or from the info stored in the task parameters (repository to create, or deleted since)
@@ -543,6 +547,11 @@ class Task
 
         // The mirror to create is described by the task parameters, the other actions target an existing mirror
         if ($taskParams['action'] == 'create') {
+            // If no name has been given, the source repository name is used
+            if (empty($taskParams['name'])) {
+                $taskParams['name'] = $taskParams['source'] ?? '';
+            }
+
             $mirror = [
                 'Name'         => $taskParams['name'] ?? '',
                 'Package_type' => $taskParams['package-type'] ?? '',
@@ -600,10 +609,14 @@ class Task
 
         $repoController = new Repo();
 
-        if (!empty($taskParams['snap-id']) and is_numeric($taskParams['snap-id'])) {
-            $repoController->getAllById(null, $taskParams['snap-id']);
-        } elseif (!empty($taskParams['repo-id']) and is_numeric($taskParams['repo-id'])) {
-            $repoController->getAllById($taskParams['repo-id']);
+        try {
+            if (!empty($taskParams['snap-id']) and is_numeric($taskParams['snap-id'])) {
+                $repoController->getAllById(null, $taskParams['snap-id']);
+            } elseif (!empty($taskParams['repo-id']) and is_numeric($taskParams['repo-id'])) {
+                $repoController->getAllById($taskParams['repo-id']);
+            }
+        } catch (Exception $e) {
+            // Repository has been deleted, the stored info is kept below
         }
 
         $info = $repoController->getTaskInfo();

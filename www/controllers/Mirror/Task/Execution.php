@@ -65,11 +65,20 @@ class Execution extends \Controllers\Task\Execution
             }
         }
 
-        $this->lock = fopen(Mirror::getLockFile($dir), 'c');
-
-        if ($this->lock === false or !flock($this->lock, LOCK_EX | LOCK_NB)) {
+        if (!$this->tryLock($dir)) {
             throw new Exception('Another task is already syncing this mirror');
         }
+    }
+
+    /**
+     *  Try to lock the mirror, return false if another task already holds the lock
+     *  The mirror directory must exist
+     */
+    protected function tryLock(string $dir): bool
+    {
+        $this->lock = fopen(Mirror::getLockFile($dir), 'c');
+
+        return $this->lock !== false and flock($this->lock, LOCK_EX | LOCK_NB);
     }
 
     /**

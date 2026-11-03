@@ -52,26 +52,10 @@ if ($canEditMirror && empty($mirror['Tags'])) {
                 </p>
 
                 <?php
-                if (RepoPermission::allowedAction('update')) : ?>
-                    <div class="repo-header-btn mirror-sync-btn" mirror-id="<?= $mirror['Id'] ?>" title="Sync this mirror into a new snapshot">
-                        <img src="/assets/icons/update.svg" class="icon-np icon-small" />
-                        <span>Sync</span>
-                    </div>
-                    <?php
-                endif;
-
                 if ($canEditMirror) : ?>
                     <div class="repo-header-btn mirror-edit-btn" mirror-id="<?= $mirror['Id'] ?>" title="Edit mirror properties">
                         <img src="/assets/icons/cog.svg" class="icon-np icon-small" />
                         <span>Edit</span>
-                    </div>
-                    <?php
-                endif;
-
-                if (RepoPermission::allowedAction('delete')) : ?>
-                    <div class="repo-header-btn mirror-delete-btn" mirror-id="<?= $mirror['Id'] ?>" mirror-name="<?= htmlspecialchars(Mirror::getLabel($mirror['Name'], $mirror['Releasever'])) ?>" title="Delete this mirror with all its snapshots">
-                        <img src="/assets/icons/delete.svg" class="icon-np icon-small" />
-                        <span>Delete</span>
                     </div>
                     <?php
                 endif;

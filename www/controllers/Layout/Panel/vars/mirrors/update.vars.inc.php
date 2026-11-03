@@ -6,18 +6,15 @@ if (!RepoPermission::allowedAction('update')) {
     throw new Exception('You are not allowed to access this panel');
 }
 
-if (empty($item['mirror-id']) or !is_numeric($item['mirror-id'])) {
-    throw new Exception('Mirror Id is invalid');
-}
-
-$mirrorController = new \Controllers\Mirror\Mirror();
+$mirrorSnapshotController = new \Controllers\Mirror\Snapshot();
 $userController = new \Controllers\User\User();
 $envController = new \Controllers\Environment();
 
-$mirror = $mirrorController->getById((int) $item['mirror-id']);
+// One form block per mirror of the selected snapshots, several snapshots of the same mirror give a single sync
+$mirrors = [];
 
-if (empty($mirror) or !RepoPermission::allowedToViewMirror((int) $mirror['Id'])) {
-    throw new Exception('Mirror does not exist');
+foreach ($mirrorSnapshotController->getSelection($item['snapshots'] ?? '') as $selected) {
+    $mirrors[$selected['mirror']['Id']] = $selected['mirror'];
 }
 
 $envs = $envController->getAllByName();
@@ -25,4 +22,4 @@ $envs = $envController->getAllByName();
 // Needed by the schedule form
 $usersEmail = $userController->getEmails();
 
-unset($mirrorController, $userController, $envController);
+unset($mirrorSnapshotController, $userController, $envController, $selected);

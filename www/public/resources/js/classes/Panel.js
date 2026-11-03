@@ -158,6 +158,56 @@ class Panel {
     }
 
     /**
+     * Replace an opened panel by another one, without the slide animation
+     * @param {*} current
+     * @param {*} name
+     * @param {*} params
+     * @returns
+     */
+    replace(current, name, params = [''])
+    {
+        // Print a loading icon on the bottom of the page
+        mylayout.printLoading();
+
+        return new Promise((resolve, reject) => {
+            ajaxRequest(
+                // Controller:
+                'general',
+                // Action:
+                'get-panel',
+                // Data:
+                {
+                    name: name,
+                    params: params
+                },
+                // Print success alert:
+                false,
+                // Print error alert:
+                true
+            ).then(() => {
+                const content = $(jsonValue.message);
+                const html = (content.is('.slide-panel') ? content : content.find('.slide-panel')).html();
+
+                // If panel content was not found in the response, reject the promise
+                if (html === undefined) {
+                    reject('Panel content was not found');
+                    return;
+                }
+
+                // Rename the current panel container and replace its content
+                $('.slide-panel-container[slide-panel="' + current + '"]').attr('slide-panel', name).find('.slide-panel').html(html);
+
+                resolve('Panel replaced successfully');
+            }).catch((e) => {
+                reject('Failed to replace panel ' + current + ' by ' + name + ': ' + e);
+            }).finally(() => {
+                // Hide loading icon
+                mylayout.hideLoading();
+            });
+        });
+    }
+
+    /**
      * Close panel
      * @param {*} name
      */

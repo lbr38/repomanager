@@ -152,9 +152,12 @@ try {
                     $snapId = $rawParams['snap-id'];
                 }
 
-                $repoController->getAllById($repoId, $snapId);
-
                 // The repository may have been deleted since, use the info stored in the task parameters
+                try {
+                    $repoController->getAllById($repoId, $snapId);
+                } catch (Exception $e) {
+                }
+
                 if (empty($repoController->getTaskInfo()['name'])) {
                     if (empty($rawParams['repo-info'])) {
                         throw new Exception('The repository targeted by this task has been deleted');

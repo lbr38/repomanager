@@ -58,9 +58,11 @@ class Form
         $mirrorController = new Mirror();
         $sourceController = new \Controllers\Repo\Source\Source();
 
-        $name = $task['name'] ?? '';
         $packageType = $task['package-type'] ?? '';
         $source = $task['source'] ?? '';
+
+        // If no name has been given, the source repository name is used
+        $name = !empty($task['name']) ? $task['name'] : $source;
 
         Mirror::checkName($name);
 

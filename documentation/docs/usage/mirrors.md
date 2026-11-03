@@ -46,7 +46,7 @@ From the **REPOSITORIES** tab:
 
 ## :material-autorenew: Sync a mirror
 
-From the **REPOSITORIES** tab, hover the mirror and click the `Sync` button. Optionally select the environment(s) to switch to the new snapshot once it is complete.
+From the **REPOSITORIES** tab, click a snapshot of each mirror to sync to select it, then click the `Sync` button. Several mirrors can be synced at once, selecting several snapshots of the same mirror syncs it only once. Optionally select the environment(s) to switch to the new snapshot once it is complete.
 
 Each sync creates a new snapshot:
 
@@ -95,7 +95,7 @@ Protected environments cannot be removed.
 ## :material-delete: Delete a snapshot or a mirror
 
 - **Snapshot(s)**: click the snapshot(s) to select them, then click `Delete`. A snapshot used by an environment cannot be deleted: remove or move the environment first.
-- **Whole mirror**: hover the mirror and click the `Delete` button. All its snapshots, environments and scheduled tasks are deleted. For rpm, only the selected release version is deleted.
+- **Whole mirror**: delete all its snapshots, the mirror is deleted with its last snapshot, with its scheduled tasks. For rpm, only the selected release version is deleted.
 
 
 ## :material-monitor: Configure clients

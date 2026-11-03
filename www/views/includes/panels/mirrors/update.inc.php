@@ -1,25 +1,28 @@
 <?php ob_start(); ?>
 
 <form id="task-form" autocomplete="off">
-    <div class="task-form-params form-block form-block-accent-<?= \Controllers\Mirror\Mirror::getAccent($mirror['Package_type']) ?>" domain="mirror" action="update" mirror-id="<?= $mirror['Id'] ?>">
-        <div class="flex align-item-center">
-            <p class="label-white"><?= htmlspecialchars(\Controllers\Mirror\Mirror::getFullLabel($mirror)) ?></p>
-            <p>⸺<span class="label-red"><?= DATE_DMY ?></span></p>
-        </div>
-
-        <p class="note margin-top-10">A new snapshot is created from the source repository <b><?= htmlspecialchars($mirror['Source']) ?></b>. Unchanged files are hard linked from the latest snapshot.</p>
-
-        <h6>POINT AN ENVIRONMENT</h6>
-        <p class="note">Optional. Environments are switched to the new snapshot once it is complete.</p>
-        <select class="task-param" param-name="env" multiple>
-            <?php
-            foreach ($envs as $env) {
-                echo '<option value="' . htmlspecialchars($env) . '">' . htmlspecialchars($env) . '</option>';
-            } ?>
-        </select>
-    </div>
-
     <?php
+    foreach ($mirrors as $mirror) : ?>
+        <div class="task-form-params form-block form-block-accent-<?= \Controllers\Mirror\Mirror::getAccent($mirror['Package_type']) ?>" domain="mirror" action="update" mirror-id="<?= $mirror['Id'] ?>">
+            <div class="flex align-item-center">
+                <p class="label-white"><?= htmlspecialchars(\Controllers\Mirror\Mirror::getFullLabel($mirror)) ?></p>
+                <p>⸺<span class="label-red"><?= DATE_DMY ?></span></p>
+            </div>
+
+            <p class="note margin-top-10">A new snapshot is created from the source repository <b><?= htmlspecialchars($mirror['Source']) ?></b>. Unchanged files are hard linked from the latest snapshot.</p>
+
+            <h6>POINT AN ENVIRONMENT</h6>
+            <p class="note">Optional. Environments are switched to the new snapshot once it is complete.</p>
+            <select class="task-param" param-name="env" multiple>
+                <?php
+                foreach ($envs as $env) {
+                    echo '<option value="' . htmlspecialchars($env) . '">' . htmlspecialchars($env) . '</option>';
+                } ?>
+            </select>
+        </div>
+        <?php
+    endforeach;
+
     $scheduleForm['action'] = 'update';
     include_once(ROOT . '/views/includes/forms/tasks/schedule.inc.php'); ?>
 

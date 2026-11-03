@@ -25,12 +25,6 @@
             <label for="mirror-repo-type-mirror">Mirror</label>
         </div>
 
-        <h6 class="required">NAME</h6>
-        <p class="note" mirror-field="rpm">The mirror will be published under <code><?= WWW_MIRRORS_DIR_URL ?>/rpm/&lt;name&gt;/&lt;release version&gt;/&lt;environment&gt;/</code>. Several mirrors can have the same name with different release versions.</p>
-        <p class="note" mirror-field="deb">The mirror will be published under <code><?= WWW_MIRRORS_DIR_URL ?>/deb/&lt;name&gt;/&lt;environment&gt;/</code></p>
-        <p class="note" mirror-field="arch">The mirror will be published under <code><?= WWW_MIRRORS_DIR_URL ?>/arch/&lt;name&gt;/&lt;environment&gt;/</code>, each repository in <code>&lt;repository&gt;/os/&lt;architecture&gt;/</code> as on Arch Linux mirrors.</p>
-        <input type="text" class="task-param" param-name="name" placeholder="e.g. debian-bookworm" />
-
         <h6 class="required">SOURCE REPOSITORY</h6>
         <p class="note">The repository to mirror from. Want more? <span class="note pointer lowopacity get-panel-btn" panel="repos/sources/list">Add or import a source repository</span>.</p>
 
@@ -55,6 +49,10 @@
             </div>
             <?php
         endforeach ?>
+
+        <h6>MIRROR NAME</h6>
+        <p class="note">Optional. Default will be the source repository name.</p>
+        <input type="text" class="task-param" param-name="name" />
 
         <div mirror-field="deb">
             <h6 class="required">DISTRIBUTION(S)</h6>

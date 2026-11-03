@@ -54,9 +54,12 @@ class Notify extends Task
         // Case the action is 'update', 'env', 'removeEnv', 'duplicate', 'rebuild', 'rename' or 'delete'
         if (in_array($taskRawParams['action'], ['update', 'duplicate', 'env', 'removeEnv', 'rebuild', 'rename', 'delete'])) {
             // Retrieve repository details
-            $repoController->getAllById(null, $taskRawParams['snap-id']);
-
             // The repository may have been deleted by the task, use the info stored in the task parameters
+            try {
+                $repoController->getAllById(null, $taskRawParams['snap-id']);
+            } catch (Exception $e) {
+            }
+
             if (empty($repoController->getTaskInfo()['name']) and !empty($taskRawParams['repo-info'])) {
                 $repoController->setFromTaskInfo($taskRawParams['repo-info']);
             }

@@ -64,6 +64,41 @@ class Delete extends Execution
 
         $this->taskLogSubStepController->completed('Snapshot ' . $label . ' deleted');
         $this->taskLogStepController->completed();
+
+        // A mirror without snapshot cannot be used anymore, it is deleted with its last snapshot
+        $this->deleteMirrorIfEmpty($mirror);
+    }
+
+    /**
+     *  Delete the whole mirror if it has no snapshot left
+     *  Several snapshots of the same mirror can be deleted at once by parallel tasks: the check is done after
+     *  the deletion, so that the last task to end deletes the mirror
+     */
+    private function deleteMirrorIfEmpty(array $mirror): void
+    {
+        $dir = Mirror::getDirOf($mirror);
+
+        if (!empty($this->mirrorSnapshotController->getByMirrorId((int) $mirror['Id'])) or !is_dir(Mirror::getPath($dir))) {
+            return;
+        }
+
+        // Another task holds the lock: either a sync, which will add a new snapshot, or another task already deleting the mirror
+        if (!$this->tryLock($dir)) {
+            return;
+        }
+
+        // Check again once locked, the mirror may have been deleted or synced in the meantime
+        if (empty($this->mirrorController->getById((int) $mirror['Id'])) or !empty($this->mirrorSnapshotController->getByMirrorId((int) $mirror['Id']))) {
+            return;
+        }
+
+        $this->taskLogStepController->new('delete-mirror', 'DELETING MIRROR');
+        $this->taskLogSubStepController->new('delete-mirror', 'DELETING MIRROR');
+
+        $this->removeMirror($mirror);
+
+        $this->taskLogSubStepController->completed('No snapshot left, mirror ' . htmlspecialchars(Mirror::getLabel($mirror['Name'], $mirror['Releasever'])) . ' deleted, with its environments and scheduled tasks');
+        $this->taskLogStepController->completed();
     }
 
     /**
@@ -74,11 +109,24 @@ class Delete extends Execution
         $this->taskLogStepController->new('delete', 'DELETING MIRROR');
         $this->taskLogSubStepController->new('delete-mirror', 'DELETING MIRROR');
 
-        $dir = Mirror::getDirOf($mirror);
         $label = Mirror::getLabel($mirror['Name'], $mirror['Releasever']);
 
         // Make sure no sync is running on the mirror
-        $this->lock($dir);
+        $this->lock(Mirror::getDirOf($mirror));
+
+        $this->removeMirror($mirror);
+
+        $this->taskLogSubStepController->completed('Mirror ' . htmlspecialchars($label) . ' deleted, with its snapshots, environments and scheduled tasks');
+        $this->taskLogStepController->completed();
+    }
+
+    /**
+     *  Delete snapshots, environments, scheduled tasks and directory of a mirror, then the mirror itself
+     *  The mirror must be locked by the caller
+     */
+    private function removeMirror(array $mirror): void
+    {
+        $dir = Mirror::getDirOf($mirror);
 
         // Delete each snapshot with its environments, the mirror directory is deleted afterwards
         foreach ($this->mirrorSnapshotController->getByMirrorId((int) $mirror['Id']) as $snapshot) {
@@ -99,8 +147,5 @@ class Delete extends Execution
         }
 
         $this->mirrorController->delete((int) $mirror['Id']);
-
-        $this->taskLogSubStepController->completed('Mirror ' . htmlspecialchars($label) . ' deleted, with its snapshots, environments and scheduled tasks');
-        $this->taskLogStepController->completed();
     }
 }

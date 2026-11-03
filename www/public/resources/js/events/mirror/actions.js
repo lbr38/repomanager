@@ -231,16 +231,14 @@ $(document).on('click', 'input[name="checkbox-repo"], .snap-env-container:not(.m
  *  Event: the 'Mirror' type of the new repository form opens the mirror creation form
  */
 $(document).on('change', 'input:radio[name="repo-type"][value="mirror"]', function () {
-    mypanel.close('repos/new');
-    mypanel.get('mirrors/new');
+    mypanel.replace('repos/new', 'mirrors/new');
 });
 
 /**
  *  Event: Arch Linux repositories can only be mirrors, the 'arch' package type of the new repository form opens the mirror creation form
  */
 $(document).on('change', 'input:radio[name="package-type"][value="arch"]', function () {
-    mypanel.close('repos/new');
-    mypanel.get('mirrors/new').then(function () {
+    mypanel.replace('repos/new', 'mirrors/new').then(function () {
         $('.slide-panel-container[slide-panel="mirrors/new"] input:radio[name="mirror-package-type"][value="arch"]').prop('checked', true).trigger('change');
     });
 });
@@ -255,8 +253,7 @@ $(document).on('change', 'input:radio[name="mirror-repo-type"]', function () {
         return;
     }
 
-    mypanel.close('mirrors/new');
-    mypanel.get('repos/new').then(function () {
+    mypanel.replace('mirrors/new', 'repos/new').then(function () {
         $('.slide-panel-container[slide-panel="repos/new"] input:radio[name="repo-type"][value="' + repoType + '"]').prop('checked', true).trigger('change');
     });
 });
@@ -290,6 +287,19 @@ function mirrorPrintSnapshotsActions()
             'callback': function () {
                 mirrorClearSelection();
                 mypanel.get('mirrors/env', {
+                    'snapshots': JSON.stringify(selected)
+                });
+            }
+        });
+    }
+
+    // Sync creates a new snapshot of each mirror of the selected snapshots
+    if (myrepopermission.allowedAction('update')) {
+        buttons.push({
+            'text': 'Sync',
+            'callback': function () {
+                mirrorClearSelection();
+                mypanel.get('mirrors/update', {
                     'snapshots': JSON.stringify(selected)
                 });
             }
@@ -435,6 +445,77 @@ document.addEventListener('click', function (e) {
 }, true);
 
 /**
+ *  Same as above the other way round: selecting a mirror snapshot or environment while repositories snapshots or environments
+ *  are selected clears the repositories selection, ask the user to confirm first
+ */
+document.addEventListener('click', function (e) {
+    if (mirrorSelectionGuardBypass || $(e.target).closest('a').length) {
+        return;
+    }
+
+    const target = $(e.target).closest('.mirror-snap-container, .mirror-env-container');
+
+    if (target.length == 0) {
+        return;
+    }
+
+    // Protected environments cannot be selected, the click does nothing
+    if (target.hasClass('mirror-env-container') && (target.attr('data-protected') == 'true' || !myrepopermission.allowedAction('removeEnv'))) {
+        return;
+    }
+
+    const list = $('#repositories-list');
+    const selectedSnapshots = list.find('input[name="checkbox-repo"]:checked');
+    const selectedEnvs = list.find('.select-env-checkbox:checked');
+
+    if (selectedSnapshots.length + selectedEnvs.length == 0) {
+        return;
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const selection = selectedSnapshots.length > 0
+        ? selectedSnapshots.length + ' repository snapshot' + (selectedSnapshots.length > 1 ? 's are' : ' is')
+        : selectedEnvs.length + ' repository environment' + (selectedEnvs.length > 1 ? 's are' : ' is');
+
+    myconfirmbox.print({
+        'title': 'Clear selection',
+        'message': selection + ' selected. Selecting a mirror will clear this selection, do you want to continue?',
+        'id': 'repo-clear-selection-confirm-box',
+        'buttons': [
+            {
+                'text': 'Continue',
+                // The replayed click clears the repositories selection and prints the mirrors confirm box
+                'closeBox': false,
+                'callback': function () {
+                    mirrorSelectionGuardBypass = true;
+                    target[0].click();
+                    mirrorSelectionGuardBypass = false;
+                }
+            },
+            {
+                'text': 'Cancel',
+                'closeBox': false,
+                'callback': function () {
+                    // Print the repositories confirm box again through their own handlers, the selection is unchanged
+                    if (selectedSnapshots.length > 0) {
+                        const checkbox = selectedSnapshots.first();
+
+                        checkbox.prop('checked', false);
+                        mirrorSelectionGuardBypass = true;
+                        checkbox[0].click();
+                        mirrorSelectionGuardBypass = false;
+                    } else {
+                        selectedEnvs.first().trigger('change');
+                    }
+                }
+            }
+        ]
+    });
+}, true);
+
+/**
  *  Event: click on a mirror snapshot to select / unselect it and print the available actions for the selected snapshots
  *  Same behaviour as repositories snapshots: several snapshots, of one or several mirrors, can be selected
  */
@@ -472,42 +553,6 @@ $(document).on('click', '.mirror-env-container', function (e) {
     $(this).toggleClass('env-selected');
 
     mirrorPrintEnvsActions();
-});
-
-/**
- *  Event: delete a whole mirror
- */
-$(document).on('click', '.mirror-delete-btn', function () {
-    const mirrorId = $(this).attr('mirror-id');
-
-    mirrorClearSelection();
-
-    myconfirmbox.print({
-        'title': 'Delete mirror ' + $(this).attr('mirror-name'),
-        'message': 'All snapshots, environments and scheduled tasks of this mirror will be deleted',
-        'id': 'mirror-delete-confirm-box',
-        'buttons': [
-            {
-                'text': 'Delete',
-                'color': 'red',
-                'callback': function () {
-                    mirrorExecuteTasks([{
-                        'action': 'delete',
-                        'mirror-id': mirrorId
-                    }]);
-                }
-            }
-        ]
-    });
-});
-
-/**
- *  Event: open the sync panel of a mirror
- */
-$(document).on('click', '.mirror-sync-btn', function () {
-    mypanel.get('mirrors/update', {
-        'mirror-id': $(this).attr('mirror-id')
-    });
 });
 
 /**
