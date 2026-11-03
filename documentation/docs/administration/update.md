@@ -25,7 +25,7 @@ docker system prune -a -f
 !!! warning "Upgrading to 6.2.0 or later"
     Version ``6.2.0`` adds a new persistent volume for [mirrors](/usage/mirrors/): ``-v /var/lib/docker/volumes/repomanager-mirror:/home/mirror``. Make sure to add it to your ``docker run`` command (or to your ``docker-compose.yml`` / Ansible configuration), otherwise mirrors are stored inside the container and lost when it is recreated.
 
-    *Mirror repositories* are renamed **curated repositories**: the repository type ``mirror`` becomes ``curated`` in the database, in tasks parameters and in the API responses (snapshots ``Type`` field). Existing repositories and scheduled tasks are migrated automatically, but API clients relying on the ``mirror`` value must be updated.
+    *Mirror repositories* are renamed **filtered repositories**: the repository type ``mirror`` becomes ``filtered`` in the database, in tasks parameters and in the API responses (snapshots ``Type`` field). Existing repositories and scheduled tasks are migrated automatically, but API clients relying on the ``mirror`` value must be updated.
 
 Pull and run the new Docker image (specify the **target version** or ``latest`` if you were on the latest version before). You will need to pass the following environment variables to the container:
 

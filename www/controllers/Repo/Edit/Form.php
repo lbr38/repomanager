@@ -45,7 +45,7 @@ class Form
         $repoController = $this->getRepo($params['repo-id'] ?? null);
 
         // Check that the selected source repository is valid
-        if ($repoController->getType() == 'curated') {
+        if ($repoController->getType() == 'filtered') {
             \Controllers\Task\Form\Param\Source::check($params['source'] ?? '', $repoController->getPackageType());
         }
 
@@ -62,7 +62,7 @@ class Form
         $repoId = $repoController->getRepoId();
 
         // Update repository source
-        if ($repoController->getType() == 'curated') {
+        if ($repoController->getType() == 'filtered') {
             $repoController->updateSource($repoId, $params['source']);
         }
 

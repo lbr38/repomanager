@@ -1,6 +1,6 @@
 A **source repository** is a remote repository of packages (``deb``, ``rpm`` or ``arch``) from a third-party publisher (e.g. **Debian official repos**). ``arch`` (Arch Linux / pacman) source repositories can only be used by [mirrors](/usage/mirrors/).
 
-Typically, this is the repository from which you will create a curated repository or a mirror.
+Typically, this is the repository from which you will create a filtered repository or a mirror.
 
 
 ## Add a source repository manually
@@ -21,7 +21,7 @@ From the **REPOSITORIES** tab:
 
 **Step 4:** Click the `Add` button to add the source repository to the list of available source repositories.
 
-**Step 5:** You should now edit the source repository to add more information like distributions and components or release version and import its GPG signing key if any. It is recommended to add as much information as you can as this is used for suggestions when creating a curated repository or a mirror. See [Edit a source repository](#edit-a-source-repository).
+**Step 5:** You should now edit the source repository to add more information like distributions and components or release version and import its GPG signing key if any. It is recommended to add as much information as you can as this is used for suggestions when creating a filtered repository or a mirror. See [Edit a source repository](#edit-a-source-repository).
 
 !!! info "RPM repositories URLs information"
 
@@ -149,7 +149,7 @@ From the **REPOSITORIES** tab:
 
 Import their GPG signing key if any.
 
-It is recommended to add as much information as you can as this is used for suggestions when creating a curated repository or a mirror.
+It is recommended to add as much information as you can as this is used for suggestions when creating a filtered repository or a mirror.
 
 [![Edit a source repository](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/edit-source-repository-2.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/edit-source-repository-2.png)
 

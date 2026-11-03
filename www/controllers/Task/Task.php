@@ -1421,7 +1421,7 @@ class Task
 
             $title = match ($repoType) {
                 'local' => 'New local repository',
-                'curated' => 'New curated repository',
+                'filtered' => 'New filtered repository',
                 default => 'New repository',
             };
             $icon = 'plus.svg';

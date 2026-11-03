@@ -13,7 +13,7 @@
 
 ## Main features
 
-- Create `deb` and `rpm` curated repositories (selected packages from a source repository, rebuilt and signed metadata) and mirrors (upstream repositories copied as is)
+- Create `deb` and `rpm` filtered repositories (selected packages from a source repository, rebuilt and signed metadata) and mirrors (upstream repositories copied as is)
 - Sign packages and repositories with GPG
 - Upload packages into repositories
 - Create environments (e.g., `preprod`, `prod`) and make repositories available only for specific environments

@@ -267,8 +267,8 @@ class Target
                 $params['advanced-params'] = $repoController->getAdvancedParams();
                 $params['gpg-sign'] = $taskParams['gpg-sign'] ?? 'false';
 
-                // GPG check only applies to curated repositories
-                if ($repoController->getType() == 'curated') {
+                // GPG check only applies to filtered repositories
+                if ($repoController->getType() == 'filtered') {
                     $params['gpg-check'] = $taskParams['gpg-check'] ?? 'false';
                 }
 

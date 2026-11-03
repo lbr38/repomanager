@@ -40,8 +40,8 @@
 
 | Parameter | Description |
 |---|---|
-| `PACKAGE DOWNLOAD TIMEOUT (in seconds)` | Maximum time allowed to download a package during a sync (curated repositories and mirrors). |
-| `PACKAGE DOWNLOAD RETRIES` | Number of retries to download a package during a curated repository sync in case of failure. |
+| `PACKAGE DOWNLOAD TIMEOUT (in seconds)` | Maximum time allowed to download a package during a sync (filtered repositories and mirrors). |
+| `PACKAGE DOWNLOAD RETRIES` | Number of retries to download a package during a filtered repository sync in case of failure. |
 | `PACKAGE CHECKSUM MATCH FAILURE` | If a package checksum does not match the expected checksum, this parameter allows you to choose what to do in this case. |
 
 ### Rpm
@@ -49,11 +49,11 @@
 | Parameter | Description |
 |---|---|
 | `ENABLE RPM REPOSITORIES` | Enable RPM package repositories. |
-| `SIGN PACKAGES WITH GPG` | Enable the signing of RPM packages when creating a RPM package repository (curated or local repository). Packages will be signed using the GPG signing key specified by the `GPG KEY ID` parameter. |
+| `SIGN PACKAGES WITH GPG` | Enable the signing of RPM packages when creating a RPM package repository (filtered or local repository). Packages will be signed using the GPG signing key specified by the `GPG KEY ID` parameter. |
 | `DEFAULT RELEASE VERSION` | Default release version to use when creating RPM repositories. |
 | `DEFAULT PACKAGE ARCHITECTURE` | Default package architecture to use when creating RPM repositories. |
 
-#### Rpm curated repositories settings
+#### Rpm filtered repositories settings
 
 | Parameter | Description |
 |---|---|
@@ -67,10 +67,10 @@
 | Parameter | Description |
 |---|---|
 | `ENABLE DEB REPOSITORIES` | Enable DEB package repositories. |
-| `SIGN REPOSITORIES WITH GPG` | Enable the signing of DEB repositories when creating a DEB package repository (curated or local repository). The repository metadata will be signed using the GPG signing key specified by the `GPG KEY ID` parameter. |
+| `SIGN REPOSITORIES WITH GPG` | Enable the signing of DEB repositories when creating a DEB package repository (filtered or local repository). The repository metadata will be signed using the GPG signing key specified by the `GPG KEY ID` parameter. |
 | `DEFAULT PACKAGE ARCHITECTURE` | Default package architecture to use when creating DEB repositories. |
 
-#### Deb curated repositories settings
+#### Deb filtered repositories settings
 
 | Parameter | Description |
 |---|---|

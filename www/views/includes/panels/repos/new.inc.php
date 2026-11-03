@@ -18,10 +18,10 @@
         </div>
 
         <h6 class="required">REPOSITORY TYPE</h6>
-        <p class="note">Curated: packages selected from a source repository, metadata rebuilt and signed by Repomanager. Local: your own packages. Mirror: upstream repository copied as is, with its original metadata and signatures.</p>
+        <p class="note">Filtered: packages selected from a source repository, metadata rebuilt and signed by Repomanager. Local: your own packages. Mirror: upstream repository copied as is, with its original metadata and signatures.</p>
         <div class="switch-field">
-            <input type="radio" id="repo-type_curated" class="task-param" param-name="repo-type" name="repo-type" value="curated" package-type="all" checked />
-            <label for="repo-type_curated">Curated</label>
+            <input type="radio" id="repo-type_filtered" class="task-param" param-name="repo-type" name="repo-type" value="filtered" package-type="all" checked />
+            <label for="repo-type_filtered">Filtered</label>
             <input type="radio" id="repo-type_local" class="task-param" param-name="repo-type" name="repo-type" value="local" package-type="all" />
             <label for="repo-type_local">Local</label>
             <!-- Mirrors have their own form, selecting this type opens it (see events/mirror/actions.js) -->
@@ -29,19 +29,19 @@
             <label for="repo-type_mirror">Mirror</label>
         </div>
 
-        <div field-type="curated rpm deb">
+        <div field-type="filtered rpm deb">
             <h6 class="required">SOURCE REPOSITORY</h6>
             <p class="note">The repository to get packages from. Want more? <span class="note pointer lowopacity get-panel-btn" panel="repos/sources/list">Add or import a source repository</span>.</p>
 
-            <div field-type="curated rpm">
+            <div field-type="filtered rpm">
                 <?php
                 if (RPM_REPO == 'true') :
                     if (empty($rpmSourcesList)) {
-                        echo '<div class="flex align-item-center column-gap-5 margin-top-10" field-type="curated rpm"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /><p class="note">No rpm source repositories available. Please add a source repository first.</p></div>';
+                        echo '<div class="flex align-item-center column-gap-5 margin-top-10" field-type="filtered rpm"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /><p class="note">No rpm source repositories available. Please add a source repository first.</p></div>';
                     }
 
                     if (!empty($rpmSourcesList)) : ?>
-                        <select class="task-param" param-name="source" field-type="curated rpm" package-type="rpm">
+                        <select class="task-param" param-name="source" field-type="filtered rpm" package-type="rpm">
                             <option value="">Select a source repository</option>
                             <?php
                             foreach ($rpmSourcesList as $source) {
@@ -55,15 +55,15 @@
                 endif ?>
             </div>
 
-            <div field-type="curated deb">
+            <div field-type="filtered deb">
                 <?php
                 if (DEB_REPO == 'true') :
                     if (empty($debSourcesList)) {
-                        echo '<div class="flex align-item-center column-gap-5 margin-top-10" field-type="curated deb"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /><p class="note">No deb source repositories available. Please add a source repository first.</p></div>';
+                        echo '<div class="flex align-item-center column-gap-5 margin-top-10" field-type="filtered deb"><img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" /><p class="note">No deb source repositories available. Please add a source repository first.</p></div>';
                     }
 
                     if (!empty($debSourcesList)) : ?>
-                        <select class="task-param" param-name="source" field-type="curated deb" package-type="deb">
+                        <select class="task-param" param-name="source" field-type="filtered deb" package-type="deb">
                             <option value="">Select a source repository</option>
                             <?php
                             foreach ($debSourcesList as $source) {
@@ -79,7 +79,7 @@
         </div>
 
         <div>
-            <div field-type="curated rpm deb">
+            <div field-type="filtered rpm deb">
                 <h6>REPOSITORY NAME</h6>
                 <p class="note">Optional. Default will be the source repository name.</p>
             </div>
@@ -91,13 +91,13 @@
             <input type="text" class="task-param" param-name="alias" package-type="all" />
         </div>
 
-        <div field-type="curated local rpm">
+        <div field-type="filtered local rpm">
             <h6 class="required">RELEASE VERSION</h6>
             <p class="note">Select or enter the release version.</p>
             <select class="task-param" param-name="releasever" package-type="rpm" multiple></select>
         </div>
 
-        <div field-type="curated local deb">
+        <div field-type="filtered local deb">
             <h6 class="required">DISTRIBUTION</h6>
             <p class="note">Select or enter the distribution.</p>
             <select class="task-param" param-name="dist" package-type="deb" multiple></select>
@@ -107,17 +107,17 @@
             <select class="task-param" param-name="section" package-type="deb" multiple></select>
         </div>
 
-        <div field-type="curated local rpm deb">
-            <div field-type="curated local rpm deb">
+        <div field-type="filtered local rpm deb">
+            <div field-type="filtered local rpm deb">
                 <h6 class="required">ARCHITECTURE</h6>
-                <div field-type="curated rpm deb">
+                <div field-type="filtered rpm deb">
                     <p class="note">Select the package architecture to sync.</p>
                 </div>
                 <div field-type="local rpm deb">
                     <p class="note">Select the package architecture which will be available in the local repository.</p>
                 </div>
 
-                <div field-type="curated local rpm">
+                <div field-type="filtered local rpm">
                     <select class="task-param" param-name="arch" package-type="rpm" multiple>
                         <?php
                         foreach (RPM_ARCHS as $arch) {
@@ -129,7 +129,7 @@
                         } ?>
                     </select>
 
-                    <div field-type="curated rpm">
+                    <div field-type="filtered rpm">
                         <div id="rpm-multiple-archs-warning" class="hide">
                             <div class="flex align-item-center column-gap-5 margin-top-10">
                                 <img src="/assets/icons/warning.svg" class="icon vertical-align-text-top" />
@@ -139,7 +139,7 @@
                     </div>
                 </div>
 
-                <div field-type="curated local deb">
+                <div field-type="filtered local deb">
                     <select class="task-param" param-name="arch" package-type="deb" multiple>
                         <?php
                         foreach (DEB_ARCHS as $arch) {
@@ -199,7 +199,7 @@
             <?php
         endif ?>
 
-        <div field-type="curated rpm deb">
+        <div field-type="filtered rpm deb">
             <h6>GPG PARAMETERS</h6>
 
             <h6>CHECK GPG SIGNATURES</h6>
@@ -211,11 +211,11 @@
 
             <h6>SIGN WITH GPG</h6>
             <p class="note">Sign repository / packages with GPG.</p>
-            <label class="onoff-switch-label" field-type="curated rpm">
+            <label class="onoff-switch-label" field-type="filtered rpm">
                 <input type="checkbox" class="onoff-switch-input task-param type_rpm" value="true" param-name="gpg-sign" package-type="rpm" <?php echo (RPM_SIGN_PACKAGES == "true") ? 'checked' : ''; ?> />
                 <span class="onoff-switch-slider"></span>
             </label>
-            <label class="onoff-switch-label" field-type="curated deb">
+            <label class="onoff-switch-label" field-type="filtered deb">
                 <input type="checkbox" class="onoff-switch-input task-param type_deb" value="true" param-name="gpg-sign" package-type="deb" <?php echo (DEB_SIGN_REPO == "true") ? 'checked' : ''; ?> />
                 <span class="onoff-switch-slider"></span>
             </label>
@@ -227,7 +227,7 @@
         </div>
 
         <div id="advanced-params" class="hide">
-            <div field-type="curated rpm deb">
+            <div field-type="filtered rpm deb">
                 <h6>KEEP LATEST x VERSIONS OF PACKAGES</h6>
                 <p class="note">Keep only the latest x versions of packages in the repository. Older versions will be ignored.</p>
                 <input type="number" class="task-param" param-name="advanced-params.packages.keep-latest" package-type="all" min="1" placeholder="e.g. 5" />
@@ -243,7 +243,7 @@
                 <select class="task-param" param-name="advanced-params.packages.exclude" package-type="all" multiple></select>
             </div>
 
-            <div field-type="curated local rpm">
+            <div field-type="filtered local rpm">
                 <h6>METADATA SYNC</h6>
                 <p class="note">Sync additional metadata files from the source repository.</p>
 
@@ -280,7 +280,7 @@
                 </div>
             </div>
 
-            <div field-type="curated local deb">
+            <div field-type="filtered local deb">
                 <h6>METADATA CUSTOM FIELDS</h6>
 
                 <div class="margin-left-15">

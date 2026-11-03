@@ -84,11 +84,11 @@ if ($repo['Package_type'] == 'rpm') {
                 endif;
 
                 // Source repository, followed by the repository type in a discreet way
-                if ($repo['Type'] == 'curated') : ?>
-                    <div class="flex align-item-center column-gap-5" title="Curated repository, built from the <?= htmlspecialchars($repo['Source']) ?> source repository (packages selected, metadata rebuilt).">
+                if ($repo['Type'] == 'filtered') : ?>
+                    <div class="flex align-item-center column-gap-5" title="Filtered repository, built from the <?= htmlspecialchars($repo['Source']) ?> source repository (packages selected, metadata rebuilt).">
                         <img src="/assets/icons/internet.svg" class="icon-np icon-medium" />
                         <span class="font-size-13"><?= htmlspecialchars($repo['Source']) ?></span>
-                        <span class="font-size-13 lowopacity-cst">● curated</span>
+                        <span class="font-size-13 lowopacity-cst">● filtered</span>
                     </div>
                     <?php
                 endif ?>

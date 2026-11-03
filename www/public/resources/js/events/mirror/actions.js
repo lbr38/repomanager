@@ -244,7 +244,7 @@ $(document).on('change', 'input:radio[name="package-type"][value="arch"]', funct
 });
 
 /**
- *  Event: the 'Curated' and 'Local' types of the mirror creation form open the new repository form
+ *  Event: the 'Filtered' and 'Local' types of the mirror creation form open the new repository form
  */
 $(document).on('change', 'input:radio[name="mirror-repo-type"]', function () {
     const repoType = $(this).val();

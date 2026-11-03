@@ -1,10 +1,10 @@
 ## What is a mirror?
 
-Since version `6.2.0`, Repomanager can create **mirrors**: copies of upstream deb, rpm or Arch Linux (pacman) repositories **as is**. Mirrors are listed with the other repositories in the **REPOSITORIES** tab, and can be added to groups like any repository. They are identified by the `mirror` label on their card (curated repositories have the `curated` label).
+Since version `6.2.0`, Repomanager can create **mirrors**: copies of upstream deb, rpm or Arch Linux (pacman) repositories **as is**. Mirrors are listed with the other repositories in the **REPOSITORIES** tab, and can be added to groups like any repository. They are identified by the `mirror` label on their card (filtered repositories have the `filtered` label).
 
-Unlike [curated repositories](/usage/operations/#create-a-curated-repository), nothing is rebuilt:
+Unlike [filtered repositories](/usage/operations/#create-a-filtered-repository), nothing is rebuilt:
 
-| | Curated repository | Mirror |
+| | Filtered repository | Mirror |
 |---|---|---|
 | Metadata (`Release`, `Packages`, `repomd.xml`, `core.db`...) | Rebuilt by Repomanager | Upstream files, byte for byte |
 | GPG signature checked by clients | Repomanager signing key | **Upstream key** (e.g. Debian, Rocky Linux, nginx...) |

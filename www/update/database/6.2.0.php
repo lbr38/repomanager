@@ -23,16 +23,16 @@ try {
 }
 
 /**
- *  Repositories built from a source repository (previously named 'mirror' repositories) are now named 'curated' repositories,
+ *  Repositories built from a source repository (previously named 'mirror' repositories) are now named 'filtered' repositories,
  *  'mirror' now designates upstream repositories copied as is
  */
 try {
-    $this->db->exec("UPDATE repos_snap SET Type = 'curated' WHERE Type = 'mirror'");
+    $this->db->exec("UPDATE repos_snap SET Type = 'filtered' WHERE Type = 'mirror'");
 
     // Tasks parameters (scheduled tasks and history), including sub-tasks of grouped tasks
-    $this->db->exec("UPDATE tasks SET Raw_params = REPLACE(Raw_params, '\"repo-type\":\"mirror\"', '\"repo-type\":\"curated\"') WHERE Raw_params LIKE '%\"repo-type\":\"mirror\"%'");
+    $this->db->exec("UPDATE tasks SET Raw_params = REPLACE(Raw_params, '\"repo-type\":\"mirror\"', '\"repo-type\":\"filtered\"') WHERE Raw_params LIKE '%\"repo-type\":\"mirror\"%'");
 } catch (Exception $e) {
-    throw new Exception('could not rename mirror repositories to curated repositories: ' . $e->getMessage());
+    throw new Exception('could not rename mirror repositories to filtered repositories: ' . $e->getMessage());
 }
 
 // Add 'Retention' column to repos and mirrors tables (NULL: global setting, -1: keep all snapshots)

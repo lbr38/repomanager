@@ -1,7 +1,7 @@
-## :material-plus-circle: Create a curated repository
+## :material-plus-circle: Create a filtered repository
 
-!!! info "Curated repositories and mirrors"
-    A **curated repository** is built from a source repository: you select the packages to sync (architectures, include / exclude, latest versions), then Repomanager rebuilds the metadata and can sign them with its own GPG key. Curated repositories were named *mirror repositories* before version `6.2.0`.
+!!! info "Filtered repositories and mirrors"
+    A **filtered repository** is built from a source repository: you select the packages to sync (architectures, include / exclude, latest versions), then Repomanager rebuilds the metadata and can sign them with its own GPG key. Filtered repositories were named *mirror repositories* before version `6.2.0`.
 
     To copy an upstream repository as is, with its original metadata and signatures, create a [mirror](/usage/mirrors/) instead.
 
@@ -11,16 +11,16 @@ From the **REPOSITORIES** tab:
 
 **Step 2:** Click the ``Create a new repository`` button to show the **NEW REPOSITORY** panel.
 
-[![Create a curated repository](https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository-btn.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository-btn.png)
+[![Create a filtered repository](https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository-btn.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository-btn.png)
 
-**Step 3:** Select ``Curated`` as the repository type then complete all the required fields.
+**Step 3:** Select ``Filtered`` as the repository type then complete all the required fields.
 
-[![Create a curated repository](https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository.png)
+[![Create a filtered repository](https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository.png)
 
 **Step 4:** Click the `Execute now` button to launch the sync task.
 
 !!! info
-    The `REPOSITORY NAME` field is optional. If none is specified, the repository will have the same name as the source repository (e.g., if the source repository is named `nginx`, then the curated repository will also be named `nginx`).
+    The `REPOSITORY NAME` field is optional. If none is specified, the repository will have the same name as the source repository (e.g., if the source repository is named `nginx`, then the filtered repository will also be named `nginx`).
 
 
 ## :material-plus-circle: Create a local repository
@@ -41,11 +41,11 @@ From the **REPOSITORIES** tab:
     Local repositories are always empty when created. You must then add your own `rpm` or `deb` packages by uploading them. See [Upload package(s) in a repository](#upload-packages-in-a-repository).
 
 
-## :material-autorenew: Update an existing curated repository
+## :material-autorenew: Update an existing filtered repository
 
 From the **REPOSITORIES** tab:
 
-**Step 1:** Select the repository snapshot from which you want to update the curated repository.
+**Step 1:** Select the repository snapshot from which you want to update the filtered repository.
 
 [![Select a snapshot](https://assets.repomanager.net/repomanager/6.0.0/usage/operations/select-snapshot.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/operations/select-snapshot.png)
 

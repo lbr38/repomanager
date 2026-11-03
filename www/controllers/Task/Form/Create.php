@@ -70,8 +70,8 @@ class Create
             $targetName = $formParams['alias'];
         }
 
-        // If the selected repo type is 'curated' then we check additional parameters
-        if ($formParams['repo-type'] == 'curated') {
+        // If the selected repo type is 'filtered' then we check additional parameters
+        if ($formParams['repo-type'] == 'filtered') {
             // Check source
             Param\Source::check($formParams['source'], $formParams['package-type']);
 

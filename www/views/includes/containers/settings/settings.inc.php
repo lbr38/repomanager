@@ -138,11 +138,11 @@
             <h5>GLOBAL SYNC SETTINGS</h5>
 
             <h6 class="required">PACKAGE DOWNLOAD TIMEOUT (in seconds)</h6>
-            <p class="note">Maximum time allowed to download a package during a sync (curated repositories and mirrors).</p>
+            <p class="note">Maximum time allowed to download a package during a sync (filtered repositories and mirrors).</p>
             <input class="settings-param" param-name="mirrorPackageDownloadTimeout" min="1" type="number" value="<?= MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT ?>" placeholder="Default is 300">
 
             <h6 class="required">PACKAGE DOWNLOAD RETRIES</h6>
-            <p class="note">Number of retries to download a package during a curated repository sync in case of failure.</p>
+            <p class="note">Number of retries to download a package during a filtered repository sync in case of failure.</p>
             <input class="settings-param" param-name="mirror-package-download-retries" min="0" type="number" value="<?= MIRRORING_PACKAGE_DOWNLOAD_RETRIES ?>" placeholder="Default is 3">
 
             <h6 class="required">PACKAGE CHECKSUM MATCH FAILURE</h6>
@@ -167,7 +167,7 @@
             <?php
             if (RPM_REPO == 'true') : ?>
                 <h6>SIGN PACKAGES WITH GPG</h6>
-                <p class="note">Enable the signing of RPM packages when creating a RPM package repository (curated or local repository). Packages will be signed using the GPG signing key specified by the <code>GPG KEY ID</code> parameter.</p>
+                <p class="note">Enable the signing of RPM packages when creating a RPM package repository (filtered or local repository). Packages will be signed using the GPG signing key specified by the <code>GPG KEY ID</code> parameter.</p>
                 <label class="onoff-switch-label">
                     <input class="settings-param onoff-switch-input" param-name="rpmSignPackages" type="checkbox" value="true" <?php echo (RPM_SIGN_PACKAGES == "true") ? 'checked' : ''; ?>>
                     <span class="onoff-switch-slider"></span>
@@ -205,7 +205,7 @@
 
                 <hr class="margin-top-20 margin-bottom-20">
 
-                <h5 title="RPM curated repositories settings">RPM CURATED REPOSITORIES SETTINGS</h5>
+                <h5 title="RPM filtered repositories settings">RPM FILTERED REPOSITORIES SETTINGS</h5>
 
                 <h6 class="required">WHEN PACKAGE SIGNATURE IS MISSING</h6>
                 <p class="note">A package retrieved from a remote repository may not be signed at all (for example, the publisher released the package forgetting to sign it). This parameter allows you to choose what to do in this case.</p>
@@ -247,7 +247,7 @@
             <?php
             if (DEB_REPO == 'true') : ?>
                 <h6>SIGN REPOSITORIES WITH GPG</h6>
-                <p class="note">Enable the signing of DEB repositories when creating a DEB package repository (curated or local repository). The repository metadata will be signed using the GPG signing key specified by the <code>GPG KEY ID</code> parameter.</p>
+                <p class="note">Enable the signing of DEB repositories when creating a DEB package repository (filtered or local repository). The repository metadata will be signed using the GPG signing key specified by the <code>GPG KEY ID</code> parameter.</p>
                 <label class="onoff-switch-label">
                     <input class="settings-param onoff-switch-input" param-name="debSignRepo" type="checkbox" value="true" <?php echo (DEB_SIGN_REPO == 'true') ? 'checked' : ''; ?>>
                     <span class="onoff-switch-slider"></span>
@@ -272,7 +272,7 @@
 
                 <hr class="margin-top-20 margin-bottom-20">
 
-                <h5 title="DEB curated repositories settings">DEB CURATED REPOSITORIES SETTINGS</h5>
+                <h5 title="DEB filtered repositories settings">DEB FILTERED REPOSITORIES SETTINGS</h5>
 
                 <h6 class="required">ALLOW SYNC OF EMPTY REPOSITORIES</h6>
                 <p class="note">Allow the sync of empty source repositories (repositories with empty <code>Packages</code> indices file).</p>

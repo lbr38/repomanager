@@ -59,7 +59,7 @@
             </select>
 
             <h6>CHECK GPG SIGNATURES</h6>
-            <p class="note">Check GPG signature of repository / packages. Only applies to curated repositories, mirrors keep their own setting.</p>
+            <p class="note">Check GPG signature of repository / packages. Only applies to filtered repositories, mirrors keep their own setting.</p>
             <label class="onoff-switch-label">
                 <input type="checkbox" class="onoff-switch-input scheduled-task-param" param-name="gpg-check" value="true" checked />
                 <span class="onoff-switch-slider"></span>

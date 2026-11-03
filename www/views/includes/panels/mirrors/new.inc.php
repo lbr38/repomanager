@@ -13,12 +13,12 @@
         </div>
 
         <h6 class="required">REPOSITORY TYPE</h6>
-        <p class="note" mirror-field="rpm deb">Curated: packages selected from a source repository, metadata rebuilt and signed by Repomanager. Local: your own packages. Mirror: upstream repository copied as is, with its original metadata and signatures.</p>
+        <p class="note" mirror-field="rpm deb">Filtered: packages selected from a source repository, metadata rebuilt and signed by Repomanager. Local: your own packages. Mirror: upstream repository copied as is, with its original metadata and signatures.</p>
         <p class="note" mirror-field="arch">Arch Linux repositories can only be mirrored.</p>
         <div class="switch-field" mirror-field="rpm deb">
-            <!-- Curated and local repositories have their own form, selecting these types opens it (see events/mirror/actions.js) -->
-            <input type="radio" id="mirror-repo-type-curated" name="mirror-repo-type" value="curated" />
-            <label for="mirror-repo-type-curated">Curated</label>
+            <!-- Filtered and local repositories have their own form, selecting these types opens it (see events/mirror/actions.js) -->
+            <input type="radio" id="mirror-repo-type-filtered" name="mirror-repo-type" value="filtered" />
+            <label for="mirror-repo-type-filtered">Filtered</label>
             <input type="radio" id="mirror-repo-type-local" name="mirror-repo-type" value="local" />
             <label for="mirror-repo-type-local">Local</label>
             <input type="radio" id="mirror-repo-type-mirror" name="mirror-repo-type" value="mirror" checked />
