@@ -90,8 +90,11 @@ jobs:
           echo "$COUNT package(s) mirrored"
           test "$COUNT" -gt 0
 
+      # Snapshots directories are named after their date and time (second precision), wait to avoid a name collision with the previous snapshot
       - name: Run job - Sync mirror
-        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='2'" www-data
+        run: |
+          sleep 1
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='2'" www-data
 
       # Snapshots directories are named after their date and time (e.g. 2026-11-05_093012)
       - name: Check new snapshot
