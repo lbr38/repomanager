@@ -25,6 +25,19 @@ class Notify extends Task
      */
     private function generateRepository(array $taskRawParams) : array
     {
+        // Case of a mirror task: the mirror label (from the database, or from the repo-info stored in the task) and the environment(s) to point, if any
+        if (($taskRawParams['domain'] ?? '') == 'mirror') {
+            $details = [
+                'repository' => $this->getRepoFromParams($taskRawParams)
+            ];
+
+            if (!empty($taskRawParams['env'])) {
+                $details['environment'] = (array) $taskRawParams['env'];
+            }
+
+            return $details;
+        }
+
         $repoController = new \Controllers\Repo\Repo();
 
         // Case the action is 'create'

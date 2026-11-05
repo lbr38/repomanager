@@ -170,6 +170,11 @@ class Execution extends \Controllers\Task\Execution
             Mirror::checkArchRepos($params['repos']);
         }
 
+        // Only retrieve the metadata, used to test the source repository templates (not available from the interface)
+        if (($this->params['metadata-only'] ?? 'false') == 'true') {
+            $params['metadata-only'] = 'true';
+        }
+
         return $params;
     }
 

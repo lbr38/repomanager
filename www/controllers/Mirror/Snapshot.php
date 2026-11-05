@@ -122,6 +122,8 @@ class Snapshot
             return $deleted;
         }
 
+        $scheduledTaskController = new \Controllers\Task\Scheduled();
+
         foreach ($this->model->getUnused($mirrorId, max($retention, 1)) as $snapshot) {
             $dirName = Mirror::getSnapshotDirName($snapshot['Date'], $snapshot['Time']);
             $path = Mirror::getPath($mirrorDir) . '/' . $dirName;
@@ -131,6 +133,10 @@ class Snapshot
             }
 
             $this->model->delete((int) $snapshot['Id']);
+
+            // Delete any scheduled tasks that were using this snapshot
+            $scheduledTaskController->deleteByMirrorSnapId((int) $snapshot['Id']);
+
             $deleted[] = $dirName;
         }
 
@@ -149,6 +155,9 @@ class Snapshot
         }
 
         $this->model->delete((int) $snapshot['Id']);
+
+        // Delete any scheduled tasks that were using this snapshot
+        (new \Controllers\Task\Scheduled())->deleteByMirrorSnapId((int) $snapshot['Id']);
     }
 
     /**

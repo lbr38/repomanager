@@ -241,4 +241,12 @@ From the `SETTINGS` tab and the `USERS` section:
 
 **Step 3:** Save.
 
+
+### Login protection
+
+Local accounts are protected against brute force attacks: when 10 failed login attempts have been made for the same username from the same IP address within the last 15 minutes, further logins with this username are refused from this IP address (refused attempts are also counted as failed attempts). SSO accounts are not concerned.
+
+!!! warning "Behind a reverse proxy"
+    The IP address taken into account is the one connecting to the Repomanager container. Behind a reverse proxy, this is the IP address of the reverse proxy: the failed attempts of all clients are then counted together, and anyone able to reach the login page can temporarily block the login of a local account (including administrator accounts) by sending failed attempts with its username. Consider restricting access to the Repomanager web interface to trusted networks on your reverse proxy.
+
 <script data-goatcounter="https://repomanager.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>

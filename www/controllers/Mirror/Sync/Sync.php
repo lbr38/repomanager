@@ -247,8 +247,23 @@ abstract class Sync
     protected function fetchPackages(array $packages, string $note = ''): void
     {
         $this->taskLogSubStepController->new('retrieve-packages', 'DOWNLOADING PACKAGES', $note);
+
+        if ($this->metadataOnly()) {
+            $this->taskLogSubStepController->completed(count(array_unique(array_column($packages, 'path'))) . ' package(s) found, not retrieved (metadata only)', 'retrieve-packages');
+            return;
+        }
+
         $this->fetch($packages, false, false, false, 'DOWNLOADING PACKAGE');
         $this->taskLogSubStepController->completed($this->stats['total'] . ' package(s): ' . $this->fetchSummary(), 'retrieve-packages');
+    }
+
+    /**
+     *  Return true if only the metadata must be retrieved, without the packages
+     *  Only used to test the source repository templates (see update/database/ci/test-templates), mirroring all of them would be too large
+     */
+    protected function metadataOnly(): bool
+    {
+        return ($this->params['metadata-only'] ?? 'false') == 'true';
     }
 
     /**

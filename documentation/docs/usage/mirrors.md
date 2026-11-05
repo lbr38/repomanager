@@ -182,5 +182,6 @@ Mirrors use the repositories permissions (see [Users](/configuration/settings/#u
 - arch: most repositories, including Arch Linux official ones, do not sign their database (`<repo>.db.sig`). In this case the sync prints a note, the snapshot is labelled `Unsigned database`, and packages signatures (`.sig` files, mirrored with the packages) are checked by pacman on clients.
 - arch: the `<repo>.db.tar.gz` and `<repo>.files.tar.gz` aliases of upstream mirrors are not created, pacman only uses `<repo>.db` and `<repo>.files`.
 - Directory listing of `/mirror/` is disabled by default, see [Enable repository web browsing](/reference/miscellaneous/#enable-repository-web-browsing).
+- Mirrors cannot be added to [host profiles](/usage/hosts/#profiles): hosts configured from a profile (e.g. with linupdate) do not get the mirrors configuration automatically, configure them with the commands of the `Install` button (see [Configure clients](#configure-clients)).
 
 <script data-goatcounter="https://repomanager.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>

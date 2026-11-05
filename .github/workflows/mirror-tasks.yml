@@ -1,0 +1,149 @@
+name: Run mirror tasks
+
+on:
+  push:
+
+jobs:
+  run-mirror-tasks:
+    name: run-${{ matrix.type }}-mirror-tasks
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    container:
+      image: lbr38/repomanager:latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Debian bookworm and bookworm-updates distributions, contrib component, amd64
+          - type: deb
+            dir: /home/mirror/deb/debian
+            metadata: dists/bookworm/InRelease
+            packages: '*.deb'
+          # nginx for RHEL 6 (repository that does not change anymore), x86_64
+          - type: rpm
+            dir: /home/mirror/rpm/nginx/6
+            metadata: x86_64/repodata/repomd.xml
+            packages: '*.rpm'
+          # Arch Linux multilib and multilib-testing repositories, x86_64
+          - type: arch
+            dir: /home/mirror/arch/archlinux
+            metadata: multilib/os/x86_64/multilib.db
+            packages: '*.pkg.tar.zst'
+    # Queries returning a value use 'sqlite3 -noheader -list': the image sqlite3 configuration (/root/.sqliterc) prints headers and columns
+    env:
+      DB: /var/lib/repomanager/db/repomanager.db
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Print PHP version
+        run: php --version
+
+      # Copy latest source code to the root directory
+      - name: Setup latest source code
+        run: |
+          rm -fr /var/www/repomanager
+          mkdir -p /var/www/repomanager
+          cp -r $GITHUB_WORKSPACE/www/* /var/www/repomanager/
+          cp $GITHUB_WORKSPACE/www/version /var/lib/repomanager/version.available
+          echo "repomanager-ci.localhost" > /var/www/repomanager/.fqdn
+          chown -R www-data:www-data /var/www/repomanager /var/lib/repomanager
+
+      # Entrypoint is not executed, so we need to run most of the commands manually
+      - name: Execute entrypoint
+        run: |
+          /bin/bash /var/www/repomanager/bin/repomanager -p
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/initialize.php" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php" www-data
+
+      # The debian source repository is imported by default, the other ones must be imported
+      - name: Import source repository
+        if: matrix.type != 'deb'
+        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/mirror/${{ matrix.type }}/source'" www-data
+
+      # Create mirror tasks jobs in database
+      - name: Create mirror tasks jobs
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/mirror/${{ matrix.type }}/create'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/mirror/update'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/mirror/env'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/mirror/remove-env'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/mirror/delete-snapshot'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/mirror/delete'" www-data
+
+      # Create some environments for the tasks to run
+      - name: Set basic configuration
+        run: |
+          sqlite3 $DB "INSERT INTO env ('Name') VALUES ('pprd');"
+          sqlite3 $DB "INSERT INTO env ('Name') VALUES ('prod');"
+
+      # Run mirror tasks
+      - name: Run job - Create mirror
+        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='1'" www-data
+
+      - name: Check mirror content
+        run: |
+          ls -l ${{ matrix.dir }}
+          test -f ${{ matrix.dir }}/pprd/${{ matrix.metadata }}
+          COUNT=$(find -L ${{ matrix.dir }}/pprd -name '${{ matrix.packages }}' | wc -l)
+          echo "$COUNT package(s) mirrored"
+          test "$COUNT" -gt 0
+
+      - name: Run job - Sync mirror
+        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='2'" www-data
+
+      # Snapshots directories are named after their date and time (e.g. 2026-11-05_093012)
+      - name: Check new snapshot
+        run: |
+          SNAPSHOT_1=$(sqlite3 -noheader -list $DB "SELECT Date || '_' || replace(Time, ':', '') FROM mirrors_snap WHERE Id = 1")
+          SNAPSHOT_2=$(sqlite3 -noheader -list $DB "SELECT Date || '_' || replace(Time, ':', '') FROM mirrors_snap WHERE Id = 2")
+          echo "SNAPSHOT_1=$SNAPSHOT_1" >> $GITHUB_ENV
+          echo "SNAPSHOT_2=$SNAPSHOT_2" >> $GITHUB_ENV
+          ls -l ${{ matrix.dir }}
+          test -d ${{ matrix.dir }}/$SNAPSHOT_1
+          test -d ${{ matrix.dir }}/$SNAPSHOT_2
+          test "$(readlink ${{ matrix.dir }}/pprd)" = "$SNAPSHOT_2"
+          # Unchanged packages are hard linked from the previous snapshot instead of being downloaded again
+          LINKED=$(find ${{ matrix.dir }}/$SNAPSHOT_2 -name '${{ matrix.packages }}' -links +1 | wc -l)
+          echo "$LINKED package(s) reused from the previous snapshot"
+          test "$LINKED" -gt 0
+
+      - name: Run job - Point environment to mirror snapshot
+        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='3'" www-data
+
+      - name: Check environment
+        run: |
+          ls -l ${{ matrix.dir }}
+          test "$(readlink ${{ matrix.dir }}/prod)" = "$SNAPSHOT_1"
+          test -f ${{ matrix.dir }}/prod/${{ matrix.metadata }}
+
+      - name: Run job - Remove mirror environment
+        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='4'" www-data
+
+      - name: Check environment removal
+        run: |
+          ls -l ${{ matrix.dir }}
+          test ! -e ${{ matrix.dir }}/prod
+          test "$(sqlite3 -noheader -list $DB "SELECT COUNT(*) FROM mirrors_env WHERE Env = 'prod'")" = "0"
+
+      - name: Run job - Delete mirror snapshot
+        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='5'" www-data
+
+      - name: Check snapshot deletion
+        run: |
+          ls -l ${{ matrix.dir }}
+          test ! -e ${{ matrix.dir }}/$SNAPSHOT_1
+          test -f ${{ matrix.dir }}/pprd/${{ matrix.metadata }}
+          test "$(sqlite3 -noheader -list $DB "SELECT COUNT(*) FROM mirrors_snap")" = "1"
+
+      - name: Run job - Delete mirror
+        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='6'" www-data
+
+      - name: Check mirror deletion
+        run: |
+          ls -lR /home/mirror
+          test ! -e ${{ matrix.dir }}
+          test "$(sqlite3 -noheader -list $DB "SELECT COUNT(*) FROM mirrors")" = "0"
+          test "$(sqlite3 -noheader -list $DB "SELECT COUNT(*) FROM mirrors_snap")" = "0"
+          test "$(sqlite3 -noheader -list $DB "SELECT COUNT(*) FROM mirrors_env")" = "0"

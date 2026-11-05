@@ -26,20 +26,20 @@ class Scheduled extends Task
     {
         $tasksUsingSnapId = [];
 
-        // Get scheduled tasks
-        $scheduledTasks = $this->taskListingController->getScheduled();
+        foreach ($this->taskListingController->getScheduled() as $scheduledTask) {
+            try {
+                $taskParams = json_decode($scheduledTask['Raw_params'], true, 512, JSON_THROW_ON_ERROR);
+            } catch (JsonException $e) {
+                throw new Exception('Cannot decode scheduled task #' . $scheduledTask['Id'] . ' parameters: ' . $e->getMessage());
+            }
 
-        if (!empty($scheduledTasks)) {
-            foreach ($scheduledTasks as $scheduledTask) {
-                try {
-                    $taskParams = json_decode($scheduledTask['Raw_params'], true);
-                } catch (JsonException $e) {
-                    throw new Exception('Cannot decode scheduled task #' . $scheduledTask['Id'] . ' parameters: ' . $e->getMessage());
-                }
+            // A scheduled task grouping several tasks is using this snapshot if one of its sub-tasks is using it
+            $tasksParams = !empty($taskParams['tasks']) ? $taskParams['tasks'] : [$taskParams];
 
-                // If the scheduled task is using this snapshot, add it to the result
-                if (!empty($taskParams['snap-id']) && $taskParams['snap-id'] == $id) {
+            foreach ($tasksParams as $params) {
+                if (!empty($params['snap-id']) and $params['snap-id'] == $id) {
                     $tasksUsingSnapId[] = $scheduledTask;
+                    break;
                 }
             }
         }
@@ -52,32 +52,37 @@ class Scheduled extends Task
      */
     public function deleteBySnapId(int $id) : void
     {
-        // Get scheduled tasks
-        $scheduledTasks = $this->taskListingController->getScheduled();
-
-        // Quit if there is no scheduled task
-        if (empty($scheduledTasks)) {
-            return;
-        }
-
-        foreach ($scheduledTasks as $scheduledTask) {
-            try {
-                $taskParams = json_decode($scheduledTask['Raw_params'], true);
-            } catch (JsonException $e) {
-                throw new Exception('Cannot decode scheduled task #' . $scheduledTask['Id'] . ' parameters: ' . $e->getMessage());
-            }
-
-            // If the scheduled task is using this snapshot, delete the task
-            if (!empty($taskParams['snap-id']) && $taskParams['snap-id'] == $id) {
-                $this->model->delete($scheduledTask['Id']);
-            }
-        }
+        $this->deleteMatching(function (array $taskParams) use ($id): bool {
+            return !empty($taskParams['snap-id']) and $taskParams['snap-id'] == $id;
+        });
     }
 
     /**
      *  Delete scheduled tasks of a mirror
      */
     public function deleteByMirrorId(int $id) : void
+    {
+        $this->deleteMatching(function (array $taskParams) use ($id): bool {
+            return ($taskParams['domain'] ?? '') == 'mirror' and ($taskParams['mirror-id'] ?? '') == $id;
+        });
+    }
+
+    /**
+     *  Delete scheduled tasks using a snapshot of a mirror
+     */
+    public function deleteByMirrorSnapId(int $id) : void
+    {
+        $this->deleteMatching(function (array $taskParams) use ($id): bool {
+            return ($taskParams['domain'] ?? '') == 'mirror' and ($taskParams['mirror-snap-id'] ?? '') == $id;
+        });
+    }
+
+    /**
+     *  Delete the scheduled tasks matching the specified condition
+     *  A scheduled task grouping several tasks (e.g. several snapshots to update or environments to point) only loses
+     *  its matching sub-tasks, it is deleted if no sub-task remains
+     */
+    private function deleteMatching(callable $matches) : void
     {
         foreach ($this->taskListingController->getScheduled() as $scheduledTask) {
             try {
@@ -86,8 +91,34 @@ class Scheduled extends Task
                 throw new Exception('Cannot decode scheduled task #' . $scheduledTask['Id'] . ' parameters: ' . $e->getMessage());
             }
 
-            if (($taskParams['domain'] ?? '') == 'mirror' and ($taskParams['mirror-id'] ?? '') == $id) {
+            if (empty($taskParams['tasks'])) {
+                if ($matches($taskParams)) {
+                    $this->model->delete($scheduledTask['Id']);
+                }
+
+                continue;
+            }
+
+            $subTasks = array_values(array_filter($taskParams['tasks'], function (array $subTaskParams) use ($matches): bool {
+                return !$matches($subTaskParams);
+            }));
+
+            // No sub-task matches
+            if (count($subTasks) == count($taskParams['tasks'])) {
+                continue;
+            }
+
+            if (empty($subTasks)) {
                 $this->model->delete($scheduledTask['Id']);
+                continue;
+            }
+
+            $taskParams['tasks'] = $subTasks;
+
+            try {
+                $this->model->updateRawParams($scheduledTask['Id'], json_encode($taskParams, JSON_THROW_ON_ERROR));
+            } catch (JsonException $e) {
+                throw new Exception('Could not encode scheduled task #' . $scheduledTask['Id'] . ' parameters: ' . $e->getMessage());
             }
         }
     }

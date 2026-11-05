@@ -72,6 +72,11 @@ class Arch extends Sync
 
         $this->fetchPackages($packages);
 
+        // Packages signatures are retrieved with the packages
+        if ($this->metadataOnly()) {
+            return;
+        }
+
         $this->taskLogSubStepController->new('retrieve-signatures', 'RETRIEVING PACKAGES SIGNATURES');
         $this->retrieveSignatures($signatures);
     }

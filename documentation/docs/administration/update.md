@@ -27,6 +27,10 @@ docker system prune -a -f
 
     *Mirror repositories* are renamed **filtered repositories**: the repository type ``mirror`` becomes ``filtered`` in the database, in tasks parameters and in the API responses (snapshots ``Type`` field). Existing repositories and scheduled tasks are migrated automatically, but API clients relying on the ``mirror`` value must be updated.
 
+    Registering a host, listing hosts and retrieving hosts data through the API now require an administrator API key, or the API key of a user with permissions on hosts (see [API](/reference/api/#host-registration-and-status-update)). Make sure the API key used by linupdate to register new hosts meets this requirement.
+
+    Hosts tokens are now stored hashed in the database, and API keys are converted to a new hash format the first time they are used. Existing keys and tokens keep working, but going back to a previous version after the update requires restoring a backup made before the update (see [Backup and restore](/administration/backup-restore/)).
+
 Pull and run the new Docker image (specify the **target version** or ``latest`` if you were on the latest version before). You will need to pass the following environment variables to the container:
 
 - ``FQDN`` - Fully Qualified Domain Name of the Repomanager server.

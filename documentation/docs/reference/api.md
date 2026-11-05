@@ -397,6 +397,8 @@ Mirrors use the repositories permissions of the user owning the API key: only th
 
 ### Hosts listing
 
+These endpoints require an administrator API key, or the API key of a user with at least one permission on hosts.
+
 <table>
   <thead>
     <tr>
@@ -637,6 +639,11 @@ Mirrors use the repositories permissions of the user owning the API key: only th
 ### Host registration and status update
 
 Mainly used by the `linupdate` agent, these endpoints allow to register a host to Repomanager and to send host information (general information, installed packages, available updates, package events) to Repomanager.
+
+!!! info "Permissions"
+    - Registering a host and retrieving the data of a host (installed packages, available updates) with an API key require an administrator API key, or the API key of a user with at least one permission on hosts.
+    - Unregistering a host with an API key requires an administrator API key, or the API key of a user allowed to delete hosts.
+    - A host authenticated with its ID and token can only access its own data.
 
 <table>
   <thead>
