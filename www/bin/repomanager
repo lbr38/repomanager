@@ -51,9 +51,7 @@ function permissions
         exit 1
     fi
     # Mirrors directory has been added in 6.2.0, create it if missing (e.g. no volume mounted yet)
-    if [ ! -d "$MIRRORS_DIR" ];then
-        mkdir -p "$MIRRORS_DIR"
-    fi
+    mkdir -p "$MIRRORS_DIR"
 
     echo "["$(date +"%a %b %-d %H:%M:%S")"][INF] Setting permissions... "
  
