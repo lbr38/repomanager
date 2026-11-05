@@ -16,6 +16,7 @@ class Execution extends \Controllers\Task\Execution
     protected object $mirrorSnapshotController;
     protected object $mirrorEnvController;
     private $lock = null;
+    private string|null $lockFile = null;
 
     public function __construct(int $taskId)
     {
@@ -73,12 +74,73 @@ class Execution extends \Controllers\Task\Execution
     /**
      *  Try to lock the mirror, return false if another task already holds the lock
      *  The mirror directory must exist
+     *  The lock file is deleted when the lock is released: once locked, check that the file has not been
+     *  deleted or replaced in the meantime by the previous holder, otherwise lock the new file
      */
     protected function tryLock(string $dir): bool
     {
-        $this->lock = fopen(Mirror::getLockFile($dir), 'c');
+        if ($this->lock !== null) {
+            return true;
+        }
 
-        return $this->lock !== false and flock($this->lock, LOCK_EX | LOCK_NB);
+        $lockFile = Mirror::getLockFile($dir);
+
+        for ($i = 0; $i < 10; $i++) {
+            $lock = fopen($lockFile, 'c');
+
+            if ($lock === false) {
+                return false;
+            }
+
+            if (!flock($lock, LOCK_EX | LOCK_NB)) {
+                fclose($lock);
+                return false;
+            }
+
+            clearstatcache(true, $lockFile);
+            $stat = @stat($lockFile);
+
+            if ($stat !== false and $stat['ino'] == fstat($lock)['ino']) {
+                $this->lock = $lock;
+                $this->lockFile = $lockFile;
+                return true;
+            }
+
+            fclose($lock);
+        }
+
+        return false;
+    }
+
+    /**
+     *  Release the mirror lock and delete the lock file
+     *  The file is deleted before being unlocked, so that no other task can lock it once deleted
+     */
+    protected function unlock(): void
+    {
+        if ($this->lock === null) {
+            return;
+        }
+
+        if (file_exists($this->lockFile)) {
+            unlink($this->lockFile);
+        }
+
+        flock($this->lock, LOCK_UN);
+        fclose($this->lock);
+
+        $this->lock = null;
+        $this->lockFile = null;
+    }
+
+    /**
+     *  End task execution, release the mirror lock first
+     */
+    public function end(): void
+    {
+        $this->unlock();
+
+        parent::end();
     }
 
     /**

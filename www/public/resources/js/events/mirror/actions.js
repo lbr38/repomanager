@@ -323,11 +323,9 @@ function mirrorPrintSnapshotsActions()
             'color': 'red',
             'callback': function () {
                 mirrorClearSelection();
-                mirrorExecuteTasks(selected.map(snapshot => ({
-                    'action': 'delete',
-                    'mirror-id': snapshot['mirror-id'],
-                    'mirror-snap-id': snapshot['mirror-snap-id']
-                })));
+                mypanel.get('mirrors/delete', {
+                    'snapshots': JSON.stringify(selected)
+                });
             }
         });
     }

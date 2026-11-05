@@ -213,6 +213,18 @@ class Panel {
      */
     close(name = null)
     {
+        const container = name != null ? $('.slide-panel-container[slide-panel="' + name + '"]') : $('.slide-panel-container');
+
+        /**
+         *  Close the select2 dropdowns of the panel: they are attached to the body and would stay displayed once the panel is removed
+         *  (e.g. on Escape key press when the focus is not in the select2 anymore)
+         */
+        container.find('select.select2-hidden-accessible').each(function () {
+            if ($(this).data('select2') && $(this).data('select2').isOpen()) {
+                $(this).select2('close');
+            }
+        });
+
         if (name != null) {
             $('.slide-panel-container[slide-panel="' + name + '"]').find('.slide-panel').animate({
                 right: '-1000px',

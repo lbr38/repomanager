@@ -206,6 +206,23 @@ class Deb extends Metadata
 
         $myprocess->close();
 
+        // Generate InRelease file (clearsigned Release file), preferred by apt over Release + Release.gpg
+        $myprocess = new Process(
+            '/usr/bin/gpg --homedir ' . escapeshellarg(GPGHOME) . ' -u ' . escapeshellarg(GPG_SIGNING_KEYID)
+            . ' --output ' . escapeshellarg($this->root . '/dists/' . $this->dist . '/InRelease')
+            . ' --clearsign ' . escapeshellarg($this->root . '/dists/' . $this->dist . '/Release')
+        );
+        $myprocess->execute();
+
+        // Retrieve PID of the launched process, then write PID to main PID file
+        $this->taskController->addsubpid($myprocess->getPid());
+
+        if ($myprocess->getExitCode() != 0) {
+            throw new Exception('Failed to generate InRelease metadata file');
+        }
+
+        $myprocess->close();
+
         $this->taskLogSubStepController->completed();
     }
 

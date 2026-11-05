@@ -75,12 +75,14 @@ class Create extends Execution
         $this->mirrorController->updateTags($mirrorId, (array) ($this->params['tags'] ?? []));
         $this->mirrorController->updateRetention($mirrorId, Retention::fromInput($this->params['retention'] ?? null, $this->params['retention-keep-all'] ?? 'false'));
 
-        if (!empty($this->params['group']) and is_numeric($this->params['group'])) {
-            $this->mirrorController->addToGroup($mirrorId, (int) $this->params['group']);
-        }
-
         $this->addSnapshot($mirrorId, $dir, $published, $sync, $envs);
 
         $this->taskLogStepController->completed();
+
+        if (!empty($this->params['group']) and is_numeric($this->params['group'])) {
+            $this->taskLogStepController->new('add-to-group', 'ADDING MIRROR TO GROUP');
+            $this->mirrorController->addToGroup($mirrorId, (int) $this->params['group']);
+            $this->taskLogStepController->completed();
+        }
     }
 }

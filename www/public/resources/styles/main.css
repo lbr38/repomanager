@@ -703,6 +703,7 @@ a.task-item-child:hover {
     font-size: 14px;
     font-weight: 500;
     letter-spacing: 0.3px;
+    white-space: nowrap;
 }
 
 .snap-size {

@@ -116,7 +116,7 @@
         <select class="task-param" param-name="env" multiple>
             <?php
             foreach ($envs as $env) {
-                echo '<option value="' . htmlspecialchars($env) . '">' . htmlspecialchars($env) . '</option>';
+                echo '<option value="' . htmlspecialchars($env) . '"' . ($env == DEFAULT_ENV ? ' selected' : '') . '>' . htmlspecialchars($env) . '</option>';
             } ?>
         </select>
 
