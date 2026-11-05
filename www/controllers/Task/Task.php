@@ -410,9 +410,19 @@ class Task
         }
 
         /**
+         *  A sub-task is attributed to the user who launched its parent task, as it may be created
+         *  by the service (scheduled parent task) where no user is authenticated
+         */
+        if (!empty($parentTaskId)) {
+            $launchedBy = $this->getById($parentTaskId)['Launched_by'] ?? null;
+        } else {
+            $launchedBy = (new \Controllers\User\User())->getCurrentUsername();
+        }
+
+        /**
          *  Add the task in database
          */
-        $taskId = $this->model->new($type, $paramsJson, $status, $parentTaskId);
+        $taskId = $this->model->new($type, $paramsJson, $status, $parentTaskId, $launchedBy);
 
         return $taskId;
     }
@@ -725,7 +735,7 @@ class Task
         $task = $this->getById($id);
 
         // First, create the new task in database, linked to the task it relaunches and to its parent task
-        $newTaskId = $this->model->relaunch($id);
+        $newTaskId = $this->model->relaunch($id, (new \Controllers\User\User())->getCurrentUsername());
 
         /**
          *  The parent task of a relaunched sub-task may already be closed: it is reopened so that it

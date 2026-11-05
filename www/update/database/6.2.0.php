@@ -15,6 +15,15 @@ if (!$this->db->columnExist('tasks', 'Relaunched_from_task_id')) {
     }
 }
 
+// Add 'Launched_by' column to tasks table (username of the user who launched the task)
+if (!$this->db->columnExist('tasks', 'Launched_by')) {
+    try {
+        $this->db->exec("ALTER TABLE tasks ADD COLUMN Launched_by VARCHAR(255)");
+    } catch (Exception $e) {
+        throw new Exception('could not add Launched_by column to tasks table');
+    }
+}
+
 // Create index on 'Relaunched_from_task_id' column
 try {
     $this->db->exec("CREATE INDEX IF NOT EXISTS tasks_relaunched_from_task_id ON tasks (Relaunched_from_task_id)");

@@ -94,17 +94,26 @@ class Listing
     }
 
     /**
+     *  Return the usernames of the users who launched done tasks, to filter done tasks by user
+     */
+    public function getDoneLaunchedBy(): array
+    {
+        return $this->model->getDoneLaunchedBy();
+    }
+
+    /**
      *  Return the search of done tasks made by the user, from its JSON representation (stored in a cookie by the tasks page):
      *  - 'opened':   true if the search bar is opened
      *  - 'query':    searched text, repository name / distribution / section / release version, and task Id (#<id>)
      *  - 'domain':   'repo' or 'mirror' to only search tasks targeting repositories or mirrors
      *  - 'action':   one of SEARCH_ACTIONS to only search tasks with this action
+     *  - 'user':     username to only search tasks launched by this user
      *  - 'criteria': criteria to filter done tasks with, to pass to getDone() and countDone()
      *  Invalid values are ignored
      */
     public function getDoneSearch(string $json): array
     {
-        $search = ['opened' => false, 'query' => '', 'domain' => '', 'action' => ''];
+        $search = ['opened' => false, 'query' => '', 'domain' => '', 'action' => '', 'user' => ''];
         $values = json_decode($json, true);
 
         if (is_array($values)) {
@@ -122,13 +131,18 @@ class Listing
             if (is_string($values['action'] ?? null) and array_key_exists($values['action'], self::SEARCH_ACTIONS)) {
                 $search['action'] = $values['action'];
             }
+
+            if (is_string($values['user'] ?? null) and strlen($values['user']) <= 255 and preg_match('//u', $values['user'])) {
+                $search['user'] = $values['user'];
+            }
         }
 
         $search['criteria'] = [
             'terms'  => [],
             'id'     => '',
             'domain' => $search['domain'],
-            'action' => $search['action']
+            'action' => $search['action'],
+            'user'   => $search['user']
         ];
 
         // The separator of the repositories labels is ignored, so that a label can be searched as printed in the tasks list

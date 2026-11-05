@@ -70,6 +70,15 @@ use \Controllers\Task\Task; ?>
                             <?php
                         endforeach ?>
                     </select>
+
+                    <select id="done-tasks-search-user" class="done-tasks-search-select" title="Filter by user who launched the task">
+                        <option value="">All users</option>
+                        <?php
+                        foreach ($doneSearchUsers as $doneSearchUser) : ?>
+                            <option value="<?= htmlspecialchars($doneSearchUser, ENT_QUOTES, 'UTF-8') ?>" <?= $doneSearch['user'] === $doneSearchUser ? 'selected' : '' ?>><?= htmlspecialchars($doneSearchUser, ENT_QUOTES, 'UTF-8') ?></option>
+                            <?php
+                        endforeach ?>
+                    </select>
                 </div>
             </div>
             <?php
@@ -153,6 +162,13 @@ use \Controllers\Task\Task; ?>
                                     if (!empty($item['Date']) and !empty($item['Time'])) : ?>
                                         <span class="dot mediumopacity-cst">●</span>
                                         <span class="task-item-date"><?= $item['Status'] == 'scheduled' ? 'Last execution: ' : '' ?><?= DateTime::createFromFormat('Y-m-d', $item['Date'])->format('d-m-Y') ?> <?= $item['Time'] ?></span>
+                                        <?php
+                                    endif;
+
+                                    // User who launched the task
+                                    if (!empty($item['Launched_by'])) : ?>
+                                        <span class="dot mediumopacity-cst">●</span>
+                                        <span class="task-item-launched-by" title="Launched by <?= htmlspecialchars($item['Launched_by'], ENT_QUOTES, 'UTF-8') ?>"><img src="/assets/icons/user.svg" class="icon-small mediumopacity-cst" /><?= htmlspecialchars($item['Launched_by'], ENT_QUOTES, 'UTF-8') ?></span>
                                         <?php
                                     endif;
 

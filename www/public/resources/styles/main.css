@@ -378,8 +378,8 @@ article {
     letter-spacing: 0.3px;
 }
 
-/* Link between a task and its relaunch, printed next to the task date */
-.task-item-relaunch {
+/* Link between a task and its relaunch, and user who launched the task, printed next to the task date */
+.task-item-relaunch, .task-item-launched-by {
     display: inline-flex;
     align-items: center;
     column-gap: 5px;

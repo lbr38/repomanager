@@ -80,6 +80,23 @@ class User
     }
 
     /**
+     *  Return the username of the user performing the current request (web session or API key),
+     *  or null if no user is authenticated (e.g. service)
+     */
+    public function getCurrentUsername() : string|null
+    {
+        if (!empty($_SESSION['username'])) {
+            return $_SESSION['username'];
+        }
+
+        if (defined('API_KEY')) {
+            return $this->getUserByApiKey(API_KEY)['Username'] ?? null;
+        }
+
+        return null;
+    }
+
+    /**
      *  Return the hash of an API key, as stored in database
      */
     private function hashApiKey(string $apiKey) : string

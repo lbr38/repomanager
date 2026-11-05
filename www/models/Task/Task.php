@@ -301,14 +301,15 @@ class Task extends \Models\Model
      *  If $parentTaskId is provided, the task is linked to the task that generated it
      *  (e.g. a scheduled task targeting a group of repositories)
      */
-    public function new(string $type, string $rawParams, string $status, int|null $parentTaskId = null) : int
+    public function new(string $type, string $rawParams, string $status, int|null $parentTaskId = null, string|null $launchedBy = null) : int
     {
         try {
-            $stmt = $this->db->prepare("INSERT INTO tasks (Type, Raw_params, Status, Parent_task_id) VALUES (:type, :rawParams, :status, :parentTaskId)");
+            $stmt = $this->db->prepare("INSERT INTO tasks (Type, Raw_params, Status, Parent_task_id, Launched_by) VALUES (:type, :rawParams, :status, :parentTaskId, :launchedBy)");
             $stmt->bindValue(':type', $type);
             $stmt->bindValue(':rawParams', $rawParams);
             $stmt->bindValue(':status', $status);
             $stmt->bindValue(':parentTaskId', $parentTaskId);
+            $stmt->bindValue(':launchedBy', $launchedBy);
             $stmt->execute();
         } catch (Exception $e) {
             DbLog::error($e);
@@ -327,7 +328,7 @@ class Task extends \Models\Model
     public function duplicate(int $id, string $status) : int
     {
         try {
-            $stmt = $this->db->prepare("INSERT INTO tasks (Type, Raw_params, Status) SELECT Type, Raw_params, :status FROM tasks WHERE Id = :id");
+            $stmt = $this->db->prepare("INSERT INTO tasks (Type, Raw_params, Status, Launched_by) SELECT Type, Raw_params, :status, Launched_by FROM tasks WHERE Id = :id");
             $stmt->bindValue(':status', $status);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
@@ -345,13 +346,15 @@ class Task extends \Models\Model
      *  Create a new task relaunching the task $id, and return the new task Id
      *  The new task keeps the parent task of the relaunched one, so that a sub-task stays grouped
      *  with the other sub-tasks of the same operation, and is linked to the task it relaunches
+     *  The new task is attributed to the user who relaunches it
      */
-    public function relaunch(int $id) : int
+    public function relaunch(int $id, string|null $launchedBy = null) : int
     {
         try {
-            $stmt = $this->db->prepare("INSERT INTO tasks (Type, Raw_params, Status, Parent_task_id, Relaunched_from_task_id)
-            SELECT Type, Raw_params, 'queued', Parent_task_id, Id FROM tasks WHERE Id = :id");
+            $stmt = $this->db->prepare("INSERT INTO tasks (Type, Raw_params, Status, Parent_task_id, Relaunched_from_task_id, Launched_by)
+            SELECT Type, Raw_params, 'queued', Parent_task_id, Id, :launchedBy FROM tasks WHERE Id = :id");
             $stmt->bindValue(':id', $id);
+            $stmt->bindValue(':launchedBy', $launchedBy);
             $stmt->execute();
         } catch (Exception $e) {
             DbLog::error($e);

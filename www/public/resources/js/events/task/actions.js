@@ -367,7 +367,7 @@ $(document).on('click','.done-tasks-search-btn',function () {
     }
 
     // Reload the tasks list only if there was something searched
-    const searched = $('#done-tasks-search-input').val().trim() !== '' || $('#done-tasks-search-domain').val() !== '' || $('#done-tasks-search-action').val() !== '';
+    const searched = $('#done-tasks-search-input').val().trim() !== '' || $('#done-tasks-search-domain').val() !== '' || $('#done-tasks-search-action').val() !== '' || $('#done-tasks-search-user').val() !== '';
 
     saveDoneTasksSearch(false);
 
@@ -406,7 +406,7 @@ $(document).on('keydown','#done-tasks-search-input',function (e) {
 });
 
 /**
- *  Event: select a target type or an action to filter done tasks
+ *  Event: select a target type, an action or a user to filter done tasks
  */
 $(document).on('change','.done-tasks-search-select',function () {
     saveDoneTasksSearch(true);

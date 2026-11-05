@@ -28,6 +28,12 @@ use \Controllers\User\Permission\Task as TaskPermission; ?>
                 <p class="label-white pointer">Relaunched by task #<?= $relaunchTaskId ?></p>
             </a>
             <?php
+        endif;
+
+        // User who launched the task
+        if (!empty($taskInfo['Launched_by'])) : ?>
+            <p class="label-white" title="User who launched the task">Launched by <?= htmlspecialchars($taskInfo['Launched_by'], ENT_QUOTES, 'UTF-8') ?></p>
+            <?php
         endif; ?>
     </div>
 

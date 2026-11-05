@@ -374,7 +374,8 @@ function saveDoneTasksSearch(opened)
         opened: opened,
         query: opened ? $('#done-tasks-search-input').val() : '',
         domain: opened ? $('#done-tasks-search-domain').val() : '',
-        action: opened ? $('#done-tasks-search-action').val() : ''
+        action: opened ? $('#done-tasks-search-action').val() : '',
+        user: opened ? $('#done-tasks-search-user').val() : ''
     };
 
     mycookie.set('tables/tasks/list-done/search', encodeURIComponent(JSON.stringify(search)), 1);

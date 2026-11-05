@@ -258,6 +258,29 @@ class Listing extends \Models\Model
     }
 
     /**
+     *  Return the usernames of the users who launched done tasks (sub-tasks included), sorted by name
+     */
+    public function getDoneLaunchedBy(): array
+    {
+        $users = [];
+
+        try {
+            $result = $this->db->query("SELECT DISTINCT Launched_by FROM tasks
+            WHERE (Status = 'error' OR Status = 'done' OR Status = 'stopped')
+            AND Launched_by IS NOT NULL AND Launched_by != ''
+            ORDER BY Launched_by COLLATE NOCASE ASC");
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $users[] = $row['Launched_by'];
+        }
+
+        return $users;
+    }
+
+    /**
      *  Build the SQL condition selecting done tasks (sub-tasks excluded) with the specified status and search criteria
      *  The values to bind are added to $bindings
      *
@@ -267,6 +290,7 @@ class Listing extends \Models\Model
      *  - 'id':     task Id
      *  - 'domain': 'repo' or 'mirror'
      *  - 'action': task action ('create', 'update', 'delete'...)
+     *  - 'user':   username of the user who launched the task, or relaunched one of its sub-tasks
      */
     private function doneCondition(string $status, array $search, array &$bindings): string
     {
@@ -298,6 +322,11 @@ class Listing extends \Models\Model
         if (!empty($search['action'])) {
             $conditions[] = "json_extract(" . $params . ", '$.action') = :searchAction";
             $bindings[':searchAction'] = $search['action'];
+        }
+
+        if (!empty($search['user'])) {
+            $conditions[] = "(Launched_by = :searchUser OR EXISTS (SELECT 1 FROM tasks AS sub WHERE sub.Parent_task_id = tasks.Id AND sub.Launched_by = :searchUser))";
+            $bindings[':searchUser'] = $search['user'];
         }
 
         if (!empty($search['terms'])) {

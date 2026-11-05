@@ -15,11 +15,18 @@ if (!empty($_COOKIE['tables/tasks/list-done/status']) and in_array($_COOKIE['tab
 }
 
 /**
- *  Retrieve search from cookie if exists (search bar state, searched text, target type and action)
+ *  Retrieve search from cookie if exists (search bar state, searched text, target type, action and user)
  *  The search is stored in a cookie so that it is kept when the tasks list is reloaded
  */
 $doneSearch = $taskListingController->getDoneSearch($_COOKIE['tables/tasks/list-done/search'] ?? '');
-$doneSearchActive = ($doneSearch['query'] !== '' or $doneSearch['domain'] !== '' or $doneSearch['action'] !== '');
+$doneSearchActive = ($doneSearch['query'] !== '' or $doneSearch['domain'] !== '' or $doneSearch['action'] !== '' or $doneSearch['user'] !== '');
+
+// Users who launched done tasks, to filter done tasks by user (the searched user is kept even if none of its tasks remain)
+$doneSearchUsers = $taskListingController->getDoneLaunchedBy();
+
+if ($doneSearch['user'] !== '' and !in_array($doneSearch['user'], $doneSearchUsers, true)) {
+    $doneSearchUsers[] = $doneSearch['user'];
+}
 
 // Get list of done tasks, with offset
 $reloadableTableContent = $taskListingController->getDone('', true, $reloadableTableOffset, $statusFilter, $doneSearch['criteria']);

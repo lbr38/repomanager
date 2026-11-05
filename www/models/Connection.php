@@ -436,7 +436,8 @@ class Connection extends SQLite3
         Duration INTEGER,
         Status CHAR(9), /* new, scheduled, running, done, stopped */
         Parent_task_id INTEGER,
-        Relaunched_from_task_id INTEGER)");
+        Relaunched_from_task_id INTEGER,
+        Launched_by VARCHAR(255))");
 
         // Create indexes
         $this->exec("CREATE INDEX IF NOT EXISTS tasks_rawparams_status ON tasks (Raw_params, Status)");
