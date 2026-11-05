@@ -67,8 +67,8 @@ class Render
     {
         $output = '';
 
-        // Don't print pagination if only one page
-        if ($totalPages == 1) {
+        // Don't print pagination if only one page (or none, when there is nothing to print)
+        if ($totalPages <= 1) {
             return;
         }
 

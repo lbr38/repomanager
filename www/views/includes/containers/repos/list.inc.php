@@ -55,7 +55,7 @@ use \Controllers\User\Permission\Repo as RepoPermission; ?>
                     endif ?>
                 </div>
 
-                <input id="repo-search-input" type="text" placeholder="Search repositories, snapshots, environments..." onkeyup="myrepo.search()" title="Search by repository name, distribution, section or release version" />
+                <input id="repo-search-input" type="text" placeholder="Search repositories, snapshots, environments..." onkeyup="myrepo.search()" title="Search by repository name, distribution, component or release version" />
             </div>
 
             <div id="repos-list-container">

@@ -452,6 +452,16 @@ article {
     display: none;
 }
 
+/* Done tasks search bar */
+#done-tasks-search-input {
+    min-width: 250px;
+}
+
+#done-tasks-search .done-tasks-search-select {
+    width: auto;
+    padding-right: 10px;
+}
+
 /* Sub-tasks nested under their parent task */
 .task-item-children {
     display: none;

@@ -362,3 +362,23 @@ function scrollEventListener()
         }
     });
 }
+
+/**
+ *  Save the search of done tasks in a cookie, for PHP to load the matching done tasks
+ *  The search is stored in a cookie so that it is kept when the tasks list is reloaded
+ *  Closing the search bar (opened = false) clears the search
+ */
+function saveDoneTasksSearch(opened)
+{
+    const search = {
+        opened: opened,
+        query: opened ? $('#done-tasks-search-input').val() : '',
+        domain: opened ? $('#done-tasks-search-domain').val() : '',
+        action: opened ? $('#done-tasks-search-action').val() : ''
+    };
+
+    mycookie.set('tables/tasks/list-done/search', encodeURIComponent(JSON.stringify(search)), 1);
+
+    // Go back to the first page, as the current page may not exist anymore with the new search
+    mycookie.delete('tables/tasks/list-done/offset');
+}

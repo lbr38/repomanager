@@ -189,29 +189,21 @@ class Listing extends \Models\Model
      *  Get all done tasks (with or without errors)
      *  It is possible to filter the type of task ('immediate' or 'scheduled')
      *  It is possible to filter the status of task ('successful' or 'failed')
+     *  It is possible to filter the tasks with search criteria (see doneCondition())
      *  It is possible to add an offset to the request
      */
-    public function getDone(string $type, bool $withOffset, int $offset, string $status = ''): array
+    public function getDone(string $type, bool $withOffset, int $offset, string $status = '', array $search = []): array
     {
         $data = [];
+        $bindings = [];
 
         try {
-            // Filter by status: successful tasks are 'done', failed tasks are 'error' or 'stopped'
-            if ($status == 'successful') {
-                $statusCondition = "Status = 'done'";
-            } elseif ($status == 'failed') {
-                $statusCondition = "(Status = 'error' OR Status = 'stopped')";
-            } else {
-                $statusCondition = "(Status = 'error' OR Status = 'done' OR Status = 'stopped')";
-            }
-
-            $query = "SELECT * FROM tasks
-            WHERE " . $statusCondition . "
-            AND Parent_task_id IS NULL";
+            $query = "SELECT * FROM tasks WHERE " . $this->doneCondition($status, $search, $bindings);
 
             // Case where we want to filter by type
             if (!empty($type)) {
                 $query .= " AND Type = :type";
+                $bindings[':type'] = $type;
             }
 
             $query .= " ORDER BY Date DESC, Time DESC";
@@ -223,8 +215,12 @@ class Listing extends \Models\Model
 
             // Prepare query
             $stmt = $this->db->prepare($query);
-            $stmt->bindValue(':type', $type);
             $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
+
+            foreach ($bindings as $name => $value) {
+                $stmt->bindValue($name, $value);
+            }
+
             $result = $stmt->execute();
         } catch (Exception $e) {
             DbLog::error($e);
@@ -238,65 +234,105 @@ class Listing extends \Models\Model
     }
 
     /**
-     *  Return all successful tasks
+     *  Count done tasks (with or without errors)
+     *  It is possible to filter the status of task ('successful' or 'failed')
+     *  It is possible to filter the tasks with search criteria (see doneCondition())
      */
-    public function getSuccessful(bool $count): array|int
+    public function countDone(string $status = '', array $search = []): int
     {
-        $data = [];
+        $bindings = [];
 
         try {
-            if ($count) {
-                $query = "SELECT COUNT(*) AS Count FROM tasks WHERE Status = 'done' AND Parent_task_id IS NULL";
-            } else {
-                $query = "SELECT * FROM tasks WHERE Status = 'done' AND Parent_task_id IS NULL ORDER BY Date DESC, Time DESC";
+            $stmt = $this->db->prepare("SELECT COUNT(*) AS Count FROM tasks WHERE " . $this->doneCondition($status, $search, $bindings));
+
+            foreach ($bindings as $name => $value) {
+                $stmt->bindValue($name, $value);
             }
 
-            $stmt = $this->db->prepare($query);
             $result = $stmt->execute();
         } catch (Exception $e) {
             DbLog::error($e);
         }
 
-        if ($count) {
-            return (int) $result->fetchArray(SQLITE3_ASSOC)['Count'];
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $data[] = $row;
-        }
-
-        return $data;
+        return (int) $result->fetchArray(SQLITE3_ASSOC)['Count'];
     }
 
     /**
-     *  Return all failed tasks
+     *  Build the SQL condition selecting done tasks (sub-tasks excluded) with the specified status and search criteria
+     *  The values to bind are added to $bindings
+     *
+     *  Search criteria:
+     *  - 'terms':  terms that must all be found in the repository targeted by the task (name, distribution, section or release version),
+     *              for a task grouping sub-tasks, in the repository of one of its sub-tasks
+     *  - 'id':     task Id
+     *  - 'domain': 'repo' or 'mirror'
+     *  - 'action': task action ('create', 'update', 'delete'...)
      */
-    public function getFailed(bool $count): array|int
+    private function doneCondition(string $status, array $search, array &$bindings): string
     {
-        $data = [];
+        // Filter by status: successful tasks are 'done', failed tasks are 'error' or 'stopped'
+        if ($status == 'successful') {
+            $conditions = ["Status = 'done'"];
+        } elseif ($status == 'failed') {
+            $conditions = ["(Status = 'error' OR Status = 'stopped')"];
+        } else {
+            $conditions = ["(Status = 'error' OR Status = 'done' OR Status = 'stopped')"];
+        }
 
-        try {
-            if ($count) {
-                $query = "SELECT COUNT(*) AS Count FROM tasks WHERE (Status = 'error' OR Status = 'stopped') AND Parent_task_id IS NULL";
-            } else {
-                $query = "SELECT * FROM tasks WHERE (Status = 'error' OR Status = 'stopped') AND Parent_task_id IS NULL ORDER BY Date DESC, Time DESC";
+        $conditions[] = "Parent_task_id IS NULL";
+
+        // JSON functions fail on malformed JSON, a task with malformed parameters is processed as a task without parameter
+        $params = "CASE WHEN json_valid(tasks.Raw_params) THEN tasks.Raw_params ELSE '{}' END";
+
+        if (!empty($search['id'])) {
+            $conditions[] = "Id = :searchId";
+            $bindings[':searchId'] = (int) $search['id'];
+        }
+
+        if (($search['domain'] ?? '') == 'mirror') {
+            $conditions[] = "json_extract(" . $params . ", '$.domain') = 'mirror'";
+        } elseif (($search['domain'] ?? '') == 'repo') {
+            $conditions[] = "COALESCE(json_extract(" . $params . ", '$.domain'), '') != 'mirror'";
+        }
+
+        if (!empty($search['action'])) {
+            $conditions[] = "json_extract(" . $params . ", '$.action') = :searchAction";
+            $bindings[':searchAction'] = $search['action'];
+        }
+
+        if (!empty($search['terms'])) {
+            $terms = array_values($search['terms']);
+
+            foreach ($terms as $i => $term) {
+                $bindings[':searchTerm' . $i] = '%' . addcslashes($term, '%_\\') . '%';
             }
 
-            $stmt = $this->db->prepare($query);
-            $result = $stmt->execute();
-        } catch (Exception $e) {
-            DbLog::error($e);
+            // Condition matching all the terms against the repository described by some task parameters
+            $termsMatch = function (string $params) use ($terms): string {
+                $fields = [];
+                $match = [];
+
+                foreach (['name', 'dist', 'section', 'releasever'] as $field) {
+                    $fields[] = "COALESCE(json_extract(" . $params . ", '$.\"repo-info\".\"" . $field . "\"'), '')";
+                }
+
+                foreach (array_keys($terms) as $i) {
+                    $match[] = "(" . implode(" || ' ' || ", $fields) . ") LIKE :searchTerm" . $i . " ESCAPE '\\'";
+                }
+
+                return implode(' AND ', $match);
+            };
+
+            /**
+             *  The task itself targets the repository, or one of its sub-tasks does, whether they have been
+             *  executed (sub-tasks stored in database) or not (sub-tasks only described in the parameters)
+             */
+            $conditions[] = "(" . $termsMatch($params) . "
+            OR EXISTS (SELECT 1 FROM tasks AS sub WHERE sub.Parent_task_id = tasks.Id AND " . $termsMatch("CASE WHEN json_valid(sub.Raw_params) THEN sub.Raw_params ELSE '{}' END") . ")
+            OR EXISTS (SELECT 1 FROM json_each(" . $params . ", '$.tasks') AS sub WHERE " . $termsMatch('sub.value') . "))";
         }
 
-        if ($count) {
-            return (int) $result->fetchArray(SQLITE3_ASSOC)['Count'];
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $data[] = $row;
-        }
-
-        return $data;
+        return implode(' AND ', $conditions);
     }
 
     /**

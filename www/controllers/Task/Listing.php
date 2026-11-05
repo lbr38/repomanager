@@ -4,6 +4,20 @@ namespace Controllers\Task;
 
 class Listing
 {
+    /**
+     *  Actions that done tasks can be searched by
+     */
+    public const SEARCH_ACTIONS = [
+        'create'    => 'Create',
+        'update'    => 'Update / sync',
+        'env'       => 'Point an environment',
+        'removeEnv' => 'Remove an environment',
+        'rebuild'   => 'Rebuild metadata',
+        'duplicate' => 'Duplicate',
+        'rename'    => 'Rename',
+        'delete'    => 'Delete'
+    ];
+
     private $model;
 
     public function __construct()
@@ -61,27 +75,75 @@ class Listing
      *  Get all done tasks (with or without errors)
      *  It is possible to filter the type of task ('immediate' or 'scheduled')
      *  It is possible to filter the status of task ('successful' or 'failed')
+     *  It is possible to filter the tasks with search criteria (see getDoneSearch())
      *  It is possible to add an offset to the request
      */
-    public function getDone(string $type = 'immediate', bool $withOffset = false, int $offset = 0, string $status = ''): array
+    public function getDone(string $type = 'immediate', bool $withOffset = false, int $offset = 0, string $status = '', array $search = []): array
     {
-        return $this->model->getDone($type, $withOffset, $offset, $status);
+        return $this->model->getDone($type, $withOffset, $offset, $status, $search);
     }
 
     /**
-     *  Return all successful tasks
+     *  Count done tasks (with or without errors)
+     *  It is possible to filter the status of task ('successful' or 'failed')
+     *  It is possible to filter the tasks with search criteria (see getDoneSearch())
      */
-    public function getSuccessful(bool $count = false): array|int
+    public function countDone(string $status = '', array $search = []): int
     {
-        return $this->model->getSuccessful($count);
+        return $this->model->countDone($status, $search);
     }
 
     /**
-     *  Return tasks that have failed
+     *  Return the search of done tasks made by the user, from its JSON representation (stored in a cookie by the tasks page):
+     *  - 'opened':   true if the search bar is opened
+     *  - 'query':    searched text, repository name / distribution / section / release version, and task Id (#<id>)
+     *  - 'domain':   'repo' or 'mirror' to only search tasks targeting repositories or mirrors
+     *  - 'action':   one of SEARCH_ACTIONS to only search tasks with this action
+     *  - 'criteria': criteria to filter done tasks with, to pass to getDone() and countDone()
+     *  Invalid values are ignored
      */
-    public function getFailed(bool $count = false): array|int
+    public function getDoneSearch(string $json): array
     {
-        return $this->model->getFailed($count);
+        $search = ['opened' => false, 'query' => '', 'domain' => '', 'action' => ''];
+        $values = json_decode($json, true);
+
+        if (is_array($values)) {
+            $search['opened'] = ($values['opened'] ?? false) === true;
+
+            // Search input length is limited, a longer or a non UTF-8 value has not been typed in it
+            if (is_string($values['query'] ?? null) and strlen($values['query']) <= 255 and preg_match('//u', $values['query'])) {
+                $search['query'] = trim($values['query']);
+            }
+
+            if (in_array($values['domain'] ?? '', ['repo', 'mirror'], true)) {
+                $search['domain'] = $values['domain'];
+            }
+
+            if (is_string($values['action'] ?? null) and array_key_exists($values['action'], self::SEARCH_ACTIONS)) {
+                $search['action'] = $values['action'];
+            }
+        }
+
+        $search['criteria'] = [
+            'terms'  => [],
+            'id'     => '',
+            'domain' => $search['domain'],
+            'action' => $search['action']
+        ];
+
+        // The separator of the repositories labels is ignored, so that a label can be searched as printed in the tasks list
+        foreach (preg_split('/\s+/u', str_replace('❯', ' ', $search['query']), -1, PREG_SPLIT_NO_EMPTY) as $term) {
+            if (preg_match('/^#(\d+)$/', $term, $matches)) {
+                $search['criteria']['id'] = $matches[1];
+                continue;
+            }
+
+            $search['criteria']['terms'][] = $term;
+        }
+
+        $search['criteria']['terms'] = array_slice(array_unique($search['criteria']['terms']), 0, 10);
+
+        return $search;
     }
 
     /**

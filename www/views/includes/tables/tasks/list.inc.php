@@ -6,7 +6,8 @@ use \Controllers\Task\Task; ?>
 
 <div class="reloadable-table" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
     <?php
-    if (!empty($reloadableTableContent)) : ?>
+    // Done tasks table is also printed when the search returns no task, so that the search can be changed
+    if (!empty($reloadableTableContent) or !empty($doneSearchActive)) : ?>
         <div class="flex align-item-center column-gap-20 margin-bottom-15">
 
             <div class="flex align-item-center column-gap-15">
@@ -20,12 +21,17 @@ use \Controllers\Task\Task; ?>
                 // Print successful and failed tasks count for done tasks
                 if ($taskTableType == 'done') {
                     // Labels are clickable to filter tasks by status, the active filter is highlighted and can be clicked again to be removed
-                    if ($successfulCount > 0) {
+                    // The label of the active filter is kept when the search returns no task, so that the filter can still be removed
+                    if ($successfulCount > 0 or $statusFilter == 'successful') {
                         echo '<span class="label-green label-medium done-tasks-filter-btn pointer' . ($statusFilter == 'failed' ? ' opacity-30' : '') . '" status="successful" title="' . ($statusFilter == 'successful' ? 'Show all tasks' : 'Show successful tasks only') . '">' . $successfulCount . ' successful</span>';
                     }
-                    if ($failedCount > 0) {
+                    if ($failedCount > 0 or $statusFilter == 'failed') {
                         echo '<span class="label-red label-medium done-tasks-filter-btn pointer' . ($statusFilter == 'successful' ? ' opacity-30' : '') . '" status="failed" title="' . ($statusFilter == 'failed' ? 'Show all tasks' : 'Show failed tasks only') . '">' . $failedCount . ' failed</span>';
                     }
+
+                    // Button opening the search bar, or closing it and clearing the search
+                    $doneSearchOpened = ($doneSearch['opened'] or $doneSearchActive);
+                    echo '<img src="/assets/icons/search.svg" class="icon-mediumopacity done-tasks-search-btn" title="' . ($doneSearchOpened ? 'Close and clear search' : 'Search tasks') . '" />';
                 } ?>
             </div>
 
@@ -39,6 +45,40 @@ use \Controllers\Task\Task; ?>
                 <?php
             endif ?>
         </div>
+
+        <?php
+        /**
+         *  Search bar of done tasks, hidden until the user opens it
+         *  Its values are restored from the search cookie so that they are kept when the tasks list is reloaded
+         */
+        if ($taskTableType == 'done') : ?>
+            <div id="done-tasks-search" class="margin-bottom-15 <?= $doneSearchOpened ? '' : 'hide' ?>">
+                <div class="flex align-item-center column-gap-10 flex-wrap">
+                    <input id="done-tasks-search-input" class="flex-1" type="text" maxlength="200" value="<?= htmlspecialchars($doneSearch['query'], ENT_QUOTES, 'UTF-8') ?>" placeholder="Search by repository name, distribution, component, release version or #task id" title="Search by repository name, distribution, component, release version or #task id" />
+
+                    <select id="done-tasks-search-domain" class="done-tasks-search-select" title="Filter by target type">
+                        <option value="">All types</option>
+                        <option value="repo" <?= $doneSearch['domain'] == 'repo' ? 'selected' : '' ?>>Repositories</option>
+                        <option value="mirror" <?= $doneSearch['domain'] == 'mirror' ? 'selected' : '' ?>>Mirrors</option>
+                    </select>
+
+                    <select id="done-tasks-search-action" class="done-tasks-search-select" title="Filter by action">
+                        <option value="">All actions</option>
+                        <?php
+                        foreach (\Controllers\Task\Listing::SEARCH_ACTIONS as $searchAction => $searchActionLabel) : ?>
+                            <option value="<?= $searchAction ?>" <?= $doneSearch['action'] == $searchAction ? 'selected' : '' ?>><?= $searchActionLabel ?></option>
+                            <?php
+                        endforeach ?>
+                    </select>
+                </div>
+            </div>
+            <?php
+        endif;
+
+        if (empty($reloadableTableContent)) : ?>
+            <p class="note">No task matches your search.</p>
+            <?php
+        endif ?>
 
         <div class="flex flex-direction-column row-gap-10">
             <?php
