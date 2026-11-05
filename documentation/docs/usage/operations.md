@@ -1,3 +1,15 @@
+## :material-help-circle: Repository types
+
+When creating a new repository, you must choose between three repository types:
+
+| Type | Content | Metadata and signature | Use case |
+|---|---|---|---|
+| **Filtered** | Packages selected from a [source repository](/configuration/source-repositories/) (architectures, include / exclude, latest versions) | Rebuilt by Repomanager, signed with its own GPG key | Provide a controlled subset of an upstream repository. See [Create a filtered repository](#create-a-filtered-repository). |
+| **Local** | Your own packages, uploaded manually | Rebuilt by Repomanager, signed with its own GPG key | Distribute internal or custom packages. See [Create a local repository](#create-a-local-repository). |
+| **Mirror** | All packages of an upstream repository, copied as is | Upstream files and signatures, kept byte for byte | Provide a public or internal mirror that clients use with the upstream GPG key. See [Mirrors](/usage/mirrors/). |
+
+Arch Linux repositories can only be mirrored.
+
 ## :material-plus-circle: Create a filtered repository
 
 !!! info "Filtered repositories and mirrors"

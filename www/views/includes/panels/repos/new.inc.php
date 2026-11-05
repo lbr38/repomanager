@@ -17,8 +17,12 @@
             <label for="package-type-arch">arch</label>
         </div>
 
-        <h6 class="required">REPOSITORY TYPE</h6>
-        <p class="note">Filtered: packages selected from a source repository, metadata rebuilt and signed by Repomanager. Local: your own packages. Mirror: upstream repository copied as is, with its original metadata and signatures.</p>
+        <div class="flex align-item-center column-gap-5 margin-top-20">
+            <h6 class="required margin-top-0">REPOSITORY TYPE</h6>
+            <a href="https://docs.repomanager.net/usage/operations/#repository-types" target="_blank" rel="noopener noreferrer" title="Filtered, local and mirror repositories: see documentation">
+                <img src="/assets/icons/question.svg" class="icon-small icon-lowopacity" />
+            </a>
+        </div>
         <div class="switch-field">
             <input type="radio" id="repo-type_filtered" class="task-param" param-name="repo-type" name="repo-type" value="filtered" package-type="all" checked />
             <label for="repo-type_filtered">Filtered</label>
