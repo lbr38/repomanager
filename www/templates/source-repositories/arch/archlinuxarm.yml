@@ -1,0 +1,21 @@
+---
+description: Arch Linux ARM official repositories
+type: arch
+repositories:
+  # Arch Linux ARM official repositories, mirror.archlinuxarm.org redirects to a geographically close mirror
+  - name: archlinuxarm
+    type: arch
+    description: Arch Linux ARM official repositories
+    url: http://mirror.archlinuxarm.org/$arch/$repo
+    repos:
+      - name: core
+        description: Arch Linux ARM core
+      - name: extra
+        description: Arch Linux ARM extra
+      - name: alarm
+        description: Arch Linux ARM specific packages
+      - name: aur
+        description: Arch Linux ARM AUR packages
+    archs:
+      - name: aarch64
+      - name: armv7h

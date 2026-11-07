@@ -250,17 +250,6 @@ $(document).on('click',"input[name=checkbox-repo]",function () {
         );
     }
 
-    if (myrepopermission.allowedAction('edit')) {
-        buttons.push(
-            {
-                'text': 'Edit',
-                'callback': function () {
-                    executeAction('edit')
-                }
-            }
-        );
-    }
-
     // Install is always allowed by default
     buttons.push(
         {
@@ -320,7 +309,11 @@ function syncRepoGroupSelectionButtons(groupId)
 /**
  *  Unselect all snapshots and environments of the repositories list
  */
-function clearReposSelection()
+/**
+ *  Clear repositories selection
+ *  closeConfirmBox: false when the caller prints its own confirm box right after, closing it would remove the new one at the end of the close animation
+ */
+function clearReposSelection(closeConfirmBox = true)
 {
     const list = $('#repositories-list');
 
@@ -331,7 +324,9 @@ function clearReposSelection()
 
     $('.repos-list-group-select-latest-btns, .repos-list-select-all-btns').attr('status', '').addClass('hide').hide().css({'opacity': '', 'filter': ''}).find('input[type="checkbox"]').prop('checked', false);
 
-    myconfirmbox.close();
+    if (closeConfirmBox) {
+        myconfirmbox.close();
+    }
 }
 
 function executeAction(action)
@@ -361,13 +356,9 @@ function executeAction(action)
     var repos = JSON.stringify(repos);
 
     /**
-     *  If the action is 'edit', then get the edit panel
+     *  If the action is 'install', then get the install panel
      */
-    if (action == 'edit') {
-        mypanel.get('repos/edit', {
-            repos: repos
-        });
-    } else if (action == 'install') {
+    if (action == 'install') {
         mypanel.get('repos/install', {
             repos: repos
         });
@@ -528,8 +519,20 @@ $(document).on('submit','#task-form',function (e) {
         // Retrieve the task action
         obj['action'] = $(this).attr('action');
 
+        // Mirrors tasks are identified by their domain and target a mirror Id
+        if ($(this).attr('domain')) {
+            obj['domain'] = $(this).attr('domain');
+
+            if (obj['action'] != 'create') {
+                obj['mirror-id'] = $(this).attr('mirror-id');
+            }
+
+            if ($(this).attr('mirror-snap-id')) {
+                obj['mirror-snap-id'] = $(this).attr('mirror-snap-id');
+            }
+
         // If action is not 'create' then we retrieve the snap id and env id
-        if (obj['action'] != 'create') {
+        } else if (obj['action'] != 'create') {
             obj['repo-id'] = $(this).attr('repo-id');
             obj['snap-id'] = $(this).attr('snap-id');
             obj['env-id']  = $(this).attr('env-id');

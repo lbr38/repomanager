@@ -2,7 +2,7 @@
  *  Event: print repository installation commands on environment change
  */
 $(document).on('change','#repo-install-select-env',function (e) {
-    event.preventDefault(e);
+    e.preventDefault();
 
     // Get environment name
     const env = $(this).val();
@@ -23,10 +23,13 @@ $(document).on('change','#repo-install-select-env',function (e) {
         var dist = $(this).attr('dist');
         var component = $(this).attr('component');
         var releasever = $(this).attr('releasever');
+        // An unsigned snapshot cannot be verified: the repository is trusted as is, without the Repomanager GPG key
+        var signed = $(this).attr('signed') != 'false';
+        var html = '';
 
         if (packageType == 'deb') {
             html  = 'cat << EOF > /etc/apt/sources.list.d/' + prefix + name + '-' + dist + '-' + component + '.list\n';
-            html += 'deb ' + url + '/deb/' + name + '/' + dist + '/' + component + '/' + env + ' ' + dist + ' ' + component + '\n';
+            html += 'deb ' + (signed ? '' : '[trusted=yes] ') + url + '/deb/' + name + '/' + dist + '/' + component + '/' + env + ' ' + dist + ' ' + component + '\n';
             html += 'EOF';
         }
 
@@ -38,7 +41,11 @@ $(document).on('change','#repo-install-select-env',function (e) {
             html += 'Suites: ' + dist + '\n';
             html += 'Components: ' + component + '\n';
             html += 'Enabled: yes\n';
-            html += 'Signed-By: /etc/apt/keyrings/' + hostname + '.asc\n';
+            if (signed) {
+                html += 'Signed-By: /etc/apt/keyrings/' + hostname + '.asc\n';
+            } else {
+                html += 'Trusted: yes\n';
+            }
             html += 'EOF';
         }
 
@@ -48,8 +55,12 @@ $(document).on('change','#repo-install-select-env',function (e) {
             html += 'name=' + name + ' repo on ' + hostname + '\n'
             html += 'baseurl=' + url + '/rpm/' + name + '/' + releasever + '/' + env + '\n'
             html += 'enabled=1\n'
-            html += 'gpgkey=' + url + '/gpgkeys/' + hostname + '.pub\n'
-            html += 'gpgcheck=1\n'
+            if (signed) {
+                html += 'gpgkey=' + url + '/gpgkeys/' + hostname + '.pub\n'
+                html += 'gpgcheck=1\n'
+            } else {
+                html += 'gpgcheck=0\n'
+            }
             html += 'EOF';
         }
 
@@ -62,6 +73,9 @@ $(document).on('change','#repo-install-select-env',function (e) {
         // Print the installation commands
         $('div#repository-install-commands-container').show();
     });
+
+    // Warn if the environment does not point to the selected snapshot
+    printInstallEnvWarning(env, '.repository-install-block');
 
     return false;
 });

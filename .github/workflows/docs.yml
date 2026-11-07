@@ -3,9 +3,15 @@ on:
   push:
     branches:
       - main
+      - devel
 
 permissions:
   contents: write
+
+# Avoid concurrent pushes to gh-pages (main and devel)
+concurrency:
+  group: gh-pages
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -30,10 +36,22 @@ jobs:
 
       - run: pip install -r documentation/requirements.txt
 
-      - run: |
+      - name: Deploy documentation
+        run: |
           cd documentation
-          mike deploy --push --update-aliases ${{ env.VERSION }} latest
-          mike set-default --push latest
+          if [ "${GITHUB_REF_NAME}" = "main" ]; then
+            # Release: final title, latest alias, default version
+            mike deploy --push --update-aliases --title "${VERSION}" "${VERSION}" latest
+            mike set-default --push latest
+          else
+            # Devel: never overwrite an already released version
+            TITLE=$(mike list --json | jq -r --arg v "$VERSION" '.[] | select(.version == $v) | .title')
+            if [ "$TITLE" = "$VERSION" ]; then
+              echo "Version ${VERSION} already released, skipping"
+              exit 0
+            fi
+            mike deploy --push --title "${VERSION} (not released yet)" "${VERSION}"
+          fi
 
       # Root 404: redirect version-less URLs (/usage/operations/) to the latest version
       - name: Publish root 404 redirect

@@ -133,11 +133,28 @@ class Schedule
 
         /**
          *  If a notify or a reminder is set, check that the schedule recipient is set
+         *  Hourly and daily recurring tasks have no reminder (the field is hidden in the form and cleared when the task is saved), ignore it
          */
-        if ($scheduleParams['schedule-notify-error'] == 'true' || $scheduleParams['schedule-notify-success'] == 'true' || !empty($scheduleParams['schedule-reminder'])) {
-            if (empty($scheduleParams['schedule-recipient'])) {
-                throw new Exception('A recipient must be specified');
-            }
+        $reminders = $scheduleParams['schedule-reminder'];
+
+        if (($scheduleParams['schedule-type'] ?? '') == 'recurring' and in_array($scheduleParams['schedule-frequency'] ?? '', ['hourly', 'daily'])) {
+            $reminders = [];
+        }
+
+        $alerts = [];
+
+        if ($scheduleParams['schedule-notify-error'] == 'true') {
+            $alerts[] = 'notify on task error';
+        }
+        if ($scheduleParams['schedule-notify-success'] == 'true') {
+            $alerts[] = 'notify on task success';
+        }
+        if (!empty($reminders)) {
+            $alerts[] = 'reminder';
+        }
+
+        if (!empty($alerts) and empty($scheduleParams['schedule-recipient'])) {
+            throw new Exception('A recipient must be specified to receive the task scheduling alerts (' . implode(', ', $alerts) . '), or disable them');
         }
 
         /**

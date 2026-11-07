@@ -1,4 +1,14 @@
 <?php
+use Controllers\User\Permission\Repo as RepoPermission;
+
+/**
+ *  Only users allowed to edit source repositories can modify them
+ *  Predefined values can be retrieved by any user, they are used in tasks forms
+ */
+if (!str_starts_with($action, 'get-predefined') and !RepoPermission::allowedAction('edit-source')) {
+    response(HTTP_BAD_REQUEST, 'You are not allowed to perform this action');
+}
+
 /**
  *  Add a new source repo
  */

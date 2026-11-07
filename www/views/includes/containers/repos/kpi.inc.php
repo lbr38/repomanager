@@ -11,6 +11,18 @@ use \Controllers\Utils\Generate\Html\Label; ?>
                 <p class="kpi-value"><?= $totalRepos ?></p>
                 <p class="mediumopacity-cst"><?= $totalRepos <= 1 ? 'Repository' : 'Repositories' ?></p>
             </div>
+
+            <?php
+            // Mirrors count, displayed in the same card as repositories
+            if ($totalMirrors > 0) : ?>
+                <span class="kpi-divider"></span>
+                <img src="/assets/icons/duplicate.svg" class="icon-np icon-medium" />
+                <div>
+                    <p class="kpi-value"><?= $totalMirrors ?></p>
+                    <p class="mediumopacity-cst"><?= $totalMirrors <= 1 ? 'Mirror' : 'Mirrors' ?></p>
+                </div>
+                <?php
+            endif ?>
         </div>
 
         <div class="kpi-card">
@@ -32,27 +44,42 @@ use \Controllers\Utils\Generate\Html\Label; ?>
         </div>
 
         <?php
+        // KPI card: mirrors storage, only if mirrors are stored on another filesystem than repositories
+        if (!empty($mirrorsStorage)) : ?>
+            <div class="kpi-card">
+                <img src="/assets/icons/disk.svg" class="icon-np icon-medium" />
+                <div class="flex flex-direction-column flex-wrap width-100">
+                    <div class="flex flex-wrap-mobile align-item-center column-gap-30 justify-space-between">
+                        <p class="kpi-value"><?= $mirrorsStorage['percent'] ?>%</p>
+
+                        <div class="<?= $mirrorsStorage['class'] ?>" title="<?= $mirrorsStorage['percent'] ?>% used storage">
+                            <span style="width: <?= $mirrorsStorage['percent'] ?>%"></span>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap align-item-center column-gap-10 row-gap-5 justify-space-between">
+                        <p class="mediumopacity-cst">Mirrors storage</p>
+                        <p class="mediumopacity-cst margin-top-5"><?= $mirrorsStorage['used'] ?> used / <?= $mirrorsStorage['free'] ?> free</p>
+                    </div>
+                </div>
+            </div>
+            <?php
+        endif;
+
         // KPI card: last scheduled task status
         if (!empty($lastScheduledTask) and !empty($lastScheduledTask['Date']) and !empty($lastScheduledTask['Time']) and (time() - strtotime($lastScheduledTask['Date'] . ' ' . $lastScheduledTask['Time']) <= 1296000)) :
-            if ($lastScheduledTask['Status'] == 'error' or $lastScheduledTask['Status'] == 'stopped') {
+            // If the task dispatched sub-tasks, its real status is a summary of their statuses
+            $lastTaskStatus = !empty($lastScheduledTaskSummary) ? $lastScheduledTaskSummary['status'] : $lastScheduledTask['Status'];
+
+            if (in_array($lastTaskStatus, ['error', 'stopped'])) {
                 $lastTaskIcon = 'warning-red';
                 $lastTaskValue = 'Failed';
+            } elseif (in_array($lastTaskStatus, ['running', 'queued'])) {
+                $lastTaskIcon = 'loading';
+                $lastTaskValue = 'Running';
             } else {
                 $lastTaskIcon = 'check';
                 $lastTaskValue = 'Success';
-            }
-
-            // If the task dispatched sub-tasks, its real status is a summary of their statuses
-            if (!empty($lastScheduledTaskSummary)) {
-                $lastTaskValue = 'Success';
-
-                if ($lastScheduledTaskSummary['status'] == 'running') {
-                    $lastTaskIcon = 'loading';
-                } elseif ($lastScheduledTaskSummary['status'] == 'error') {
-                    $lastTaskIcon = 'warning-red';
-                } else {
-                    $lastTaskIcon = 'check';
-                }
             } ?>
 
             <a href="/task/<?= $lastScheduledTask['Id'] ?>" class="kpi-card">

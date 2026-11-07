@@ -156,6 +156,56 @@ class Environment
     }
 
     /**
+     *  Return the environments that can be pointed to a snapshot, in the configured order
+     *  A protected environment cannot be pointed: it is not listed in the forms, protectedNote() explains why
+     */
+    public static function getPointable(): array
+    {
+        return array_values(array_filter(ENVS, function ($env) {
+            return ($env['Protected'] ?? 'false') != 'true';
+        }));
+    }
+
+    /**
+     *  Return a list of environments for a message, singular or plural depending on the count
+     *  e.g. 'protected environment <b>prod</b>' or 'protected environments <b>preprod, prod</b>'
+     */
+    public static function nameList(array $envs, string $adjective = ''): string
+    {
+        $word = count($envs) > 1 ? 'environments' : 'environment';
+
+        if (!empty($adjective)) {
+            $word = $adjective . ' ' . $word;
+        }
+
+        return $word . ' <b>' . htmlspecialchars(implode(', ', $envs)) . '</b>';
+    }
+
+    /**
+     *  Return a note explaining why protected environments are not listed in the forms, or an empty string if there is none
+     */
+    public static function protectedNote(): string
+    {
+        $protected = [];
+
+        foreach (ENVS as $env) {
+            if (($env['Protected'] ?? 'false') == 'true') {
+                $protected[] = $env['Name'];
+            }
+        }
+
+        if (empty($protected)) {
+            return '';
+        }
+
+        if (count($protected) > 1) {
+            return '<p class="note margin-top-5">' . ucfirst(self::nameList($protected, 'protected')) . ' cannot be pointed and are not listed. Remove the protection in the settings to point them.</p>';
+        }
+
+        return '<p class="note margin-top-5">' . ucfirst(self::nameList($protected, 'protected')) . ' cannot be pointed and is not listed. Remove the protection in the settings to point it.</p>';
+    }
+
+    /**
      *  Return true if the environment is protected
      */
     public function isProtected(string $name): bool

@@ -1,11 +1,12 @@
 <?php
-use \Controllers\User\Permission\Repo as RepoPermission; ?>
+use \Controllers\User\Permission\Repo as RepoPermission;
+use \Controllers\User\Permission\Mirror as MirrorPermission; ?>
 
 <section class="section-main reloadable-container" container="repos/list">
     <div id="repositories-list">
         <?php
         // Print repositories
-        if (IS_ADMIN or (!empty(USER_PERMISSIONS['repositories']['view']['groups']) or !empty(USER_PERMISSIONS['repositories']['view']['repos']) or in_array('all', USER_PERMISSIONS['repositories']['view']))) : ?>
+        if (IS_ADMIN or (!empty(USER_PERMISSIONS['repositories']['view']['groups']) or !empty(USER_PERMISSIONS['repositories']['view']['repos']) or !empty(USER_PERMISSIONS['repositories']['view']['mirrors']) or in_array('all', USER_PERMISSIONS['repositories']['view']))) : ?>
             <div class="flex flex-direction-column row-gap-10 margin-top-15 margin-bottom-30">
                 <div class="flex column-gap-10 justify-space-between">
                     <div class="flex flex-wrap align-item-center column-gap-10 row-gap-10">
@@ -26,7 +27,7 @@ use \Controllers\User\Permission\Repo as RepoPermission; ?>
                             <?php
                         endif;
 
-                        if (RepoPermission::allowedAction('update') or RepoPermission::allowedAction('env') or RepoPermission::allowedAction('rebuild')) : ?>
+                        if (\Controllers\Task\Target::allowedAction('update') or \Controllers\Task\Target::allowedAction('env') or \Controllers\Task\Target::allowedAction('rebuild')) : ?>
                             <div class="slide-btn get-panel-btn mediumopacity" panel="repos/scheduled-task" title="Schedule a recurring task on all repositories latest snapshots">
                                 <img src="/assets/icons/calendar.svg" />
                                 <span>Schedule a task</span>
@@ -46,8 +47,9 @@ use \Controllers\User\Permission\Repo as RepoPermission; ?>
                     </div>
 
                     <?php
-                    if (RepoPermission::allowedAction('create')) : ?>
-                        <div class="slide-btn slide-btn-green get-panel-btn" panel="repos/new" title="Create a new mirror or local repository">
+                    // The repositories creation form also offers mirrors, the mirrors creation form is opened directly if the user can only create mirrors
+                    if (RepoPermission::allowedAction('create') or MirrorPermission::allowedAction('create')) : ?>
+                        <div class="slide-btn slide-btn-green get-panel-btn" panel="<?= RepoPermission::allowedAction('create') ? 'repos/new' : 'mirrors/new' ?>" title="Create a new curated repository, local repository or mirror">
                             <img src="/assets/icons/plus.svg" />
                             <span>Create a new repository</span>
                         </div>
@@ -55,7 +57,7 @@ use \Controllers\User\Permission\Repo as RepoPermission; ?>
                     endif ?>
                 </div>
 
-                <input id="repo-search-input" type="text" placeholder="Search repositories, snapshots, environments..." onkeyup="myrepo.search()" title="Search by repository name, distribution, section or release version" />
+                <input id="repo-search-input" type="text" placeholder="Search repositories, snapshots, environments..." onkeyup="myrepo.search()" title="Search by repository name, distribution, component or release version" />
             </div>
 
             <div id="repos-list-container">

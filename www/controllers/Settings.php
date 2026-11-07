@@ -387,7 +387,8 @@ class Settings
             $settingsToApply['OIDC_CLIENT_ID'] = $oidcClientId;
         }
 
-        if (isset($sendSettings['oidcClientSecret'])) {
+        // An empty secret means that the current secret must be kept (the secret is never sent back to the browser)
+        if (isset($sendSettings['oidcClientSecret']) and $sendSettings['oidcClientSecret'] !== '') {
             $oidcClientSecret = Validate::string($sendSettings['oidcClientSecret']);
             $settingsToApply['OIDC_CLIENT_SECRET'] = $oidcClientSecret;
         }

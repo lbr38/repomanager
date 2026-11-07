@@ -9,6 +9,11 @@ use Controllers\Utils\Validate;
 class Render
 {
     /**
+     *  Containers that are only available to administrators (their tabs are only available to administrators)
+     */
+    private const ADMIN_ONLY = ['cves/', 'history/', 'settings/', 'status/'];
+
+    /**
      *  Render container content
      *  InvalidContainerException is thrown when the container name is invalid or the container file does not
      *  exist, which should not be the case unless someone is trying to do something nasty
@@ -20,6 +25,13 @@ class Render
             // Check if the container name is valid
             if (!Validate::alphaNumericHyphen($container, ['/'])) {
                 throw new InvalidContainerException('Invalid container name');
+            }
+
+            // Check that the user is allowed to access the container
+            foreach (self::ADMIN_ONLY as $prefix) {
+                if (str_starts_with($container, $prefix) and !IS_ADMIN) {
+                    throw new InvalidContainerException('You are not allowed to access this container');
+                }
             }
 
             $_view = realpath(ROOT . '/views/includes/containers/' . $container . '.inc.php');

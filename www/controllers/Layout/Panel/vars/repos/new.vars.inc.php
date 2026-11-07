@@ -9,6 +9,9 @@ if (!RepoPermission::allowedAction('create')) {
     throw new Exception('You are not allowed to access this panel');
 }
 
+// Mirrors have their own creation permission, the mirror type is only offered if the user is allowed to create mirrors
+$canCreateMirror = \Controllers\User\Permission\Mirror::allowedAction('create');
+
 $groupController = new RepoGroup();
 $repoListingController = new RepoListing();
 $userController = new User();

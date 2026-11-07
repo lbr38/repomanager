@@ -5,6 +5,7 @@ namespace Controllers\Task\Form;
 use Exception;
 use Controllers\Repo\Rpm;
 use Controllers\Repo\Deb;
+use Controllers\Repo\Snapshot\Retention;
 use Controllers\History\Save as History;
 
 class Create
@@ -56,6 +57,9 @@ class Create
         // Check tags
         Param\Tags::check($formParams['tags']);
 
+        // Check snapshots retention
+        Retention::fromInput($formParams['retention'] ?? null, $formParams['retention-keep-all'] ?? 'false');
+
         // Check group
         if (!empty($formParams['group'])) {
             Param\Group::check($formParams['group']);
@@ -66,8 +70,8 @@ class Create
             $targetName = $formParams['alias'];
         }
 
-        // If the selected repo type is 'mirror' then we check additional parameters
-        if ($formParams['repo-type'] == 'mirror') {
+        // If the selected repo type is 'curated' then we check additional parameters
+        if ($formParams['repo-type'] == 'curated') {
             // Check source
             Param\Source::check($formParams['source'], $formParams['package-type']);
 

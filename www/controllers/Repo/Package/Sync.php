@@ -8,6 +8,7 @@ use Controllers\Repo\Mirror\Rpm;
 use Controllers\Repo\Mirror\Deb;
 use Exception;
 use JsonException;
+use DateTime;
 
 trait Sync
 {
@@ -50,6 +51,18 @@ trait Sync
             }
 
             /**
+             *  The update applies to the latest snapshot of the repository, whatever the snapshot selected by the user
+             *  If the user selected an older snapshot while a snapshot of the current day exists, the update would replace it
+             */
+            if (!empty($this->requestedSnapId) and $this->repoSnapshotController->exists($this->requestedSnapId)) {
+                if (!empty($this->repoSnapshotController->getOtherTodaySnapId($this->repoController->getRepoId(), $this->requestedSnapId))) {
+                    $requestedDate = DateTime::createFromFormat('Y-m-d', $this->repoSnapshotController->getDateById($this->requestedSnapId))->format('d-m-Y');
+
+                    throw new Exception('Snapshot ' . Label::white(htmlspecialchars($this->repoController->getLabel()) . ' ⸺ ' . $requestedDate) . ' cannot be updated today: the snapshot of the ' . Label::white(date('d-m-Y')) . ' would be replaced (only one snapshot per day). Update the latest snapshot instead');
+                }
+            }
+
+            /**
              *  We can update a snapshot in the same day, but we can't update another snapshot if a snapshot at the current date already exists
              *
              *  So if the snapshot date being updated == today's date ($this->repoController->getDate()) then the task can continue
@@ -66,6 +79,11 @@ trait Sync
                         throw new Exception('A snapshot already exists on the ' . Label::white($this->repoController->getDateFormatted()));
                     }
                 }
+            } elseif ($this->repoSnapshotController->hasProtectedEnv($this->repoController->getSnapId())) {
+                // Same day update: the snapshot is replaced, which is not allowed if it is used by a protected environment
+                $protectedEnvs = $this->repoSnapshotController->getProtectedEnvs($this->repoController->getSnapId());
+
+                throw new Exception('Snapshot ' . Label::white(htmlspecialchars($this->repoController->getLabel()) . ' ⸺ ' . $this->repoController->getDateFormatted()) . ' is used by ' . \Controllers\Environment::nameList($protectedEnvs, 'protected') . ' and cannot be replaced by an update on the same day');
             }
         }
 
@@ -226,6 +244,13 @@ trait Sync
              *  Set the CA certificate file to use
              */
             $mymirror->setSslCustomCaCertificate($sslCaCertificate);
+        }
+
+        /**
+         *  If the source repo requires basic authentication, then the credentials will be used
+         */
+        if (!empty($sourceDefinition['basic-authentication']['username'])) {
+            $mymirror->setBasicAuth($sourceDefinition['basic-authentication']['username'], $sourceDefinition['basic-authentication']['password'] ?? '');
         }
 
         $this->taskLogSubStepController->completed();

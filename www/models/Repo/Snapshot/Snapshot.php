@@ -182,13 +182,16 @@ class Snapshot extends \Models\Model
     }
 
     /**
-     *  Update snapshot status in the database
+     *  Delete a snapshot and its environments from the database
      */
-    public function updateStatus(int $snapId, string $status): void
+    public function delete(int $snapId): void
     {
         try {
-            $stmt = $this->db->prepare("UPDATE repos_snap SET Status = :status WHERE Id = :snapId");
-            $stmt->bindValue(':status', $status);
+            $stmt = $this->db->prepare("DELETE FROM repos_env WHERE Id_snap = :snapId");
+            $stmt->bindValue(':snapId', $snapId);
+            $stmt->execute();
+
+            $stmt = $this->db->prepare("DELETE FROM repos_snap WHERE Id = :snapId");
             $stmt->bindValue(':snapId', $snapId);
             $stmt->execute();
         } catch (Exception $e) {

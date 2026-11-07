@@ -29,10 +29,7 @@ if (!empty($rebuild) and $rebuild == 'running') {
     throw new Exception('Snapshot metadata rebuild is currently running. You cannot rebuild metadata at this time.');
 }
 
-// Define if the GPG signature checkbox should be checked by default
-if ($repoController->getPackageType() == 'rpm' && RPM_SIGN_PACKAGES == 'true') {
-    $gpgSignChecked = 'checked';
-}
-if ($repoController->getPackageType() == 'deb' && DEB_SIGN_REPO == 'true') {
+// The GPG signature checkbox is checked by default according to the current snapshot signature
+if ($repoController->getSigned() == 'true') {
     $gpgSignChecked = 'checked';
 }

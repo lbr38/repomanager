@@ -49,15 +49,18 @@ Global scheduled tasks target the latest snapshots and are not tied to specific 
 
 From the **REPOSITORIES** tab:
 
-**Step 1:** Click the `Scheduled a task` button.
+**Step 1:** Click the `Schedule a task` button.
 
 [![Schedule a task button](https://assets.repomanager.net/repomanager/6.0.0/usage/scheduling/schedule-a-task-btn.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/scheduling/schedule-a-task-btn.png)
 
 **Step 2:** Specify the action you want to execute, and filter by group, tags or package type if needed. Complete all the required fields and click the `Schedule task` button to confirm the schedule.
 
-[![Schedule a task](https://assets.repomanager.net/repomanager/6.0.0/usage/scheduling/schedule-a-task.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/scheduling/schedule-a-task.png)
+[![Schedule a task](https://assets.repomanager.net/repomanager/6.2.0/usage/scheduling/schedule-a-task.png)](https://assets.repomanager.net/repomanager/6.2.0/usage/scheduling/schedule-a-task.png)
 
 [![Schedule a task](https://assets.repomanager.net/repomanager/6.0.0/usage/scheduling/schedule-a-task-2.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/scheduling/schedule-a-task-2.png)
+
+!!! info "Repository types"
+    **Update** and **point an environment** tasks apply to all [repository types](/usage/repository-types/) matching the group, tags and package type filters (mirrors are synced). **Rebuild** tasks apply to curated and local repositories only, as the metadata of mirrors is never rebuilt. GPG options do not apply to mirrors: they keep their own signature check setting and their upstream signatures.
 
 
 <script data-goatcounter="https://repomanager.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>

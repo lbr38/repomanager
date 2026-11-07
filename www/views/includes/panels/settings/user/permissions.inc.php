@@ -4,7 +4,7 @@
     <h5>REPOSITORIES</h5>
 
     <h6>ALLOW VIEWING OF REPOSITORIES</h6>
-    <p class="note">Select the repositories that this user can view.</p>
+    <p class="note">Select the repositories (curated, local and mirrors) or groups that this user can view.</p>
     <select id="user-permissions-repos-view" user-id="<?= $userId ?>" multiple>
         <option value="all" <?= isset($permissions['repositories']['view']) && in_array('all', $permissions['repositories']['view']) ? 'selected' : '' ?>>All repositories</option>
 
@@ -23,7 +23,7 @@
             } ?>
         </optgroup>
 
-        <optgroup label="Repositories">
+        <optgroup label="Curated &amp; local repositories">
             <?php
             // Display repositories and select them if they are in the permissions
             foreach ($reposList as $repoId => $repoLabel) {
@@ -36,26 +36,72 @@
                 echo '<option value="repo-' . $repoId . '" ' . $selected . '>' . $repoLabel . '</option>';
             } ?>
         </optgroup>
+
+        <optgroup label="Mirrors">
+            <?php
+            // Display mirrors and select them if they are in the permissions (permissions saved before mirrors existed have no 'mirrors' key)
+            foreach ($mirrorsList as $mirrorId => $mirrorLabel) {
+                $selected = in_array($mirrorId, $permissions['repositories']['view']['mirrors'] ?? []) ? 'selected' : '';
+
+                echo '<option value="mirror-' . $mirrorId . '" ' . $selected . '>' . htmlspecialchars($mirrorLabel) . '</option>';
+            } ?>
+        </optgroup>
     </select>
 
     <h6>ALLOW ACTIONS ON REPOSITORIES</h6>
     <p class="note">Select the actions that this user can perform on repositories.</p>
+    <?php
+    // Actions are stored separately for repositories and mirrors, mirrors actions are prefixed with 'mirror-' in the selector (see events/settings/user.js)
+    $reposActions = [
+        'All repositories' => [
+            'edit-source' => 'Edit source repositories',
+            'edit-groups' => 'Edit repository groups'
+        ],
+        'Curated & local repositories' => [
+            'create' => 'Create repositories',
+            'update' => 'Update repositories',
+            'delete' => 'Delete repositories',
+            'duplicate' => 'Duplicate repositories',
+            'rebuild' => 'Rebuild repositories',
+            'rename' => 'Rename repositories',
+            'edit' => 'Edit repositories',
+            'browse' => 'Browse repositories',
+            'upload-package' => 'Upload packages to repositories',
+            'delete-package' => 'Delete packages from repositories',
+            'env' => 'Point environment to repository',
+            'removeEnv' => 'Remove repository environment',
+            'view-stats' => 'View repository statistics'
+        ]
+    ];
+
+    $mirrorsActions = [
+        'create' => 'Create mirrors',
+        'update' => 'Update (synchronize) mirrors',
+        'edit' => 'Edit mirrors',
+        'delete' => 'Delete mirrors',
+        'env' => 'Point environment to mirror',
+        'removeEnv' => 'Remove mirror environment'
+    ]; ?>
     <select id="user-permissions-repos-actions" user-id="<?= $userId ?>" multiple>
-        <option value="create" <?= isset($permissions['repositories']['allowed-actions']) && in_array('create', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Create repositories</option>
-        <option value="update" <?= isset($permissions['repositories']['allowed-actions']) && in_array('update', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Update repositories</option>
-        <option value="delete" <?= isset($permissions['repositories']['allowed-actions']) && in_array('delete', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Delete repositories</option>
-        <option value="duplicate" <?= isset($permissions['repositories']['allowed-actions']) && in_array('duplicate', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Duplicate repositories</option>
-        <option value="rebuild" <?= isset($permissions['repositories']['allowed-actions']) && in_array('rebuild', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Rebuild repositories</option>
-        <option value="rename" <?= isset($permissions['repositories']['allowed-actions']) && in_array('rename', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Rename repositories</option>
-        <option value="edit" <?= isset($permissions['repositories']['allowed-actions']) && in_array('edit', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Edit repositories</option>
-        <option value="browse" <?= isset($permissions['repositories']['allowed-actions']) && in_array('browse', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Browse repositories</option>
-        <option value="edit-source" <?= isset($permissions['repositories']['allowed-actions']) && in_array('edit-source', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Edit source repositories</option>
-        <option value="edit-groups" <?= isset($permissions['repositories']['allowed-actions']) && in_array('edit-groups', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Edit repository groups</option>
-        <option value="upload-package" <?= isset($permissions['repositories']['allowed-actions']) && in_array('upload-package', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Upload packages to repositories</option> 
-        <option value="delete-package" <?= isset($permissions['repositories']['allowed-actions']) && in_array('delete-package', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Delete packages from repositories</option>
-        <option value="env" <?= isset($permissions['repositories']['allowed-actions']) && in_array('env', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Point environment to repository</option>
-        <option value="removeEnv" <?= isset($permissions['repositories']['allowed-actions']) && in_array('removeEnv', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>Remove repository environment</option>
-        <option value="view-stats" <?= isset($permissions['repositories']['allowed-actions']) && in_array('view-stats', $permissions['repositories']['allowed-actions']) ? 'selected' : '' ?>>View repository statistics</option>
+        <?php
+        foreach ($reposActions as $groupLabel => $actions) : ?>
+            <optgroup label="<?= htmlspecialchars($groupLabel) ?>">
+                <?php
+                foreach ($actions as $action => $label) {
+                    $selected = in_array($action, $permissions['repositories']['allowed-actions'] ?? []) ? 'selected' : '';
+                    echo '<option value="' . $action . '" ' . $selected . '>' . $label . '</option>';
+                } ?>
+            </optgroup>
+            <?php
+        endforeach ?>
+
+        <optgroup label="Mirrors">
+            <?php
+            foreach ($mirrorsActions as $action => $label) {
+                $selected = in_array($action, $permissions['mirrors']['allowed-actions'] ?? []) ? 'selected' : '';
+                echo '<option value="mirror-' . $action . '" ' . $selected . '>' . $label . '</option>';
+            } ?>
+        </optgroup>
     </select>
 
     <h5>TASKS</h5>
@@ -74,6 +120,7 @@
 
     <h6>ALLOW ACTIONS ON HOSTS</h6>
     <select id="user-permissions-hosts-actions" user-id="<?= $userId ?>" multiple>
+        <option value="register" <?= isset($permissions['hosts']['allowed-actions']) && in_array('register', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Register hosts (API key)</option>
         <option value="request-general-infos" <?= isset($permissions['hosts']['allowed-actions']) && in_array('request-general-infos', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Request general information</option>
         <option value="request-packages-infos" <?= isset($permissions['hosts']['allowed-actions']) && in_array('request-packages-infos', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Request package information</option>
         <option value="update-packages" <?= isset($permissions['hosts']['allowed-actions']) && in_array('update-packages', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Update packages on hosts</option>

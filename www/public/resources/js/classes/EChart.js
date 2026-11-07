@@ -11,15 +11,16 @@ class EChart
     // Static registry to store all chart instances for external access
     static instances = {};
 
-    constructor(type, id, autoUpdate = true, autoUpdateInterval = 15000, days = 1, wasInNaturalState = true, periodChanged = false, preservedCurrentType = null)
+    constructor(type, id, autoUpdate = true, autoUpdateInterval = 15000, wasInNaturalState = true, periodChanged = false, preservedCurrentType = null)
     {
         this.id                 = id;
         this.type               = type;
         this.currentType        = preservedCurrentType || type; // Current type (can change with magicType)
         this._preservedColors   = null; // Store colors when switching types
+        this._labelColors       = {}; // Color of each label at first load, to keep the same colors on updates
         this.autoUpdate         = autoUpdate;
         this.autoUpdateInterval = autoUpdateInterval;
-        this.days               = days;
+        this.range              = EChart.getRange(id); // Period selected in the chart range picker (null if the chart has none)
         this._wasInNaturalState = wasInNaturalState;
         this._periodChanged     = periodChanged;
         this.datasets           = [];
@@ -220,6 +221,9 @@ class EChart
         if (!this.autoUpdate) return;
 
         this.setIntervalId[this.id] = setInterval(async () => {
+            // No need to update a chart showing a custom period that is already over
+            if (this.range && !this.range.relative && this.range.end < moment().unix()) return;
+
             console.info('EChart.startAutoUpdate: updating chart for id=' + this.id);
 
             // Get chart data
@@ -239,9 +243,12 @@ class EChart
             // Build series data
             const series = this.buildSeries();
 
-            // Update chart with new data
+            // Update chart with new data, replacing series (a series may have disappeared from the new data) and updating axes
             chart.setOption({
-                series: series
+                series: series,
+                ...this.getAxesUpdate()
+            }, {
+                replaceMerge: ['series']
             });
 
             // Only restore zoom state if user has zoomed/panned (not in natural state)
@@ -294,12 +301,94 @@ class EChart
     }
 
     /**
+     * Return the number of days of the period displayed by the chart (1 day if the chart has no range picker)
+     */
+    getDays()
+    {
+        if (!this.range) return 1;
+
+        return (this.range.end - this.range.start) / 86400;
+    }
+
+    /**
+     * Return the time axis extent matching the selected period, so that the whole period is displayed and not only the part containing data
+     * The extent does not go beyond the current time (some predefined ranges end at the end of the day / month)
+     * Returns an empty object if the chart has no range picker
+     */
+    getXAxisExtent()
+    {
+        if (!this.range) return {};
+
+        return {
+            min: this.range.start * 1000,
+            max: Math.min(this.range.end, moment().unix()) * 1000
+        };
+    }
+
+    /**
+     * Return the axes options to apply when updating the chart data
+     * - category axes (bar charts) get the new labels, as a label may have appeared or disappeared
+     * - time axes follow the selected period
+     */
+    getAxesUpdate()
+    {
+        if (this.type === 'bar') {
+            return { xAxis: { data: this.labels } };
+        }
+
+        if (this.type === 'barHorizontal') {
+            return { yAxis: { data: this.labels } };
+        }
+
+        return { xAxis: this.getXAxisExtent() };
+    }
+
+    /**
+     * Replace the colors of the labels already displayed by their color at first load
+     * Labels displayed for the first time keep the color returned by the server, unless it is already used by another label
+     */
+    keepLabelColors()
+    {
+        this.datasets.forEach((dataset, datasetIndex) => {
+            if (!dataset.colors) return;
+
+            const serverColors = [...dataset.colors];
+            const newLabels = [];
+
+            // Labels already displayed get back their color
+            this.labels.forEach((label, i) => {
+                const key = datasetIndex + '/' + label;
+
+                if (this._labelColors[key]) {
+                    dataset.colors[i] = this._labelColors[key];
+                } else if (dataset.colors[i]) {
+                    newLabels.push(i);
+                }
+            });
+
+            // New labels keep the server color, or take a server color not used by another label
+            newLabels.forEach((i) => {
+                const usedColors = dataset.colors.filter((color, j) => j !== i);
+
+                if (usedColors.includes(dataset.colors[i])) {
+                    dataset.colors[i] = serverColors.find(color => !usedColors.includes(color)) || dataset.colors[i];
+                }
+
+                this._labelColors[datasetIndex + '/' + this.labels[i]] = dataset.colors[i];
+            });
+        });
+    }
+
+    /**
      * Get chart data by ID
      * @param {*} id
      * @returns
      */
     get(id)
     {
+        // Recompute the period, predefined ranges are relative to the current date
+        this.range = EChart.getRange(id);
+
         return new Promise((resolve, reject) => {
             ajaxRequest(
                 // Controller:
@@ -309,7 +398,8 @@ class EChart
                 // Data:
                 {
                     id: id,
-                    days: this.days,
+                    timeStart: this.range?.start,
+                    timeEnd: this.range?.end,
                     sourceGetParameters: getGetParams()
                 },
                 // Print success alert:
@@ -321,6 +411,9 @@ class EChart
                 this.datasets     = jsonValue.message.datasets;
                 this.labels       = jsonValue.message.labels;
                 this.chartOptions = jsonValue.message.options;
+
+                // Keep the same colors as the first load (colors may be random on server side)
+                this.keepLabelColors();
 
                 // For debugging purposes only
                 // console.log("datasets: " + JSON.stringify(this.datasets));
@@ -349,8 +442,31 @@ class EChart
 
     /**
      * Build series array formatted for EChart
+     * Each series gets a stable id, so that updates (replaceMerge) update the existing series instead of recreating them
+     * (which would replay the whole animation)
+     * Several series can share the same name (e.g. one series per point in labels mode), so duplicates get an index suffix
      */
     buildSeries()
+    {
+        const nameCount = {};
+
+        return this.buildSeriesByType().map((serie, index) => {
+            const name = serie.name ?? 'series-' + index;
+            const count = nameCount[name] ?? 0;
+
+            nameCount[name] = count + 1;
+
+            return {
+                ...serie,
+                id: count === 0 ? name : name + '-' + count
+            };
+        });
+    }
+
+    /**
+     * Build series array for the current chart type
+     */
+    buildSeriesByType()
     {
         if (this.currentType === 'line') {
             return this.datasets.map((dataset, datasetIndex) => {
@@ -360,7 +476,7 @@ class EChart
                                  dataset.color || '#15bf7f';
                 
                 // Determine if we have large dataset
-                const isLargeDataset = this.days > 3; // Consider large if showing more than 3 days of data (configurable threshold)
+                const isLargeDataset = this.getDays() > 3; // Consider large if showing more than 3 days of data (configurable threshold)
                 
                 return {
                     name: dataset.name,
@@ -1102,7 +1218,7 @@ class EChart
 
         // Determine if we have large dataset (used for slider and other optimizations)
         const totalPoints = this.labels.length;
-        const isLargeDataset = this.days > 3;
+        const isLargeDataset = this.getDays() > 3;
 
         // DataZoom slider show / hide (auto-enable for large datasets on line/bar charts)
         if (this.chartOptions.dataZoom?.slider?.show === true || 
@@ -1110,14 +1226,44 @@ class EChart
             options.dataZoom[1].show = true;
             // Adjust grid bottom to make room for the slider
             options.grid.bottom = '45px';
+
+            // If legend is shown, place a thinner slider above it
+            if (options.legend.show) {
+                options.dataZoom[1].height = 20;
+                options.dataZoom[1].bottom = '32px';
+                options.grid.bottom = '64px';
+            }
         }
 
         // Window size for initial zoom (default 15 points) - only for line and points/scatter charts
         if (this.type === 'line' || this.type === 'points' || this.type === 'scatter') {
             const visibleCount = this.chartOptions?.['init-zoom'] ?? 15;
             
+            // If the chart has a range picker, always show the whole selected period
+            // The initial zoom below is computed from a number of points, which does not match a time axis on a period with irregular data
+            if (this.range) {
+                Object.assign(options.xAxis, this.getXAxisExtent());
+
+                // Display dates on axis labels when the period is longer than a day
+                if (this.getDays() > 1) {
+                    options.xAxis.axisLabel.formatter = (value) => {
+                        return new Date(value).toLocaleString(undefined, {
+                            day: '2-digit',
+                            month: '2-digit',
+                            hour: this.getDays() > 7 ? undefined : '2-digit',
+                            minute: this.getDays() > 7 ? undefined : '2-digit',
+                            hour12: false
+                        });
+                    };
+                }
+
+                options.dataZoom[0].start = 0;
+                options.dataZoom[0].end = 100;
+                options.dataZoom[1].start = 0;
+                options.dataZoom[1].end = 100;
+            }
             // If period changed, always show all data so user can see the new time range
-            if (this._periodChanged) {
+            else if (this._periodChanged) {
                 options.dataZoom[0].start = 0;
                 options.dataZoom[0].end = 100;
                 options.dataZoom[1].start = 0;
@@ -1282,9 +1428,12 @@ class EChart
         // Build new series
         const series = this.buildSeries();
 
-        // Update chart with new data
+        // Update chart with new data, replacing series (a series may have disappeared from the new data) and updating axes
         chart.setOption({
-            series: series
+            series: series,
+            ...this.getAxesUpdate()
+        }, {
+            replaceMerge: ['series']
         });
 
         // Only restore zoom if user has zoomed/panned (not in natural state)
@@ -1387,33 +1536,62 @@ EChart.destroyInstance = function(chartId) {
 };
 
 /**
+ * Get the period selected in the range picker of a chart
+ * The range picker is the element with class 'echart-range' having the chart ID in its 'chart-id' attribute (space separated list of chart IDs)
+ * Predefined ranges are relative and recomputed on each call, so that auto-updated charts follow the current date
+ * @param {string} id - The chart ID
+ * @returns {object|null} - { key, relative, start, end } with start and end as timestamps, or null if the chart has no range picker
+ */
+EChart.getRange = function(id) {
+    const picker = $('.echart-range[chart-id~="' + id + '"]');
+
+    if (picker.length === 0) {
+        return null;
+    }
+
+    const label = picker.attr('range');
+    const presets = mydaterangepicker.presets();
+
+    // Predefined range
+    if (presets[label]) {
+        return {
+            key: label,
+            relative: true,
+            start: presets[label][0].unix(),
+            end: presets[label][1].unix()
+        };
+    }
+
+    // Custom range
+    const start = Number(picker.attr('start'));
+    const end = Number(picker.attr('end'));
+
+    return {
+        key: start + '-' + end,
+        relative: false,
+        start: start,
+        end: end
+    };
+};
+
+/**
  * Recreate a chart by destroying and creating a new instance
+ * The period is read from the chart range picker, see EChart.getRange()
  * @param {*} type 
  * @param {*} id 
  * @param {*} autoUpdate 
  * @param {*} autoUpdateInterval 
- * @param {*} providedDays - Number of days for the chart. If null, preserves the current chart's days value.
  */
-EChart.recreate = function(type, id, autoUpdate = true, autoUpdateInterval = 15000, providedDays = null) {
+EChart.recreate = function(type, id, autoUpdate = true, autoUpdateInterval = 15000) {
     // Check if existing chart was in natural state before destroying
     let wasInNaturalState = true;
     let periodChanged = false;
     let preservedCurrentType = type; // Default to original type
     let instance = null; // Declare instance variable
-    let days = providedDays; // The final days value to use
 
     try {
         instance = EChart.instances[id];
-        
-        // If no days specified, try to preserve current chart's days value
-        if (providedDays === null && instance) {
-            days = instance.days;
-            console.info('EChart.recreate: preserving current days value:', days);
-        } else if (providedDays === null) {
-            // Fallback if no instance exists
-            days = 1;
-        }
-        
+
         // Get current chart element for zoom state check
         const chartElement = document.querySelector("#" + id);
         if (chartElement && chartElement._chartInstance && instance) {
@@ -1426,14 +1604,14 @@ EChart.recreate = function(type, id, autoUpdate = true, autoUpdateInterval = 150
             preservedCurrentType = instance.currentType || instance.type;
         }
         
-        // Check if period has changed - do this after days value is determined
+        // Check if period has changed
         if (instance) {
-            const oldDays = Number(instance.days);
-            const newDays = Number(days);
-            periodChanged = oldDays !== newDays;
+            const oldKey = instance.range?.key;
+            const newKey = EChart.getRange(id)?.key;
+            periodChanged = oldKey !== newKey;
             
             if (periodChanged) {
-                console.info('EChart.recreate: period changed from', oldDays, 'to', newDays, '- will reset zoom');
+                console.info('EChart.recreate: period changed from', oldKey, 'to', newKey, '- will reset zoom');
             }
         }
     } catch (error) {
@@ -1441,10 +1619,6 @@ EChart.recreate = function(type, id, autoUpdate = true, autoUpdateInterval = 150
         wasInNaturalState = true;
         periodChanged = false;
         preservedCurrentType = type;
-        // Ensure we have a fallback days value
-        if (days === null) {
-            days = 1;
-        }
     }
     
     if (EChart.destroyInstance(id)) {
@@ -1452,11 +1626,14 @@ EChart.recreate = function(type, id, autoUpdate = true, autoUpdateInterval = 150
         $('#' + id + '-loading').show();
 
         // Create new instance and pass the preserved type directly to constructor
-        const newInstance = new EChart(type, id, autoUpdate, autoUpdateInterval, days, wasInNaturalState, periodChanged, preservedCurrentType);
+        const newInstance = new EChart(type, id, autoUpdate, autoUpdateInterval, wasInNaturalState, periodChanged, preservedCurrentType);
         
         // Also preserve colors if they existed
         if (instance && instance._preservedColors) {
             newInstance._preservedColors = instance._preservedColors;
+        }
+        if (instance) {
+            newInstance._labelColors = instance._labelColors;
         }
     }
 }
@@ -1469,9 +1646,6 @@ EChart.formatters = {
     activeState: (val) => val === 1 ? "active" : "inactive",
 };
 
-/**
- * Event: when the period (days) selection is changed for any chart with class 'echart-period'
- */
 $(document).ready(function () {
     // Initialize charts for all elements with class 'echart'
     $('.echart').each(function() {
@@ -1479,42 +1653,27 @@ $(document).ready(function () {
         const type = $(this).attr('type');
         const autoUpdate = $(this).attr('autoupdate') || true;
         const autoUpdateInterval = $(this).attr('interval') || 15000;
-        const days = $(this).attr('days') || 1; // Default days based on screen size
         const generate = $(this).attr('generate') !== undefined; // Check if 'generate' attribute is present
 
         // Initialize charts that have the 'generate' attribute to avoid unnecessary instances
         if (id && type && generate) {
-            new EChart(type, id, autoUpdate, autoUpdateInterval, days);
+            new EChart(type, id, autoUpdate, autoUpdateInterval);
         }
     });
+});
 
-    // Listen for changes on any select element with class 'echart-period'
-    $('select.echart-period').on('change', function() {
-        // Get chart Id
-        const chartId = $(this).attr('chart-id');
-        // Get selected value - convert to number to match internal storage
-        const days = Number($(this).val());
+/**
+ * Event: when the period is changed in a chart range picker (element with class 'echart-range')
+ * Recreate each chart listed in its 'chart-id' attribute
+ */
+$(document).on('change', '.echart-range', function() {
+    const chartIds = $(this).attr('chart-id').split(' ');
 
+    for (const chartId of chartIds) {
         // Get chart type from 'type' or 'chart-type' attribute, default to 'line' if not specified
         const type = $('#' + chartId).attr('type') || $('#' + chartId).attr('chart-type') || 'line';
 
-        // Destroy and recreate chart with new days value (pass as number)
-        EChart.recreate(type, chartId, true, 15000, days);
-    });
-
-    // Listen for changes on any select element with class 'echart-range'
-    // TODO: ranges
-    // $('select.echart-range').on('change', function() {
-    //     // Get chart Id
-    //     const chartId = $(this).attr('chart-id');
-
-    //     // Get selected value - convert to number to match internal storage
-    //     const range = Number($(this).val());
-
-    //     // Get chart type from 'type' or 'chart-type' attribute, default to 'line' if not specified
-    //     const type = $('#' + chartId).attr('type') || $('#' + chartId).attr('chart-type') || 'line';
-
-    //     // Destroy and recreate chart with new days value (pass as number)
-    //     EChart.recreate(type, chartId, true, 15000, days);
-    // });
+        // Destroy and recreate chart with the new period
+        EChart.recreate(type, chartId);
+    }
 });

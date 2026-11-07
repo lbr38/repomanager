@@ -1,6 +1,7 @@
 <?php
 use \Controllers\Utils\Generate\Html\Icon;
 use \Controllers\Utils\Convert;
+use \Controllers\Utils\Generate\Html\Label;
 
 $eventGroups = [];
 
@@ -29,18 +30,7 @@ foreach ($packages as $package) {
             $firstRow = true;
 
             foreach ($timePackages as $package) :
-                $securityUpdate = Convert::toBool($package['Security'] ?? false);
-
-                [$stateLabel, $stateClass, $stateTitle] = match ($package['State']) {
-                    'installed'     => ['Installed', 'label-green', 'Installed'],
-                    'dep-installed' => ['Dependency', 'label-green', 'Installed as dependency'],
-                    'reinstalled'   => ['Reinstalled', 'label-green', 'Reinstalled'],
-                    'upgraded'      => ['Updated', 'label-yellow', 'Updated'],
-                    'downgraded'    => ['Downgraded', 'label-yellow', 'Downgraded'],
-                    'removed'       => ['Uninstalled', 'label-red', 'Uninstalled'],
-                    'purged'        => ['Purged', 'label-red', 'Uninstalled (purged)'],
-                    default         => [$package['State'], 'label-tr', $package['State']],
-                }; ?>
+                $securityUpdate = Convert::toBool($package['Security'] ?? false); ?>
 
                 <div class="event-packages-row">
                     <p class="event-packages-time"><?= $firstRow ? $time : '' ?></p>
@@ -56,7 +46,7 @@ foreach ($packages as $package) {
                         </p>
                     </div>
 
-                    <p><span class="<?= $stateClass ?>" title="<?= $stateTitle ?>"><?= $stateLabel ?></span></p>
+                    <p><?= Label::packageState($package['State']) ?></p>
 
                     <p class="text-right event-btn pointer" host-id="<?= $this->hostId ?>" event-id="<?= $package['Id_event'] ?>">#<?= $package['Id_event'] ?></p>
                 </div>

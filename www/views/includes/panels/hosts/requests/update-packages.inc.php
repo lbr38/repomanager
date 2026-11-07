@@ -4,7 +4,7 @@
     <h6>HOSTS</h6>
     <?php
     if (empty($hosts)) {
-        echo '<p class="note"><img src="/assets/icons/warning.svg" class="icon" /> Error: no host selected.</p>';
+        echo '<div class="note-warning margin-top-5"><img src="/assets/icons/warning.svg" /><p>Error: no host selected.</p></div>';
     }
 
     if (!empty($hosts)) : ?>

@@ -3,7 +3,9 @@
 namespace Controllers\Repo\Task;
 
 use Controllers\Utils\Generate\Html\Label;
+use Controllers\Filesystem\Directory;
 use Controllers\Filesystem\File;
+use Controllers\Repo\Snapshot\Retention;
 use Exception;
 
 class Create extends \Controllers\Task\Execution
@@ -25,8 +27,8 @@ class Create extends \Controllers\Task\Execution
             $this->repoController->setName($this->params['alias']);
         }
 
-        // Set parameters in case the task is a mirror repo
-        if ($this->params['repo-type'] == 'mirror') {
+        // Set parameters in case the task is a curated repo
+        if ($this->params['repo-type'] == 'curated') {
             // Alias parameter can be empty, if it's the case, the value will be 'source'
             if (!empty($this->params['alias'])) {
                 $this->repoController->setName($this->params['alias']);
@@ -58,8 +60,8 @@ class Create extends \Controllers\Task\Execution
      */
     public function execute(): void
     {
-        if ($this->type == 'mirror') {
-            $this->mirror();
+        if ($this->type == 'curated') {
+            $this->curated();
         }
 
         if ($this->type == 'local') {
@@ -68,11 +70,11 @@ class Create extends \Controllers\Task\Execution
     }
 
     /**
-     *  Create a mirror repository
+     *  Create a curated repository
      */
-    private function mirror(): void
+    private function curated(): void
     {
-        // Define the date and time of the new mirror snapshot
+        // Define the date and time of the new curated repository snapshot
         $this->repoController->setDate(date('Y-m-d'));
         $this->repoController->setTime(date('H:i'));
 
@@ -200,6 +202,7 @@ class Create extends \Controllers\Task\Execution
         // Apply description and tags after the repository Id has been determined,
         $this->repoController->updateDescription($this->repoController->getRepoId(), (string) $this->repoController->getDescription());
         $this->repoController->updateTags($this->repoController->getRepoId(), $this->repoController->getTags());
+        $this->repoController->updateRetention($this->repoController->getRepoId(), Retention::fromInput($this->params['retention'] ?? null, $this->params['retention-keep-all'] ?? 'false'));
 
         // Add snapshot to database
         $this->repoSnapshotController->add($this->repoController->getDate(), $this->repoController->getTime(), 'false', $this->repoController->getArch(), $this->repoController->getAdvancedParams(), $this->repoController->getType(), 'active', $this->repoController->getRepoId());
@@ -223,6 +226,12 @@ class Create extends \Controllers\Task\Execution
         File::recursiveChmod($snapshotPath, 'file', 660);
 
         $this->taskLogSubStepController->completed();
+
+        // Calculate and update snapshot size (the snapshot is empty, but its size must be known to be displayed)
+        $this->taskLogSubStepController->new('calculating-size', 'CALCULATING SNAPSHOT SIZE');
+        $this->repoSnapshotController->updateSize($this->repoController->getSnapId(), Directory::getSize($snapshotPath));
+        $this->taskLogSubStepController->completed();
+
         $this->taskLogStepController->completed();
 
         // Add repo to group if a group has been specified

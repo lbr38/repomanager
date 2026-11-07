@@ -135,6 +135,12 @@ class Form
                 throw new Exception('No action has been specified');
             }
 
+            // Mirrors tasks have their own validation
+            if (($task['domain'] ?? '') == 'mirror') {
+                \Controllers\Mirror\Task\Form::validate($task);
+                continue;
+            }
+
             if (!in_array($task['action'], $this->validActions)) {
                 throw new Exception('Invalid action: ' . $task['action']);
             }
@@ -177,8 +183,8 @@ class Form
             throw new Exception('This action cannot target all repositories: ' . $taskParams['action']);
         }
 
-        // If the user does not have permission to perform the specified action, prevent creation of the task
-        if (!RepoPermission::allowedAction($taskParams['action'])) {
+        // If the user does not have permission to perform the specified action (on repositories, and on mirrors when the action also applies to them), prevent creation of the task
+        if (!Target::allowedAction($taskParams['action'])) {
             throw new Exception('You are not allowed to execute this action');
         }
 

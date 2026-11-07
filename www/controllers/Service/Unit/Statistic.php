@@ -17,6 +17,9 @@ class Statistic extends \Controllers\Service\Service
     private $rpmRepoStatController;
     private $repoListingController;
     private $repoSnapshotController;
+    private $mirrorController;
+    private $mirrorEnvController;
+    private $mirrorStatController;
 
     public function __construct(string $unit)
     {
@@ -28,6 +31,9 @@ class Statistic extends \Controllers\Service\Service
         $this->rpmRepoStatController = new \Controllers\Repo\Statistic\Rpm();
         $this->repoListingController = new \Controllers\Repo\Listing();
         $this->repoSnapshotController = new \Controllers\Repo\Snapshot\Snapshot();
+        $this->mirrorController = new \Controllers\Mirror\Mirror();
+        $this->mirrorEnvController = new \Controllers\Mirror\Environment();
+        $this->mirrorStatController = new \Controllers\Mirror\Statistic();
     }
 
     /**
@@ -201,8 +207,8 @@ class Statistic extends \Controllers\Service\Service
                     // Get line from access log file
                     $line = fgets($file);
 
-                    // Skip line if it does not contain a repo access
-                    if (!preg_match('/urlgrabber|libdnf|APT-CURL|APT-HTTP/', $line)) {
+                    // Skip line if it does not contain a repo access (pacman is used by Arch Linux mirrors clients)
+                    if (!preg_match('/urlgrabber|libdnf|APT-CURL|APT-HTTP|pacman\//', $line)) {
                         continue;
                     }
 
@@ -257,13 +263,18 @@ class Statistic extends \Controllers\Service\Service
              */
             $reposList = $this->repoListingController->list();
 
+            /**
+             *  Get the URI of each environment of each mirror
+             */
+            $mirrorsUris = $this->getMirrorsUris();
+
             if (empty($queue)) {
                 parent::logDebug('No access log entries in the queue to process, exiting');
                 break;
             }
 
-            if (empty($reposList)) {
-                parent::logDebug('No repository found, exiting');
+            if (empty($reposList) and empty($mirrorsUris)) {
+                parent::logDebug('No repository nor mirror found, exiting');
                 break;
             }
 
@@ -328,6 +339,27 @@ class Statistic extends \Controllers\Service\Service
                  *  Request grabber
                  */
                 $requestGrabber = $request[12];
+
+                /**
+                 *  Case the request is made for a mirror
+                 *  The URI of a mirror environment ends with a slash, so that an environment does not match another one starting with the same name
+                 */
+                if (str_contains($fullRequest, ' ' . \Controllers\Mirror\Mirror::URL_PATH . '/')) {
+                    foreach ($mirrorsUris as $mirrorUri) {
+                        if (str_contains($fullRequest, ' ' . $mirrorUri['uri'])) {
+                            if (!empty($timestamp) and !empty($sourceHost) and !empty($sourceIp) and !empty($requestResult)) {
+                                $this->mirrorStatController->addAccess($timestamp, $mirrorUri['mirrorId'], $mirrorUri['env'], $sourceHost, $sourceIp, $fullRequest, $requestResult);
+                            }
+
+                            $this->repoStatController->deleteFromQueue($id);
+                            continue 2;
+                        }
+                    }
+
+                    parent::logError('Could not find matching mirror for request #' . $id . ': ' . $fullRequest);
+                    $this->repoStatController->deleteFromQueue($id);
+                    continue;
+                }
 
                 /**
                  *  Loop through repos list until the repo called in the request is found
@@ -436,5 +468,25 @@ class Statistic extends \Controllers\Service\Service
 
             sleep(5);
         }
+    }
+
+    /**
+     *  Return the URI of each environment of each mirror (e.g. /mirror/deb/debian/prod/), with the mirror Id and the environment
+     */
+    private function getMirrorsUris(): array
+    {
+        $uris = [];
+
+        foreach ($this->mirrorController->get() as $mirror) {
+            foreach (array_keys($this->mirrorEnvController->getByMirrorId($mirror['Id'])) as $env) {
+                $uris[] = [
+                    'uri'      => \Controllers\Mirror\Mirror::URL_PATH . '/' . \Controllers\Mirror\Mirror::getDirOf($mirror) . '/' . $env . '/',
+                    'mirrorId' => $mirror['Id'],
+                    'env'      => $env
+                ];
+            }
+        }
+
+        return $uris;
     }
 }

@@ -158,11 +158,73 @@ class Panel {
     }
 
     /**
+     * Replace an opened panel by another one, without the slide animation
+     * @param {*} current
+     * @param {*} name
+     * @param {*} params
+     * @returns
+     */
+    replace(current, name, params = [''])
+    {
+        // Print a loading icon on the bottom of the page
+        mylayout.printLoading();
+
+        return new Promise((resolve, reject) => {
+            ajaxRequest(
+                // Controller:
+                'general',
+                // Action:
+                'get-panel',
+                // Data:
+                {
+                    name: name,
+                    params: params
+                },
+                // Print success alert:
+                false,
+                // Print error alert:
+                true
+            ).then(() => {
+                const content = $(jsonValue.message);
+                const html = (content.is('.slide-panel') ? content : content.find('.slide-panel')).html();
+
+                // If panel content was not found in the response, reject the promise
+                if (html === undefined) {
+                    reject('Panel content was not found');
+                    return;
+                }
+
+                // Rename the current panel container and replace its content
+                $('.slide-panel-container[slide-panel="' + current + '"]').attr('slide-panel', name).find('.slide-panel').html(html);
+
+                resolve('Panel replaced successfully');
+            }).catch((e) => {
+                reject('Failed to replace panel ' + current + ' by ' + name + ': ' + e);
+            }).finally(() => {
+                // Hide loading icon
+                mylayout.hideLoading();
+            });
+        });
+    }
+
+    /**
      * Close panel
      * @param {*} name
      */
     close(name = null)
     {
+        const container = name != null ? $('.slide-panel-container[slide-panel="' + name + '"]') : $('.slide-panel-container');
+
+        /**
+         *  Close the select2 dropdowns of the panel: they are attached to the body and would stay displayed once the panel is removed
+         *  (e.g. on Escape key press when the focus is not in the select2 anymore)
+         */
+        container.find('select.select2-hidden-accessible').each(function () {
+            if ($(this).data('select2') && $(this).data('select2').isOpen()) {
+                $(this).select2('close');
+            }
+        });
+
         if (name != null) {
             $('.slide-panel-container[slide-panel="' + name + '"]').find('.slide-panel').animate({
                 right: '-1000px',

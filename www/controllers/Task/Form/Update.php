@@ -35,8 +35,40 @@ class Update
             Param\Environment::check($formParams['env']);
         }
 
+        /**
+         *  Only one snapshot per day: a same day update replaces the snapshot of the current day
+         *  Scheduled tasks are checked when executed, as their execution date is not known yet
+         */
+        if ($repoController->getType() == 'curated' and ($formParams['schedule']['scheduled'] ?? 'false') != 'true') {
+            $repoSnapshotController = new Snapshot();
+
+            // An update applies to the latest snapshot: updating an older snapshot would replace the snapshot of the current day
+            if (!empty($repoSnapshotController->getOtherTodaySnapId($repoController->getRepoId(), (int) $formParams['snap-id']))) {
+                throw new Exception('Snapshot ' . Label::white(htmlspecialchars($repoController->getLabel()) . ' ⸺ ' . $repoController->getDateFormatted()) . ' cannot be updated today: the snapshot of the ' . Label::white(date('d-m-Y')) . ' would be replaced (only one snapshot per day). Update the latest snapshot instead');
+            }
+
+            // The snapshot of the current day cannot be replaced if it is used by a protected environment
+            if ($repoController->getDate() == date('Y-m-d')) {
+                $protectedEnvs = $repoSnapshotController->getProtectedEnvs((int) $formParams['snap-id']);
+
+                if (!empty($protectedEnvs)) {
+                    throw new Exception('Snapshot ' . Label::white(htmlspecialchars($repoController->getLabel()) . ' ⸺ ' . $repoController->getDateFormatted()) . ' is used by ' . \Controllers\Environment::nameList($protectedEnvs, 'protected') . ' and cannot be replaced by an update on the same day');
+                }
+            }
+        }
+
+        /**
+         *  A local repository update creates a new snapshot of the current day: it cannot replace an existing one
+         *  Scheduled tasks are checked when executed, as their execution date is not known yet
+         */
+        if ($repoController->getType() == 'local' and ($formParams['schedule']['scheduled'] ?? 'false') != 'true') {
+            if ((new Snapshot())->hasTodaySnapshot($repoController->getRepoId())) {
+                throw new Exception('Local repository ' . Label::white(htmlspecialchars($repoController->getLabel())) . ' cannot be updated today: a snapshot of the ' . Label::white(date('d-m-Y')) . ' already exists (only one snapshot per day)');
+            }
+        }
+
         // Case of a mirror repository, check additional parameters
-        if ($repoController->getType() == 'mirror') {
+        if ($repoController->getType() == 'curated') {
             // Check keep latest versions of packages
             Param\KeepLatest::check($formParams['advanced-params']['packages']['keep-latest']);
 

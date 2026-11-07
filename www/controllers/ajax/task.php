@@ -79,11 +79,15 @@ if ($_POST['action'] == 'count-target-repos' and isset($_POST['target'])) {
 
         $repos = $targetController->resolve($target);
         $count = count($repos);
+        $mirrorsCount = count($targetController->resolveMirrors($target));
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, 'Target: ' . \Controllers\Task\Target::describe($target) . '. ' . $count . ' repositor' . ($count == 1 ? 'y' : 'ies') . ' currently matching.');
+    // Mirrors are only targeted by update and environment tasks
+    $mirrorsDescription = $mirrorsCount > 0 ? ' and ' . $mirrorsCount . ' mirror' . ($mirrorsCount == 1 ? '' : 's') . ' (update and environment tasks only)' : '';
+
+    response(HTTP_OK, 'Target: ' . \Controllers\Task\Target::describe($target) . '. ' . $count . ' repositor' . ($count == 1 ? 'y' : 'ies') . $mirrorsDescription . ' currently matching.');
 }
 
 /**
@@ -143,7 +147,7 @@ if ($_POST['action'] == 'delete' and !empty($_POST['id'])) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, 'Task' . (is_array($_POST['id']) and count($_POST['id']) > 1 ? 's have' : ' has') . ' been deleted');
+    response(HTTP_OK, 'Task' . ((is_array($_POST['id']) && count($_POST['id']) > 1) ? 's have' : ' has') . ' been deleted');
 }
 
 /**
@@ -169,7 +173,7 @@ if ($_POST['action'] == 'stop' and !empty($_POST['id'])) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, 'Task' . (is_array($_POST['id']) and count($_POST['id']) > 1 ? 's have' : ' has') . ' been stopped');
+    response(HTTP_OK, 'Task' . ((is_array($_POST['id']) && count($_POST['id']) > 1) ? 's have' : ' has') . ' been stopped');
 }
 
 /**

@@ -218,6 +218,12 @@ class Duplicate extends \Controllers\Task\Execution
                 }
             }
 
+            // Apply the same permissions as the other snapshots (see Finalize), the copied files and directories are created with the default umask
+            $this->taskLogSubStepController->new('applying-permissions', 'APPLYING PERMISSIONS');
+            File::recursiveChmod($targetSnapshotPath, 'dir', 770);
+            File::recursiveChmod($targetSnapshotPath, 'file', 660);
+            $this->taskLogSubStepController->completed();
+
             $this->taskLogSubStepController->new('inserting-database', 'INSERTING REPOSITORY IN DATABASE');
 
             // Insert the new repo in database and retrieve its Id
@@ -255,13 +261,15 @@ class Duplicate extends \Controllers\Task\Execution
             $this->repoController->updateDescription($this->repoController->getRepoId(), (string) $this->repoController->getDescription());
             $this->repoController->updateTags($this->repoController->getRepoId(), $this->repoController->getTags());
 
-            // Add the new repo to a group if a group has been specified
-            if (!empty($this->repoController->getGroup())) {
-                $this->repoController->addRepoIdToGroup($this->repoController->getRepoId(), $this->repoController->getGroup());
-            }
-
             $this->taskLogSubStepController->completed();
             $this->taskLogStepController->completed();
+
+            // Add the new repo to a group if a group has been specified
+            if (!empty($this->repoController->getGroup())) {
+                $this->taskLogStepController->new('add-to-group', 'ADDING REPOSITORY TO GROUP');
+                $this->repoController->addRepoIdToGroup($this->repoController->getRepoId(), $this->repoController->getGroup());
+                $this->taskLogStepController->completed();
+            }
 
         // If an error occurred after the temporary directory was renamed, clean the target directory
         } catch (Exception $e) {

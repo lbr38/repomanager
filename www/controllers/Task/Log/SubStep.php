@@ -22,11 +22,15 @@ class SubStep extends Log
 
     /**
      *  Add a new sub-step to the latest step
+     *  $closePrevious: close the previous sub-step, unless sub-steps run in parallel (e.g. parallel downloads),
+     *  in which case each sub-step must be closed with its identifier
      */
-    public function new(string $identifier, string $title = '', string $note = '') : void
+    public function new(string $identifier, string $title = '', string $note = '', bool $closePrevious = true) : void
     {
         // First, close previous sub-step if not already closed
-        $this->completed();
+        if ($closePrevious) {
+            $this->completed();
+        }
 
         // Get latest step Id
         $stepId = $this->stepController->getLatestStepId();
@@ -50,17 +54,11 @@ class SubStep extends Log
             return;
         }
 
-        // If no identifier is provided, get latest sub-step key name, otherwise use the provided identifier
-        if (!empty($identifier)) {
-            // Get substep Id by identifier
-            $substepId = $this->getSubStepIdByIdentifier($stepId, $identifier);
-        } else {
-            // Get latest substep Id
-            $substepId = $this->getLatestSubStepId($stepId);
-        }
+        // If no identifier is provided, get latest sub-step, otherwise use the provided identifier
+        $substepId = $this->getSubStepId($stepId, $identifier);
 
         // First, add message to output, if any
-        $this->output($message);
+        $this->output($message, null, $identifier);
 
         // If there was substeps, mark latest substep as completed in database
         if (!empty($substepId)) {
@@ -75,18 +73,18 @@ class SubStep extends Log
     }
 
     /**
-     *  Set a warning message for the latest sub-step
+     *  Set a warning message for the latest sub-step, or for the sub-step with the provided identifier
      */
-    public function warning(string $message) : void
+    public function warning(string $message, string $identifier = '') : void
     {
         // Get latest step Id
         $stepId = $this->stepController->getLatestStepId();
 
-        // Get latest sub-step Id
-        $substepId = $this->getLatestSubStepId($stepId);
+        // Get sub-step Id
+        $substepId = $this->getSubStepId($stepId, $identifier);
 
         // Add warning message to output
-        $this->output($message, 'warning');
+        $this->output($message, 'warning', $identifier);
 
         // If there was substeps, mark latest substep as warning in database
         if (!empty($substepId)) {
@@ -112,6 +110,8 @@ class SubStep extends Log
         if (!empty($substepId)) {
             $this->model->status($substepId, 'error');
         }
+
+        $this->stopRunning($stepId);
     }
 
     /**
@@ -129,15 +129,30 @@ class SubStep extends Log
         if (!empty($substepId)) {
             $this->model->status($substepId, 'stopped');
         }
+
+        $this->stopRunning($stepId);
     }
 
     /**
-     *  Add output to the latest sub-step
+     *  Mark the sub-steps still running in parallel of the latest one (e.g. parallel downloads) as stopped,
+     *  when the task ends with an error or is stopped
      */
-    public function output(string $message, string|null $type = null) : void
+    private function stopRunning(int|null $stepId) : void
     {
-        $output = [];
+        if (empty($stepId)) {
+            return;
+        }
 
+        foreach ($this->model->getRunningIds($stepId) as $substepId) {
+            $this->model->status($substepId, 'stopped');
+        }
+    }
+
+    /**
+     *  Add output to the latest sub-step, or to the sub-step with the provided identifier
+     */
+    public function output(string $message, string|null $type = null, string|null $identifier = '') : void
+    {
         if (empty($message)) {
             return;
         }
@@ -146,11 +161,59 @@ class SubStep extends Log
             $type = 'info';
         }
 
+        $this->updateOutput(function (array $output) use ($message, $type) {
+            $output[] = [
+                'time' => microtime(true),
+                'type' => $type,
+                'message' => $message
+            ];
+
+            return $output;
+        }, $identifier);
+    }
+
+    /**
+     *  Set the progress message of the latest sub-step: unlike output(), it replaces the previous progress message
+     *  so that a long running sub-step can display its progress frequently without growing its output
+     *  A null message removes the progress message (e.g. once the sub-step is done and has output its summary)
+     */
+    public function progress(string|null $message) : void
+    {
+        $this->updateOutput(function (array $output) use ($message) {
+            $output = array_values(array_filter($output, function ($entry) {
+                return empty($entry['live']);
+            }));
+
+            if (!empty($message)) {
+                $output[] = [
+                    'time' => microtime(true),
+                    'type' => 'note',
+                    'message' => $message,
+                    'live' => true
+                ];
+            }
+
+            return $output;
+        });
+    }
+
+    /**
+     *  Read the output of the latest sub-step (or of the sub-step with the provided identifier), modify it with the callback and write it back
+     */
+    private function updateOutput(callable $callback, string|null $identifier = '') : void
+    {
+        $output = [];
+
         // Get latest step Id
         $stepId = $this->stepController->getLatestStepId();
 
-        // Get latest sub-step Id
-        $substepId = $this->getLatestSubStepId($stepId);
+        // If there was no step, return
+        if (empty($stepId)) {
+            return;
+        }
+
+        // Get sub-step Id
+        $substepId = $this->getSubStepId($stepId, $identifier);
 
         // If there was no substep, return
         if (empty($substepId)) {
@@ -171,12 +234,7 @@ class SubStep extends Log
             }
         }
 
-        // Add new output
-        $output[] = [
-            'time' => microtime(true),
-            'type' => $type,
-            'message' => $message
-        ];
+        $output = $callback($output);
 
         // Encode output
         try {
@@ -188,8 +246,6 @@ class SubStep extends Log
 
         // Write output to database
         $this->writeOutput($substepId, $output);
-
-        unset($stepId, $substepId, $output);
     }
 
     /**
@@ -214,6 +270,18 @@ class SubStep extends Log
     public function getLatestSubStepId(int $stepId) : int|null
     {
         return $this->model->getLatestSubStepId($stepId);
+    }
+
+    /**
+     *  Return the Id of the sub-step with the provided identifier, or of the latest sub-step if no identifier is provided
+     */
+    private function getSubStepId(int $stepId, string|null $identifier) : int|null
+    {
+        if (!empty($identifier)) {
+            return $this->getSubStepIdByIdentifier($stepId, $identifier);
+        }
+
+        return $this->getLatestSubStepId($stepId);
     }
 
     /**

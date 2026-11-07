@@ -4,33 +4,55 @@ use \Controllers\App\DebugMode;
 use \Controllers\User\Permission\Task as TaskPermission; ?>
 
 <div class="flex align-item-center column-gap-15 justify-space-between">
-    <div class="flex align-item-center column-gap-30">
-        <h3>TASK #<?= $taskId ?></h3>
+    <div class="task-log-meta flex align-item-center flex-wrap column-gap-10 row-gap-5">
+        <h3 class="margin-right-10">TASK #<?= $taskId ?></h3>
 
         <?php
-        // If the task has a parent task, print a link to it
-        if (!empty($taskInfo['Parent_task_id'])) : ?>
-            <a href="/task/<?= $taskInfo['Parent_task_id'] ?>" title="View the scheduled task that generated this task"><p id="stop-task-log-btn" class="label-white pointer" task-id="<?= $taskId ?>">View parent task</p></a>
+        // If the task is a relaunch of a previous task, print a link to it
+        if (!empty($taskInfo['Relaunched_from_task_id'])) : ?>
+            <span class="dot mediumopacity-cst">●</span>
+            <a class="task-item-relaunch" href="/task/<?= $taskInfo['Relaunched_from_task_id'] ?>" title="This task is a relaunch of task #<?= $taskInfo['Relaunched_from_task_id'] ?>, click to view it"><img src="/assets/icons/update.svg" class="icon-small mediumopacity-cst" />Relaunch of #<?= $taskInfo['Relaunched_from_task_id'] ?></a>
+            <?php
+        endif;
+
+        // If the task has been relaunched, print a link to its relaunch
+        if (!empty($relaunchTaskId)) : ?>
+            <span class="dot mediumopacity-cst">●</span>
+            <a class="task-item-relaunch" href="/task/<?= $relaunchTaskId ?>" title="This task has been relaunched by task #<?= $relaunchTaskId ?>, click to view it"><img src="/assets/icons/update.svg" class="icon-small mediumopacity-cst" />Relaunched by #<?= $relaunchTaskId ?></a>
+            <?php
+        endif;
+
+        // User who launched the task
+        if (!empty($taskInfo['Launched_by'])) : ?>
+            <span class="dot mediumopacity-cst">●</span>
+            <span class="task-item-launched-by" title="Launched by <?= htmlspecialchars($taskInfo['Launched_by'], ENT_QUOTES, 'UTF-8') ?>"><img src="/assets/icons/user.svg" class="icon-small mediumopacity-cst" /><?= htmlspecialchars($taskInfo['Launched_by'], ENT_QUOTES, 'UTF-8') ?></span>
             <?php
         endif; ?>
     </div>
 
-    <?php
-    // Show the relaunch button only if the task is not a parent task
-    if (($taskInfo['Status'] == 'error' or $taskInfo['Status'] == 'stopped') and !$isParent) :
-        if (TaskPermission::allowedAction('relaunch')) : ?>
-            <p id="relaunch-task-log-btn" class="label-yellow relaunch-task-btn pointer" redirect="true" task-id="<?= $taskId ?>" title="Relaunch the task">Relaunch</p>
+    <div class="flex align-item-center column-gap-15">
+        <?php
+        // If the task has a parent task, print a link to it
+        if (!empty($taskInfo['Parent_task_id'])) : ?>
+            <a href="/task/<?= $taskInfo['Parent_task_id'] ?>" title="View the task that generated this task"><p class="label-white pointer">View parent task</p></a>
             <?php
         endif;
-    endif;
+        // Show the relaunch button only if the task is not a parent task and has not already been relaunched
+        if (($taskInfo['Status'] == 'error' or $taskInfo['Status'] == 'stopped') and !$isParent and empty($relaunchTaskId)) :
+            if (TaskPermission::allowedAction('relaunch')) : ?>
+                <p id="relaunch-task-log-btn" class="label-yellow relaunch-task-btn pointer" redirect="true" task-id="<?= $taskId ?>" title="Relaunch the task">Relaunch</p>
+                <?php
+            endif;
+        endif;
 
-    // Print the stop button if the task is running or waiting to be run, and the user has permission to stop it
-    if ($taskInfo['Status'] == 'running' or $taskInfo['Status'] == 'queued') :
-        if (TaskPermission::allowedAction('stop')) : ?>
-            <p id="stop-task-log-btn" class="label-red stop-task-btn pointer" task-id="<?= $taskId ?>" title="Stop the task">Stop</p>
-            <?php
-        endif;
-    endif ?>
+        // Print the stop button if the task is running or waiting to be run, and the user has permission to stop it
+        if ($taskInfo['Status'] == 'running' or $taskInfo['Status'] == 'queued') :
+            if (TaskPermission::allowedAction('stop')) : ?>
+                <p id="stop-task-log-btn" class="label-red stop-task-btn pointer" task-id="<?= $taskId ?>" title="Stop the task">Stop</p>
+                <?php
+            endif;
+        endif ?>
+    </div>
 </div>
 
 <div id="task-refresh-container" task-id="<?= $taskId ?>" task-status="<?= $taskInfo['Status'] ?>" <?php echo ($legacyLog === true) ? 'legacy="true"' : '' ?>>

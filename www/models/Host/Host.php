@@ -175,6 +175,21 @@ class Host extends \Models\Model
     }
 
     /**
+     *  Update the token of a host
+     */
+    public function updateToken(string $authId, string $token): void
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE hosts SET Token = :token WHERE AuthId = :authId");
+            $stmt->bindValue(':authId', $authId);
+            $stmt->bindValue(':token', $token);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+    }
+
+    /**
      *  Return true if the Id/token pair is valid
      */
     public function checkIdToken(string $authId, string $token): bool

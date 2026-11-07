@@ -107,6 +107,10 @@ class Statistic extends \Models\Model
             $stmt->bindValue(':timestamp', $timestamp, SQLITE3_INTEGER);
             $stmt->execute();
 
+            $stmt = $this->db->prepare("DELETE FROM access_mirror WHERE Timestamp <= :timestamp");
+            $stmt->bindValue(':timestamp', $timestamp, SQLITE3_INTEGER);
+            $stmt->execute();
+
             // Commit the transaction to apply all the delete operations
             $this->db->exec("COMMIT");
         } catch (Exception $e) {

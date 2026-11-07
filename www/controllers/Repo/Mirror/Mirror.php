@@ -6,6 +6,9 @@ use Exception;
 
 class Mirror
 {
+    // Delay in seconds before the first download retry, multiplied by the retry number for the next ones (5, 10, 15...)
+    private const RETRY_DELAY = 5;
+
     protected $taskId;
     protected $url;
     protected $nonCompliantSource = 'false';
@@ -28,6 +31,8 @@ class Mirror
     protected $sslCustomCertificate;
     protected $sslCustomPrivateKey;
     protected $sslCustomCaCertificate;
+    protected $basicAuthUsername;
+    protected $basicAuthPassword;
     protected $curlHandle;
     protected $previousSnapshotDirPath;
     protected $advancedParams = [];
@@ -107,6 +112,12 @@ class Mirror
         $this->sslCustomCaCertificate = $path;
     }
 
+    public function setBasicAuth(string $username, string $password) : void
+    {
+        $this->basicAuthUsername = $username;
+        $this->basicAuthPassword = $password;
+    }
+
     public function setPreviousSnapshotDirPath(string $path) : void
     {
         $this->previousSnapshotDirPath = $path;
@@ -161,6 +172,8 @@ class Mirror
                         'sslCertificatePath'   => $this->sslCustomCertificate ?? null,
                         'sslPrivateKeyPath'    => $this->sslCustomPrivateKey ?? null,
                         'sslCaCertificatePath' => $this->sslCustomCaCertificate ?? null,
+                        'basicAuthUsername'    => $this->basicAuthUsername ?? null,
+                        'basicAuthPassword'    => $this->basicAuthPassword ?? null,
                         // Use http version to 1.1 to avoid curl error 16 (fix https://github.com/lbr38/repomanager/issues/127)
                         'http1.1'              => true
                     ]);
@@ -179,6 +192,8 @@ class Mirror
                         'sslCertificatePath'   => $this->sslCustomCertificate ?? null,
                         'sslPrivateKeyPath'    => $this->sslCustomPrivateKey ?? null,
                         'sslCaCertificatePath' => $this->sslCustomCaCertificate ?? null,
+                        'basicAuthUsername'    => $this->basicAuthUsername ?? null,
+                        'basicAuthPassword'    => $this->basicAuthPassword ?? null,
                         // Use http version to 1.1 to avoid curl error 16 (fix https://github.com/lbr38/repomanager/issues/127)
                         'http1.1'              => true
                     ]);
@@ -186,11 +201,23 @@ class Mirror
                     throw new Exception('error while downloading file: ' . $e->getMessage());
                 }
             } catch (Exception $e) {
+                // A missing file is not a transient error, it is not retried (e.g. optional InRelease / Release.gpg files)
+                if (str_contains($e->getMessage(), '404 file not found')) {
+                    $this->taskLogSubStepController->output('Download failed: ' . $e->getMessage(), 'warning');
+                    return false;
+                }
+
                 // If download has failed, print a warning and retry if current retry is less than the maximum number of retries
                 if ($currentRetry != $retries) {
                     $currentRetry++;
+
+                    // Wait before retrying, longer at each retry, so that a short network or server outage does not exhaust all retries
+                    $delay = self::RETRY_DELAY * $currentRetry;
+
                     $this->taskLogSubStepController->output('Download failed: ' . $e->getMessage(), 'warning');
-                    $this->taskLogSubStepController->output('Retrying (' . $currentRetry . '/' . $retries . ') ...', 'note');
+                    $this->taskLogSubStepController->output('Retrying (' . $currentRetry . '/' . $retries . ') in ' . $delay . ' seconds...', 'note');
+
+                    sleep($delay);
                     continue;
                 }
 

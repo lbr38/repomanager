@@ -13,7 +13,7 @@
             <div class="kpi-card">
                 <img src="/assets/icons/<?= $icon ?>.svg" class="icon-np icon-medium" />
                 <div>
-                    <p class="kpi-value tooltip" tooltip="<?= $properties['description'] ?>"><?= $properties['title'] ?></p>
+                    <p class="kpi-value" data-tooltip="<?= htmlspecialchars($properties['description']) ?>"><?= $properties['title'] ?></p>
                     <div class="flex align-item-center column-gap-5 row-gap-5">
                         <p class="mediumopacity-cst" title="Health status of the database">
                             <?php

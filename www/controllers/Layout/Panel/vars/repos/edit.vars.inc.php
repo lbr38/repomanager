@@ -8,18 +8,13 @@ if (!RepoPermission::allowedAction('edit')) {
     throw new Exception('You are not allowed to access this panel');
 }
 
-$myEditForm = new \Controllers\Repo\Edit\Form();
+$repoController = (new \Controllers\Repo\Edit\Form())->getRepo($item['repo-id'] ?? null);
 
 /**
- *  Check that action and repos params have been sent
+ *  Get source repositories
  */
-if (empty($item['repos'])) {
-    throw new Exception('Repositories required');
-}
+$sourceController = new \Controllers\Repo\Source\Source();
+$newRepoRpmSourcesList = $sourceController->listAll('rpm');
+$newRepoDebSourcesList = $sourceController->listAll('deb');
 
-$slidePanelTitle = 'EDIT REPOSITORY & SNAPSHOT PROPERTIES';
-
-/**
- *  Get form content
- */
-$formContent = $myEditForm->get(json_decode($item['repos'], true));
+unset($sourceController);

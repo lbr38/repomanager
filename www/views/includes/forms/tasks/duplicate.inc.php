@@ -24,7 +24,8 @@ use \Controllers\Group\Repo as RepoGroup; ?>
 <select class="task-param" param-name="env" multiple>
     <option value=""></option>
     <?php
-    foreach (ENVS as $env) {
+    // Protected environments cannot be pointed, they are not listed
+    foreach (\Controllers\Environment::getPointable() as $env) {
         if ($env['Name'] == DEFAULT_ENV) {
             echo '<option value="' . $env['Name'] . '" selected>' . $env['Name'] . '</option>';
         } else {
@@ -32,6 +33,7 @@ use \Controllers\Group\Repo as RepoGroup; ?>
         }
     } ?>
 </select>
+<?= \Controllers\Environment::protectedNote() ?>
 
 <h6>DESCRIPTION</h6>
 <p class="note">Optional. A description for this repository.</p>

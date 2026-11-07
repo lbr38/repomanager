@@ -526,6 +526,21 @@
     background: linear-gradient(135deg, #152538, #1a2f44);
 }
 
+/* Package event history: date stays fixed, chips wrap on the right */
+.host-event-date {
+    display: flex;
+    align-items: center;
+    column-gap: 12px;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.host-event-states {
+    justify-content: flex-end;
+    flex: 1;
+    min-width: 0;
+}
+
 /* Copy icon goes in the reserved left padding so the label does not move on hover */
 .host-package-versions > .icon-copy {
     position: absolute;

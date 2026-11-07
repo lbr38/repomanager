@@ -2,6 +2,22 @@
 use \Controllers\Filesystem\Directory;
 use \Controllers\Filesystem\File;
 use \Controllers\Utils\Convert;
+use \Controllers\User\Permission\Repo as RepoPermission;
+
+// Mirror snapshot (/snapshot/mirror/<id>): read-only, its content is an exact copy of the source repository
+$isMirror = (__ACTUAL_URI__[2] ?? '') == 'mirror';
+
+if ($isMirror) {
+    $mirrorBrowse = (new \Controllers\Mirror\Snapshot())->getBrowseInfo(__ACTUAL_URI__[3] ?? '');
+    $repository = $mirrorBrowse['label'];
+    $accent = $mirrorBrowse['accent'];
+    $dateFormatted = $mirrorBrowse['date'];
+    $repoSize = Convert::sizeToHuman($mirrorBrowse['size']);
+    $packagesCount = $mirrorBrowse['packagesCount'];
+    $rebuild = null;
+    unset($mirrorBrowse);
+    return;
+}
 
 $repoController = new \Controllers\Repo\Repo();
 $repoSnapshotController = new \Controllers\Repo\Snapshot\Snapshot();
@@ -23,6 +39,11 @@ if (!$repoSnapshotController->exists($snapId)) {
 
 // Retrieve repository infos from DB
 $repoController->getAllById(null, $snapId, null);
+
+// Check that the user is allowed to view the repository
+if (!RepoPermission::allowedToView($repoController->getRepoId())) {
+    throw new Exception('repository snapshot #' . $snapId . ' does not exist.');
+}
 
 // Define repository name
 if ($repoController->getPackageType() == 'rpm') {
@@ -55,5 +76,7 @@ $repoSize = Convert::sizeToHuman($repoSize);
 
 // Retrieve snapshot rebuild status
 $rebuild = $repoController->getRebuild();
+
+$dateFormatted = $repoController->getDateFormatted();
 
 unset($repoSnapshotController);

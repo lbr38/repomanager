@@ -1,5 +1,6 @@
 <?php
-use \Controllers\Utils\Convert; ?>
+use \Controllers\Utils\Convert;
+use \Controllers\Utils\Generate\Html\Label; ?>
 
 <div class="timeline-wrapper">
     <div class="timeline-header">
@@ -11,19 +12,7 @@ use \Controllers\Utils\Convert; ?>
     <div class="timeline">
         <?php
         foreach ($events as $event) :
-            $securityUpdate = Convert::toBool($event['Security'] ?? false);
-
-            [$stateLabel, $stateClass, $stateTitle] = match ($event['State']) {
-                'inventored'     => ['Inventored', 'label-tr', 'Inventored'],
-                'installed'     => ['Installed', 'label-green', 'Installed'],
-                'dep-installed' => ['Dependency', 'label-green', 'Installed as dependency'],
-                'reinstalled'   => ['Reinstalled', 'label-green', 'Reinstalled'],
-                'upgraded'      => ['Updated', 'label-yellow', 'Updated'],
-                'removed'       => ['Uninstalled', 'label-red', 'Uninstalled'],
-                'purged'        => ['Purged', 'label-red', 'Uninstalled (purged)'],
-                'downgraded'    => ['Downgraded', 'label-yellow', 'Downgraded'],
-                default         => [$event['State'], 'label-tr', $event['State']],
-            }; ?>
+            $securityUpdate = Convert::toBool($event['Security'] ?? false); ?>
 
             <div class="timeline-container timeline-state-<?= htmlspecialchars($event['State'], ENT_QUOTES) ?>">
                 <div class="timeline-event">
@@ -40,7 +29,7 @@ use \Controllers\Utils\Convert; ?>
                     </div>
 
                     <div>
-                        <span class="<?= $stateClass ?>" title="<?= $stateTitle ?>"><?= $stateLabel ?></span>
+                        <?= Label::packageState($event['State']) ?>
                     </div>
                 </div>
             </div>

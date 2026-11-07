@@ -13,7 +13,7 @@
     <?php
     // Display a warning message if the user selected both deb and rpm repositories
     if (in_array('deb', $packagesTypes) and in_array('rpm', $packagesTypes)) {
-        echo '<p class="note margin-top-15 margin-bottom-15"><img src="/assets/icons/warning.svg" class="icon-np" /> You have selected both deb and rpm repositories. Make sure to install them separately.</p>';
+        echo '<div class="note-warning margin-bottom-15"><img src="/assets/icons/warning.svg" /><p>You have selected both deb and rpm repositories. Make sure to install them separately.</p></div>';
     }
 
     echo $commands; ?>    

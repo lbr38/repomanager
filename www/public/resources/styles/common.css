@@ -86,7 +86,46 @@ h6 {
     font-style: italic;
     color: #8A99AA;
     margin-bottom: 2px;
-    word-break: break-all;
+    /* Wrap between words, only cut a word (long path or URL) when it does not fit on a line */
+    overflow-wrap: anywhere;
+}
+
+/* Warning / information block: a message the user must read before validating a form */
+.note-warning, .note-info {
+    display: flex;
+    align-items: flex-start;
+    column-gap: 10px;
+    margin-top: 15px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border-left: 3px solid #FCCA46;
+    background-color: rgba(252, 202, 70, 0.08);
+    color: #E8E2CF;
+    font-size: 13.5px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.note-warning b {
+    color: #FCCA46;
+}
+
+.note-info {
+    border-left-color: #3d7aab;
+    background-color: rgba(61, 122, 171, 0.12);
+    color: #D5DEE8;
+}
+
+.note-info b {
+    color: white;
+}
+
+.note-warning > img, .note-info > img {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    cursor: default;
 }
 
 .note-link {
