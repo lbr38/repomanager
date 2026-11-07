@@ -6,7 +6,8 @@ use \Controllers\Task\Task; ?>
 
 <div class="reloadable-table" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
     <?php
-    if (!empty($reloadableTableContent)) : ?>
+    // Done tasks table is also printed when the search returns no task, so that the search can be changed
+    if (!empty($reloadableTableContent) or !empty($doneSearchActive)) : ?>
         <div class="flex align-item-center column-gap-20 margin-bottom-15">
 
             <div class="flex align-item-center column-gap-15">
@@ -19,12 +20,18 @@ use \Controllers\Task\Task; ?>
 
                 // Print successful and failed tasks count for done tasks
                 if ($taskTableType == 'done') {
-                    if ($successfulCount > 0) {
-                        echo '<span class="label-green label-medium">' . $successfulCount . ' successful</span>';
+                    // Labels are clickable to filter tasks by status, the active filter is highlighted and can be clicked again to be removed
+                    // The label of the active filter is kept when the search returns no task, so that the filter can still be removed
+                    if ($successfulCount > 0 or $statusFilter == 'successful') {
+                        echo '<span class="label-green label-medium done-tasks-filter-btn pointer' . ($statusFilter == 'failed' ? ' opacity-30' : '') . '" status="successful" title="' . ($statusFilter == 'successful' ? 'Show all tasks' : 'Show successful tasks only') . '">' . $successfulCount . ' successful</span>';
                     }
-                    if ($failedCount > 0) {
-                        echo '<span class="label-red label-medium">' . $failedCount . ' failed</span>';
+                    if ($failedCount > 0 or $statusFilter == 'failed') {
+                        echo '<span class="label-red label-medium done-tasks-filter-btn pointer' . ($statusFilter == 'successful' ? ' opacity-30' : '') . '" status="failed" title="' . ($statusFilter == 'failed' ? 'Show all tasks' : 'Show failed tasks only') . '">' . $failedCount . ' failed</span>';
                     }
+
+                    // Button opening the search bar, or closing it and clearing the search
+                    $doneSearchOpened = ($doneSearch['opened'] or $doneSearchActive);
+                    echo '<img src="/assets/icons/search.svg" class="icon-mediumopacity done-tasks-search-btn" title="' . ($doneSearchOpened ? 'Close and clear search' : 'Search tasks') . '" />';
                 } ?>
             </div>
 
@@ -38,6 +45,49 @@ use \Controllers\Task\Task; ?>
                 <?php
             endif ?>
         </div>
+
+        <?php
+        /**
+         *  Search bar of done tasks, hidden until the user opens it
+         *  Its values are restored from the search cookie so that they are kept when the tasks list is reloaded
+         */
+        if ($taskTableType == 'done') : ?>
+            <div id="done-tasks-search" class="margin-bottom-15 <?= $doneSearchOpened ? '' : 'hide' ?>">
+                <div class="flex align-item-center column-gap-10 flex-wrap">
+                    <input id="done-tasks-search-input" class="flex-1" type="text" maxlength="200" value="<?= htmlspecialchars($doneSearch['query'], ENT_QUOTES, 'UTF-8') ?>" placeholder="Search by repository name, distribution, component, release version or #task id" title="Search by repository name, distribution, component, release version or #task id" />
+
+                    <select id="done-tasks-search-domain" class="done-tasks-search-select" title="Filter by target type">
+                        <option value="">All types</option>
+                        <option value="repo" <?= $doneSearch['domain'] == 'repo' ? 'selected' : '' ?>>Repositories</option>
+                        <option value="mirror" <?= $doneSearch['domain'] == 'mirror' ? 'selected' : '' ?>>Mirrors</option>
+                    </select>
+
+                    <select id="done-tasks-search-action" class="done-tasks-search-select" title="Filter by action">
+                        <option value="">All actions</option>
+                        <?php
+                        foreach (\Controllers\Task\Listing::SEARCH_ACTIONS as $searchAction => $searchActionLabel) : ?>
+                            <option value="<?= $searchAction ?>" <?= $doneSearch['action'] == $searchAction ? 'selected' : '' ?>><?= $searchActionLabel ?></option>
+                            <?php
+                        endforeach ?>
+                    </select>
+
+                    <select id="done-tasks-search-user" class="done-tasks-search-select" title="Filter by user who launched the task">
+                        <option value="">All users</option>
+                        <?php
+                        foreach ($doneSearchUsers as $doneSearchUser) : ?>
+                            <option value="<?= htmlspecialchars($doneSearchUser, ENT_QUOTES, 'UTF-8') ?>" <?= $doneSearch['user'] === $doneSearchUser ? 'selected' : '' ?>><?= htmlspecialchars($doneSearchUser, ENT_QUOTES, 'UTF-8') ?></option>
+                            <?php
+                        endforeach ?>
+                    </select>
+                </div>
+            </div>
+            <?php
+        endif;
+
+        if (empty($reloadableTableContent)) : ?>
+            <p class="note">No task matches your search.</p>
+            <?php
+        endif ?>
 
         <div class="flex flex-direction-column row-gap-10">
             <?php
@@ -65,6 +115,9 @@ use \Controllers\Task\Task; ?>
                 $subTasks = $taskListingController->getByParentId($item['Id']);
                 $hasSubTasks = (!empty($subTasks) or !empty($taskRawParams['tasks']));
 
+                // Id of the task that relaunched this task, if any
+                $relaunchTaskId = $taskController->getRelaunchTaskId($item['Id']);
+
                 // Determine status accent color
                 if ($itemStatus == 'done') {
                     $taskAccent = 'accent-green';
@@ -86,7 +139,7 @@ use \Controllers\Task\Task; ?>
                 // Determine click behavior class
                 $actionBtn = in_array($item['Status'], ['scheduled', 'queued', 'disabled']) ? 'task-item-selectable' : ''; ?>
 
-                <div class="task-item <?= $taskAccent ?> <?= $actionBtn ?> pointer" task-id="<?= $item['Id'] ?>" title="<?= in_array($item['Status'], ['scheduled', 'queued', 'disabled']) ? 'Click to select' : 'View task details' ?>">
+                <div class="task-item <?= $taskAccent ?> <?= $actionBtn ?> <?= !empty($relaunchTaskId) ? 'task-item-relaunched' : '' ?> pointer" task-id="<?= $item['Id'] ?>" title="<?= in_array($item['Status'], ['scheduled', 'queued', 'disabled']) ? 'Click to select' : 'View task details' ?>">
                     <a <?= in_array($item['Status'], ['scheduled', 'queued', 'disabled']) ? '' : 'href="/task/' . $item['Id'] . '"'; ?> target="_blank" rel="noopener noreferrer">
                         <div class="flex align-item-center column-gap-20">
                             <?php
@@ -109,6 +162,26 @@ use \Controllers\Task\Task; ?>
                                     if (!empty($item['Date']) and !empty($item['Time'])) : ?>
                                         <span class="dot mediumopacity-cst">●</span>
                                         <span class="task-item-date"><?= $item['Status'] == 'scheduled' ? 'Last execution: ' : '' ?><?= DateTime::createFromFormat('Y-m-d', $item['Date'])->format('d-m-Y') ?> <?= $item['Time'] ?></span>
+                                        <?php
+                                    endif;
+
+                                    // User who launched the task
+                                    if (!empty($item['Launched_by'])) : ?>
+                                        <span class="dot mediumopacity-cst">●</span>
+                                        <span class="task-item-launched-by" title="Launched by <?= htmlspecialchars($item['Launched_by'], ENT_QUOTES, 'UTF-8') ?>"><img src="/assets/icons/user.svg" class="icon-small mediumopacity-cst" /><?= htmlspecialchars($item['Launched_by'], ENT_QUOTES, 'UTF-8') ?></span>
+                                        <?php
+                                    endif;
+
+                                    // Link between a task and its relaunch
+                                    if (!empty($item['Relaunched_from_task_id'])) : ?>
+                                        <span class="dot mediumopacity-cst">●</span>
+                                        <span class="task-item-relaunch" title="This task is a relaunch of task #<?= $item['Relaunched_from_task_id'] ?>"><img src="/assets/icons/update.svg" class="icon-small mediumopacity-cst" />Relaunch of #<?= $item['Relaunched_from_task_id'] ?></span>
+                                        <?php
+                                    endif;
+
+                                    if (!empty($relaunchTaskId)) : ?>
+                                        <span class="dot mediumopacity-cst">●</span>
+                                        <span class="task-item-relaunch" title="This task has been relaunched by task #<?= $relaunchTaskId ?>"><img src="/assets/icons/update.svg" class="icon-small mediumopacity-cst" />Relaunched by #<?= $relaunchTaskId ?></span>
                                         <?php
                                     endif;
 
@@ -201,22 +274,29 @@ use \Controllers\Task\Task; ?>
                         }
 
                         if (in_array($taskRawParams['action'], ['env', 'removeEnv'])) {
-                            if (is_string($taskRawParams['env'])) {
-                                echo Label::envtag($taskRawParams['env']);
+                            // A parent task has no environment of its own: print the environments of its sub-tasks
+                            $taskEnvs = [];
+
+                            foreach (isset($taskRawParams['env']) ? [$taskRawParams] : ($taskRawParams['tasks'] ?? []) as $envParams) {
+                                if (is_string($envParams['env'] ?? null)) {
+                                    $taskEnvs[] = $envParams['env'];
+                                }
+
+                                if (is_array($envParams['env'] ?? null)) {
+                                    $taskEnvs = array_merge($taskEnvs, $envParams['env']);
+                                }
                             }
 
-                            if (is_array($taskRawParams['env'])) {
-                                foreach ($taskRawParams['env'] as $env) {
-                                    echo Label::envtag($env);
-                                }
+                            foreach (array_unique($taskEnvs) as $env) {
+                                echo Label::envtag($env);
                             }
                         } ?>
                     </div>
 
                     <div class="task-item-status">
                         <?php
-                        // Show the relaunch button only if the task is not a parent task
-                        if (!$hasSubTasks and ($item['Status'] == 'error' or $item['Status'] == 'stopped') and !empty($item['Id'])) {
+                        // Show the relaunch button only if the task is not a parent task and has not already been relaunched
+                        if (!$hasSubTasks and empty($relaunchTaskId) and ($item['Status'] == 'error' or $item['Status'] == 'stopped') and !empty($item['Id'])) {
                             if (TaskPermission::allowedAction('relaunch')) {
                                 echo '<img class="icon-mediumopacity relaunch-task-btn" src="/assets/icons/update.svg" task-id="' . $item['Id'] . '" title="Relaunch this task" />';
                             }
@@ -243,6 +323,9 @@ use \Controllers\Task\Task; ?>
                         foreach ($subTasks as $subTask) :
                             $subTaskAccent = 'yellow';
 
+                            // A sub-task that has been relaunched is replaced by its relaunch, so it is dimmed
+                            $subTaskRelaunchId = $taskController->getRelaunchTaskId($subTask['Id']);
+
                             if ($subTask['Status'] == 'done') {
                                 $subTaskAccent = 'green';
                             } elseif ($subTask['Status'] == 'error' or $subTask['Status'] == 'stopped') {
@@ -251,7 +334,7 @@ use \Controllers\Task\Task; ?>
                                 $subTaskAccent = 'cyan';
                             } ?>
 
-                            <div class="task-item-child div-generic-blue accent-<?= $subTaskAccent ?>">
+                            <div class="task-item-child div-generic-blue accent-<?= $subTaskAccent ?> <?= !empty($subTaskRelaunchId) ? 'task-item-relaunched' : '' ?>">
                                 <a class="flex align-item-center column-gap-10" href="/task/<?= $subTask['Id'] ?>" title="View sub-task #<?= $subTask['Id'] ?> details" target="_blank" rel="noopener noreferrer">
                                     <?php
                                     if ($subTask['Status'] == 'running') {
@@ -259,14 +342,23 @@ use \Controllers\Task\Task; ?>
                                     } ?>
 
                                     <span class="label-white"><?= $taskController->getRepo($subTask['Id']) ?></span>
+
+                                    <?php
+                                    if (!empty($subTask['Relaunched_from_task_id'])) {
+                                        echo '<span class="task-item-relaunch" title="This task is a relaunch of task #' . $subTask['Relaunched_from_task_id'] . '"><img src="/assets/icons/update.svg" class="icon-small mediumopacity-cst" />Relaunch of #' . $subTask['Relaunched_from_task_id'] . '</span>';
+                                    }
+
+                                    if (!empty($subTaskRelaunchId)) {
+                                        echo '<span class="task-item-relaunch" title="This task has been relaunched by task #' . $subTaskRelaunchId . '"><img src="/assets/icons/update.svg" class="icon-small mediumopacity-cst" />Relaunched by #' . $subTaskRelaunchId . '</span>';
+                                    } ?>
                                 </a>
 
                                 <div class="task-item-status">
                                     <?php
                                     if ($subTask['Status'] == 'running' or $subTask['Status'] == 'queued') {
                                         // If the task has no running process, display a warning icon
-                                        if (!Task::processRunning($item['Id'])) {
-                                            echo '<img src="/assets/icons/warning-red.svg" class="icon-np" task-id="' . $item['Id'] . '" title="No running process found for this task, the process might have crashed, you should stop this task" />';
+                                        if (!Task::processRunning($subTask['Id'])) {
+                                            echo '<img src="/assets/icons/warning-red.svg" class="icon-np" task-id="' . $subTask['Id'] . '" title="No running process found for this task, the process might have crashed, you should stop this task" />';
                                         }
 
                                         if (TaskPermission::allowedAction('stop')) {
@@ -274,7 +366,7 @@ use \Controllers\Task\Task; ?>
                                         }
                                     }
 
-                                    if ($subTask['Status'] == 'error' or $subTask['Status'] == 'stopped') {
+                                    if (empty($subTaskRelaunchId) and ($subTask['Status'] == 'error' or $subTask['Status'] == 'stopped')) {
                                         if (TaskPermission::allowedAction('relaunch')) {
                                             echo '<img class="icon-mediumopacity relaunch-task-btn" src="/assets/icons/update.svg" task-id="' . $subTask['Id'] . '" title="Relaunch this task" />';
                                         }

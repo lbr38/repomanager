@@ -28,6 +28,8 @@ class Mirror
     protected $sslCustomCertificate;
     protected $sslCustomPrivateKey;
     protected $sslCustomCaCertificate;
+    protected $basicAuthUsername;
+    protected $basicAuthPassword;
     protected $curlHandle;
     protected $previousSnapshotDirPath;
     protected $advancedParams = [];
@@ -107,6 +109,12 @@ class Mirror
         $this->sslCustomCaCertificate = $path;
     }
 
+    public function setBasicAuth(string $username, string $password) : void
+    {
+        $this->basicAuthUsername = $username;
+        $this->basicAuthPassword = $password;
+    }
+
     public function setPreviousSnapshotDirPath(string $path) : void
     {
         $this->previousSnapshotDirPath = $path;
@@ -161,6 +169,8 @@ class Mirror
                         'sslCertificatePath'   => $this->sslCustomCertificate ?? null,
                         'sslPrivateKeyPath'    => $this->sslCustomPrivateKey ?? null,
                         'sslCaCertificatePath' => $this->sslCustomCaCertificate ?? null,
+                        'basicAuthUsername'    => $this->basicAuthUsername ?? null,
+                        'basicAuthPassword'    => $this->basicAuthPassword ?? null,
                         // Use http version to 1.1 to avoid curl error 16 (fix https://github.com/lbr38/repomanager/issues/127)
                         'http1.1'              => true
                     ]);
@@ -179,6 +189,8 @@ class Mirror
                         'sslCertificatePath'   => $this->sslCustomCertificate ?? null,
                         'sslPrivateKeyPath'    => $this->sslCustomPrivateKey ?? null,
                         'sslCaCertificatePath' => $this->sslCustomCaCertificate ?? null,
+                        'basicAuthUsername'    => $this->basicAuthUsername ?? null,
+                        'basicAuthPassword'    => $this->basicAuthPassword ?? null,
                         // Use http version to 1.1 to avoid curl error 16 (fix https://github.com/lbr38/repomanager/issues/127)
                         'http1.1'              => true
                     ]);

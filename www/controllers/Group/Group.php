@@ -7,6 +7,8 @@ use Controllers\Repo\Repo;
 use Controllers\Host\Host;
 use Controllers\Utils\Validate;
 use Controllers\History\Save as History;
+use Controllers\User\Permission\Repo as RepoPermission;
+use Controllers\User\Permission\Host as HostPermission;
 
 class Group
 {
@@ -62,10 +64,28 @@ class Group
     }
 
     /**
+     *  Throw an exception if the user is not allowed to create, edit or delete groups of this type
+     */
+    private function checkEditPermission(): void
+    {
+        if ($this->type == 'repo' and RepoPermission::allowedAction('edit-groups')) {
+            return;
+        }
+
+        if ($this->type == 'host' and HostPermission::allowedAction('edit-groups')) {
+            return;
+        }
+
+        throw new Exception('You are not allowed to perform this action');
+    }
+
+    /**
      *  Create a new group
      */
     public function new(string $name): void
     {
+        $this->checkEditPermission();
+
         $name = Validate::string($name);
 
         // Check that the group name does not contain invalid characters
@@ -100,6 +120,8 @@ class Group
      */
     public function edit(int $id, string $name, array $data): void
     {
+        $this->checkEditPermission();
+
         // Check if group exists
         if (!$this->existsId($id)) {
             throw new Exception('Group does not exist');
@@ -113,10 +135,25 @@ class Group
         // Edit group name
         $this->updateName($id, $name);
 
-        // If group type is 'repo'
+        // If group type is 'repo', members can be repositories (Id) or mirrors ('mirror-<Id>')
         if ($this->type == 'repo') {
+            $reposId = [];
+            $mirrorsId = [];
+
+            foreach ($data as $memberId) {
+                if (str_starts_with($memberId, 'mirror-')) {
+                    $mirrorsId[] = substr($memberId, strlen('mirror-'));
+                    continue;
+                }
+
+                $reposId[] = $memberId;
+            }
+
             $repoController = new Repo();
-            $repoController->addReposIdToGroup($id, $data);
+            $repoController->addReposIdToGroup($id, $reposId);
+
+            $mirrorController = new \Controllers\Mirror\Mirror();
+            $mirrorController->setGroupMembers($id, $mirrorsId);
         }
 
         // If group type is 'host'
@@ -133,7 +170,7 @@ class Group
             History::set('Host group <code>' . $name . '</code> edited');
         }
 
-        unset($repoController, $hostController);
+        unset($repoController, $hostController, $mirrorController);
     }
 
     /**
@@ -141,6 +178,8 @@ class Group
      */
     public function delete(array $groups): void
     {
+        $this->checkEditPermission();
+
         foreach ($groups as $id) {
             // Check if group exists
             if (!$this->existsId($id)) {
@@ -152,6 +191,11 @@ class Group
 
             // Delete group in database
             $this->model->delete($id);
+
+            // Mirrors members of the group go back to the 'Default' group
+            if ($this->type == 'repo') {
+                (new \Controllers\Mirror\Mirror())->removeGroupMembers($id);
+            }
 
             if ($this->type == 'repo') {
                 History::set('Delete repository group <code>' . $name . '</code>');

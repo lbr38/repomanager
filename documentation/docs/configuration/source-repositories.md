@@ -1,6 +1,6 @@
-A **source repository** is a remote repository of packages (``deb`` or ``rpm``) from a third-party publisher (e.g. **Debian official repos**).
+A **source repository** is a remote repository of packages (``deb``, ``rpm`` or ``arch``) from a third-party publisher (e.g. **Debian official repos**). ``arch`` (Arch Linux / pacman) source repositories can only be used by [mirrors](/usage/repository-types/#mirrors).
 
-Typically, this is the repository from which you will create a mirror.
+Typically, this is the repository from which you will create a filtered repository or a mirror.
 
 
 ## Add a source repository manually
@@ -21,12 +21,12 @@ From the **REPOSITORIES** tab:
 
 **Step 4:** Click the `Add` button to add the source repository to the list of available source repositories.
 
-**Step 5:** You should now edit the source repository to add more information like distributions and components or release version and import its GPG signing key if any. It is recommended to add as much information as you can as this is used for suggestions when creating a mirror. See [Edit a source repository](#edit-a-source-repository).
+**Step 5:** You should now edit the source repository to add more information like distributions and components or release version and import its GPG signing key if any. It is recommended to add as much information as you can as this is used for suggestions when creating a filtered repository or a mirror. See [Edit a source repository](#edit-a-source-repository).
 
 !!! info "RPM repositories URLs information"
 
       - Please only provide **direct** URLs to the source repository. Mirrorlist URLs are **not supported**.
-      - ``$releasever`` and ``$basearch`` variables inside URLs **are supported**. They will be automatically replaced during the repo mirroring process by the value you have defined for **Release version** and **Architecture** (when creating or updating a repo).
+      - ``$releasever`` and ``$basearch`` variables inside URLs **are supported**. They will be automatically replaced during the sync process by the value you have defined for **Release version** and **Architecture** (when creating or updating a repo).
       - Examples of supported URLs:
 
         `https://dl.fedoraproject.org/pub/epel/$releasever/Everything/$basearch`
@@ -35,7 +35,19 @@ From the **REPOSITORIES** tab:
 
 !!! info "DEB repositories URLs information"
 
-    - ``$dist`` and ``$component`` variables inside URLs **are supported**. They will be automatically replaced during the repo mirroring process by the value you have defined for **Distribution** and **Component** (when creating or updating a repo).
+    - ``$dist`` and ``$component`` variables inside URLs **are supported**. They will be automatically replaced during the sync process by the value you have defined for **Distribution** and **Component** (when creating or updating a repo).
+
+
+!!! info "ARCH repositories URLs information"
+
+    - Use the ``Server`` URL of a pacman mirrorlist. ``$repo`` and ``$arch`` variables inside URLs **are supported**, they are replaced during the sync by each selected **Repository** (e.g. ``core``, ``extra``) and **Architecture**.
+    - Examples of supported URLs:
+
+        `https://geo.mirror.pkgbuild.com/$repo/os/$arch`
+
+        `http://mirror.archlinuxarm.org/$arch/$repo`
+
+    - Edit the source repository to define its repositories and architectures, they are used for suggestions when creating a mirror.
 
 
 ## Import source repositories from predefined or custom lists
@@ -71,11 +83,11 @@ You can create your own custom list with all predefined information and import i
 
 Custom lists are made for private purposes, they will not be shared with the community. If you want to share your list, you can create a pull request to add it to the predefined lists.
 
-**Step 1:** Source repositories lists are defined in YAML format and must be named with `.yml` extension. You can start from templates here [deb template](https://github.com/lbr38/repomanager/blob/main/www/templates/source-repositories/deb/deb-repository.yml.template) / [rpm template](https://github.com/lbr38/repomanager/blob/main/www/templates/source-repositories/rpm/rpm-repository.yml.template) or take example from existing lists here [predefined lists](https://github.com/lbr38/repomanager/tree/main/www/templates/source-repositories) to build your own file.
+**Step 1:** Source repositories lists are defined in YAML format and must be named with `.yml` extension. You can start from templates here [deb template](https://github.com/lbr38/repomanager/blob/main/www/templates/source-repositories/deb/deb-repository.yml.template) / [rpm template](https://github.com/lbr38/repomanager/blob/main/www/templates/source-repositories/rpm/rpm-repository.yml.template) / [arch template](https://github.com/lbr38/repomanager/blob/main/www/templates/source-repositories/arch/arch-repository.yml.template) or take example from existing lists here [predefined lists](https://github.com/lbr38/repomanager/tree/main/www/templates/source-repositories) to build your own file.
 
 **Step 2:** Once you have created your custom file, you will have to copy it inside the container in a specific directory of the `repomanager-data` volume. You can also import it through the API, for automation purposes, see [Import source repositories lists from API](#import-source-repositories-lists-from-api).
 
-Here is an example with a custom **deb** list. From the Docker host, it must be copied into the ``deb`` directory under ``/var/lib/docker/volumes/repomanager-data/templates/source-repositories/``:
+Here is an example with a custom **deb** list. From the Docker host, it must be copied into the ``deb`` directory (``rpm`` or ``arch`` for other types) under ``/var/lib/docker/volumes/repomanager-data/templates/source-repositories/``:
 
 ```
 # Copy
@@ -137,13 +149,15 @@ From the **REPOSITORIES** tab:
 
 Import their GPG signing key if any.
 
-It is recommended to add as much information as you can as this is used for suggestions when creating a mirror.
+It is recommended to add as much information as you can as this is used for suggestions when creating a filtered repository or a mirror.
 
 [![Edit a source repository](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/edit-source-repository-2.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/edit-source-repository-2.png)
 
 !!! info "Notes"
 
     You can provide an **SSL certificate and private key** to authenticate to the source repository. This is useful if the source repository access is protected (for example, Red Hat official repositories ``cdn.redhat.com`` require a private key/certificate to access them).
+
+    You can also provide a **username and password** if the source repository is protected by HTTP basic authentication. Credentials are sent to the source repository host only (not to other hosts in case of redirection). Empty the username to remove the credentials. Basic authentication can also be defined in custom lists with the ``basic-authentication`` section (``username`` and ``password``). Prefer this over embedding credentials in the URL.
 
 
 ## Delete a source repository

@@ -62,6 +62,46 @@ class Layout {
     }
 
     /**
+     * Return the state (id, value, cursor position) of the text field the user is typing in, if it is inside the specified element
+     * Used to restore it once the element has been replaced by a reload, null if the user is not typing in it
+     * @param {*} element
+     * @returns {Object|null}
+     */
+    getFocusedField(element)
+    {
+        const field = document.activeElement;
+
+        if (!field || !field.id || !$(field).is('input[type="text"], input[type="search"], textarea') || !$(element).has(field).length) {
+            return null;
+        }
+
+        return {
+            id: field.id,
+            value: field.value,
+            start: field.selectionStart,
+            end: field.selectionEnd
+        };
+    }
+
+    /**
+     * Restore the text field the user was typing in before it has been replaced by a reload (see getFocusedField())
+     * The value typed by the user is kept, as it may not have been taken into account by the reload yet
+     * @param {Object|null} state
+     */
+    restoreFocusedField(state)
+    {
+        const field = state ? document.getElementById(state.id) : null;
+
+        if (!field) {
+            return;
+        }
+
+        field.value = state.value;
+        field.focus();
+        field.setSelectionRange(state.start, state.end);
+    }
+
+    /**
      *  Reload opened or closed elements that where opened/closed before reloading
      */
     reloadOpenedClosedElements()

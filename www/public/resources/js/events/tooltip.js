@@ -1,16 +1,33 @@
 /**
- *  Event: show tooltip on hover on element with .tooltip class
+ *  Event: show tooltip on hover on element with data-tooltip attribute
+ *  Usage: <span data-tooltip="Some text">...</span>
+ *  Optional: data-tooltip-position="top|bottom|left|right" (default: top)
  */
-$(document).on('mouseenter','.tooltip',function (e) {
-    const text = $(this).attr('tooltip');
+$(document).on('mouseenter', '[data-tooltip]', function () {
+    const text = $(this).attr('data-tooltip');
 
-    if (text === undefined || text === '') {
+    if (empty(text)) {
         return;
     }
 
-    // Print tooltip loading
-    mytooltip.loading(e);
+    mytooltip.showText(this, text, {
+        position: $(this).attr('data-tooltip-position')
+    });
+});
 
-    // Print tooltip
-    mytooltip.print('<p>' + text + '</p>', e);
+/**
+ *  Event: show HTML tooltip on hover on element with data-tooltip-template attribute
+ *  Usage: <span data-tooltip-template>Label<template><p>HTML content</p></template></span>
+ *  Optional: data-tooltip-position="top|bottom|left|right" (default: top)
+ */
+$(document).on('mouseenter', '[data-tooltip-template]', function () {
+    const template = $(this).children('template').get(0);
+
+    if (template === undefined) {
+        return;
+    }
+
+    mytooltip.show(this, template.innerHTML, {
+        position: $(this).attr('data-tooltip-position')
+    });
 });

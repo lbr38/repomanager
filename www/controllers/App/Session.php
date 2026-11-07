@@ -5,6 +5,22 @@ namespace Controllers\App;
 class Session
 {
     /**
+     *  Start the session (if not already active) with secure options
+     */
+    public static function start(): void
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start([
+                'cookie_secure'   => (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on'),
+                'cookie_httponly' => true,
+                'cookie_samesite' => 'Lax',
+                // Reject uninitialized session Ids (prevents session fixation with an Id chosen by an attacker)
+                'use_strict_mode' => true,
+            ]);
+        }
+    }
+
+    /**
      *  Start and check actual session
      */
     public static function load()
@@ -12,12 +28,7 @@ class Session
         /**
          *  Start session
          */
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            session_start([
-                'cookie_secure'   => (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on'),
-                'cookie_httponly' => true,
-            ]);
-        }
+        self::start();
 
         /**
          *  If username and role session variables are empty then redirect to login page
@@ -55,13 +66,24 @@ class Session
      */
     public static function set(array $variables) : void
     {
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            session_start();
-        }
+        self::start();
 
         foreach ($variables as $name => $value) {
             $_SESSION[$name] = $value;
         }
+
+        session_write_close();
+    }
+
+    /**
+     *  Generate a new session Id and delete the old session, to be called when the user logs in
+     *  Prevents session fixation: an Id known before authentication can not be used once the user is authenticated
+     */
+    public static function regenerate(): void
+    {
+        self::start();
+
+        session_regenerate_id(true);
 
         session_write_close();
     }

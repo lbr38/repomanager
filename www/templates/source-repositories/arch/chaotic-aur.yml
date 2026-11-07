@@ -1,0 +1,14 @@
+---
+description: Chaotic-AUR repository (prebuilt AUR packages)
+type: arch
+repositories:
+  # Chaotic-AUR, from its official CDN
+  - name: chaotic-aur
+    type: arch
+    description: Chaotic-AUR prebuilt AUR packages
+    url: https://cdn-mirror.chaotic.cx/$repo/$arch
+    repos:
+      - name: chaotic-aur
+        description: Chaotic-AUR
+    archs:
+      - name: x86_64

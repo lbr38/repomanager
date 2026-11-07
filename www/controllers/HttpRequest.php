@@ -123,6 +123,13 @@ class HttpRequest
                 curl_setopt($this->ch, CURLOPT_CAINFO, $params['sslCaCertificatePath']);
             }
 
+            // If basic authentication credentials are specified (not sent to other hosts on redirect)
+            if (!empty($params['basicAuthUsername'])) {
+                curl_setopt($this->ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+                curl_setopt($this->ch, CURLOPT_USERNAME, $params['basicAuthUsername']);
+                curl_setopt($this->ch, CURLOPT_PASSWORD, $params['basicAuthPassword'] ?? '');
+            }
+
             // If HTTP version 1.1 is requested
             if (isset($params['http1.1']) && $params['http1.1'] === true) {
                 curl_setopt($this->ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);

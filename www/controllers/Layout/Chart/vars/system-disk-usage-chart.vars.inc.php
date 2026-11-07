@@ -15,10 +15,12 @@ foreach ($memoryUsageStats as $stat) {
 }
 
 /**
- *  Add current disk usage to the list
+ *  Add current disk usage to the list, if the period includes the current time (1 minute tolerance for client/server clock difference)
  */
-$labels[] = time() * 1000;
-$datasets[0]['data'][] = \Controllers\System\Monitoring\Disk::getUsage('/');
+if ($timeEnd >= time() - 60) {
+    $labels[] = time() * 1000;
+    $datasets[0]['data'][] = \Controllers\System\Monitoring\Disk::getUsage('/');
+}
 
 /**
  *  Prepare chart data

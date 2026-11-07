@@ -14,7 +14,8 @@ class Permission extends \Controllers\User\User
             'view' => [
                 // 'all',
                 'groups' => [],
-                'repos' => []
+                'repos' => [],
+                'mirrors' => []
             ],
         ],
         'tasks' => [
@@ -146,6 +147,19 @@ class Permission extends \Controllers\User\User
                 // Add repository Id key to permissions
                 $permissions['repositories']['view']['repos'][] = $repoId;
             }
+
+            /**
+             *  If entry starts with 'mirror-', then it's an individual mirror
+             */
+            if (strpos($repoOrGroup, 'mirror-') === 0) {
+                $mirrorId = str_replace('mirror-', '', $repoOrGroup);
+
+                if (!is_numeric($mirrorId)) {
+                    throw new Exception('Invalid mirror Id: ' . $mirrorId);
+                }
+
+                $permissions['repositories']['view']['mirrors'][] = $mirrorId;
+            }
         }
 
         /**
@@ -184,7 +198,7 @@ class Permission extends \Controllers\User\User
         if (!empty($hostsActions)) {
             foreach (array_filter($hostsActions) as $action) {
                 // Check that action is valid
-                if (!in_array($action, ['request-general-infos', 'request-packages-infos', 'update-packages', 'reset', 'delete', 'edit-profiles', 'edit-groups', 'edit-settings'])) {
+                if (!in_array($action, ['register', 'request-general-infos', 'request-packages-infos', 'update-packages', 'reset', 'delete', 'edit-profiles', 'edit-groups', 'edit-settings'])) {
                     throw new Exception('Invalid action: ' . $action);
                 }
 

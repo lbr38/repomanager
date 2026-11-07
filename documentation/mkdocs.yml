@@ -97,7 +97,8 @@ nav:
     - Source repositories: configuration/source-repositories.md
     - Settings: configuration/settings.md
   - Usage:
-    - Operations on repositories: usage/operations.md
+    - Repository types: usage/repository-types.md
+    - Operations on repositories and mirrors: usage/operations.md
     - Scheduling tasks: usage/scheduling.md
     - Hosts: usage/hosts.md
     - Stats and monitoring: usage/stats-monitoring.md

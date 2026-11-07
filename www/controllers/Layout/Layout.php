@@ -2,6 +2,8 @@
 
 namespace Controllers\Layout;
 
+use Controllers\App\Session;
+
 class Layout
 {
     public function render(string $tab)
@@ -16,7 +18,13 @@ class Layout
 
         $class = '\Controllers\Layout\Tab' . '\\' . ucfirst($tab);
 
-        if (class_exists($class)) {
+        /**
+         *  Check that the tab exists before loading its class
+         *  The autoloader throws an exception when a class file does not exist, unknown tabs must display the 404 page
+         */
+        $tabExists = (preg_match('/^[a-z0-9-]+$/', $tab) and file_exists(ROOT . '/controllers/Layout/Tab/' . ucfirst($tab) . '.php'));
+
+        if ($tabExists and class_exists($class)) {
             ob_start();
 
             $class::render();
@@ -46,9 +54,7 @@ class Layout
     private function logout()
     {
         // Start the session if not already active
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            session_start();
-        }
+        Session::start();
 
         // Reinitialize the session array, empty it
         $_SESSION = [];
@@ -77,6 +83,8 @@ class Layout
      */
     private function notFound()
     {
+        http_response_code(404);
+
         include_once(ROOT . '/public/custom_errors/custom_404.html');
     }
 }

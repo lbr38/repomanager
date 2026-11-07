@@ -179,3 +179,7 @@ textarea:focus {
 .form-block-accent-green {
     border-left-color: #15bf7f;
 }
+
+.form-block-accent-cyan {
+    border-left-color: #4fc3f7;
+}

@@ -2,6 +2,29 @@
 use \Controllers\Filesystem\Directory;
 use \Controllers\Filesystem\File;
 use \Controllers\Utils\Convert;
+use \Controllers\Repo\Browse;
+use \Controllers\User\Permission\Repo as RepoPermission;
+
+// The user must be allowed to browse repositories
+if (!RepoPermission::allowedAction('browse')) {
+    throw new Exception('you are not allowed to browse repositories.');
+}
+
+// Mirror snapshot (/snapshot/mirror/<id>): read-only, its content is an exact copy of the source repository
+$isMirror = (__ACTUAL_URI__[2] ?? '') == 'mirror';
+
+if ($isMirror) {
+    $snapId = __ACTUAL_URI__[3] ?? '';
+    $snapshotPath = (new \Controllers\Mirror\Snapshot())->getBrowseInfo($snapId)['path'];
+
+    // Permission to view the mirror has been checked when retrieving its info, allow the user to browse it
+    Browse::allowRoot($snapshotPath);
+
+    $protectedEnv = false;
+    $protectedEnvs = [];
+    $taskRunning = false;
+    return;
+}
 
 $repoController = new \Controllers\Repo\Repo();
 $repoSnapshotController = new \Controllers\Repo\Snapshot\Snapshot();
@@ -22,13 +45,19 @@ if (!$repoSnapshotController->exists($snapId)) {
 }
 
 // Check if the snapshot has a protected environment
-$protectedEnv = $repoSnapshotController->hasProtectedEnv($snapId);
+$protectedEnvs = $repoSnapshotController->getProtectedEnvs($snapId);
+$protectedEnv = !empty($protectedEnvs);
 
 // Check if a task is running for this snapshot
 $taskRunning = $repoSnapshotController->taskRunning($snapId);
 
 // Retrieve repo infos from DB
 $repoController->getAllById('', $snapId, '');
+
+// Check that the user is allowed to view the repository
+if (!RepoPermission::allowedToView($repoController->getRepoId())) {
+    throw new Exception('repository snapshot #' . $snapId . ' does not exist.');
+}
 
 // Define snapshot path
 if ($repoController->getPackageType() == 'rpm') {
@@ -43,6 +72,9 @@ if ($repoController->getPackageType() == 'deb') {
 if (!is_dir($snapshotPath)) {
     throw new Exception('snapshot directory ' . $snapshotPath . ' does not exist.');
 }
+
+// Allow the user to browse the snapshot directory
+Browse::allowRoot($snapshotPath);
 
 // Retrieve repo size and packages count
 if ($repoController->getPackageType() == 'rpm') {

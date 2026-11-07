@@ -238,6 +238,21 @@ class User extends \Models\Model
     }
 
     /**
+     *  Update user API key in database, by user Id
+     */
+    public function updateApiKeyById(int $id, string $apiKey) : void
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE users SET Api_key = :apikey WHERE Id = :id");
+            $stmt->bindValue(':id', $id);
+            $stmt->bindValue(':apikey', $apiKey);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+    }
+
+    /**
      *  Update user password in database
      */
     public function updatePassword(int $id, string $hashedPassword) : void

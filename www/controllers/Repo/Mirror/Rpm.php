@@ -84,6 +84,11 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
 
         // Download with a temporary compressed name if the remote file is compressed, to avoid it being compressed twice later
         $compsExtension = pathinfo($this->compsLocation, PATHINFO_EXTENSION);
+
+        // The location comes from the remote repomd.xml file, the extension must only contain letters and numbers
+        if (!preg_match('/^[a-zA-Z0-9]+$/', $compsExtension)) {
+            throw new Exception('Invalid comps.xml file extension: ' . htmlspecialchars($compsExtension));
+        }
         $compsTargetName = 'comps.xml' . ($compsExtension != 'xml' ? '.' . $compsExtension : '');
 
         if (!$this->download($url . '/' . $this->compsLocation, $this->workingDir . '/' . $compsTargetName)) {
@@ -569,6 +574,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         // Count total packages to print progression during syncing
         $totalPackages = count($this->rpmPackagesLocation);
         $packageCounter = 0;
+        $reusedPackages = 0;
 
         // Download each package and check its md5
         foreach ($this->rpmPackagesLocation as $rpmPackage) {
@@ -690,6 +696,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
 
                             $this->taskLogSubStepController->completed('Copied from previous snapshot');
                         }
+
+                        $reusedPackages++;
                     }
 
                     // Create a .completed file to indicate that the package has been downloaded
@@ -862,10 +870,24 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             unset($myprocess, $content, $keyId, $matches);
         }
 
+        /**
+         *  Packages reused from the previous snapshot are not downloaded again: their GPG signature is not checked again
+         *  and they keep the signature they had in the previous snapshot (upstream key, or Repomanager key if it was signed)
+         */
+        if ($reusedPackages > 0) {
+            if ($reusedPackages > 1) {
+                $message = $reusedPackages . ' packages reused from the previous snapshot: their GPG signature is not checked again and they keep the signature they had in the previous snapshot (upstream key, or Repomanager key if it was signed)';
+            } else {
+                $message = '1 package reused from the previous snapshot: its GPG signature is not checked again and it keeps the signature it had in the previous snapshot (upstream key, or Repomanager key if it was signed)';
+            }
+
+            $this->taskLogSubStepController->output($message, 'note', 'downloading-packages-' . $this->urlIndex);
+        }
+
         // Set the main substep as completed
         $this->taskLogSubStepController->completed('', 'downloading-packages-' . $this->urlIndex);
 
-        unset($totalPackages, $packageCounter);
+        unset($totalPackages, $packageCounter, $reusedPackages);
 
         // Clear memory
         $this->rpmPackagesLocation = [];
@@ -951,6 +973,8 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                     'sslCertificatePath' => $this->sslCustomCertificate,
                     'sslPrivateKeyPath' => $this->sslCustomPrivateKey,
                     'sslCaCertificatePath' => $this->sslCustomCaCertificate,
+                    'basicAuthUsername' => $this->basicAuthUsername,
+                    'basicAuthPassword' => $this->basicAuthPassword,
                     'proxy' => PROXY ?? null
                 ]);
             } catch (Exception $e) {

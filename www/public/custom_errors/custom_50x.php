@@ -1,3 +1,5 @@
+<?php
+use Controllers\App\DebugMode; ?>
 <!DOCTYPE html>
 <html>
     <head>
@@ -12,9 +14,20 @@
 
                 <?php
                 if (!empty($errorMessage)) {
-                    echo '<pre class="codeblock">';
-                    echo $errorMessage;
-                    echo '</pre>';
+                    // Always log the error details, they are only displayed when debug mode is enabled
+                    error_log($errorMessage);
+
+                    try {
+                        $debugMode = defined('DATA_DIR') && DebugMode::enabled();
+                    } catch (Throwable $e) {
+                        $debugMode = false;
+                    }
+
+                    if ($debugMode) {
+                        echo '<pre class="codeblock">';
+                        echo htmlspecialchars($errorMessage);
+                        echo '</pre>';
+                    }
                 } ?>
             </div>
         </div>

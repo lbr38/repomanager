@@ -669,9 +669,9 @@ class Package extends \Models\Model
     }
 
     /**
-     *  Count the number of packages installed, updated, removed... over the last X days.
+     *  Count the number of packages installed, updated, removed... between two dates (Y-m-d).
      */
-    public function countByStatusOverDays(string $status, string $dateStart, string $dateEnd) : array
+    public function countByStatusOverPeriod(string $status, string $dateStart, string $dateEnd) : array
     {
         $data = [];
 

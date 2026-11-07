@@ -46,8 +46,8 @@ class Update extends \Controllers\Task\Execution
         $this->repoController->setDate(date('Y-m-d'));
         $this->repoController->setTime(date('H:i'));
 
-        // Sync packages (if mirror repo)
-        if ($this->repoController->getType() == 'mirror') {
+        // Sync packages (if filtered repo)
+        if ($this->repoController->getType() == 'filtered') {
             $this->syncPackage();
         }
 

@@ -112,6 +112,7 @@ if (__ACTUAL_URI__[1] == '') {
         'events/repo/source/distribution',
         'events/repo/source/component',
         'events/repo/source/releasever',
+        'events/repo/source/arch',
         'events/repo/source/source',
         'events/repo/list',
         'events/repo/preferences',
@@ -120,6 +121,7 @@ if (__ACTUAL_URI__[1] == '') {
         'events/repo/install',
         'events/repo/group',
         'events/repo/scheduled-task',
+        'events/mirror/actions',
         'events/task/stop'
     ];
 }
@@ -135,6 +137,7 @@ if (__ACTUAL_URI__[1] == 'hosts' or __ACTUAL_URI__[1] == 'host') {
         'events/hosts/settings',
         'events/hosts/layout',
         'events/host/actions',
+        'events/host/summary',
         'events/task/stop'
     ];
 }
@@ -191,8 +194,7 @@ if (__ACTUAL_URI__[1] == 'cves') {
 
 if (__ACTUAL_URI__[1] == 'status') {
     $jsFiles = [
-        'events/status/service',
-        'events/status/chart'
+        'events/status/service'
     ];
 }
 

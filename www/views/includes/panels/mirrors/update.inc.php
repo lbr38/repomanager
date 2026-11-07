@@ -1,0 +1,49 @@
+<?php ob_start(); ?>
+
+<form id="task-form" autocomplete="off">
+    <?php
+    foreach ($mirrors as $mirror) : ?>
+        <div class="task-form-params form-block form-block-accent-<?= \Controllers\Mirror\Mirror::getAccent($mirror['Package_type']) ?>" domain="mirror" action="update" mirror-id="<?= $mirror['Id'] ?>">
+            <div class="flex align-item-center">
+                <p class="label-white"><?= htmlspecialchars(\Controllers\Mirror\Mirror::getFullLabel($mirror)) ?></p>
+                <p>⸺<span class="label-red"><?= DATE_DMY ?></span></p>
+            </div>
+
+            <p class="note margin-top-10">A new snapshot is created from the source repository <b><?= htmlspecialchars($mirror['Source']) ?></b>. Unchanged files are hard linked from the latest snapshot.</p>
+
+            <h6>POINT AN ENVIRONMENT</h6>
+            <p class="note">Optional. Environments are switched to the new snapshot once it is complete.</p>
+            <select class="task-param" param-name="env" multiple>
+                <?php
+                // Protected environments cannot be pointed, they are not listed
+                foreach (array_column(\Controllers\Environment::getPointable(), 'Name') as $env) {
+                    echo '<option value="' . htmlspecialchars($env) . '"' . ($env == DEFAULT_ENV ? ' selected' : '') . '>' . htmlspecialchars($env) . '</option>';
+                } ?>
+            </select>
+            <?= \Controllers\Environment::protectedNote() ?>
+        </div>
+        <?php
+    endforeach;
+
+    $scheduleForm['action'] = 'update';
+    include_once(ROOT . '/views/includes/forms/tasks/schedule.inc.php'); ?>
+
+    <br>
+    <button class="task-confirm-btn btn-large-red">Execute now</button>
+</form>
+
+<script>
+$(document).ready(function(){
+    myselect2.convert('select.task-param[param-name="env"]', 'Select environment(s)');
+    myselect2.convert('select.task-param[param-name="schedule-day"]', 'Select day(s)', true);
+    myselect2.convert('select.task-param[param-name="schedule-reminder"]', 'Select reminder(s)', true);
+    myselect2.convert('select.task-param[param-name="schedule-recipient"]', 'Select or add recipient(s)', true);
+});
+</script>
+
+<?php
+$content = ob_get_clean();
+$slidePanelName = 'mirrors/update';
+$slidePanelTitle = 'SYNC MIRROR';
+
+include(ROOT . '/views/includes/slide-panel.inc.php');

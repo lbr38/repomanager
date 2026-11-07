@@ -2,7 +2,8 @@
  *  Event: view snapshot file content
  */
 $(document).on('click','.view-file',function () {
-    const name = $(this).attr('name');
+    // The file name comes from the repository content (upstream for mirrors), it is escaped as it is printed as HTML in the modal title
+    const name = $('<div>').text($(this).attr('name')).html();
 
     mymodal.loading();
     
@@ -13,7 +14,8 @@ $(document).on('click','.view-file',function () {
         'view-file',
         // Data:
         {
-            path: $(this).attr('path')
+            path: $(this).attr('path'),
+            root: $(this).attr('root')
         },
         // Print success alert:
         false,
@@ -58,7 +60,8 @@ $(document).on('click',".package-checkbox",function (e) {
         }
     );
 
-    if (myrepopermission.allowedAction('delete-package')) {
+    // Mirror snapshots are read-only
+    if (myrepopermission.allowedAction('delete-package') && $('#packages-list').attr('read-only') === undefined) {
         buttons.push(
             {
                 'text': 'Delete',

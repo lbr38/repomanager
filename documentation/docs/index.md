@@ -8,15 +8,16 @@
 
 <br><br>
 
-**Repomanager** is a web mirroring tool for `rpm` and `deb` package repositories.
+**Repomanager** is a web mirroring tool for `rpm`, `deb` and `arch` (Arch Linux) package repositories.
 
 
 ## Main features
 
-- Create `deb` and `rpm` mirror repositories
+- Create `deb` and `rpm` filtered repositories (selected packages from a source repository, rebuilt and signed metadata)
+- Create `deb`, `rpm` and `arch` [mirrors](/usage/repository-types/#mirrors) (upstream repositories copied as is)
 - Sign packages and repositories with GPG
 - Upload packages into repositories
-- Create environments (e.g., `preprod`, `prod`) and make mirrors available only for specific environments
+- Create environments (e.g., `preprod`, `prod`) and make repositories available only for specific environments
 - Manage host package updates
 - Schedule tasks
 

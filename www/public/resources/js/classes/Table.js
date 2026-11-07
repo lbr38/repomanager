@@ -33,8 +33,13 @@ class Table {
                     const element = doc.querySelector('.reloadable-table[table="' + table + '"]');
                     const html = element ? element.outerHTML : '';
 
+                    // Keep the text field the user is typing in, if any
+                    const focusedField = mylayout.getFocusedField($('.reloadable-table[table="' + table + '"]'));
+
                     // Replace table with itself, with new content
                     $('.reloadable-table[table="' + table + '"]').replaceWith(html);
+
+                    mylayout.restoreFocusedField(focusedField);
 
                     // Resolve promise
                     resolve('Table reloaded');

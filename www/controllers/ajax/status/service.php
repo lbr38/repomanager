@@ -5,6 +5,11 @@ use \Controllers\Utils\Validate;
  *  Get and return the log content of a service unit
  */
 if ($action == 'get-unit-log' and !empty($_POST['unit']) and !empty($_POST['logfile'])) {
+    // Service logs are only available to administrators (status tab)
+    if (!IS_ADMIN) {
+        response(HTTP_BAD_REQUEST, 'You are not allowed to perform this action');
+    }
+
     $logfile = basename(Validate::string($_POST['logfile']));
 
     // Load service units configuration

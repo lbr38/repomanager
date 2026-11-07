@@ -99,7 +99,7 @@ class Source
         }
 
         // Check that type is valid
-        if (!in_array($type, ['deb', 'rpm'])) {
+        if (!in_array($type, ['deb', 'rpm', 'arch'])) {
             throw new Exception('Invalid source repository type');
         }
 
@@ -231,6 +231,33 @@ class Source
             }
         }
 
+        // Case it is an arch source repository, GPG keys are defined for the whole source repository
+        if (preg_match('#^import-#', $method) and $type == 'arch' and !empty($params['gpgkeys'])) {
+            $gpgKeys = [];
+
+            foreach ($params['gpgkeys'] as $gpgKey) {
+                $fingerprints = [];
+
+                if (!empty($gpgKey['fingerprint'])) {
+                    $fingerprints = $gpgController->importFromKeyserver($gpgKey['fingerprint']);
+                }
+
+                if (!empty($gpgKey['link'])) {
+                    $fingerprints = $gpgController->importFromUrl($gpgKey['link']);
+                }
+
+                if (empty($fingerprints)) {
+                    throw new Exception('no fingerprints found');
+                }
+
+                foreach ($fingerprints as $fingerprint) {
+                    $gpgKeys[$fingerprint] = ['fingerprint' => $fingerprint];
+                }
+            }
+
+            $params['gpgkeys'] = array_values($gpgKeys);
+        }
+
         // Add source repository in database
         try {
             $this->model->new(json_encode($params, JSON_THROW_ON_ERROR), $method);
@@ -268,7 +295,7 @@ class Source
             throw new Exception('Source repository type is empty');
         }
 
-        if (!in_array($params['type'], ['deb', 'rpm'])) {
+        if (!in_array($params['type'], ['deb', 'rpm', 'arch'])) {
             throw new Exception('Invalid source repository type');
         }
 
@@ -346,6 +373,29 @@ class Source
         $currentParams['ssl-authentication']['certificate'] = $sslCertificate;
         $currentParams['ssl-authentication']['private-key'] = $sslPrivateKey;
         $currentParams['ssl-authentication']['ca-certificate'] = $sslCaCertificate;
+
+        /**
+         *  Basic authentication
+         *  Credentials are stored as is (not HTML encoded) as they are sent to the source repository
+         *  If the username is empty, credentials are removed
+         */
+        $basicAuthUsername = trim($params['basic-auth-username'] ?? '');
+        $basicAuthPassword = $params['basic-auth-password'] ?? '';
+
+        if (empty($basicAuthUsername)) {
+            unset($currentParams['basic-authentication']);
+        } else {
+            // A colon is not allowed in a basic authentication username (RFC 7617)
+            if (str_contains($basicAuthUsername, ':')) {
+                throw new Exception('Basic authentication username cannot contain a colon');
+            }
+
+            $currentParams['basic-authentication'] = [
+                'username' => $basicAuthUsername,
+                'password' => $basicAuthPassword
+            ];
+        }
+
         // Additional param for deb source repos
         if ($params['type'] == 'deb') {
             $currentParams['non-compliant'] = $params['non-compliant'];
@@ -432,7 +482,7 @@ class Source
             if (empty($repo['type'])) {
                 throw new Exception('source repository type is empty');
             }
-            if (!in_array($repo['type'], ['deb', 'rpm'])) {
+            if (!in_array($repo['type'], ['deb', 'rpm', 'arch'])) {
                 throw new Exception('invalid source repository type');
             }
 
@@ -454,6 +504,13 @@ class Source
             if ($repo['type'] == 'rpm') {
                 if (empty($repo['releasever'])) {
                     throw new Exception('source repository releasever is empty');
+                }
+            }
+
+            // Case it is an arch source repository
+            if ($repo['type'] == 'arch') {
+                if (empty($repo['repos'])) {
+                    throw new Exception('source repository repos is empty');
                 }
             }
 
@@ -572,6 +629,18 @@ class Source
                 'type' => 'rpm',
                 'url' => '',
                 'description' => '',
+            ];
+        }
+
+        if ($type == 'arch') {
+            $template = [
+                'name' => '',
+                'type' => 'arch',
+                'url' => '',
+                'description' => '',
+                'repos' => [],
+                // Same structure as repositories, so that architectures can be described and edited the same way
+                'archs' => [['name' => 'x86_64', 'description' => '']]
             ];
         }
 

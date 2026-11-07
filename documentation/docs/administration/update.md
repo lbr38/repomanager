@@ -53,6 +53,7 @@ Choose the appropriate **network mode** for your Docker container, then pull and
         -v /etc/localtime:/etc/localtime:ro \
         -v /var/lib/docker/volumes/repomanager-data:/var/lib/repomanager \
         -v /var/lib/docker/volumes/repomanager-repo:/home/repo \
+        -v /var/lib/docker/volumes/repomanager-mirror:/home/mirror \
         lbr38/repomanager:<VERSION>
     ```
 
@@ -68,6 +69,7 @@ Choose the appropriate **network mode** for your Docker container, then pull and
         -v /etc/localtime:/etc/localtime:ro \
         -v /var/lib/docker/volumes/repomanager-data:/var/lib/repomanager \
         -v /var/lib/docker/volumes/repomanager-repo:/home/repo \
+        -v /var/lib/docker/volumes/repomanager-mirror:/home/mirror \
         lbr38/repomanager:<VERSION>
     ```
 </div>

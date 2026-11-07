@@ -10,8 +10,8 @@
             foreach ($reloadableTableContent as $item) : ?>
                 <div class="table-container grid-2 justify-space-between align-item-center bck-blue-alt">
                     <div>
-                        <p class="copy"><?= $item['Source'] ?></p>
-                        <p class="lowopacity-cst copy"><?= $item['IP'] ?></p>
+                        <p class="copy"><?= htmlspecialchars($item['Source']) ?></p>
+                        <p class="lowopacity-cst copy"><?= htmlspecialchars($item['IP']) ?></p>
                     </div>
 
                     <p><?= $item['Count'] ?></p>

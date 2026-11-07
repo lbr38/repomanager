@@ -4,6 +4,7 @@ namespace Controllers\Repo\Task;
 
 use Controllers\Filesystem\Directory;
 use Controllers\Filesystem\File;
+use Controllers\Repo\Snapshot\Retention;
 use Exception;
 
 trait Finalize
@@ -60,6 +61,7 @@ trait Finalize
             // Apply description and tags after the repository Id has been determined,
             $this->repoController->updateDescription($this->repoController->getRepoId(), (string) $this->repoController->getDescription());
             $this->repoController->updateTags($this->repoController->getRepoId(), $this->repoController->getTags());
+            $this->repoController->updateRetention($this->repoController->getRepoId(), Retention::fromInput($this->params['retention'] ?? null, $this->params['retention-keep-all'] ?? 'false'));
 
             // Add snapshot in database
             $this->repoSnapshotController->add($this->repoController->getDate(), $this->repoController->getTime(), $this->repoController->getGpgSign(), $this->repoController->getArch(), $this->repoController->getAdvancedParams(), $this->repoController->getType(), 'active', $this->repoController->getRepoId());

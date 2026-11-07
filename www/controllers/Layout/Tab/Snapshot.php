@@ -11,6 +11,7 @@ class Snapshot
         // If the user is not an administrator and does not have permission to browse repository, redirect to the home page
         if (!RepoPermission::allowedAction('browse')) {
             header('Location: /');
+            exit;
         }
 
         Render::render('snapshot/kpi');

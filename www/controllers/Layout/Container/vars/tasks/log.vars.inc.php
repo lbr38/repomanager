@@ -39,6 +39,9 @@ try {
     // Check if the task is a parent task
     $isParent = $taskController->isParent($taskId);
 
+    // Id of the task that relaunched this task, if any
+    $relaunchTaskId = $taskController->getRelaunchTaskId($taskId);
+
     // If the task has a log file (old format)
     if (!empty($taskInfo['Logfile']) and file_exists(MAIN_LOGS_DIR . '/' . $taskInfo['Logfile'])) {
         $logfile = $taskInfo['Logfile'];
@@ -91,8 +94,14 @@ try {
                 throw new Exception('No action found in the task');
             }
 
+            $taskTemplate = $rawParams['action'];
+
+            // Mirrors tasks have their own template, the mirror info is retrieved from the raw params or the database
+            if (($rawParams['domain'] ?? '') == 'mirror') {
+                $taskTemplate = 'mirror';
+
             // If the action is create, the repository info is in the raw params
-            if ($rawParams['action'] == 'create') {
+            } elseif ($rawParams['action'] == 'create') {
                 $repoController->setType($rawParams['repo-type']);
 
                 if (!empty($rawParams['source'])) {
@@ -143,12 +152,24 @@ try {
                     $snapId = $rawParams['snap-id'];
                 }
 
-                $repoController->getAllById($repoId, $snapId);
+                // The repository may have been deleted since, use the info stored in the task parameters
+                try {
+                    $repoController->getAllById($repoId, $snapId);
+                } catch (Exception $e) {
+                }
+
+                if (empty($repoController->getTaskInfo()['name'])) {
+                    if (empty($rawParams['repo-info'])) {
+                        throw new Exception('The repository targeted by this task has been deleted');
+                    }
+
+                    $repoController->setFromTaskInfo($rawParams['repo-info']);
+                }
             }
 
             // Include table template for the task
             ob_start();
-            include_once(ROOT . '/views/templates/tasks/' . $rawParams['action'] . '.inc.php');
+            include_once(ROOT . '/views/templates/tasks/' . $taskTemplate . '.inc.php');
             $output .= ob_get_clean();
 
             // The container which will contain all the steps
