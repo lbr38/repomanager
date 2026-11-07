@@ -13,10 +13,10 @@
         <link rel="canonical" href="https://docs.repomanager.net/6.2.0 /usage/operations/">
       
       
-        <link rel="prev" href="../../configuration/settings/">
+        <link rel="prev" href="../repository-types/">
       
       
-        <link rel="next" href="../mirrors/">
+        <link rel="next" href="../scheduling/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Operations on repositories - Repomanager</title>
+        <title>Operations on repositories and mirrors - Repomanager</title>
       
     
     
@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#repository-types" class="md-skip">
+        <a href="#create-a-filtered-repository" class="md-skip">
           Skip to content
         </a>
       
@@ -119,7 +119,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Operations on repositories
+              Operations on repositories and mirrors
             
           </span>
         </div>
@@ -287,7 +287,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="./" class="md-tabs__link">
+        <a href="../repository-types/" class="md-tabs__link">
           
   
   
@@ -815,6 +815,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../repository-types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -832,7 +860,7 @@
   <span class="md-ellipsis">
     
   
-    Operations on repositories
+    Operations on repositories and mirrors
   
 
     
@@ -850,7 +878,7 @@
   <span class="md-ellipsis">
     
   
-    Operations on repositories
+    Operations on repositories and mirrors
   
 
     
@@ -872,17 +900,6 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#repository-types" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Repository types
-      
-    </span>
-  </a>
-  
-</li>
       
         <li class="md-nav__item">
   <a href="#create-a-filtered-repository" class="md-nav__link">
@@ -907,6 +924,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#create-a-mirror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Create a mirror
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#update-an-existing-filtered-repository" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -918,10 +946,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#point-an-environment-to-a-repository" class="md-nav__link">
+  <a href="#sync-a-mirror" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Point an environment to a repository
+        Sync a mirror
       
     </span>
   </a>
@@ -929,10 +957,49 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#remove-an-environment-from-a-repository" class="md-nav__link">
+  <a href="#edit-repository-properties" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Remove an environment from a repository
+        Edit repository properties
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Edit repository properties">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#snapshots-retention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Snapshots retention
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#point-an-environment-to-a-snapshot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Point an environment to a snapshot
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#remove-an-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Remove an environment
       
     </span>
   </a>
@@ -1014,40 +1081,29 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Install a repository on a client">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mirrors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mirrors
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../mirrors/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Mirrors
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -1467,52 +1523,20 @@
 
 
 
-  <h1>Operations on repositories</h1>
+  <h1>Operations on repositories and mirrors</h1>
 
-<h2 id="repository-types"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m15.07 11.25-.9.92C13.45 12.89 13 13.5 13 15h-2v-.5c0-1.11.45-2.11 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41a2 2 0 0 0-2-2 2 2 0 0 0-2 2H8a4 4 0 0 1 4-4 4 4 0 0 1 4 4 3.2 3.2 0 0 1-.93 2.25M13 19h-2v-2h2M12 2A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10c0-5.53-4.5-10-10-10"/></svg></span> Repository types<a class="headerlink" href="#repository-types" title="Permanent link">&para;</a></h2>
-<p>When creating a new repository, you must choose between three repository types:</p>
-<table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Content</th>
-<th>Metadata and signature</th>
-<th>Use case</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Filtered</strong></td>
-<td>Packages selected from a <a href="/configuration/source-repositories/">source repository</a> (architectures, include / exclude, latest versions)</td>
-<td>Rebuilt by Repomanager, signed with its own GPG key</td>
-<td>Provide a controlled subset of an upstream repository. See <a href="#create-a-filtered-repository">Create a filtered repository</a>.</td>
-</tr>
-<tr>
-<td><strong>Local</strong></td>
-<td>Your own packages, uploaded manually</td>
-<td>Rebuilt by Repomanager, signed with its own GPG key</td>
-<td>Distribute internal or custom packages. See <a href="#create-a-local-repository">Create a local repository</a>.</td>
-</tr>
-<tr>
-<td><strong>Mirror</strong></td>
-<td>All packages of an upstream repository, copied as is</td>
-<td>Upstream files and signatures, kept byte for byte</td>
-<td>Provide a public or internal mirror that clients use with the upstream GPG key. See <a href="/usage/mirrors/">Mirrors</a>.</td>
-</tr>
-</tbody>
-</table>
-<p>Arch Linux repositories can only be mirrored.</p>
-<h2 id="create-a-filtered-repository"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 13h-4v4h-2v-4H7v-2h4V7h2v4h4m-5-9A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2"/></svg></span> Create a filtered repository<a class="headerlink" href="#create-a-filtered-repository" title="Permanent link">&para;</a></h2>
+<p>Operations are made from the <strong>REPOSITORIES</strong> tab. Filtered repositories, local repositories and mirrors are listed together, see <a href="/usage/repository-types/">Repository types</a> for the differences between them.</p>
 <div class="admonition info">
-<p class="admonition-title">Filtered repositories and mirrors</p>
-<p>A <strong>filtered repository</strong> is built from a source repository: you select the packages to sync (architectures, include / exclude, latest versions), then Repomanager rebuilds the metadata and can sign them with its own GPG key. Filtered repositories were named <em>mirror repositories</em> before version <code>6.2.0</code>.</p>
-<p>To copy an upstream repository as is, with its original metadata and signatures, create a <a href="/usage/mirrors/">mirror</a> instead.</p>
+<p class="admonition-title">Operations available for mirrors</p>
+<p>Mirrors are copies of upstream repositories, their snapshots are read-only. The following operations are <strong>not available</strong> for mirrors: <code>Duplicate</code>, <code>Rebuild</code>, packages upload and deletion. Mirrors are synced with the <code>Sync</code> button instead of <code>Update</code>.</p>
 </div>
+<h2 id="create-a-filtered-repository"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 13h-4v4h-2v-4H7v-2h4V7h2v4h4m-5-9A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2"/></svg></span> Create a filtered repository<a class="headerlink" href="#create-a-filtered-repository" title="Permanent link">&para;</a></h2>
 <p>From the <strong>REPOSITORIES</strong> tab:</p>
 <p><strong>Step 1:</strong> You must first add one or more source repositories to get packages from. See <a href="/configuration/source-repositories/">Source repositories</a>.</p>
 <p><strong>Step 2:</strong> Click the <code>Create a new repository</code> button to show the <strong>NEW REPOSITORY</strong> panel.</p>
 <p><a href="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository-btn.png"><img alt="Create a filtered repository" src="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository-btn.png" /></a></p>
 <p><strong>Step 3:</strong> Select <code>Filtered</code> as the repository type then complete all the required fields.</p>
+<!-- TODO: update screenshot (the repository type selector now shows Filtered / Local / Mirror, and the snapshots retention fields are new) -->
 <p><a href="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository.png"><img alt="Create a filtered repository" src="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository.png" /></a></p>
 <p><strong>Step 4:</strong> Click the <code>Execute now</code> button to launch the sync task.</p>
 <div class="admonition info">
@@ -1523,13 +1547,40 @@
 <p>From the <strong>REPOSITORIES</strong> tab:</p>
 <p><strong>Step 1:</strong> Click the <code>Create a new repository</code> button to show the <strong>NEW REPOSITORY</strong> panel.</p>
 <p><a href="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository-btn.png"><img alt="Create a local repository" src="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository-btn.png" /></a></p>
-<p><strong>Step 2:</strong> Select <code>local</code> as the repository type then complete all the required fields.</p>
+<p><strong>Step 2:</strong> Select <code>Local</code> as the repository type then complete all the required fields.</p>
+<!-- TODO: update screenshot (the repository type selector now shows Filtered / Local / Mirror, and the snapshots retention fields are new) -->
 <p><a href="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-local-repository.png"><img alt="Create a local repository" src="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-local-repository.png" /></a></p>
 <p><strong>Step 3:</strong> Click the <code>Execute now</code> button to launch the repository creation task.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>Local repositories are always empty when created. You must then add your own <code>rpm</code> or <code>deb</code> packages by uploading them. See <a href="#upload-packages-in-a-repository">Upload package(s) in a repository</a>.</p>
 </div>
+<h2 id="create-a-mirror"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 13h-4v4h-2v-4H7v-2h4V7h2v4h4m-5-9A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2"/></svg></span> Create a mirror<a class="headerlink" href="#create-a-mirror" title="Permanent link">&para;</a></h2>
+<p>From the <strong>REPOSITORIES</strong> tab:</p>
+<p><strong>Step 1:</strong> Add the source repository to mirror from, if not already done. See <a href="/configuration/source-repositories/">Source repositories</a>. Import its GPG key if you want the upstream signature to be checked during the sync.</p>
+<p><strong>Step 2:</strong> Click the <code>Create a new repository</code> button, select <code>Mirror</code> as the repository type (Arch Linux repositories can only be mirrored, selecting the <code>arch</code> package type opens the mirror form directly) and fill in the form:</p>
+<ul>
+<li><strong>Name</strong>: deb, rpm and arch mirrors are separated, mirrors of different package types can have the same name.</li>
+<li><strong>Source repository</strong>.</li>
+<li>deb: the <strong>distribution(s)</strong> and the <strong>components</strong> to mirror. All selected distributions are mirrored together in the same tree and share the same <code>pool</code>, as upstream: clients select the distribution in their <code>sources.list</code> (see <a href="#install-a-repository-on-a-client">Install a repository on a client</a>). The selected components are mirrored for each distribution. To manage distributions separately (different environments or sync schedules), create one mirror per distribution.</li>
+<li>rpm: the <strong>release version</strong>, which replaces <code>$releasever</code> in the source repository URL. Several mirrors can have the same name with different release versions (e.g. <code>nginx</code> for release versions <code>9</code> and <code>10</code>), they are published under <code>https://&lt;FQDN&gt;/mirror/rpm/&lt;name&gt;/&lt;release version&gt;/</code>.</li>
+<li>arch: the <strong>repositories</strong> to mirror (e.g. <code>core</code>, <code>extra</code>), which replace <code>$repo</code> in the source repository URL. All selected repositories are mirrored together, each one under <code>&lt;repository&gt;/os/&lt;architecture&gt;/</code>, as on Arch Linux mirrors.</li>
+<li><strong>Architecture(s)</strong> to mirror.</li>
+<li><strong>Check GPG signatures</strong>: check the upstream signature with the GPG keys imported in Repomanager (recommended).</li>
+<li><strong>Environment(s)</strong>: optional, environments make the snapshot available to clients.</li>
+<li><strong>Description</strong>, <strong>tags</strong>, <strong>snapshots retention</strong> and <strong>group</strong>: optional, as for repositories. See <a href="#edit-repository-properties">Edit repository properties</a>.</li>
+</ul>
+<!-- TODO: add screenshot (NEW REPOSITORY panel with the Mirror type selected, e.g. a deb mirror with several distributions) -->
+
+<p><strong>Step 3:</strong> Click the <code>Execute now</code> button to launch the sync task.</p>
+<details class="note">
+<summary>How architectures are handled</summary>
+<ul>
+<li><strong>deb</strong>: only the indices and packages of the selected architectures are retrieved. <code>all</code> packages are always included. Select <code>src</code> to also mirror source packages.</li>
+<li><strong>arch</strong>: each selected architecture replaces <code>$arch</code> in the source repository URL. <code>any</code> packages are included in each architecture repository, as upstream.</li>
+<li><strong>rpm</strong>: if the source URL contains <code>$basearch</code>, one repository per selected architecture is mirrored under <code>&lt;snapshot&gt;/&lt;arch&gt;/</code> (<code>src</code> is mirrored under <code>SRPMS/</code>). There is no <code>noarch</code> repository: <code>noarch</code> packages are included in each architecture repository. If the source URL does not contain <code>$basearch</code>, the repository is mirrored as a whole, whatever the selected architectures.</li>
+</ul>
+</details>
 <h2 id="update-an-existing-filtered-repository"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 6v3l4-4-4-4v3a8 8 0 0 0-8 8c0 1.57.46 3.03 1.24 4.26L6.7 14.8A5.9 5.9 0 0 1 6 12a6 6 0 0 1 6-6m6.76 1.74L17.3 9.2c.44.84.7 1.8.7 2.8a6 6 0 0 1-6 6v-3l-4 4 4 4v-3a8 8 0 0 0 8-8c0-1.57-.46-3.03-1.24-4.26"/></svg></span> Update an existing filtered repository<a class="headerlink" href="#update-an-existing-filtered-repository" title="Permanent link">&para;</a></h2>
 <p>From the <strong>REPOSITORIES</strong> tab:</p>
 <p><strong>Step 1:</strong> Select the repository snapshot from which you want to update the filtered repository.</p>
@@ -1542,9 +1593,44 @@
 <p class="admonition-title">Info</p>
 <p>A filtered repository has only one snapshot per day: updating a snapshot created the same day replaces it instead of creating a new one. Environments pointing to it keep pointing to it.<br>A snapshot used by a protected environment cannot be replaced: the update is refused on the day it was created.</p>
 </div>
-<h2 id="point-an-environment-to-a-repository"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 13.5V20h-2v-6.5C18 11 16 9 13.5 9H7.83l3.08 3.09L9.5 13.5 4 8l5.5-5.5 1.42 1.41L7.83 7h5.67a6.5 6.5 0 0 1 6.5 6.5"/></svg></span> Point an environment to a repository<a class="headerlink" href="#point-an-environment-to-a-repository" title="Permanent link">&para;</a></h2>
+<h2 id="sync-a-mirror"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 6v3l4-4-4-4v3a8 8 0 0 0-8 8c0 1.57.46 3.03 1.24 4.26L6.7 14.8A5.9 5.9 0 0 1 6 12a6 6 0 0 1 6-6m6.76 1.74L17.3 9.2c.44.84.7 1.8.7 2.8a6 6 0 0 1-6 6v-3l-4 4 4 4v-3a8 8 0 0 0 8-8c0-1.57-.46-3.03-1.24-4.26"/></svg></span> Sync a mirror<a class="headerlink" href="#sync-a-mirror" title="Permanent link">&para;</a></h2>
 <p>From the <strong>REPOSITORIES</strong> tab:</p>
-<p><strong>Step 1:</strong> Select the repository snapshot you want to point an environment to.</p>
+<p><strong>Step 1:</strong> Click a snapshot of each mirror to sync to select it. Several mirrors can be synced at once, selecting several snapshots of the same mirror syncs it only once.</p>
+<p><strong>Step 2:</strong> Click the <code>Sync</code> button. Optionally select the environment(s) to switch to the new snapshot once it is complete.</p>
+<!-- TODO: add screenshot (mirror Sync panel) -->
+
+<p><strong>Step 3:</strong> Click the <code>Execute now</code> button to launch the sync task.</p>
+<p>Each sync creates a new snapshot:</p>
+<ul>
+<li>Unchanged files are <strong>hard linked</strong> from the latest snapshot, only new files are downloaded. A new snapshot of an unchanged mirror takes almost no disk space.</li>
+<li>Every downloaded file is checked against the checksums of the upstream metadata.</li>
+<li>If the upstream repository is updated during the sync, the sync is started again (up to 3 times) so that the snapshot is always consistent.</li>
+<li>Files that are no longer referenced upstream are not kept in the new snapshot.</li>
+<li>If a sync fails, the next one resumes from the files already retrieved.</li>
+</ul>
+<p>Only one sync can run at a time on a mirror.</p>
+<p>To keep a mirror up to date, schedule a recurring sync (hourly, daily, cron...) from the same panel. See <a href="/usage/scheduling/">Scheduling tasks</a>.</p>
+<h2 id="edit-repository-properties"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97s-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1s.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64z"/></svg></span> Edit repository properties<a class="headerlink" href="#edit-repository-properties" title="Permanent link">&para;</a></h2>
+<p>From the <strong>REPOSITORIES</strong> tab, click the <code>Edit</code> button on the repository or mirror card to open the <strong>EDIT REPOSITORY PROPERTIES</strong> (or <strong>EDIT MIRROR PROPERTIES</strong>) panel:</p>
+<ul>
+<li><strong>Source repository</strong> (filtered repositories only): the source repository used by the next updates.</li>
+<li><strong>Snapshots retention</strong>: see <a href="#snapshots-retention">Snapshots retention</a>.</li>
+</ul>
+<!-- TODO: add screenshot (Edit button on a repository card and EDIT REPOSITORY PROPERTIES panel) -->
+
+<p>The <strong>description</strong> and <strong>tags</strong> are edited from the card itself: use the <code>+ Description</code> and <code>+ Tags</code> buttons, or double-click on the existing value. The repository can be moved to another group from the <code>Groups</code> panel.</p>
+<h3 id="snapshots-retention">Snapshots retention<a class="headerlink" href="#snapshots-retention" title="Permanent link">&para;</a></h3>
+<p>After each task, snapshots that are not used by any environment are deleted, except the most recent ones:</p>
+<ul>
+<li>By default, the number of unused snapshots to keep is the global <code>RETENTION</code> setting (see <a href="/configuration/settings/#global-settings">Settings</a>).</li>
+<li>The <strong>Snapshots retention</strong> field overrides it for a repository or a mirror. Leave it empty to use the global setting.</li>
+<li><strong>Keep all snapshots</strong> disables the deletion of unused snapshots for this repository or mirror. Disk usage will grow with each update.</li>
+</ul>
+<p>The retention can be set when creating the repository or mirror, or later from the <code>Edit</code> button.</p>
+<p>For mirrors, <strong>at least one unused snapshot is always kept</strong>, even if the retention is <code>0</code>: it is the snapshot an environment has just been switched from, clients may still be reading it.</p>
+<h2 id="point-an-environment-to-a-snapshot"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 13.5V20h-2v-6.5C18 11 16 9 13.5 9H7.83l3.08 3.09L9.5 13.5 4 8l5.5-5.5 1.42 1.41L7.83 7h5.67a6.5 6.5 0 0 1 6.5 6.5"/></svg></span> Point an environment to a snapshot<a class="headerlink" href="#point-an-environment-to-a-snapshot" title="Permanent link">&para;</a></h2>
+<p>From the <strong>REPOSITORIES</strong> tab:</p>
+<p><strong>Step 1:</strong> Select the repository or mirror snapshot you want to point an environment to.</p>
 <p><a href="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/select-snapshot.png"><img alt="Select a snapshot" src="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/select-snapshot.png" /></a></p>
 <p><strong>Step 2:</strong> Click the <code>Point an environment</code> button.</p>
 <p><strong>Step 3:</strong> Specify the environment that will point to the snapshot.</p>
@@ -1552,18 +1638,23 @@
 <p><strong>Step 4:</strong> Click the <code>Execute now</code> button to launch the task.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-<p>A protected environment cannot be pointed to a repository snapshot.</p>
+<ul>
+<li>A protected environment cannot be pointed to a repository snapshot.</li>
+<li>Snapshots of several repositories or mirrors can be selected at once. For mirrors, select only one snapshot per mirror, as an environment points to one snapshot per mirror.</li>
+<li>Mirrors environments are switched atomically: clients never get an error during the switch.</li>
+</ul>
 </div>
-<h2 id="remove-an-environment-from-a-repository"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6z"/></svg></span> Remove an environment from a repository<a class="headerlink" href="#remove-an-environment-from-a-repository" title="Permanent link">&para;</a></h2>
+<h2 id="remove-an-environment"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6z"/></svg></span> Remove an environment<a class="headerlink" href="#remove-an-environment" title="Permanent link">&para;</a></h2>
 <p>From the <strong>REPOSITORIES</strong> tab:</p>
-<p><strong>Step 1:</strong> Select the environment you want to remove from a repository snapshot.</p>
+<p><strong>Step 1:</strong> Select the environment(s) you want to remove from a repository or mirror snapshot. Several environments, of one or several repositories or mirrors, can be selected.</p>
 <p><a href="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/remove-environment.png"><img alt="Remove environment" src="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/remove-environment.png" /></a></p>
-<p><strong>Step 2:</strong> Click the <code>Remove</code> button.</p>
+<p><strong>Step 2:</strong> Click the <code>Remove</code> button. The environment URL is no longer available to clients.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>A protected environment cannot be removed from a repository snapshot.</p>
 </div>
 <h2 id="duplicate-a-repository"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"/></svg></span> Duplicate a repository<a class="headerlink" href="#duplicate-a-repository" title="Permanent link">&para;</a></h2>
+<p>Not available for mirrors.</p>
 <p>From the <strong>REPOSITORIES</strong> tab:</p>
 <p><strong>Step 1:</strong> Select the repository snapshot you want to duplicate.</p>
 <p><a href="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/select-snapshot.png"><img alt="Select a snapshot" src="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/select-snapshot.png" /></a></p>
@@ -1573,20 +1664,28 @@
 <p><strong>Step 4:</strong> Click the <code>Execute now</code> button to launch the duplication task.</p>
 <h2 id="delete-a-repository-snapshot"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6z"/></svg></span> Delete a repository snapshot<a class="headerlink" href="#delete-a-repository-snapshot" title="Permanent link">&para;</a></h2>
 <p>From the <strong>REPOSITORIES</strong> tab:</p>
-<p><strong>Step 1:</strong> Select the repository snapshot you want to delete.</p>
+<p><strong>Step 1:</strong> Select the repository or mirror snapshot(s) you want to delete.</p>
 <p><a href="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/select-snapshot.png"><img alt="Select a snapshot" src="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/select-snapshot.png" /></a></p>
 <p><strong>Step 2:</strong> Click the <code>Delete</code> button.</p>
 <p><strong>Step 3:</strong> Click the <code>Execute now</code> button to launch the deletion task.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-<p>A snapshot having a protected environment cannot be deleted.</p>
+<ul>
+<li>A snapshot having a protected environment cannot be deleted.</li>
+<li>Mirrors: environments pointing to a deleted snapshot are removed with it, their URL is no longer available to clients. The mirror is deleted with its last snapshot, with its scheduled tasks. For rpm, only the selected release version is deleted.</li>
+</ul>
 </div>
 <h2 id="browse-repository-content"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M0 2.75C0 1.784.784 1 1.75 1h12.5c.966 0 1.75.784 1.75 1.75v10.5A1.75 1.75 0 0 1 14.25 15H1.75A1.75 1.75 0 0 1 0 13.25ZM14.5 6h-13v7.25c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25Zm-6-3.5v2h6V2.75a.25.25 0 0 0-.25-.25ZM5 2.5v2h2v-2Zm-3.25 0a.25.25 0 0 0-.25.25V4.5h2v-2Z"/></svg></span> Browse repository content<a class="headerlink" href="#browse-repository-content" title="Permanent link">&para;</a></h2>
 <p>From the <strong>REPOSITORIES</strong> tab:</p>
-<p><strong>Step 1:</strong> Locate the repository snapshot you want to explore.</p>
-<p><strong>Step 2:</strong> Click on the snapshot date to browse its content.</p>
+<p><strong>Step 1:</strong> Locate the repository or mirror snapshot you want to explore.</p>
+<p><strong>Step 2:</strong> Click on the snapshot date to browse its content: tree structure, files search, text files (e.g. <code>InRelease</code>, <code>repomd.xml</code>) preview and files download.</p>
 <p><a href="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/browse-snapshot.png"><img alt="Browse a snapshot" src="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/browse-snapshot.png" /></a></p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Mirror snapshots are read-only: packages cannot be uploaded or deleted, and metadata cannot be rebuilt.</p>
+</div>
 <h2 id="upload-packages-in-a-repository"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zm-.5 14v3h-3v-3H8l4-4 4 4zM13 9V3.5L18.5 9z"/></svg></span> Upload package(s) in a repository<a class="headerlink" href="#upload-packages-in-a-repository" title="Permanent link">&para;</a></h2>
+<p>Not available for mirrors.</p>
 <p>From the <strong>REPOSITORIES</strong> tab:</p>
 <p><strong>Step 1:</strong> Locate the repository snapshot in which you want to upload package(s).</p>
 <p><strong>Step 2:</strong> Click on the snapshot date to browse its content.</p>
@@ -1608,6 +1707,7 @@
 </ul>
 </div>
 <h2 id="delete-packages-from-a-repository"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6z"/></svg></span> Delete package(s) from a repository<a class="headerlink" href="#delete-packages-from-a-repository" title="Permanent link">&para;</a></h2>
+<p>Not available for mirrors.</p>
 <p>From the <strong>REPOSITORIES</strong> tab:</p>
 <p><strong>Step 1:</strong> Locate the repository snapshot in which you want to delete package(s).</p>
 <p><strong>Step 2:</strong> Click on the snapshot date to browse its content.</p>
@@ -1624,6 +1724,7 @@
 <p>A snapshot having a protected environment cannot be modified.</p>
 </div>
 <h2 id="rebuild-repository-metadata"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 6v3l4-4-4-4v3a8 8 0 0 0-8 8c0 1.57.46 3.03 1.24 4.26L6.7 14.8A5.9 5.9 0 0 1 6 12a6 6 0 0 1 6-6m6.76 1.74L17.3 9.2c.44.84.7 1.8.7 2.8a6 6 0 0 1-6 6v-3l-4 4 4 4v-3a8 8 0 0 0 8-8c0-1.57-.46-3.03-1.24-4.26"/></svg></span> Rebuild repository metadata<a class="headerlink" href="#rebuild-repository-metadata" title="Permanent link">&para;</a></h2>
+<p>Not available for mirrors.</p>
 <p>From the <strong>REPOSITORIES</strong> tab:</p>
 <p><strong>Step 1:</strong> Select the repository snapshot you wish to rebuild.</p>
 <p><a href="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/select-snapshot.png"><img alt="Select a snapshot" src="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/select-snapshot.png" /></a></p>
@@ -1637,12 +1738,54 @@
 <h2 id="install-a-repository-on-a-client"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5 20h14v-2H5m14-9h-4V3H9v6H5l7 7z"/></svg></span> Install a repository on a client<a class="headerlink" href="#install-a-repository-on-a-client" title="Permanent link">&para;</a></h2>
 <p>Once a repository has been created, you can install it on a client to make it available for package installation.</p>
 <p>From the <strong>REPOSITORIES</strong> tab:</p>
-<p><strong>Step 1:</strong> Select the repository snapshot you wish to install.</p>
+<p><strong>Step 1:</strong> Select the repository or mirror snapshot(s) you wish to install.</p>
 <p><a href="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/select-snapshot.png"><img alt="Select a snapshot" src="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/select-snapshot.png" /></a></p>
 <p><strong>Step 2:</strong> Click the <code>Install</code> button. </p>
 <p><strong>Step 3:</strong> Specify an environment to generate the installation command lines for.</p>
 <p><a href="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/install-repository.png"><img alt="Select a snapshot" src="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/install-repository.png" /></a></p>
 <p><strong>Step 4:</strong> Copy the command lines and paste them into your client terminal console.</p>
+<h3 id="mirrors">Mirrors<a class="headerlink" href="#mirrors" title="Permanent link">&para;</a></h3>
+<p>Clients use the mirror URL of an environment, and the <strong>upstream GPG key</strong> (not the Repomanager signing key). The <code>Install</code> panel also lists the GPG key fingerprints declared in the source repository, the key must be trusted on the host.</p>
+<!-- TODO: add screenshot (Install panel of a mirror, with the GPG key fingerprints) -->
+
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">deb</label><label for="__tabbed_1_2">rpm</label><label for="__tabbed_1_3">arch</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Example for a <code>debian</code> mirror of the <code>bookworm</code>, <code>bookworm-updates</code>, <code>trixie</code> and <code>trixie-updates</code> distributions, <code>main</code> component, on the <code>prod</code> environment. All distributions are available under the same URL, as upstream:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a># Debian 12 hosts
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://&lt;FQDN&gt;/mirror/deb/debian/prod bookworm main
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://&lt;FQDN&gt;/mirror/deb/debian/prod bookworm-updates main
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a># Debian 13 hosts
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://&lt;FQDN&gt;/mirror/deb/debian/prod trixie main
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://&lt;FQDN&gt;/mirror/deb/debian/prod trixie-updates main
+</span></code></pre></div>
+<p>The distributions and components are the same as upstream.</p>
+</div>
+<div class="tabbed-block">
+<p>Example for <code>rocky-baseos</code> mirrors of release versions <code>9</code> and <code>10</code>, whose source URL contains <code>$basearch</code>, on the <code>prod</code> environment. As the release version is part of the URL, the same file can be used on all hosts, <code>dnf</code> replaces <code>$releasever</code> with the version of the host:</p>
+<div class="language-ini highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">[rocky-baseos-mirror]</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="na">name</span><span class="o">=</span><span class="s">Rocky Linux BaseOS (mirror)</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="na">baseurl</span><span class="o">=</span><span class="s">https://&lt;FQDN&gt;/mirror/rpm/rocky-baseos/$releasever/prod/$basearch</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="na">gpgcheck</span><span class="o">=</span><span class="s">1</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="na">gpgkey</span><span class="o">=</span><span class="s">file:///etc/pki/rpm-gpg/RPM-GPG-KEY-Rocky-$releasever</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="na">enabled</span><span class="o">=</span><span class="s">1</span>
+</span></code></pre></div>
+<p>If the source URL does not contain <code>$basearch</code>, remove <code>/$basearch</code> from <code>baseurl</code>.</p>
+</div>
+<div class="tabbed-block">
+<p>Example for an <code>archlinux</code> mirror of the <code>core</code>, <code>extra</code> and <code>multilib</code> repositories, <code>x86_64</code> architecture, on the <code>prod</code> environment. Whatever the layout of the source repository URL, the mirror always has the layout of Arch Linux mirrors, so the same <code>Server</code> line is used for all repositories, in <code>/etc/pacman.d/mirrorlist</code>:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Server = https://&lt;FQDN&gt;/mirror/arch/archlinux/prod/$repo/os/$arch
+</span></code></pre></div>
+<p>Or directly in <code>/etc/pacman.conf</code> for third-party repositories:</p>
+<div class="language-ini highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">[chaotic-aur]</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="na">Server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">https://&lt;FQDN&gt;/mirror/arch/chaotic-aur/prod/$repo/os/$arch</span>
+</span></code></pre></div>
+<p>Packages are checked by pacman with the upstream keyring, as usual (e.g. <code>archlinux-keyring</code>, <code>chaotic-keyring</code>).</p>
+</div>
+</div>
+</div>
+<p>Mirrors cannot be added to <a href="/usage/hosts/#profiles">host profiles</a>, see <a href="/usage/repository-types/#mirrors-limitations">Mirrors limitations</a>.</p>
 <script data-goatcounter="https://repomanager.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 
 

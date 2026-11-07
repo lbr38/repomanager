@@ -287,7 +287,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../operations/" class="md-tabs__link">
+        <a href="../repository-types/" class="md-tabs__link">
           
   
   
@@ -818,14 +818,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../operations/" class="md-nav__link">
+      <a href="../repository-types/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Operations on repositories
+    Repository types
   
 
     
@@ -846,14 +846,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../mirrors/" class="md-nav__link">
+      <a href="../operations/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Mirrors
+    Operations on repositories and mirrors
   
 
     
@@ -1341,8 +1341,9 @@
 <p>To enable repository <strong>statistics and metrics</strong>, see the <code>ENABLE REPOSITORIES STATISTICS</code> parameter in the <a href="/configuration/settings/#statistics">Statistics</a> section from the <strong>SETTINGS</strong> tab.</p>
 <p>From the <strong>REPOSITORIES</strong> tab:</p>
 <p><strong>Step 1:</strong> Locate the repository for which you want to visualize statistics.</p>
-<p><strong>Step 2:</strong> Click on the <code>Release version</code> or <code>Distribution / Component</code> to access the statistics page.</p>
+<p><strong>Step 2:</strong> Click on the <code>Release version</code> or <code>Distribution / Component</code> (or on the name of a mirror) to access the statistics page: snapshots timeline and size, accesses over time by environment, access requests and top IP addresses.</p>
 <p><a href="https://assets.repomanager.net/repomanager/6.0.0/usage/stats-monitoring/view-stats.png"><img alt="Repository statistics" src="https://assets.repomanager.net/repomanager/6.0.0/usage/stats-monitoring/view-stats.png" /></a></p>
+<p>For mirrors, the accesses of apt, dnf/yum and pacman clients to the environments of the mirror are counted. As mirrors may be public and heavily used, keep in mind that each access request is stored in the statistics database (requests older than one year are deleted).</p>
 <script data-goatcounter="https://repomanager.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 
 

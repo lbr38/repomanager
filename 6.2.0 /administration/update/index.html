@@ -285,7 +285,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../usage/operations/" class="md-tabs__link">
+        <a href="../../usage/repository-types/" class="md-tabs__link">
           
   
   
@@ -815,14 +815,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usage/operations/" class="md-nav__link">
+      <a href="../../usage/repository-types/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Operations on repositories
+    Repository types
   
 
     
@@ -843,14 +843,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usage/mirrors/" class="md-nav__link">
+      <a href="../../usage/operations/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Mirrors
+    Operations on repositories and mirrors
   
 
     
@@ -1352,13 +1352,6 @@
 <p>Clean up:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>docker system prune -a -f
 </span></code></pre></div>
-<div class="admonition warning">
-<p class="admonition-title">Upgrading to 6.2.0 or later</p>
-<p>Version <code>6.2.0</code> adds a new persistent volume for <a href="/usage/mirrors/">mirrors</a>: <code>-v /var/lib/docker/volumes/repomanager-mirror:/home/mirror</code>. Make sure to add it to your <code>docker run</code> command (or to your <code>docker-compose.yml</code> / Ansible configuration), otherwise mirrors are stored inside the container and lost when it is recreated.</p>
-<p><em>Mirror repositories</em> are renamed <strong>filtered repositories</strong>: the repository type <code>mirror</code> becomes <code>filtered</code> in the database, in tasks parameters and in the API responses (snapshots <code>Type</code> field). Existing repositories and scheduled tasks are migrated automatically, but API clients relying on the <code>mirror</code> value must be updated.</p>
-<p>Registering a host, listing hosts and retrieving hosts data through the API now require an administrator API key, or the API key of a user with permissions on hosts (see <a href="/reference/api/#host-registration-and-status-update">API</a>). Make sure the API key used by linupdate to register new hosts meets this requirement.</p>
-<p>Hosts tokens are now stored hashed in the database, and API keys are converted to a new hash format the first time they are used. Existing keys and tokens keep working, but going back to a previous version after the update requires restoring a backup made before the update (see <a href="/administration/backup-restore/">Backup and restore</a>).</p>
-</div>
 <p>Pull and run the new Docker image (specify the <strong>target version</strong> or <code>latest</code> if you were on the latest version before). You will need to pass the following environment variables to the container:</p>
 <ul>
 <li><code>FQDN</code> - Fully Qualified Domain Name of the Repomanager server.</li>

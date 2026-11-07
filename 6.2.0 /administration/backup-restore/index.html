@@ -285,7 +285,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../usage/operations/" class="md-tabs__link">
+        <a href="../../usage/repository-types/" class="md-tabs__link">
           
   
   
@@ -815,14 +815,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usage/operations/" class="md-nav__link">
+      <a href="../../usage/repository-types/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Operations on repositories
+    Repository types
   
 
     
@@ -843,14 +843,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usage/mirrors/" class="md-nav__link">
+      <a href="../../usage/operations/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Mirrors
+    Operations on repositories and mirrors
   
 
     
@@ -1415,7 +1415,7 @@
 <p>This volume contains the packages and metadata of the repositories.</p>
 <p>You should back up this volume to ensure you can restore your data in case of a failure. <strong>This can be done by copying the content of the volume to another location with rsync or cp</strong>.</p>
 <h3 id="mirrors">Mirrors<a class="headerlink" href="#mirrors" title="Permanent link">&para;</a></h3>
-<p><a href="/usage/mirrors/">Mirrors</a> are stored in a dedicated Docker volume named <code>repomanager-mirror</code> which is located in <code>/var/lib/docker/volumes/repomanager-mirror</code> on the host (unless you have changed the default location).</p>
+<p><a href="/usage/repository-types/#mirrors">Mirrors</a> are stored in a dedicated Docker volume named <code>repomanager-mirror</code> which is located in <code>/var/lib/docker/volumes/repomanager-mirror</code> on the host (unless you have changed the default location).</p>
 <p>This volume contains the snapshots of the mirrors. As mirrors are copies of upstream repositories, they can also be synced again from scratch instead of being backed up.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>

@@ -16,7 +16,7 @@
         <link rel="prev" href="../source-repositories/">
       
       
-        <link rel="next" href="../../usage/operations/">
+        <link rel="next" href="../../usage/repository-types/">
       
       
         
@@ -287,7 +287,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../usage/operations/" class="md-tabs__link">
+        <a href="../../usage/repository-types/" class="md-tabs__link">
           
   
   
@@ -1150,14 +1150,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usage/operations/" class="md-nav__link">
+      <a href="../../usage/repository-types/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Operations on repositories
+    Repository types
   
 
     
@@ -1178,14 +1178,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usage/mirrors/" class="md-nav__link">
+      <a href="../../usage/operations/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Mirrors
+    Operations on repositories and mirrors
   
 
     
@@ -1708,7 +1708,7 @@
 </tr>
 <tr>
 <td><code>RETENTION</code></td>
-<td>Maximum number of unused snapshots (snapshots not used by any environment) to keep per repository. Older unused snapshots are deleted after each task. Set to 0 to delete all unused snapshots.<br>Note: <a href="/usage/mirrors/#snapshots-retention">mirrors</a> always keep at least one unused snapshot.</td>
+<td>Maximum number of unused snapshots (snapshots not used by any environment) to keep per repository. Older unused snapshots are deleted after each task. Set to 0 to delete all unused snapshots.<br>Can be overridden for each repository or mirror, and mirrors always keep at least one unused snapshot, see <a href="/usage/operations/#snapshots-retention">Snapshots retention</a>.</td>
 </tr>
 <tr>
 <td><code>REPOSITORY CONFIGURATION FILE NAME PREFIX</code></td>
@@ -2077,8 +2077,17 @@
 <p><strong>Step 1:</strong> Use the <code>Edit permissions</code> icon to edit user permissions.</p>
 <p><a href="https://assets.repomanager.net/repomanager/6.0.0/configuration/settings/edit-user-permissions-btn.png"><img alt="Edit user permissions" src="https://assets.repomanager.net/repomanager/6.0.0/configuration/settings/edit-user-permissions-btn.png" /></a></p>
 <p><strong>Step 2:</strong> Select the permissions to allow the user to perform specific actions and save.</p>
+<!-- TODO: update screenshot (the permissions selector now has a Mirrors section) -->
 <p><a href="https://assets.repomanager.net/repomanager/6.0.0/configuration/settings/edit-user-permissions.png"><img alt="Edit user permissions" src="https://assets.repomanager.net/repomanager/6.0.0/configuration/settings/edit-user-permissions.png" /></a></p>
 <p><strong>Step 3:</strong> Save.</p>
+<div class="admonition info">
+<p class="admonition-title">Mirrors permissions</p>
+<p>Mirrors use the repositories permissions:</p>
+<ul>
+<li><strong>Actions</strong> (create, update, delete, point or remove an environment, edit) are the same as for repositories.</li>
+<li><strong>Viewing</strong>: a user can view a mirror if they can view all repositories, if they can view the group the mirror is member of (or the <code>Default</code> group if it is not member of any group), or if the mirror is granted individually (<code>Mirrors</code> section of the permissions selector).</li>
+</ul>
+</div>
 <h3 id="login-protection">Login protection<a class="headerlink" href="#login-protection" title="Permanent link">&para;</a></h3>
 <p>Local accounts are protected against brute force attacks: when 10 failed login attempts have been made for the same username from the same IP address within the last 15 minutes, further logins with this username are refused from this IP address (refused attempts are also counted as failed attempts). SSO accounts are not concerned.</p>
 <div class="admonition warning">
