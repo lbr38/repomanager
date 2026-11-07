@@ -32,13 +32,13 @@ $datasets = [
     ]
 ];
 
-// First create a list of dates on a 15days period
-$dateStart = date_create(date('Y-m-d'))->modify('-15 days')->format('Y-m-d');
-$dateEnd = date_create(date('Y-m-d'))->modify('+1 days')->format('Y-m-d');
+// First create a list of dates over the selected period (without going beyond today)
+$dateStart = date('Y-m-d', $timeStart);
+$dateEnd = date('Y-m-d', min($timeEnd, time()));
 $period = new DatePeriod(
     new DateTime($dateStart),
     new DateInterval('P1D'),
-    new DateTime($dateEnd)
+    date_create($dateEnd)->modify('+1 days')
 );
 
 // Generate labels array from the date period
@@ -46,14 +46,14 @@ foreach ($period as $value) {
     $labels[] = $value->format('Y-m-d');
 }
 
-// Getting last 15days installed packages
-$lastInstalledPackagesArray = $hostPackageController->countByStatusOverDays('installed', '15');
+// Getting installed packages over the period
+$lastInstalledPackagesArray = $hostPackageController->countByStatusOverPeriod('installed', $dateStart, $dateEnd);
 
-// Getting last 15days updated packages
-$lastUpgradedPackagesArray = $hostPackageController->countByStatusOverDays('upgraded', '15');
+// Getting updated packages over the period
+$lastUpgradedPackagesArray = $hostPackageController->countByStatusOverPeriod('upgraded', $dateStart, $dateEnd);
 
-// Getting last 15days deleted packages
-$lastRemovedPackagesArray = $hostPackageController->countByStatusOverDays('removed', '15');
+// Getting deleted packages over the period
+$lastRemovedPackagesArray = $hostPackageController->countByStatusOverPeriod('removed', $dateStart, $dateEnd);
 
 // Fill datasets with data from arrays (no need for array_merge)
 foreach ($labels as $date) {

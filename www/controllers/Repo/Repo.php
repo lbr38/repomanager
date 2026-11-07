@@ -28,6 +28,7 @@ class Repo
     private $env = [];
     private $description;
     private $tags = [];
+    private $retention;
     private $group;
     private $advancedParams = [];
     private $signed;
@@ -121,6 +122,11 @@ class Repo
     public function setTags(array $tags = []): void
     {
         $this->tags = $tags;
+    }
+
+    public function setRetention(int|null $retention): void
+    {
+        $this->retention = $retention;
     }
 
     public function setSource(string $source): void
@@ -244,6 +250,18 @@ class Repo
         return $this->type;
     }
 
+    /**
+     *  Return the repository label: name ❯ release version (rpm) or name ❯ distribution ❯ section (deb)
+     */
+    public function getLabel(): string
+    {
+        if ($this->getPackageType() == 'deb') {
+            return $this->getName() . ' ❯ ' . $this->getDist() . ' ❯ ' . $this->getSection();
+        }
+
+        return $this->getName() . ' ❯ ' . $this->getReleasever();
+    }
+
     public function getSigned(): string
     {
         return $this->signed;
@@ -267,6 +285,11 @@ class Repo
     public function getTags(): array
     {
         return $this->tags;
+    }
+
+    public function getRetention(): int|null
+    {
+        return $this->retention;
     }
 
     public function getGroup(): string|null
@@ -362,6 +385,9 @@ class Repo
             if (!empty($data['Tags'])) {
                 $tags = explode(',', $data['Tags']);
                 $this->setTags($tags);
+            }
+            if (isset($data['Retention'])) {
+                $this->setRetention($data['Retention']);
             }
 
             /**
@@ -486,20 +512,64 @@ class Repo
     }
 
     /**
-     *  Clean repositories from groups when they have no active snapshot anymore
+     *  Delete a repository from the database when it has no snapshot anymore, with its groups and profiles membership
      */
-    public function cleanGroups(): void
+    public function deleteIfEmpty(int $repoId): void
     {
-        $repoIds = $this->model->getAllRepoId();
+        if (!empty($this->getSnapshots($repoId))) {
+            return;
+        }
 
-        foreach ($repoIds as $repoId) {
-            // Check if the repo has at least one active snapshot
-            $activeSnapshots = $this->getSnapshots($repoId['Id']);
+        $this->model->removeFromGroup($repoId);
+        (new \Controllers\Profile())->removeRepoMemberId($repoId);
+        $this->model->delete($repoId);
+    }
 
-            // If the repo has no active snapshot, remove it from groups
-            if (empty($activeSnapshots)) {
-                $this->model->removeFromGroup($repoId['Id']);
-            }
+    /**
+     *  Return the repository details to store in a task parameters, so that the task can still be described once the repository has been deleted
+     */
+    public function getTaskInfo(): array
+    {
+        return array_filter([
+            'name'         => $this->name,
+            'package-type' => $this->packageType,
+            'releasever'   => $this->releasever,
+            'dist'         => $this->dist,
+            'section'      => $this->section,
+            'source'       => $this->source,
+            'arch'         => $this->arch,
+            'date'         => $this->date
+        ]);
+    }
+
+    /**
+     *  Set the repository details from the info stored in a task parameters (see getTaskInfo)
+     */
+    public function setFromTaskInfo(array $info): void
+    {
+        if (!empty($info['name'])) {
+            $this->setName($info['name']);
+        }
+        if (!empty($info['package-type'])) {
+            $this->setPackageType($info['package-type']);
+        }
+        if (!empty($info['releasever'])) {
+            $this->setReleasever($info['releasever']);
+        }
+        if (!empty($info['dist'])) {
+            $this->setDist($info['dist']);
+        }
+        if (!empty($info['section'])) {
+            $this->setSection($info['section']);
+        }
+        if (!empty($info['source'])) {
+            $this->setSource($info['source']);
+        }
+        if (!empty($info['arch'])) {
+            $this->setArch($info['arch']);
+        }
+        if (!empty($info['date'])) {
+            $this->setDate($info['date']);
         }
     }
 
@@ -559,6 +629,14 @@ class Repo
         }
 
         $this->model->updateDescription($id, Validate::string($description));
+    }
+
+    /**
+     *  Update snapshots retention (null: global setting)
+     */
+    public function updateRetention(int $repoId, int|null $retention): void
+    {
+        $this->model->updateRetention($repoId, $retention);
     }
 
     /**

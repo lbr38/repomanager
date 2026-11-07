@@ -2,11 +2,12 @@
     <h3>SNAPSHOT</h3>
 
     <?php
-    if ($repoController->getPackageType() == 'rpm') {
+    // Mirror snapshot label and accent are defined in the vars file
+    if (!$isMirror && $repoController->getPackageType() == 'rpm') {
         $repository = $repoController->getName() . ' ❯ ' . $repoController->getReleasever();
         $accent = 'blue';
     }
-    if ($repoController->getPackageType() == 'deb') {
+    if (!$isMirror && $repoController->getPackageType() == 'deb') {
         $repository = $repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection();
         $accent = 'red';
     }
@@ -35,15 +36,15 @@
         <div class="kpi-card accent-<?= $accent ?>">
             <img src="/assets/icons/package.svg" class="icon-np icon-medium" />
             <div>
-                <span class="label-white"><?= $repository ?></span>
-                <p class="mediumopacity-cst">Repository</p>
+                <span class="label-white"><?= $isMirror ? htmlspecialchars($repository) : $repository ?></span>
+                <p class="mediumopacity-cst"><?= $isMirror ? 'Mirror' : 'Repository' ?></p>
             </div>
         </div>
 
         <div class="kpi-card">
             <img src="/assets/icons/calendar.svg" class="icon-np icon-medium" />
             <div>
-                <p class="kpi-value"><?= $repoController->getDateFormatted() ?></p>
+                <p class="kpi-value"><?= $dateFormatted ?></p>
                 <p class="mediumopacity-cst">Date</p>
             </div>
         </div>

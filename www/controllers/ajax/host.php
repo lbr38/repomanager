@@ -1,4 +1,12 @@
 <?php
+use Controllers\User\Permission\Host as HostPermission;
+
+/**
+ *  Only users with permissions on hosts can access hosts data
+ */
+if (!HostPermission::allowed()) {
+    response(HTTP_BAD_REQUEST, 'You are not allowed to perform this action');
+}
 
 /**
  *  Get all hosts that have the specified kernel

@@ -29,6 +29,9 @@ class Execution
     protected string $timeStart;
     protected array $task;
     protected array $params;
+    // Snapshot selected by the user, before it is replaced by the latest snapshot of the repository (see 'use-latest-snapshot')
+    // Not set for recurring tasks, which always update the latest snapshot whatever the snapshot selected when they were created
+    protected int|null $requestedSnapId = null;
 
     public function __construct(int $taskId, string $action)
     {
@@ -92,6 +95,11 @@ class Execution
                 // If latest snapshot Id was not found, throw an exception
                 if (empty($latestSnapId)) {
                     throw new Exception('could not find the latest snapshot Id repository #' . $this->params['repo-id']);
+                }
+
+                // Keep the snapshot selected by the user, the task checks that updating the latest snapshot instead does not replace another snapshot
+                if (!empty($this->params['snap-id']) and is_numeric($this->params['snap-id']) and !$this->isRecurring()) {
+                    $this->requestedSnapId = (int) $this->params['snap-id'];
                 }
 
                 // Update snap-id param to latest snapshot Id
@@ -209,6 +217,22 @@ class Execution
         } catch (Exception $e) {
             throw new Exception('Task initialization error: ' . $e->getMessage());
         }
+    }
+
+    /**
+     *  Return true if the task is a recurring task, or a sub-task of a recurring task
+     */
+    private function isRecurring(): bool
+    {
+        $params = $this->params;
+
+        // Sub-tasks do not carry the schedule, their parent task does
+        if (!empty($this->task['Parent_task_id'])) {
+            $parentTask = $this->taskController->getById((int) $this->task['Parent_task_id']);
+            $params = json_decode($parentTask['Raw_params'] ?? '', true) ?? [];
+        }
+
+        return ($params['schedule']['schedule-type'] ?? '') == 'recurring';
     }
 
     /**

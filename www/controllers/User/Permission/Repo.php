@@ -22,6 +22,32 @@ class Repo
     }
 
     /**
+     *  Check if the user is allowed to view a specific mirror
+     *  Same rules as repositories: all repositories, the group of the mirror, or the mirror granted individually
+     */
+    public static function allowedToViewMirror(int $mirrorId) : bool
+    {
+        // Admins are allowed to view everything
+        if (IS_ADMIN) {
+            return true;
+        }
+
+        if (in_array('all', USER_PERMISSIONS['repositories']['view'])) {
+            return true;
+        }
+
+        // The mirror can be granted individually (permissions saved before mirrors existed have no 'mirrors' key)
+        if (in_array($mirrorId, USER_PERMISSIONS['repositories']['view']['mirrors'] ?? [])) {
+            return true;
+        }
+
+        // Mirrors that are member of no group belong to the fictitious 'Default' group, which Id is 0
+        $groupId = (new \Controllers\Mirror\Mirror())->getGroupsIds()[$mirrorId] ?? 0;
+
+        return in_array($groupId, USER_PERMISSIONS['repositories']['view']['groups'] ?? []);
+    }
+
+    /**
      *  Check if the user is allowed to view a specific repository
      */
     public static function allowedToView(int $repoId) : bool

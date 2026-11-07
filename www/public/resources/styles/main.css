@@ -309,6 +309,7 @@ article {
 }
 
 .repo-rename-btn,
+.repo-header-btn,
 .repo-add-description-btn,
 .repo-add-tags-btn {
     display: inline-flex;
@@ -320,6 +321,7 @@ article {
 }
 
 .repo-rename-btn:hover,
+.repo-header-btn:hover,
 .repo-add-description-btn:hover,
 .repo-add-tags-btn:hover {
     opacity: 1;
@@ -376,6 +378,27 @@ article {
     letter-spacing: 0.3px;
 }
 
+/* Link between a task and its relaunch, and user who launched the task, printed next to the task date */
+.task-item-relaunch, .task-item-launched-by {
+    display: inline-flex;
+    align-items: center;
+    column-gap: 5px;
+    font-family: 'archivo';
+    font-size: 13px;
+    color: #97a5b4;
+    letter-spacing: 0.3px;
+}
+
+/* A task that has been relaunched is replaced by its relaunch, so it is dimmed */
+.task-item-relaunched {
+    opacity: 0.55;
+    transition: opacity 0.2s ease;
+}
+
+.task-item-relaunched:hover {
+    opacity: 1;
+}
+
 .task-item-action {
     font-size: 13px;
     font-weight: 600;
@@ -427,6 +450,16 @@ article {
 
 .task-checkbox-input {
     display: none;
+}
+
+/* Done tasks search bar */
+#done-tasks-search-input {
+    min-width: 250px;
+}
+
+#done-tasks-search .done-tasks-search-select {
+    width: auto;
+    padding-right: 10px;
 }
 
 /* Sub-tasks nested under their parent task */
@@ -579,12 +612,14 @@ a.task-item-child:hover {
    The display:none logic (button only present when the field is empty) is kept;
    this only controls the hover reveal, uniform with the rename button. */
 .repo-item .repo-rename-btn,
+.repo-item .repo-header-btn,
 .repo-item .repo-add-description-btn,
 .repo-item .repo-add-tags-btn {
     visibility: hidden;
 }
 
 .repo-item:hover .repo-rename-btn,
+.repo-item:hover .repo-header-btn,
 .repo-item:hover .repo-add-description-btn,
 .repo-item:hover .repo-add-tags-btn {
     visibility: visible;
@@ -668,6 +703,7 @@ a.task-item-child:hover {
     font-size: 14px;
     font-weight: 500;
     letter-spacing: 0.3px;
+    white-space: nowrap;
 }
 
 .snap-size {

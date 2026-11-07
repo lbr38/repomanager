@@ -47,34 +47,53 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
             <h6 class="margin-top-0">NET. INTERFACES</h6>
             <div class="flex flex-wrap align-item-center column-gap-5 row-gap-5 margin-top-5">
                 <?php
+                // Skip loopback interface
+                unset($network['lo']);
+
                 if (!empty($network)) {
+                    // Number of interfaces printed, the others are hidden behind a button
+                    $maxInterfaces = 3;
+                    $count = 0;
+
                     foreach ($network as $interface => $properties) {
-                        $tooltip = [];
+                        $count++;
+                        $interface = htmlspecialchars($interface);
 
-                        if ($interface == 'lo') {
-                            continue; // Skip loopback interface
-                        }
+                        // Properties to print in the tooltip (values are already escaped when stored)
+                        $tooltip = array_filter([
+                            'IPv4' => $properties['ipv4'] ?? '',
+                            'IPv6' => $properties['ipv6'] ?? '',
+                            'MAC' => $properties['mac'] ?? ''
+                        ]); ?>
 
-                        if (!empty($properties['ipv4'])) {
-                            $tooltip[] = 'IPv4: ' . $properties['ipv4'];
-                        }
-
-                        if (!empty($properties['ipv6'])) {
-                            $tooltip[] = 'IPv6: ' . $properties['ipv6'];
-                        }
-
-                        if (!empty($properties['mac'])) {
-                            $tooltip[] = 'MAC: ' . $properties['mac'];
-                        }
-
-                        if (!empty($tooltip)) {
-                            $tooltip = implode("<br>", $tooltip);
-                        } else {
-                            $tooltip = 'No network information available';
-                        }
-
-                        echo '<span class="label-white tooltip" tooltip="' . $tooltip . '">' . $interface . '</span>';
+                        <span class="label-white<?= $count > $maxInterfaces ? ' host-network-interface-hidden hide' : '' ?>" data-tooltip-template>
+                            <?= $interface ?>
+                            <template>
+                                <p class="tooltip-title"><?= $interface ?></p>
+                                <?php
+                                if (!empty($tooltip)) : ?>
+                                    <div class="tooltip-properties">
+                                        <?php
+                                        foreach ($tooltip as $label => $value) : ?>
+                                            <span class="tooltip-property-label"><?= $label ?></span>
+                                            <span class="tooltip-property-value copy"><?= $value ?></span>
+                                            <?php
+                                        endforeach ?>
+                                    </div>
+                                    <?php
+                                else : ?>
+                                    <p class="lowopacity-cst">No network information available</p>
+                                    <?php
+                                endif ?>
+                            </template>
+                        </span>
+                        <?php
                     }
+
+                    if ($count > $maxInterfaces) : ?>
+                        <span class="label-white lowopacity pointer host-network-interfaces-more-btn" more="+<?= $count - $maxInterfaces ?>">+<?= $count - $maxInterfaces ?></span>
+                        <?php
+                    endif;
                 } else {
                     echo '<p class="mediumopacity-cst">Unknown</p>';
                 } ?>

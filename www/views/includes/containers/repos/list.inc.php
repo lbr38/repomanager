@@ -47,7 +47,7 @@ use \Controllers\User\Permission\Repo as RepoPermission; ?>
 
                     <?php
                     if (RepoPermission::allowedAction('create')) : ?>
-                        <div class="slide-btn slide-btn-green get-panel-btn" panel="repos/new" title="Create a new mirror or local repository">
+                        <div class="slide-btn slide-btn-green get-panel-btn" panel="repos/new" title="Create a new filtered repository, local repository or mirror">
                             <img src="/assets/icons/plus.svg" />
                             <span>Create a new repository</span>
                         </div>
@@ -55,7 +55,7 @@ use \Controllers\User\Permission\Repo as RepoPermission; ?>
                     endif ?>
                 </div>
 
-                <input id="repo-search-input" type="text" placeholder="Search repositories, snapshots, environments..." onkeyup="myrepo.search()" title="Search by repository name, distribution, section or release version" />
+                <input id="repo-search-input" type="text" placeholder="Search repositories, snapshots, environments..." onkeyup="myrepo.search()" title="Search by repository name, distribution, component or release version" />
             </div>
 
             <div id="repos-list-container">

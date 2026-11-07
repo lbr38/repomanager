@@ -212,6 +212,65 @@ class Task
         $repoController = new Repo();
 
         try {
+            /**
+             *  Case of a mirror task, the mirror details are in the database, or in the repo-info stored when the task
+             *  was created (mirror to create, or mirror deleted since)
+             */
+            if (($taskRawParams['domain'] ?? '') == 'mirror') {
+                unset($repoController);
+
+                // A task grouping sub-tasks targets the mirrors of its sub-tasks
+                if (!empty($taskRawParams['tasks'])) {
+                    $labels = [];
+
+                    foreach ($taskRawParams['tasks'] as $subTaskParams) {
+                        $labels[] = $this->getRepoFromParams($subTaskParams);
+                    }
+
+                    $labels = array_unique($labels);
+                    $description = count($labels) == 1 ? $labels[0] : count($labels) . ' mirrors';
+
+                    if ($string) {
+                        return $description;
+                    }
+
+                    return [
+                        'type' => 'group',
+                        'name' => $description
+                    ];
+                }
+
+                $info = $taskRawParams['repo-info'] ?? [];
+                $mirror = [
+                    'Name' => $info['name'] ?? '',
+                    'Releasever' => ($info['package-type'] ?? '') == 'rpm' ? ($info['releasever'] ?? '') : '',
+                    'Package_type' => $info['package-type'] ?? ''
+                ];
+
+                if (!empty($taskRawParams['mirror-id']) and is_numeric($taskRawParams['mirror-id'])) {
+                    $mirrorInfo = (new \Controllers\Mirror\Mirror())->getById((int) $taskRawParams['mirror-id']);
+
+                    if (!empty($mirrorInfo)) {
+                        $mirror = $mirrorInfo;
+                    }
+                }
+
+                if (empty($mirror['Name'])) {
+                    throw new Exception('unknown mirror');
+                }
+
+                $label = \Controllers\Mirror\Mirror::getLabel($mirror['Name'], $mirror['Releasever']);
+
+                if ($string) {
+                    return $label;
+                }
+
+                return [
+                    'type' => $mirror['Package_type'],
+                    'name' => $label
+                ];
+            }
+
             // Case where the task groups sub-tasks, the repositories are the ones of its sub-tasks
             if (!empty($taskRawParams['tasks'])) {
                 unset($repoController);
@@ -244,57 +303,40 @@ class Task
                 ];
             }
 
-            if (!empty($taskRawParams['source-snap-id'])) {
-                if (is_numeric($taskRawParams['source-snap-id'])) {
-                    $repoController->getAllById('', $taskRawParams['source-snap-id'], '');
-                    $name = $repoController->getName();
-
-                    if ($repoController->getPackageType() == 'deb') {
-                        $dist       = $repoController->getDist();
-                        $component  = $repoController->getSection();
+            try {
+                if (!empty($taskRawParams['source-snap-id'])) {
+                    if (is_numeric($taskRawParams['source-snap-id'])) {
+                        $repoController->getAllById('', $taskRawParams['source-snap-id'], '');
                     }
-                    if ($repoController->getPackageType() == 'rpm') {
-                        $releasever = $repoController->getReleasever();
+                } else if (!empty($taskRawParams['repo-id'])) {
+                    if (is_numeric($taskRawParams['repo-id'])) {
+                        $repoController->getAllById($taskRawParams['repo-id'], '', '');
                     }
-                }
-            } else if (!empty($taskRawParams['repo-id'])) {
-                if (is_numeric($taskRawParams['repo-id'])) {
-                    $repoController->getAllById($taskRawParams['repo-id'], '', '');
-                    $name = $repoController->getName();
-
-                    if ($repoController->getPackageType() == 'deb') {
-                        $dist       = $repoController->getDist();
-                        $component  = $repoController->getSection();
-                    }
-                    if ($repoController->getPackageType() == 'rpm') {
-                        $releasever = $repoController->getReleasever();
-                    }
-                } else {
-                    if ($taskRawParams['package-type'] == 'rpm') {
-                        $name = $taskRawParams['repo-id'];
-                        $releasever = $taskRawParams['releasever'];
-                    }
-                    if ($taskRawParams['package-type'] == 'deb') {
-                        $repo = explode('|', $taskRawParams['repo-id']);
-                        $name = $repo[0];
-                        if (!empty($repo[1]) and !empty($repo[2])) {
-                            $dist      = $repo[1];
-                            $component = $repo[2];
-                        }
+                } else if (!empty($taskRawParams['snap-id'])) {
+                    if (is_numeric($taskRawParams['snap-id'])) {
+                        $repoController->getAllById('', $taskRawParams['snap-id'], '');
                     }
                 }
-            } else if (!empty($taskRawParams['snap-id'])) {
-                if (is_numeric($taskRawParams['snap-id'])) {
-                    $repoController->getAllById('', $taskRawParams['snap-id'], '');
-                    $name = $repoController->getName();
+            } catch (Exception $e) {
+                // Repository has been deleted, its details are retrieved from the task parameters below
+            }
 
-                    if ($repoController->getPackageType() == 'deb') {
-                        $dist       = $repoController->getDist();
-                        $component  = $repoController->getSection();
-                    }
-                    if ($repoController->getPackageType() == 'rpm') {
-                        $releasever = $repoController->getReleasever();
-                    }
+            // Repository details from the database, or from the info stored in the task parameters (repository to create, or deleted since)
+            $repoInfo = $repoController->getTaskInfo();
+
+            if (empty($repoInfo['name']) and !empty($taskRawParams['repo-info'])) {
+                $repoInfo = $taskRawParams['repo-info'];
+            }
+
+            if (!empty($repoInfo['name'])) {
+                $name = $repoInfo['name'];
+
+                if (($repoInfo['package-type'] ?? '') == 'deb') {
+                    $dist       = $repoInfo['dist'] ?? '';
+                    $component  = $repoInfo['section'] ?? '';
+                }
+                if (($repoInfo['package-type'] ?? '') == 'rpm') {
+                    $releasever = $repoInfo['releasever'] ?? '';
                 }
             }
 
@@ -361,27 +403,6 @@ class Task
         // Clean the schedule parameters (remove unnecessary parameters depending on the schedule type)
         $params = Schedule::clean($params);
 
-        /**
-         *  If task is 'create' then inject the name / dist / section into the repo-id field
-         *  A parent task has no repository of its own, only the sub-tasks it groups have one
-         */
-        if ($params['action'] == 'create' and empty($params['tasks'])) {
-            // Repo name is the alias if it exists, otherwise it is the source repository name
-            if (!empty($params['alias'])) {
-                $name = $params['alias'];
-            } else {
-                $name = $params['source'];
-            }
-
-            if ($params['package-type'] == 'rpm') {
-                $params['repo-id'] = $name;
-            }
-
-            if ($params['package-type'] == 'deb') {
-                $params['repo-id'] = $name . '|' . $params['dist'] . '|' . $params['section'];
-            }
-        }
-
         try {
             $paramsJson = json_encode($params, JSON_THROW_ON_ERROR);
         } catch (JsonException $e) {
@@ -389,9 +410,19 @@ class Task
         }
 
         /**
+         *  A sub-task is attributed to the user who launched its parent task, as it may be created
+         *  by the service (scheduled parent task) where no user is authenticated
+         */
+        if (!empty($parentTaskId)) {
+            $launchedBy = $this->getById($parentTaskId)['Launched_by'] ?? null;
+        } else {
+            $launchedBy = (new \Controllers\User\User())->getCurrentUsername();
+        }
+
+        /**
          *  Add the task in database
          */
-        $taskId = $this->model->new($type, $paramsJson, $status, $parentTaskId);
+        $taskId = $this->model->new($type, $paramsJson, $status, $parentTaskId, $launchedBy);
 
         return $taskId;
     }
@@ -413,13 +444,20 @@ class Task
          *  a parent task so that they are listed, followed and reported as a single operation
          */
         if (count($tasksParams) > 1 and empty($parentTaskId)) {
-            $parentTaskId = $this->new([
+            $parentTaskParams = [
                 'action'   => $tasksParams[0]['action'],
                 'schedule' => $tasksParams[0]['schedule'],
 
                 // Kept so that a scheduled parent task can create its sub-tasks when it runs
                 'tasks'    => $tasksParams
-            ]);
+            ];
+
+            // Mirrors tasks are identified by their domain
+            if (!empty($tasksParams[0]['domain'])) {
+                $parentTaskParams['domain'] = $tasksParams[0]['domain'];
+            }
+
+            $parentTaskId = $this->new($parentTaskParams);
 
             /**
              *  A scheduled parent task only creates its sub-tasks when it reaches its execution time,
@@ -479,7 +517,8 @@ class Task
         $params = [];
 
         foreach ($tasksParams as $taskParams) {
-            if ($taskParams['action'] != 'create') {
+            // Mirrors creation is never split, a mirror contains all its distributions / components / archs
+            if ($taskParams['action'] != 'create' or ($taskParams['domain'] ?? '') == 'mirror') {
                 $params[] = $taskParams;
                 continue;
             }
@@ -499,7 +538,105 @@ class Task
             }
         }
 
-        return $params;
+        // Store the details of the targeted repository or mirror in each task
+        return array_map(function (array $taskParams): array {
+            return ($taskParams['domain'] ?? '') == 'mirror' ? $this->addMirrorInfo($taskParams) : $this->addRepoInfo($taskParams);
+        }, $params);
+    }
+
+    /**
+     *  Store the details of the mirror targeted by a task in its parameters (repo-info, same format as repositories),
+     *  so that the task can still be described once the mirror has been deleted
+     */
+    private function addMirrorInfo(array $taskParams): array
+    {
+        // A grouping task has no mirror of its own
+        if (!empty($taskParams['tasks'])) {
+            return $taskParams;
+        }
+
+        // The mirror to create is described by the task parameters, the other actions target an existing mirror
+        if ($taskParams['action'] == 'create') {
+            // If no name has been given, the source repository name is used
+            if (empty($taskParams['name'])) {
+                $taskParams['name'] = $taskParams['source'] ?? '';
+            }
+
+            $mirror = [
+                'Name'         => $taskParams['name'] ?? '',
+                'Package_type' => $taskParams['package-type'] ?? '',
+                'Releasever'   => $taskParams['releasever'] ?? '',
+                'Source'       => $taskParams['source'] ?? ''
+            ];
+        } else {
+            if (empty($taskParams['mirror-id']) or !is_numeric($taskParams['mirror-id'])) {
+                return $taskParams;
+            }
+
+            $mirror = (new \Controllers\Mirror\Mirror())->getById((int) $taskParams['mirror-id']);
+
+            // Mirror may already be deleted (e.g. a scheduled task executed afterwards), keep the stored info
+            if (empty($mirror)) {
+                return $taskParams;
+            }
+        }
+
+        $taskParams['repo-info'] = array_filter([
+            'name'         => $mirror['Name'],
+            'package-type' => $mirror['Package_type'],
+            'releasever'   => $mirror['Package_type'] == 'rpm' ? $mirror['Releasever'] : '',
+            'source'       => $mirror['Source']
+        ]);
+
+        return $taskParams;
+    }
+
+    /**
+     *  Store the details of the repository targeted by a task in its parameters (repo-info),
+     *  so that the task can still be described once the repository has been deleted
+     */
+    private function addRepoInfo(array $taskParams): array
+    {
+        // Grouping and dynamic tasks have no repository of their own
+        if (!empty($taskParams['tasks']) or Target::isDynamic($taskParams)) {
+            return $taskParams;
+        }
+
+        // The repository to create is described by the task parameters, its name is the alias if set, otherwise the source repository name
+        if ($taskParams['action'] == 'create') {
+            $taskParams['repo-info'] = array_filter([
+                'name'         => !empty($taskParams['alias']) ? $taskParams['alias'] : $taskParams['source'],
+                'package-type' => $taskParams['package-type'],
+                'releasever'   => $taskParams['package-type'] == 'rpm' ? $taskParams['releasever'] : '',
+                'dist'         => $taskParams['package-type'] == 'deb' ? $taskParams['dist'] : '',
+                'section'      => $taskParams['package-type'] == 'deb' ? $taskParams['section'] : '',
+                'source'       => $taskParams['source'],
+                'arch'         => $taskParams['arch'] ?? []
+            ]);
+
+            return $taskParams;
+        }
+
+        $repoController = new Repo();
+
+        try {
+            if (!empty($taskParams['snap-id']) and is_numeric($taskParams['snap-id'])) {
+                $repoController->getAllById(null, $taskParams['snap-id']);
+            } elseif (!empty($taskParams['repo-id']) and is_numeric($taskParams['repo-id'])) {
+                $repoController->getAllById($taskParams['repo-id']);
+            }
+        } catch (Exception $e) {
+            // Repository has been deleted, the stored info is kept below
+        }
+
+        $info = $repoController->getTaskInfo();
+
+        // Repository may already be deleted (e.g. a scheduled task executed afterwards), keep the stored info
+        if (!empty($info['name'])) {
+            $taskParams['repo-info'] = $info;
+        }
+
+        return $taskParams;
     }
 
     /**
@@ -588,8 +725,25 @@ class Task
             throw new Exception('Task #' . $id . ' is a parent task and cannot be relaunched, relaunch its sub-tasks instead');
         }
 
-        // First, duplicate task in database
-        $newTaskId = $this->duplicate($id, 'queued');
+        // Only the latest attempt of a task can be relaunched, so that a task has at most one relaunch
+        $relaunchTaskId = $this->getRelaunchTaskId($id);
+
+        if (!empty($relaunchTaskId)) {
+            throw new Exception('Task #' . $id . ' has already been relaunched by task #' . $relaunchTaskId);
+        }
+
+        $task = $this->getById($id);
+
+        // First, create the new task in database, linked to the task it relaunches and to its parent task
+        $newTaskId = $this->model->relaunch($id, (new \Controllers\User\User())->getCurrentUsername());
+
+        /**
+         *  The parent task of a relaunched sub-task may already be closed: it is reopened so that it
+         *  is closed again, with an updated summary and notification, once the relaunch has ended
+         */
+        if (!empty($task['Parent_task_id'])) {
+            $this->updateStatus($task['Parent_task_id'], 'running');
+        }
 
         // If a temporary directory was used for the previous task, then rename it to be used for the new task
         if (file_exists(REPOS_DIR . '/temporary-task-' . $id) and is_dir(REPOS_DIR . '/temporary-task-' . $id)) {
@@ -601,10 +755,18 @@ class Task
         // Execute task
         $this->executeId($newTaskId);
 
-        $this->layoutContainerReloadController->reload('tasks/logs');
+        $this->layoutContainerReloadController->reload('tasks/log');
         $this->layoutContainerReloadController->reload('tasks/tasks');
 
         return $newTaskId;
+    }
+
+    /**
+     *  Return the Id of the task that relaunched the task $id, or null if it has not been relaunched
+     */
+    public function getRelaunchTaskId(int $id): int|null
+    {
+        return $this->model->getRelaunchTaskId($id);
     }
 
     /**
@@ -702,6 +864,11 @@ class Task
                 foreach ($subpids[0] as $subpid) {
                     $subpid = trim(str_replace('"', '', $subpid));
 
+                    // A PID must be a positive integer
+                    if (!ctype_digit($subpid)) {
+                        continue;
+                    }
+
                     // Check if the PID is still running
                     $myprocess = new Process('/usr/bin/ps --pid ' . $subpid);
                     $myprocess->execute();
@@ -732,6 +899,17 @@ class Task
 
         // Update task in database, set status to 'stopped'
         $this->updateStatus($taskId, 'stopped');
+
+        /**
+         *  A killed rebuild task cannot reset the snapshot rebuild state itself, which would stay
+         *  'running' forever and block any further rebuild or package upload on the snapshot
+         */
+        $taskRawParams = json_decode($taskInfo['Raw_params'], true);
+
+        if (!empty($taskRawParams['action']) and $taskRawParams['action'] == 'rebuild' and !empty($taskRawParams['snap-id']) and is_numeric($taskRawParams['snap-id'])) {
+            $repoSnapshotController = new \Controllers\Repo\Snapshot\Snapshot();
+            $repoSnapshotController->updateRebuild((int) $taskRawParams['snap-id'], 'needed');
+        }
 
         $taskLogStepController = new Step($taskId);
         $taskLogSubStepController = new SubStep($taskId);
@@ -1253,7 +1431,7 @@ class Task
 
             $title = match ($repoType) {
                 'local' => 'New local repository',
-                'mirror' => 'New mirror repository',
+                'filtered' => 'New filtered repository',
                 default => 'New repository',
             };
             $icon = 'plus.svg';
@@ -1286,6 +1464,27 @@ class Task
         if ($taskRawParams['action'] == 'delete') {
             $title = 'Delete snapshot';
             $icon = 'delete.svg';
+        }
+
+        // Mirrors tasks
+        if (($taskRawParams['domain'] ?? '') == 'mirror') {
+            if ($taskRawParams['action'] == 'create') {
+                $title = 'New mirror';
+            }
+            if ($taskRawParams['action'] == 'update') {
+                $title = 'Sync mirror';
+            }
+            if ($taskRawParams['action'] == 'env') {
+                $title = 'Point an environment (mirror)';
+            }
+            if ($taskRawParams['action'] == 'removeEnv') {
+                $title = 'Remove an environment (mirror)';
+            }
+            if ($taskRawParams['action'] == 'delete') {
+                // A task grouping sub-tasks does not target a snapshot itself, its sub-tasks do
+                $deleteSnapshot = !empty($taskRawParams['mirror-snap-id']) || !empty($taskRawParams['tasks'][0]['mirror-snap-id']);
+                $title = $deleteSnapshot ? 'Delete snapshot (mirror)' : 'Delete mirror';
+            }
         }
 
         // If task is running, override icon

@@ -34,20 +34,30 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and strtolower($_SERVER['HTTP_X_REQ
     /**
      *  Get target action
      */
-    $action = $_POST['action'];
+    $action = $_POST['action'] ?? '';
 
-    if (empty($action)) {
+    if (empty($action) or !is_string($action)) {
         response(HTTP_BAD_REQUEST, 'Unspecified action');
     }
 
     /**
-     *  Check if a controller file exists and include it
+     *  Controller name must only contain lowercase letters, numbers, hyphens and slashes (for subdirectories)
+     *  Prevents path traversal (e.g. '../../') and the inclusion of any file outside the ajax controllers directory
      */
-    if (!file_exists(ROOT . '/controllers/ajax/' . $controller . '.php')) {
+    if (!is_string($controller) or !preg_match('#^[a-z0-9-]+(/[a-z0-9-]+)*$#', $controller)) {
         response(HTTP_BAD_REQUEST, 'Bad controller.');
     }
 
-    include_once(ROOT . '/controllers/ajax/' . $controller . '.php');
+    /**
+     *  Check if a controller file exists and is located inside the ajax controllers directory, then include it
+     */
+    $controllerFile = realpath(ROOT . '/controllers/ajax/' . $controller . '.php');
+
+    if ($controllerFile === false or !str_starts_with($controllerFile, ROOT . '/controllers/ajax/')) {
+        response(HTTP_BAD_REQUEST, 'Bad controller.');
+    }
+
+    include_once($controllerFile);
 }
 
 response(HTTP_METHOD_NOT_ALLOWED, 'Method not allowed');

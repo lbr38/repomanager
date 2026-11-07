@@ -9,6 +9,11 @@ use Controllers\Utils\Validate;
 class Render
 {
     /**
+     *  Tables that are only available to administrators (their tabs are only available to administrators)
+     */
+    private const ADMIN_ONLY = ['cves/', 'history/'];
+
+    /**
      *  Render table content
      *  InvalidTableException is thrown when the table name is invalid or the table file does not
      *  exist, which should not be the case unless someone is trying to do something nasty
@@ -20,6 +25,13 @@ class Render
             // Check if the table name is valid
             if (!Validate::alphaNumericHyphen($table, ['/'])) {
                 throw new InvalidTableException('Invalid table name');
+            }
+
+            // Check that the user is allowed to access the table
+            foreach (self::ADMIN_ONLY as $prefix) {
+                if (str_starts_with($table, $prefix) and !IS_ADMIN) {
+                    throw new InvalidTableException('You are not allowed to access this table');
+                }
             }
 
             $_view = realpath(ROOT . '/views/includes/tables/' . $table . '.inc.php');
@@ -55,8 +67,8 @@ class Render
     {
         $output = '';
 
-        // Don't print pagination if only one page
-        if ($totalPages == 1) {
+        // Don't print pagination if only one page (or none, when there is nothing to print)
+        if ($totalPages <= 1) {
             return;
         }
 

@@ -239,7 +239,11 @@ class Gpg
         }
 
         if (!file_exists(REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub') and !empty(GPG_SIGNING_KEYID)) {
-            $myprocess = new Process("/usr/bin/gpg2 --no-permission-warning --homedir '" . GPGHOME . "' --export -a '" . GPG_SIGNING_KEYID . "' > " . REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub 2>/dev/null');
+            $myprocess = new Process(
+                '/usr/bin/gpg2 --no-permission-warning --homedir ' . escapeshellarg(GPGHOME)
+                . ' --export -a ' . escapeshellarg(GPG_SIGNING_KEYID)
+                . ' > ' . escapeshellarg(REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub') . ' 2>/dev/null'
+            );
             $myprocess->execute();
             $content = $myprocess->getOutput();
             $myprocess->close();

@@ -37,7 +37,7 @@ $taskConfig = [
 
         // Based on repo type
         'repo-type' => [
-            'mirror' => [
+            'filtered' => [
                 'source',
                 'gpg-check',
                 'gpg-sign'

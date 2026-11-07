@@ -10,7 +10,7 @@ class Kpi
     {
         try {
             // Only allow safe characters in the chart ID to prevent path traversal / local file inclusion
-            if (!preg_match("#^" . ROOT . "#", realpath(ROOT . '/controllers/Layout/Kpi/vars/' . $id . '.vars.inc.php'))) {
+            if (!preg_match('/^[a-z0-9-]+$/i', $id)) {
                 throw new Exception('could not retrieve KPI data for KPI ID ' . $id);
             }
 

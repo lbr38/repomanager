@@ -13,9 +13,9 @@ class Bzip2
     public static function uncompress(string $filename, string|null $outputFilename = null) : void
     {
         if (!empty($outputFilename)) {
-            $myprocess = new Process('/usr/bin/bunzip2 --decompress -k -c ' . $filename . ' > ' . $outputFilename);
+            $myprocess = new Process('/usr/bin/bunzip2 --decompress -k -c ' . escapeshellarg($filename) . ' > ' . escapeshellarg($outputFilename));
         } else {
-            $myprocess = new Process('/usr/bin/bunzip2 --decompress -k ' . $filename);
+            $myprocess = new Process('/usr/bin/bunzip2 --decompress -k ' . escapeshellarg($filename));
         }
 
         $myprocess->execute();

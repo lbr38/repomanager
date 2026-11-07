@@ -332,3 +332,85 @@ $(document).on('click','.relaunch-task-btn',function (e) {
         
     });
 });
+/**
+ *  Event: click on successful/failed label to filter done tasks by status
+ *  Clicking again on the active filter removes it
+ */
+$(document).on('click','.done-tasks-filter-btn',function () {
+    var status = $(this).attr('status');
+
+    // Delete offset cookie to reset pagination to the first page after reloading tasks list
+    mycookie.delete('tables/tasks/list-done/offset');
+
+    // Set or remove the status cookie for PHP to load the right content
+    if (mycookie.get('tables/tasks/list-done/status') == status) {
+        mycookie.delete('tables/tasks/list-done/status');
+    } else {
+        mycookie.set('tables/tasks/list-done/status', status, 1);
+    }
+
+    mytable.reload('tasks/list-done');
+});
+
+/**
+ *  Event: click on the search button of done tasks, to open the search bar, or to close it and clear the search
+ */
+$(document).on('click','.done-tasks-search-btn',function () {
+    const searchBar = $('#done-tasks-search');
+
+    if (searchBar.hasClass('hide')) {
+        saveDoneTasksSearch(true);
+        searchBar.removeClass('hide');
+        $(this).attr('title', 'Close and clear search');
+        $('#done-tasks-search-input').focus();
+        return;
+    }
+
+    // Reload the tasks list only if there was something searched
+    const searched = $('#done-tasks-search-input').val().trim() !== '' || $('#done-tasks-search-domain').val() !== '' || $('#done-tasks-search-action').val() !== '' || $('#done-tasks-search-user').val() !== '';
+
+    saveDoneTasksSearch(false);
+
+    if (searched) {
+        mytable.reload('tasks/list-done');
+        return;
+    }
+
+    searchBar.addClass('hide');
+    $(this).attr('title', 'Search tasks');
+});
+
+/**
+ *  Event: typing in the search input of done tasks
+ *  The search is saved at once, so that a reload of the tasks list in the meantime keeps it,
+ *  but the tasks list is only reloaded once the user has stopped typing
+ */
+var doneTasksSearchTimeout;
+
+$(document).on('input','#done-tasks-search-input',function () {
+    saveDoneTasksSearch(true);
+
+    clearTimeout(doneTasksSearchTimeout);
+    doneTasksSearchTimeout = setTimeout(function () {
+        mytable.reload('tasks/list-done');
+    }, 400);
+});
+
+/**
+ *  Event: press Escape in the search input of done tasks to clear the searched text
+ */
+$(document).on('keydown','#done-tasks-search-input',function (e) {
+    if (e.key === 'Escape' && $(this).val() !== '') {
+        $(this).val('').trigger('input');
+    }
+});
+
+/**
+ *  Event: select a target type, an action or a user to filter done tasks
+ */
+$(document).on('change','.done-tasks-search-select',function () {
+    saveDoneTasksSearch(true);
+
+    clearTimeout(doneTasksSearchTimeout);
+    mytable.reload('tasks/list-done');
+});

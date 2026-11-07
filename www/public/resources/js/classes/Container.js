@@ -53,6 +53,9 @@ class Container {
                     // Do not print error alert (it will be logged in the console)
                     false
                 ).then(() => {
+                    // Keep the text field the user is typing in, if any
+                    const focusedField = mylayout.getFocusedField($('.reloadable-container[container="' + container + '"]'));
+
                     // Check if container must use Morphdom
                     if (typeof containersUsingMorphdom !== 'undefined' && containersUsingMorphdom.includes(container)) {
                         useMorphdom = true;
@@ -115,6 +118,8 @@ class Container {
                             $('.reloadable-container[container="' + container + '"]').replaceWith(jsonValue.message);
                         }
                     }
+
+                    mylayout.restoreFocusedField(focusedField);
 
                     // Execute post reload function if exists
                     if (typeof postReloadFunctions !== 'undefined' && typeof postReloadFunctions[container] === 'function') {

@@ -4,10 +4,16 @@
 namespace Controllers\Repo;
 
 use Controllers\Utils\Convert;
+use Controllers\App\Session;
 
 class Browse
 {
     private const FILES_PER_PAGE = 300;
+
+    /**
+     *  Maximum number of snapshot directories the user is allowed to browse, kept in session
+     */
+    private const MAX_ALLOWED_ROOTS = 20;
 
     /**
      *  Render the repository tree structure (first page of files only)
@@ -41,6 +47,72 @@ class Browse
     }
 
     /**
+     *  Return the root directory of a browsed path and its name: repositories (REPOS_DIR, published under /repo/)
+     *  or mirrors (MIRRORS_DIR, published under /mirror/)
+     *  Files paths are printed relatively to this root, with a 'root' attribute to know where to read or download them
+     */
+    public static function getRoot(string $path): array
+    {
+        if (str_starts_with($path, MIRRORS_DIR . '/')) {
+            return ['dir' => MIRRORS_DIR, 'name' => 'mirror'];
+        }
+
+        return ['dir' => REPOS_DIR, 'name' => 'repo'];
+    }
+
+    /**
+     *  Allow the current user to browse the specified snapshot directory
+     *  Must only be called once the user's permissions to view the snapshot have been checked
+     */
+    public static function allowRoot(string $path): void
+    {
+        $realpath = realpath($path);
+
+        if ($realpath === false) {
+            return;
+        }
+
+        $roots = $_SESSION['browse-roots'] ?? [];
+
+        // Move the directory to the end of the list, then only keep the most recent directories
+        $roots = array_values(array_diff($roots, [$realpath]));
+        $roots[] = $realpath;
+        $roots = array_slice($roots, -self::MAX_ALLOWED_ROOTS);
+
+        Session::set(['browse-roots' => $roots]);
+    }
+
+    /**
+     *  Return true if the specified path exists, is inside the repositories or the mirrors directory,
+     *  and is inside a snapshot directory the user has been allowed to browse
+     *  Prevents a malicious person from providing a path that has nothing to do with the repo directory (e.g. /etc/...)
+     *  or the path of a snapshot he is not allowed to view
+     */
+    public static function allowedPath(string $path): bool
+    {
+        $realpath = realpath($path);
+
+        if ($realpath === false) {
+            return false;
+        }
+
+        $reposDir = realpath(REPOS_DIR) ?: REPOS_DIR;
+        $mirrorsDir = realpath(MIRRORS_DIR) ?: MIRRORS_DIR;
+
+        if (!str_starts_with($realpath, $reposDir . '/') and !str_starts_with($realpath, $mirrorsDir . '/')) {
+            return false;
+        }
+
+        foreach ($_SESSION['browse-roots'] ?? [] as $root) {
+            if ($realpath === $root or str_starts_with($realpath, $root . '/')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      *  Generate the repository tree structure
      */
     private static function tree(string $path): void
@@ -51,6 +123,7 @@ class Browse
 
         // Initialize array which will contain a list of the files inside the actual directory
         $files = [];
+        $root = self::getRoot($path);
 
         echo '<ul>';
 
@@ -68,7 +141,7 @@ class Browse
                  *  If it is a file then we add it to the queue array which contains the list of all files in the current directory or sub-directory
                  *  Index the file name $file and its path $path/$file by removing the beginning of the full path so it is not visible in the source code
                  */
-                $files[$file] = str_replace(REPOS_DIR . '/', '', $path . '/' . $file);
+                $files[$file] = str_replace($root['dir'] . '/', '', $path . '/' . $file);
             }
         }
 
@@ -76,7 +149,7 @@ class Browse
 
         $total = count($files);
         $firstPage = array_slice($files, 0, self::FILES_PER_PAGE, true);
-        Browse::printFiles($firstPage);
+        Browse::printFiles($firstPage, $root);
 
         if ($total > self::FILES_PER_PAGE) {
             Browse::printLoadMore($path, self::FILES_PER_PAGE, $total);
@@ -91,10 +164,11 @@ class Browse
     private static function printFilesPage(string $path, int $offset): void
     {
         $files = [];
+        $root = self::getRoot($path);
 
         foreach (scandir($path) as $file) {
             if (is_file($path . '/' . $file) && $file != '.' && $file != '..') {
-                $files[$file] = str_replace(REPOS_DIR . '/', '', $path . '/' . $file);
+                $files[$file] = str_replace($root['dir'] . '/', '', $path . '/' . $file);
             }
         }
 
@@ -102,7 +176,7 @@ class Browse
 
         $total = count($files);
         $slice = array_slice($files, $offset, self::FILES_PER_PAGE, true);
-        Browse::printFiles($slice);
+        Browse::printFiles($slice, $root);
 
         if ($total > $offset + self::FILES_PER_PAGE) {
             Browse::printLoadMore($path, $offset + self::FILES_PER_PAGE, $total);
@@ -131,6 +205,7 @@ class Browse
     {
         $results = [];
         $count = 0;
+        $root = self::getRoot($basePath);
 
         $iterator = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator($basePath, \RecursiveDirectoryIterator::SKIP_DOTS),
@@ -148,7 +223,7 @@ class Browse
 
             $results[] = [
                 'file' => $fileInfo->getFilename(),
-                'path' => str_replace(REPOS_DIR . '/', '', $fileInfo->getPathname()),
+                'path' => str_replace($root['dir'] . '/', '', $fileInfo->getPathname()),
             ];
 
             if (++$count >= $limit) {
@@ -168,7 +243,7 @@ class Browse
             if ($truncated) {
                 echo '<li><p class="note">Showing first ' . $limit . ' results — refine your search to see more.</p></li>';
             }
-            Browse::printSearchResultFiles($results);
+            Browse::printSearchResultFiles($results, $root);
         }
 
         echo '</ul>';
@@ -177,7 +252,7 @@ class Browse
     /**
      *  Print search result file items (same structure as printFiles but with directory path shown)
      */
-    private static function printSearchResultFiles(array $results): void
+    private static function printSearchResultFiles(array $results, array $root): void
     {
         foreach ($results as $result) {
             $file = $result['file'];
@@ -187,14 +262,14 @@ class Browse
             $extension = pathinfo($file, PATHINFO_EXTENSION);
             $class = 'header-light-blue flex align-item-center justify-space-between';
 
-            $size = Convert::sizeToHuman(filesize(REPOS_DIR . '/' . $path));
-            $mime = mime_content_type(REPOS_DIR . '/' . $path);
+            $size = Convert::sizeToHuman(filesize($root['dir'] . '/' . $path));
+            $mime = mime_content_type($root['dir'] . '/' . $path);
 
             if (str_starts_with($mime, 'text/')) {
                 $class .= ' view-file pointer';
             }
 
-            if (in_array($extension, ['deb', 'rpm', 'xz', 'gz', 'dsc'])) {
+            if (in_array($extension, ['deb', 'rpm', 'xz', 'gz', 'dsc', 'zst'])) {
                 $title = 'Package file';
                 $icon = 'package';
             }
@@ -208,14 +283,14 @@ class Browse
             } ?>
 
             <li>
-                <div class="<?= $class ?>" path="<?= htmlspecialchars($path, ENT_QUOTES) ?>" name="<?= htmlspecialchars($file, ENT_QUOTES) ?>">
+                <div class="<?= $class ?>" path="<?= htmlspecialchars($path, ENT_QUOTES) ?>" root="<?= $root['name'] ?>" name="<?= htmlspecialchars($file, ENT_QUOTES) ?>">
                     <div class="flex column-gap-8 align-item-center" title="<?= $title ?>">
                         <img src="/assets/icons/<?= $icon ?>.svg" class="icon" />
                         <p><?= htmlspecialchars($file, ENT_QUOTES) ?></p>
                     </div>
                     <div class="flex align-item-center column-gap-15">
                         <span class="mediumopacity-cst"><?= $size ?></span>
-                        <input type="checkbox" class="package-checkbox pointer lowopacity" name="packageName[]" filename="<?= htmlspecialchars($file, ENT_QUOTES) ?>" path="<?= htmlspecialchars($path, ENT_QUOTES) ?>" />
+                        <input type="checkbox" class="package-checkbox pointer lowopacity" name="packageName[]" filename="<?= htmlspecialchars($file, ENT_QUOTES) ?>" path="<?= htmlspecialchars($path, ENT_QUOTES) ?>" root="<?= $root['name'] ?>" />
                     </div>
                 </div>
             </li>
@@ -226,7 +301,7 @@ class Browse
     /**
      *  Print all files in a directory
      */
-    private static function printFiles(array $files): void
+    private static function printFiles(array $files, array $root): void
     {
         // Already sorted by caller; ksort is a no-op on sorted input but kept for safety
         ksort($files);
@@ -238,17 +313,17 @@ class Browse
             $class = 'header-light-blue flex align-item-center justify-space-between';
 
             // Get size
-            $size = Convert::sizeToHuman(filesize(REPOS_DIR . '/' . $path));
+            $size = Convert::sizeToHuman(filesize($root['dir'] . '/' . $path));
 
             // Get MIME type
-            $mime = mime_content_type(REPOS_DIR . '/' . $path);
+            $mime = mime_content_type($root['dir'] . '/' . $path);
 
             // If file contains text
             if (str_starts_with($mime, 'text/')) {
                 $class .= ' view-file pointer';
             }
 
-            if (in_array($extension, ['deb', 'rpm', 'xz', 'gz', 'dsc'])) {
+            if (in_array($extension, ['deb', 'rpm', 'xz', 'gz', 'dsc', 'zst'])) {
                 $title = 'Package file';
                 $icon = 'package';
             }
@@ -264,15 +339,15 @@ class Browse
             } ?>
 
             <li>
-                <div class="<?= $class ?>" path="<?= $path ?>" name="<?= $file ?>">
+                <div class="<?= $class ?>" path="<?= htmlspecialchars($path, ENT_QUOTES) ?>" root="<?= $root['name'] ?>" name="<?= htmlspecialchars($file, ENT_QUOTES) ?>">
                     <div class="flex column-gap-8 align-item-center" title="<?= $title ?>">
                         <img src="/assets/icons/<?= $icon ?>.svg" class="icon" />
-                        <p><?= $file ?></p>
+                        <p><?= htmlspecialchars($file, ENT_QUOTES) ?></p>
                     </div>
                     
                     <div class="flex align-item-center column-gap-15">
                         <span class="mediumopacity-cst"><?= $size ?></span>
-                        <input type="checkbox" class="package-checkbox pointer lowopacity" name="packageName[]" filename="<?= $file ?>" path="<?= $path ?>" />
+                        <input type="checkbox" class="package-checkbox pointer lowopacity" name="packageName[]" filename="<?= htmlspecialchars($file, ENT_QUOTES) ?>" path="<?= htmlspecialchars($path, ENT_QUOTES) ?>" root="<?= $root['name'] ?>" />
                     </div>
                 </div>
             </li>
@@ -289,9 +364,9 @@ class Browse
         $fullPath = $path . '/' . $dir; ?>
 
         <li>
-            <div class="explorer-toggle div-generic-blue pointer flex column-gap-8 align-item-center" title="Directory <?= $dir ?>" data-path="<?= htmlspecialchars($fullPath, ENT_QUOTES) ?>">
+            <div class="explorer-toggle div-generic-blue pointer flex column-gap-8 align-item-center" title="Directory <?= htmlspecialchars($dir, ENT_QUOTES) ?>" data-path="<?= htmlspecialchars($fullPath, ENT_QUOTES) ?>">
                 <img src="/assets/icons/folder.svg" class="icon" />
-                <p><?= $dir ?></p>
+                <p><?= htmlspecialchars($dir, ENT_QUOTES) ?></p>
             </div>
             <ul style="display:none;"></ul>
         </li>

@@ -36,6 +36,16 @@
                 echo '<option value="repo-' . $repoId . '" ' . $selected . '>' . $repoLabel . '</option>';
             } ?>
         </optgroup>
+
+        <optgroup label="Mirrors">
+            <?php
+            // Display mirrors and select them if they are in the permissions (permissions saved before mirrors existed have no 'mirrors' key)
+            foreach ($mirrorsList as $mirrorId => $mirrorLabel) {
+                $selected = in_array($mirrorId, $permissions['repositories']['view']['mirrors'] ?? []) ? 'selected' : '';
+
+                echo '<option value="mirror-' . $mirrorId . '" ' . $selected . '>' . htmlspecialchars($mirrorLabel) . '</option>';
+            } ?>
+        </optgroup>
     </select>
 
     <h6>ALLOW ACTIONS ON REPOSITORIES</h6>
@@ -74,6 +84,7 @@
 
     <h6>ALLOW ACTIONS ON HOSTS</h6>
     <select id="user-permissions-hosts-actions" user-id="<?= $userId ?>" multiple>
+        <option value="register" <?= isset($permissions['hosts']['allowed-actions']) && in_array('register', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Register hosts (API key)</option>
         <option value="request-general-infos" <?= isset($permissions['hosts']['allowed-actions']) && in_array('request-general-infos', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Request general information</option>
         <option value="request-packages-infos" <?= isset($permissions['hosts']['allowed-actions']) && in_array('request-packages-infos', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Request package information</option>
         <option value="update-packages" <?= isset($permissions['hosts']['allowed-actions']) && in_array('update-packages', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Update packages on hosts</option>

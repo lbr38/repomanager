@@ -225,9 +225,39 @@ function printEnv(env, selector)
         }
     }
 
-    // Generate html
-    var html = '⸺<span class="env" style="background-color: ' + background + '; color: ' + color + '; border: ' + border + ';">' + env + '</span>';
+    // Generate element (env is set as text to avoid HTML injection)
+    var span = $('<span>', { class: 'env' }).text(env).css({
+        'background-color': background,
+        'color': color,
+        'border': border
+    });
 
     // Print environment
-    $(selector).html(html);
+    $(selector).empty().append('⸺', span);
+}
+
+/**
+ * Installation panels: warn if the selected environment does not point to the selected snapshot(s)
+ * Each installation block holds the environments of its repository or mirror (envs attribute: JSON env => {id, date})
+ * and the Id(s) of the selected snapshot(s) (snap-ids attribute, comma separated)
+ * @param {*} env
+ * @param {*} blockSelector
+ */
+function printInstallEnvWarning(env, blockSelector)
+{
+    $(blockSelector).each(function () {
+        var envs = JSON.parse($(this).attr('envs') || '{}');
+        var snapIds = ($(this).attr('snap-ids') || '').split(',');
+        var envName = $('<span>').text(env).html();
+        var message = '';
+
+        if (!(env in envs)) {
+            message = 'Environment <b>' + envName + '</b> does not point to any snapshot: this URL is not available to clients until the environment is pointed to a snapshot.';
+        } else if (!snapIds.includes(String(envs[env].id))) {
+            message = 'Environment <b>' + envName + '</b> points to the snapshot of the <b>' + $('<span>').text(envs[env].date).html() + '</b>, not to the selected snapshot: clients will get the snapshot of the ' + $('<span>').text(envs[env].date).html() + '.';
+        }
+
+        $(this).find('.install-env-warning p').html(message);
+        $(this).find('.install-env-warning').toggleClass('hide', message == '');
+    });
 }

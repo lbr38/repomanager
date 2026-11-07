@@ -37,9 +37,7 @@ $(document).on('click','#compact-view-btn',function () {
 /**
  *  Event: print help tooltip for search host input
  */
-$(document).on('mouseenter', '.search-host-tooltip', function (e) {
-    mytooltip.loading(e);
-
+$(document).on('mouseenter', '.search-host-tooltip', function () {
     content  = '<p>Syntax</p>';
     content += '<p><code>search</code></p>';
 
@@ -69,15 +67,13 @@ $(document).on('mouseenter', '.search-host-tooltip', function (e) {
     content += '</div>';
 
     // Print tooltip
-    mytooltip.print(content, e);
+    mytooltip.show(this, content);
 });
 
 /**
  *  Event: print help tooltip for search package input
  */
-$(document).on('mouseenter', '.search-package-tooltip', function (e) {
-    mytooltip.loading(e);
-
+$(document).on('mouseenter', '.search-package-tooltip', function () {
     content  = '<p>Syntax</p>';
     content += '<p><code>name=PACKAGE_NAME</code></p>';
 
@@ -101,5 +97,5 @@ $(document).on('mouseenter', '.search-package-tooltip', function (e) {
     content += '</div>';
 
     // Print tooltip
-    mytooltip.print(content, e);
+    mytooltip.show(this, content);
 });

@@ -142,19 +142,16 @@ class Package
     }
 
     /**
-     *  Count the number of packages installed, updated, removed... over the last X days.
+     *  Count the number of packages installed, updated, removed... between two dates (Y-m-d).
      *  Returns an array containing dates => number of packages
      */
-    public function countByStatusOverDays(string $status, string $days) : array
+    public function countByStatusOverPeriod(string $status, string $dateStart, string $dateEnd) : array
     {
         if (!in_array($status, ['installed', 'upgraded', 'removed'])) {
             throw new Exception('invalid status: ' . $status);
         }
 
-        $dateEnd   = date('Y-m-d');
-        $dateStart = date_create($dateEnd)->modify('-' . $days . ' days')->format('Y-m-d');
-
-        return $this->model->countByStatusOverDays($status, $dateStart, $dateEnd);
+        return $this->model->countByStatusOverPeriod($status, $dateStart, $dateEnd);
     }
 
     /**

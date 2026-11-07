@@ -12,6 +12,18 @@
     <p>⸺<span class="label-black"><?= $repoController->getDateFormatted() ?></span></p>
 </div>
 
+<?php
+// A snapshot used by a protected environment cannot be rebuilt, the rebuild would be refused
+$protectedEnvs = (new \Controllers\Repo\Snapshot\Snapshot())->getProtectedEnvs((int) $snapId);
+
+if (!empty($protectedEnvs)) : ?>
+    <div class="note-warning">
+        <img src="/assets/icons/warning.svg" />
+        <p>This snapshot is used by <?= \Controllers\Environment::nameList($protectedEnvs, 'protected') ?> and cannot be rebuilt.</p>
+    </div>
+    <?php
+endif ?>
+
 <h6>SIGN WITH GPG</h6>
 <p class="note">Sign repository / packages with GPG.</p>
 <label class="onoff-switch-label">

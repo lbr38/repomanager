@@ -26,7 +26,7 @@ $taskConfig = [
     'conditional-required-params' => [
         // Based on repo type
         'repo-type' => [
-            'mirror' => [
+            'filtered' => [
                 'arch',
                 'gpg-check',
                 'gpg-sign'

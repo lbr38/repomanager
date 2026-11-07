@@ -190,9 +190,16 @@ class Api
 
     /**
      *  Return error
+     *  Error messages may contain HTML formatting intended for the web interface (labels, bold...), API clients get plain text
      */
     private static function returnError(int $code, string|array $message): void
     {
+        $toPlainText = function ($value) {
+            return is_string($value) ? html_entity_decode(strip_tags($value), ENT_QUOTES) : $value;
+        };
+
+        $message = is_array($message) ? array_map($toPlainText, $message) : $toPlainText($message);
+
         http_response_code($code);
         echo json_encode(['return' => $code, 'message_error' => [$message]]);
         exit(1);

@@ -78,6 +78,37 @@ class Label
     }
 
     /**
+     *  Generate package state label (installed, upgraded, removed...), with an optional packages count
+     */
+    public static function packageState(string $state, int|null $count = null): string
+    {
+        // State => [label, title, color]
+        [$label, $title, $color] = match ($state) {
+            'installed'     => ['Installed', 'Installed', 'green'],
+            'dep-installed' => ['Dep. installed', 'Installed as dependency', 'green'],
+            'reinstalled'   => ['Reinstalled', 'Reinstalled', 'green'],
+            'upgraded'      => ['Updated', 'Updated', 'yellow'],
+            'downgraded'    => ['Downgraded', 'Downgraded', 'yellow'],
+            'removed'       => ['Uninstalled', 'Uninstalled', 'red'],
+            'purged'        => ['Purged', 'Uninstalled (purged)', 'red'],
+            default         => [ucfirst($state), ucfirst($state), 'neutral'],
+        };
+
+        $label = htmlspecialchars($label, ENT_QUOTES, 'UTF-8');
+        $title = htmlspecialchars($title, ENT_QUOTES, 'UTF-8');
+
+        $content = '<span class="package-state package-state-' . $color . '" title="' . $title . '">' . $label;
+
+        if ($count !== null) {
+            $content .= ' <strong>' . $count . '</strong>';
+        }
+
+        $content .= '</span>';
+
+        return $content;
+    }
+
+    /**
      *  Generate mint label
      */
     public static function mint(string $string): string

@@ -23,8 +23,9 @@ class Color
 
     /**
      *  Get a random color from a valid hex colors list
+     *  Colors specified in $exclude are not picked (e.g. colors already used in the same chart), unless all colors are excluded
      */
-    public static function random() : string
+    public static function random(array $exclude = []) : string
     {
         // Define a list of valid colors
         // Color must match well with background color #0e1e2f or #182b3e
@@ -55,6 +56,11 @@ class Color
             '#9FB3C8', // desaturated slate
             '#F8F9FA', // near-white for subtle contrast
         ];
+
+        // Remove excluded colors, unless all colors are excluded
+        if (!empty(array_diff($colors, $exclude))) {
+            $colors = array_values(array_diff($colors, $exclude));
+        }
 
         $randomColorId = array_rand($colors, 1);
 

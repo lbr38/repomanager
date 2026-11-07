@@ -20,6 +20,13 @@
     transform-origin: left;
 }
 
+/* Vertical separator between two values in the same KPI card */
+.kpi-divider {
+    align-self: stretch;
+    margin: 0 10px;
+    border-left: 1px solid #24405c;
+}
+
 .kpi-card:hover .kpi-value {
     transform: scale(1.10);
 }

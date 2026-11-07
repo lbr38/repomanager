@@ -106,6 +106,28 @@ class SubStep extends \Models\Model
     }
 
     /**
+     *  Return the Ids of the running sub steps of a step
+     */
+    public function getRunningIds(int $stepId) : array
+    {
+        $data = [];
+
+        try {
+            $stmt = $this->db->prepare("SELECT Id FROM substeps WHERE Step_id = :stepId AND Status = 'running'");
+            $stmt->bindValue(':stepId', $stepId);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row['Id'];
+        }
+
+        return $data;
+    }
+
+    /**
      *  Return the sub step Id by identifier
      */
     public function getSubStepIdByIdentifier(int $stepId, string $identifier) : int
