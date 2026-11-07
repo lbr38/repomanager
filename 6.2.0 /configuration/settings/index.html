@@ -2087,6 +2087,10 @@
 <li><strong>Viewing</strong>: a user can view a mirror if they can view all repositories, if they can view the group the mirror is member of (or the <code>Default</code> group if it is not member of any group), or if the mirror is granted individually (<code>Mirrors</code> section of the permissions selector).</li>
 </ul>
 </div>
+<div class="admonition info">
+<p class="admonition-title">Hosts registering permission</p>
+<p>The <code>Register hosts (API key)</code> permission allows the user's API key to register new hosts (e.g. with linupdate). It is required for standard users, other hosts permissions do not allow registering hosts. Administrators do not need it.</p>
+</div>
 <h3 id="login-protection">Login protection<a class="headerlink" href="#login-protection" title="Permanent link">&para;</a></h3>
 <p>Local accounts are protected against brute force attacks: when 10 failed login attempts have been made for the same username from the same IP address within the last 15 minutes, further logins with this username are refused from this IP address (refused attempts are also counted as failed attempts). SSO accounts are not concerned.</p>
 <div class="admonition warning">
