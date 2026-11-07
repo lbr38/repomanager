@@ -985,6 +985,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#rename-a-repository" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rename a repository
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#point-an-environment-to-a-snapshot" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1528,7 +1539,7 @@
 <p>Operations are made from the <strong>REPOSITORIES</strong> tab. Filtered repositories, local repositories and mirrors are listed together, see <a href="/usage/repository-types/">Repository types</a> for the differences between them.</p>
 <div class="admonition info">
 <p class="admonition-title">Operations available for mirrors</p>
-<p>Mirrors are copies of upstream repositories, their snapshots are read-only. The following operations are <strong>not available</strong> for mirrors: <code>Duplicate</code>, <code>Rebuild</code>, packages upload and deletion. Mirrors are synced with the <code>Sync</code> button instead of <code>Update</code>.</p>
+<p>Mirrors are copies of upstream repositories, their snapshots are read-only. The following operations are <strong>not available</strong> for mirrors: <code>Rename</code>, <code>Duplicate</code>, <code>Rebuild</code>, packages upload and deletion. Mirrors are synced with the <code>Sync</code> button instead of <code>Update</code>.</p>
 </div>
 <h2 id="create-a-filtered-repository"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 13h-4v4h-2v-4H7v-2h4V7h2v4h4m-5-9A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2"/></svg></span> Create a filtered repository<a class="headerlink" href="#create-a-filtered-repository" title="Permanent link">&para;</a></h2>
 <p>From the <strong>REPOSITORIES</strong> tab:</p>
@@ -1536,8 +1547,7 @@
 <p><strong>Step 2:</strong> Click the <code>Create a new repository</code> button to show the <strong>NEW REPOSITORY</strong> panel.</p>
 <p><a href="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository-btn.png"><img alt="Create a filtered repository" src="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository-btn.png" /></a></p>
 <p><strong>Step 3:</strong> Select <code>Filtered</code> as the repository type then complete all the required fields.</p>
-<!-- TODO: update screenshot (the repository type selector now shows Filtered / Local / Mirror, and the snapshots retention fields are new) -->
-<p><a href="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository.png"><img alt="Create a filtered repository" src="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository.png" /></a></p>
+<p><a href="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/create-new-repository.png"><img alt="Create a filtered repository" src="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/create-new-repository.png" /></a></p>
 <p><strong>Step 4:</strong> Click the <code>Execute now</code> button to launch the sync task.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
@@ -1548,8 +1558,7 @@
 <p><strong>Step 1:</strong> Click the <code>Create a new repository</code> button to show the <strong>NEW REPOSITORY</strong> panel.</p>
 <p><a href="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository-btn.png"><img alt="Create a local repository" src="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository-btn.png" /></a></p>
 <p><strong>Step 2:</strong> Select <code>Local</code> as the repository type then complete all the required fields.</p>
-<!-- TODO: update screenshot (the repository type selector now shows Filtered / Local / Mirror, and the snapshots retention fields are new) -->
-<p><a href="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-local-repository.png"><img alt="Create a local repository" src="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-local-repository.png" /></a></p>
+<p><a href="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/create-new-local-repository.png"><img alt="Create a local repository" src="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/create-new-local-repository.png" /></a></p>
 <p><strong>Step 3:</strong> Click the <code>Execute now</code> button to launch the repository creation task.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
@@ -1570,8 +1579,7 @@
 <li><strong>Environment(s)</strong>: optional, environments make the snapshot available to clients.</li>
 <li><strong>Description</strong>, <strong>tags</strong>, <strong>snapshots retention</strong> and <strong>group</strong>: optional, as for repositories. See <a href="#edit-repository-properties">Edit repository properties</a>.</li>
 </ul>
-<!-- TODO: add screenshot (NEW REPOSITORY panel with the Mirror type selected, e.g. a deb mirror with several distributions) -->
-
+<p><a href="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/create-new-mirror.png"><img alt="Create a mirror" src="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/create-new-mirror.png" /></a></p>
 <p><strong>Step 3:</strong> Click the <code>Execute now</code> button to launch the sync task.</p>
 <details class="note">
 <summary>How architectures are handled</summary>
@@ -1596,9 +1604,11 @@
 <h2 id="sync-a-mirror"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 6v3l4-4-4-4v3a8 8 0 0 0-8 8c0 1.57.46 3.03 1.24 4.26L6.7 14.8A5.9 5.9 0 0 1 6 12a6 6 0 0 1 6-6m6.76 1.74L17.3 9.2c.44.84.7 1.8.7 2.8a6 6 0 0 1-6 6v-3l-4 4 4 4v-3a8 8 0 0 0 8-8c0-1.57-.46-3.03-1.24-4.26"/></svg></span> Sync a mirror<a class="headerlink" href="#sync-a-mirror" title="Permanent link">&para;</a></h2>
 <p>From the <strong>REPOSITORIES</strong> tab:</p>
 <p><strong>Step 1:</strong> Click a snapshot of each mirror to sync to select it. Several mirrors can be synced at once, selecting several snapshots of the same mirror syncs it only once.</p>
-<p><strong>Step 2:</strong> Click the <code>Sync</code> button. Optionally select the environment(s) to switch to the new snapshot once it is complete.</p>
-<!-- TODO: add screenshot (mirror Sync panel) -->
-
+<p><a href="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/select-mirror-snapshot.png"><img alt="Select a mirror snapshot" src="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/select-mirror-snapshot.png" /></a></p>
+<p><strong>Step 2:</strong> Click the <code>Sync</code> button.</p>
+<p><a href="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/mirror-actions.png"><img alt="Mirror actions" src="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/mirror-actions.png" /></a></p>
+<p>Optionally select the environment(s) to switch to the new snapshot once it is complete.</p>
+<p><a href="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/sync-mirror.png"><img alt="Sync a mirror" src="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/sync-mirror.png" /></a></p>
 <p><strong>Step 3:</strong> Click the <code>Execute now</code> button to launch the sync task.</p>
 <p>Each sync creates a new snapshot:</p>
 <ul>
@@ -1612,12 +1622,12 @@
 <p>To keep a mirror up to date, schedule a recurring sync (hourly, daily, cron...) from the same panel. See <a href="/usage/scheduling/">Scheduling tasks</a>.</p>
 <h2 id="edit-repository-properties"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97s-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1s.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64z"/></svg></span> Edit repository properties<a class="headerlink" href="#edit-repository-properties" title="Permanent link">&para;</a></h2>
 <p>From the <strong>REPOSITORIES</strong> tab, click the <code>Edit</code> button on the repository or mirror card to open the <strong>EDIT REPOSITORY PROPERTIES</strong> (or <strong>EDIT MIRROR PROPERTIES</strong>) panel:</p>
+<p><a href="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/edit-repository-btn.png"><img alt="Edit button" src="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/edit-repository-btn.png" /></a></p>
 <ul>
 <li><strong>Source repository</strong> (filtered repositories only): the source repository used by the next updates.</li>
 <li><strong>Snapshots retention</strong>: see <a href="#snapshots-retention">Snapshots retention</a>.</li>
 </ul>
-<!-- TODO: add screenshot (Edit button on a repository card and EDIT REPOSITORY PROPERTIES panel) -->
-
+<p><a href="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/edit-repository.png"><img alt="Edit repository properties" src="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/edit-repository.png" /></a></p>
 <p>The <strong>description</strong> and <strong>tags</strong> are edited from the card itself: use the <code>+ Description</code> and <code>+ Tags</code> buttons, or double-click on the existing value. The repository can be moved to another group from the <code>Groups</code> panel.</p>
 <h3 id="snapshots-retention">Snapshots retention<a class="headerlink" href="#snapshots-retention" title="Permanent link">&para;</a></h3>
 <p>After each task, snapshots that are not used by any environment are deleted, except the most recent ones:</p>
@@ -1628,6 +1638,22 @@
 </ul>
 <p>The retention can be set when creating the repository or mirror, or later from the <code>Edit</code> button.</p>
 <p>For mirrors, <strong>at least one unused snapshot is always kept</strong>, even if the retention is <code>0</code>: it is the snapshot an environment has just been switched from, clients may still be reading it.</p>
+<h2 id="rename-a-repository"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m15 16-4 4h10v-4zm-2.94-8.81L3 16.25V20h3.75l9.06-9.06zm6.65.85c.39-.39.39-1.04 0-1.41l-2.34-2.34a1.001 1.001 0 0 0-1.41 0l-1.83 1.83 3.75 3.75z"/></svg></span> Rename a repository<a class="headerlink" href="#rename-a-repository" title="Permanent link">&para;</a></h2>
+<p>Not available for mirrors.</p>
+<p>From the <strong>REPOSITORIES</strong> tab:</p>
+<p><strong>Step 1:</strong> Click the <code>Rename</code> button on the repository card.</p>
+<p><a href="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/edit-repository-btn.png"><img alt="Rename button" src="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/edit-repository-btn.png" /></a></p>
+<p><strong>Step 2:</strong> Specify the new name of the repository. Only the name changes: the release version (rpm), distribution and component (deb) are kept.</p>
+<p><a href="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/rename-repository.png"><img alt="Rename a repository" src="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/rename-repository.png" /></a></p>
+<p><strong>Step 3:</strong> Click the <code>Execute now</code> button to launch the renaming task, or schedule it.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<ul>
+<li>The whole repository is renamed, with all its snapshots.</li>
+<li>The new name must not be used by another repository with the same release version (rpm) or the same distribution and component (deb).</li>
+<li>As the name is part of the repository URL, update the configuration of the clients after renaming. See <a href="#install-a-repository-on-a-client">Install a repository on a client</a>.</li>
+</ul>
+</div>
 <h2 id="point-an-environment-to-a-snapshot"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 13.5V20h-2v-6.5C18 11 16 9 13.5 9H7.83l3.08 3.09L9.5 13.5 4 8l5.5-5.5 1.42 1.41L7.83 7h5.67a6.5 6.5 0 0 1 6.5 6.5"/></svg></span> Point an environment to a snapshot<a class="headerlink" href="#point-an-environment-to-a-snapshot" title="Permanent link">&para;</a></h2>
 <p>From the <strong>REPOSITORIES</strong> tab:</p>
 <p><strong>Step 1:</strong> Select the repository or mirror snapshot you want to point an environment to.</p>
@@ -1746,8 +1772,7 @@
 <p><strong>Step 4:</strong> Copy the command lines and paste them into your client terminal console.</p>
 <h3 id="mirrors">Mirrors<a class="headerlink" href="#mirrors" title="Permanent link">&para;</a></h3>
 <p>Clients use the mirror URL of an environment, and the <strong>upstream GPG key</strong> (not the Repomanager signing key). The <code>Install</code> panel also lists the GPG key fingerprints declared in the source repository, the key must be trusted on the host.</p>
-<!-- TODO: add screenshot (Install panel of a mirror, with the GPG key fingerprints) -->
-
+<p><a href="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/install-mirror.png"><img alt="Install a mirror" src="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/install-mirror.png" /></a></p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">deb</label><label for="__tabbed_1_2">rpm</label><label for="__tabbed_1_3">arch</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
