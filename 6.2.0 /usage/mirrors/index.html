@@ -1,0 +1,1720 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A web UI to mirror rpm and deb repositories">
+      
+      
+      
+        <link rel="canonical" href="https://docs.repomanager.net/6.2.0 /usage/mirrors/">
+      
+      
+        <link rel="prev" href="../operations/">
+      
+      
+        <link rel="next" href="../scheduling/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Mirrors - Repomanager</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap">
+    
+      <link rel="stylesheet" href="../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#what-is-a-mirror" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Repomanager" class="md-header__button md-logo" aria-label="Repomanager" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Repomanager
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Mirrors
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Overview
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/requirements/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../configuration/environments/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Configuration
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../operations/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Usage
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../administration/update/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Administration
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/api/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Repomanager" class="md-nav__button md-logo" aria-label="Repomanager" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    Repomanager
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/requirements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Requirements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standard installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/reverseproxy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reverse proxy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/alternative-installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Alternative installation methods
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Configuration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/source-repositories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Source repositories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Settings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Usage
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Usage
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations on repositories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mirrors
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mirrors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-a-mirror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What is a mirror?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-a-mirror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Create a mirror
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sync-a-mirror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sync a mirror
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sync a mirror">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#snapshots-retention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Snapshots retention
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#browse-a-snapshot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Browse a snapshot
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#point-an-environment-to-a-snapshot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Point an environment to a snapshot
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#remove-an-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Remove an environment
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#delete-a-snapshot-or-a-mirror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Delete a snapshot or a mirror
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure-clients" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configure clients
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Statistics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Permissions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limitations
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scheduling tasks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hosts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hosts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stats-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stats and monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Administration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Administration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../administration/update/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Update Repomanager
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../administration/backup-restore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backup and restore
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../administration/migrations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migrations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../administration/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/miscellaneous/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Miscellaneous and tips
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+  <h1>Mirrors</h1>
+
+<h2 id="what-is-a-mirror">What is a mirror?<a class="headerlink" href="#what-is-a-mirror" title="Permanent link">&para;</a></h2>
+<p>Since version <code>6.2.0</code>, Repomanager can create <strong>mirrors</strong>: copies of upstream deb, rpm or Arch Linux (pacman) repositories <strong>as is</strong>. Mirrors are listed with the other repositories in the <strong>REPOSITORIES</strong> tab, and can be added to groups like any repository. They are identified by the <code>mirror</code> label on their card (filtered repositories have the <code>filtered</code> label).</p>
+<p>Unlike <a href="/usage/operations/#create-a-filtered-repository">filtered repositories</a>, nothing is rebuilt:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Filtered repository</th>
+<th>Mirror</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Metadata (<code>Release</code>, <code>Packages</code>, <code>repomd.xml</code>, <code>core.db</code>...)</td>
+<td>Rebuilt by Repomanager</td>
+<td>Upstream files, byte for byte</td>
+</tr>
+<tr>
+<td>GPG signature checked by clients</td>
+<td>Repomanager signing key</td>
+<td><strong>Upstream key</strong> (e.g. Debian, Rocky Linux, nginx...)</td>
+</tr>
+<tr>
+<td>Content</td>
+<td>One distribution + one component (deb), one release version (rpm)</td>
+<td><strong>One or several distributions</strong> with all their selected components, sharing the same pool as upstream (deb), one release version with all its architectures (rpm), one or several repositories such as <code>core</code> and <code>extra</code> (arch)</td>
+</tr>
+<tr>
+<td>Package filtering (include, exclude, keep latest versions)</td>
+<td>Yes</td>
+<td>No, all packages are mirrored</td>
+</tr>
+<tr>
+<td>Published under</td>
+<td><code>https://&lt;FQDN&gt;/repo/</code></td>
+<td><code>https://&lt;FQDN&gt;/mirror/deb/&lt;name&gt;/&lt;environment&gt;/</code><br><code>https://&lt;FQDN&gt;/mirror/rpm/&lt;name&gt;/&lt;release version&gt;/&lt;environment&gt;/</code><br><code>https://&lt;FQDN&gt;/mirror/arch/&lt;name&gt;/&lt;environment&gt;/</code></td>
+</tr>
+</tbody>
+</table>
+<p>Mirrors are meant to provide <strong>public or internal mirrors</strong> that clients use exactly as they would use the upstream repository, with the upstream GPG key. They keep Repomanager snapshots and environments.</p>
+<div class="admonition info">
+<p class="admonition-title">Storage</p>
+<p>Mirrors are stored in the <code>repomanager-mirror</code> volume (<code>/home/mirror</code> inside the container). See <a href="/getting-started/installation/">Standard installation</a> and, when upgrading from a previous version, <a href="/administration/update/">Update Repomanager</a>.</p>
+</div>
+<h2 id="create-a-mirror"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 13h-4v4h-2v-4H7v-2h4V7h2v4h4m-5-9A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2"/></svg></span> Create a mirror<a class="headerlink" href="#create-a-mirror" title="Permanent link">&para;</a></h2>
+<p>From the <strong>REPOSITORIES</strong> tab:</p>
+<p><strong>Step 1:</strong> Add the source repository to mirror from, if not already done. See <a href="/configuration/source-repositories/">Source repositories</a>. Import its GPG key if you want the upstream signature to be checked during the sync.</p>
+<p><strong>Step 2:</strong> Click the <code>Create a new repository</code> button, select the <code>Mirror</code> repository type (Arch Linux repositories can only be mirrored, selecting the <code>arch</code> package type opens the mirror form directly) and fill in the form:</p>
+<ul>
+<li><strong>Name</strong>: deb, rpm and arch mirrors are separated, mirrors of different package types can have the same name.</li>
+<li><strong>Source repository</strong>.</li>
+<li>deb: the <strong>distribution(s)</strong> and the <strong>components</strong> to mirror. All selected distributions are mirrored together in the same tree and share the same <code>pool</code>, as upstream: clients select the distribution in their <code>sources.list</code> (see <a href="#configure-clients">Configure clients</a>). The selected components are mirrored for each distribution. To manage distributions separately (different environments or sync schedules), create one mirror per distribution.</li>
+<li>rpm: the <strong>release version</strong>, which replaces <code>$releasever</code> in the source repository URL. Several mirrors can have the same name with different release versions (e.g. <code>nginx</code> for release versions <code>9</code> and <code>10</code>), they are published under <code>https://&lt;FQDN&gt;/mirror/rpm/&lt;name&gt;/&lt;release version&gt;/</code>.</li>
+<li>arch: the <strong>repositories</strong> to mirror (e.g. <code>core</code>, <code>extra</code>), which replace <code>$repo</code> in the source repository URL. All selected repositories are mirrored together, each one under <code>&lt;repository&gt;/os/&lt;architecture&gt;/</code>, as on Arch Linux mirrors.</li>
+<li><strong>Architecture(s)</strong> to mirror.</li>
+<li><strong>Check GPG signatures</strong>: check the upstream signature with the GPG keys imported in Repomanager (recommended).</li>
+<li><strong>Environment(s)</strong>: optional, environments make the snapshot available to clients.</li>
+<li><strong>Description</strong>, <strong>tags</strong> and <strong>group</strong>: optional, as for repositories. They can also be edited later from the mirror card (<code>+ Description</code>, <code>+ Tags</code> buttons, or double-click on the existing value), and the mirror can be moved to another group from the <code>Groups</code> panel.</li>
+</ul>
+<p><strong>Step 3:</strong> Click the <code>Execute now</code> button to launch the sync task.</p>
+<details class="note">
+<summary>How architectures are handled</summary>
+<ul>
+<li><strong>deb</strong>: only the indices and packages of the selected architectures are retrieved. <code>all</code> packages are always included. Select <code>src</code> to also mirror source packages. Installer files (<code>debian-installer</code>, udebs) are not mirrored.</li>
+<li><strong>arch</strong>: each selected architecture replaces <code>$arch</code> in the source repository URL. <code>any</code> packages are included in each architecture repository, as upstream.</li>
+<li><strong>rpm</strong>: if the source URL contains <code>$basearch</code>, one repository per selected architecture is mirrored under <code>&lt;snapshot&gt;/&lt;arch&gt;/</code> (<code>src</code> is mirrored under <code>SRPMS/</code>). There is no <code>noarch</code> repository: <code>noarch</code> packages are included in each architecture repository. If the source URL does not contain <code>$basearch</code>, the repository is mirrored as a whole, whatever the selected architectures.</li>
+</ul>
+</details>
+<h2 id="sync-a-mirror"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 6v3l4-4-4-4v3a8 8 0 0 0-8 8c0 1.57.46 3.03 1.24 4.26L6.7 14.8A5.9 5.9 0 0 1 6 12a6 6 0 0 1 6-6m6.76 1.74L17.3 9.2c.44.84.7 1.8.7 2.8a6 6 0 0 1-6 6v-3l-4 4 4 4v-3a8 8 0 0 0 8-8c0-1.57-.46-3.03-1.24-4.26"/></svg></span> Sync a mirror<a class="headerlink" href="#sync-a-mirror" title="Permanent link">&para;</a></h2>
+<p>From the <strong>REPOSITORIES</strong> tab, click a snapshot of each mirror to sync to select it, then click the <code>Sync</code> button. Several mirrors can be synced at once, selecting several snapshots of the same mirror syncs it only once. Optionally select the environment(s) to switch to the new snapshot once it is complete.</p>
+<p>Each sync creates a new snapshot:</p>
+<ul>
+<li>Unchanged files are <strong>hard linked</strong> from the latest snapshot, only new files are downloaded. A new snapshot of an unchanged mirror takes almost no disk space.</li>
+<li>Every downloaded file is checked against the checksums of the upstream metadata.</li>
+<li>If the upstream repository is updated during the sync, the sync is started again (up to 3 times) so that the snapshot is always consistent.</li>
+<li>Files that are no longer referenced upstream are not kept in the new snapshot.</li>
+<li>If a sync fails, the next one resumes from the files already retrieved.</li>
+</ul>
+<p>Only one sync can run at a time on a mirror.</p>
+<p>To keep a mirror up to date, schedule a recurring sync (hourly, daily, cron...) from the same panel. See <a href="/usage/scheduling/">Scheduling tasks</a>.</p>
+<h3 id="snapshots-retention">Snapshots retention<a class="headerlink" href="#snapshots-retention" title="Permanent link">&para;</a></h3>
+<p>After each sync, snapshots that are not used by any environment are deleted, except the most recent ones, according to the <code>RETENTION</code> setting (see <a href="/configuration/settings/#global-settings">Settings</a>).</p>
+<p>For mirrors, <strong>at least one unused snapshot is always kept</strong>, even if <code>RETENTION</code> is <code>0</code>: it is the snapshot an environment has just been switched from, clients may still be reading it.</p>
+<h2 id="browse-a-snapshot"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16.5 12c2.5 0 4.5 2 4.5 4.5 0 .88-.25 1.71-.69 2.4l3.08 3.1L22 23.39l-3.12-3.07c-.69.43-1.51.68-2.38.68-2.5 0-4.5-2-4.5-4.5s2-4.5 4.5-4.5m0 2a2.5 2.5 0 0 0-2.5 2.5 2.5 2.5 0 0 0 2.5 2.5 2.5 2.5 0 0 0 2.5-2.5 2.5 2.5 0 0 0-2.5-2.5M9 4l2 2h8a2 2 0 0 1 2 2v3.81A6.48 6.48 0 0 0 16.5 10a6.5 6.5 0 0 0-6.5 6.5c0 1.29.37 2.5 1 3.5H3a2 2 0 0 1-2-2V6c0-1.11.89-2 2-2z"/></svg></span> Browse a snapshot<a class="headerlink" href="#browse-a-snapshot" title="Permanent link">&para;</a></h2>
+<p>Click the date of a snapshot to browse its content, as for repositories: tree structure, files search, text files (e.g. <code>InRelease</code>, <code>repomd.xml</code>) preview and files download. Mirror snapshots are read-only: packages cannot be uploaded or deleted, and metadata cannot be rebuilt.</p>
+<h2 id="point-an-environment-to-a-snapshot"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 13.5V20h-2v-6.5C18 11 16 9 13.5 9H7.83l3.08 3.09L9.5 13.5 4 8l5.5-5.5 1.42 1.41L7.83 7h5.67a6.5 6.5 0 0 1 6.5 6.5"/></svg></span> Point an environment to a snapshot<a class="headerlink" href="#point-an-environment-to-a-snapshot" title="Permanent link">&para;</a></h2>
+<p>From the <strong>REPOSITORIES</strong> tab:</p>
+<p><strong>Step 1:</strong> Click the snapshot(s) to select them. Snapshots of several mirrors can be selected at once, but only one snapshot per mirror, as an environment points to one snapshot per mirror.</p>
+<p><strong>Step 2:</strong> Click the <code>Point an environment</code> button, select the environment(s) for each snapshot and click <code>Execute now</code>.</p>
+<p>The environment is switched atomically: clients never get an error during the switch.</p>
+<p>Protected environments cannot be moved from a snapshot to another.</p>
+<h2 id="remove-an-environment"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6z"/></svg></span> Remove an environment<a class="headerlink" href="#remove-an-environment" title="Permanent link">&para;</a></h2>
+<p>Click the environment tag(s) to select them (several environments, of one or several mirrors, can be selected), then click <code>Remove</code>. The environment URL is no longer available to clients.</p>
+<p>Protected environments cannot be removed.</p>
+<h2 id="delete-a-snapshot-or-a-mirror"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6z"/></svg></span> Delete a snapshot or a mirror<a class="headerlink" href="#delete-a-snapshot-or-a-mirror" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Snapshot(s)</strong>: click the snapshot(s) to select them, then click <code>Delete</code>. Environments pointing to a deleted snapshot are removed with it, their URL is no longer available to clients. A snapshot used by a protected environment cannot be deleted.</li>
+<li><strong>Whole mirror</strong>: delete all its snapshots, the mirror is deleted with its last snapshot, with its scheduled tasks. For rpm, only the selected release version is deleted.</li>
+</ul>
+<h2 id="configure-clients"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 16H3V4h18m0-2H3c-1.11 0-2 .89-2 2v12a2 2 0 0 0 2 2h7v2H8v2h8v-2h-2v-2h7a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2"/></svg></span> Configure clients<a class="headerlink" href="#configure-clients" title="Permanent link">&para;</a></h2>
+<p>Clients use the mirror URL of an environment, and the <strong>upstream GPG key</strong> (not the Repomanager signing key).</p>
+<p>As for repositories, select one or more snapshots and click the <code>Install</code> button to get the configuration commands of the selected mirrors for an environment. The panel also lists the GPG key fingerprints declared in the source repository, the key must be trusted on the host.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">deb</label><label for="__tabbed_1_2">rpm</label><label for="__tabbed_1_3">arch</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Example for a <code>debian</code> mirror of the <code>bookworm</code>, <code>bookworm-updates</code>, <code>trixie</code> and <code>trixie-updates</code> distributions, <code>main</code> component, on the <code>prod</code> environment. All distributions are available under the same URL, as upstream:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a># Debian 12 hosts
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://&lt;FQDN&gt;/mirror/deb/debian/prod bookworm main
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://&lt;FQDN&gt;/mirror/deb/debian/prod bookworm-updates main
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a># Debian 13 hosts
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://&lt;FQDN&gt;/mirror/deb/debian/prod trixie main
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://&lt;FQDN&gt;/mirror/deb/debian/prod trixie-updates main
+</span></code></pre></div>
+<p>The distributions and components are the same as upstream.</p>
+</div>
+<div class="tabbed-block">
+<p>Example for <code>rocky-baseos</code> mirrors of release versions <code>9</code> and <code>10</code>, whose source URL contains <code>$basearch</code>, on the <code>prod</code> environment. As the release version is part of the URL, the same file can be used on all hosts, <code>dnf</code> replaces <code>$releasever</code> with the version of the host:</p>
+<div class="language-ini highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">[rocky-baseos-mirror]</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="na">name</span><span class="o">=</span><span class="s">Rocky Linux BaseOS (mirror)</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="na">baseurl</span><span class="o">=</span><span class="s">https://&lt;FQDN&gt;/mirror/rpm/rocky-baseos/$releasever/prod/$basearch</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="na">gpgcheck</span><span class="o">=</span><span class="s">1</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="na">gpgkey</span><span class="o">=</span><span class="s">file:///etc/pki/rpm-gpg/RPM-GPG-KEY-Rocky-$releasever</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="na">enabled</span><span class="o">=</span><span class="s">1</span>
+</span></code></pre></div>
+<p>If the source URL does not contain <code>$basearch</code>, remove <code>/$basearch</code> from <code>baseurl</code>.</p>
+</div>
+<div class="tabbed-block">
+<p>Example for an <code>archlinux</code> mirror of the <code>core</code>, <code>extra</code> and <code>multilib</code> repositories, <code>x86_64</code> architecture, on the <code>prod</code> environment. Whatever the layout of the source repository URL, the mirror always has the layout of Arch Linux mirrors, so the same <code>Server</code> line is used for all repositories, in <code>/etc/pacman.d/mirrorlist</code>:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Server = https://&lt;FQDN&gt;/mirror/arch/archlinux/prod/$repo/os/$arch
+</span></code></pre></div>
+<p>Or directly in <code>/etc/pacman.conf</code> for third-party repositories:</p>
+<div class="language-ini highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">[chaotic-aur]</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="na">Server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">https://&lt;FQDN&gt;/mirror/arch/chaotic-aur/prod/$repo/os/$arch</span>
+</span></code></pre></div>
+<p>Packages are checked by pacman with the upstream keyring, as usual (e.g. <code>archlinux-keyring</code>, <code>chaotic-keyring</code>).</p>
+</div>
+</div>
+</div>
+<h2 id="statistics"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m16 11.78 4.24-7.33 1.73 1-5.23 9.05-6.51-3.75L5.46 19H22v2H2V3h2v14.54L9.5 8z"/></svg></span> Statistics<a class="headerlink" href="#statistics" title="Permanent link">&para;</a></h2>
+<p>Click the name of a mirror to open its statistics page, as for repositories: snapshots timeline and size, accesses over time by environment, access requests and top IP addresses. Statistics must be enabled (<code>STATS_ENABLED</code> setting).</p>
+<p>Accesses of apt, dnf/yum and pacman clients to the environments of the mirror are counted. As mirrors may be public and heavily used, keep in mind that each access request is stored in the statistics database (requests older than one year are deleted).</p>
+<h2 id="api"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 7H5a2 2 0 0 0-2 2v8h2v-4h2v4h2V9a2 2 0 0 0-2-2m0 4H5V9h2m7-2h-4v10h2v-4h2a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2m0 4h-2V9h2m6 0v6h1v2h-4v-2h1V9h-1V7h4v2Z"/></svg></span> API<a class="headerlink" href="#api" title="Permanent link">&para;</a></h2>
+<p>Mirrors can be listed, synced and their environments pointed through the API, see <a href="/reference/api/#mirrors">API</a>.</p>
+<h2 id="permissions"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 8c0-2.21 1.79-4 4-4s4 1.79 4 4-1.79 4-4 4-4-1.79-4-4m6 10.2c0-.96.5-1.86 1.2-2.46v-.24c0-.39.07-.76.18-1.12-1.03-.24-2.17-.38-3.38-.38-4.42 0-8 1.79-8 4v2h10zm10 .1v3.5c0 .6-.6 1.2-1.3 1.2h-5.5c-.6 0-1.2-.6-1.2-1.3v-3.5c0-.6.6-1.2 1.2-1.2v-1.5c0-1.4 1.4-2.5 2.8-2.5s2.8 1.1 2.8 2.5V17c.6 0 1.2.6 1.2 1.3m-2.5-2.8c0-.8-.7-1.3-1.5-1.3s-1.5.5-1.5 1.3V17h3z"/></svg></span> Permissions<a class="headerlink" href="#permissions" title="Permanent link">&para;</a></h2>
+<p>Mirrors use the repositories permissions (see <a href="/configuration/settings/#users">Users</a>):</p>
+<ul>
+<li><strong>Actions</strong> (create, update, delete, point or remove an environment, edit) are the same as for repositories.</li>
+<li><strong>Viewing</strong>: a user can view a mirror if they can view all repositories, if they can view the group the mirror is member of (or the <code>Default</code> group if it is not member of any group), or if the mirror is granted individually (<code>Mirrors</code> section of the permissions selector).</li>
+</ul>
+<h2 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">&para;</a></h2>
+<ul>
+<li>deb: the <code>$component</code> variable is not supported in the source repository URL, and the <code>$dist</code> variable requires a single distribution.</li>
+<li>rpm: only <code>baseurl</code> source repositories are supported (no <code>metalink</code> or <code>mirrorlist</code>).</li>
+<li>rpm: many repositories do not sign <code>repomd.xml</code>. In this case the sync prints a warning and packages signatures are checked by clients (<code>gpgcheck=1</code>).</li>
+<li>rpm: packages declared with a <code>xml:base</code> attribute in the upstream metadata are downloaded by clients from that URL, not from the mirror. The sync prints a warning in this case.</li>
+<li>arch: most repositories, including Arch Linux official ones, do not sign their database (<code>&lt;repo&gt;.db.sig</code>). In this case the sync prints a note, the snapshot is labelled <code>Unsigned database</code>, and packages signatures (<code>.sig</code> files, mirrored with the packages) are checked by pacman on clients.</li>
+<li>arch: the <code>&lt;repo&gt;.db.tar.gz</code> and <code>&lt;repo&gt;.files.tar.gz</code> aliases of upstream mirrors are not created, pacman only uses <code>&lt;repo&gt;.db</code> and <code>&lt;repo&gt;.files</code>.</li>
+<li>Directory listing of <code>/mirror/</code> is disabled by default, see <a href="/reference/miscellaneous/#enable-repository-web-browsing">Enable repository web browsing</a>.</li>
+<li>Mirrors cannot be added to <a href="/usage/hosts/#profiles">host profiles</a>: hosts configured from a profile (e.g. with linupdate) do not get the mirrors configuration automatically, configure them with the commands of the <code>Install</code> button (see <a href="#configure-clients">Configure clients</a>).</li>
+</ul>
+<script data-goatcounter="https://repomanager.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/lbr38/repomanager" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.instant.prefetch", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "toc.follow", "toc.integrate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
