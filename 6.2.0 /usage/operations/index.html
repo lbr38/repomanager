@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#create-a-filtered-repository" class="md-skip">
+        <a href="#create-a-curated-repository" class="md-skip">
           Skip to content
         </a>
       
@@ -902,10 +902,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#create-a-filtered-repository" class="md-nav__link">
+  <a href="#create-a-curated-repository" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Create a filtered repository
+        Create a curated repository
       
     </span>
   </a>
@@ -935,10 +935,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#update-an-existing-filtered-repository" class="md-nav__link">
+  <a href="#update-an-existing-curated-repository" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Update an existing filtered repository
+        Update an existing curated repository
       
     </span>
   </a>
@@ -1536,22 +1536,22 @@
 
   <h1>Operations on repositories and mirrors</h1>
 
-<p>Operations are made from the <strong>REPOSITORIES</strong> tab. Filtered repositories, local repositories and mirrors are listed together, see <a href="/usage/repository-types/">Repository types</a> for the differences between them.</p>
+<p>Operations are made from the <strong>REPOSITORIES</strong> tab. Curated repositories, local repositories and mirrors are listed together, see <a href="/usage/repository-types/">Repository types</a> for the differences between them.</p>
 <div class="admonition info">
 <p class="admonition-title">Operations available for mirrors</p>
 <p>Mirrors are copies of upstream repositories, their snapshots are read-only. The following operations are <strong>not available</strong> for mirrors: <code>Rename</code>, <code>Duplicate</code>, <code>Rebuild</code>, packages upload and deletion. Mirrors are synced with the <code>Sync</code> button instead of <code>Update</code>.</p>
 </div>
-<h2 id="create-a-filtered-repository"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 13h-4v4h-2v-4H7v-2h4V7h2v4h4m-5-9A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2"/></svg></span> Create a filtered repository<a class="headerlink" href="#create-a-filtered-repository" title="Permanent link">&para;</a></h2>
+<h2 id="create-a-curated-repository"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 13h-4v4h-2v-4H7v-2h4V7h2v4h4m-5-9A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2"/></svg></span> Create a curated repository<a class="headerlink" href="#create-a-curated-repository" title="Permanent link">&para;</a></h2>
 <p>From the <strong>REPOSITORIES</strong> tab:</p>
 <p><strong>Step 1:</strong> You must first add one or more source repositories to get packages from. See <a href="/configuration/source-repositories/">Source repositories</a>.</p>
 <p><strong>Step 2:</strong> Click the <code>Create a new repository</code> button to show the <strong>NEW REPOSITORY</strong> panel.</p>
-<p><a href="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository-btn.png"><img alt="Create a filtered repository" src="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository-btn.png" /></a></p>
-<p><strong>Step 3:</strong> Select <code>Filtered</code> as the repository type then complete all the required fields.</p>
-<p><a href="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/create-new-repository.png"><img alt="Create a filtered repository" src="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/create-new-repository.png" /></a></p>
+<p><a href="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository-btn.png"><img alt="Create a curated repository" src="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/create-new-repository-btn.png" /></a></p>
+<p><strong>Step 3:</strong> Select <code>Curated</code> as the repository type then complete all the required fields.</p>
+<p><a href="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/create-new-repository.png"><img alt="Create a curated repository" src="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/create-new-repository.png" /></a></p>
 <p><strong>Step 4:</strong> Click the <code>Execute now</code> button to launch the sync task.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-<p>The <code>REPOSITORY NAME</code> field is optional. If none is specified, the repository will have the same name as the source repository (e.g., if the source repository is named <code>nginx</code>, then the filtered repository will also be named <code>nginx</code>).</p>
+<p>The <code>REPOSITORY NAME</code> field is optional. If none is specified, the repository will have the same name as the source repository (e.g., if the source repository is named <code>nginx</code>, then the curated repository will also be named <code>nginx</code>).</p>
 </div>
 <h2 id="create-a-local-repository"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 13h-4v4h-2v-4H7v-2h4V7h2v4h4m-5-9A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2"/></svg></span> Create a local repository<a class="headerlink" href="#create-a-local-repository" title="Permanent link">&para;</a></h2>
 <p>From the <strong>REPOSITORIES</strong> tab:</p>
@@ -1589,9 +1589,9 @@
 <li><strong>rpm</strong>: if the source URL contains <code>$basearch</code>, one repository per selected architecture is mirrored under <code>&lt;snapshot&gt;/&lt;arch&gt;/</code> (<code>src</code> is mirrored under <code>SRPMS/</code>). There is no <code>noarch</code> repository: <code>noarch</code> packages are included in each architecture repository. If the source URL does not contain <code>$basearch</code>, the repository is mirrored as a whole, whatever the selected architectures.</li>
 </ul>
 </details>
-<h2 id="update-an-existing-filtered-repository"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 6v3l4-4-4-4v3a8 8 0 0 0-8 8c0 1.57.46 3.03 1.24 4.26L6.7 14.8A5.9 5.9 0 0 1 6 12a6 6 0 0 1 6-6m6.76 1.74L17.3 9.2c.44.84.7 1.8.7 2.8a6 6 0 0 1-6 6v-3l-4 4 4 4v-3a8 8 0 0 0 8-8c0-1.57-.46-3.03-1.24-4.26"/></svg></span> Update an existing filtered repository<a class="headerlink" href="#update-an-existing-filtered-repository" title="Permanent link">&para;</a></h2>
+<h2 id="update-an-existing-curated-repository"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 6v3l4-4-4-4v3a8 8 0 0 0-8 8c0 1.57.46 3.03 1.24 4.26L6.7 14.8A5.9 5.9 0 0 1 6 12a6 6 0 0 1 6-6m6.76 1.74L17.3 9.2c.44.84.7 1.8.7 2.8a6 6 0 0 1-6 6v-3l-4 4 4 4v-3a8 8 0 0 0 8-8c0-1.57-.46-3.03-1.24-4.26"/></svg></span> Update an existing curated repository<a class="headerlink" href="#update-an-existing-curated-repository" title="Permanent link">&para;</a></h2>
 <p>From the <strong>REPOSITORIES</strong> tab:</p>
-<p><strong>Step 1:</strong> Select the repository snapshot from which you want to update the filtered repository.</p>
+<p><strong>Step 1:</strong> Select the repository snapshot from which you want to update the curated repository.</p>
 <p><a href="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/select-snapshot.png"><img alt="Select a snapshot" src="https://assets.repomanager.net/repomanager/6.0.0/usage/operations/select-snapshot.png" /></a></p>
 <p><strong>Step 2:</strong> Click the <code>Update</code> button.</p>
 <p><strong>Step 3:</strong> Specify the sync parameters.</p>
@@ -1599,7 +1599,7 @@
 <p><strong>Step 4:</strong> Click the <code>Execute now</code> button to launch the sync task.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-<p>A filtered repository has only one snapshot per day: updating a snapshot created the same day replaces it instead of creating a new one. Environments pointing to it keep pointing to it.<br>A snapshot used by a protected environment cannot be replaced: the update is refused on the day it was created.</p>
+<p>A curated repository has only one snapshot per day: updating a snapshot created the same day replaces it instead of creating a new one. Environments pointing to it keep pointing to it.<br>A snapshot used by a protected environment cannot be replaced: the update is refused on the day it was created.</p>
 </div>
 <h2 id="sync-a-mirror"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 6v3l4-4-4-4v3a8 8 0 0 0-8 8c0 1.57.46 3.03 1.24 4.26L6.7 14.8A5.9 5.9 0 0 1 6 12a6 6 0 0 1 6-6m6.76 1.74L17.3 9.2c.44.84.7 1.8.7 2.8a6 6 0 0 1-6 6v-3l-4 4 4 4v-3a8 8 0 0 0 8-8c0-1.57-.46-3.03-1.24-4.26"/></svg></span> Sync a mirror<a class="headerlink" href="#sync-a-mirror" title="Permanent link">&para;</a></h2>
 <p>From the <strong>REPOSITORIES</strong> tab:</p>
@@ -1624,7 +1624,7 @@
 <p>From the <strong>REPOSITORIES</strong> tab, click the <code>Edit</code> button on the repository or mirror card to open the <strong>EDIT REPOSITORY PROPERTIES</strong> (or <strong>EDIT MIRROR PROPERTIES</strong>) panel:</p>
 <p><a href="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/edit-repository-btn.png"><img alt="Edit button" src="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/edit-repository-btn.png" /></a></p>
 <ul>
-<li><strong>Source repository</strong> (filtered repositories only): the source repository used by the next updates.</li>
+<li><strong>Source repository</strong> (curated repositories only): the source repository used by the next updates.</li>
 <li><strong>Snapshots retention</strong>: see <a href="#snapshots-retention">Snapshots retention</a>.</li>
 </ul>
 <p><a href="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/edit-repository.png"><img alt="Edit repository properties" src="https://assets.repomanager.net/repomanager/6.2.0/usage/operations/edit-repository.png" /></a></p>

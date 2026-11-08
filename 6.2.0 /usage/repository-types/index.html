@@ -1371,7 +1371,7 @@
 <thead>
 <tr>
 <th></th>
-<th>Filtered repository</th>
+<th>Curated repository</th>
 <th>Local repository</th>
 <th>Mirror</th>
 </tr>
@@ -1385,7 +1385,7 @@
 </tr>
 <tr>
 <td><strong>Content</strong></td>
-<td>Packages selected from a <a href="/configuration/source-repositories/">source repository</a>: one distribution + one component (deb), one release version (rpm)</td>
+<td>All or selected packages from a <a href="/configuration/source-repositories/">source repository</a>: one distribution + one component (deb), one release version (rpm)</td>
 <td>Your own packages, uploaded manually</td>
 <td>All packages of a source repository, copied as is: one or several distributions with all their selected components, sharing the same pool as upstream (deb), one release version with all its architectures (rpm), one or several repositories such as <code>core</code> and <code>extra</code> (arch)</td>
 </tr>
@@ -1427,18 +1427,18 @@
 </tr>
 <tr>
 <td><strong>Use case</strong></td>
-<td>Provide a controlled subset of an upstream repository</td>
+<td>Provide a controlled copy of an upstream repository: selected architectures and packages, signed with your own GPG key</td>
 <td>Distribute internal or custom packages</td>
 <td>Provide a public or internal mirror that clients use exactly as the upstream repository, with the upstream GPG key</td>
 </tr>
 </tbody>
 </table>
-<p>All types share the same features: snapshots, environments, groups, description and tags, scheduled tasks, statistics and permissions. They are listed together in the <strong>REPOSITORIES</strong> tab, the type is displayed on the right of each repository card (<code>local</code>, <code>filtered</code> or <code>mirror</code>, next to the source repository).</p>
+<p>All types share the same features: snapshots, environments, groups, description and tags, scheduled tasks, statistics and permissions. They are listed together in the <strong>REPOSITORIES</strong> tab, the type is displayed on the right of each repository card (<code>local</code>, <code>curated</code> or <code>mirror</code>, next to the source repository).</p>
 <p>Arch Linux repositories can only be mirrored.</p>
 <p>To create a repository of each type, see <a href="/usage/operations/">Operations on repositories and mirrors</a>.</p>
 <div class="admonition info">
-<p class="admonition-title">Filtered repositories were named mirror repositories before 6.2.0</p>
-<p>Before version <code>6.2.0</code>, filtered repositories were named <em>mirror repositories</em>. Since <code>6.2.0</code>, a <em>mirror</em> is an upstream repository copied as is, with its original metadata and signatures.</p>
+<p class="admonition-title">Curated repositories were named mirror repositories before 6.2.0</p>
+<p>Before version <code>6.2.0</code>, curated repositories were named <em>mirror repositories</em>. Since <code>6.2.0</code>, a <em>mirror</em> is an upstream repository copied as is, with its original metadata and signatures.</p>
 </div>
 <h2 id="mirrors"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 21H8V7h11m0-2H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2m-3-4H4a2 2 0 0 0-2 2v14h2V3h12z"/></svg></span> Mirrors<a class="headerlink" href="#mirrors" title="Permanent link">&para;</a></h2>
 <p>Mirrors are meant to provide <strong>public or internal mirrors</strong> that clients use exactly as they would use the upstream repository. Nothing is rebuilt: metadata and signatures are the upstream ones, so clients keep checking packages with the <strong>upstream GPG key</strong>, not with the Repomanager signing key.</p>
