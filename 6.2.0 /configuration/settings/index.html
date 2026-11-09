@@ -2080,11 +2080,11 @@
 <p><a href="https://assets.repomanager.net/repomanager/6.2.0/configuration/settings/edit-user-permissions.png"><img alt="Edit user permissions" src="https://assets.repomanager.net/repomanager/6.2.0/configuration/settings/edit-user-permissions.png" /></a></p>
 <p><strong>Step 3:</strong> Save.</p>
 <div class="admonition info">
-<p class="admonition-title">Repositories permissions</p>
-<p>Repositories permissions apply to all <a href="/usage/repository-types/">repository types</a> (curated, local and mirrors):</p>
+<p class="admonition-title">Repositories and mirrors permissions</p>
 <ul>
-<li><strong>Viewing</strong>: a user can view a repository if they can view all repositories, if they can view the group the repository is member of (or the <code>Default</code> group if it is not member of any group), or if the repository is granted individually (<code>Repositories</code> section of the permissions selector for curated and local repositories, <code>Mirrors</code> section for mirrors).</li>
-<li><strong>Actions</strong>: an action applies to every repository type that supports it (e.g. <code>Update repositories</code> also allows syncing mirrors). Actions that do not apply to mirrors (rename, duplicate, rebuild, packages upload and deletion) have no effect on them.</li>
+<li><strong>Viewing</strong>: viewing permissions apply to all <a href="/usage/repository-types/">repository types</a> (curated, local and mirrors). A user can view a repository if they can view all repositories, if they can view the group the repository is member of (or the <code>Default</code> group if it is not member of any group), or if the repository is granted individually (<code>Curated &amp; local repositories</code> section of the permissions selector for curated and local repositories, <code>Mirrors</code> section for mirrors).</li>
+<li><strong>Actions</strong>: the actions selector is split by repository type. Actions of the <code>All repositories</code> section (source repositories and groups edition) apply to all repository types, as source repositories and groups are shared. Actions of the <code>Curated &amp; local repositories</code> section apply to curated and local repositories only, and actions of the <code>Mirrors</code> section apply to mirrors only.</li>
+<li><strong>Scheduled tasks on a dynamic target</strong> (all repositories, a group, tags): the <code>Update</code> and <code>Point environment</code> actions also apply to the mirrors matching the target, so the user must be allowed to perform the action on both repositories and mirrors.</li>
 </ul>
 </div>
 <div class="admonition info">

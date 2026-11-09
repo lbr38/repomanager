@@ -1376,25 +1376,31 @@
 <h2 id="operation-errors">Operation errors<a class="headerlink" href="#operation-errors" title="Permanent link">&para;</a></h2>
 <p>List of errors that can occur during Repomanager operations, with their meaning and how to resolve them.</p>
 <h3 id="syncing-a-curated-repository">Syncing a curated repository<a class="headerlink" href="#syncing-a-curated-repository" title="Permanent link">&para;</a></h3>
+<p>The error message is displayed in the task log, under the task step that failed.</p>
 <p><strong>DEB</strong></p>
 <table>
 <thead>
 <tr>
-<th>Error title</th>
+<th>Task step</th>
 <th>Message</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>Release file not found</code></td>
-<td>No Release file has been found in the source repository xxxxx (looked for InRelease, Release and Release.gpg)</td>
+<td><code>GETTING INRELEASE / RELEASE FILE</code></td>
+<td>No InRelease or Release file has been found in the source repository xxxxx (looked for InRelease, Release and Release.gpg). Is the URL of the repository correct?</td>
 <td>This means that no Release file (InRelease, Release, or Release.gpg) could be downloaded from the source repository. The repository might be temporarily inaccessible, no longer exist, or the URL could be incorrect.</td>
 </tr>
 <tr>
-<td><code>GPG signature check failed</code></td>
-<td>No GPG key could verify the signature of downloaded file xxxxx</td>
-<td>This means that no GPG key (imported into Repomanager) is able to verify the GPG signature of the downloaded file.<br><br>To address this issue, retrieve the GPG public key of the source repository's publisher and import it into Repomanager, then retry the operation (see <a href="/configuration/source-repositories/#import-a-source-repository-gpg-signing-key">Import a source repository GPG key</a> to import a new GPG key).</td>
+<td><code>CHECKING INRELEASE FILE GPG SIGNATURE</code><br>or<br><code>CHECKING RELEASE FILE GPG SIGNATURE</code></td>
+<td>GPG signature check failed: No GPG key could verify the signature of xxxxx file. Please check that you have imported the GPG key used to sign the repository.</td>
+<td>This means that no GPG key (imported into Repomanager) is able to verify the GPG signature of the Release file.<br><br>To address this issue, retrieve the GPG public key of the source repository's publisher and import it into Repomanager, then retry the operation (see <a href="/configuration/source-repositories/#import-a-source-repository-gpg-signing-key">Import a source repository GPG key</a> to import a new GPG key).<br><br>This message is displayed when the <code>WHEN RELEASE FILE SIGNATURE IS INVALID</code> setting is set to <code>End sync task with error</code> (see <a href="/configuration/settings/#deb-curated-repositories-settings">Deb curated repositories settings</a>).</td>
+</tr>
+<tr>
+<td><code>CHECKING INRELEASE FILE GPG SIGNATURE</code><br>or<br><code>CHECKING RELEASE FILE GPG SIGNATURE</code></td>
+<td>No InRelease or Release file found with a valid GPG signature. Please check that you have imported the GPG key used to sign the repository.</td>
+<td>Same cause and resolution as above.<br><br>This message is displayed when the <code>WHEN RELEASE FILE SIGNATURE IS INVALID</code> setting is set to <code>Ignore and try another Release file if possible</code>: each Release file with an invalid signature is reported as a warning, and the error is raised when none of them has a valid signature.</td>
 </tr>
 </tbody>
 </table>
@@ -1402,16 +1408,16 @@
 <table>
 <thead>
 <tr>
-<th>Error title</th>
+<th>Task step</th>
 <th>Message</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>GPG signature check failed</code></td>
-<td>GPG signature is not OK (unknown GPG signing key ID: xxxxx)</td>
-<td>This means that no GPG key (imported into Repomanager) is able to verify the GPG signature of the downloaded file.<br><br>To address this issue, retrieve the GPG public key of the source repository's publisher and import it into Repomanager, then retry the operation (see <a href="/configuration/source-repositories/#import-a-source-repository-gpg-signing-key">Import a source repository GPG key</a> to import a new GPG key).</td>
+<td><code>DOWNLOADING PACKAGE (x/y)</code></td>
+<td>GPG signature check failed (unknown GPG signing key ID: xxxxx)</td>
+<td>This means that no GPG key (imported into Repomanager) is able to verify the GPG signature of the downloaded package.<br><br>To address this issue, retrieve the GPG public key of the source repository's publisher and import it into Repomanager, then retry the operation (see <a href="/configuration/source-repositories/#import-a-source-repository-gpg-signing-key">Import a source repository GPG key</a> to import a new GPG key).<br><br>This error is raised when the <code>WHEN PACKAGE SIGNATURE IS INVALID</code> setting is set to <code>End sync task with error</code> (see <a href="/configuration/settings/#rpm-curated-repositories-settings">Rpm curated repositories settings</a>). With the other values, the same message is displayed as a warning and the package is ignored or downloaded anyway.</td>
 </tr>
 </tbody>
 </table>
