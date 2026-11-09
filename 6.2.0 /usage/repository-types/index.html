@@ -885,6 +885,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#curated-repositories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Curated repositories
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#local-repositories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Local repositories
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#mirrors" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -935,7 +957,7 @@
   <span class="md-ellipsis">
     
   
-    Operations on repositories and mirrors
+    Operations on repositories
   
 
     
@@ -1435,14 +1457,21 @@
 </table>
 <p>All types share the same features: snapshots, environments, groups, description and tags, scheduled tasks, statistics and permissions. They are listed together in the <strong>REPOSITORIES</strong> tab, the type is displayed on the right of each repository card (<code>local</code>, <code>curated</code> or <code>mirror</code>, next to the source repository).</p>
 <p>Arch Linux repositories can only be mirrored.</p>
-<p>To create a repository of each type, see <a href="/usage/operations/">Operations on repositories and mirrors</a>.</p>
+<p>To create a repository of each type, see <a href="/usage/operations/">Operations on repositories</a>.</p>
 <div class="admonition info">
 <p class="admonition-title">Curated repositories were named mirror repositories before 6.2.0</p>
 <p>Before version <code>6.2.0</code>, curated repositories were named <em>mirror repositories</em>. Since <code>6.2.0</code>, a <em>mirror</em> is an upstream repository copied as is, with its original metadata and signatures.</p>
 </div>
+<h2 id="curated-repositories"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 12v7.88c.04.3-.06.62-.29.83a.996.996 0 0 1-1.41 0l-2.01-2.01a.99.99 0 0 1-.29-.83V12h-.03L4.21 4.62a1 1 0 0 1 .17-1.4c.19-.14.4-.22.62-.22h14c.22 0 .43.08.62.22a1 1 0 0 1 .17 1.4L14.03 12z"/></svg></span> Curated repositories<a class="headerlink" href="#curated-repositories" title="Permanent link">&para;</a></h2>
+<p>Curated repositories are built from a <a href="/configuration/source-repositories/">source repository</a>: Repomanager retrieves all or only selected packages (include and exclude filters, latest versions only), then rebuilds the repository metadata and signs it with the Repomanager GPG key. Clients check packages with the Repomanager signing key.</p>
+<p>A curated repository covers one distribution and one component (deb) or one release version (rpm). Each update creates a new snapshot, see <a href="/usage/operations/#update-an-existing-curated-repository">Update an existing curated repository</a>.</p>
+<p>Curated repositories are stored in the <code>repomanager-repo</code> volume (<code>/home/repo</code> inside the container).</p>
+<h2 id="local-repositories"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 16v-6H5l7-7 7 7h-4v6zm-4 4v-2h14v2z"/></svg></span> Local repositories<a class="headerlink" href="#local-repositories" title="Permanent link">&para;</a></h2>
+<p>Local repositories contain your own packages. They are created empty, then packages are uploaded from the web interface or the API (see <a href="/usage/operations/#upload-packages-in-a-repository">Upload package(s) in a repository</a>). As for curated repositories, the metadata is rebuilt and signed by Repomanager.</p>
+<p>Local repositories are stored in the <code>repomanager-repo</code> volume (<code>/home/repo</code> inside the container).</p>
 <h2 id="mirrors"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 21H8V7h11m0-2H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2m-3-4H4a2 2 0 0 0-2 2v14h2V3h12z"/></svg></span> Mirrors<a class="headerlink" href="#mirrors" title="Permanent link">&para;</a></h2>
 <p>Mirrors are meant to provide <strong>public or internal mirrors</strong> that clients use exactly as they would use the upstream repository. Nothing is rebuilt: metadata and signatures are the upstream ones, so clients keep checking packages with the <strong>upstream GPG key</strong>, not with the Repomanager signing key.</p>
-<p>Mirrors keep Repomanager snapshots and environments: each sync creates a new snapshot, and environments make a snapshot available to clients.</p>
+<p>A mirror can cover several distributions (deb) or repositories (arch) at once. Each sync creates a new snapshot, see <a href="/usage/operations/#sync-a-mirror">Sync a mirror</a>.</p>
 <p>Mirrors are stored in the <code>repomanager-mirror</code> volume (<code>/home/mirror</code> inside the container). See <a href="/getting-started/installation/">Standard installation</a> and <a href="/administration/backup-restore/#mirrors">Backup and restore</a>.</p>
 <h3 id="mirrors-limitations">Mirrors limitations<a class="headerlink" href="#mirrors-limitations" title="Permanent link">&para;</a></h3>
 <ul>
