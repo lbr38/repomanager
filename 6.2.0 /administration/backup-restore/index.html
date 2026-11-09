@@ -1136,10 +1136,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#repositories" class="md-nav__link">
+  <a href="#curated-and-local-repositories" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Repositories
+        Curated and local repositories
       
     </span>
   </a>
@@ -1410,10 +1410,14 @@
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>docker<span class="w"> </span>stop<span class="w"> </span>repomanager
 </span></code></pre></div>
 </div>
-<h3 id="repositories">Repositories<a class="headerlink" href="#repositories" title="Permanent link">&para;</a></h3>
-<p>Repositories are stored in a dedicated Docker volume named <code>repomanager-repo</code> which is located in <code>/var/lib/docker/volumes/repomanager-repo</code> on the host (unless you have changed the default location). </p>
-<p>This volume contains the packages and metadata of the repositories.</p>
+<h3 id="curated-and-local-repositories">Curated and local repositories<a class="headerlink" href="#curated-and-local-repositories" title="Permanent link">&para;</a></h3>
+<p><a href="/usage/repository-types/">Curated and local repositories</a> are stored in a dedicated Docker volume named <code>repomanager-repo</code> which is located in <code>/var/lib/docker/volumes/repomanager-repo</code> on the host (unless you have changed the default location). </p>
+<p>This volume contains the snapshots (packages and metadata) of the curated and local repositories.</p>
 <p>You should back up this volume to ensure you can restore your data in case of a failure. <strong>This can be done by copying the content of the volume to another location with rsync or cp</strong>.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>When the <code>DEDUPLICATION</code> setting is enabled (default, see <a href="/configuration/settings/#global-settings">Global settings</a>), snapshots of a repository share their unchanged packages through hard links. Use <code>rsync -H</code> (or <code>cp -a</code>) to preserve hard links, otherwise each snapshot is copied in full in the backup.</p>
+</div>
 <h3 id="mirrors">Mirrors<a class="headerlink" href="#mirrors" title="Permanent link">&para;</a></h3>
 <p><a href="/usage/repository-types/#mirrors">Mirrors</a> are stored in a dedicated Docker volume named <code>repomanager-mirror</code> which is located in <code>/var/lib/docker/volumes/repomanager-mirror</code> on the host (unless you have changed the default location).</p>
 <p>This volume contains the snapshots of the mirrors. As mirrors are copies of upstream repositories, they can also be synced again from scratch instead of being backed up.</p>
@@ -1427,20 +1431,24 @@
 <thead>
 <tr>
 <th>Volume name</th>
+<th>Content</th>
 <th>Default location on host</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>repomanager-data</code></td>
+<td>Databases, logs and configuration</td>
 <td><code>/var/lib/docker/volumes/repomanager-data</code></td>
 </tr>
 <tr>
 <td><code>repomanager-repo</code></td>
+<td>Curated and local repositories</td>
 <td><code>/var/lib/docker/volumes/repomanager-repo</code></td>
 </tr>
 <tr>
 <td><code>repomanager-mirror</code></td>
+<td>Mirrors</td>
 <td><code>/var/lib/docker/volumes/repomanager-mirror</code></td>
 </tr>
 </tbody>
@@ -1451,7 +1459,7 @@
 </span></code></pre></div>
 <p>Restore the backup by copying the content of your backup to the volumes:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>rsync<span class="w"> </span>-aP<span class="w"> </span>--delete<span class="w"> </span>my_backup/repomanager-data/<span class="w"> </span>/var/lib/docker/volumes/repomanager-data/
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>rsync<span class="w"> </span>-aP<span class="w"> </span>--delete<span class="w"> </span>my_backup/repomanager-repo/<span class="w"> </span>/var/lib/docker/volumes/repomanager-repo/
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>rsync<span class="w"> </span>-aHP<span class="w"> </span>--delete<span class="w"> </span>my_backup/repomanager-repo/<span class="w"> </span>/var/lib/docker/volumes/repomanager-repo/
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>rsync<span class="w"> </span>-aHP<span class="w"> </span>--delete<span class="w"> </span>my_backup/repomanager-mirror/<span class="w"> </span>/var/lib/docker/volumes/repomanager-mirror/
 </span></code></pre></div>
 <p>Make sure the permissions are correct:</p>
