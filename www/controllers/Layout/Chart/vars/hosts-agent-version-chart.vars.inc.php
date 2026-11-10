@@ -17,7 +17,7 @@ foreach ($agents as $agent) {
     }
 
     $datasets[0]['data'][] = $agent['Agent_version_count'];
-    $datasets[0]['colors'][] = Color::random();
+    $datasets[0]['colors'][] = Color::random($datasets[0]['colors'] ?? []);
 }
 
 unset($hostController, $agents, $agent, $version);

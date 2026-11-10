@@ -213,7 +213,29 @@ class Host
             return false;
         }
 
-        return $this->model->checkIdToken($authId, $token);
+        $hashedToken = self::hashToken($token);
+
+        if ($this->model->checkIdToken($authId, $hashedToken)) {
+            return true;
+        }
+
+        // Tokens stored before they were hashed: check the clear token, then replace it by its hash
+        // A clear token never starts with the hash prefix (prevents authenticating with a stored hash)
+        if (!str_starts_with($token, 'sha256:') and $this->model->checkIdToken($authId, $token)) {
+            $this->model->updateToken($authId, $hashedToken);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     *  Return the hash of a host token, as stored in database
+     *  Tokens are long random strings, a fast hash is enough
+     */
+    public static function hashToken(string $token): string
+    {
+        return 'sha256:' . hash('sha256', $token);
     }
 
     /**

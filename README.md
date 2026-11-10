@@ -7,10 +7,11 @@
 </div>
 
 <br>
-<p align="center">A web mirroring tool for rpm and deb package repositories</p>
+<p align="center">A web mirroring tool for rpm, deb and Arch Linux package repositories</p>
 <br>
 
 [![Run rpm and deb tasks](https://github.com/lbr38/repomanager/actions/workflows/tasks.yml/badge.svg?event=push)](https://github.com/lbr38/repomanager/actions/workflows/tasks.yml)
+[![Run mirror tasks](https://github.com/lbr38/repomanager/actions/workflows/mirror-tasks.yml/badge.svg?event=push)](https://github.com/lbr38/repomanager/actions/workflows/mirror-tasks.yml)
 [![Test Repomanager API](https://github.com/lbr38/repomanager/actions/workflows/test-api.yml/badge.svg?event=push)](https://github.com/lbr38/repomanager/actions/workflows/test-api.yml)
 [![Source Repository Templates](https://github.com/lbr38/repomanager/actions/workflows/source-repository-templates.yml/badge.svg?event=push)](https://github.com/lbr38/repomanager/actions/workflows/source-repository-templates.yml)
 [![PHP CodeSniffer](https://github.com/lbr38/repomanager/actions/workflows/phpcs.yml/badge.svg?event=push)](https://github.com/lbr38/repomanager/actions/workflows/phpcs.yml)
@@ -19,10 +20,11 @@
 
 ## Main features
 
-- Create `deb` and `rpm` mirror repositories
+- Create `deb` and `rpm` curated repositories (selected packages from a source repository, rebuilt and signed metadata)
+- Create `deb`, `rpm` and `arch` mirrors (upstream repositories copied as is)
 - Sign packages and repositories with GPG
 - Upload packages into repositories
-- Create environments (e.g., `preprod`, `prod`) and make mirrors available only for specific environments
+- Create environments (e.g., `preprod`, `prod`) and make repositories available only for specific environments
 - Manage host package updates
 - Schedule tasks
 

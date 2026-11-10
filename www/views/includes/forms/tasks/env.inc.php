@@ -18,7 +18,8 @@
     <?php
     $selected = false;
 
-    foreach (ENVS as $env) {
+    // Protected environments cannot be pointed, they are not listed
+    foreach (\Controllers\Environment::getPointable() as $env) {
         // Don't display the environment if it already exists
         if ($repoController->existsSnapIdEnv($repoController->getSnapId(), $env['Name'])) {
             continue;
@@ -33,6 +34,7 @@
         }
     } ?>
 </select>
+<?= \Controllers\Environment::protectedNote() ?>
 
 <?php
 // Define schedule form action (useful for the schedule form)

@@ -14,8 +14,15 @@ class Dist
         }
 
         foreach ($dists as $dist) {
-            if (!Validate::alphaNumeric($dist, ['-', '_', '.', '/'])) {
+            if (!is_string($dist) or empty($dist) or !Validate::alphaNumeric($dist, ['-', '_', '.', '/'])) {
                 throw new Exception('Distribution name cannot contain special characters except hyphen, underscore, dot, slash');
+            }
+
+            // The distribution is part of the repository path, prevent path traversal (e.g. '..') and empty or hidden directories
+            foreach (explode('/', $dist) as $segment) {
+                if ($segment === '' or str_starts_with($segment, '.')) {
+                    throw new Exception('Distribution name is invalid');
+                }
             }
         }
     }

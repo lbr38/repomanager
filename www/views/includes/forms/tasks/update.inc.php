@@ -12,6 +12,50 @@
     <p>⸺<span class="label-red"><?= DATE_DMY ?></span></p>
 </div>
 
+<?php
+// Only one snapshot per day: a same day update replaces the snapshot of the current day instead of creating a new one
+if ($repoController->getType() == 'curated') :
+    $updateRepoSnapshotController = new \Controllers\Repo\Snapshot\Snapshot();
+
+    // An update applies to the latest snapshot: updating an older snapshot would replace the snapshot of the current day
+    if (!empty($updateRepoSnapshotController->getOtherTodaySnapId($repoController->getRepoId(), (int) $snapId))) : ?>
+        <div class="note-warning">
+            <img src="/assets/icons/warning.svg" />
+            <p>A snapshot of the <b><?= DATE_DMY ?></b> already exists: this snapshot cannot be updated today, as the update would replace it (only one snapshot per day). Update the latest snapshot instead.</p>
+        </div>
+        <?php
+    elseif ($repoController->getDate() == DATE_YMD) :
+        $updateProtectedEnvs = $updateRepoSnapshotController->getProtectedEnvs((int) $snapId);
+
+        if (!empty($updateProtectedEnvs)) : ?>
+            <div class="note-warning">
+                <img src="/assets/icons/warning.svg" />
+                <p>This snapshot is used by <?= \Controllers\Environment::nameList($updateProtectedEnvs, 'protected') ?> and cannot be updated today, as the update would replace it.</p>
+            </div>
+            <?php
+        else : ?>
+            <div class="note-info">
+                <img src="/assets/icons/info.svg" />
+                <p>If executed today, this update will replace the snapshot of the <b><?= $repoController->getDateFormatted() ?></b> (only one snapshot per day).</p>
+            </div>
+            <?php
+        endif;
+    endif;
+endif;
+
+// A local repository update creates a new snapshot from the selected one: it cannot replace the snapshot of the current day
+if ($repoController->getType() == 'local') :
+    $updateRepoSnapshotController = new \Controllers\Repo\Snapshot\Snapshot();
+
+    if ($updateRepoSnapshotController->hasTodaySnapshot($repoController->getRepoId())) : ?>
+        <div class="note-warning">
+            <img src="/assets/icons/warning.svg" />
+            <p>A snapshot of the <b><?= DATE_DMY ?></b> already exists: this local repository cannot be updated today (only one snapshot per day).</p>
+        </div>
+        <?php
+    endif;
+endif ?>
+
 <h6 class="required">ARCHITECTURE</h6>
 <p class="note">Select the package architecture to sync.</p>
 
@@ -44,7 +88,8 @@
 <select id="update-repo-target-env-select-<?= $repoController->getSnapId() ?>" class="task-param" param-name="env" multiple>
     <option value=""></option>
     <?php
-    foreach (ENVS as $env) {
+    // Protected environments cannot be pointed, they are not listed
+    foreach (\Controllers\Environment::getPointable() as $env) {
         if ($env['Name'] == DEFAULT_ENV) {
             echo '<option value="' . $env['Name'] . '" selected>' . $env['Name'] . '</option>';
         } else {
@@ -52,11 +97,12 @@
         }
     } ?>
 </select>
+<?= \Controllers\Environment::protectedNote() ?>
 
 <h6>GPG PARAMETERS</h6>
 
 <?php
-if ($repoController->getType() == 'mirror') : ?>
+if ($repoController->getType() == 'curated') : ?>
     <h6>CHECK GPG SIGNATURES</h6>
     <p class="note">Check GPG signature of repository / packages.</p>
     <label class="onoff-switch-label">
@@ -67,23 +113,23 @@ if ($repoController->getType() == 'mirror') : ?>
 endif ?>
 
 <h6>SIGN WITH GPG</h6>
-<p class="note">Sign repository / packages with GPG.</p>
+<p class="note">Sign repository / packages with GPG. Pre-selected according to the current snapshot signature.</p>
 <label class="onoff-switch-label">
     <?php
     if ($repoController->getPackageType() == 'rpm') : ?>
-        <input type="checkbox" param-name="gpg-sign" class="onoff-switch-input task-param type_rpm" value="true" <?php echo (RPM_SIGN_PACKAGES == "true") ? 'checked' : ''; ?>>
+        <input type="checkbox" param-name="gpg-sign" class="onoff-switch-input task-param type_rpm" value="true" <?php echo ($repoController->getSigned() == 'true') ? 'checked' : ''; ?>>
         <?php
     endif;
 
     if ($repoController->getPackageType() == 'deb') : ?>
-        <input type="checkbox" param-name="gpg-sign" class="onoff-switch-input task-param type_deb" value="true" <?php echo (DEB_SIGN_REPO == "true") ? 'checked' : ''; ?>>
+        <input type="checkbox" param-name="gpg-sign" class="onoff-switch-input task-param type_deb" value="true" <?php echo ($repoController->getSigned() == 'true') ? 'checked' : ''; ?>>
         <?php
     endif ?>
     <span class="onoff-switch-slider"></span>
 </label>
 
 <?php
-if ($repoController->getType() == 'mirror' or ($repoController->getType() == 'local' and $repoController->getPackageType() == 'deb')) : ?>
+if ($repoController->getType() == 'curated' or ($repoController->getType() == 'local' and $repoController->getPackageType() == 'deb')) : ?>
     <div class="flex align-item-center column-gap-5 toggle-btn pointer margin-top-20 mediumopacity" toggle="div#advanced-params-<?= $repoController->getSnapId() ?>">
         <h6 class="margin-top-0">ADVANCED PARAMETERS</h6>
         <img src="/assets/icons/next.svg" class="icon toggle-icon" />
@@ -91,7 +137,7 @@ if ($repoController->getType() == 'mirror' or ($repoController->getType() == 'lo
 
     <div id="advanced-params-<?= $repoController->getSnapId() ?>" class="hide">
         <?php
-        if ($repoController->getType() == 'mirror') : ?>
+        if ($repoController->getType() == 'curated') : ?>
             <h6>KEEP LATEST x VERSIONS OF PACKAGES</h6>
             <p class="note">Keep only the latest x versions of packages in the repository. Older versions will be ignored.</p>
             <input type="number" class="task-param" param-name="advanced-params.packages.keep-latest" package-type="all" min="1" placeholder="e.g. 5" value="<?= $repoController->getAdvancedParams()['packages']['keep-latest'] ?? '' ?>" />

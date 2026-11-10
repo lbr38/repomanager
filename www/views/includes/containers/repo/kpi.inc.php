@@ -1,12 +1,16 @@
 <section class="section-main reloadable-container" container="repo/kpi">
-    <h3>REPOSITORY</h3>
+    <h3><?= $isMirror ? 'MIRROR' : 'REPOSITORY' ?></h3>
 
     <?php
-    if ($repoController->getPackageType() == 'rpm') {
+    if ($isMirror) {
+        $repository = htmlspecialchars($mirror['label']);
+        $accent = $mirror['accent'];
+    }
+    if (!$isMirror && $repoController->getPackageType() == 'rpm') {
         $repository = $repoController->getName() . ' ❯ ' . $repoController->getReleasever();
         $accent = 'blue';
     }
-    if ($repoController->getPackageType() == 'deb') {
+    if (!$isMirror && $repoController->getPackageType() == 'deb') {
         $repository = $repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection();
         $accent = 'red';
     } ?>
@@ -16,7 +20,7 @@
             <img src="/assets/icons/package.svg" class="icon-np icon-medium" />
             <div>
                 <span class="label-white"><?= $repository ?></span>
-                <p class="mediumopacity-cst">Repository</p>
+                <p class="mediumopacity-cst"><?= $isMirror ? 'Mirror' : 'Repository' ?></p>
             </div>
         </div>
 

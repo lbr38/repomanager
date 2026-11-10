@@ -6,6 +6,7 @@ use Controllers\Host\Package\Package as HostPackage;
 use Controllers\Host\Registering as HostRegistering;
 use Controllers\Host\Host as HostController;
 use Controllers\Host\Update as HostUpdate;
+use Controllers\User\Permission\Host as HostPermission;
 use Exception;
 
 class Host extends \Controllers\Api\Controller
@@ -28,6 +29,15 @@ class Host extends \Controllers\Api\Controller
                 // Check if host exists
                 if (!$hostController->existsId($id)) {
                     throw new Exception('Host #' . $id . ' does not exist.');
+                }
+
+                // A host can only retrieve its own data, a user must have permissions on hosts
+                if (defined('HOST_AUTH_ID')) {
+                    if ($hostController->getIdByAuth(HOST_AUTH_ID) != $id) {
+                        throw new Exception('You are not allowed to access this host');
+                    }
+                } else if (!defined('API_KEY') or !HostPermission::allowed()) {
+                    throw new Exception('You are not allowed to access this host');
                 }
 
                 /**
@@ -54,6 +64,11 @@ class Host extends \Controllers\Api\Controller
              *  https://repomanager.mydomain.net/api/v2/host/registering
              */
             if ($this->uri[4] == 'registering' and $this->method == 'POST') {
+                // Only administrators and users allowed to register hosts can register a host (API key authentication)
+                if (!defined('API_KEY') or !HostPermission::allowedAction('register')) {
+                    throw new Exception('You are not allowed to register a host');
+                }
+
                 // Try registering the host
                 $result = $hostRegisteringController->register($this->data['ip'], $this->data['hostname']);
 
@@ -96,6 +111,10 @@ class Host extends \Controllers\Api\Controller
                     $hostController->deleteById($this->hostId);
                 // Using Api key authentication (hostname required)
                 } else if (defined('API_KEY') and !empty($this->data['hostname'])) {
+                    if (!HostPermission::allowedAction('delete')) {
+                        throw new Exception('You are not allowed to delete a host');
+                    }
+
                     $hostController->deleteByHostname($this->data['hostname']);
                 } else {
                     throw new Exception('To unregister a host, you must use either host authId+token authentication or Api key authentication with hostname specified.');

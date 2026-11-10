@@ -19,11 +19,33 @@ class Target
     private $validActions = ['update', 'env', 'rebuild'];
 
     /**
+     *  Actions that also apply to the mirrors matching the target (the metadata of mirrors are never rebuilt)
+     */
+    private const MIRRORS_ACTIONS = ['update', 'env'];
+
+    /**
      *  Return the list of actions supporting a dynamic target
      */
     public function getValidActions(): array
     {
         return $this->validActions;
+    }
+
+    /**
+     *  Check if the user is allowed to schedule a task with a dynamic target for the specified action
+     *  The target also matches mirrors for some actions, the user must then be allowed to perform the action on mirrors too
+     */
+    public static function allowedAction(string $action): bool
+    {
+        if (!\Controllers\User\Permission\Repo::allowedAction($action)) {
+            return false;
+        }
+
+        if (in_array($action, self::MIRRORS_ACTIONS) and !\Controllers\User\Permission\Mirror::allowedAction($action)) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -93,7 +115,7 @@ class Target
 
         // Check package type, if any
         if (!empty($target['package-type'])) {
-            if (!in_array($target['package-type'], ['deb', 'rpm'])) {
+            if (!in_array($target['package-type'], ['deb', 'rpm', 'arch'])) {
                 throw new Exception('Invalid target package type');
             }
 
@@ -117,6 +139,43 @@ class Target
         $repoListingController = new RepoListing();
 
         return $repoListingController->listByTarget($target['group'], $target['tags'], $target['package-type']);
+    }
+
+    /**
+     *  Return the list of mirrors matching the target, with the same filters as repositories, and their latest active snapshot
+     */
+    public function resolveMirrors(array $target): array
+    {
+        $target = $this->validate($target);
+        $mirrors = [];
+
+        $mirrorController = new \Controllers\Mirror\Mirror();
+        $mirrorSnapshotController = new \Controllers\Mirror\Snapshot();
+        $mirrorsGroupsIds = $mirrorController->getGroupsIds();
+
+        foreach ($mirrorController->get() as $mirror) {
+            // Filter on package type
+            if ($target['package-type'] !== '' and $mirror['Package_type'] != $target['package-type']) {
+                continue;
+            }
+
+            // Filter on group, group Id 0 is the fictitious 'Default' group containing the mirrors that do not belong to any group
+            if ($target['group'] !== '' and strval($mirrorsGroupsIds[$mirror['Id']] ?? 0) !== $target['group']) {
+                continue;
+            }
+
+            // Filter on tags, a mirror must have ALL the specified tags to be selected
+            $mirrorTags = array_filter(explode(',', $mirror['Tags'] ?? ''));
+
+            if (!empty(array_diff($target['tags'], $mirrorTags))) {
+                continue;
+            }
+
+            $mirror['latestSnapId'] = $mirrorSnapshotController->getByMirrorId($mirror['Id'])[0]['Id'] ?? null;
+            $mirrors[] = $mirror;
+        }
+
+        return $mirrors;
     }
 
     /**
@@ -230,8 +289,8 @@ class Target
                 $params['advanced-params'] = $repoController->getAdvancedParams();
                 $params['gpg-sign'] = $taskParams['gpg-sign'] ?? 'false';
 
-                // GPG check only applies to mirror repositories
-                if ($repoController->getType() == 'mirror') {
+                // GPG check only applies to curated repositories
+                if ($repoController->getType() == 'curated') {
                     $params['gpg-check'] = $taskParams['gpg-check'] ?? 'false';
                 }
 
@@ -252,6 +311,39 @@ class Target
             unset($repoController);
 
             $tasksParams[] = $params;
+        }
+
+        // Mirrors matching the target, the rebuild action does not apply to mirrors (their metadata are never rebuilt)
+        if (in_array($action, self::MIRRORS_ACTIONS)) {
+            foreach ($this->resolveMirrors($taskParams['target']) as $mirror) {
+                $params = [
+                    'domain' => 'mirror',
+                    'action' => $action,
+                    'mirror-id' => strval($mirror['Id']),
+
+                    // Generated tasks are executed immediately, the recurrence is carried by the parent task
+                    'schedule' => [
+                        'scheduled' => 'false'
+                    ]
+                ];
+
+                // Environments to point to the new snapshot are optional
+                if ($action == 'update' and !empty($taskParams['env'])) {
+                    $params['env'] = $taskParams['env'];
+                }
+
+                // Environments are pointed to the latest snapshot of the mirror, a mirror without snapshot is ignored
+                if ($action == 'env') {
+                    if (empty($mirror['latestSnapId'])) {
+                        continue;
+                    }
+
+                    $params['mirror-snap-id'] = strval($mirror['latestSnapId']);
+                    $params['env'] = $taskParams['env'] ?? [];
+                }
+
+                $tasksParams[] = $params;
+            }
         }
 
         return $tasksParams;

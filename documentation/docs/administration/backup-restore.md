@@ -18,22 +18,36 @@ The `repomanager-data` volume also contains the `version` file which contains th
     docker stop repomanager
     ```
 
-### Repositories
+### Curated and local repositories
 
-Repositories are stored in a dedicated Docker volume named `repomanager-repo` which is located in `/var/lib/docker/volumes/repomanager-repo` on the host (unless you have changed the default location). 
+[Curated and local repositories](/usage/repository-types/) are stored in a dedicated Docker volume named `repomanager-repo` which is located in `/var/lib/docker/volumes/repomanager-repo` on the host (unless you have changed the default location). 
 
-This volume contains the packages and metadata of the repositories.
+This volume contains the snapshots (packages and metadata) of the curated and local repositories.
 
 You should back up this volume to ensure you can restore your data in case of a failure. **This can be done by copying the content of the volume to another location with rsync or cp**.
 
+!!! info
+    When the `DEDUPLICATION` setting is enabled (default, see [Global settings](/configuration/settings/#global-settings)), snapshots of a repository share their unchanged packages through hard links. Use `rsync -H` (or `cp -a`) to preserve hard links, otherwise each snapshot is copied in full in the backup.
+
+
+### Mirrors
+
+[Mirrors](/usage/repository-types/#mirrors) are stored in a dedicated Docker volume named `repomanager-mirror` which is located in `/var/lib/docker/volumes/repomanager-mirror` on the host (unless you have changed the default location).
+
+This volume contains the snapshots of the mirrors. As mirrors are copies of upstream repositories, they can also be synced again from scratch instead of being backed up.
+
+!!! info
+    Snapshots of a mirror share their unchanged files through hard links. Use `rsync -H` (or `cp -a`) to preserve hard links, otherwise each snapshot is copied in full in the backup.
+
 ### Summary
 
-In summary, you should back up both `repomanager-data` and `repomanager-repo` volume directories which are located:
+In summary, you should back up the `repomanager-data`, `repomanager-repo` and `repomanager-mirror` volume directories which are located:
 
-| Volume name | Default location on host |
-|-------------|------------------|
-| `repomanager-data` | `/var/lib/docker/volumes/repomanager-data` |
-| `repomanager-repo` | `/var/lib/docker/volumes/repomanager-repo` |
+| Volume name | Content | Default location on host |
+|-------------|---------|------------------|
+| `repomanager-data` | Databases, logs and configuration | `/var/lib/docker/volumes/repomanager-data` |
+| `repomanager-repo` | Curated and local repositories | `/var/lib/docker/volumes/repomanager-repo` |
+| `repomanager-mirror` | Mirrors | `/var/lib/docker/volumes/repomanager-mirror` |
 
 
 ## Restoring from backup
@@ -48,7 +62,8 @@ Restore the backup by copying the content of your backup to the volumes:
 
 ```bash
 rsync -aP --delete my_backup/repomanager-data/ /var/lib/docker/volumes/repomanager-data/
-rsync -aP --delete my_backup/repomanager-repo/ /var/lib/docker/volumes/repomanager-repo/
+rsync -aHP --delete my_backup/repomanager-repo/ /var/lib/docker/volumes/repomanager-repo/
+rsync -aHP --delete my_backup/repomanager-mirror/ /var/lib/docker/volumes/repomanager-mirror/
 ```
 
 Make sure the permissions are correct:
@@ -56,6 +71,7 @@ Make sure the permissions are correct:
 ```bash
 chown -R 33 /var/lib/docker/volumes/repomanager-data
 chown -R 33 /var/lib/docker/volumes/repomanager-repo
+chown -R 33 /var/lib/docker/volumes/repomanager-mirror
 ```
 
 If you are restoring a previous version of the application, retrieve the version from the `version` file in the backup:

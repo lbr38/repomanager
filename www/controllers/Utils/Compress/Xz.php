@@ -13,9 +13,9 @@ class Xz
     public static function uncompress(string $filename, string|null $outputFilename = null) : void
     {
         if (!empty($outputFilename)) {
-            $myprocess = new Process('/usr/bin/xz --decompress -k -c ' . $filename . ' > ' . $outputFilename);
+            $myprocess = new Process('/usr/bin/xz --decompress -k -c ' . escapeshellarg($filename) . ' > ' . escapeshellarg($outputFilename));
         } else {
-            $myprocess = new Process('/usr/bin/xz --decompress -k ' . $filename);
+            $myprocess = new Process('/usr/bin/xz --decompress -k ' . escapeshellarg($filename));
         }
 
         $myprocess->execute();

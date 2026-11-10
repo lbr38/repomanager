@@ -1,7 +1,6 @@
 <?php
 use \Controllers\User\Permission\Repo as RepoPermission;
 
-$renameFormController = new \Controllers\Repo\Edit\Form();
 $taskFormController = new \Controllers\Task\Form\Form();
 
 //  If the user is not an administrator or does not have permission to edit repositories, prevent access to this panel.

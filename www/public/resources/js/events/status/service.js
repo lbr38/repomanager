@@ -29,7 +29,7 @@ $(document).on('click', '.unit-log-view-btn', function(e) {
 /**
  *  Event: show unit tooltip
  */
-$(document).on('mouseenter', '.unit-tooltip', function (e) {
+$(document).on('mouseenter', '.unit-tooltip', function () {
     const unit = $(this).attr('unit');
     const description = $(this).attr('description');
     const frequency = $(this).attr('frequency');
@@ -37,8 +37,6 @@ $(document).on('mouseenter', '.unit-tooltip', function (e) {
     const time = $(this).attr('time');
     let content = '';
     let freq = '';
-
-    mytooltip.loading(e);
 
     content  = '<p><b>Unit</b></p>';
     content += '<p class="copy"><code>' + unit + '</code></p>';
@@ -65,7 +63,7 @@ $(document).on('mouseenter', '.unit-tooltip', function (e) {
     content += '<p>' + freq + '</p>';
 
     // Print tooltip
-    mytooltip.print(content, e);
+    mytooltip.show(this, content);
 });
 
 

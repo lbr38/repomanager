@@ -29,13 +29,15 @@ class Rebuild
             throw new Exception('Snapshot Id #' . $formParams['snap-id'] . ' does not exist');
         }
 
-        // Check if the snapshot has a protected environment
-        if ($repoSnaphotController->hasProtectedEnv($formParams['snap-id'])) {
-            throw new Exception('Snapshot has a protected environment and cannot be deleted');
-        }
-
         // Retrieve all repo data from the Id
         $repoController->getAllById('', $formParams['snap-id'], '');
+
+        // A snapshot used by a protected environment cannot be modified
+        $protectedEnvs = $repoSnaphotController->getProtectedEnvs((int) $formParams['snap-id']);
+
+        if (!empty($protectedEnvs)) {
+            throw new Exception('Snapshot ' . Label::white(htmlspecialchars($repoController->getLabel()) . ' ⸺ ' . $repoController->getDateFormatted()) . ' is used by ' . \Controllers\Environment::nameList($protectedEnvs, 'protected') . ' and cannot be rebuilt');
+        }
 
         // Add history
         if ($repoController->getPackageType() == 'rpm') {

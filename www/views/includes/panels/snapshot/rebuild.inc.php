@@ -1,7 +1,7 @@
 <?php ob_start(); ?>
 
 <h6 class="margin-top-0">SIGN WITH GPG</h6>
-<p class="note">Signature can extend the task duration.</p>
+<p class="note">Pre-selected according to the current snapshot signature. Signature can extend the task duration.</p>
 <label class="onoff-switch-label">
     <input name="gpgSign" type="checkbox" class="onoff-switch-input" <?= $gpgSignChecked ?>>
     <span class="onoff-switch-slider"></span>

@@ -16,7 +16,7 @@ use \Controllers\Utils\Generate\Html\Label; ?>
         </div>
 
         <?php
-        if ($repoController->getType() == 'mirror') : ?>
+        if ($repoController->getType() == 'curated') : ?>
             <div>
                 <h6 class="margin-top-0">SOURCE REPOSITORY</h6>
                 <p class="copy"><?= Label::white($repoController->getSource()) ?></p>
@@ -57,7 +57,7 @@ use \Controllers\Utils\Generate\Html\Label; ?>
 
     <div class="grid grid-2 row-gap-10 column-gap-20">
         <?php
-        if ($repoController->getType() == 'mirror') :
+        if ($repoController->getType() == 'curated') :
             if (!empty($repoController->getAdvancedParams()['packages']['include'])) : ?>
                 <div>
                     <h6>PACKAGES TO INCLUDE</h6>
@@ -153,7 +153,7 @@ use \Controllers\Utils\Generate\Html\Label; ?>
 
     <div class="grid grid-2 row-gap-10 column-gap-20">
         <?php
-        if ($repoController->getType() == 'mirror') :
+        if ($repoController->getType() == 'curated') :
             if (!empty($repoController->getGpgCheck())) : ?>
                 <div>
                     <h6>CHECK GPG SIGNATURES</h6>

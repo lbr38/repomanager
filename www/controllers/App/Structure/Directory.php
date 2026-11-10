@@ -26,6 +26,7 @@ class Directory
             DB_UPDATE_DONE_DIR,
             CUSTOM_SOURCES_REPOS_LISTS_DIR . '/rpm',
             CUSTOM_SOURCES_REPOS_LISTS_DIR . '/deb',
+            CUSTOM_SOURCES_REPOS_LISTS_DIR . '/arch',
         ];
 
         foreach ($dirs as $dir) {

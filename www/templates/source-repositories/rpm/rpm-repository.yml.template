@@ -48,3 +48,8 @@ repositories:
       # The CA certificate used to authenticate the repository, plain text format
       ca-certificate: |
         -----BEGIN CERTIFICATE-----
+    # If the repository is protected by HTTP basic authentication, you can provide the username and password
+    # /!\ Remove this section if the repository is not protected by basic authentication
+    basic-authentication:
+      username:
+      password:

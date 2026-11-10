@@ -20,6 +20,9 @@ Check the linupdate documentation:
 - Install and start using linupdate: [Documentation](https://github.com/lbr38/linupdate/wiki/Documentation)
 - Enable reposerver module and register a host using linupdate, see [Quick setup example](https://github.com/lbr38/linupdate/wiki/Module:-reposerver#quick-setup-example)
 
+!!! info
+    The API key used to register a host must be the API key of an administrator, or of a user with the `Register hosts (API key)` permission (see [Edit user permissions](/configuration/settings/#edit-user-permissions)).
+
 
 ### Reset a host
 

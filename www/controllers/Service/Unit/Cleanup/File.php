@@ -91,6 +91,71 @@ class File extends \Controllers\Service\Service
         }
 
         /**
+         *  Clean mirrors sync working directories older than 3 days
+         *  A working directory remains after a failed sync, so that the next sync (or the relaunch of the
+         *  failed task) resumes from it. After 3 days, it is deleted, as the repositories temporary directories.
+         *  If the failed sync was the first one, the mirror does not exist in database: its directory is
+         *  then left empty and is deleted too (a mirror in database always has at least one snapshot directory)
+         */
+        if (is_dir(MIRRORS_DIR)) {
+            $workingDirs = array_merge(
+                glob(MIRRORS_DIR . '/*/*/.tmp-sync', GLOB_ONLYDIR),
+                glob(MIRRORS_DIR . '/rpm/*/*/.tmp-sync', GLOB_ONLYDIR)
+            );
+
+            foreach ($workingDirs as $workingDir) {
+                $mirrorDir = dirname($workingDir);
+
+                if (filemtime($workingDir) >= strtotime('-3 days')) {
+                    continue;
+                }
+
+                // Lock the mirror during the cleaning, skip it if a task is currently syncing it
+                $lockFile = $mirrorDir . '/.tmp-lock';
+                $lock = fopen($lockFile, 'c');
+
+                if ($lock === false) {
+                    continue;
+                }
+
+                if (!flock($lock, LOCK_EX | LOCK_NB)) {
+                    fclose($lock);
+                    continue;
+                }
+
+                try {
+                    if (!Directory::deleteRecursive($workingDir)) {
+                        throw new Exception('Could not delete mirror working directory ' . $workingDir);
+                    }
+
+                    parent::log($workingDir . ' deleted');
+                } finally {
+                    // Delete the lock file before releasing the lock, as the tasks do
+                    unlink($lockFile);
+                    flock($lock, LOCK_UN);
+                    fclose($lock);
+                }
+
+                // Delete the mirror directory if nothing remains (the mirror has never been created)
+                if (count(scandir($mirrorDir)) == 2) {
+                    if (!rmdir($mirrorDir)) {
+                        throw new Exception('Could not delete mirror directory ' . $mirrorDir);
+                    }
+
+                    parent::log($mirrorDir . ' deleted');
+
+                    // rpm mirrors are stored in rpm/<name>/<releasever>, delete rpm/<name> if no other release version remains
+                    $parentDir = dirname($mirrorDir);
+
+                    if (dirname($parentDir) == MIRRORS_DIR . '/rpm' and count(scandir($parentDir)) == 2) {
+                        rmdir($parentDir);
+                        parent::log($parentDir . ' deleted');
+                    }
+                }
+            }
+        }
+
+        /**
          *  Clean service units logs older than 15 days
          */
         if (is_dir(SERVICE_LOGS_DIR)) {

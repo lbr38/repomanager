@@ -25,6 +25,19 @@ class Notify extends Task
      */
     private function generateRepository(array $taskRawParams) : array
     {
+        // Case of a mirror task: the mirror label (from the database, or from the repo-info stored in the task) and the environment(s) to point, if any
+        if (($taskRawParams['domain'] ?? '') == 'mirror') {
+            $details = [
+                'repository' => $this->getRepoFromParams($taskRawParams)
+            ];
+
+            if (!empty($taskRawParams['env'])) {
+                $details['environment'] = (array) $taskRawParams['env'];
+            }
+
+            return $details;
+        }
+
         $repoController = new \Controllers\Repo\Repo();
 
         // Case the action is 'create'
@@ -54,7 +67,15 @@ class Notify extends Task
         // Case the action is 'update', 'env', 'removeEnv', 'duplicate', 'rebuild', 'rename' or 'delete'
         if (in_array($taskRawParams['action'], ['update', 'duplicate', 'env', 'removeEnv', 'rebuild', 'rename', 'delete'])) {
             // Retrieve repository details
-            $repoController->getAllById(null, $taskRawParams['snap-id']);
+            // The repository may have been deleted by the task, use the info stored in the task parameters
+            try {
+                $repoController->getAllById(null, $taskRawParams['snap-id']);
+            } catch (Exception $e) {
+            }
+
+            if (empty($repoController->getTaskInfo()['name']) and !empty($taskRawParams['repo-info'])) {
+                $repoController->setFromTaskInfo($taskRawParams['repo-info']);
+            }
 
             // Case it's a deb repository
             if ($repoController->getPackageType() == 'deb') {

@@ -39,10 +39,7 @@ server {
     client_max_body_size 32M;
  
     # Security headers
-    add_header Strict-Transport-Security "max-age=15768000; includeSubDomains; preload;" always;
-    add_header Referrer-Policy "no-referrer" always;
-    add_header X-Content-Type-Options "nosniff" always;
-    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
 
     # Remove X-Powered-By, which is an information leak
     fastcgi_hide_header X-Powered-By;

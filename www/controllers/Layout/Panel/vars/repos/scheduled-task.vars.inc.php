@@ -2,19 +2,16 @@
 use \Controllers\User\User;
 use \Controllers\Task\Target;
 use \Controllers\Group\Repo as RepoGroup;
-use \Controllers\Repo\Listing as RepoListing;
-use \Controllers\User\Permission\Repo as RepoPermission;
 
 $targetController = new Target();
 $groupController = new RepoGroup();
-$repoListingController = new RepoListing();
 $userController = new User();
 
 // Only keep the actions the user is allowed to execute
 $allowedActions = [];
 
 foreach ($targetController->getValidActions() as $action) {
-    if (RepoPermission::allowedAction($action)) {
+    if (Target::allowedAction($action)) {
         $allowedActions[] = $action;
     }
 }
@@ -32,7 +29,8 @@ $actionsTitles = [
 
 // Retrieve the groups, the tags and the recipients to build the target selectors
 $groups = $groupController->listAll(true);
-$tags = $repoListingController->listTags();
+// Mirrors can be targeted by their tags too
+$tags = (new \Controllers\Mirror\Mirror())->listAllTags();
 $usersEmail = $userController->getEmails();
 
-unset($targetController, $groupController, $repoListingController, $userController);
+unset($targetController, $groupController, $userController);

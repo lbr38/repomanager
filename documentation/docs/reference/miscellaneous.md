@@ -45,4 +45,6 @@ exit
 
 You can now browse the repositories through your web browser at: `https://<FQDN>/repo/`
 
+The same applies to [mirrors](/usage/repository-types/#mirrors): uncomment the `autoindex` directives in the `location ^~ /mirror/` block to browse them at `https://<FQDN>/mirror/`. Temporary files of running syncs (`.tmp-*`) are never served.
+
 <script data-goatcounter="https://repomanager.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>

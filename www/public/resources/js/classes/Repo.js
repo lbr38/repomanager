@@ -139,13 +139,29 @@ class Repo {
     }
 
     /**
+     * Check if the user is allowed to edit a repository or a mirror (mirrors Id are prefixed with 'mirror-')
+     * @param {string} repoId
+     * @returns {boolean}
+     */
+    allowedToEdit(repoId)
+    {
+        if (String(repoId).startsWith('mirror-')) {
+            return mymirrorpermission.allowedAction('edit');
+        }
+
+        return myrepopermission.allowedAction('edit');
+    }
+
+    /**
      * Switch a repository description <p> into an editable input
      * @param {*} p jQuery element of the description <p>
      */
     startEditDescription(p)
     {
-        if (!myrepopermission.allowedAction('edit')) {
-            myalert.print('You do not have permission to edit repositories', 'error');
+        const repoId = p.attr('repo-id');
+
+        if (!this.allowedToEdit(repoId)) {
+            myalert.print('You do not have permission to edit this item', 'error');
             return;
         }
 
@@ -155,7 +171,6 @@ class Repo {
         }
 
         const currentDescription = p.text().trim();
-        const repoId = p.attr('repo-id');
         const envId = p.attr('env-id');
 
         // Remove empty class (hide placeholder)
@@ -179,8 +194,10 @@ class Repo {
      */
     startEditTags(display)
     {
-        // Ignore if the user does not have permission to edit repositories
-        if (!myrepopermission.allowedAction('edit')) {
+        const repoId = display.attr('repo-id');
+
+        // Ignore if the user does not have permission to edit this repository or mirror
+        if (!this.allowedToEdit(repoId)) {
             return;
         }
 
@@ -188,8 +205,6 @@ class Repo {
         if (display.hasClass('editing')) {
             return;
         }
-
-        const repoId = display.attr('repo-id');
 
         // Current tags of this repo
         const currentTags = (display.attr('data-tags') || '').split(',').map(function (tag) {

@@ -12,7 +12,7 @@ class Zstd
      */
     public static function uncompress(string $filename) : void
     {
-        $myprocess = new Process('/usr/bin/unzstd ' . $filename);
+        $myprocess = new Process('/usr/bin/unzstd ' . escapeshellarg($filename));
         $myprocess->execute();
         $content = trim($myprocess->getOutput());
         $myprocess->close();

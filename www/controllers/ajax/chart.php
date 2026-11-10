@@ -2,9 +2,9 @@
 /**
  *  Return specified chart data
  */
-if ($action == 'get' && !empty($_POST['id']) and !empty($_POST['days'])) {
+if ($action == 'get' && !empty($_POST['id'])) {
     try {
-        $data = \Controllers\Layout\Chart\Chart::get($_POST['id'], $_POST['days']);
+        $data = \Controllers\Layout\Chart\Chart::get($_POST['id'], $_POST['timeStart'] ?? '', $_POST['timeEnd'] ?? '');
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }

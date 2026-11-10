@@ -5,7 +5,7 @@
 $rawParams['repo-id'] = 'debian|bookworm|contrib';
 $rawParams['action'] = 'create';
 $rawParams['package-type'] = 'deb';
-$rawParams['repo-type'] = 'mirror';
+$rawParams['repo-type'] = 'curated';
 $rawParams['source'] = 'debian';
 $rawParams['alias'] = 'debian';
 $rawParams['dist'] = 'bookworm';

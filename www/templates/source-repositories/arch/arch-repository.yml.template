@@ -1,0 +1,61 @@
+# This is a template to build a list of arch (Arch Linux / pacman) repositories to import
+# Arch Linux source repositories can only be used by mirrors
+# Check out others YAML files in the same directory to see real examples
+---
+# Quick description that describe this list of repositories
+# This description is what will be displayed in the UI when selecting the list of repositories to import
+# e.g. Arch Linux official repositories
+description:
+type: arch
+repositories:
+    # Name of the source repository
+    # Must be unique to avoid conflicts and overwriting other repositories
+    # e.g. archlinux
+  - name:
+    # Type of package repository
+    type: arch
+    # Quick description of the source repository
+    # e.g. Arch Linux official repositories
+    description:
+    # URL of the repository, as the 'Server' line of a pacman mirrorlist
+    # $repo is replaced by each repository name, $arch by each architecture
+    # The URL must contain the <repo>.db database
+    # e.g. https://geo.mirror.pkgbuild.com/$repo/os/$arch
+    url:
+    # List of repositories available
+    repos:
+        # The name of the repository, as in pacman.conf (e.g. [core])
+        # e.g. core
+      - name:
+        # Description of the repository
+        # e.g. Arch Linux core
+        description:
+    # List of architectures available
+    archs:
+        # e.g. x86_64
+      - name:
+    # The GPG keys used to sign the repository database, if the repository signs it (most do not, packages are signed instead)
+    # It can be a list of fingerprints or http(s) links to the GPG key
+    # /!\ Remove this section if the repository database is not signed
+    gpgkeys:
+        # The fingerprint of the GPG key
+      - fingerprint:
+        # The URL to the GPG key
+      - link:
+    # If the repository is protected by SSL authentication, you can provide the certificate, private key and CA certificate
+    # /!\ Remove this section if the repository is not protected by SSL authentication
+    ssl-authentication:
+      # The certificate used to authenticate the repository, plain text format
+      certificate: |
+        -----BEGIN CERTIFICATE-----
+      # The private key used to authenticate the repository, plain text format
+      private-key: |
+        -----BEGIN PRIVATE KEY-----
+      # The CA certificate used to authenticate the repository, plain text format
+      ca-certificate: |
+        -----BEGIN CERTIFICATE-----
+    # If the repository is protected by HTTP basic authentication, you can provide the username and password
+    # /!\ Remove this section if the repository is not protected by basic authentication
+    basic-authentication:
+      username:
+      password:

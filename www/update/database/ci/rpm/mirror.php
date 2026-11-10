@@ -4,7 +4,7 @@
  */
 $rawParams['action'] = 'create';
 $rawParams['package-type'] = 'rpm';
-$rawParams['repo-type'] = 'mirror';
+$rawParams['repo-type'] = 'curated';
 $rawParams['source'] = 'centos-extras-common';
 $rawParams['alias'] = 'centos-extras-common';
 $rawParams['releasever'] = '9';

@@ -3,6 +3,7 @@
 namespace Controllers\Host;
 
 use Exception;
+use Controllers\Utils\Validate;
 
 class Registering extends Host
 {
@@ -13,6 +14,19 @@ class Registering extends Host
     {
         if (empty($ip) or empty($hostname)) {
             throw new Exception('You must provide IP address and hostname');
+        }
+
+        $ip = trim($ip);
+        $hostname = trim($hostname);
+
+        // Check that the IP address is valid
+        if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
+            throw new Exception('Invalid IP address');
+        }
+
+        // Check that the hostname only contains valid characters (letters, numbers, hyphens, underscores and dots)
+        if (!Validate::alphaNumericHyphen($hostname, ['.'])) {
+            throw new Exception('Invalid hostname');
         }
 
         // Check if the hostname already exists in the database
@@ -36,10 +50,11 @@ class Registering extends Host
         }
 
         // Generate a new token for this host
-        $token = bin2hex(openssl_random_pseudo_bytes(16));
+        $token = bin2hex(random_bytes(16));
 
         // Add the host in database
-        $this->add($ip, $hostname, $authId, $token, 'unknown', date('Y-m-d'), date('H:i:s'));
+        // Only the hash of the token is stored, the clear token is only returned to the host
+        $this->add($ip, $hostname, $authId, self::hashToken($token), 'unknown', date('Y-m-d'), date('H:i:s'));
 
         // Retrieve the Id of the host added in the database
         $id = $this->getLastInsertRowID();

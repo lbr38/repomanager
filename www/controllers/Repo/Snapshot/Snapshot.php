@@ -114,11 +114,11 @@ class Snapshot
     }
 
     /**
-     *  Update snapshot status in the database
+     *  Delete a snapshot and its environments from the database
      */
-    public function updateStatus(int $snapId, string $status): void
+    public function delete(int $snapId): void
     {
-        $this->model->updateStatus($snapId, $status);
+        $this->model->delete($snapId);
     }
 
     /**
@@ -161,21 +161,48 @@ class Snapshot
     }
 
     /**
+     *  Return the protected environments pointing to the snapshot
+     */
+    public function getProtectedEnvs(int $snapId): array
+    {
+        $envs = (new \Controllers\Repo\Environment())->getBySnapId($snapId);
+
+        return array_values(array_intersect($envs, (new \Controllers\Environment())->getProtected()));
+    }
+
+    /**
      *  Return true if the snapshot has a protected environment
      */
     public function hasProtectedEnv(int $snapId): bool
     {
-        $envController = new \Controllers\Environment();
-        $repoEnvController = new \Controllers\Repo\Environment();
+        return !empty($this->getProtectedEnvs($snapId));
+    }
 
-        // Get the list of environments associated with the snapshot and check if any of them is protected
-        foreach ($repoEnvController->getBySnapId($snapId) as $env) {
-            if ($envController->isProtected($env)) {
-                return true;
-            }
+    /**
+     *  Return the Id of the snapshot of the current day of the repository, if it is not the specified snapshot
+     *  An update always applies to the latest snapshot of the repository and there is only one snapshot per day:
+     *  updating another snapshot of the repository would replace the snapshot of the current day
+     */
+    public function getOtherTodaySnapId(int $repoId, int $snapId): int|null
+    {
+        $latestSnapId = (new Repo())->getLatestSnapId($repoId);
+
+        if (empty($latestSnapId) or $latestSnapId == $snapId or $this->getDateById($latestSnapId) != date('Y-m-d')) {
+            return null;
         }
 
-        return false;
+        return $latestSnapId;
+    }
+
+    /**
+     *  Return true if the repository has a snapshot of the current day
+     *  A local repository update creates a new snapshot of the current day and cannot replace an existing one
+     */
+    public function hasTodaySnapshot(int $repoId): bool
+    {
+        $latestSnapId = (new Repo())->getLatestSnapId($repoId);
+
+        return !empty($latestSnapId) and $this->getDateById($latestSnapId) == date('Y-m-d');
     }
 
     /**
@@ -204,8 +231,16 @@ class Snapshot
             $repoReleasever = $repoController->getReleasever();
         }
 
+        // Repository retention, or global retention if not set
+        $retention = Retention::get($repoController->getRetention());
+
+        // All unused snapshots must be kept
+        if ($retention === null) {
+            return 'Retention is set to keep all snapshots';
+        }
+
         // Get the list of unused snapshots for this repository
-        $unusedSnapshots = $this->getUnused($repoId, RETENTION);
+        $unusedSnapshots = $this->getUnused($repoId, $retention);
 
         // Process each snapshots
         foreach ($unusedSnapshots as $unusedSnapshot) {
@@ -270,8 +305,8 @@ class Snapshot
                 $removedSnaps[] = '<span class="label-white">' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</span>⸺<span class="label-black">' . $snapDateFormatted . '</span> snapshot has been deleted';
             }
 
-            // Change the status in the database
-            $this->updateStatus($snapId, 'deleted');
+            // Delete the snapshot and its environments from the database
+            $this->delete($snapId);
 
             // Delete any scheduled tasks that were using this snapshot
             try {
@@ -280,6 +315,9 @@ class Snapshot
                 $removedSnapsError[] = 'Error while deleting scheduled tasks using snapshot <span class="label-white">' . $repoName . '</span>⸺<span class="label-black">' . $snapDateFormatted . '</span>: ' . $e->getMessage();
             }
         }
+
+        // Delete the repository from the database if it has no snapshot left
+        $repoController->deleteIfEmpty($repoId);
 
         // Merge the two arrays containing deletion or error messages
         if (!empty($removedSnapsError)) {

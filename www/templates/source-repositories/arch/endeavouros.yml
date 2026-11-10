@@ -1,0 +1,14 @@
+---
+description: EndeavourOS repository
+type: arch
+repositories:
+  # EndeavourOS repository, from one of the mirrors of the EndeavourOS mirrorlist
+  - name: endeavouros
+    type: arch
+    description: EndeavourOS repository
+    url: https://mirror.alpix.eu/endeavouros/repo/$repo/$arch
+    repos:
+      - name: endeavouros
+        description: EndeavourOS
+    archs:
+      - name: x86_64

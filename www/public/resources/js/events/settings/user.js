@@ -127,7 +127,17 @@ $(document).on('submit','#user-permissions-form',function () {
 
     const id = $(this).attr('user-id');
     var reposView = $(this).find('#user-permissions-repos-view').val();
-    var reposActions = $(this).find('#user-permissions-repos-actions').val();
+    var selectedActions = $(this).find('#user-permissions-repos-actions').val() || [];
+
+    // Repositories and mirrors actions share the same selector, mirrors actions are prefixed with 'mirror-'
+    var reposActions = selectedActions.filter(function (action) {
+        return !action.startsWith('mirror-');
+    });
+    var mirrorsActions = selectedActions.filter(function (action) {
+        return action.startsWith('mirror-');
+    }).map(function (action) {
+        return action.substring('mirror-'.length);
+    });
     var tasksActions = $(this).find('#user-permissions-tasks-actions').val();
     var hostsActions = $(this).find('#user-permissions-hosts-actions').val();
 
@@ -139,6 +149,11 @@ $(document).on('submit','#user-permissions-form',function () {
     // If no repos actions are selected, set to empty array
     if (empty(reposActions)) {
         reposActions = [''];
+    }
+
+    // If no mirrors actions are selected, set to empty array
+    if (empty(mirrorsActions)) {
+        mirrorsActions = [''];
     }
 
     // If no tasks actions are selected, set to empty array
@@ -161,6 +176,7 @@ $(document).on('submit','#user-permissions-form',function () {
             id: id,
             reposView: reposView,
             reposActions: reposActions,
+            mirrorsActions: mirrorsActions,
             tasksActions: tasksActions,
             hostsActions: hostsActions
         },
