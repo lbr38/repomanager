@@ -1,5 +1,3 @@
-## :material-help-circle: Repository types
-
 When creating a new repository from the **REPOSITORIES** tab, you must choose between three repository types:
 
 | | Curated repository | Local repository | Mirror |

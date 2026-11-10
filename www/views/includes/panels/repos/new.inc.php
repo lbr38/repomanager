@@ -23,7 +23,7 @@
 
         <div class="flex align-item-center column-gap-5 margin-top-20">
             <h6 class="required margin-top-0">REPOSITORY TYPE</h6>
-            <a href="https://docs.repomanager.net/usage/operations/#repository-types" target="_blank" rel="noopener noreferrer" title="Curated, local and mirror repositories: see documentation">
+            <a href="https://docs.repomanager.net/latest/usage/repository-types/" target="_blank" rel="noopener noreferrer" title="Curated, local and mirror repositories: see documentation">
                 <img src="/assets/icons/question.svg" class="icon-small icon-lowopacity" />
             </a>
         </div>
