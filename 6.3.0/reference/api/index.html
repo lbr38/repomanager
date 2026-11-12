@@ -2324,7 +2324,7 @@
 <tr>
 <td><code>PUT /hosts/me/status</code></td>
 <td>Host</td>
-<td>Send the host general information: <code>hostname</code>, <code>os</code>, <code>os_version</code>, <code>os_family</code>, <code>type</code>, <code>cpu</code>, <code>ram</code>, <code>network</code>, <code>kernel</code>, <code>arch</code>, <code>profile</code>, <code>env</code>, <code>agent_status</code>, <code>agent_version</code>, <code>reboot_required</code>, <code>uptime</code>. Returns the updated values in <code>data.updated</code></td>
+<td>Send the host general information: <code>hostname</code>, <code>os</code>, <code>os_version</code>, <code>os_family</code>, <code>type</code>, <code>cpu</code>, <code>ram</code>, <code>network</code>, <code>kernel</code>, <code>arch</code>, <code>profile</code>, <code>env</code>, <code>agent_status</code>, <code>agent_version</code>, <code>reboot_required</code>, <code>uptime</code>, <code>public_ip</code>, <code>behind_nat</code>. If <code>network</code> contains all the addresses of each interface (<code>addresses</code>) and the main interface (<code>main</code>), the registered IP is replaced by the main IP when the host no longer owns it. <code>public_ip</code> is cleared when the host does not send it and is not declared <code>behind_nat</code>. Returns the updated values in <code>data.updated</code></td>
 </tr>
 <tr>
 <td><code>PUT /hosts/me/packages/installed</code></td>
