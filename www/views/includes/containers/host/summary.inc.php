@@ -43,6 +43,15 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
             <p class="mediumopacity-cst copy"><?= $ip ?></p>
         </div>
 
+        <?php
+        if (!empty($publicIp)) : ?>
+            <div>
+                <h6 class="margin-top-0">PUBLIC IP</h6>
+                <p class="mediumopacity-cst copy"><?= htmlspecialchars($publicIp) ?></p>
+            </div>
+            <?php
+        endif ?>
+
         <div>
             <h6 class="margin-top-0">NET. INTERFACES</h6>
             <div class="flex flex-wrap align-item-center column-gap-5 row-gap-5 margin-top-5">
@@ -60,11 +69,19 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
                         $interface = htmlspecialchars($interface);
 
                         // Properties to print in the tooltip (values are already escaped when stored)
-                        $tooltip = array_filter([
-                            'IPv4' => $properties['ipv4'] ?? '',
-                            'IPv6' => $properties['ipv6'] ?? '',
-                            'MAC' => $properties['mac'] ?? ''
-                        ]); ?>
+                        // All the addresses of the interface if sent by the host, otherwise its first IPv4 and IPv6
+                        if (!empty($properties['addresses']) and is_array($properties['addresses'])) {
+                            $tooltip = [];
+
+                            foreach ($properties['addresses'] as $address) {
+                                $tooltip[] = [str_contains($address, ':') ? 'IPv6' : 'IPv4', $address];
+                            }
+                        } else {
+                            $tooltip = [['IPv4', $properties['ipv4'] ?? ''], ['IPv6', $properties['ipv6'] ?? '']];
+                        }
+
+                        $tooltip[] = ['MAC', $properties['mac'] ?? ''];
+                        $tooltip = array_filter($tooltip, fn ($property) => $property[1] !== ''); ?>
 
                         <span class="label-white<?= $count > $maxInterfaces ? ' host-network-interface-hidden hide' : '' ?>" data-tooltip-template>
                             <?= $interface ?>
@@ -74,7 +91,7 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
                                 if (!empty($tooltip)) : ?>
                                     <div class="tooltip-properties">
                                         <?php
-                                        foreach ($tooltip as $label => $value) : ?>
+                                        foreach ($tooltip as [$label, $value]) : ?>
                                             <span class="tooltip-property-label"><?= $label ?></span>
                                             <span class="tooltip-property-value copy"><?= $value ?></span>
                                             <?php

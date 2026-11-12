@@ -404,7 +404,7 @@ curl --fail-with-body -L -s -X GET -H "Authorization: Bearer <APIKEY>" \
 |---|---|---|
 | ``POST /hosts`` | API key | Register a host. Parameters: ``ip``, ``hostname``. Returns the ``id`` and ``token`` the host must authenticate with (``data.id``, ``data.token``) |
 | ``DELETE /hosts/me`` | Host | Unregister the authenticated host |
-| ``PUT /hosts/me/status`` | Host | Send the host general information: ``hostname``, ``os``, ``os_version``, ``os_family``, ``type``, ``cpu``, ``ram``, ``network``, ``kernel``, ``arch``, ``profile``, ``env``, ``agent_status``, ``agent_version``, ``reboot_required``, ``uptime``. Returns the updated values in ``data.updated`` |
+| ``PUT /hosts/me/status`` | Host | Send the host general information: ``hostname``, ``os``, ``os_version``, ``os_family``, ``type``, ``cpu``, ``ram``, ``network``, ``kernel``, ``arch``, ``profile``, ``env``, ``agent_status``, ``agent_version``, ``reboot_required``, ``uptime``, ``public_ip``, ``behind_nat``. If ``network`` contains all the addresses of each interface (``addresses``) and the main interface (``main``), the registered IP is replaced by the main IP when the host no longer owns it. ``public_ip`` is cleared when the host does not send it and is not declared ``behind_nat``. Returns the updated values in ``data.updated`` |
 | ``PUT /hosts/me/packages/installed`` | Host | Send the installed packages. Parameter: ``installed_packages`` |
 | ``PUT /hosts/me/packages/available`` | Host | Send the available updates. Parameter: ``available_packages`` |
 | ``PUT /hosts/me/packages/events`` | Host | Send the packages events history. Parameter: ``events`` |

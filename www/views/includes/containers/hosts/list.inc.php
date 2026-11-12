@@ -193,6 +193,7 @@ use \Controllers\Host\Package\Package; ?>
                                         if (!empty($host['Ip'])) {
                                             $ip = $host['Ip'];
                                         }
+                                        $publicIp = htmlspecialchars($host['Public_ip'] ?? '');
                                         if (!empty($host['Os'])) {
                                             $os = $host['Os'];
                                         }
@@ -276,6 +277,11 @@ use \Controllers\Host\Package\Package; ?>
                                                                     </a>
                                                                 </p>
                                                                 <p class="font-size-12 mediumopacity-cst copy" title="IP address"><?= $ip ?></p>
+                                                                <?php
+                                                                if (!empty($publicIp)) : ?>
+                                                                    <p class="font-size-12 mediumopacity-cst copy" title="Public IP address"><?= $publicIp ?></p>
+                                                                    <?php
+                                                                endif ?>
                                                             </div>
                                                         </div>
 
@@ -329,7 +335,12 @@ use \Controllers\Host\Package\Package; ?>
                                                                     <b><?= $hostname ?></b>
                                                                 </a>
                                                             </p>
-                                                            <p class="font-size-12 mediumopacity-cst copy"><?= $ip ?></p>
+                                                            <p class="font-size-12 mediumopacity-cst copy" title="IP address"><?= $ip ?></p>
+                                                            <?php
+                                                            if (!empty($publicIp)) : ?>
+                                                                <p class="font-size-12 mediumopacity-cst copy" title="Public IP address"><?= $publicIp ?></p>
+                                                                <?php
+                                                            endif ?>
                                                         </div>
                                                     </div>
 

@@ -129,13 +129,13 @@ class Create
 
         // Add history
         if ($formParams['package-type'] == 'rpm') {
-            History::set('Running task: New repository <span class="label-white">' . $targetName . '</span> (' . $formParams['repo-type'] . ')');
+            History::task('New repository <span class="label-white">' . $targetName . '</span> (' . $formParams['repo-type'] . ')', $formParams);
         }
 
         if ($formParams['package-type'] == 'deb') {
             foreach ($formParams['dist'] as $distribution) {
                 foreach ($formParams['section'] as $section) {
-                    History::set('Running task: New repository <span class="label-white">' . $targetName . ' ❯ ' . $distribution . ' ❯ ' . $section . '</span> (' . $formParams['repo-type'] . ')');
+                    History::task('New repository <span class="label-white">' . $targetName . ' ❯ ' . $distribution . ' ❯ ' . $section . '</span> (' . $formParams['repo-type'] . ')', $formParams);
                 }
             }
         }

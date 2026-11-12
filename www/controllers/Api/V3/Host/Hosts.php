@@ -200,7 +200,7 @@ class Hosts extends Controller
 
         foreach ($hosts as $host) {
             // Keep the data that are not host properties
-            $matches[$host['Id']] = array_diff_key($host, array_flip(['Id', 'Hostname', 'Ip', 'Os', 'Os_version', 'Os_family', 'Kernel', 'Arch', 'Type', 'Profile', 'Env']));
+            $matches[$host['Id']] = array_diff_key($host, array_flip(['Id', 'Hostname', 'Ip', 'Public_ip', 'Os', 'Os_version', 'Os_family', 'Kernel', 'Arch', 'Type', 'Profile', 'Env']));
         }
 
         return $matches;

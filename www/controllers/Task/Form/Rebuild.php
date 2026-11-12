@@ -41,10 +41,10 @@ class Rebuild
 
         // Add history
         if ($repoController->getPackageType() == 'rpm') {
-            History::set('Running task: rebuild repository metadata files of ' . Label::white($repoController->getName()) . '⸺' . Label::white($repoController->getDateFormatted()));
+            History::task('rebuild repository metadata files of ' . Label::white($repoController->getName()) . '⸺' . Label::white($repoController->getDateFormatted()), $formParams);
         }
         if ($repoController->getPackageType() == 'deb') {
-            History::set('Running task: rebuild repository metadata files of ' . Label::white($repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection()) . '⸺' . Label::white($repoController->getDateFormatted()));
+            History::task('rebuild repository metadata files of ' . Label::white($repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection()) . '⸺' . Label::white($repoController->getDateFormatted()), $formParams);
         }
 
         unset($repoController);

@@ -4,6 +4,7 @@ namespace Controllers\Repo\Edit;
 
 use Exception;
 use Controllers\History\Save as History;
+use Controllers\History\Details;
 use Controllers\Repo\Repo;
 use Controllers\Repo\Snapshot\Retention;
 use Controllers\User\Permission\Repo as RepoPermission;
@@ -82,6 +83,31 @@ class Form
         $repoController = $this->getRepo($params['repo-id'] ?? null);
         $repoId = $repoController->getRepoId();
 
+        // Values before and after the edition, for history
+        $before = [
+            'description' => $repoController->getDescription(),
+            'tags'        => $repoController->getTags(),
+            'source'      => $repoController->getSource(),
+            'retention'   => Retention::describe($repoController->getRetention())
+        ];
+        $after = [];
+
+        if (isset($params['description'])) {
+            $after['description'] = $params['description'];
+        }
+
+        if (isset($params['tags'])) {
+            $after['tags'] = Repo::cleanTags($params['tags']);
+        }
+
+        if (isset($params['source'])) {
+            $after['source'] = $params['source'];
+        }
+
+        if (self::hasRetention($params)) {
+            $after['retention'] = Retention::describe(Retention::fromInput($params['retention'] ?? null, $params['retention-keep-all'] ?? 'false'));
+        }
+
         if (isset($params['description'])) {
             $repoController->updateDescription($repoId, $params['description']);
         }
@@ -99,7 +125,11 @@ class Form
         }
 
         // Add history
-        History::set('Editing <span class="label-white">' . htmlspecialchars($repoController->getLabel()) . '</span> repository properties (' . $repoController->getType() . ')');
+        History::set(
+            'Editing <span class="label-white">' . htmlspecialchars($repoController->getLabel()) . '</span> repository properties (' . $repoController->getType() . ')',
+            category: 'repository',
+            changes: Details::diff($before, $after, ['source' => 'Source repository', 'retention' => 'Snapshots retention'])
+        );
 
         // Reload repositories list
         (new \Controllers\Layout\ContainerReload())->reload('repos/list');

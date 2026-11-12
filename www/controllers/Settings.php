@@ -457,10 +457,20 @@ class Settings
             $settingsToApply['OIDC_CERT_PATH'] = '';
         }
 
+        // Current settings, for history
+        $before = $this->model->get();
+
         /**
          *  Write settings to database
          */
         $this->model->apply($settingsToApply);
+
+        // Add history, only if some settings have been changed (secrets values are never stored)
+        $changes = \Controllers\History\Details::diff($before, $settingsToApply, secrets: ['OIDC_CLIENT_SECRET']);
+
+        if (!empty($changes)) {
+            \Controllers\History\Save::set('Settings edited', category: 'settings', changes: $changes);
+        }
     }
 
     /**

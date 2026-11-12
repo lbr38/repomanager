@@ -11,6 +11,7 @@ use Controllers\Utils\Validate;
 use Controllers\Repo\Listing as RepoListing;
 use Controllers\Repo\Environment as RepoEnvironment;
 use Controllers\History\Save as History;
+use Controllers\History\Details;
 use Controllers\Task\Scheduled as ScheduledTask;
 use Controllers\User\Permission\Repo as RepoPermission;
 
@@ -232,7 +233,7 @@ class Form
             Param\GpgCheck::check($taskParams['gpg-check'] ?? 'false');
         }
 
-        History::set('Scheduling task: ' . $taskParams['action'] . ' on <span class="label-white">' . Target::describe($taskParams['target']) . '</span>');
+        History::set('Scheduling task: ' . $taskParams['action'] . ' on <span class="label-white">' . Target::describe($taskParams['target']) . '</span>', category: 'repository', params: Details::task($taskParams));
 
         return $taskParams;
     }

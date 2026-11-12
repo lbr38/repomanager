@@ -811,7 +811,7 @@ class Task
             $this->layoutContainerReloadController->reload('tasks/log');
 
             // Save history
-            History::set('Stopped task #' . $taskId);
+            History::set('Stopped task #' . $taskId, category: 'task');
 
             return;
         }
@@ -845,7 +845,7 @@ class Task
             $this->layoutContainerReloadController->reload('tasks/log');
 
             // Save history
-            History::set('Stopped task #' . $taskId);
+            History::set('Stopped task #' . $taskId, category: 'task');
 
             return;
         }
@@ -881,7 +881,7 @@ class Task
         $this->layoutContainerReloadController->reload('tasks/log');
 
         // Save history
-        History::set('Stopped task #' . $taskId);
+        History::set('Stopped task #' . $taskId, category: 'task');
 
         if (!empty($killError)) {
             throw new Exception($killError);

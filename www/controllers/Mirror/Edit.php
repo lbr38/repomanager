@@ -6,6 +6,7 @@ use Exception;
 use Controllers\Repo\Repo;
 use Controllers\Repo\Snapshot\Retention;
 use Controllers\History\Save as History;
+use Controllers\History\Details;
 use Controllers\User\Permission\Repo as RepoPermission;
 use Controllers\User\Permission\Mirror as MirrorPermission;
 
@@ -67,6 +68,26 @@ class Edit
         $mirror = $this->getMirror($params['mirror-id'] ?? null);
         $mirrorId = (int) $mirror['Id'];
 
+        // Values before and after the edition, for history
+        $before = [
+            'description' => $mirror['Description'] ?? '',
+            'tags'        => array_filter(explode(',', $mirror['Tags'] ?? '')),
+            'retention'   => Retention::describe(isset($mirror['Retention']) ? (int) $mirror['Retention'] : null)
+        ];
+        $after = [];
+
+        if (isset($params['description'])) {
+            $after['description'] = $params['description'];
+        }
+
+        if (isset($params['tags'])) {
+            $after['tags'] = Repo::cleanTags($params['tags']);
+        }
+
+        if (self::hasRetention($params)) {
+            $after['retention'] = Retention::describe(Retention::fromInput($params['retention'] ?? null, $params['retention-keep-all'] ?? 'false'));
+        }
+
         if (isset($params['description'])) {
             $mirrorController->updateDescription($mirrorId, $params['description']);
         }
@@ -79,7 +100,11 @@ class Edit
             $mirrorController->updateRetention($mirrorId, Retention::fromInput($params['retention'] ?? null, $params['retention-keep-all'] ?? 'false'));
         }
 
-        History::set('Editing <span class="label-white">' . htmlspecialchars(Mirror::getLabel($mirror['Name'], $mirror['Releasever'])) . '</span> mirror properties');
+        History::set(
+            'Editing <span class="label-white">' . htmlspecialchars(Mirror::getLabel($mirror['Name'], $mirror['Releasever'])) . '</span> mirror properties',
+            category: 'mirror',
+            changes: Details::diff($before, $after, ['retention' => 'Snapshots retention'])
+        );
 
         // Mirrors are listed with repositories
         (new \Controllers\Layout\ContainerReload())->reload('repos/list');

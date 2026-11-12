@@ -56,6 +56,6 @@ class Delete extends User
          */
         $this->model->delete($id);
 
-        History::set('Deleted user <code>' . $username . '</code>');
+        History::set('Deleted user <code>' . $username . '</code>', category: 'user');
     }
 }

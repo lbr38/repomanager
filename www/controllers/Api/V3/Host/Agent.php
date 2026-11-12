@@ -50,7 +50,7 @@ class Agent extends Controller
     /**
      *  Update the general information and status of the authenticated host
      *  Accepted values: hostname, os, os_version, os_family, type, cpu, ram, network, kernel, arch, profile, env,
-     *  agent_status, agent_version, reboot_required, uptime
+     *  agent_status, agent_version, reboot_required, uptime, public_ip, behind_nat
      */
     public function status(): Response
     {

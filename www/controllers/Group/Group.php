@@ -7,6 +7,7 @@ use Controllers\Repo\Repo;
 use Controllers\Host\Host;
 use Controllers\Utils\Validate;
 use Controllers\History\Save as History;
+use Controllers\History\Details;
 use Controllers\User\Permission\Repo as RepoPermission;
 use Controllers\User\Permission\Host as HostPermission;
 
@@ -107,11 +108,11 @@ class Group
         $this->model->add($name);
 
         if ($this->type == 'repo') {
-            History::set('Create <code>' . $name . '</code> repository group ');
+            History::set('Create <code>' . $name . '</code> repository group', category: 'group');
         }
 
         if ($this->type == 'host') {
-            History::set('Create <code>' . $name . '</code> host group');
+            History::set('Create <code>' . $name . '</code> host group', category: 'group');
         }
     }
 
@@ -131,6 +132,9 @@ class Group
         if (!Validate::alphaNumericHyphen($name, ['.', ' '])) {
             throw new Exception('Group name ' . $name . ' contains invalid characters');
         }
+
+        // Current name and members, for history
+        $before = ['name' => $this->getNameById($id), 'members' => $this->membersLabels($id)];
 
         // Edit group name
         $this->updateName($id, $name);
@@ -162,15 +166,61 @@ class Group
             $hostController->addHostsIdToGroup($id, $data);
         }
 
+        // Add history, with the changes of name and members
+        $changes = Details::diff($before, ['name' => $name, 'members' => $this->membersLabels($id)], [
+            'name'    => 'Name',
+            'members' => $this->type == 'repo' ? 'Repositories' : 'Hosts'
+        ]);
+
         if ($this->type == 'repo') {
-            History::set('Repository group <code>' . $name . '</code> edited');
+            History::set('Repository group <code>' . $name . '</code> edited', category: 'group', changes: $changes);
         }
 
         if ($this->type == 'host') {
-            History::set('Host group <code>' . $name . '</code> edited');
+            History::set('Host group <code>' . $name . '</code> edited', category: 'group', changes: $changes);
         }
 
         unset($repoController, $hostController, $mirrorController);
+    }
+
+    /**
+     *  Return the labels of the members of a group (repositories and mirrors, or hosts), for history
+     */
+    private function membersLabels(int $id): array
+    {
+        $labels = [];
+
+        if ($this->type == 'host') {
+            foreach ($this->getHostsMembers($id) as $host) {
+                $labels[] = $host['Hostname'];
+            }
+
+            return $labels;
+        }
+
+        foreach ($this->getReposMembers($id) as $repo) {
+            if ($repo['Package_type'] == 'deb') {
+                $labels[] = $repo['Name'] . ' ❯ ' . $repo['Dist'] . ' ❯ ' . $repo['Section'];
+            } else {
+                $labels[] = $repo['Name'] . ' ❯ ' . $repo['Releasever'];
+            }
+        }
+
+        $mirrorController = new \Controllers\Mirror\Mirror();
+
+        foreach ($mirrorController->getGroupsIds() as $mirrorId => $groupId) {
+            if ($groupId != $id) {
+                continue;
+            }
+
+            $mirror = $mirrorController->getById((int) $mirrorId);
+
+            if (!empty($mirror)) {
+                $labels[] = 'mirror ' . \Controllers\Mirror\Mirror::getLabel($mirror['Name'], $mirror['Releasever'] ?? '');
+            }
+        }
+
+        return $labels;
     }
 
     /**
@@ -198,11 +248,11 @@ class Group
             }
 
             if ($this->type == 'repo') {
-                History::set('Delete repository group <code>' . $name . '</code>');
+                History::set('Delete repository group <code>' . $name . '</code>', category: 'group');
             }
 
             if ($this->type == 'host') {
-                History::set('Delete host group <code>' . $name . '</code>');
+                History::set('Delete host group <code>' . $name . '</code>', category: 'group');
             }
         }
     }

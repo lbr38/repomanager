@@ -234,10 +234,71 @@ class Permission extends \Controllers\User\User
             throw new Exception('Error encoding permissions: ' . $e->getMessage());
         }
 
+        // Permissions before the change, for history
+        $before = $this->get($id);
+
         /**
          *  Set permissions in database
          */
         $this->permissionModel->set($id, $permissions);
+
+        $changes = \Controllers\History\Details::diff($this->historyPermissions($before), $this->historyPermissions(json_decode($permissions, true)), [
+            'view'    => 'Visible repositories',
+            'repos'   => 'Repositories actions',
+            'mirrors' => 'Mirrors actions',
+            'tasks'   => 'Tasks actions',
+            'hosts'   => 'Hosts actions'
+        ]);
+
+        if (!empty($changes)) {
+            \Controllers\History\Save::set('Edited permissions of user <code>' . $this->getUsernameById($id) . '</code>', category: 'user', changes: $changes);
+        }
+    }
+
+    /**
+     *  Return user permissions as they are displayed in the history: visible repositories (by name) and allowed actions
+     */
+    private function historyPermissions(array $permissions): array
+    {
+        $view = [];
+        $viewPermissions = $permissions['repositories']['view'] ?? [];
+
+        if (in_array('all', $viewPermissions, true)) {
+            $view[] = 'All repositories';
+        } else {
+            foreach (array_unique($viewPermissions['groups'] ?? []) as $groupId) {
+                try {
+                    $view[] = 'group ' . (new \Controllers\Group\Repo())->getNameById((int) $groupId);
+                } catch (Exception $e) {
+                    $view[] = 'group #' . $groupId;
+                }
+            }
+
+            foreach (array_unique($viewPermissions['repos'] ?? []) as $repoId) {
+                $repoController = new \Controllers\Repo\Repo();
+
+                if (!$repoController->existsId((string) $repoId)) {
+                    $view[] = 'repository #' . $repoId;
+                    continue;
+                }
+
+                $repoController->getAllById((int) $repoId);
+                $view[] = $repoController->getLabel();
+            }
+
+            foreach (array_unique($viewPermissions['mirrors'] ?? []) as $mirrorId) {
+                $mirror = (new \Controllers\Mirror\Mirror())->getById((int) $mirrorId);
+                $view[] = !empty($mirror) ? 'mirror ' . \Controllers\Mirror\Mirror::getLabel($mirror['Name'], $mirror['Releasever'] ?? '') : 'mirror #' . $mirrorId;
+            }
+        }
+
+        return [
+            'view'    => $view,
+            'repos'   => array_values(array_unique($permissions['repositories']['allowed-actions'] ?? [])),
+            'mirrors' => array_values(array_unique($permissions['mirrors']['allowed-actions'] ?? [])),
+            'tasks'   => array_values(array_unique($permissions['tasks']['allowed-actions'] ?? [])),
+            'hosts'   => array_values(array_unique($permissions['hosts']['allowed-actions'] ?? []))
+        ];
     }
 
     /**

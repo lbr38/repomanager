@@ -234,15 +234,15 @@ class Gpg
         /**
          *  If file exists but is empty, delete it
          */
-        if (file_exists(REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub') && filesize(REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub') == 0) {
-            unlink(REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub');
+        if (file_exists(REPOS_DIR . '/gpgkeys/repomanager.asc') && filesize(REPOS_DIR . '/gpgkeys/repomanager.asc') == 0) {
+            unlink(REPOS_DIR . '/gpgkeys/repomanager.asc');
         }
 
-        if (!file_exists(REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub') and !empty(GPG_SIGNING_KEYID)) {
+        if (!file_exists(REPOS_DIR . '/gpgkeys/repomanager.asc') and !empty(GPG_SIGNING_KEYID)) {
             $myprocess = new Process(
                 '/usr/bin/gpg2 --no-permission-warning --homedir ' . escapeshellarg(GPGHOME)
                 . ' --export -a ' . escapeshellarg(GPG_SIGNING_KEYID)
-                . ' > ' . escapeshellarg(REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub') . ' 2>/dev/null'
+                . ' > ' . escapeshellarg(REPOS_DIR . '/gpgkeys/repomanager.asc') . ' 2>/dev/null'
             );
             $myprocess->execute();
             $content = $myprocess->getOutput();
@@ -252,8 +252,8 @@ class Gpg
              *  If pubkey export failed, delete file
              */
             if ($myprocess->getExitCode() != 0) {
-                if (file_exists(REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub')) {
-                    unlink(REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub');
+                if (file_exists(REPOS_DIR . '/gpgkeys/repomanager.asc')) {
+                    unlink(REPOS_DIR . '/gpgkeys/repomanager.asc');
                 }
 
                 throw new Exception("GPG pubkey export failed: " . $content);

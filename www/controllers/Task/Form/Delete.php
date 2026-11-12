@@ -38,10 +38,10 @@ class Delete
 
         // Add history
         if ($repoController->getPackageType() == 'rpm') {
-            History::set('Running task: delete repository snapshot ' . Label::white($repoController->getName()) . '⸺' . Label::white($repoController->getDateFormatted()));
+            History::task('delete repository snapshot ' . Label::white($repoController->getName()) . '⸺' . Label::white($repoController->getDateFormatted()), $formParams);
         }
         if ($repoController->getPackageType() == 'deb') {
-            History::set('Running task: delete repository snapshot ' . Label::white($repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection()) . '⸺' . Label::white($repoController->getDateFormatted()));
+            History::task('delete repository snapshot ' . Label::white($repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection()) . '⸺' . Label::white($repoController->getDateFormatted()), $formParams);
         }
 
         unset($repoController, $repoSnaphotController);

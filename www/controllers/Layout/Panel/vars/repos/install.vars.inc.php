@@ -112,26 +112,26 @@ foreach ($repos as $repo) {
         <div class="legacy-format-container" snapshot-id="<?= $snapId ?>">
             <?php
             if ($signed == 'true') : ?>
-                <pre class="codeblock margin-top-10 margin-bottom-10 copy">curl -sS <?= $reposUrl ?>/gpgkeys/<?= WWW_HOSTNAME ?>.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/<?= WWW_HOSTNAME ?>.gpg</pre>
+                <pre class="codeblock margin-top-10 margin-bottom-10 copy">curl -sS <?= $reposUrl ?>/gpgkeys/repomanager.asc -o /etc/apt/trusted.gpg.d/<?= __SERVER_HOST__ ?>.asc</pre>
                 <?php
             endif ?>
-            <pre class="repository-install-commands codeblock margin-top-10 margin-bottom-10 copy" url="<?= $reposUrl ?>" hostname="<?= WWW_HOSTNAME ?>" prefix="<?= REPO_CONF_FILES_PREFIX ?>" package-type="deb" signed="<?= $signed ?>" name="<?= $repoController->getName() ?>" dist="<?= $repoController->getDist() ?>" component="<?= $repoController->getSection() ?>"></pre>
+            <pre class="repository-install-commands codeblock margin-top-10 margin-bottom-10 copy" url="<?= $reposUrl ?>" hostname="<?= __SERVER_HOST__ ?>" prefix="<?= REPO_CONF_FILES_PREFIX ?>" package-type="deb" signed="<?= $signed ?>" name="<?= $repoController->getName() ?>" dist="<?= $repoController->getDist() ?>" component="<?= $repoController->getSection() ?>"></pre>
         </div>
 
         <div class="deb822-format-container hide" snapshot-id="<?= $snapId ?>">
             <?php
             // The key is served ASCII-armored: it is kept as is, apt requires the .asc extension for ASCII-armored keys
             if ($signed == 'true') : ?>
-                <pre class="codeblock margin-top-10 margin-bottom-10 copy">curl -sS <?= $reposUrl ?>/gpgkeys/<?= WWW_HOSTNAME ?>.pub -o /etc/apt/keyrings/<?= WWW_HOSTNAME ?>.asc</pre>
+                <pre class="codeblock margin-top-10 margin-bottom-10 copy">curl -sS <?= $reposUrl ?>/gpgkeys/repomanager.asc -o /etc/apt/keyrings/<?= __SERVER_HOST__ ?>.asc</pre>
                 <?php
             endif ?>
-            <pre class="repository-install-commands codeblock margin-top-10 margin-bottom-10 copy" url="<?= $reposUrl ?>" hostname="<?= WWW_HOSTNAME ?>" prefix="<?= REPO_CONF_FILES_PREFIX ?>" package-type="deb-alt" signed="<?= $signed ?>" name="<?= $repoController->getName() ?>" dist="<?= $repoController->getDist() ?>" component="<?= $repoController->getSection() ?>"></pre>
+            <pre class="repository-install-commands codeblock margin-top-10 margin-bottom-10 copy" url="<?= $reposUrl ?>" hostname="<?= __SERVER_HOST__ ?>" prefix="<?= REPO_CONF_FILES_PREFIX ?>" package-type="deb-alt" signed="<?= $signed ?>" name="<?= $repoController->getName() ?>" dist="<?= $repoController->getDist() ?>" component="<?= $repoController->getSection() ?>"></pre>
         </div>
         <?php
     endif;
 
     if ($packageType == 'rpm') : ?>
-        <pre class="repository-install-commands codeblock margin-top-10 margin-bottom-10 copy" url="<?= $reposUrl ?>" hostname="<?= WWW_HOSTNAME ?>" prefix="<?= REPO_CONF_FILES_PREFIX ?>" package-type="rpm" signed="<?= $signed ?>" name="<?= $repoController->getName() ?>" releasever="<?= $repoController->getReleasever() ?>"></pre>
+        <pre class="repository-install-commands codeblock margin-top-10 margin-bottom-10 copy" url="<?= $reposUrl ?>" hostname="<?= __SERVER_HOST__ ?>" prefix="<?= REPO_CONF_FILES_PREFIX ?>" package-type="rpm" signed="<?= $signed ?>" name="<?= $repoController->getName() ?>" releasever="<?= $repoController->getReleasever() ?>"></pre>
         <?php
     endif; ?>
 

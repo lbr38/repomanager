@@ -68,7 +68,7 @@ class Login extends User
             ]);
 
             // Add history
-            History::set('Authentication (local account)');
+            History::set('Authentication (local account)', category: 'authentication');
 
             // If an 'origin' cookie exists then redirect the user to the specified URI (only a local path)
             if (!empty($_COOKIE['origin']) and self::localPath($_COOKIE['origin'])) {
@@ -84,7 +84,7 @@ class Login extends User
             exit();
         } catch (Exception $e) {
             // Add history
-            History::set('Authentication failed for <code>' . $username . '</code> (local account): ' . $e->getMessage(), 'error', $username);
+            History::set('Authentication failed for <code>' . $username . '</code> (local account): ' . $e->getMessage(), 'error', $username, category: 'authentication');
 
             if (isset($tooManyAttempts)) {
                 throw new Exception('Too many failed login attempts, please try again in ' . self::FAILED_LOGINS_PERIOD . ' minutes');
@@ -196,7 +196,7 @@ class Login extends User
             ]);
 
             // Add history
-            History::set('Authentication (SSO account)');
+            History::set('Authentication (SSO account)', category: 'authentication');
 
             // If an 'origin' cookie exists then redirect the user to the specified URI (only a local path)
             if (!empty($_COOKIE['origin']) and self::localPath($_COOKIE['origin'])) {
@@ -215,7 +215,7 @@ class Login extends User
              *  Add history
              *  Specify the username if it has been found
              */
-            History::set('Authentication failed (SSO account): ' . htmlspecialchars($e->getMessage()), 'error', $username ?? 'unknown');
+            History::set('Authentication failed (SSO account): ' . htmlspecialchars($e->getMessage()), 'error', $username ?? 'unknown', category: 'authentication');
 
             /**
              *  If debug mode is enabled, display error message and try to get verified claims and user info for debugging

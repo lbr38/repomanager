@@ -40,7 +40,8 @@
         'host'     => 'stats-hosts.css',
         'settings' => 'settings.css',
         'cves'     => 'cve.css',
-        'cve'      => 'cve.css'
+        'cve'      => 'cve.css',
+        'history'  => 'history.css'
     ];
 
     foreach ($additionalCss as $uri => $css) {

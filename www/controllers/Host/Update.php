@@ -31,6 +31,7 @@ class Update
             'cpu'             => ['updateCpu', 'CPU'],
             'ram'             => ['updateRam', 'RAM'],
             'network'         => ['updateNetwork', 'Network'],
+            'public_ip'       => ['updatePublicIp', 'Public IP'],
             'kernel'          => ['updateKernel', 'Kernel'],
             'arch'            => ['updateArch', 'Arch'],
             'profile'         => ['updateProfile', 'Profile'],
@@ -58,7 +59,69 @@ class Update
             $updated[$key] = $label;
         }
 
+        if (isset($updated['network'])) {
+            // Replace the registered IP by the host's main IP if the host does not own the registered IP anymore
+            try {
+                if ($this->updateIpFromNetwork($id, $data['network'])) {
+                    $updated['ip'] = 'IP';
+                }
+            } catch (Exception $e) {
+                throw new Exception('IP update has failed.');
+            }
+
+            // A host not declared as behind a NAT has no public IP (a host behind a NAT which could not retrieve it keeps the last known one)
+            if (empty($data['public_ip']) and ($data['behind_nat'] ?? '') !== 'true') {
+                $this->model->updatePublicIp($id, '');
+            }
+        }
+
         return $updated;
+    }
+
+    /**
+     *  Replace the registered IP of the host by its main IP when the registered IP is no longer one of its addresses
+     *  Return true if the IP has been replaced
+     */
+    private function updateIpFromNetwork(int $id, array $network): bool
+    {
+        $addresses = [];
+        $mainIp = '';
+
+        foreach ($network as $intData) {
+            // Only hosts sending all the addresses of their interfaces can be compared reliably
+            if (!is_array($intData) or !isset($intData['addresses']) or !is_array($intData['addresses'])) {
+                continue;
+            }
+
+            foreach ($intData['addresses'] as $address) {
+                // Remove the IPv6 zone index (e.g. fe80::1%eth0)
+                $address = is_string($address) ? explode('%', $address)[0] : '';
+
+                if (filter_var($address, FILTER_VALIDATE_IP) !== false) {
+                    $addresses[] = inet_pton($address);
+                }
+            }
+
+            if (!empty($intData['main']) and filter_var($intData['ipv4'] ?? '', FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) {
+                $mainIp = $intData['ipv4'];
+            }
+        }
+
+        // Without a main IP or the host addresses, there is nothing to compare or to replace with
+        if (empty($mainIp) or empty($addresses)) {
+            return false;
+        }
+
+        $registeredIp = (new \Controllers\Host\Host())->getIp($id);
+
+        // Keep the registered IP while the host still owns it
+        if (filter_var($registeredIp, FILTER_VALIDATE_IP) !== false and in_array(inet_pton($registeredIp), $addresses, true)) {
+            return false;
+        }
+
+        $this->model->updateIp($id, $mainIp);
+
+        return true;
     }
 
     /**
@@ -129,6 +192,11 @@ class Update
             $data[$int]['ipv4'] = Validate::string($intData['ipv4'] ?? '');
             $data[$int]['ipv6'] = Validate::string($intData['ipv6'] ?? '');
             $data[$int]['mac'] = Validate::string($intData['mac'] ?? '');
+
+            // All the addresses of the interface (only sent by recent linupdate versions)
+            if (isset($intData['addresses']) and is_array($intData['addresses'])) {
+                $data[$int]['addresses'] = array_map(fn ($address) => Validate::string($address), array_values($intData['addresses']));
+            }
         }
 
         // Encode to JSON for database storage
@@ -139,6 +207,20 @@ class Update
         }
 
         $this->model->updateNetwork($id, $data);
+    }
+
+    /**
+     *  Update host's public IP (sent by hosts behind a NAT) in database
+     */
+    public function updatePublicIp(int $id, string $ip) : void
+    {
+        $ip = trim($ip);
+
+        if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
+            throw new Exception('Public IP is invalid');
+        }
+
+        $this->model->updatePublicIp($id, $ip);
     }
 
     /**

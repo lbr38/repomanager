@@ -105,7 +105,7 @@ foreach ($mirrorSnapshotController->getSelection($item['snapshots'] ?? '') as $s
 
         $rpm = 'cat << EOF > /etc/yum.repos.d/' . $name . '.repo' . PHP_EOL;
         $rpm .= '[' . $name . '___ENV__]' . PHP_EOL;
-        $rpm .= 'name=' . $mirror['Name'] . ' mirror on ' . WWW_HOSTNAME . PHP_EOL;
+        $rpm .= 'name=' . $mirror['Name'] . ' mirror on ' . __SERVER_HOST__ . PHP_EOL;
         $rpm .= 'baseurl=' . str_replace('$basearch', '\$basearch', $baseurl) . PHP_EOL;
         $rpm .= 'enabled=1' . PHP_EOL;
         $rpm .= 'gpgcheck=1' . PHP_EOL;

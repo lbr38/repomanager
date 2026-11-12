@@ -7,7 +7,19 @@ use Exception;
 class History
 {
     protected $model;
-    private $username;
+
+    // Categories of the history lines, with their label and icon
+    public const CATEGORIES = [
+        'authentication' => ['label' => 'Authentication', 'icon' => 'key'],
+        'repository'     => ['label' => 'Repositories', 'icon' => 'package'],
+        'mirror'         => ['label' => 'Mirrors', 'icon' => 'cloud-download'],
+        'task'           => ['label' => 'Tasks', 'icon' => 'rocket'],
+        'group'          => ['label' => 'Groups', 'icon' => 'folder'],
+        'profile'        => ['label' => 'Host profiles', 'icon' => 'profile'],
+        'user'           => ['label' => 'Users', 'icon' => 'user'],
+        'settings'       => ['label' => 'Settings', 'icon' => 'cog'],
+        'other'          => ['label' => 'Other', 'icon' => 'info']
+    ];
 
     public function __construct()
     {
@@ -15,21 +27,20 @@ class History
     }
 
     /**
-     *  Retrieve all history
-     *  It is possible to add an offset to the request
+     *  Return history lines matching the specified filters, most recent first
+     *  Filters: user (Id), category, state, search
      */
-    public function getAll(bool $withOffset = false, int $offset = 0)
+    public function get(array $filters, int $limit, int $offset) : array
     {
-        return $this->model->getAll($withOffset, $offset);
+        return $this->model->get($filters, $limit, $offset);
     }
 
     /**
-     *  Retrieve all history from a user
-     *  It is possible to add an offset to the request
+     *  Return the number of history lines matching the specified filters
      */
-    public function getByUserId(int $id, bool $withOffset = false, int $offset = 0)
+    public function count(array $filters) : int
     {
-        return $this->model->getByUserId($id, $withOffset, $offset);
+        return $this->model->count($filters);
     }
 
     /**

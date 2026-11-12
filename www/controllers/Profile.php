@@ -5,6 +5,7 @@ namespace Controllers;
 use Exception;
 use Controllers\User\Permission\Host as HostPermission;
 use Controllers\History\Save as History;
+use Controllers\History\Details;
 use Controllers\Utils\Validate;
 use Controllers\Repo\Repo;
 
@@ -107,8 +108,8 @@ class Profile
             $config = [
                 'repos' => [],
                 'reposerver' => [
-                    'hostname' => WWW_HOSTNAME,
-                    'gpgkey_url' => __SERVER_URL__ . '/repo/gpgkeys/' . WWW_HOSTNAME . '.pub'
+                    'hostname' => __SERVER_HOST__,
+                    'gpgkey_url' => __SERVER_URL__ . '/repo/gpgkeys/repomanager.asc'
                 ]
             ];
 
@@ -147,13 +148,13 @@ class Profile
                         // Legacy content (mainly for linupdate 2.x.x and some old linupdate 3.x.x versions) (to delete from 31/12/2027)
                         'filename' => REPO_CONF_FILES_PREFIX . $repo['Name'] . '.repo',
                         'description' => $repo['Name'] . ' repo on ' . __SERVER_URL__,
-                        'content' => '[' . REPO_CONF_FILES_PREFIX . $repo['Name'] . '___ENV__]' . PHP_EOL . 'name=' . $repo['Name'] . ' repo on ' . WWW_HOSTNAME . PHP_EOL . 'baseurl=' . __SERVER_URL__ . '/repo/rpm/' . $repo['Name'] . '/' . $repo['Releasever'] . '/__ENV__' . PHP_EOL . 'enabled=1' . PHP_EOL . 'gpgkey=' . __SERVER_URL__ . '/repo/gpgkeys/' . WWW_HOSTNAME . '.pub' . PHP_EOL . 'gpgcheck=1',
+                        'content' => '[' . REPO_CONF_FILES_PREFIX . $repo['Name'] . '___ENV__]' . PHP_EOL . 'name=' . $repo['Name'] . ' repo on ' . __SERVER_HOST__ . PHP_EOL . 'baseurl=' . __SERVER_URL__ . '/repo/rpm/' . $repo['Name'] . '/' . $repo['Releasever'] . '/__ENV__' . PHP_EOL . 'enabled=1' . PHP_EOL . 'gpgkey=' . __SERVER_URL__ . '/repo/gpgkeys/repomanager.asc' . PHP_EOL . 'gpgcheck=1',
                         // Intermediate content (to delete from 31/12/2026)
-                        'repo_server' => WWW_HOSTNAME,
+                        'repo_server' => __SERVER_HOST__,
                         'repo_name' => $repo['Name'],
                         'repo_releasever ' => $repo['Releasever'],
                         'repo_url' => __SERVER_URL__ . '/repo/rpm/' . $repo['Name'] . '/' . $repo['Releasever'] . '/__ENV__',
-                        'gpgkey_url' => __SERVER_URL__ . '/repo/gpgkeys/' . WWW_HOSTNAME . '.pub',
+                        'gpgkey_url' => __SERVER_URL__ . '/repo/gpgkeys/repomanager.asc',
                         'filename_prefix' => REPO_CONF_FILES_PREFIX,
                     ];
                 }
@@ -165,12 +166,12 @@ class Profile
                         'description' => $repo['Name'] . ' repo on ' . __SERVER_URL__,
                         'content' => 'deb ' . __SERVER_URL__ . '/repo/deb/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '/__ENV__ ' . $repo['Dist'] . ' ' . $repo['Section'],
                         // Intermediate content (to delete from 31/12/2026)
-                        'repo_server' => WWW_HOSTNAME,
+                        'repo_server' => __SERVER_HOST__,
                         'repo_name' => $repo['Name'],
                         'repo_distribution' => $repo['Dist'],
                         'repo_component' => $repo['Section'],
                         'repo_url' => __SERVER_URL__ . '/repo/deb/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '/__ENV__',
-                        'gpgkey_url' => __SERVER_URL__ . '/repo/gpgkeys/' . WWW_HOSTNAME . '.pub',
+                        'gpgkey_url' => __SERVER_URL__ . '/repo/gpgkeys/repomanager.asc',
                         'filename_prefix' => REPO_CONF_FILES_PREFIX,
                     ];
                 }
@@ -235,7 +236,7 @@ class Profile
 
         $this->model->add($name);
 
-        History::set('Create <code>' . $name . '</code> host profile');
+        History::set('Create <code>' . $name . '</code> host profile', category: 'profile');
     }
 
     /**
@@ -306,7 +307,7 @@ class Profile
             $this->model->addRepoToProfile($newProfileId, $repoMemberId);
         }
 
-        History::set('Duplicate host profile <code>' . $name . '</code> to <code>' . $newName . '</code>');
+        History::set('Duplicate host profile <code>' . $name . '</code> to <code>' . $newName . '</code>', category: 'profile');
     }
 
     /**
@@ -330,7 +331,7 @@ class Profile
             // Delete
             $this->model->delete($id);
 
-            History::set('Delete <code>' . $name . '</code> host profile');
+            History::set('Delete <code>' . $name . '</code> host profile', category: 'profile');
         }
     }
 
@@ -363,6 +364,9 @@ class Profile
                 throw new Exception($name . ' profile already exists');
             }
         }
+
+        // Current configuration, for history
+        $before = $this->historyConfiguration($id);
 
         // First, clean all profile repos members before adding the new ones
         $this->model->cleanProfileRepoMembers($id);
@@ -476,7 +480,49 @@ class Profile
             $hostRequestController->new($host['Id'], 'update-profile');
         }
 
-        History::set('<code>' . $name . '</code> host profile configuration edited');
+        History::set(
+            '<code>' . $name . '</code> host profile configuration edited',
+            category: 'profile',
+            changes: Details::diff($before, $this->historyConfiguration($id), [
+                'name'                  => 'Name',
+                'repos'                 => 'Repositories',
+                'packagesExcluded'      => 'Packages to exclude',
+                'packagesMajorExcluded' => 'Packages to exclude on major update',
+                'serviceNeedReload'     => 'Services to reload',
+                'serviceNeedRestart'    => 'Services to restart',
+                'notes'                 => 'Notes'
+            ]),
+            params: ['Hosts using this profile' => (string) count($hosts)]
+        );
+    }
+
+    /**
+     *  Return the configuration of a profile, as it is displayed in the history
+     */
+    private function historyConfiguration(int $id): array
+    {
+        $configuration = $this->model->getProfileConfiguration($id);
+        $repos = [];
+
+        foreach ($this->model->getReposMembersList($id) as $repo) {
+            if ($repo['Package_type'] == 'deb') {
+                $repos[] = $repo['Name'] . ' ❯ ' . $repo['Dist'] . ' ❯ ' . $repo['Section'];
+            } else {
+                $repos[] = $repo['Name'] . ' ❯ ' . $repo['Releasever'];
+            }
+        }
+
+        $list = fn ($value) => array_values(array_filter(explode(',', $value ?? '')));
+
+        return [
+            'name'                  => $configuration['Name'] ?? '',
+            'repos'                 => $repos,
+            'packagesExcluded'      => $list($configuration['Package_exclude'] ?? ''),
+            'packagesMajorExcluded' => $list($configuration['Package_exclude_major'] ?? ''),
+            'serviceNeedReload'     => $list($configuration['Service_reload'] ?? ''),
+            'serviceNeedRestart'    => $list($configuration['Service_restart'] ?? ''),
+            'notes'                 => $configuration['Notes'] ?? ''
+        ];
     }
 
     /**
