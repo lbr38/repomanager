@@ -1,5 +1,5 @@
 name: API - test-user1 - repository listing tests
-description: Run repository listing tests as test-user1 user
+description: Run repository listing tests as test-user1 user (no permissions - no repository must be visible)
 
 inputs:
   api-host:
@@ -12,35 +12,30 @@ inputs:
 runs:
   using: composite
   steps:
-    # List all repositories
-    - name: List all repositories
+    # List all repositories: test-user1 is not allowed to view any repository
+    - name: (test-user1) Try to list all repositories
       shell: bash
       run: |
-        RESULT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/repo/)
-        if [ $? -ne 0 ]; then
-            echo "Failed to list all repositories"
-            exit 1
-        fi
-        echo "$RESULT" | jq
+        OUTPUT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/repo/) || true
 
-    # List all repositories with name "local-deb-for-test-user1"
-    - name: List repositories with specific name
-      shell: bash
-      run: |
-        RESULT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/repo/)
-        if [ $? -ne 0 ]; then
-            echo "Failed to list repositories with specific name"
+        if echo "$OUTPUT" | grep -q "No repositories found"; then
+            echo "Correctly listed no repository with test-user1 API key"
+        else
+            echo "Failed to hide repositories from test-user1"
+            echo "$OUTPUT" | jq
             exit 1
         fi
-        echo "$RESULT" | jq -r '.results[] | select(.Name == "local-deb-for-test-user1")'
 
-    # List all snapshots of repository whose ID is 3
-    - name: List snapshots of a repository
+    # List all snapshots of repository whose ID is 3: test-user1 is not allowed to view it
+    - name: (test-user1) Try to list snapshots of a repository
       shell: bash
       run: |
-        RESULT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/repo/3)
-        if [ $? -ne 0 ]; then
-            echo "Failed to list snapshots of a repository"
+        OUTPUT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/repo/3) || true
+
+        if echo "$OUTPUT" | grep -q "You are not allowed to view this repository"; then
+            echo "Correctly failed to list snapshots of a repository with test-user1 API key"
+        else
+            echo "Failed to fail listing snapshots of a repository with test-user1 API key"
+            echo "$OUTPUT" | jq
             exit 1
         fi
-        echo "$RESULT" | jq

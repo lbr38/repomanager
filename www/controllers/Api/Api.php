@@ -136,6 +136,14 @@ class Api
                 throw new Exception('No matching route');
             }
 
+            /**
+             *  Only the routes used by hosts accept the host authentication (Id + token), the other routes act on behalf of a user
+             *  and require an API key (users permissions are not defined for a host)
+             */
+            if (!defined('API_KEY') and !in_array($this->route, ['host', 'profile'])) {
+                self::returnError(401, 'You must authenticate with an API key');
+            }
+
             $apiControllerPath = '\Controllers\Api\\' . ucfirst($this->route) . '\\' . ucfirst($this->route);
 
             /**
