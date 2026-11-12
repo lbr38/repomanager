@@ -1,0 +1,41 @@
+name: API - test-user1 - repository listing tests
+description: Run repository listing tests as test-user1 user (no permissions - no repository must be visible)
+
+inputs:
+  api-host:
+    description: API test host URL
+    required: true
+  api-key:
+    description: test-user1 API key
+    required: true
+
+runs:
+  using: composite
+  steps:
+    # List all repositories: test-user1 is not allowed to view any repository
+    - name: (test-user1) Try to list all repositories
+      shell: bash
+      run: |
+        OUTPUT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/repo/) || true
+
+        if echo "$OUTPUT" | grep -q "No repositories found"; then
+            echo "Correctly listed no repository with test-user1 API key"
+        else
+            echo "Failed to hide repositories from test-user1"
+            echo "$OUTPUT" | jq
+            exit 1
+        fi
+
+    # List all snapshots of repository whose ID is 3: test-user1 is not allowed to view it
+    - name: (test-user1) Try to list snapshots of a repository
+      shell: bash
+      run: |
+        OUTPUT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/repo/3) || true
+
+        if echo "$OUTPUT" | grep -q "You are not allowed to view this repository"; then
+            echo "Correctly failed to list snapshots of a repository with test-user1 API key"
+        else
+            echo "Failed to fail listing snapshots of a repository with test-user1 API key"
+            echo "$OUTPUT" | jq
+            exit 1
+        fi

@@ -193,6 +193,47 @@ class Listing extends \Models\Model
     }
 
     /**
+     *  Return the repositories that have at least one active snapshot, with the type (curated, local) of their latest snapshot
+     *  If a repository Id is specified, only this repository is returned
+     */
+    public function listRepositories(int|null $repoId = null) : array
+    {
+        $data = [];
+
+        try {
+            $stmt = $this->db->prepare("SELECT
+                repos.*,
+                (
+                    SELECT repos_snap.Type
+                    FROM repos_snap
+                    WHERE repos_snap.Id_repo = repos.Id
+                    AND repos_snap.Status = 'active'
+                    ORDER BY repos_snap.Date DESC, repos_snap.Time DESC
+                    LIMIT 1
+                ) AS Type
+            FROM repos
+            WHERE EXISTS (
+                SELECT 1
+                FROM repos_snap
+                WHERE repos_snap.Id_repo = repos.Id
+                AND repos_snap.Status = 'active'
+            )
+            AND (:repoId IS NULL OR repos.Id = :repoId)
+            ORDER BY repos.Name ASC, CAST(repos.Releasever AS INTEGER) ASC, repos.Dist ASC, repos.Section ASC");
+            $stmt->bindValue(':repoId', $repoId, $repoId === null ? SQLITE3_NULL : SQLITE3_INTEGER);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return $data;
+    }
+
+    /**
      *  Return the list of snapshots for a repository
      */
     public function listSnapshots(int $repoId) : array

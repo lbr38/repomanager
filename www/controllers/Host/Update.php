@@ -16,6 +16,52 @@ class Update
     }
 
     /**
+     *  Update the general information and status sent by a host (linupdate agent)
+     *  Only the specified values are updated, return the updated values as an array value => label (e.g. 'os_version' => 'OS version')
+     */
+    public function updateStatus(int $id, array $data): array
+    {
+        // Value sent by the host => update method and label of the value
+        $fields = [
+            'hostname'        => ['updateHostname', 'Hostname'],
+            'os'              => ['updateOS', 'OS'],
+            'os_version'      => ['updateOsVersion', 'OS version'],
+            'os_family'       => ['updateOsFamily', 'OS family'],
+            'type'            => ['updateType', 'Virtualization type'],
+            'cpu'             => ['updateCpu', 'CPU'],
+            'ram'             => ['updateRam', 'RAM'],
+            'network'         => ['updateNetwork', 'Network'],
+            'kernel'          => ['updateKernel', 'Kernel'],
+            'arch'            => ['updateArch', 'Arch'],
+            'profile'         => ['updateProfile', 'Profile'],
+            'env'             => ['updateEnv', 'Environment'],
+            'agent_status'    => ['updateAgentStatus', 'Agent status'],
+            'agent_version'   => ['updateAgentVersion', 'Agent version'],
+            'reboot_required' => ['updateRebootRequired', 'Reboot status'],
+            'uptime'          => ['updateUptime', 'Uptime']
+        ];
+
+        $updated = [];
+
+        foreach ($fields as $key => [$method, $label]) {
+            if (empty($data[$key])) {
+                continue;
+            }
+
+            // A value of an invalid type raises a TypeError
+            try {
+                $this->$method($id, $data[$key]);
+            } catch (Exception | \TypeError $e) {
+                throw new Exception($label . ' update has failed.');
+            }
+
+            $updated[$key] = $label;
+        }
+
+        return $updated;
+    }
+
+    /**
      *  Update hostname in database
      */
     public function updateHostname(int $id, string $hostname) : void

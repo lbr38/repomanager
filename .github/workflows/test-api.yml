@@ -51,61 +51,61 @@ jobs:
       # Run tests as admin user
       #
       - name: Run admin tasks tests
-        uses: ./.github/actions/test-api/admin/tasks
+        uses: ./.github/actions/test-api/v2/admin/tasks
         with:
           api-host: ${{ secrets.API_TEST_HOST }}
           api-key: ${{ secrets.API_TEST_ADMIN_API_KEY }}
 
       - name: Run admin environment point test
-        uses: ./.github/actions/test-api/admin/environment/point
+        uses: ./.github/actions/test-api/v2/admin/environment/point
         with:
           api-host: ${{ secrets.API_TEST_HOST }}
           api-key: ${{ secrets.API_TEST_ADMIN_API_KEY }}
 
       - name: Run admin repositories tests
-        uses: ./.github/actions/test-api/admin/repositories
+        uses: ./.github/actions/test-api/v2/admin/repositories
         with:
           api-host: ${{ secrets.API_TEST_HOST }}
           api-key: ${{ secrets.API_TEST_ADMIN_API_KEY }}
 
       - name: Run admin source repositories tests
-        uses: ./.github/actions/test-api/admin/source-repositories
+        uses: ./.github/actions/test-api/v2/admin/source-repositories
         with:
           api-host: ${{ secrets.API_TEST_HOST }}
           api-key: ${{ secrets.API_TEST_ADMIN_API_KEY }}
 
       - name: Run admin snapshot details tests
-        uses: ./.github/actions/test-api/admin/snapshot/details
+        uses: ./.github/actions/test-api/v2/admin/snapshot/details
         with:
           api-host: ${{ secrets.API_TEST_HOST }}
           api-key: ${{ secrets.API_TEST_ADMIN_API_KEY }}
 
       - name: Run admin snapshot diff tests
-        uses: ./.github/actions/test-api/admin/snapshot/diff
+        uses: ./.github/actions/test-api/v2/admin/snapshot/diff
         with:
           api-host: ${{ secrets.API_TEST_HOST }}
           api-key: ${{ secrets.API_TEST_ADMIN_API_KEY }}
 
       - name: Run admin package list tests
-        uses: ./.github/actions/test-api/admin/snapshot/package/list
+        uses: ./.github/actions/test-api/v2/admin/snapshot/package/list
         with:
           api-host: ${{ secrets.API_TEST_HOST }}
           api-key: ${{ secrets.API_TEST_ADMIN_API_KEY }}
 
       - name: Run admin package upload tests
-        uses: ./.github/actions/test-api/admin/snapshot/package/upload
+        uses: ./.github/actions/test-api/v2/admin/snapshot/package/upload
         with:
           api-host: ${{ secrets.API_TEST_HOST }}
           api-key: ${{ secrets.API_TEST_ADMIN_API_KEY }}
 
       - name: Run admin hosts tests
-        uses: ./.github/actions/test-api/admin/hosts
+        uses: ./.github/actions/test-api/v2/admin/hosts
         with:
           api-host: ${{ secrets.API_TEST_HOST }}
           api-key: ${{ secrets.API_TEST_ADMIN_API_KEY }}
 
       - name: Run admin single host tests
-        uses: ./.github/actions/test-api/admin/host
+        uses: ./.github/actions/test-api/v2/admin/host
         with:
           api-host: ${{ secrets.API_TEST_HOST }}
           api-key: ${{ secrets.API_TEST_ADMIN_API_KEY }}
@@ -115,25 +115,25 @@ jobs:
       # This user has absolutely no permissions to do anything so all the tests must fail
       #
       - name: Run test-user1 repositories tests
-        uses: ./.github/actions/test-api/test-user1/repositories
+        uses: ./.github/actions/test-api/v2/test-user1/repositories
         with:
           api-host: ${{ secrets.API_TEST_HOST }}
           api-key: ${{ secrets.API_TEST_TEST_USER1_API_KEY }}
 
       - name: Run test-user1 source repositories tests
-        uses: ./.github/actions/test-api/test-user1/source-repositories
+        uses: ./.github/actions/test-api/v2/test-user1/source-repositories
         with:
           api-host: ${{ secrets.API_TEST_HOST }}
           api-key: ${{ secrets.API_TEST_TEST_USER1_API_KEY }}
 
       - name: Run test-user1 package upload tests
-        uses: ./.github/actions/test-api/test-user1/snapshot/package/upload
+        uses: ./.github/actions/test-api/v2/test-user1/snapshot/package/upload
         with:
           api-host: ${{ secrets.API_TEST_HOST }}
           api-key: ${{ secrets.API_TEST_TEST_USER1_API_KEY }}
 
       - name: Run test-user1 package delete tests
-        uses: ./.github/actions/test-api/test-user1/snapshot/package/delete
+        uses: ./.github/actions/test-api/v2/test-user1/snapshot/package/delete
         with:
           api-host: ${{ secrets.API_TEST_HOST }}
           api-key: ${{ secrets.API_TEST_TEST_USER1_API_KEY }}
@@ -144,13 +144,34 @@ jobs:
       # This user has permissions to upload packages and rebuild snapshots metadata
       #
       - name: Run test-user2 repositories tests
-        uses: ./.github/actions/test-api/test-user2/repositories
+        uses: ./.github/actions/test-api/v2/test-user2/repositories
         with:
           api-host: ${{ secrets.API_TEST_HOST }}
           api-key: ${{ secrets.API_TEST_TEST_USER2_API_KEY }}
 
       - name: Run test-user2 package upload tests
-        uses: ./.github/actions/test-api/test-user2/snapshot/package/upload
+        uses: ./.github/actions/test-api/v2/test-user2/snapshot/package/upload
+        with:
+          api-host: ${{ secrets.API_TEST_HOST }}
+          api-key: ${{ secrets.API_TEST_TEST_USER2_API_KEY }}
+
+      #
+      # API v3 tests, run after the API v2 tests (same users and test repositories)
+      #
+      - name: Run API v3 admin tests
+        uses: ./.github/actions/test-api/v3/admin
+        with:
+          api-host: ${{ secrets.API_TEST_HOST }}
+          api-key: ${{ secrets.API_TEST_ADMIN_API_KEY }}
+
+      - name: Run API v3 test-user1 tests
+        uses: ./.github/actions/test-api/v3/test-user1
+        with:
+          api-host: ${{ secrets.API_TEST_HOST }}
+          api-key: ${{ secrets.API_TEST_TEST_USER1_API_KEY }}
+
+      - name: Run API v3 test-user2 tests
+        uses: ./.github/actions/test-api/v3/test-user2
         with:
           api-host: ${{ secrets.API_TEST_HOST }}
           api-key: ${{ secrets.API_TEST_TEST_USER2_API_KEY }}
