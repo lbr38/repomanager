@@ -5,7 +5,6 @@ namespace Controllers\Api\Snapshot;
 use Controllers\User\Permission\Repo as RepoPermission;
 use Controllers\Repo\Snapshot\Package;
 use Controllers\Utils\Convert;
-use Controllers\Task\Task;
 use Exception;
 
 class Snapshot extends \Controllers\Api\Controller
@@ -94,7 +93,7 @@ class Snapshot extends \Controllers\Api\Controller
              *  Upload packages to a snapshot
              *  https://repomanager.mydomain.net/api/v2/snapshot/{snap-id}/upload
              */
-            if ($this->uri[5] == 'upload' and !empty($this->postFiles)) {
+            if (($this->uri[5] ?? '') == 'upload' and !empty($this->postFiles)) {
                 $overwrite = false;
                 $ignoreIfExists = false;
 
@@ -120,9 +119,7 @@ class Snapshot extends \Controllers\Api\Controller
              *  Rebuild a snapshot
              *  https://repomanager.mydomain.net/api/v2/snapshot/{snap-id}/rebuild
              */
-            if ($this->uri[5] == 'rebuild' and isset($this->data['gpgSign'])) {
-                $taskController = new Task();
-
+            if (($this->uri[5] ?? '') == 'rebuild' and isset($this->data['gpgSign'])) {
                 if (!RepoPermission::allowedAction('rebuild')) {
                     throw new Exception('You are not allowed to rebuild a repository snapshot');
                 }
@@ -144,10 +141,7 @@ class Snapshot extends \Controllers\Api\Controller
                 $params['gpg-sign'] = is_bool($this->data['gpgSign']) ? ($this->data['gpgSign'] ? 'true' : 'false') : strval($this->data['gpgSign']);
                 $params['schedule']['scheduled'] = 'false';
 
-                (new \Controllers\Task\Form\Form())->validate([$params]);
-
-                // Execute the task
-                $taskId = $taskController->execute([$params]);
+                $taskId = (new \Controllers\Task\Launcher())->launch([$params]);
 
                 return [
                     'rc' => 202,
@@ -162,7 +156,7 @@ class Snapshot extends \Controllers\Api\Controller
              *  Delete packages from a snapshot
              *  https://repomanager.mydomain.net/api/v2/snapshot/{snap-id}/packages
              */
-            if ($this->uri[5] == 'packages' and !empty($this->data['packages'])) {
+            if (($this->uri[5] ?? '') == 'packages' and !empty($this->data['packages'])) {
                 return ['results' => ['Packages deleted successfully:' => $repoSnapshotPackageController->deleteByName($this->data['packages'])]];
             }
         }

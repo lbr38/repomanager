@@ -5,8 +5,6 @@ $taskController = new \Controllers\Task\Task();
  *  Validate and execute a task form
  */
 if ($_POST['action'] == 'validate-execute' and !empty($_POST['taskParams'])) {
-    $taskFormController = new \Controllers\Task\Form\Form();
-
     try {
         try {
             $taskRawParams = json_decode($_POST['taskParams'], true, 512, JSON_THROW_ON_ERROR);
@@ -14,26 +12,14 @@ if ($_POST['action'] == 'validate-execute' and !empty($_POST['taskParams'])) {
             throw new Exception('Could not decode task parameters: ' . $e->getMessage());
         }
 
-        $taskFormController->validate($taskRawParams);
-        $task = $taskController->execute($taskRawParams);
-
-        // If the task is an array, it means that multiple tasks have been executed, redirect to the tasks page
-        if (is_array($task)) {
-            $count = count($task);
-            $link = '/tasks';
-        }
-
-        // If there is only one task, redirect to the task log page
-        if (is_int($task)) {
-            $count = 1;
-            $link = '/task/' . $task;
-        }
+        // Several tasks are grouped under a parent task, which log page lists them
+        $taskId = (new \Controllers\Task\Launcher())->launch($taskRawParams);
 
         if (isset($taskRawParams[0]['schedule']['scheduled']) and $taskRawParams[0]['schedule']['scheduled'] == 'true') {
-            response(HTTP_OK, 'Task' . ($count > 1 ? 's are scheduled' : ' is scheduled') . ': <a href="/tasks" target="_blank" rel="noopener noreferrer"><b>view</b></a>');
+            response(HTTP_OK, 'Task' . (count($taskRawParams) > 1 ? 's are scheduled' : ' is scheduled') . ': <a href="/tasks" target="_blank" rel="noopener noreferrer"><b>view</b></a>');
         }
 
-        response(HTTP_OK, 'Task' . ($count > 1 ? 's are running' : ' is running') . ': <a href="' . $link . '" target="_blank" rel="noopener noreferrer"><b>view</b></a>');
+        response(HTTP_OK, 'Task' . (count($taskRawParams) > 1 ? 's are running' : ' is running') . ': <a href="/task/' . $taskId . '" target="_blank" rel="noopener noreferrer"><b>view</b></a>');
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
@@ -43,8 +29,6 @@ if ($_POST['action'] == 'validate-execute' and !empty($_POST['taskParams'])) {
  *  Validate and schedule a task targeting a dynamic set of repositories (all latest snapshots matching filters)
  */
 if ($_POST['action'] == 'validate-execute-target' and !empty($_POST['taskParams'])) {
-    $taskFormController = new \Controllers\Task\Form\Form();
-
     try {
         try {
             $taskRawParams = json_decode($_POST['taskParams'], true, 512, JSON_THROW_ON_ERROR);
@@ -52,11 +36,8 @@ if ($_POST['action'] == 'validate-execute-target' and !empty($_POST['taskParams'
             throw new Exception('Could not decode task parameters: ' . $e->getMessage());
         }
 
-        // Validate the task and retrieve the sanitized parameters
-        $taskRawParams = $taskFormController->validateTarget($taskRawParams);
-
         // Create the scheduled task, it will not be executed now
-        $taskController->execute([$taskRawParams]);
+        (new \Controllers\Task\Launcher())->launchTarget($taskRawParams);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }

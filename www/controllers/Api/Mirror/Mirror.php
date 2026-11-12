@@ -92,9 +92,7 @@ class Mirror extends \Controllers\Api\Controller
         $params['domain'] = 'mirror';
         $params['schedule'] = ['scheduled' => 'false'];
 
-        (new \Controllers\Task\Form\Form())->validate([$params]);
-
-        return (new \Controllers\Task\Task())->execute([$params]);
+        return (new \Controllers\Task\Launcher())->launch([$params]);
     }
 
     /**

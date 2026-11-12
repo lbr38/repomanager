@@ -259,6 +259,14 @@ class Group
     }
 
     /**
+     *  Return the group Ids of all the repos member of a group, as an array repo Id => list of group Ids
+     */
+    public function getReposGroupsIds(): array
+    {
+        return $this->model->getReposGroupsIds();
+    }
+
+    /**
      *  Return the list of repos not in any group
      */
     public function getReposNotMembers(): array

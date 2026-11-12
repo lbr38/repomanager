@@ -3,10 +3,7 @@
 namespace Controllers\Api;
 
 use Exception;
-use JsonException;
 use Controllers\Exception\AppException;
-use Controllers\App\Maintenance;
-use Controllers\Update;
 
 class Api
 {
@@ -18,97 +15,18 @@ class Api
     public function __construct()
     {
         try {
-            new \Controllers\App\Main('api');
+            // Load the application and check that the request can be served
+            Bootstrap::start();
 
-            /**
-             *  Exit if method is not allowed
-             */
-            if (!in_array($_SERVER['REQUEST_METHOD'], ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'])) {
-                http_response_code(405);
-                echo json_encode(["return" => "405", "message_error" => ['Method not allowed']]);
-                exit;
-            }
-
-            /**
-             *  Retrieve method
-             */
+            // Retrieve method and JSON data if any
             $this->method = $_SERVER['REQUEST_METHOD'];
+            $this->data = Bootstrap::body();
 
-            /**
-             *  Retrieve data if any
-             */
-            $this->data = file_get_contents("php://input");
-
-            if (!empty($this->data)) {
-                try {
-                    $this->data = json_decode($this->data, true, 512, JSON_THROW_ON_ERROR);
-                } catch (JsonException $e) {
-                    self::returnError(400, 'Could not parse JSON data: ' . $e->getMessage());
-                }
-
-                if ($this->data == null) {
-                    self::returnError(400, 'Invalid JSON data');
-                }
-            }
-
-            /**
-             *  Retrieve URI
-             */
-            $this->uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-            $this->uri = explode('/', $this->uri);
-
-            /**
-             *  Retrieve route from URI
-             */
-            $this->route = $this->uri[3];
-
-            /**
-             *  Quit if app has encountered any error
-             */
-            if (__LOAD_GENERAL_ERROR != 0) {
-                http_response_code(503);
-                echo json_encode(["return" => "503", "message_error" => ['Reposerver configuration error. Please contact the administrator.']]);
-                exit;
-            }
-
-            /**
-             *  Return 403 if an update is running
-             */
-            if (Update::running()) {
-                http_response_code(403);
-                echo json_encode(["return" => "403", "message_error" => ['Reposerver is currently being updated. Please try again later.']]);
-                exit;
-            }
-
-            /**
-             *  Return 403 if app is in maintenance
-             */
-            if (Maintenance::running()) {
-                http_response_code(403);
-                echo json_encode(["return" => "403", "message_error" => ['Reposerver is under maintenance. Please try again later.']]);
-                exit;
-            }
-
-            /**
-             *  Check if authentication is valid
-             */
-            if (AUTHENTICATED === false) {
-                if (defined('AUTHENTICATION_ERROR')) {
-                    self::returnError(401, 'Authentication error: ' . AUTHENTICATION_ERROR);
-                }
-
-                self::returnError(401, 'Authentication error');
-            }
-
-            /**
-             *  Check if method and URI are specified
-             */
-            if (empty($_SERVER['REQUEST_METHOD'])) {
-                throw new Exception('No method specified');
-            }
-            if (empty($_SERVER['REQUEST_URI'])) {
-                throw new Exception('No route specified');
-            }
+            // Retrieve URI and route from URI
+            $this->uri = explode('/', parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+            $this->route = $this->uri[3] ?? '';
+        } catch (HttpException $e) {
+            self::returnError($e->getStatus(), $e->getMessage());
         } catch (Exception $e) {
             self::returnError(400, $e->getMessage());
         }
@@ -164,7 +82,7 @@ class Api
             $resultArray = $myapiController->execute();
             self::returnSuccess($resultArray);
         } catch (AppException $e) {
-            self::returnError(400, $e->getDetails());
+            self::returnError(400, $e->getDetails() ?: $e->getMessage());
         } catch (Exception $e) {
             self::returnError(400, $e->getMessage());
             exit;

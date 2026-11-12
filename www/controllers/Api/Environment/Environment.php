@@ -5,7 +5,6 @@ namespace Controllers\Api\Environment;
 use Controllers\User\Permission\Repo as RepoPermission;
 use Controllers\Repo\Snapshot\Snapshot;
 use Controllers\Utils\Validate;
-use Controllers\Task\Task;
 use Exception;
 
 class Environment extends \Controllers\Api\Controller
@@ -51,11 +50,7 @@ class Environment extends \Controllers\Api\Controller
                 $params['description'] = '';
                 $params['schedule']['scheduled'] = 'false';
 
-                (new \Controllers\Task\Form\Form())->validate([$params]);
-
-                // Execute the task
-                $taskController = new Task();
-                $taskId = $taskController->execute([$params]);
+                $taskId = (new \Controllers\Task\Launcher())->launch([$params]);
 
                 return [
                     'rc' => 202,
