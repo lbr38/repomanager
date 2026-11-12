@@ -850,52 +850,7 @@ class Task
             return;
         }
 
-        if (file_exists(PID_DIR . '/' . $taskId . '.pid')) {
-            // Getting PID file content
-            $content = file_get_contents(PID_DIR . '/' . $taskId . '.pid');
-
-            // Getting sub PIDs
-            preg_match_all('/(?<=SUBPID=).*/', $content, $subpids);
-
-            // Killing sub PIDs
-            if (!empty($subpids[0])) {
-                $killError = '';
-
-                foreach ($subpids[0] as $subpid) {
-                    $subpid = trim(str_replace('"', '', $subpid));
-
-                    // A PID must be a positive integer
-                    if (!ctype_digit($subpid)) {
-                        continue;
-                    }
-
-                    // Check if the PID is still running
-                    $myprocess = new Process('/usr/bin/ps --pid ' . $subpid);
-                    $myprocess->execute();
-                    $content = $myprocess->getOutput();
-                    $myprocess->close();
-
-                    if ($myprocess->getExitCode() != 0) {
-                        continue;
-                    }
-
-                    // Kill the process
-                    $myprocess = new Process('/usr/bin/kill -9 ' . $subpid);
-                    $myprocess->execute();
-                    $content = $myprocess->getOutput();
-                    $myprocess->close();
-
-                    if ($myprocess->getExitCode() != 0) {
-                        $killError .= 'Could not kill PID ' . $subpid . ': ' . $content. '<br>';
-                    }
-                }
-            }
-
-            // Delete PID file
-            if (!unlink(PID_DIR . '/' . $taskId . '.pid')) {
-                throw new Exception('Error while deleting PID file');
-            }
-        }
+        $killError = $this->killProcesses($taskId);
 
         // Update task in database, set status to 'stopped'
         $this->updateStatus($taskId, 'stopped');
@@ -934,65 +889,22 @@ class Task
     }
 
     /**
-     *  Add subpid to main PID file
+     *  Return the PID of the repomanager.task-run process of the specified task, or null if it is not running
+     *  The process title is set by tasks/execute.php before the task is marked as running
      */
-    public function addsubpid(int $pid) : void
+    public static function getProcessPid(int $id): int|null
     {
-        // Add specified PID to the main PID file
-        if (!file_put_contents(PID_DIR . '/' . $this->id . '.pid', 'SUBPID="' . $pid . '"' . PHP_EOL, FILE_APPEND)) {
-            throw new Exception('could not add sub PID to ' . PID_DIR . '/' . $this->id . '.pid file');
+        $process = new Process('/usr/bin/pgrep -f -x "repomanager[.]task-run[.]' . $id . '"');
+        $process->execute();
+        $output = $process->getOutput();
+        $process->close();
+
+        // pgrep exits with 1 when no process matches
+        if ($process->getExitCode() != 0 or !ctype_digit($output)) {
+            return null;
         }
 
-        // Also add children PID to the main PID file
-        $childrenPid = self::getChildrenPid($pid);
-
-        if ($childrenPid !== false) {
-            // Add children PID to the main PID file
-            foreach ($childrenPid as $childPid) {
-                if (is_numeric($childPid)) {
-                    if (!file_put_contents(PID_DIR . '/' . $this->id . '.pid', 'SUBPID="' . $childPid . '"' . PHP_EOL, FILE_APPEND)) {
-                        throw new Exception('could not add sub PID to ' . PID_DIR . '/' . $this->id . '.pid file');
-                    }
-                }
-
-                // If the child PID has children PID, then add them too
-                $grandChildrenPid = self::getChildrenPid($childPid);
-
-                if ($grandChildrenPid !== false) {
-                    foreach ($grandChildrenPid as $grandChildPid) {
-                        if (is_numeric($grandChildPid)) {
-                            if (!file_put_contents(PID_DIR . '/' . $this->id . '.pid', 'SUBPID="' . $grandChildPid . '"' . PHP_EOL, FILE_APPEND)) {
-                                throw new Exception('could not add sub PID to ' . PID_DIR . '/' . $this->id . '.pid file');
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     *  Return an array with all children PID of the specified PID or false if no children PID
-     */
-    public static function getChildrenPid(int $pid) : array|bool
-    {
-        // Specified PID could have children PID, we need to get them all
-        $processController = new Process('/usr/bin/pgrep -P ' . $pid);
-        $processController->execute();
-
-        // If exit code is 0, then the PID has children
-        if ($processController->getExitCode() == 0) {
-            // Get children PID from output
-            $childrenPid = $processController->getOutput();
-            $processController->close();
-
-            $childrenPid = explode(PHP_EOL, $childrenPid);
-
-            // Return children PID
-            return $childrenPid;
-        }
-
-        return false;
+        return (int) $output;
     }
 
     /**
@@ -1000,11 +912,69 @@ class Task
      */
     public static function processRunning(int $id): bool
     {
-        $processController = new Process('/usr/bin/pgrep -f -x "repomanager[.]task-run[.]' . $id . '"');
-        $processController->execute();
-        $processController->close();
+        return self::getProcessPid($id) !== null;
+    }
 
-        return $processController->getExitCode() == 0;
+    /**
+     *  Return the PIDs of the direct children of the specified PID
+     */
+    private function getChildPids(int $pid): array
+    {
+        $process = new Process('/usr/bin/pgrep -P ' . $pid);
+        $process->execute();
+        $output = $process->getOutput();
+        $process->close();
+
+        // pgrep exits with 1 when no process matches
+        if ($process->getExitCode() != 0) {
+            return [];
+        }
+
+        return array_map('intval', array_filter(explode(PHP_EOL, $output), 'ctype_digit'));
+    }
+
+    /**
+     *  Suspend the specified process, then its descendants, and return all their PIDs
+     *  A suspended process cannot start new children, so the whole tree is caught before being killed.
+     *  Signal numbers are used because the pcntl extension (SIGSTOP constant) is not loaded in php-fpm.
+     */
+    private function suspendProcessTree(int $pid): array
+    {
+        // The process has already ended (19 = SIGSTOP)
+        if (!posix_kill($pid, 19)) {
+            return [];
+        }
+
+        $pids = [$pid];
+
+        foreach ($this->getChildPids($pid) as $childPid) {
+            $pids = array_merge($pids, $this->suspendProcessTree($childPid));
+        }
+
+        return $pids;
+    }
+
+    /**
+     *  Kill the process of the specified task and all its descendants (every command run by the task is one of them)
+     *  Return the kill errors, if any
+     */
+    private function killProcesses(int $taskId): string
+    {
+        $pid = self::getProcessPid($taskId);
+        $error = '';
+
+        if ($pid === null) {
+            return $error;
+        }
+
+        foreach ($this->suspendProcessTree($pid) as $processPid) {
+            // Ignore processes that have ended in the meantime (9 = SIGKILL, 3 = ESRCH)
+            if (!posix_kill($processPid, 9) and posix_get_last_error() != 3) {
+                $error .= 'Could not kill PID ' . $processPid . ': ' . posix_strerror(posix_get_last_error()) . '<br>';
+            }
+        }
+
+        return $error;
     }
 
     /**

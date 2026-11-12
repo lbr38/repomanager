@@ -20,7 +20,6 @@ class Directory
             DB_LOGS_DIR,
             SERVICE_LOGS_DIR,
             WS_REQUESTS_LOGS_DIR,
-            PID_DIR,
             TEMP_DIR,
             HOSTS_DIR,
             DB_UPDATE_DONE_DIR,

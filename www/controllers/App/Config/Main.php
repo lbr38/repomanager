@@ -77,10 +77,6 @@ class Main
         if (!defined('DB_UPDATE_DONE_DIR')) {
             define('DB_UPDATE_DONE_DIR', DATA_DIR . '/update');
         }
-        // PIDs
-        if (!defined('PID_DIR')) {
-            define('PID_DIR', DATA_DIR . "/tasks/pid");
-        }
         // Temp dir
         if (!defined('TEMP_DIR')) {
             define('TEMP_DIR', DATA_DIR . "/.temp");

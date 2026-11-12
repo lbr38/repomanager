@@ -134,9 +134,6 @@ class Deb extends Metadata
         $myprocess->setBackground(true);
         $myprocess->execute();
 
-        // Retrieve PID of the launched process, then write PID to main PID file
-        $this->taskController->addsubpid($myprocess->getPid());
-
         // Retrieve output from process
         $output = $myprocess->getOutput();
 
@@ -156,9 +153,6 @@ class Deb extends Metadata
         );
         $myprocess->setBackground(true);
         $myprocess->execute();
-
-        // Retrieve PID of the launched process, then write PID to main PID file
-        $this->taskController->addsubpid($myprocess->getPid());
 
         // Retrieve output from process
         $output = $myprocess->getOutput();
@@ -197,9 +191,6 @@ class Deb extends Metadata
         );
         $myprocess->execute();
 
-        // Retrieve PID of the launched process, then write PID to main PID file
-        $this->taskController->addsubpid($myprocess->getPid());
-
         if ($myprocess->getExitCode() != 0) {
             throw new Exception('Failed to sign Release metadata file');
         }
@@ -213,9 +204,6 @@ class Deb extends Metadata
             . ' --clearsign ' . escapeshellarg($this->root . '/dists/' . $this->dist . '/Release')
         );
         $myprocess->execute();
-
-        // Retrieve PID of the launched process, then write PID to main PID file
-        $this->taskController->addsubpid($myprocess->getPid());
 
         if ($myprocess->getExitCode() != 0) {
             throw new Exception('Failed to generate InRelease metadata file');
