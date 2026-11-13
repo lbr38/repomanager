@@ -251,7 +251,7 @@ class Permission extends \Controllers\User\User
         ]);
 
         if (!empty($changes)) {
-            \Controllers\History\Save::set('Edited permissions of user <code>' . $this->getUsernameById($id) . '</code>', category: 'user', changes: $changes);
+            \Controllers\History\Save::set('Edited permissions of user <span class="label-white">' . $this->getUsernameById($id) . '</span>', category: 'user', changes: $changes);
         }
     }
 

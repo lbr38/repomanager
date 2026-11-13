@@ -79,7 +79,7 @@ class Create extends User
         /**
          *  Add history
          */
-        History::set('Created user <code>' . $username . '</code>', category: 'user', params: ['Role' => $role == 2 ? 'Administrator' : 'Usage', 'Account type' => 'Local']);
+        History::set('Created user <span class="label-white">' . $username . '</span>', category: 'user', params: ['Role' => $role == 2 ? 'Administrator' : 'Usage', 'Account type' => 'Local']);
 
         /**
          *  Return temporary generated password

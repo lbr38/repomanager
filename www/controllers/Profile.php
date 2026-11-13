@@ -236,7 +236,7 @@ class Profile
 
         $this->model->add($name);
 
-        History::set('Create <code>' . $name . '</code> host profile', category: 'profile');
+        History::set('Create <span class="label-white">' . $name . '</span> host profile', category: 'profile');
     }
 
     /**
@@ -307,7 +307,7 @@ class Profile
             $this->model->addRepoToProfile($newProfileId, $repoMemberId);
         }
 
-        History::set('Duplicate host profile <code>' . $name . '</code> to <code>' . $newName . '</code>', category: 'profile');
+        History::set('Duplicate host profile <span class="label-white">' . $name . '</span> to <span class="label-white">' . $newName . '</span>', category: 'profile');
     }
 
     /**
@@ -331,7 +331,7 @@ class Profile
             // Delete
             $this->model->delete($id);
 
-            History::set('Delete <code>' . $name . '</code> host profile', category: 'profile');
+            History::set('Delete <span class="label-white">' . $name . '</span> host profile', category: 'profile');
         }
     }
 
@@ -481,7 +481,7 @@ class Profile
         }
 
         History::set(
-            '<code>' . $name . '</code> host profile configuration edited',
+            '<span class="label-white">' . $name . '</span> host profile configuration edited',
             category: 'profile',
             changes: Details::diff($before, $this->historyConfiguration($id), [
                 'name'                  => 'Name',

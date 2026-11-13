@@ -15,7 +15,7 @@
 }
 
 /* Labels inside an action are compact so that all items have the same height */
-.history-item-action [class^="label"], .history-item-action code {
+.history-item-action [class^="label"] {
     padding: 2px 8px;
 }
 
@@ -42,7 +42,7 @@
 .history-item-details {
     flex-direction: column;
     row-gap: 25px;
-    margin: 0 0 0 15px;
+    margin: 0;
 }
 
 .history-item-details:not(.hide) {

@@ -23,6 +23,9 @@ class Display
             $action = htmlspecialchars_decode($action);
         }
 
+        // Before 6.3.0, names were displayed in <code> tags: display them as labels, like the other names
+        $action = str_replace(['<code>', '</code>'], ['<span class="label-white">', '</span>'], $action);
+
         return Sanitize::html($action);
     }
 

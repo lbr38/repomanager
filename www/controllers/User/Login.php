@@ -84,7 +84,7 @@ class Login extends User
             exit();
         } catch (Exception $e) {
             // Add history
-            History::set('Authentication failed for <code>' . $username . '</code> (local account): ' . $e->getMessage(), 'error', $username, category: 'authentication');
+            History::set('Authentication failed for <span class="label-white">' . htmlspecialchars($username) . '</span> (local account): ' . $e->getMessage(), 'error', $username, category: 'authentication');
 
             if (isset($tooManyAttempts)) {
                 throw new Exception('Too many failed login attempts, please try again in ' . self::FAILED_LOGINS_PERIOD . ' minutes');

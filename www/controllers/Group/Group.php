@@ -108,11 +108,11 @@ class Group
         $this->model->add($name);
 
         if ($this->type == 'repo') {
-            History::set('Create <code>' . $name . '</code> repository group', category: 'group');
+            History::set('Create <span class="label-white">' . $name . '</span> repository group', category: 'group');
         }
 
         if ($this->type == 'host') {
-            History::set('Create <code>' . $name . '</code> host group', category: 'group');
+            History::set('Create <span class="label-white">' . $name . '</span> host group', category: 'group');
         }
     }
 
@@ -173,11 +173,11 @@ class Group
         ]);
 
         if ($this->type == 'repo') {
-            History::set('Repository group <code>' . $name . '</code> edited', category: 'group', changes: $changes);
+            History::set('Repository group <span class="label-white">' . $name . '</span> edited', category: 'group', changes: $changes);
         }
 
         if ($this->type == 'host') {
-            History::set('Host group <code>' . $name . '</code> edited', category: 'group', changes: $changes);
+            History::set('Host group <span class="label-white">' . $name . '</span> edited', category: 'group', changes: $changes);
         }
 
         unset($repoController, $hostController, $mirrorController);
@@ -248,11 +248,11 @@ class Group
             }
 
             if ($this->type == 'repo') {
-                History::set('Delete repository group <code>' . $name . '</code>', category: 'group');
+                History::set('Delete repository group <span class="label-white">' . $name . '</span>', category: 'group');
             }
 
             if ($this->type == 'host') {
-                History::set('Delete host group <code>' . $name . '</code>', category: 'group');
+                History::set('Delete host group <span class="label-white">' . $name . '</span>', category: 'group');
             }
         }
     }

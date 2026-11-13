@@ -213,7 +213,7 @@ class Edit extends User
          */
         $this->updatePassword($id, $hashedPassword);
 
-        History::set('Reseted password of user <code>' . $username . '</code>', category: 'user');
+        History::set('Reseted password of user <span class="label-white">' . $username . '</span>', category: 'user');
 
         /**
          *  Return new password
