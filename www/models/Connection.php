@@ -407,7 +407,9 @@ class Connection extends SQLite3
         Ip_forwarded VARCHAR(255),
         User_agent VARCHAR(255),
         Action VARCHAR(255) NOT NULL,
-        State CHAR(7))"); /* success or error */
+        State CHAR(7), /* success or error */
+        Category VARCHAR(255),
+        Details TEXT)"); /* JSON: changes (before/after values) and parameters of the action */
 
         // Index used to count recent failed authentications
         $this->exec("CREATE INDEX IF NOT EXISTS history_date_time ON history (Date, Time)");
@@ -911,7 +913,8 @@ class Connection extends SQLite3
         Online_status_time TIME,
         Reboot_required CHAR(5),
         Uptime VARCHAR(255),
-        Agent_version VARCHAR(255))"); /* active / disabled / deleted */
+        Agent_version VARCHAR(255),
+        Public_ip VARCHAR(255))"); /* active / disabled / deleted */
 
         // groups table
         $this->exec("CREATE TABLE IF NOT EXISTS groups (

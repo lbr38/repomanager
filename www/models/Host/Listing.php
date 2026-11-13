@@ -192,6 +192,7 @@ class Listing extends \Models\Model
                 $stmt = $this->db->prepare("SELECT
                 hosts.Id,
                 hosts.Ip,
+                hosts.Public_ip,
                 hosts.Hostname,
                 hosts.Os,
                 hosts.Os_version,

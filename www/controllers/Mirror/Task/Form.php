@@ -129,7 +129,7 @@ class Form
             throw new Exception('Group does not exist');
         }
 
-        History::set('Running task: New mirror <span class="label-white">' . htmlspecialchars(Mirror::getLabel($name, $releasever)) . '</span>');
+        History::task('New mirror <span class="label-white">' . htmlspecialchars(Mirror::getLabel($name, $releasever)) . '</span>', $task, 'mirror');
     }
 
     /**
@@ -139,7 +139,7 @@ class Form
     {
         $mirror = self::getAllowedMirror($task);
 
-        History::set('Running task: Sync mirror <span class="label-white">' . htmlspecialchars(Mirror::getLabel($mirror['Name'], $mirror['Releasever'])) . '</span>');
+        History::task('Sync mirror <span class="label-white">' . htmlspecialchars(Mirror::getLabel($mirror['Name'], $mirror['Releasever'])) . '</span>', $task, 'mirror');
     }
 
     /**
@@ -220,6 +220,6 @@ class Form
             'delete'    => empty($task['mirror-snap-id']) ? 'Delete mirror' : 'Delete a snapshot of mirror'
         ];
 
-        History::set('Running task: ' . $descriptions[$task['action']] . ' <span class="label-white">' . htmlspecialchars(Mirror::getLabel($mirror['Name'], $mirror['Releasever'])) . '</span>');
+        History::task($descriptions[$task['action']] . ' <span class="label-white">' . htmlspecialchars(Mirror::getLabel($mirror['Name'], $mirror['Releasever'])) . '</span>', $task, 'mirror');
     }
 }

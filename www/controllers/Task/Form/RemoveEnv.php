@@ -28,10 +28,10 @@ class RemoveEnv
 
         // Add history
         if ($repoController->getPackageType() == 'rpm') {
-            History::set('Running task: remove ' . $repoController->getEnv() . ' environment from ' . Label::white($repoController->getName()) . '⸺' . Label::white($repoController->getDateFormatted()));
+            History::task('remove ' . $repoController->getEnv() . ' environment from ' . Label::white($repoController->getName()) . '⸺' . Label::white($repoController->getDateFormatted()), $formParams);
         }
         if ($repoController->getPackageType() == 'deb') {
-            History::set('Running task: remove ' . $repoController->getEnv() . ' environment from ' . Label::white($repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection()) . '⸺' . Label::white($repoController->getDateFormatted()));
+            History::task('remove ' . $repoController->getEnv() . ' environment from ' . Label::white($repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection()) . '⸺' . Label::white($repoController->getDateFormatted()), $formParams);
         }
 
         unset($repoController);

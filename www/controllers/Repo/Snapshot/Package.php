@@ -17,6 +17,10 @@ use Exception;
 
 class Package
 {
+    // Keys of the upload results (messages displayed to the user)
+    public const UPLOADED = 'Following packages have been uploaded successfully';
+    public const IGNORED = 'Following packages already exist and have been ignored';
+
     private $snapId;
     private $rootUrl;
     private $snapshotPath;
@@ -311,7 +315,7 @@ class Package
             }
 
             if (!empty($packageIgnored)) {
-                $errorMessage['Following packages already exist and have been ignored'] = $packageIgnored;
+                $errorMessage[self::IGNORED] = $packageIgnored;
             }
 
             throw new AppException($errorMessage);
@@ -324,10 +328,10 @@ class Package
         $this->repoSnapshotController->updateArch($this->snapId, $currentArchs);
 
         if (!empty($packageUploaded)) {
-            $return['Following packages have been uploaded successfully'] = $packageUploaded;
+            $return[self::UPLOADED] = $packageUploaded;
         }
         if (!empty($packageIgnored)) {
-            $return['Following packages already exist and have been ignored'] = $packageIgnored;
+            $return[self::IGNORED] = $packageIgnored;
         }
 
         // Calculate and update snapshot size

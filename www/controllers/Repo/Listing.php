@@ -40,6 +40,15 @@ class Listing
     }
 
     /**
+     *  Return the repositories that have at least one active snapshot, with the type (curated, local) of their latest snapshot
+     *  If a repository Id is specified, only this repository is returned
+     */
+    public function listRepositories(int|null $repoId = null) : array
+    {
+        return $this->model->listRepositories($repoId);
+    }
+
+    /**
      *  Return the list of snapshots for a repository
      */
     public function listSnapshots(int $repoId) : array

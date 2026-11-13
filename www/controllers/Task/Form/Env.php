@@ -42,10 +42,10 @@ class Env
         }
 
         if ($repoController->getPackageType() == 'rpm') {
-            History::set('Running task: point ' . (count($formParams['env']) > 1 ? 'environments' : 'environment') . ' <span>' . trim($content) . '</span> to repository ' . Label::white($repoController->getName()) . '⸺' . Label::white($repoController->getDateFormatted()));
+            History::task('point ' . (count($formParams['env']) > 1 ? 'environments' : 'environment') . ' <span>' . trim($content) . '</span> to repository ' . Label::white($repoController->getName()) . '⸺' . Label::white($repoController->getDateFormatted()), $formParams);
         }
         if ($repoController->getPackageType() == 'deb') {
-            History::set('Running task: point ' . (count($formParams['env']) > 1 ? 'environments' : 'environment') . ' <span>' . trim($content) . '</span> to repository ' . Label::white($repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection()) . '⸺' . Label::white($repoController->getDateFormatted()));
+            History::task('point ' . (count($formParams['env']) > 1 ? 'environments' : 'environment') . ' <span>' . trim($content) . '</span> to repository ' . Label::white($repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection()) . '⸺' . Label::white($repoController->getDateFormatted()), $formParams);
         }
 
         unset($repoController);

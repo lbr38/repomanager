@@ -53,25 +53,6 @@ class File extends \Controllers\Service\Service
         }
 
         /**
-         *  Clean pid files older than 7 days
-         */
-        if (is_dir(DATA_DIR . '/tasks/pid')) {
-            $files = FsFile::findRecursive(DATA_DIR . '/tasks/pid', [], ['pid']);
-
-            if (!empty($files)) {
-                foreach ($files as $file) {
-                    if (filemtime($file) < strtotime('-7 days')) {
-                        if (!unlink($file)) {
-                            throw new Exception('Could not delete pid file ' . $file);
-                        }
-
-                        parent::log($file . ' deleted');
-                    }
-                }
-            }
-        }
-
-        /**
          *  Clean temp mirror directories older than 3 days
          */
         if (is_dir(REPOS_DIR)) {

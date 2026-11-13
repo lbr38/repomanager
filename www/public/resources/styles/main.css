@@ -349,8 +349,8 @@ article {
     min-width: 200px;
 }
 
-/* Task list items */
-.task-item {
+/* Task list items (also used by the history list) */
+.task-item, .history-item {
     display: grid;
     grid-template-columns: 1fr auto auto;
     align-items: center;
@@ -363,7 +363,7 @@ article {
     transition: border-color 0.2s ease, background 0.2s ease;
 }
 
-.task-item:hover {
+.task-item:hover, .history-item:hover {
     border-color: #2d5575;
     background: linear-gradient(135deg, #152538, #1a2f44);
 }

@@ -60,10 +60,10 @@ class Duplicate
 
         // Add history
         if ($repoController->getPackageType() == 'rpm') {
-            History::set('Running task: duplicate repository ' . Label::white($repoController->getName()) . '⸺' . Label::white($repoController->getDateFormatted()) . ' ➡ ' . Label::white($formParams['name']));
+            History::task('duplicate repository ' . Label::white($repoController->getName()) . '⸺' . Label::white($repoController->getDateFormatted()) . ' ➡ ' . Label::white($formParams['name']), $formParams);
         }
         if ($repoController->getPackageType() == 'deb') {
-            History::set('Running task: duplicate repository ' . Label::white($repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection()) . '⸺' . Label::white($repoController->getDateFormatted()) . ' ➡ ' . Label::white($formParams['name'] . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection()));
+            History::task('duplicate repository ' . Label::white($repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection()) . '⸺' . Label::white($repoController->getDateFormatted()) . ' ➡ ' . Label::white($formParams['name'] . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection()), $formParams);
         }
 
         unset($repoController, $rpmRepoController, $debRepoController);

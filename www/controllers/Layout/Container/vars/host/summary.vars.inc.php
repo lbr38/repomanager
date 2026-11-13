@@ -15,6 +15,7 @@ $hostPackageController = new \Controllers\Host\Package\Package($id);
 $hostProperties = $myhost->get($id);
 $hostname         = $hostProperties['Hostname'];
 $ip               = $hostProperties['Ip'];
+$publicIp         = $hostProperties['Public_ip'] ?? '';
 $os               = $hostProperties['Os'];
 $osVersion        = $hostProperties['Os_version'];
 $type             = $hostProperties['Type'];

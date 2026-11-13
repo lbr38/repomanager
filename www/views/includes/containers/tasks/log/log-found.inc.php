@@ -109,7 +109,7 @@ use \Controllers\User\Permission\Task as TaskPermission; ?>
 
             <div class="flex column-gap-10 margin-left-auto">
                 <?php
-                if ($taskInfo['Status'] == 'running' and !Task::processRunning($taskId)) {
+                if (empty($subTasksSummary) and $taskInfo['Status'] == 'running' and !Task::processRunning($taskId)) {
                     echo '<img src="/assets/icons/warning-red.svg" class="icon-np" task-id="' . $taskId . '" title="No running process found for this task, the process might have crashed, you should stop this task" />';
                 }
 

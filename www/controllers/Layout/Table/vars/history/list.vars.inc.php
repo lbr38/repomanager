@@ -2,39 +2,53 @@
 $userController = new \Controllers\User\User();
 $historyController = new \Controllers\History\History();
 $reloadableTableOffset = 0;
-$userId = null;
+$reloadableTablePerPage = 25;
+$categories = \Controllers\History\History::CATEGORIES;
+$filters = [];
 
 // Getting all usernames
 $users = $userController->getUsers();
 
-// Retrieve user Id from cookie if exists
-if (!empty($_COOKIE['tables/history/list/id']) and is_numeric($_COOKIE['tables/history/list/id'])) {
-    $userId = $_COOKIE['tables/history/list/id'];
+// Retrieve filters from cookies if exist
+if (!empty($_COOKIE['tables/history/list/user']) and is_numeric($_COOKIE['tables/history/list/user'])) {
+    $filters['user'] = (int) $_COOKIE['tables/history/list/user'];
+}
+
+if (!empty($_COOKIE['tables/history/list/category']) and array_key_exists($_COOKIE['tables/history/list/category'], $categories)) {
+    $filters['category'] = $_COOKIE['tables/history/list/category'];
+}
+
+if (!empty($_COOKIE['tables/history/list/state']) and in_array($_COOKIE['tables/history/list/state'], ['success', 'error'])) {
+    $filters['state'] = $_COOKIE['tables/history/list/state'];
+}
+
+if (!empty($_COOKIE['tables/history/list/search']) and is_string($_COOKIE['tables/history/list/search'])) {
+    $filters['search'] = mb_substr(trim($_COOKIE['tables/history/list/search']), 0, 100);
 }
 
 // Retrieve offset from cookie if exists
 if (!empty($_COOKIE['tables/history/list/offset']) and is_numeric($_COOKIE['tables/history/list/offset'])) {
-    $reloadableTableOffset = $_COOKIE['tables/history/list/offset'];
+    $reloadableTableOffset = (int) $_COOKIE['tables/history/list/offset'];
 }
 
-// Retrieve history, with offset
-if (!empty($userId)) {
-    $reloadableTableContent = $historyController->getByUserId($userId, true, $reloadableTableOffset);
-} else {
-    $reloadableTableContent = $historyController->getAll(true, $reloadableTableOffset);
+// Count successful and failed actions matching the other filters, for the status filter labels
+$successfulCount = $historyController->count(array_merge($filters, ['state' => 'success']));
+$failedCount = $historyController->count(array_merge($filters, ['state' => 'error']));
+
+// Retrieve history, with offset, and the total count for the pagination
+$reloadableTableTotalItems = $historyController->count($filters);
+
+// Go back to the first page if the offset is out of range (e.g. filters changed)
+if ($reloadableTableOffset >= $reloadableTableTotalItems) {
+    $reloadableTableOffset = 0;
 }
 
-// Retrieve history, without offset, for the total count
-if (!empty($userId)) {
-    $reloadableTableTotalItems = count($historyController->getByUserId($userId));
-} else {
-    $reloadableTableTotalItems = count($historyController->getAll());
-}
+$reloadableTableContent = $historyController->get($filters, $reloadableTablePerPage, $reloadableTableOffset);
 
 // Count total pages for the pagination
-$reloadableTableTotalPages = ceil($reloadableTableTotalItems / 10);
+$reloadableTableTotalPages = ceil($reloadableTableTotalItems / $reloadableTablePerPage);
 
 // Calculate current page number
-$reloadableTableCurrentPage = ceil($reloadableTableOffset / 10) + 1;
+$reloadableTableCurrentPage = floor($reloadableTableOffset / $reloadableTablePerPage) + 1;
 
 unset($userController, $historyController);

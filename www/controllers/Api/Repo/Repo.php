@@ -2,6 +2,7 @@
 
 namespace Controllers\Api\Repo;
 
+use Controllers\User\Permission\Repo as RepoPermission;
 use Exception;
 
 class Repo extends \Controllers\Api\Controller
@@ -36,7 +37,10 @@ class Repo extends \Controllers\Api\Controller
          */
         if (empty($this->repoId)) {
             if ($this->method == 'GET') {
-                $repos = $repoListingController->listNameOnly(true);
+                // Only the repositories the user is allowed to view are listed
+                $repos = array_values(array_filter($repoListingController->listNameOnly(true), function ($repo) {
+                    return RepoPermission::allowedToView((int) $repo['Id']);
+                }));
 
                 if (empty($repos)) {
                     throw new Exception('No repositories found');
@@ -58,6 +62,10 @@ class Repo extends \Controllers\Api\Controller
                 // Check if the repository exists
                 if (!$repoController->existsId($this->repoId)) {
                     throw new Exception('Repository does not exist');
+                }
+
+                if (!RepoPermission::allowedToView((int) $this->repoId)) {
+                    throw new Exception('You are not allowed to view this repository');
                 }
 
                 // Get the list of snapshots for the repository

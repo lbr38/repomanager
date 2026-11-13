@@ -623,12 +623,20 @@ class Repo
      */
     public function updateDescription(int $id, string $description): void
     {
-        // Description should not contain single quotes or backslashes
+        self::checkDescription($description);
+
+        $this->model->updateDescription($id, Validate::string($description));
+    }
+
+    /**
+     *  Check that a repository or mirror description is valid
+     *  Description should not contain single quotes, backslashes or PHP tags
+     */
+    public static function checkDescription(string $description): void
+    {
         if (str_contains($description, "'") || str_contains($description, "\\") || str_contains($description, '<?') || str_contains($description, '?>')) {
             throw new Exception('Description contains invalid characters');
         }
-
-        $this->model->updateDescription($id, Validate::string($description));
     }
 
     /**
@@ -644,19 +652,31 @@ class Repo
      */
     public function updateTags(int $id, array $tags): void
     {
+        $this->model->updateTags($id, implode(',', self::cleanTags($tags)));
+    }
+
+    /**
+     *  Check and return the tags of a repository or mirror: trimmed, without empty values and duplicates
+     *  Tags must be alphanumeric (hyphen and underscore allowed)
+     */
+    public static function cleanTags(array $tags): array
+    {
         $validTags = [];
 
         foreach ($tags as $tag) {
+            if (!is_string($tag)) {
+                throw new Exception('Tags must be strings');
+            }
+
             $tag = trim($tag);
 
             // Ignore empty tags
-            if (empty($tag)) {
+            if ($tag === '') {
                 continue;
             }
 
-            // Tags must be alphanumeric (hyphen and underscore allowed)
             if (!Validate::alphaNumericHyphen($tag)) {
-                throw new Exception('Tag ' . $tag . ' contains invalid characters');
+                throw new Exception('Tag ' . htmlspecialchars($tag) . ' contains invalid characters');
             }
 
             // Avoid duplicates
@@ -665,6 +685,6 @@ class Repo
             }
         }
 
-        $this->model->updateTags($id, implode(',', $validTags));
+        return $validTags;
     }
 }

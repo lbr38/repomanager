@@ -1,0 +1,34 @@
+name: API v3 - test-user2 tests
+description: Run API v3 tests as test-user2 user (has upload and rebuild permissions)
+
+inputs:
+  api-host:
+    description: API test host URL
+    required: true
+  api-key:
+    description: test-user2 API key
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: (test-user2) Upload packages and rebuild snapshots metadata
+      shell: bash
+      env:
+        API_HOST: ${{ inputs.api-host }}
+        API_KEY: ${{ inputs.api-key }}
+      run: |
+        source ${{ github.action_path }}/../api.sh
+        prepare_packages
+
+        RESULT=$(api GET /repositories)
+        check "$RESULT" '.data | map(select(.name == "local-deb-for-test-user2")) | length == 1'
+
+        must_pass POST /repositories/local/5/snapshots/5/packages -F "file=@${DEB_PACKAGE}"
+        must_pass POST /repositories/local/6/snapshots/6/packages -F "file=@${RPM_PACKAGE}"
+
+        must_pass POST /repositories/local/5/snapshots/5/rebuild -H "Content-Type: application/json" -d '{"gpg_sign":true}'
+        must_pass POST /repositories/local/6/snapshots/6/rebuild -H "Content-Type: application/json" -d '{"gpg_sign":true}'
+
+        # test-user2 is not allowed to delete repositories
+        must_fail 403 forbidden DELETE /repositories/local/5
