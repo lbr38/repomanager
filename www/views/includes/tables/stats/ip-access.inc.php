@@ -5,10 +5,10 @@
     }
 
     if (!empty($reloadableTableContent)) : ?>
-        <div class="margin-top-5">
+        <div class="flex flex-direction-column row-gap-10 margin-top-5">
             <?php
             foreach ($reloadableTableContent as $item) : ?>
-                <div class="table-container grid-2 justify-space-between align-item-center bck-blue-alt">
+                <div class="stats-access-item grid-2 justify-space-between">
                     <div>
                         <p class="copy"><?= htmlspecialchars($item['Source']) ?></p>
                         <p class="lowopacity-cst copy"><?= htmlspecialchars($item['IP']) ?></p>

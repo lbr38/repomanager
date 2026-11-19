@@ -24,46 +24,171 @@ $(document).on('click','#compact-view-btn',function () {
         mycookie.set('hosts/compact-view', 1, 365);
     }
 
-    // Update button title using the NEW view mode
-    $(this).find('span').text(newViewMode == "1" ? 'Full view' : 'Compact view');
-
-    // Update button icon using the NEW view mode
-    $(this).find('img').attr('src', newViewMode == "1" ? '/assets/icons/view.svg' : '/assets/icons/view-off.svg');
+    // Update button text, title and icon using the NEW view mode
+    $(this).find('span').text(newViewMode == "1" ? 'More details' : 'Less details');
+    $(this).attr('title', newViewMode == "1" ? 'Show more details' : 'Show less details');
+    $(this).find('img').attr('src', newViewMode == "1" ? '/assets/icons/plus.svg' : '/assets/icons/minus.svg');
 
     // Reload the container
     mycontainer.reload('hosts/list', '#hosts');
 });
 
 /**
- *  Event: print help tooltip for search host input
+ *  Restore the search from the page URL (?search=...) on page load
+ */
+$(document).ready(function () {
+    HostSearch.restore();
+});
+
+/**
+ *  Event: search hosts and print suggestions while typing
+ */
+$(document).on('input', '#search-host-input', function () {
+    HostSearch.updateSuggestions();
+    HostSearch.search();
+});
+
+/**
+ *  Event: print suggestions when the cursor moves in the search input
+ */
+$(document).on('click focus', '#search-host-input', function () {
+    HostSearch.updateSuggestions();
+});
+
+$(document).on('keyup', '#search-host-input', function (e) {
+    if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) {
+        HostSearch.updateSuggestions();
+    }
+});
+
+/**
+ *  Event: hide suggestions when leaving the search input
+ */
+$(document).on('blur', '#search-host-input', function () {
+    HostSearch.hideSuggestions();
+});
+
+/**
+ *  Event: keyboard navigation in the suggestions, Enter searches immediately, Escape clears the search
+ */
+$(document).on('keydown', '#search-host-input', function (e) {
+    if (HostSearch.hasSuggestions()) {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            HostSearch.moveSuggestion(e.key === 'ArrowDown' ? 1 : -1);
+            return;
+        }
+
+        // Tab picks the highlighted suggestion, or the first one
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            HostSearch.pickSuggestion(Math.max(HostSearch.suggestionIndex, 0));
+            return;
+        }
+
+        // Enter picks the highlighted suggestion, if any
+        if (e.key === 'Enter' && HostSearch.suggestionIndex > -1) {
+            e.preventDefault();
+            HostSearch.pickSuggestion(HostSearch.suggestionIndex);
+            return;
+        }
+
+        // First Escape only hides the suggestions
+        if (e.key === 'Escape') {
+            HostSearch.hideSuggestions();
+            return;
+        }
+    }
+
+    if (e.key === 'Enter') {
+        HostSearch.hideSuggestions();
+        HostSearch.search(true);
+    }
+    if (e.key === 'Escape') {
+        HostSearch.clear();
+    }
+});
+
+/**
+ *  Event: pick a suggestion (mousedown to keep the focus in the search input)
+ */
+$(document).on('mousedown', '.search-host-suggestion', function (e) {
+    e.preventDefault();
+    HostSearch.pickSuggestion(parseInt($(this).attr('index')));
+});
+
+/**
+ *  Event: clear the search
+ */
+$(document).on('click', '#search-host-clear', function () {
+    HostSearch.clear();
+    $('#search-host-input').trigger('focus');
+});
+
+/**
+ *  Event: print help tooltip for search input
  */
 $(document).on('mouseenter', '.search-host-tooltip', function () {
-    content  = '<p>Syntax</p>';
-    content += '<p><code>search</code></p>';
+    // Print a list of clickable filters
+    const filtersList = function (filters) {
+        let html = '<div class="flex align-item-center flex-wrap column-gap-5 row-gap-8 max-width-500">';
 
-    content += '<p class="margin-top-10">Filters</p>';
-    content += '<div class="flex align-item-center flex-wrap column-gap-5 row-gap-8 max-width-500">';
-    content += '<code>hostname=HOSTNAME</code>';
-    content += '<code>os=OS</code>';
-    content += '<code>os-version=VERSION</code>';
-    content += '<code>os-family=FAMILY</code>';
-    content += '<code>type=TYPE</code>';
-    content += '<code>kernel=KERNEL</code>';
-    content += '<code>arch=ARCHITECTURE</code>';
-    content += '<code>profile=PROFILE</code>';
-    content += '<code>env=ENVIRONMENT</code>';
-    content += '<code>agent-version=VERSION</code>';
-    content += '<code>reboot-required=true/false</code>';
-    content += '<code>compliant=true/false</code>';
-    content += '</div>';
-    content += '<p class="note margin-top-5">Example: get the list of hosts with Ubuntu OS and search for IP 192.168.x</p>';
+        filters.forEach(function (filter) {
+            html += '<code class="search-host-filter" filter="' + filter.split('=')[0] + '" title="Add this filter to the search">' + filter + '</code>';
+        });
+
+        return html + '</div>';
+    };
+
+    content  = '<p>Syntax</p>';
+    content += '<p><code>search</code> <code>filter=value</code></p>';
+
+    content += '<p class="margin-top-10">Host filters <span class="note">(click to add)</span></p>';
+    content += filtersList([
+        'hostname=HOSTNAME',
+        'os=OS',
+        'os-version=VERSION',
+        'os-family=FAMILY',
+        'type=TYPE',
+        'kernel=KERNEL',
+        'arch=ARCHITECTURE',
+        'profile=PROFILE',
+        'env=ENVIRONMENT',
+        'agent-status=STATUS',
+        'agent-version=VERSION',
+        'reboot-required=true/false',
+        'compliant=true/false',
+        'tag=TAG'
+    ]);
+
+    content += '<p class="margin-top-10">Package filters <span class="note">(click to add)</span></p>';
+    content += filtersList([
+        'package=NAME',
+        'version=VERSION',
+        'strict',
+        'strict-name',
+        'strict-version',
+        'absent'
+    ]);
+
+    content += '<p class="note margin-top-10">Example: Ubuntu hosts with an IP in 192.168.x</p>';
     content += '<p><code>os=ubuntu 192.168</code></p>';
+    content += '<p class="note margin-top-5">Example: prod hosts that are not Debian based</p>';
+    content += '<p><code>env=prod os-family!=debian</code></p>';
+    content += '<p class="note margin-top-5">Example: prod hosts with apache2 2.4.x installed (exact package name)</p>';
+    content += '<p><code>env=prod package=apache2 version=2.4 strict-name</code></p>';
+    content += '<p class="note margin-top-5">Example: hosts where nginx is not installed</p>';
+    content += '<p><code>package!=nginx</code></p>';
 
     content += '<div class="flex flex-direction-column row-gap-5 margin-top-10">';
-    content += '<p>• Main search is performed on all fields, use filters to narrow down results</p>';
-    content += '<p>• You can combine multiple filters</p>';
-    content += '<p>• Use quotes when a string contains spaces, e.g os="Linux Mint"</p>';
-    content += '<p>• Search and filters are case-insensitive</p>';
+    content += '<p>• Free text is searched in all fields, each word must match</p>';
+    content += '<p>• Filters can be combined, hosts must match all of them</p>';
+    content += '<p>• Use <code>!=</code> to exclude, e.g. <code>env!=prod</code> or <code>package!=nginx</code> (same as <code>absent</code>)</p>';
+    content += '<p>• <code>strict</code> = exact package name and version</p>';
+    content += '<p>• Type a filter name or <code>filter=</code> to get suggestions, pick one with Tab, Enter or a click</p>';
+    content += '<p>• The search is kept in the page URL, it can be bookmarked or shared</p>';
+    content += '<p>• Use quotes when a value contains spaces, e.g os="Linux Mint"</p>';
+    content += '<p>• Search is case-insensitive, press Escape to clear it</p>';
     content += '</div>';
 
     // Print tooltip
@@ -71,31 +196,50 @@ $(document).on('mouseenter', '.search-host-tooltip', function () {
 });
 
 /**
- *  Event: print help tooltip for search package input
+ *  Event: click on a filter in the search tooltip, add the filter to the search input
  */
-$(document).on('mouseenter', '.search-package-tooltip', function () {
-    content  = '<p>Syntax</p>';
-    content += '<p><code>name=PACKAGE_NAME</code></p>';
+$(document).on('click', '.search-host-filter', function () {
+    HostSearch.addFilter($(this).attr('filter'));
 
-    content += '<p class="margin-top-10">Filters</p>';
-    content += '<div class="flex align-item-center flex-wrap column-gap-5 row-gap-8 max-width-500">';
-    content += '<p><code>version=PACKAGE_VERSION</code></p>';
-    content += '<p><code>strict-name</code></p>';
-    content += '<p><code>strict-version</code></p>';
-    content += '<p><code>strict</code></p>';
-    content += '<p><code>absent</code></p>';
-    content += '</div>';
-    content += '<p class="note margin-top-5">Example: strict search for apache2 package version 2.4.x (exact name and exact version)</p>';
-    content += '<p><code>name=apache2 version=2.4 strict</code></p>';
-    content += '<p class="note margin-top-5">Example: hosts where apache2 is absent</p>';
-    content += '<p><code>name=apache2 absent</code></p>';
+    // Hide the tooltip so that the search input is visible
+    mytooltip.hide();
+});
 
-    content += '<div class="flex flex-direction-column row-gap-5 margin-top-10">';
-    content += '<p>• Use strict filters to search for exact package name and/or version</p>';
-    content += '<p>• Use absent to invert the result and return hosts without a matching package</p>';
-    content += '<p>• Search and filters are case-insensitive</p>';
-    content += '</div>';
+/**
+ *  Event: show / hide all hosts groups
+ */
+$(document).on('click','#hide-all-host-groups',function () {
+    var hide = $(this).attr('state') == 'visible';
+    var newState = hide ? 'hidden' : 'visible';
 
-    // Print tooltip
-    mytooltip.show(this, content);
+    $(this).attr('state', newState);
+    $(this).attr('title', hide ? 'Show all host groups' : 'Hide all host groups');
+    $(this).find('img').attr('src', hide ? '/assets/icons/view-off.svg' : '/assets/icons/view.svg');
+    $(this).find('span').text(hide ? 'Expand all' : 'Collapse all');
+
+    $('.hosts-group-container').each(function () {
+        var content = $(this).children('.hosts-group-content');
+        var name = $(this).find('.hide-host-group');
+
+        if (hide) {
+            content.slideUp(200);
+        } else {
+            content.slideDown(200);
+        }
+
+        name.attr('state', newState);
+        name.attr('title', (hide ? 'Expand group ' : 'Collapse group ') + name.text());
+    });
+});
+
+/**
+ *  Event: show / hide a hosts group content
+ */
+$(document).on('click','.hide-host-group',function () {
+    var hide = $(this).attr('state') == 'visible';
+
+    $(this).attr('state', hide ? 'hidden' : 'visible');
+    $(this).attr('title', (hide ? 'Expand group ' : 'Collapse group ') + $(this).text());
+
+    $(this).closest('.hosts-group-container').children('.hosts-group-content').slideToggle(200);
 });

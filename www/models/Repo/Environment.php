@@ -37,6 +37,28 @@ class Environment extends \Models\Model
     }
 
     /**
+     *  Return all environments associated to a snapshot Id, as an array environment name => environment Id
+     */
+    public function getIdsBySnapId(int $snapId): array
+    {
+        $data = [];
+
+        try {
+            $stmt = $this->db->prepare("SELECT Id, Env FROM repos_env WHERE Id_snap = :snapId ORDER BY Env ASC");
+            $stmt->bindValue(':snapId', $snapId);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[$row['Env']] = (int) $row['Id'];
+        }
+
+        return $data;
+    }
+
+    /**
      *  Associate a new env to a snapshot
      */
     public function add(int $snapId, string $env) : void

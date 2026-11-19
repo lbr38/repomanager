@@ -30,7 +30,7 @@ def help():
 
     print('\n  Template:')
     print('  --template-path                Path to the source repository template to import')
-    print('  --repository-type              Type of repository included in the template (rpm or deb)')
+    print('  --repository-type              (optional) Type of repository included in the template (rpm, deb or arch), checked against the type of the template')
 
     print('\n  Certificates and private key paths. You can provide direct paths to the files, specify a directory and patterns to match the files or a combination of both')
     print('  --certs-dir                    Directory where the certificates are stored')
@@ -87,10 +87,6 @@ def parse_arguments():
     # Check that --template is set
     if args.template_path == 'null':
         raise Exception('You must specify --template')
-
-    # Check that --repository-type is set
-    if args.repository_type == 'null':
-        raise Exception('You must specify --repository-type')
 
     # Check that --url is set
     if args.url == 'null':
@@ -228,11 +224,15 @@ try:
         
         # Raise an exception if the template is empty
         if not template:
-            raise Exception('template file is empty: ' + template)
+            raise Exception('template file is empty: ' + template_path)
 
     # Check if 'repositories' key exists in template
     if 'repositories' not in template:
-        raise Exception('repositories key not found in the template: ' + template)
+        raise Exception('repositories key not found in the template: ' + template_path)
+
+    # The type of repository is read from the template by Repomanager, if specified check that it matches
+    if repository_type != 'null' and template.get('type') != repository_type:
+        raise Exception('repository type ' + repository_type + ' does not match the type of the template: ' + str(template.get('type')))
     
     # Update template
     for repo in template['repositories']:
@@ -252,15 +252,15 @@ try:
     except Exception as e:
         raise Exception('Could not save updated template: ' + str(e))
     
-    # Send updated template to Repomanager API
-    try:
+    # Send updated template to Repomanager API (v3)
+    with open(template_path + '.output', 'rb') as template_file:
         # Send a POST request to the API with the updated template
         response = requests.post(
             # The URL to send the request
-            url + '/api/v2/source/' + repository_type + '/import/',
+            url + '/api/v3/sources/import',
             # The template file to send
             files = {
-                'template': open(template_path + '.output', 'rb')
+                'template': template_file
             },
             # The token to authenticate
             headers = {
@@ -269,15 +269,18 @@ try:
             # Timeout for the request
             timeout = (5, 3))
 
-        # Check is response is OK (20x)
-        response.raise_for_status()
+    # Retrieve the response: {"data": ..., "meta": {"message": ...}} on success, a Problem Details object (RFC 9457) on error
+    try:
+        result = response.json()
+    except ValueError:
+        raise Exception('Unexpected response from Repomanager (HTTP ' + str(response.status_code) + '): ' + response.text)
 
-        # Print the response
-        print(response.json())
+    # If the response is not OK (20x), raise an exception with the error detail
+    if not response.ok:
+        raise Exception('Import failed (HTTP ' + str(response.status_code) + ', ' + str(result.get('code')) + '): ' + str(result.get('detail')))
 
-    # If the response is not OK, raise an exception
-    except requests.exceptions.HTTPError as e:
-        raise Exception(response.json())
+    # Print the response message
+    print(result.get('meta', {}).get('message', 'Source repositories imported'))
 
 except Exception as e:
     print(str(e))

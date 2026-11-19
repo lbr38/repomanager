@@ -1,0 +1,80 @@
+name: API - test-user3 - repository listing tests
+description: Run repository listing tests as test-user3 user (browse permission, only repository #5 is granted individually)
+
+inputs:
+  api-host:
+    description: API test host URL
+    required: true
+  api-key:
+    description: test-user3 API key
+    required: true
+
+runs:
+  using: composite
+  steps:
+    # List all repositories: only repository #5 (local-deb-for-test-user2) must be listed
+    - name: (test-user3) List all repositories
+      shell: bash
+      run: |
+        OUTPUT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/repo/)
+        echo "$OUTPUT" | jq
+
+        if ! echo "$OUTPUT" | jq -e '(.results | map(.Id) | sort) == [5]' > /dev/null; then
+            echo "test-user3 must only see repository #5"
+            exit 1
+        fi
+
+    # List snapshots of repository #5: allowed
+    - name: (test-user3) List snapshots of the granted repository
+      shell: bash
+      run: |
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/repo/5 | jq
+
+    # List snapshots of repository #3: not granted
+    - name: (test-user3) Try to list snapshots of a repository not granted
+      shell: bash
+      run: |
+        OUTPUT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/repo/3) || true
+
+        if echo "$OUTPUT" | grep -q "You are not allowed to view this repository"; then
+            echo "Correctly failed to list snapshots of a repository not granted to test-user3"
+        else
+            echo "test-user3 must not see the snapshots of repository #3"
+            echo "$OUTPUT" | jq
+            exit 1
+        fi
+
+    # List packages of snapshot #5: allowed
+    - name: (test-user3) List packages of a snapshot of the granted repository
+      shell: bash
+      run: |
+        curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/snapshot/5/packages | jq
+
+    # Get details of snapshot #3: not granted
+    - name: (test-user3) Try to get details of a snapshot of a repository not granted
+      shell: bash
+      run: |
+        OUTPUT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/snapshot/3) || true
+
+        if echo "$OUTPUT" | grep -q "You are not allowed to access this snapshot"; then
+            echo "Correctly failed to get details of a snapshot not granted to test-user3"
+        else
+            echo "test-user3 must not see snapshot #3"
+            echo "$OUTPUT" | jq
+            exit 1
+        fi
+
+    # Upload a package to snapshot #5: visible but test-user3 has no upload permission
+    - name: (test-user3) Try to upload a package to the granted repository
+      shell: bash
+      run: |
+        DEB_PACKAGE=$(ls -A1 $HOSTNAME/*nginx_1.26.0-1~bookworm_amd64.deb | head -1)
+        OUTPUT=$(curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer ${{ inputs.api-key }}" -F "file=@${DEB_PACKAGE}" ${{ inputs.api-host }}/api/v2/snapshot/5/upload) || true
+
+        if echo "$OUTPUT" | grep -q "You are not allowed to upload packages"; then
+            echo "Correctly failed to upload a package without the upload permission"
+        else
+            echo "test-user3 must not be allowed to upload packages"
+            echo "$OUTPUT" | jq
+            exit 1
+        fi

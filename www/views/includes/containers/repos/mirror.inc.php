@@ -18,34 +18,38 @@ if ($canEditMirror && empty($mirror['Description'])) {
 
 if ($canEditMirror && empty($mirror['Tags'])) {
     $tagsClass .= ' repo-tags-empty';
-} ?>
+}
+
+// Comma separated list of values, a line can only break after a comma, not inside a value (e.g. 'non-free')
+$nowrapList = function (array $values): string {
+    return implode(', ', array_map(function ($value) {
+        return '<span class="nowrap">' . htmlspecialchars($value) . '</span>';
+    }, $values));
+}; ?>
 
 <!-- repo-id is used as a unique key by the repositories list partial reload, it must not collide with repositories Ids -->
 <div class="repo-item-wrapper <?= !empty($expandAlone) ? 'repo-span-full' : '' ?> <?= !empty($userPreferences['repositories']['list']['expand']) ? 'height-100' : '' ?>" repo-id="mirror-<?= $mirror['Id'] ?>" mirror-id="<?= $mirror['Id'] ?>">
     <div class="div-generic-blue margin-0 repo-item accent-<?= $accent ?> overflowx-auto" data-name="<?= htmlspecialchars($mirror['Name']) ?>" data-dist="<?= htmlspecialchars(implode(' ', array_merge($mirror['params']['dists'] ?? [], $mirror['params']['repos'] ?? []))) ?>" data-section="<?= htmlspecialchars(implode(' ', $mirror['params']['components'] ?? [])) ?>" data-releasever="<?= htmlspecialchars($mirror['Releasever']) ?>" data-type="mirror" data-package-type="<?= $mirror['Package_type'] ?>" data-description="<?= htmlspecialchars($mirror['Description'] ?? '') ?>" data-tags="<?= htmlspecialchars($mirror['Tags'] ?? '') ?>">
-        <div class="repo-item-header flex row-gap-15 column-gap-20 justify-space-between">
-            <div class="flex flex-wrap align-item-center row-gap-15 column-gap-15">
+        <div class="repo-item-header flex flex-wrap row-gap-10 column-gap-20 justify-space-between">
+            <div class="flex flex-1 flex-wrap align-item-center row-gap-15 column-gap-15">
                 <p class="font-size-16 mediumopacity-cst">
-                    <a href="/repository/mirror/<?= $mirror['Id'] ?>" class="flex align-item-center column-gap-5">
-                        <span title="Mirror name" class="repo-name"><?= htmlspecialchars($mirror['Name']) ?></span>
+                    <!-- flex-wrap moves whole items to the next line instead of breaking their text, each dot stays with the item it precedes -->
+                    <a href="/repository/mirror/<?= $mirror['Id'] ?>" class="flex flex-wrap align-item-center row-gap-5 column-gap-5">
+                        <span title="Mirror name" class="repo-name nowrap"><?= htmlspecialchars($mirror['Name']) ?></span>
                         <?php
                         if (!empty($mirror['params']['dists'])) : ?>
-                            <span class="dot">●</span>
-                            <span title="Distribution(s)"><?= htmlspecialchars(implode(', ', $mirror['params']['dists'])) ?></span>
-                            <span class="dot">●</span>
-                            <span title="Components"><?= htmlspecialchars(implode(', ', $mirror['params']['components'] ?? [])) ?></span>
+                            <span class="flex align-item-center column-gap-5"><span class="dot">●</span><span title="Distribution(s)"><?= $nowrapList($mirror['params']['dists']) ?></span></span>
+                            <span class="flex align-item-center column-gap-5"><span class="dot">●</span><span title="Components"><?= $nowrapList($mirror['params']['components'] ?? []) ?></span></span>
                             <?php
                         endif;
 
                         if (!empty($mirror['params']['releasever'])) : ?>
-                            <span class="dot">●</span>
-                            <span title="Release version"><?= htmlspecialchars($mirror['params']['releasever']) ?></span>
+                            <span class="flex align-item-center column-gap-5"><span class="dot">●</span><span title="Release version"><?= htmlspecialchars($mirror['params']['releasever']) ?></span></span>
                             <?php
                         endif;
 
                         if (!empty($mirror['params']['repos'])) : ?>
-                            <span class="dot">●</span>
-                            <span title="Repositories"><?= htmlspecialchars(implode(', ', $mirror['params']['repos'])) ?></span>
+                            <span class="flex align-item-center column-gap-5"><span class="dot">●</span><span title="Repositories"><?= $nowrapList($mirror['params']['repos']) ?></span></span>
                             <?php
                         endif ?>
                     </a>
@@ -74,9 +78,9 @@ if ($canEditMirror && empty($mirror['Tags'])) {
                 endif ?>
             </div>
 
-            <div class="flex align-item-start column-gap-15 mediumopacity-cst">
+            <div class="flex flex-wrap justify-end align-item-start row-gap-5 column-gap-15 margin-left-auto mediumopacity-cst nowrap">
                 <!-- Source repository, followed by the repository type in a discreet way -->
-                <div class="flex align-item-center column-gap-5" title="Mirror of the <?= htmlspecialchars($mirror['Source']) ?> source repository: upstream metadata and signatures are copied as is, clients use the upstream GPG key.">
+                <div class="flex flex-wrap justify-end align-item-center column-gap-5" title="Mirror of the <?= htmlspecialchars($mirror['Source']) ?> source repository: upstream metadata and signatures are copied as is, clients use the upstream GPG key.">
                     <img src="/assets/icons/internet.svg" class="icon-np icon-medium" />
                     <span class="font-size-13"><?= htmlspecialchars($mirror['Source']) ?></span>
                     <span class="font-size-13 lowopacity-cst">● mirror</span>

@@ -154,8 +154,24 @@ class Directory
                 continue;
             }
 
+            /**
+             *  Another process can delete the directory at the same time: ignore it if it no longer exists
+             */
+            try {
+                $empty = self::isEmpty($directory);
+            } catch (Exception $e) {
+                // The result of the is_dir() above is cached by PHP
+                clearstatcache(true, $directory);
+
+                if (!is_dir($directory)) {
+                    continue;
+                }
+
+                throw $e;
+            }
+
             // Delete directory if empty
-            if (self::isEmpty($directory)) {
+            if ($empty) {
                 if (!self::deleteRecursive($directory)) {
                     throw new Exception('Cannot delete directory: ' . $directory);
                 }

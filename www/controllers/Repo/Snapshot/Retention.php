@@ -37,6 +37,22 @@ class Retention
     }
 
     /**
+     *  Return a human readable description of a retention value (as stored in database)
+     */
+    public static function describe(int|null $retention): string
+    {
+        if ($retention === null) {
+            return 'Global setting (' . RETENTION . ')';
+        }
+
+        if ($retention == self::KEEP_ALL) {
+            return 'Keep all snapshots';
+        }
+
+        return $retention . ' unused snapshot(s)';
+    }
+
+    /**
      *  Return the number of unused snapshots to keep, or null if all of them must be kept
      */
     public static function get(int|string|null $retention): int|null

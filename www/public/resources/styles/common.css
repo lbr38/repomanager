@@ -255,6 +255,7 @@ pre.codeblock {
     filter: initial;
 }
 .text-wrap{text-wrap:wrap}
+.nowrap{white-space:nowrap}
 .wordbreakall{word-break:break-all}
 .overflowx-auto{overflow-x:auto}
 .overflowy-hidden{overflow-y:hidden}

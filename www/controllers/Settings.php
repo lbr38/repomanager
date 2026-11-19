@@ -266,6 +266,17 @@ class Settings
         }
 
         /**
+         *  Repositories / ARCH
+         */
+        if (!empty($sendSettings['archRepo'])) {
+            if ($sendSettings['archRepo'] == 'true') {
+                $settingsToApply['ARCH_REPO'] = 'true';
+            } else {
+                $settingsToApply['ARCH_REPO'] = 'false';
+            }
+        }
+
+        /**
          *  Repositories / GPG signing key
          */
         if (!empty($sendSettings['gpgKeyID'])) {
@@ -457,10 +468,23 @@ class Settings
             $settingsToApply['OIDC_CERT_PATH'] = '';
         }
 
+        // Current settings, for history
+        $before = $this->model->get();
+
         /**
          *  Write settings to database
          */
         $this->model->apply($settingsToApply);
+
+        // Queued tasks may be started now, if tasks queuing has been disabled or its maximum number of simultaneous tasks increased
+        (new \Controllers\Task\Queue())->dispatch();
+
+        // Add history, only if some settings have been changed (secrets values are never stored)
+        $changes = \Controllers\History\Details::diff($before, $settingsToApply, secrets: ['OIDC_CLIENT_SECRET']);
+
+        if (!empty($changes)) {
+            \Controllers\History\Save::set('Settings edited', category: 'settings', changes: $changes);
+        }
     }
 
     /**

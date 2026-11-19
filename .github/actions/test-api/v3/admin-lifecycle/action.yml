@@ -1,0 +1,230 @@
+name: API v3 - admin lifecycle tests
+description: Run API v3 tests as admin user that create, edit and delete repositories, snapshots and tasks
+
+inputs:
+  api-host:
+    description: API test host URL
+    required: true
+  api-key:
+    description: Admin API key
+    required: true
+
+# All the repositories created here are named 'ci-v3-*' and deleted at the end, even if a test fails
+# Repository and snapshot Ids are not fixed (shared test instance), they are retrieved from the repositories names
+runs:
+  using: composite
+  steps:
+    - name: (admin) Clean up repositories left by a previous run
+      shell: bash
+      env:
+        API_HOST: ${{ inputs.api-host }}
+        API_KEY: ${{ inputs.api-key }}
+      run: |
+        source ${{ github.action_path }}/../api.sh
+
+        cleanup_repositories
+
+    - name: (admin) Local repository lifecycle
+      shell: bash
+      env:
+        API_HOST: ${{ inputs.api-host }}
+        API_KEY: ${{ inputs.api-key }}
+        NAME: ci-v3-local-${{ github.run_id }}
+        RENAMED: ci-v3-renamed-${{ github.run_id }}
+        DUPLICATE: ci-v3-duplicate-${{ github.run_id }}
+      run: |
+        source ${{ github.action_path }}/../api.sh
+        prepare_packages
+
+        # A non protected environment, protected ones cannot be removed
+        ENV=$(api GET /environments | jq -r '[.data[] | select(.protected | not)][0].name // empty')
+
+        # Create
+        run_task 300 POST /repositories/local -H "Content-Type: application/json" \
+            -d "$(jq -nc --arg name "$NAME" '{package_type:"deb", name:$name, dist:"bookworm", section:"main", description:"CI - API v3 lifecycle"}')"
+        ID=$(repo_id local "$NAME")
+        RESULT=$(api GET /repositories/local/$ID)
+        check "$RESULT" '.data.dist == "bookworm" and .data.section == "main" and (.data.snapshots | length == 1)'
+        SNAP_ID=$(echo "$RESULT" | jq -r '.data.snapshots[0].id')
+
+        # Upload a package, delete it, then rebuild the metadata
+        must_pass POST /repositories/local/$ID/snapshots/$SNAP_ID/packages -F "file=@${DEB_PACKAGE}"
+        RESULT=$(api GET /repositories/local/$ID/snapshots/$SNAP_ID/packages)
+        check "$RESULT" '.data | length == 1'
+        RESULT=$(api DELETE /repositories/local/$ID/snapshots/$SNAP_ID/packages -H "Content-Type: application/json" \
+            -d "$(jq -nc --arg file "$(basename "$DEB_PACKAGE")" '{packages:[$file]}')")
+        check "$RESULT" '.data.deleted | length == 1'
+        run_task 300 POST /repositories/local/$ID/snapshots/$SNAP_ID/rebuild -H "Content-Type: application/json" -d '{"gpg_sign":true}'
+        RESULT=$(api GET /repositories/local/$ID/snapshots/$SNAP_ID/packages)
+        check "$RESULT" '.data | length == 0'
+
+        # Only one snapshot per day: a local repository cannot have a new snapshot the day it was created
+        must_fail 400 operation_refused POST /repositories/local/$ID/snapshots -H "Content-Type: application/json" -d '{}'
+        RESULT=$(api GET /repositories/local/$ID/snapshots)
+        check "$RESULT" '.data | length == 1'
+
+        # Point an environment to the snapshot, then remove it
+        if [ -n "$ENV" ]; then
+            run_task 300 POST /repositories/local/$ID/snapshots/$SNAP_ID/environments -H "Content-Type: application/json" \
+                -d "$(jq -nc --arg env "$ENV" '{environments:[$env]}')"
+            RESULT=$(api GET /repositories/local/$ID/snapshots/$SNAP_ID)
+            check "$RESULT" "[.data.environments[].name] | index(\"$ENV\") != null"
+
+            run_task 300 DELETE /repositories/local/$ID/snapshots/$SNAP_ID/environments/$ENV
+            RESULT=$(api GET /repositories/local/$ID/snapshots/$SNAP_ID)
+            check "$RESULT" '.data.environments | length == 0'
+        else
+            echo "No non protected environment, environment tests skipped"
+        fi
+
+        # Duplicate the snapshot into a new repository, then delete its only snapshot: the repository is deleted with it
+        run_task 300 POST /repositories/local/$ID/snapshots/$SNAP_ID/duplicate -H "Content-Type: application/json" \
+            -d "$(jq -nc --arg name "$DUPLICATE" '{name:$name}')"
+        DUPLICATE_ID=$(repo_id local "$DUPLICATE")
+        DUPLICATE_SNAP_ID=$(api GET /repositories/local/$DUPLICATE_ID/snapshots | jq -r '.data[0].id')
+        run_task 300 DELETE /repositories/local/$DUPLICATE_ID/snapshots/$DUPLICATE_SNAP_ID
+        must_fail 404 not_found GET /repositories/local/$DUPLICATE_ID
+
+        # Rename
+        run_task 300 POST /repositories/local/$ID/rename -H "Content-Type: application/json" \
+            -d "$(jq -nc --arg name "$RENAMED" '{name:$name}')"
+        ID=$(repo_id local "$RENAMED")
+
+        # Delete
+        run_task 300 DELETE /repositories/local/$ID
+        must_fail 404 not_found GET /repositories/local/$ID
+
+    - name: (admin) Scheduled task actions
+      shell: bash
+      env:
+        API_HOST: ${{ inputs.api-host }}
+        API_KEY: ${{ inputs.api-key }}
+        NAME: ci-v3-scheduled-${{ github.run_id }}
+      run: |
+        source ${{ github.action_path }}/../api.sh
+
+        run_task 300 POST /repositories/local -H "Content-Type: application/json" \
+            -d "$(jq -nc --arg name "$NAME" '{package_type:"deb", name:$name, dist:"bookworm", section:"main", description:"CI - API v3 scheduled task"}')"
+        ID=$(repo_id local "$NAME")
+
+        # Schedule the deletion of the repository in a week, the task is not executed
+        RESULT=$(api DELETE /repositories/local/$ID -H "Content-Type: application/json" \
+            -d "$(jq -nc --arg date "$(date -d '+7 days' +%Y-%m-%d)" '{schedule:{type:"unique", date:$date, time:"03:00"}}')")
+        check "$RESULT" '.data.status == "scheduled" and .data.schedule.type == "unique"'
+        TASK_ID=$(echo "$RESULT" | jq -r '.data.id')
+
+        must_pass POST /tasks/$TASK_ID/disable
+        RESULT=$(api GET /tasks/$TASK_ID)
+        check "$RESULT" '.data.status == "disabled"'
+
+        must_pass POST /tasks/$TASK_ID/enable
+        RESULT=$(api GET /tasks/$TASK_ID)
+        check "$RESULT" '.data.status == "scheduled"'
+
+        must_pass DELETE /tasks/$TASK_ID
+        must_fail 404 not_found GET /tasks/$TASK_ID
+
+        # The repository is still there
+        must_pass GET /repositories/local/$ID
+        run_task 300 DELETE /repositories/local/$ID
+
+    - name: (admin) Curated repository lifecycle
+      shell: bash
+      env:
+        API_HOST: ${{ inputs.api-host }}
+        API_KEY: ${{ inputs.api-key }}
+        NAME: ci-v3-curated-${{ github.run_id }}
+      run: |
+        source ${{ github.action_path }}/../api.sh
+
+        # nginx source repository (imported by the admin tests), only the latest version of the nginx* packages, amd64 only
+        must_pass POST /sources/import -F "template=@${{ github.workspace }}/www/templates/source-repositories/deb/nginx.yml"
+
+        run_task 900 POST /repositories/curated -H "Content-Type: application/json" \
+            -d "$(jq -nc --arg name "$NAME" '{package_type:"deb", name:$name, source:"nginx", dist:"bookworm", section:"nginx", arch:["amd64"], gpg_check:true, gpg_sign:true, description:"CI - API v3 curated", advanced_params:{packages:{include:["nginx"], keep_latest:1}}}')"
+        ID=$(repo_id curated "$NAME")
+        RESULT=$(api GET /repositories/curated/$ID)
+        check "$RESULT" '.data.type == "curated" and .data.source == "nginx" and (.data.snapshots | length == 1)'
+        SNAP_ID=$(echo "$RESULT" | jq -r '.data.snapshots[0].id')
+
+        RESULT=$(api GET /repositories/curated/$ID/snapshots/$SNAP_ID/packages)
+        check "$RESULT" '(.data | length > 0) and all(.data[]; .name | startswith("nginx"))'
+        # keep_latest: a single version of each package
+        check "$RESULT" '(.data | map(.name) | unique | length) == (.data | length)'
+
+        # Update: the snapshot of the day is replaced
+        run_task 900 POST /repositories/curated/$ID/snapshots -H "Content-Type: application/json" -d '{"gpg_check":true}'
+        RESULT=$(api GET /repositories/curated/$ID/snapshots)
+        check "$RESULT" '.data | length == 1'
+
+        # A curated repository is not a local repository
+        must_fail 404 not_found GET /repositories/local/$ID
+
+        run_task 300 DELETE /repositories/curated/$ID
+        must_fail 404 not_found GET /repositories/curated/$ID
+
+    - name: (admin) Mirror lifecycle
+      shell: bash
+      env:
+        API_HOST: ${{ inputs.api-host }}
+        API_KEY: ${{ inputs.api-key }}
+        NAME: ci-v3-mirror-${{ github.run_id }}
+      run: |
+        source ${{ github.action_path }}/../api.sh
+
+        ENV=$(api GET /environments | jq -r '[.data[] | select(.protected | not)][0].name // empty')
+
+        # Debian source repository, bookworm-updates main amd64 only: a few dozen packages (about 30 MB)
+        must_pass POST /sources/import -F "template=@${{ github.workspace }}/www/templates/source-repositories/deb/debian.yml"
+
+        # Keep 3 snapshots, so that the sync below does not delete the first snapshot
+        run_task 900 POST /repositories/mirror -H "Content-Type: application/json" \
+            -d "$(jq -nc --arg name "$NAME" '{package_type:"deb", name:$name, source:"debian", dists:["bookworm-updates"], components:["main"], arch:["amd64"], gpg_check:true, retention:3, description:"CI - API v3 mirror"}')"
+        ID=$(repo_id mirror "$NAME")
+        RESULT=$(api GET /repositories/mirror/$ID)
+        check "$RESULT" '.data.type == "mirror" and .data.source == "debian" and .data.dists == ["bookworm-updates"] and (.data.snapshots | length == 1)'
+        FIRST_SNAP_ID=$(echo "$RESULT" | jq -r '.data.snapshots[0].id')
+
+        # Packages are managed by the source repository only
+        must_fail 404 not_found GET /repositories/mirror/$ID/snapshots/$FIRST_SNAP_ID/packages
+
+        # Sync into a new snapshot
+        run_task 900 POST /repositories/mirror/$ID/snapshots -H "Content-Type: application/json" -d '{}'
+        RESULT=$(api GET /repositories/mirror/$ID/snapshots)
+        check "$RESULT" '.data | length == 2'
+        SNAP_ID=$(echo "$RESULT" | jq -r --argjson first "$FIRST_SNAP_ID" '[.data[] | select(.id != $first)][0].id')
+
+        # Point an environment to the new snapshot, then remove it
+        if [ -n "$ENV" ]; then
+            run_task 300 POST /repositories/mirror/$ID/snapshots/$SNAP_ID/environments -H "Content-Type: application/json" \
+                -d "$(jq -nc --arg env "$ENV" '{environments:[$env]}')"
+            RESULT=$(api GET /repositories/mirror/$ID/snapshots/$SNAP_ID)
+            check "$RESULT" "[.data.environments[].name] | index(\"$ENV\") != null"
+
+            run_task 300 DELETE /repositories/mirror/$ID/snapshots/$SNAP_ID/environments/$ENV
+            RESULT=$(api GET /repositories/mirror/$ID/snapshots/$SNAP_ID)
+            check "$RESULT" '.data.environments | length == 0'
+        else
+            echo "No non protected environment, environment tests skipped"
+        fi
+
+        # Delete the first snapshot
+        run_task 300 DELETE /repositories/mirror/$ID/snapshots/$FIRST_SNAP_ID
+        must_fail 404 not_found GET /repositories/mirror/$ID/snapshots/$FIRST_SNAP_ID
+        RESULT=$(api GET /repositories/mirror/$ID/snapshots)
+        check "$RESULT" '.data | length == 1'
+
+        # Delete the mirror
+        run_task 300 DELETE /repositories/mirror/$ID
+        must_fail 404 not_found GET /repositories/mirror/$ID
+
+    - name: (admin) Clean up repositories
+      if: always()
+      shell: bash
+      env:
+        API_HOST: ${{ inputs.api-host }}
+        API_KEY: ${{ inputs.api-key }}
+      run: |
+        source ${{ github.action_path }}/../api.sh
+
+        cleanup_repositories

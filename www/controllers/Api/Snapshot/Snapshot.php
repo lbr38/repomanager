@@ -5,7 +5,6 @@ namespace Controllers\Api\Snapshot;
 use Controllers\User\Permission\Repo as RepoPermission;
 use Controllers\Repo\Snapshot\Package;
 use Controllers\Utils\Convert;
-use Controllers\Task\Task;
 use Exception;
 
 class Snapshot extends \Controllers\Api\Controller
@@ -30,9 +29,10 @@ class Snapshot extends \Controllers\Api\Controller
         }
 
         // Retrieve snapshot Id
-        if (!empty($this->uri[4])) {
-            $this->snapId = $this->uri[4];
-        }
+        $this->snapId = (int) $this->uri[4];
+
+        // Whether the user is allowed to view the repository of the snapshot (packages upload and delete check it themselves)
+        $allowedToView = RepoPermission::allowedToView((int) $repoSnapshotController->getById($this->snapId)['Id_repo']);
 
         // Retrieve uploaded FILES if any
         if (!empty($_FILES)) {
@@ -42,6 +42,10 @@ class Snapshot extends \Controllers\Api\Controller
         $repoSnapshotPackageController = new Package($this->snapId);
 
         if ($this->method == 'GET') {
+            if (!$allowedToView) {
+                throw new Exception('You are not allowed to access this snapshot');
+            }
+
             /**
              *  List snapshot details
              *  https://repomanager.mydomain.net/api/v2/snapshot/{snap-id}/
@@ -72,6 +76,14 @@ class Snapshot extends \Controllers\Api\Controller
                     throw new Exception('Invalid snapshot Id #' . $this->uri[6]);
                 }
 
+                if (!$repoSnapshotController->exists((int) $this->uri[6])) {
+                    throw new Exception('Unknown snapshot ID #' . $this->uri[6]);
+                }
+
+                if (!RepoPermission::allowedToView((int) $repoSnapshotController->getById((int) $this->uri[6])['Id_repo'])) {
+                    throw new Exception('You are not allowed to access snapshot #' . $this->uri[6]);
+                }
+
                 return ['results' => $repoSnapshotController->diff($this->snapId, $this->uri[6])];
             }
         }
@@ -81,7 +93,7 @@ class Snapshot extends \Controllers\Api\Controller
              *  Upload packages to a snapshot
              *  https://repomanager.mydomain.net/api/v2/snapshot/{snap-id}/upload
              */
-            if ($this->uri[5] == 'upload' and !empty($this->postFiles)) {
+            if (($this->uri[5] ?? '') == 'upload' and !empty($this->postFiles)) {
                 $overwrite = false;
                 $ignoreIfExists = false;
 
@@ -107,19 +119,13 @@ class Snapshot extends \Controllers\Api\Controller
              *  Rebuild a snapshot
              *  https://repomanager.mydomain.net/api/v2/snapshot/{snap-id}/rebuild
              */
-            if ($this->uri[5] == 'rebuild' and !empty($this->data['gpgSign'])) {
-                /**
-                 *  Same code as controllers/ajax/browse.php
-                 *  TODO : find a way to not duplicate code
-                 */
-                $taskController = new Task();
-
+            if (($this->uri[5] ?? '') == 'rebuild' and isset($this->data['gpgSign'])) {
                 if (!RepoPermission::allowedAction('rebuild')) {
                     throw new Exception('You are not allowed to rebuild a repository snapshot');
                 }
 
-                if ($this->data['gpgSign'] != 'true' and $this->data['gpgSign'] != 'false') {
-                    throw new Exception('Invalid GPG sign value');
+                if (!$allowedToView) {
+                    throw new Exception('You are not allowed to access this snapshot');
                 }
 
                 // If a task is already running on the snapshot, throw an error
@@ -127,15 +133,15 @@ class Snapshot extends \Controllers\Api\Controller
                     throw new Exception('A task is already running on this repository snapshot. Retry later.');
                 }
 
-                // Create a json file that defines the task to execute
+                // Same parameters and validation as the rebuild form (permission, protected environments...)
                 $params = [];
                 $params['action'] = 'rebuild';
-                $params['snap-id'] = $this->snapId;
-                $params['gpg-sign'] = $this->data['gpgSign'];
+                $params['snap-id'] = strval($this->snapId);
+                // GPG signature can be specified as a boolean or as a 'true' / 'false' string
+                $params['gpg-sign'] = is_bool($this->data['gpgSign']) ? ($this->data['gpgSign'] ? 'true' : 'false') : strval($this->data['gpgSign']);
                 $params['schedule']['scheduled'] = 'false';
 
-                // Execute the task
-                $taskId = $taskController->execute([$params]);
+                $taskId = (new \Controllers\Task\Launcher())->launch([$params]);
 
                 return [
                     'rc' => 202,
@@ -150,7 +156,7 @@ class Snapshot extends \Controllers\Api\Controller
              *  Delete packages from a snapshot
              *  https://repomanager.mydomain.net/api/v2/snapshot/{snap-id}/packages
              */
-            if ($this->uri[5] == 'packages' and !empty($this->data['packages'])) {
+            if (($this->uri[5] ?? '') == 'packages' and !empty($this->data['packages'])) {
                 return ['results' => ['Packages deleted successfully:' => $repoSnapshotPackageController->deleteByName($this->data['packages'])]];
             }
         }

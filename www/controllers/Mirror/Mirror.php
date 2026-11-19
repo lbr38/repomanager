@@ -126,9 +126,7 @@ class Mirror
      */
     public function updateDescription(int $id, string $description): void
     {
-        if (str_contains($description, "'") || str_contains($description, "\\") || str_contains($description, '<?') || str_contains($description, '?>')) {
-            throw new Exception('Description contains invalid characters');
-        }
+        \Controllers\Repo\Repo::checkDescription($description);
 
         $this->model->updateDescription($id, Validate::string($description));
     }
@@ -146,26 +144,7 @@ class Mirror
      */
     public function updateTags(int $id, array $tags): void
     {
-        $validTags = [];
-
-        foreach ($tags as $tag) {
-            $tag = trim($tag);
-
-            if (empty($tag)) {
-                continue;
-            }
-
-            // Tags must be alphanumeric (hyphen and underscore allowed)
-            if (!Validate::alphaNumericHyphen($tag)) {
-                throw new Exception('Tag ' . htmlspecialchars($tag) . ' contains invalid characters');
-            }
-
-            if (!in_array($tag, $validTags)) {
-                $validTags[] = $tag;
-            }
-        }
-
-        $this->model->updateTags($id, implode(',', $validTags));
+        $this->model->updateTags($id, implode(',', \Controllers\Repo\Repo::cleanTags($tags)));
     }
 
     /**

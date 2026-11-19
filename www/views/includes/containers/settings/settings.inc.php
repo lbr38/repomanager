@@ -288,8 +288,20 @@
                     <option value="error" <?php echo (DEB_INVALID_SIGNATURE == 'error') ? 'selected' : '' ?>>End sync task with error</option>
                 </select>
                 <?php
-            endif;
+            endif ?>
 
+            <hr class="margin-top-20 margin-bottom-20">
+
+            <h5>ARCH</h5>
+
+            <h6>ENABLE ARCH LINUX REPOSITORIES</h6>
+            <p class="note">Enable Arch Linux package repositories (mirrors only).</p>
+            <label class="onoff-switch-label">
+                <input class="settings-param onoff-switch-input" param-name="archRepo" type="checkbox" value="true" <?php echo (ARCH_REPO == 'true') ? 'checked' : ''; ?>>
+                <span class="onoff-switch-slider"></span>
+            </label>
+
+            <?php
             if (RPM_SIGN_PACKAGES == 'true' or DEB_SIGN_REPO == 'true') : ?>
                 <hr class="margin-top-20 margin-bottom-20">
 

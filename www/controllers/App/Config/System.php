@@ -34,6 +34,18 @@ class System
         }
 
         /**
+         *  Server host (without port), as requested by the client (browser, linupdate...)
+         *  The Host header is client controlled: only a valid hostname, IPv4 or [IPv6] with an optional port is accepted
+         */
+        if (!defined('__SERVER_HOST__')) {
+            if (!empty($_SERVER['HTTP_HOST']) and preg_match('/^(\[[0-9a-fA-F:.]+\]|[a-zA-Z0-9.-]+)(:[0-9]{1,5})?$/', $_SERVER['HTTP_HOST'], $matches)) {
+                define('__SERVER_HOST__', $matches[1]);
+            } else {
+                define('__SERVER_HOST__', '');
+            }
+        }
+
+        /**
          *  Server IP
          */
         if (!defined('__SERVER_IP__')) {

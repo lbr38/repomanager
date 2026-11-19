@@ -31,7 +31,18 @@ $selectedSnapIds = array_map('intval', array_column(array_filter($repos, functio
 }), 'snap-id'));
 $activeSnapIds = array_map('intval', array_column($repoController->getSnapshots($repoId), 'Id'));
 
-if (empty(array_diff($activeSnapIds, $selectedSnapIds))) : ?>
+// If a selected snapshot of the repository is used by a protected environment, the deletion is refused and the repository is kept:
+// do not warn that the repository will be deleted
+$repoProtected = false;
+
+foreach ($selectedSnapIds as $selectedSnapId) {
+    if (!empty((new \Controllers\Repo\Snapshot\Snapshot())->getProtectedEnvs($selectedSnapId))) {
+        $repoProtected = true;
+        break;
+    }
+}
+
+if (!$repoProtected and empty(array_diff($activeSnapIds, $selectedSnapIds))) : ?>
     <div class="note-warning">
         <img src="/assets/icons/warning.svg" />
         <p>No snapshot of this repository will be left: the repository will be deleted, with its environments and scheduled tasks.</p>

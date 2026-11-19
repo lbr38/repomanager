@@ -1,14 +1,18 @@
 #!/usr/bin/env php
 <?php
 use \Controllers\Log\Log;
-use \Controllers\Settings;
 use \Controllers\Autoloader;
 use \Controllers\FatalErrorHandler;
-use \Controllers\Task\Listing as TaskListing;
 use \Controllers\Task\Task;
+use \Controllers\Task\Queue;
 use \Controllers\App\Main as AppLoader;
 
-// Set process title for task execution
+/**
+ *  Execute a task, this process is started by the tasks queue (see \Controllers\Task\Queue)
+ *  It first claims its task, and exits immediately if the task is not to be started now
+ */
+
+// Process title until the task is claimed, it then includes the task Id (see \Controllers\Task\Queue::claim())
 cli_set_process_title('repomanager.task-run');
 
 // Load configuration
@@ -17,47 +21,62 @@ require_once(ROOT . '/controllers/Autoloader.php');
 new Autoloader();
 new AppLoader('minimal');
 
-// Set memory limit for task execution
-// ini_set('memory_limit', TASK_EXECUTION_MEMORY_LIMIT . 'M');
-
-$settingsController = new Settings();
-$taskController = new Task();
-$taskListingController = new TaskListing();
-$logController = new Log();
-$fatalErrorHandlerController = new FatalErrorHandler();
-
 /**
- *  Getting options from command line: a task Id can be provided to run a specific task.
- *
- *  First parameter passed to getopt is null: we don't want to work with short options.
+ *  Getting options from command line: the Id of the task to run
  *  More infos about getopt() : https://blog.pascal-martin.fr/post/php-5.3-getopt-parametres-ligne-de-commande/
  */
-$getOptions = getopt(null, ["id:"]);
+$getOptions = getopt('', ["id:"]);
+
+if (empty($getOptions['id']) or !ctype_digit($getOptions['id'])) {
+    echo 'A task Id must be specified with --id' . PHP_EOL;
+    exit(1);
+}
+
+$taskId = (int) $getOptions['id'];
+$claimed = false;
+$failure = '';
+
+/**
+ *  Once the task is claimed, whatever the way this process ends (end of the task, uncaught error, fatal error...),
+ *  the task is marked as failed if it has not been ended properly, and its slot is given to the next queued task.
+ *  Registered before the fatal error handler, which exits and would prevent this function from running.
+ */
+register_shutdown_function(function () use ($taskId, &$claimed, &$failure) {
+    if (!$claimed) {
+        return;
+    }
+
+    // The process may end because of a fatal error (e.g. memory exhausted), some memory is needed to release the task
+    $error = error_get_last();
+
+    if ($error !== null and in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
+        ini_set('memory_limit', '-1');
+        $failure = 'Fatal error: ' . $error['message'];
+    }
+
+    try {
+        (new Queue())->release($taskId, $failure);
+    } catch (Exception | Error $e) {
+        echo 'Error while releasing task #' . $taskId . ': ' . $e->getMessage() . PHP_EOL;
+    }
+});
+
+$taskController = new Task();
+$logController = new Log();
+$fatalErrorHandlerController = new FatalErrorHandler();
+$fatalErrorHandlerController->setTaskId($taskId);
 
 try {
     /**
-     *  If a task Id is provided, use it.
-     *  Otherwise, retrieve the latest task Id from the database.
+     *  Claim the task, it may have been stopped, deleted, started by another process, or there is no slot available for it anymore
+     *  Exits with a specific code, so that a manual execution (e.g. in CI) does not look successful
      */
-    if (!empty($getOptions['id'])) {
-        if (!is_numeric($getOptions['id'])) {
-            throw new Exception('Task Id must be a number.');
-        }
-
-        $taskId = (int) $getOptions['id'];
-    } else {
-        // Retrieve latest task Id
-        $taskId = $taskController->getLastTaskId('queued');
-
-        // If no task Id has been found, throw an exception
-        if (empty($taskId)) {
-            echo 'No task to run.' . PHP_EOL;
-            exit(2);
-        }
+    if (!(new Queue())->claim($taskId)) {
+        echo 'Task #' . $taskId . ' is not to be started now. Exiting...' . PHP_EOL;
+        exit(2);
     }
 
-    // Set task Id for fatal error handler
-    $fatalErrorHandlerController->setTaskId($taskId);
+    $claimed = true;
 
     // Retrieve task details
     $task = $taskController->getById($taskId);
@@ -65,9 +84,6 @@ try {
     if (empty($task)) {
         throw new Exception('Cannot get task details from task #' . $taskId . ': empty results.');
     }
-
-    // Update the process title to include the task Id
-    cli_set_process_title('repomanager.task-run.' . $taskId);
 
     try {
         $taskRawParams = json_decode($task['Raw_params'], true, 512, JSON_THROW_ON_ERROR);
@@ -92,52 +108,6 @@ try {
         throw new Exception('Invalid action: ' . $taskRawParams['action']);
     }
 
-    while (true) {
-        // Get global settings
-        try {
-            $settings = $settingsController->get();
-        } catch (Exception $e) {
-            throw new Exception('Cannot get global settings: ' . $e->getMessage());
-        }
-
-        // If task queuing is disabled, run the task immediately
-        if ($settings['TASK_QUEUING'] == 'false') {
-            break;
-        }
-
-        // If task queuing is enabled and the maximum number of simultaneous tasks is set, check if the task can be started
-        if ($settings['TASK_QUEUING'] == 'true' and !empty($settings['TASK_QUEUING_MAX_SIMULTANEOUS'])) {
-            // Get all currently running tasks
-            $runningTasks = $taskListingController->getExecutable('running', true);
-
-            // Get all currently queued tasks
-            $queuedTasks = $taskListingController->getExecutable('queued', true);
-
-            /**
-             *  First, retrieve the position of this task in the queue.
-             *  The queued task may have been cancelled by the user, so we don't want to run it if it's not in the queued tasks list anymore.
-             */
-            $queuePosition = array_search($taskId, array_column($queuedTasks, 'Id'));
-
-            if ($queuePosition === false) {
-                echo 'Task #' . $taskId . ' is not in the queued tasks list anymore. Exiting...' . PHP_EOL;
-                exit(2);
-            }
-
-            /**
-             *  The queue is already ordered by priority, so the task can be started as soon as it is
-             *  among the first ones for which a slot is available.
-             */
-            if ($queuePosition < ($settings['TASK_QUEUING_MAX_SIMULTANEOUS'] - count($runningTasks))) {
-                break;
-            }
-
-            echo 'Maximum number of simultaneous tasks reached (' . $settings['TASK_QUEUING_MAX_SIMULTANEOUS'] . '). Waiting for a task to finish...' . PHP_EOL;
-        }
-
-        sleep(5);
-    }
-
     // Set memory limit for task execution
     ini_set('memory_limit', TASK_EXECUTION_MEMORY_LIMIT . 'M');
 
@@ -148,13 +118,14 @@ try {
 
 // Handle any exceptions that occur during task execution
 } catch (Exception $e) {
-    // $logController->log('error', 'An exception error occurred while running task #' . $taskId, $e->getMessage(), $e->getTraceAsString());
+    $failure = $e->getMessage();
     echo 'Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine() . PHP_EOL;
     echo 'Task #' . $taskId . ' failed' . PHP_EOL;
     exit(1);
 
 // Handle any fatal errors that occur during task execution
 } catch (Error $e) {
+    $failure = $e->getMessage();
     $logController->log('error', 'A fatal error occurred while running task #' . $taskId, $e->getMessage(), $e->getTraceAsString());
     echo 'Fatal error: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine() . PHP_EOL;
     echo 'Task #' . $taskId . ' failed' . PHP_EOL;

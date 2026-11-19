@@ -236,16 +236,20 @@ use \Controllers\Layout\Table\Render as TableRender; ?>
                             <h6><?= $archItem['title'] ?></h6>
                             <p class="note"><?= $archItem['note'] ?></p>
 
-                            <div class="flex flex-wrap column-gap-5 row-gap-5 margin-bottom-10">
+                            <?php
+                            foreach ($definition[$field] ?? [] as $itemId => $itemDefinition) : ?>
+                                <div class="table-container grid-fr-4-1 bck-blue-alt source-repo-arch-edit-btn pointer" source-id="<?= $item['Id'] ?>" field="<?= $field ?>" item-id="<?= $itemId ?>">
+                                    <div>
+                                        <p><?= htmlspecialchars($itemDefinition['name']) ?></p>
+                                        <p class="note"><?= htmlspecialchars($itemDefinition['description'] ?? '') ?></p>
+                                    </div>
+
+                                    <div class="flex justify-end">
+                                        <img src="/assets/icons/delete.svg" class="source-repo-arch-remove-btn icon-lowopacity" source-id="<?= $item['Id'] ?>" field="<?= $field ?>" item-id="<?= $itemId ?>" title="Remove <?= htmlspecialchars($itemDefinition['name']) ?>" />
+                                    </div>
+                                </div>
                                 <?php
-                                foreach ($definition[$field] ?? [] as $itemId => $itemDefinition) : ?>
-                                    <p class="label-black flex align-item-center column-gap-5" title="<?= htmlspecialchars($itemDefinition['description'] ?? '') ?>">
-                                        <?= htmlspecialchars($itemDefinition['name']) ?>
-                                        <img src="/assets/icons/close.svg" class="source-repo-arch-remove-btn icon-small pointer lowopacity" source-id="<?= $item['Id'] ?>" field="<?= $field ?>" item-id="<?= $itemId ?>" title="Remove <?= htmlspecialchars($itemDefinition['name']) ?>" />
-                                    </p>
-                                    <?php
-                                endforeach ?>
-                            </div>
+                            endforeach ?>
 
                             <div class="flex align-item-center column-gap-5">
                                 <input type="text" class="source-repo-arch-add-input" source-id="<?= $item['Id'] ?>" field="<?= $field ?>" placeholder="<?= $archItem['placeholder'] ?>">

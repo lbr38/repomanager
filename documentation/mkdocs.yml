@@ -109,6 +109,7 @@ nav:
     - Troubleshooting: administration/troubleshooting.md
   - Reference:
     - API: reference/api.md
+    - API v2 (deprecated): reference/api-v2.md
     - Miscellaneous and tips: reference/miscellaneous.md
 
 

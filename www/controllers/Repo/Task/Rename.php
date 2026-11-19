@@ -3,6 +3,7 @@
 namespace Controllers\Repo\Task;
 
 use Controllers\Filesystem\Directory;
+use Controllers\Utils\Generate\Html\Label;
 use Exception;
 
 class Rename extends \Controllers\Task\Execution
@@ -47,12 +48,12 @@ class Rename extends \Controllers\Task\Execution
         // Check if a repo with the same name already exists
         if ($this->repoController->getPackageType() == 'rpm') {
             if ($this->rpmRepoController->isActive($this->repoController->getName(), $this->repoController->getReleasever())) {
-                throw new Exception('<span class="label-black">' . $this->repoController->getName() . ' (release ver. ' . $this->repoController->getReleasever() . ')</span> repository already exists');
+                throw new Exception(Label::white($this->repoController->getName() . ' ❯ ' . $this->repoController->getReleasever()) . ' repository already exists');
             }
         }
         if ($this->repoController->getPackageType() == 'deb') {
             if ($this->debRepoController->isActive($this->repoController->getName(), $this->repoController->getDist(), $this->repoController->getSection())) {
-                throw new Exception('<span class="label-black">' . $this->repoController->getName() . ' ❯ ' . $this->repoController->getDist() . ' ❯ ' . $this->repoController->getSection() . '</span> repository already exists');
+                throw new Exception(Label::white($this->repoController->getName() . ' ❯ ' . $this->repoController->getDist() . ' ❯ ' . $this->repoController->getSection()) . ' repository already exists');
             }
         }
 

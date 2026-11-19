@@ -103,6 +103,8 @@ class Source
             throw new Exception('Invalid source repository type');
         }
 
+        \Controllers\Task\Form\Param\PackageType::checkEnabled($type);
+
         // Check that URL starts with http(s)://
         if (!preg_match('#^https?://#', $url)) {
             throw new Exception('Specified URL must start with <b>http(s)://</b>');

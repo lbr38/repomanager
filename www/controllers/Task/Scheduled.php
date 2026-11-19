@@ -161,6 +161,11 @@ class Scheduled extends Task
             // Validate the schedule parameters and update the task
             Schedule::check($task['schedule']);
 
+            // The schedule type must be allowed for the action, tasks targeting a dynamic set of repositories accept any schedule type
+            if (!\Controllers\Task\Target::isDynamic($taskRawParams)) {
+                Schedule::checkAllowedType($taskRawParams['action'] ?? '', array_merge($task['schedule'], ['scheduled' => 'true']));
+            }
+
             // Clean the schedule parameters (remove unnecessary parameters depending on the schedule type)
             $scheduleCleaned = Schedule::clean([
                 'schedule' => $task['schedule']

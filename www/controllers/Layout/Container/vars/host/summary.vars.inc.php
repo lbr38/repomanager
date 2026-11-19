@@ -15,6 +15,7 @@ $hostPackageController = new \Controllers\Host\Package\Package($id);
 $hostProperties = $myhost->get($id);
 $hostname         = $hostProperties['Hostname'];
 $ip               = $hostProperties['Ip'];
+$publicIp         = $hostProperties['Public_ip'] ?? '';
 $os               = $hostProperties['Os'];
 $osVersion        = $hostProperties['Os_version'];
 $type             = $hostProperties['Type'];
@@ -28,6 +29,8 @@ $agentStatus      = $hostProperties['Online_status'];
 $agentVersion     = $hostProperties['Agent_version'];
 $rebootRequired   = $hostProperties['Reboot_required'];
 $uptime           = $hostProperties['Uptime'];
+$description      = $hostProperties['Description'] ?? '';
+$tags             = !empty($hostProperties['Tags']) ? explode(',', $hostProperties['Tags']) : [];
 
 try {
     $network = json_decode($hostProperties['Network'], true, 512, JSON_THROW_ON_ERROR);

@@ -98,10 +98,10 @@ class Update
 
         // Add history
         if ($repoController->getPackageType() == 'rpm') {
-            History::set('Running task: update ' . $repoController->getType() . ' repository ' . Label::white($repoController->getName()));
+            History::task('update ' . $repoController->getType() . ' repository ' . Label::white($repoController->getName()), $formParams);
         }
         if ($repoController->getPackageType() == 'deb') {
-            History::set('Running task: update ' . $repoController->getType() . ' repository ' . Label::white($repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection()));
+            History::task('update ' . $repoController->getType() . ' repository ' . Label::white($repoController->getName() . ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection()), $formParams);
         }
 
         unset($repoController);

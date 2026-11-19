@@ -269,7 +269,7 @@ Options:
 
   Template:
   --template-path                Path to the source repository template to import
-  --repository-type              Type of repository included in the template (rpm or deb)
+  --repository-type              (optional) Type of repository included in the template (rpm, deb or arch), checked against the type of the template
 
   Certificates and private key paths. You can provide direct paths to the files, specify a directory and patterns to match the files or a combination of both
   --certs-dir                    Directory where the certificates are stored
@@ -284,13 +284,13 @@ Options:
 **Example 1:** Update the ubuntu source repositories by using a template file:
 
 ```bash
-python3 api-import-from-template.py --url https://repomanager.example.com --api-token ak_xxxxxxxxxxxxxxxxx --template-path /tmp/templates/ubuntu.yml --repository-type deb
+python3 api-import-from-template.py --url https://repomanager.example.com --api-token ak_xxxxxxxxxxxxxxxxx --template-path /tmp/templates/ubuntu.yml
 ```
 
 **Example 2:** Update the redhat source repositories by using a custom template file and providing a directory with the new certificate and private key, using patterns to match them:
 
 ```bash
-python3 api-import-from-template.py --url https://repomanager.example.com --api-token ak_xxxxxxxxxxxxxxxxx --template-path /tmp/templates/redhat.yml --repository-type rpm --certs-dir /tmp/certs/ --certificate-pattern ".crt$" --private-key-pattern ".key$" --ca-certificate-pattern ".ca$"
+python3 api-import-from-template.py --url https://repomanager.example.com --api-token ak_xxxxxxxxxxxxxxxxx --template-path /tmp/templates/redhat.yml --certs-dir /tmp/certs/ --certificate-pattern ".crt$" --private-key-pattern ".key$" --ca-certificate-pattern ".ca$"
 ```
 
 <script data-goatcounter="https://repomanager.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>

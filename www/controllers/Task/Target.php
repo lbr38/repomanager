@@ -5,6 +5,8 @@ namespace Controllers\Task;
 use Exception;
 use Controllers\Repo\Repo;
 use Controllers\Repo\Listing as RepoListing;
+use Controllers\Repo\Task\Params as RepoParams;
+use Controllers\Mirror\Task\Params as MirrorParams;
 
 /**
  *  A task target describes a dynamic set of repositories, instead of a fixed list of snapshots.
@@ -264,85 +266,46 @@ class Target
         $repos = $this->resolve($taskParams['target']);
 
         foreach ($repos as $repo) {
-            $params = [
-                'action' => $action,
-                'repo-id' => strval($repo['repoId']),
-                'snap-id' => strval($repo['snapId']),
-                'env-id' => '',
-
-                // Generated tasks are executed immediately, the recurrence is carried by the parent task
-                'schedule' => [
-                    'scheduled' => 'false'
-                ]
-            ];
-
             /**
              *  Retrieve the current repository settings, as some parameters cannot be known
              *  when the task is scheduled (e.g. the architectures of a repository created later)
+             *  Generated tasks are executed immediately, the recurrence is carried by the parent task
              */
             $repoController = new Repo();
             $repoController->getAllById(null, $repo['snapId'], null);
 
+            // Each repository is updated with its own current architectures and advanced parameters
             if ($action == 'update') {
-                // Each repository is updated with its own current architectures and advanced parameters
-                $params['arch'] = $repoController->getArch();
-                $params['advanced-params'] = $repoController->getAdvancedParams();
-                $params['gpg-sign'] = $taskParams['gpg-sign'] ?? 'false';
-
-                // GPG check only applies to curated repositories
-                if ($repoController->getType() == 'curated') {
-                    $params['gpg-check'] = $taskParams['gpg-check'] ?? 'false';
-                }
-
-                // Environments to point to the new snapshot are optional
-                if (!empty($taskParams['env'])) {
-                    $params['env'] = $taskParams['env'];
-                }
+                $tasksParams[] = RepoParams::update($repoController, [
+                    'gpg-sign'  => $taskParams['gpg-sign'] ?? 'false',
+                    'gpg-check' => $taskParams['gpg-check'] ?? 'false',
+                    'env'       => $taskParams['env'] ?? []
+                ]);
             }
 
             if ($action == 'env') {
-                $params['env'] = $taskParams['env'] ?? [];
+                $tasksParams[] = RepoParams::env($repoController, $taskParams['env'] ?? []);
             }
 
             if ($action == 'rebuild') {
-                $params['gpg-sign'] = $taskParams['gpg-sign'] ?? 'false';
+                $tasksParams[] = RepoParams::rebuild($repoController, $taskParams['gpg-sign'] ?? 'false');
             }
 
             unset($repoController);
-
-            $tasksParams[] = $params;
         }
 
         // Mirrors matching the target, the rebuild action does not apply to mirrors (their metadata are never rebuilt)
         if (in_array($action, self::MIRRORS_ACTIONS)) {
             foreach ($this->resolveMirrors($taskParams['target']) as $mirror) {
-                $params = [
-                    'domain' => 'mirror',
-                    'action' => $action,
-                    'mirror-id' => strval($mirror['Id']),
-
-                    // Generated tasks are executed immediately, the recurrence is carried by the parent task
-                    'schedule' => [
-                        'scheduled' => 'false'
-                    ]
-                ];
-
                 // Environments to point to the new snapshot are optional
-                if ($action == 'update' and !empty($taskParams['env'])) {
-                    $params['env'] = $taskParams['env'];
+                if ($action == 'update') {
+                    $tasksParams[] = MirrorParams::update((int) $mirror['Id'], $taskParams['env'] ?? []);
                 }
 
                 // Environments are pointed to the latest snapshot of the mirror, a mirror without snapshot is ignored
-                if ($action == 'env') {
-                    if (empty($mirror['latestSnapId'])) {
-                        continue;
-                    }
-
-                    $params['mirror-snap-id'] = strval($mirror['latestSnapId']);
-                    $params['env'] = $taskParams['env'] ?? [];
+                if ($action == 'env' and !empty($mirror['latestSnapId'])) {
+                    $tasksParams[] = MirrorParams::env((int) $mirror['Id'], (int) $mirror['latestSnapId'], $taskParams['env'] ?? []);
                 }
-
-                $tasksParams[] = $params;
             }
         }
 

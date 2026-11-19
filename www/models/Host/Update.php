@@ -133,6 +133,36 @@ class Update extends \Models\Model
     }
 
     /**
+     *  Update IP in database
+     */
+    public function updateIp(int $id, string $ip) : void
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE hosts SET Ip = :ip WHERE Id = :id");
+            $stmt->bindValue(':ip', $ip);
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+    }
+
+    /**
+     *  Update public IP in database
+     */
+    public function updatePublicIp(int $id, string $ip) : void
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE hosts SET Public_ip = :ip WHERE Id = :id");
+            $stmt->bindValue(':ip', $ip);
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+    }
+
+    /**
      *  Update kernel version in database
      */
     public function updateKernel(int $id, string $kernel) : void

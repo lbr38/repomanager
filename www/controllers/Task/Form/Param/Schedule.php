@@ -273,6 +273,36 @@ class Schedule
     }
 
     /**
+     *  Check that the schedule type is allowed for the action, as defined in the task configuration (config/tasks/<action>.php)
+     *  e.g. a repository cannot be created on a recurring basis, and an environment cannot be removed later
+     *  The forms only offer the allowed schedule types, this check applies the same rule to every task (API...)
+     */
+    public static function checkAllowedType(string $action, array $scheduleParams): void
+    {
+        $formConfig = [];
+
+        if (($scheduleParams['scheduled'] ?? 'false') != 'true') {
+            return;
+        }
+
+        if (!preg_match('/^[a-zA-Z]+$/', $action) or !file_exists(ROOT . '/config/tasks/' . $action . '.php')) {
+            throw new Exception('Invalid action: ' . htmlspecialchars($action));
+        }
+
+        include(ROOT . '/config/tasks/' . $action . '.php');
+
+        $allowedTypes = $formConfig['allowed-schedule-types'] ?? [];
+
+        if (empty($allowedTypes)) {
+            throw new Exception('This task cannot be scheduled');
+        }
+
+        if (!in_array($scheduleParams['schedule-type'] ?? '', $allowedTypes, true)) {
+            throw new Exception('Invalid schedule type for this task, allowed schedule type(s): ' . implode(', ', $allowedTypes));
+        }
+    }
+
+    /**
      *  Clean schedule parameters by keeping only the relevant ones according to the schedule frequency
      */
     public static function clean(array $params): array

@@ -3,6 +3,9 @@
     <!-- To tell mobile browsers to adjust the width of the window to the width of the device's screen, and set the document scale to 100% of its intended size -->
     <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=yes">
 
+    <!-- Favicon (a red dot is added by JS when tasks are running) -->
+    <link rel="icon" href="/favicon.ico">
+
     <!-- CSS for all pages -->
     <link rel="stylesheet" type="text/css" href="/resources/styles/reset.css?<?= VERSION ?>">
     <link rel="stylesheet" type="text/css" href="/resources/styles/normalize.css?<?= VERSION ?>">
@@ -40,7 +43,8 @@
         'host'     => 'stats-hosts.css',
         'settings' => 'settings.css',
         'cves'     => 'cve.css',
-        'cve'      => 'cve.css'
+        'cve'      => 'cve.css',
+        'history'  => 'history.css'
     ];
 
     foreach ($additionalCss as $uri => $css) {

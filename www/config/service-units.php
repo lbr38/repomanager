@@ -125,6 +125,15 @@ $units = [
         'force' => true,
         'log-dir' => 'scheduled-tasks/execute'
     ],
+    // This processes the tasks queue every minute, as a safety net (the queue is otherwise processed as tasks are created and ended)
+    'task-queue' => [
+        'title' => 'Tasks queue',
+        'description' => 'Starts queued tasks for which a slot is available and marks as failed the running tasks whose process has disappeared',
+        'controller' => 'Service\Unit\TaskQueue',
+        'method' => 'run',
+        'frequency' => 'every-minute',
+        'log-dir' => 'tasks/queue'
+    ],
     // This sends reminders for upcoming scheduled tasks every day at midnight
     'scheduled-tasks-reminders' => [
         'title' => 'Scheduled tasks reminders',

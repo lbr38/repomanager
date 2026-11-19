@@ -40,28 +40,67 @@ class History extends \Models\Model
     }
 
     /**
-     *  Retrieve all history
-     *  It is possible to add an offset to the request
+     *  Return the WHERE clause and its values for the specified filters
+     *  Filters: user (Id), category, state, search (text searched in the action, username and IP addresses)
      */
-    public function getAll(bool $withOffset = false, int $offset = 0) : array
+    private function filtersClause(array $filters): array
+    {
+        $conditions = [];
+        $values = [];
+
+        if (!empty($filters['user'])) {
+            $conditions[] = 'Id_user = :user';
+            $values[':user'] = (int) $filters['user'];
+        }
+
+        if (!empty($filters['category'])) {
+            if ($filters['category'] == 'other') {
+                $conditions[] = "(Category IS NULL OR Category = '')";
+            } else {
+                $conditions[] = 'Category = :category';
+                $values[':category'] = $filters['category'];
+            }
+        }
+
+        if (!empty($filters['state'])) {
+            $conditions[] = 'State = :state';
+            $values[':state'] = $filters['state'];
+        }
+
+        if (!empty($filters['search'])) {
+            $conditions[] = "(Action LIKE :search ESCAPE '\\' OR Username LIKE :search ESCAPE '\\' OR Ip LIKE :search ESCAPE '\\' OR Ip_forwarded LIKE :search ESCAPE '\\' OR Details LIKE :search ESCAPE '\\')";
+            $values[':search'] = '%' . addcslashes($filters['search'], '%_\\') . '%';
+        }
+
+        if (empty($conditions)) {
+            return ['', $values];
+        }
+
+        return [' WHERE ' . implode(' AND ', $conditions), $values];
+    }
+
+    /**
+     *  Return history lines matching the specified filters, most recent first
+     */
+    public function get(array $filters, int $limit, int $offset) : array
     {
         $data = [];
 
-        try {
-            $query = "SELECT * FROM history ORDER BY Date DESC, Time DESC";
+        [$where, $values] = $this->filtersClause($filters);
 
-            /**
-             *  Add offset if needed
-             */
-            if ($withOffset === true) {
-                $query .= " LIMIT 10 OFFSET :offset";
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM history" . $where . " ORDER BY Date DESC, Time DESC, Id DESC LIMIT :limit OFFSET :offset");
+
+            foreach ($values as $name => $value) {
+                $stmt->bindValue($name, $value);
             }
 
-            $stmt = $this->db->prepare($query);
+            $stmt->bindValue(':limit', $limit, SQLITE3_INTEGER);
             $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
             $result = $stmt->execute();
         } catch (Exception $e) {
             DbLog::error($e);
+            return $data;
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -72,39 +111,28 @@ class History extends \Models\Model
     }
 
     /**
-     *  Retrieve all history from a user
-     *  It is possible to add an offset to the request
+     *  Return the number of history lines matching the specified filters
      */
-    public function getByUserId(int $id, bool $withOffset = false, int $offset = 0) : array
+    public function count(array $filters) : int
     {
-        $data = [];
+        [$where, $values] = $this->filtersClause($filters);
 
         try {
-            $query = "SELECT history.*
-            FROM history JOIN users ON history.Id_user = users.Id
-            WHERE history.Id_user = :id
-            ORDER BY Date DESC, Time DESC";
+            $stmt = $this->db->prepare("SELECT COUNT(*) AS Count FROM history" . $where);
 
-            /**
-             *  Add offset if needed
-             */
-            if ($withOffset === true) {
-                $query .= " LIMIT 10 OFFSET :offset";
+            foreach ($values as $name => $value) {
+                $stmt->bindValue($name, $value);
             }
 
-            $stmt = $this->db->prepare($query);
-            $stmt->bindValue(':id', $id);
-            $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
             $result = $stmt->execute();
         } catch (Exception $e) {
             DbLog::error($e);
+            return 0;
         }
 
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $data[] = $row;
-        }
+        $row = $result->fetchArray(SQLITE3_ASSOC);
 
-        return $data;
+        return (int) ($row['Count'] ?? 0);
     }
 
     /**

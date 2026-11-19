@@ -109,8 +109,8 @@ use \Controllers\User\Permission\Task as TaskPermission; ?>
 
             <div class="flex column-gap-10 margin-left-auto">
                 <?php
-                if ($taskInfo['Status'] == 'running' and !Task::processRunning($taskId)) {
-                    echo '<img src="/assets/icons/warning-red.svg" class="icon-np" task-id="' . $taskId . '" title="No running process found for this task, the process might have crashed, you should stop this task" />';
+                if (empty($subTasksSummary) and $taskInfo['Status'] == 'running' and !Task::processRunning($taskId)) {
+                    echo '<img src="/assets/icons/warning-red.svg" class="icon-np" task-id="' . $taskId . '" title="No running process found for this task, the process might have crashed, the task will be marked as failed shortly" />';
                 }
 
                 if ((DEVEL or DebugMode::enabled()) and file_exists(MAIN_LOGS_DIR . '/repomanager-task-' . $taskId . '-log.process')) {

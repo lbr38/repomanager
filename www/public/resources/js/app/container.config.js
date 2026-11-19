@@ -45,6 +45,16 @@ const morphdomSkipRules = {
  *  @type {Object}
  */
 const postReloadFunctions = {
+    // Add or remove the running tasks dot on the favicon
+    'header/menu': function () {
+        mylayout.updateFavicon();
+    },
+
+    // Re-apply the current search on the hosts that have just been refreshed (restored from the URL if the input has been reset)
+    'hosts/list': function () {
+        HostSearch.restore();
+    },
+
     // Re-apply the current search filter on the repositories that have just been refreshed
     'repos/list': function () {
         myrepo.search();

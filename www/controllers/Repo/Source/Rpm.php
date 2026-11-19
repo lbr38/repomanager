@@ -14,6 +14,10 @@ class Rpm extends \Controllers\Repo\Source\Source
     {
         $name = Validate::string($name);
 
+        if ($name === '') {
+            throw new Exception('Release version is required');
+        }
+
         // Check that a release version with the same name does not already exist
         if (!empty($this->currentDefinition['releasever'])) {
             foreach ($this->currentDefinition['releasever'] as $releasever) {
@@ -45,7 +49,9 @@ class Rpm extends \Controllers\Repo\Source\Source
         }
 
         // Check that release version name is not empty
-        if (empty($params['name'])) {
+        $params['name'] = trim($params['name'] ?? '');
+
+        if ($params['name'] === '') {
             throw new Exception('Release version is required');
         }
 
