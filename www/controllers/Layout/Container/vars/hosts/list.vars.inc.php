@@ -12,6 +12,17 @@ $totalHosts = count($hostListingController->get());
 // Get hosts groups list
 $hostGroupsList = $groupController->listAll(true);
 
+// Count the number of groups that will be displayed (the 'Default' group is not displayed when it has no host)
+$hostGroupsCount = 0;
+
+foreach ($hostGroupsList as $group) {
+    if ($group['Name'] == 'Default' and empty($hostListingController->getByGroup('Default'))) {
+        continue;
+    }
+
+    $hostGroupsCount++;
+}
+
 // Get general hosts settings
 $settings = $hostController->getSettings();
 
@@ -34,4 +45,4 @@ if ($compactView) {
     $layoutGridClass = 'grid-4';
 }
 
-unset($groupController, $settings);
+unset($groupController, $settings, $group);

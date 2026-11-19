@@ -134,9 +134,6 @@ class Deb extends Metadata
         $myprocess->setBackground(true);
         $myprocess->execute();
 
-        // Retrieve PID of the launched process, then write PID to main PID file
-        $this->taskController->addsubpid($myprocess->getPid());
-
         // Retrieve output from process
         $output = $myprocess->getOutput();
 
@@ -148,17 +145,20 @@ class Deb extends Metadata
 
         $myprocess->close();
 
-        // Generate Release file
+        /**
+         *  Generate Release file
+         *  It is written outside of the scanned directory then moved, otherwise apt-ftparchive would list the
+         *  partially written Release file (created by the shell redirection) in its own checksums
+         */
+        $releaseTmp = $this->root . '/Release.tmp';
+
         $myprocess = new Process(
             $this->aptftparchive . ' -c ' . escapeshellarg($this->root . '/dist.conf')
             . ' release ' . escapeshellarg($this->root . '/dists/' . $this->dist)
-            . ' > ' . escapeshellarg($this->root . '/dists/' . $this->dist . '/Release')
+            . ' > ' . escapeshellarg($releaseTmp)
         );
         $myprocess->setBackground(true);
         $myprocess->execute();
-
-        // Retrieve PID of the launched process, then write PID to main PID file
-        $this->taskController->addsubpid($myprocess->getPid());
 
         // Retrieve output from process
         $output = $myprocess->getOutput();
@@ -166,10 +166,18 @@ class Deb extends Metadata
         $this->taskLogSubStepController->output($output, 'pre');
 
         if ($myprocess->getExitCode() != 0) {
+            if (file_exists($releaseTmp)) {
+                unlink($releaseTmp);
+            }
+
             throw new Exception('Failed to generate Release metadata file');
         }
 
         $myprocess->close();
+
+        if (!rename($releaseTmp, $this->root . '/dists/' . $this->dist . '/Release')) {
+            throw new Exception('Failed to move Release metadata file to ' . $this->root . '/dists/' . $this->dist);
+        }
 
         // Clean configuration files
         if (file_exists($this->root . '/apt-ftparchive.conf')) {
@@ -197,9 +205,6 @@ class Deb extends Metadata
         );
         $myprocess->execute();
 
-        // Retrieve PID of the launched process, then write PID to main PID file
-        $this->taskController->addsubpid($myprocess->getPid());
-
         if ($myprocess->getExitCode() != 0) {
             throw new Exception('Failed to sign Release metadata file');
         }
@@ -213,9 +218,6 @@ class Deb extends Metadata
             . ' --clearsign ' . escapeshellarg($this->root . '/dists/' . $this->dist . '/Release')
         );
         $myprocess->execute();
-
-        // Retrieve PID of the launched process, then write PID to main PID file
-        $this->taskController->addsubpid($myprocess->getPid());
 
         if ($myprocess->getExitCode() != 0) {
             throw new Exception('Failed to generate InRelease metadata file');

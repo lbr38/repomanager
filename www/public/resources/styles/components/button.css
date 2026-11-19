@@ -373,6 +373,11 @@
     border-radius: 0 16px 16px 0;
 }
 
+/* A single option is both the first and the last one: round all its corners */
+.switch-field label:only-of-type {
+    border-radius: 16px;
+}
+
 .single-switch-field label {
     border-radius: 16px;
 }

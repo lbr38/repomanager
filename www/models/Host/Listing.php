@@ -192,6 +192,7 @@ class Listing extends \Models\Model
                 $stmt = $this->db->prepare("SELECT
                 hosts.Id,
                 hosts.Ip,
+                hosts.Public_ip,
                 hosts.Hostname,
                 hosts.Os,
                 hosts.Os_version,
@@ -205,7 +206,9 @@ class Listing extends \Models\Model
                 hosts.Online_status_date,
                 hosts.Online_status_time,
                 hosts.Reboot_required,
-                hosts.Agent_version
+                hosts.Agent_version,
+                hosts.Description,
+                hosts.Tags
                 FROM hosts
                 INNER JOIN group_members
                     ON hosts.Id = group_members.Id_host

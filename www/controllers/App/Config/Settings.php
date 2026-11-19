@@ -324,6 +324,15 @@ class Settings
             }
         }
 
+        // ARCH
+        if (!defined('ARCH_REPO')) {
+            if (!empty($settings['ARCH_REPO'])) {
+                define('ARCH_REPO', $settings['ARCH_REPO']);
+            } else {
+                define('ARCH_REPO', 'false');
+            }
+        }
+
         //  GPG signing key
         if (!defined('GPG_SIGNING_KEYID')) {
             if (!empty($settings['GPG_SIGNING_KEYID'])) {

@@ -17,6 +17,10 @@ class Arch extends \Controllers\Repo\Source\Source
 
         $name = trim($name);
 
+        if ($name === '') {
+            throw new Exception('Name is required');
+        }
+
         if (!Validate::alphaNumericHyphen($name, ['.']) or str_starts_with($name, '.')) {
             throw new Exception(htmlspecialchars($name) . ' contains invalid characters');
         }
@@ -28,6 +32,39 @@ class Arch extends \Controllers\Repo\Source\Source
         }
 
         $this->currentDefinition[$field][] = ['name' => $name, 'description' => ''];
+
+        $this->editDefinition($this->id, $this->currentDefinition);
+    }
+
+    /**
+     *  Edit the name and description of a repository or an architecture of an arch source repository
+     */
+    public function editItem(string $field, int $itemId, string $name, string $description): void
+    {
+        $this->checkField($field);
+
+        if (!isset($this->currentDefinition[$field][$itemId])) {
+            throw new Exception('Item does not exist');
+        }
+
+        $name = trim($name);
+
+        if ($name === '') {
+            throw new Exception('Name is required');
+        }
+
+        if (!Validate::alphaNumericHyphen($name, ['.']) or str_starts_with($name, '.')) {
+            throw new Exception(htmlspecialchars($name) . ' contains invalid characters');
+        }
+
+        foreach ($this->currentDefinition[$field] as $currentItemId => $item) {
+            if ($currentItemId != $itemId and $item['name'] === $name) {
+                throw new Exception(htmlspecialchars($name) . ' already exists');
+            }
+        }
+
+        $this->currentDefinition[$field][$itemId]['name'] = $name;
+        $this->currentDefinition[$field][$itemId]['description'] = trim($description);
 
         $this->editDefinition($this->id, $this->currentDefinition);
     }

@@ -56,7 +56,7 @@ $(document).on('change','#repo-install-select-env',function (e) {
             html += 'baseurl=' + url + '/rpm/' + name + '/' + releasever + '/' + env + '\n'
             html += 'enabled=1\n'
             if (signed) {
-                html += 'gpgkey=' + url + '/gpgkeys/' + hostname + '.pub\n'
+                html += 'gpgkey=' + url + '/gpgkeys/repomanager.asc\n'
                 html += 'gpgcheck=1\n'
             } else {
                 html += 'gpgcheck=0\n'

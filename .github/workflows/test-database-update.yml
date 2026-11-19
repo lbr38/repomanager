@@ -12,11 +12,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Install docker-compose
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
-
       # Get all releases
       # Format them to a key-value array
       # Start from release index which is 5.1.0
@@ -94,7 +89,7 @@ jobs:
           sed -i 's/branch:.*/branch: devel/g' docker-compose.yml
           sed -i 's/FQDN:.*/FQDN: repomanager.test.com/g' docker-compose.yml
 
-          docker-compose -f docker-compose.yml up -d
+          docker compose -f docker-compose.yml up -d
 
           if [ $? -ne 0 ]; then
               echo "Failed to build devel image"

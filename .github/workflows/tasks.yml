@@ -34,57 +34,63 @@ jobs:
           /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/initialize.php" www-data
           /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php" www-data
 
-      # Create deb tasks jobs in database
-      - name: Create deb tasks jobs
-        run: |
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/deb/mirror'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/deb/update'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/deb/duplicate'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/deb/env'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/deb/rebuild'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/deb/rename'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/deb/delete'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/deb/local'" www-data
-
       # Create some environments for the tasks to run
       - name: Set basic configuration
         run: |
           sqlite3 /var/lib/repomanager/db/repomanager.db "INSERT INTO env ('Name') VALUES ('pprd');"
           sqlite3 /var/lib/repomanager/db/repomanager.db "INSERT INTO env ('Name') VALUES ('prod');"
 
+      # Each task is created right before being run: a task that ends starts the tasks left in the queue,
+      # so tasks created all at once would be run in background instead of by the following steps
       # Run deb tasks
       - name: Run job - Mirror deb repo
-        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='1'" www-data
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/deb/mirror'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='1'" www-data
 
       - name: Print mirrored deb repo content
         run: ls -l /home/repo/deb/debian/bookworm/contrib/pprd/pool/contrib/
 
       - name: Run job - Update deb repo
-        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='2'" www-data
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/deb/update'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='2'" www-data
 
       - name: Run job - Duplicate deb repo
-        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='3'" www-data
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/deb/duplicate'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='3'" www-data
 
       - name: Print duplicated deb repo content
         run: ls -l /home/repo/deb/debian-copy/bookworm/contrib/pprd/pool/contrib/*.deb
 
       - name: Run job - Point environment to deb repo
-        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='4'" www-data
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/deb/env'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='4'" www-data
 
       - name: Run job - Rebuild deb repo
-        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='5'" www-data
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/deb/rebuild'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='5'" www-data
 
       - name: Run job - Rename deb repo
-        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='6'" www-data
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/deb/rename'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='6'" www-data
 
       - name: Print renamed deb repo content
         run: ls -l /home/repo/deb/debian-rename/
 
       - name: Run job - Delete deb repo
-        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='7'" www-data
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/deb/delete'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='7'" www-data
 
       - name: Run job - Local deb repo
-        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='8'" www-data
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/deb/local'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='8'" www-data
 
   run-rpm-tasks:
     runs-on: ubuntu-latest
@@ -116,54 +122,60 @@ jobs:
           /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/initialize.php" www-data
           /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php" www-data
 
-      # Create rpm tasks jobs in database
-      - name: Create rpm tasks jobs
-        run: |
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/rpm/mirror'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/rpm/update'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/rpm/duplicate'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/rpm/env'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/rpm/rebuild'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/rpm/rename'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/rpm/delete'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/rpm/local'" www-data
-
       # Create some environments for the tasks to run
       - name: Set basic configuration
         run: |
           sqlite3 /var/lib/repomanager/db/repomanager.db "INSERT INTO env ('Name') VALUES ('pprd');"
           sqlite3 /var/lib/repomanager/db/repomanager.db "INSERT INTO env ('Name') VALUES ('prod');"
 
+      # Each task is created right before being run: a task that ends starts the tasks left in the queue,
+      # so tasks created all at once would be run in background instead of by the following steps
       # Run rpm tasks
       - name: Run job - Mirror rpm repo
-        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='1'" www-data
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/rpm/mirror'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='1'" www-data
 
       - name: Print mirrored rpm repo content
         run: ls -l /home/repo/rpm/centos-extras-common/9/pprd/packages/*/*.rpm
 
       - name: Run job - Update rpm repo
-        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='2'" www-data
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/rpm/update'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='2'" www-data
 
       - name: Run job - Duplicate rpm repo
-        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='3'" www-data
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/rpm/duplicate'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='3'" www-data
 
       - name: Print duplicated rpm repo content
         run: ls -l /home/repo/rpm/centos-extras-common-copy/9/pprd/packages/*/*.rpm
 
       - name: Run job - Point environment to rpm repo
-        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='4'" www-data
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/rpm/env'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='4'" www-data
 
       - name: Run job - Rebuild rpm repo
-        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='5'" www-data
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/rpm/rebuild'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='5'" www-data
 
       - name: Run job - Rename deb repo
-        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='6'" www-data
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/rpm/rename'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='6'" www-data
 
       - name: Print renamed deb repo content
         run: ls -l /home/repo/rpm/centos-extras-common-rename/
 
       - name: Run job - Delete rpm repo
-        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='7'" www-data
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/rpm/delete'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='7'" www-data
 
       - name: Run job - Local rpm repo
-        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='8'" www-data
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/rpm/local'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='8'" www-data

@@ -301,7 +301,8 @@ article {
     column-gap: 10px;
 }
 
-.repo-description-container {
+.repo-description-container,
+.host-description-container {
     display: flex;
     align-items: center;
     column-gap: 8px;
@@ -311,7 +312,9 @@ article {
 .repo-rename-btn,
 .repo-header-btn,
 .repo-add-description-btn,
-.repo-add-tags-btn {
+.repo-add-tags-btn,
+.host-add-description-btn,
+.host-add-tags-btn {
     display: inline-flex;
     align-items: center;
     column-gap: 5px;
@@ -323,20 +326,25 @@ article {
 .repo-rename-btn:hover,
 .repo-header-btn:hover,
 .repo-add-description-btn:hover,
-.repo-add-tags-btn:hover {
+.repo-add-tags-btn:hover,
+.host-add-description-btn:hover,
+.host-add-tags-btn:hover {
     opacity: 1;
 }
 
-.repo-description-input.repo-description-editable {
+.repo-description-input.repo-description-editable,
+.host-description-input.host-description-editable {
     cursor: pointer;
     min-height: 5px;
 }
 
-.repo-tags-display {
+.repo-tags-display,
+.host-tags-display {
     min-height: 18px;
 }
 
-.repo-tags-display.repo-tags-editable {
+.repo-tags-display.repo-tags-editable,
+.host-tags-display.host-tags-editable {
     cursor: pointer;
 }
 
@@ -345,12 +353,14 @@ article {
 }
 
 .repo-tags-display .repo-tags-input-edit,
-.repo-tags-display .select2-container {
+.repo-tags-display .select2-container,
+.host-tags-display .host-tags-input-edit,
+.host-tags-display .select2-container {
     min-width: 200px;
 }
 
-/* Task list items */
-.task-item {
+/* Task list items (also used by the history list and the repository statistics lists) */
+.task-item, .history-item, .stats-access-item {
     display: grid;
     grid-template-columns: 1fr auto auto;
     align-items: center;
@@ -363,9 +373,18 @@ article {
     transition: border-color 0.2s ease, background 0.2s ease;
 }
 
-.task-item:hover {
+.task-item:hover, .history-item:hover, .stats-access-item:hover {
     border-color: #2d5575;
     background: linear-gradient(135deg, #152538, #1a2f44);
+}
+
+/* Repository access request status accents */
+.stats-access-item.access-accent-green {
+    border-left-color: #15bf7f;
+}
+
+.stats-access-item.access-accent-red {
+    border-left-color: #F32F63;
 }
 
 .task-item-id,
@@ -616,8 +635,27 @@ a.task-item-child:hover {
     }
 }
 
-.repo-tags-container {
+.repo-tags-container,
+.host-tags-container {
     margin-top: 5px;
+}
+
+/* Tags of a host (host page and hosts list) */
+.host-tags-display {
+    font-size: 13px;
+}
+
+.host-tag-item {
+    opacity: 0.6;
+}
+
+/* Description and tags elements of a host hidden while it has none (shown when adding them) */
+.host-description-container.hide,
+.host-tags-container.hide,
+.host-add-description-btn.hide,
+.host-add-tags-btn.hide,
+.host-line-meta.hide {
+    display: none;
 }
 
 /* Same hover behaviour for the "Add a description" / "Add tags" buttons.

@@ -40,7 +40,23 @@ foreach ($selection as $selected) {
     ];
 }
 
+// If a selected snapshot of a mirror is used by a protected environment, the deletion is refused and the mirror is kept:
+// do not warn that the mirror will be deleted
+$protectedMirrorIds = [];
+
+foreach ($snapshots as $selected) {
+    if (!empty($selected['protectedEnvs'])) {
+        $protectedMirrorIds[] = $selected['mirror']['Id'];
+    }
+}
+
+foreach ($snapshots as $i => $selected) {
+    if (in_array($selected['mirror']['Id'], $protectedMirrorIds)) {
+        $snapshots[$i]['lastOfMirror'] = false;
+    }
+}
+
 // Needed by the schedule form
 $usersEmail = $userController->getEmails();
 
-unset($mirrorSnapshotController, $mirrorEnvController, $userController, $selection, $selectedByMirror, $selected, $mirror, $snapshot, $activeSnapIds, $envs, $protectedEnvs);
+unset($mirrorSnapshotController, $mirrorEnvController, $userController, $selection, $selectedByMirror, $selected, $mirror, $snapshot, $activeSnapIds, $envs, $protectedEnvs, $protectedMirrorIds, $i);

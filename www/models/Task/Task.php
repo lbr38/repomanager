@@ -116,6 +116,28 @@ class Task extends \Models\Model
     }
 
     /**
+     *  Update the status of a task only if it currently has the expected status
+     *  Checked and updated in a single query, so that two processes can never both change the same status
+     *  Return true if the status has been updated
+     */
+    public function updateStatusIf(int $id, string $from, string $to) : bool
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE tasks SET Status = :to WHERE Id = :id AND Status = :from");
+            $stmt->bindValue(':to', $to);
+            $stmt->bindValue(':id', $id);
+            $stmt->bindValue(':from', $from);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+
+            return false;
+        }
+
+        return $this->db->changes() === 1;
+    }
+
+    /**
      *  Update duration in database
      */
     public function updateDuration(int $id, string $duration) : void
@@ -192,7 +214,8 @@ class Task extends \Models\Model
     }
 
     /**
-     *  Get last scheduled task (last 7 days)
+     *  Get last scheduled task (last 7 days), including a running one
+     *  Tasks not executed yet (scheduled, disabled) are excluded
      */
     public function getLastScheduledTask()
     {
@@ -201,7 +224,7 @@ class Task extends \Models\Model
         try {
             $stmt = $this->db->prepare("SELECT * FROM tasks
             WHERE Type = 'scheduled'
-            AND Status != 'running'
+            AND Status NOT IN ('scheduled', 'disabled')
             AND Date >= :date
             ORDER BY Date DESC, Time DESC LIMIT 1");
 
@@ -301,15 +324,17 @@ class Task extends \Models\Model
      *  If $parentTaskId is provided, the task is linked to the task that generated it
      *  (e.g. a scheduled task targeting a group of repositories)
      */
-    public function new(string $type, string $rawParams, string $status, int|null $parentTaskId = null, string|null $launchedBy = null) : int
+    public function new(string $type, string $rawParams, string $status, int|null $parentTaskId = null, string|null $launchedBy = null, string|null $date = null, string|null $time = null) : int
     {
         try {
-            $stmt = $this->db->prepare("INSERT INTO tasks (Type, Raw_params, Status, Parent_task_id, Launched_by) VALUES (:type, :rawParams, :status, :parentTaskId, :launchedBy)");
+            $stmt = $this->db->prepare("INSERT INTO tasks (Type, Raw_params, Status, Parent_task_id, Launched_by, Date, Time) VALUES (:type, :rawParams, :status, :parentTaskId, :launchedBy, :date, :time)");
             $stmt->bindValue(':type', $type);
             $stmt->bindValue(':rawParams', $rawParams);
             $stmt->bindValue(':status', $status);
             $stmt->bindValue(':parentTaskId', $parentTaskId);
             $stmt->bindValue(':launchedBy', $launchedBy);
+            $stmt->bindValue(':date', $date);
+            $stmt->bindValue(':time', $time);
             $stmt->execute();
         } catch (Exception $e) {
             DbLog::error($e);
@@ -340,6 +365,32 @@ class Task extends \Models\Model
          *  Return the Id of the new task
          */
         return $this->db->lastInsertRowID();
+    }
+
+    /**
+     *  Return the Id of the next occurrence of the recurring task $id (the copy scheduled when it was executed), or null
+     */
+    public function getNextOccurrence(int $id) : int|null
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT next.Id FROM tasks AS next
+            INNER JOIN tasks AS current ON current.Raw_params = next.Raw_params
+            WHERE current.Id = :id
+            AND next.Id > current.Id
+            AND next.Type = 'scheduled'
+            AND next.Status IN ('scheduled', 'disabled')
+            ORDER BY next.Id ASC LIMIT 1");
+            $stmt->bindValue(':id', $id);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            return (int) $row['Id'];
+        }
+
+        return null;
     }
 
     /**
@@ -463,5 +514,24 @@ class Task extends \Models\Model
         } catch (Exception $e) {
             DbLog::error($e);
         }
+    }
+
+    /**
+     *  Delete a task only if it currently has the expected status, return true if it has been deleted
+     */
+    public function deleteIfStatus(int $id, string $status) : bool
+    {
+        try {
+            $stmt = $this->db->prepare("DELETE FROM tasks WHERE Id = :id AND Status = :status");
+            $stmt->bindValue(':id', $id);
+            $stmt->bindValue(':status', $status);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+
+            return false;
+        }
+
+        return $this->db->changes() === 1;
     }
 }

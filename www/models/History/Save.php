@@ -15,10 +15,10 @@ class Save extends \Models\Model
     /**
      *  Add new history line in database
      */
-    public function save(string $userId, string $username, string $action, string $ip, string $ipForwarded, string $userAgent, string $state) : void
+    public function save(string $userId, string $username, string $action, string $ip, string $ipForwarded, string $userAgent, string $state, string $category, string $details) : void
     {
         try {
-            $stmt = $this->db->prepare("INSERT INTO history ('Date', 'Time', 'Id_user', 'Username', 'Action', 'Ip', 'Ip_forwarded', 'User_agent', 'State') VALUES (:date, :time, :id, :username, :action, :ip, :ipForwarded, :userAgent, :state)");
+            $stmt = $this->db->prepare("INSERT INTO history ('Date', 'Time', 'Id_user', 'Username', 'Action', 'Ip', 'Ip_forwarded', 'User_agent', 'State', 'Category', 'Details') VALUES (:date, :time, :id, :username, :action, :ip, :ipForwarded, :userAgent, :state, :category, :details)");
             $stmt->bindValue(':date', date('Y-m-d'));
             $stmt->bindValue(':time', date('H:i:s'));
             $stmt->bindValue(':id', $userId);
@@ -28,6 +28,8 @@ class Save extends \Models\Model
             $stmt->bindValue(':ipForwarded', $ipForwarded);
             $stmt->bindValue(':userAgent', $userAgent);
             $stmt->bindValue(':state', $state);
+            $stmt->bindValue(':category', $category);
+            $stmt->bindValue(':details', $details);
             $stmt->execute();
         } catch (Exception $e) {
             DbLog::error($e);

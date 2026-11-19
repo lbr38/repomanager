@@ -40,16 +40,27 @@ use \Controllers\User\Permission\Mirror as MirrorPermission; ?>
                             <span>Settings</span>
                         </div>
 
-                        <div id="hide-all-repo-groups" class="slide-btn mediumopacity" state="visible" title="Hide all repository groups">
-                            <img src="/assets/icons/view.svg" />
-                            <span>Collapse all</span>
-                        </div>
+                        <?php
+                        // Collapse all groups button, only useful when there are at least 2 groups
+                        if (count($groups) > 1) : ?>
+                            <div id="hide-all-repo-groups" class="slide-btn mediumopacity" state="visible" title="Hide all repository groups">
+                                <img src="/assets/icons/view.svg" />
+                                <span>Collapse all</span>
+                            </div>
+                            <?php
+                        endif ?>
                     </div>
 
                     <?php
-                    // The repositories creation form also offers mirrors, the mirrors creation form is opened directly if the user can only create mirrors
-                    if (RepoPermission::allowedAction('create') or MirrorPermission::allowedAction('create')) : ?>
-                        <div class="slide-btn slide-btn-green get-panel-btn" panel="<?= RepoPermission::allowedAction('create') ? 'repos/new' : 'mirrors/new' ?>" title="Create a new curated repository, local repository or mirror">
+                    /**
+                     *  The repositories creation form also offers mirrors, the mirrors creation form is opened directly if the user can only create mirrors
+                     *  or if only Arch Linux repositories are enabled (they can only be mirrors)
+                     */
+                    $canCreateRepo = (RepoPermission::allowedAction('create') and (RPM_REPO == 'true' or DEB_REPO == 'true'));
+                    $canCreateMirror = (MirrorPermission::allowedAction('create') and (RPM_REPO == 'true' or DEB_REPO == 'true' or ARCH_REPO == 'true'));
+
+                    if ($canCreateRepo or $canCreateMirror) : ?>
+                        <div class="slide-btn slide-btn-green get-panel-btn" panel="<?= $canCreateRepo ? 'repos/new' : 'mirrors/new' ?>" title="Create a new curated repository, local repository or mirror">
                             <img src="/assets/icons/plus.svg" />
                             <span>Create a new repository</span>
                         </div>

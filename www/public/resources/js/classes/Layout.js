@@ -31,6 +31,67 @@ class Layout {
     }
 
     /**
+     * Add a red dot on the browser tab favicon when at least one task is running
+     * (the menu prints a badge on the tasks tab when tasks are running)
+     */
+    updateFavicon()
+    {
+        const running = $('#menu .menu-task-badge').length > 0;
+        let link = document.querySelector('link[rel="icon"]');
+
+        if (link === null) {
+            link = document.createElement('link');
+            link.rel = 'icon';
+            document.head.appendChild(link);
+        }
+
+        if (!running) {
+            link.href = '/favicon.ico';
+            return;
+        }
+
+        // The favicon with the dot is generated only once
+        if (this.runningFavicon) {
+            link.href = this.runningFavicon;
+            return;
+        }
+
+        const image = new Image();
+
+        image.onload = () => {
+            const size = 64;
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+
+            canvas.width = size;
+            canvas.height = size;
+            context.drawImage(image, 0, 0, size, size);
+
+            // Cut out a ring around the dot so it stays visible on any tab bar color
+            context.globalCompositeOperation = 'destination-out';
+            context.beginPath();
+            context.arc(size - 16, size - 16, 16, 0, 2 * Math.PI);
+            context.fill();
+
+            // Red dot, bottom right
+            context.globalCompositeOperation = 'source-over';
+            context.fillStyle = '#F32F63';
+            context.beginPath();
+            context.arc(size - 16, size - 16, 12, 0, 2 * Math.PI);
+            context.fill();
+
+            this.runningFavicon = canvas.toDataURL('image/png');
+
+            // Tasks may have ended while the image was loading
+            if ($('#menu .menu-task-badge').length > 0) {
+                link.href = this.runningFavicon;
+            }
+        };
+
+        image.src = '/favicon.ico';
+    }
+
+    /**
      * Print a veil on specified element by class name, parent element must be relative
      * @param {*} name
      */

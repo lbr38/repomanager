@@ -25,3 +25,6 @@ PHP application (web UI, API, background tasks). Code lives in `www/`:
 - PHPStan: `php www/libs/vendor/bin/phpstan analyse -c phpstan.neon www` (level 0, config in `phpstan.neon`).
 - PHPCS: `php phpcs.phar --standard=.github/lint/phpcs.xml -n . --ignore=libs/,*.js` (needs `phpcs.phar`, not in repo). Follow the rules in `.github/lint/phpcs.xml`.
 - No PHPUnit suite; other CI tests are in `.github/workflows/` (API, database update, ansible role).
+
+## Commits
+- Never commit or push anything

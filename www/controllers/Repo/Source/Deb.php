@@ -14,6 +14,10 @@ class Deb extends \Controllers\Repo\Source\Source
     {
         $name = Validate::string($name);
 
+        if ($name === '') {
+            throw new Exception('Distribution name is required');
+        }
+
         // Check that a distribution with the same name does not already exist
         foreach ($this->currentDefinition['distributions'] as $distribution) {
             if ($distribution['name'] == $name) {
@@ -44,7 +48,9 @@ class Deb extends \Controllers\Repo\Source\Source
         }
 
         // Check that the distribution name is not empty
-        if (empty($params['name'])) {
+        $params['name'] = trim($params['name'] ?? '');
+
+        if ($params['name'] === '') {
             throw new Exception('Distribution name is required');
         }
 
@@ -87,6 +93,10 @@ class Deb extends \Controllers\Repo\Source\Source
     public function addComponent(int $distributionId, string $component): void
     {
         $component = Validate::string($component);
+
+        if ($component === '') {
+            throw new Exception('Component name is required');
+        }
 
         // Check that the distribution Id exists in the source repository
         if (!isset($this->currentDefinition['distributions'][$distributionId])) {

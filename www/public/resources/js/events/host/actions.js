@@ -107,8 +107,8 @@ $(document).on('click','.host-update-packages-btn',function () {
  *  Do not trigger if the user clicked on a link (<a>)
  */
 $(document).on('click', '.host-line', function (e) {
-    // Ignore clicks on links or the checkbox itself
-    if ($(e.target).closest('a, input[name="checkbox-host[]"]').length) {
+    // Ignore clicks on links, the checkbox itself, or the description and tags area and buttons (see events/host/edit.js)
+    if ($(e.target).closest('a, input[name="checkbox-host[]"], .host-add-description-btn, .host-add-tags-btn, .host-line-meta').length) {
         return;
     }
 

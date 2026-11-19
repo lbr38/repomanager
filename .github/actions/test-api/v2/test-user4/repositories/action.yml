@@ -1,0 +1,78 @@
+name: API - test-user4 - repository and upload tests
+description: Run repository listing and upload tests as test-user4 user (upload permission, only the repositories of the 'ci-test-group' group, #3 and #4, are visible)
+
+inputs:
+  api-host:
+    description: API test host URL
+    required: true
+  api-key:
+    description: test-user4 API key
+    required: true
+
+runs:
+  using: composite
+  steps:
+    # List all repositories: only the repositories of the group must be listed
+    - name: (test-user4) List all repositories
+      shell: bash
+      run: |
+        OUTPUT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/repo/)
+        echo "$OUTPUT" | jq
+
+        if ! echo "$OUTPUT" | jq -e '(.results | map(.Id) | sort) == [3, 4]' > /dev/null; then
+            echo "test-user4 must only see repositories #3 and #4 (members of the ci-test-group group)"
+            exit 1
+        fi
+
+    # List snapshots of repository #5: not member of the group
+    - name: (test-user4) Try to list snapshots of a repository outside the group
+      shell: bash
+      run: |
+        OUTPUT=$(curl --fail-with-body -L -s -X GET -H "Authorization: Bearer ${{ inputs.api-key }}" ${{ inputs.api-host }}/api/v2/repo/5) || true
+
+        if echo "$OUTPUT" | grep -q "You are not allowed to view this repository"; then
+            echo "Correctly failed to list snapshots of a repository outside the group"
+        else
+            echo "test-user4 must not see the snapshots of repository #5"
+            echo "$OUTPUT" | jq
+            exit 1
+        fi
+
+    # Upload packages to snapshots #3 (deb) and #4 (rpm): visible and upload allowed
+    - name: (test-user4) Upload packages to the repositories of the group
+      shell: bash
+      run: |
+        DEB_PACKAGE=$(ls -A1 $HOSTNAME/*nginx_1.26.0-1~bookworm_amd64.deb | head -1)
+        RPM_PACKAGE=$(ls -A1 $HOSTNAME/*nginx-1.26.0-1.el7.ngx.x86_64.rpm | head -1)
+
+        curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer ${{ inputs.api-key }}" -F "file=@${DEB_PACKAGE}" ${{ inputs.api-host }}/api/v2/snapshot/3/upload | jq
+        curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer ${{ inputs.api-key }}" -F "file=@${RPM_PACKAGE}" ${{ inputs.api-host }}/api/v2/snapshot/4/upload | jq
+
+    # Upload a package to snapshot #5: upload allowed but the repository is not visible
+    - name: (test-user4) Try to upload a package to a repository outside the group
+      shell: bash
+      run: |
+        DEB_PACKAGE=$(ls -A1 $HOSTNAME/*nginx_1.26.0-1~bookworm_amd64.deb | head -1)
+        OUTPUT=$(curl --fail-with-body --post301 -L -s -X POST -H "Authorization: Bearer ${{ inputs.api-key }}" -F "file=@${DEB_PACKAGE}" ${{ inputs.api-host }}/api/v2/snapshot/5/upload) || true
+
+        if echo "$OUTPUT" | grep -q "You are not allowed to upload packages"; then
+            echo "Correctly failed to upload a package to a repository outside the group"
+        else
+            echo "test-user4 must not be allowed to upload packages to repository #5"
+            echo "$OUTPUT" | jq
+            exit 1
+        fi
+
+    # Rebuild snapshot #3: visible but test-user4 has no rebuild permission
+    - name: (test-user4) Try to rebuild a snapshot of the group
+      shell: bash
+      run: |
+        OUTPUT=$(curl --fail-with-body --post301 -L -s -X PUT -H "Authorization: Bearer ${{ inputs.api-key }}" -d '{"gpgSign":"true"}' ${{ inputs.api-host }}/api/v2/snapshot/3/rebuild) || true
+
+        if echo "$OUTPUT" | grep -q "You are not allowed to rebuild a repository snapshot"; then
+            echo "Correctly failed to rebuild a snapshot without the rebuild permission"
+        else
+            echo "test-user4 must not be allowed to rebuild snapshots"
+            echo "$OUTPUT" | jq
+            exit 1
+        fi

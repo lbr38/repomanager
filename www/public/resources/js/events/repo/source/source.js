@@ -76,6 +76,26 @@ $(document).on('submit','#import-source-repos',function () {
 });
 
 /**
+ *  Event: add a distribution, a component, a release version or an arch repository/architecture when pressing 'Enter' in its input
+ *  Triggers the '+' button next to the input, the default action is prevented so that the parent form is not submitted
+ */
+$(document).on('keydown', 'input.source-repo-add-distribution-input, input.source-repo-edit-distribution-add-component-input, input.source-repo-add-releasever-input, input.source-repo-arch-add-input', function (e) {
+    if (e.key !== 'Enter' || e.originalEvent.isComposing) {
+        return;
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Ignore key auto-repeat to avoid sending the same value multiple times
+    if (e.originalEvent.repeat) {
+        return;
+    }
+
+    $(this).next('button').trigger('click');
+});
+
+/**
  *  Event: Edit source repo
  */
 $(document).on('click','.source-repo-form-submit-btn',function () {

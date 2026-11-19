@@ -1,10 +1,13 @@
 <?php
-use \Controllers\User\Permission\Host as HostPermission; ?>
+use \Controllers\User\Permission\Host as HostPermission;
+
+$canEditHost = HostPermission::allowedAction('edit');
+$hostLine = false; ?>
 
 <section class="section-main reloadable-container" container="host/summary">
-    <div class="margin-top-50 margin-bottom-40">
+    <div class="host-meta-scope margin-top-50 margin-bottom-40">
         <div class="flex flex-wrap justify-space-between column-gap-20 row-gap-15">
-            <div class="flex align-item-center column-gap-10">
+            <div class="flex flex-wrap align-item-center column-gap-10 row-gap-10">
                 <h3 class="margin-0"><?= strtoupper($hostname) ?></h3>
 
                 <div class="flex column-gap-8">
@@ -15,6 +18,9 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
                         echo '<img src="/assets/icons/shield-warning.svg" class="icon-np icon-medium" title="Host is not compliant: ' . strtolower($compliance['reason']) . '" />';
                     } ?>
                 </div>
+
+                <?php
+                include(ROOT . '/views/includes/host/description-tags-btns.inc.php'); ?>
             </div>
 
             <div class="flex column-gap-10 justify-space-between">
@@ -30,6 +36,9 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
                 endif ?>
             </div>
         </div>
+
+        <?php
+        include(ROOT . '/views/includes/host/description-tags.inc.php'); ?>
     </div>
 
     <div class="div-generic-blue grid grid-rfr-1-6 column-gap-50 row-gap-20">
@@ -42,6 +51,15 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
             <h6 class="margin-top-0">IP</h6>
             <p class="mediumopacity-cst copy"><?= $ip ?></p>
         </div>
+
+        <?php
+        if (!empty($publicIp)) : ?>
+            <div>
+                <h6 class="margin-top-0">PUBLIC IP</h6>
+                <p class="mediumopacity-cst copy"><?= htmlspecialchars($publicIp) ?></p>
+            </div>
+            <?php
+        endif ?>
 
         <div>
             <h6 class="margin-top-0">NET. INTERFACES</h6>
@@ -60,11 +78,19 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
                         $interface = htmlspecialchars($interface);
 
                         // Properties to print in the tooltip (values are already escaped when stored)
-                        $tooltip = array_filter([
-                            'IPv4' => $properties['ipv4'] ?? '',
-                            'IPv6' => $properties['ipv6'] ?? '',
-                            'MAC' => $properties['mac'] ?? ''
-                        ]); ?>
+                        // All the addresses of the interface if sent by the host, otherwise its first IPv4 and IPv6
+                        if (!empty($properties['addresses']) and is_array($properties['addresses'])) {
+                            $tooltip = [];
+
+                            foreach ($properties['addresses'] as $address) {
+                                $tooltip[] = [str_contains($address, ':') ? 'IPv6' : 'IPv4', $address];
+                            }
+                        } else {
+                            $tooltip = [['IPv4', $properties['ipv4'] ?? ''], ['IPv6', $properties['ipv6'] ?? '']];
+                        }
+
+                        $tooltip[] = ['MAC', $properties['mac'] ?? ''];
+                        $tooltip = array_filter($tooltip, fn ($property) => $property[1] !== ''); ?>
 
                         <span class="label-white<?= $count > $maxInterfaces ? ' host-network-interface-hidden hide' : '' ?>" data-tooltip-template>
                             <?= $interface ?>
@@ -74,7 +100,7 @@ use \Controllers\User\Permission\Host as HostPermission; ?>
                                 if (!empty($tooltip)) : ?>
                                     <div class="tooltip-properties">
                                         <?php
-                                        foreach ($tooltip as $label => $value) : ?>
+                                        foreach ($tooltip as [$label, $value]) : ?>
                                             <span class="tooltip-property-label"><?= $label ?></span>
                                             <span class="tooltip-property-value copy"><?= $value ?></span>
                                             <?php

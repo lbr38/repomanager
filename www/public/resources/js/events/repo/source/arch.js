@@ -27,6 +27,52 @@ $(document).on('click','button.source-repo-arch-add-btn',function () {
 });
 
 /**
+ *  Event: open the edit panel of a repository or an architecture
+ */
+$(document).on('click','.source-repo-arch-edit-btn',function () {
+    mypanel.get('repos/sources/edit-arch-item', {
+        id: $(this).attr('source-id'),
+        field: $(this).attr('field'),
+        itemId: $(this).attr('item-id')
+    });
+});
+
+/**
+ *  Event: edit a repository or an architecture
+ */
+$(document).on('submit','form.source-repo-edit-arch-item',function (e) {
+    e.preventDefault();
+
+    const id = $(this).attr('source-id');
+    const field = $(this).attr('field');
+    const itemId = $(this).attr('item-id');
+
+    ajaxRequest(
+        // Controller:
+        'repo/source/arch',
+        // Action:
+        'edit',
+        // Data:
+        {
+            id: id,
+            field: field,
+            itemId: itemId,
+            name: $(this).find('.arch-item-param[param-name="name"]').val(),
+            description: $(this).find('.arch-item-param[param-name="description"]').val()
+        },
+        // Print success alert:
+        true,
+        // Print error alert:
+        true
+    ).then(function () {
+        mypanel.reload('repos/sources/list');
+        mypanel.reload('repos/sources/edit-arch-item', {id: id, field: field, itemId: itemId});
+    });
+
+    return false;
+});
+
+/**
  *  Event: remove a repository or an architecture from an arch source repository
  */
 $(document).on('click','.source-repo-arch-remove-btn',function (e) {

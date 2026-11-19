@@ -38,7 +38,8 @@ foreach ($mirrorSnapshotController->getSelection($item['snapshots'] ?? '') as $s
 
     $params = Mirror::getParams($mirror);
     $name = REPO_CONF_FILES_PREFIX . $mirror['Name'];
-    $url = WWW_MIRRORS_DIR_URL . '/' . Mirror::getDirOf($mirror) . '/__ENV__';
+    // Mirror base URL, based on the URL used by the user's browser
+    $url = __SERVER_URL__ . Mirror::URL_PATH . '/' . Mirror::getDirOf($mirror) . '/__ENV__';
     $commands = [];
 
     // GPG keys declared in the source repository, clients must trust them as they check the upstream signature
@@ -104,7 +105,7 @@ foreach ($mirrorSnapshotController->getSelection($item['snapshots'] ?? '') as $s
 
         $rpm = 'cat << EOF > /etc/yum.repos.d/' . $name . '.repo' . PHP_EOL;
         $rpm .= '[' . $name . '___ENV__]' . PHP_EOL;
-        $rpm .= 'name=' . $mirror['Name'] . ' mirror on ' . WWW_HOSTNAME . PHP_EOL;
+        $rpm .= 'name=' . $mirror['Name'] . ' mirror on ' . __SERVER_HOST__ . PHP_EOL;
         $rpm .= 'baseurl=' . str_replace('$basearch', '\$basearch', $baseurl) . PHP_EOL;
         $rpm .= 'enabled=1' . PHP_EOL;
         $rpm .= 'gpgcheck=1' . PHP_EOL;

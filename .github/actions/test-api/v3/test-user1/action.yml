@@ -1,0 +1,44 @@
+name: API v3 - test-user1 tests
+description: Run API v3 tests as test-user1 user (no permissions - all actions must fail)
+
+inputs:
+  api-host:
+    description: API test host URL
+    required: true
+  api-key:
+    description: test-user1 API key
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: (test-user1) No repository is visible
+      shell: bash
+      env:
+        API_HOST: ${{ inputs.api-host }}
+        API_KEY: ${{ inputs.api-key }}
+      run: |
+        source ${{ github.action_path }}/../api.sh
+
+        RESULT=$(api GET /repositories)
+        check "$RESULT" '.data | length == 0'
+
+        must_fail 404 not_found GET /repositories/local/3
+        must_fail 404 not_found GET /repositories/local/3/snapshots/3
+
+    - name: (test-user1) All actions are refused
+      shell: bash
+      env:
+        API_HOST: ${{ inputs.api-host }}
+        API_KEY: ${{ inputs.api-key }}
+      run: |
+        source ${{ github.action_path }}/../api.sh
+        prepare_packages
+
+        must_fail 403 forbidden POST /repositories/local/3/snapshots/3/packages -F "file=@${DEB_PACKAGE}"
+        must_fail 403 forbidden DELETE /repositories/local/3/snapshots/3/packages -H "Content-Type: application/json" -d '{"packages":["nginx_1.26.0-1~bookworm_amd64.deb"]}'
+        must_fail 403 forbidden POST /repositories/local -H "Content-Type: application/json" -d '{"package_type":"deb","name":"ci-test-user1","dist":"bookworm","section":"main"}'
+        must_fail 403 forbidden GET /sources
+        must_fail 403 forbidden POST /sources/import -F "template=@${{ github.workspace }}/www/templates/source-repositories/deb/nginx.yml"
+        must_fail 403 forbidden GET /hosts
+        must_fail 403 forbidden POST /hosts -H "Content-Type: application/json" -d '{"hostname":"test-user1.local","ip":"1.2.3.6"}'

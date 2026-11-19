@@ -587,3 +587,10 @@ https://github.com/select2/select2/issues/3278#issuecomment-258481272 : */
 .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
   color: #e9f8ff !important;
 }
+
+/* When many options are selected, the selection box scrolls instead of growing out of the screen */
+.select2-container--default .select2-selection--multiple {
+  max-height: 30vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+}

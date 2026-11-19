@@ -1,0 +1,63 @@
+/* History list, the items use the same style as the tasks list (see .task-item in main.css) */
+
+.history-filter {
+    width: auto;
+    padding-right: 10px;
+}
+
+#history-search {
+    min-width: 250px;
+}
+
+.history-item-action {
+    line-height: 20px;
+    overflow-wrap: anywhere;
+}
+
+/* Labels inside an action are compact so that all items have the same height */
+.history-item-action [class^="label"] {
+    padding: 2px 8px;
+}
+
+/* Expand/collapse arrow, same as the sub-tasks toggle of the tasks list */
+.history-item-toggle {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-right: 1.5px solid #8A99AA;
+    border-bottom: 1.5px solid #8A99AA;
+    transform: translateY(-2px) rotate(45deg);
+    transition: transform 0.2s ease;
+}
+
+.history-item-expanded .history-item-toggle {
+    transform: translateY(1px) rotate(-135deg);
+}
+
+.history-item-expanded {
+    border-color: #2d5575;
+}
+
+/* Details of an item */
+.history-item-details {
+    flex-direction: column;
+    row-gap: 25px;
+    margin: 0;
+}
+
+.history-item-details:not(.hide) {
+    display: flex;
+}
+
+.history-changes {
+    display: grid;
+    grid-template-columns: minmax(150px, 1fr) minmax(150px, 2fr) minmax(150px, 2fr);
+    align-items: start;
+    column-gap: 20px;
+    row-gap: 15px;
+    min-width: 500px;
+}
+
+.history-full-width {
+    grid-column: 1 / -1;
+}

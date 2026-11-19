@@ -3,7 +3,11 @@ use \Controllers\User\Permission\Host as HostPermission;
 use \Controllers\Utils\Generate\Html\Label;
 use \Controllers\Utils\Generate\Html\Icon;
 use \Controllers\Utils\Convert;
-use \Controllers\Host\Package\Package; ?>
+use \Controllers\Host\Package\Package;
+
+// Description and tags of the hosts can be edited in place from their line (see views/includes/host/)
+$canEditHost = HostPermission::allowedAction('edit');
+$hostLine = true; ?>
 
 <section class="section-main reloadable-container" container="hosts/list">
     <div class="flex justify-space-between margin-top-50 margin-bottom-40">
@@ -11,20 +15,29 @@ use \Controllers\Host\Package\Package; ?>
 
         <div>
             <?php
+            // Collapse all groups button, only useful when there are at least 2 groups
+            if ($hostGroupsCount > 1) : ?>
+                <div id="hide-all-host-groups" class="slide-btn mediumopacity" state="visible" title="Hide all host groups">
+                    <img src="/assets/icons/view.svg" />
+                    <span>Collapse all</span>
+                </div>
+                <?php
+            endif;
+
             if ($totalHosts > 0) :
                 // Default to compact view if no cookie is set
                 $currentView = isset($_COOKIE['hosts/compact-view']) ? $_COOKIE['hosts/compact-view'] : "1";
 
                 if ($currentView == "1") : // Compact view active ?>
-                    <div id="compact-view-btn" class="slide-btn mediumopacity" title="Switch to full view">
-                        <img src="/assets/icons/view.svg" />
-                        <span>Full view</span>
+                    <div id="compact-view-btn" class="slide-btn mediumopacity" title="Show more details">
+                        <img src="/assets/icons/plus.svg" />
+                        <span>More details</span>
                     </div>
                     <?php
                 else : // Full view active ?>
-                    <div id="compact-view-btn" class="slide-btn mediumopacity" title="Switch to compact view">
-                        <img src="/assets/icons/view-off.svg" />
-                        <span>Compact view</span>
+                    <div id="compact-view-btn" class="slide-btn mediumopacity" title="Show less details">
+                        <img src="/assets/icons/minus.svg" />
+                        <span>Less details</span>
                     </div>
                     <?php
                 endif;
@@ -52,7 +65,7 @@ use \Controllers\Host\Package\Package; ?>
                     <span>Settings</span>
                 </div>
                 <?php
-            endif ?>      
+            endif ?>
         </div>
     </div>
 
@@ -71,23 +84,17 @@ use \Controllers\Host\Package\Package; ?>
 
     if ($totalHosts >= 1) : ?>
         <div>
-            <div class="grid grid-rfr-1-2 justify-space-between column-gap-30 row-gap-15 margin-bottom-30">
-                <div>
-                    <div class="flex align-item-center column-gap-8 margin-bottom-5">
-                        <h6 class="margin-top-0 search-host-tooltip">SEARCH HOST</h6>
-                        <img src="/assets/icons/info.svg" class="icon-small icon-np lowopacity search-host-tooltip" />
-                    </div>
-                    
-                    <input type="text" id="search-host-input" onkeyup="HostSearch.search()" autocomplete="off" placeholder="Hostname, IP, type, ..." title="Search a host by hostname, IP" />
+            <div class="margin-bottom-30">
+                <div class="flex align-item-center column-gap-8 margin-bottom-5">
+                    <h6 class="margin-top-0 search-host-tooltip">SEARCH</h6>
+                    <img src="/assets/icons/info.svg" class="icon-small icon-np lowopacity search-host-tooltip" />
+                    <p id="search-host-count" class="note hide"></p>
                 </div>
 
-                <div>
-                    <div class="flex align-item-center column-gap-8 margin-bottom-5">
-                        <h6 class="margin-top-0 search-package-tooltip">SEARCH PACKAGE</h6>
-                        <img src="/assets/icons/info.svg" class="icon-small icon-np lowopacity search-package-tooltip" />
-                    </div>
-
-                    <input type="text" id="search-package-input" onkeyup="HostSearch.searchPackage()" autocomplete="off" placeholder="name=mysql" />
+                <div class="search-host-input-container">
+                    <input type="text" id="search-host-input" autocomplete="off" spellcheck="false" placeholder="Hostname, IP, OS... or package=nginx" title="Search hosts by any field, filter by host attributes (os=, env=, ...) or by installed package (package=)" />
+                    <img id="search-host-clear" src="/assets/icons/close.svg" class="icon-small pointer lowopacity hide" title="Clear search" />
+                    <div id="search-host-suggestions" class="search-host-suggestions hide"></div>
                 </div>
             </div>
 
@@ -145,7 +152,7 @@ use \Controllers\Host\Package\Package; ?>
                             <div class="hosts-group-header">
                                 <div class="hosts-group-header-left">
                                     <img src="/assets/icons/folder.svg" class="icon-np lowopacity-cst" />
-                                    <span class="hosts-group-header-name"><?= $groupName ?></span>
+                                    <span class="hosts-group-header-name hide-host-group pointer" state="visible" title="Collapse group <?= $groupName ?>"><?= $groupName ?></span>
                                     <span class="label-count"><?= $hostsCount ?></span>
                                 </div>
 
@@ -193,6 +200,9 @@ use \Controllers\Host\Package\Package; ?>
                                         if (!empty($host['Ip'])) {
                                             $ip = $host['Ip'];
                                         }
+                                        $publicIp = htmlspecialchars($host['Public_ip'] ?? '');
+                                        $description = $host['Description'] ?? '';
+                                        $tags = !empty($host['Tags']) ? explode(',', $host['Tags']) : [];
                                         if (!empty($host['Os'])) {
                                             $os = $host['Os'];
                                         }
@@ -261,7 +271,7 @@ use \Controllers\Host\Package\Package; ?>
                                         // Here the <div> will contain all the host informations in order to be able to search on it (input 'search a host')
                                         $hostAccent = $agentStatus === 'running' ? 'host-accent-green' : 'host-accent-red'; ?>
 
-                                        <div class="div-generic-blue host-line <?= $hostAccent ?>" hostid="<?= $id ?>" hostname="<?= $hostname ?>" os="<?= $os ?>" os_version="<?= $osVersion ?>" os_family="<?= $osFamily ?>" type="<?= $type ?>" kernel="<?= $kernel ?>" arch="<?= $arch ?>" profile="<?= $profile ?>" env="<?= $env ?>" agent-status="<?= $agentStatus ?>" agent-version="<?= $agentVersion ?>" reboot_required="<?= $rebootRequired ?>" compliant="<?= Convert::toString($compliance['compliant']) ?>" title="<?= $agentStatus !== 'running' ? 'Agent ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')' : 'Agent is running' ?>">
+                                        <div class="div-generic-blue host-line host-meta-scope <?= $hostAccent ?>" hostid="<?= $id ?>" hostname="<?= $hostname ?>" os="<?= $os ?>" os_version="<?= $osVersion ?>" os_family="<?= $osFamily ?>" type="<?= $type ?>" kernel="<?= $kernel ?>" arch="<?= $arch ?>" profile="<?= $profile ?>" env="<?= $env ?>" agent-status="<?= $agentStatus ?>" agent-version="<?= $agentVersion ?>" reboot_required="<?= $rebootRequired ?>" compliant="<?= Convert::toString($compliance['compliant']) ?>" tags="<?= htmlspecialchars(implode(',', $tags)) ?>" title="<?= $agentStatus !== 'running' ? 'Agent ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')' : 'Agent is running' ?>">
                                             <div class="width-100 overflowx-auto overflowy-hidden">
                                                 <?php
                                                 if ($compactView) : ?>
@@ -270,12 +280,22 @@ use \Controllers\Host\Package\Package; ?>
                                                             <?= Icon::os($os); ?>
 
                                                             <div class="min-width-0">
-                                                                <p title="<?= $hostname ?>" class="copy flex align-item-center min-width-0">
-                                                                    <a href="/host/<?= $id ?>" class="text-ellipsis min-width-0" target="_blank" rel="noopener noreferrer">
-                                                                        <b><?= $hostname ?></b>
-                                                                    </a>
-                                                                </p>
+                                                                <div class="flex align-item-center column-gap-10 min-width-0">
+                                                                    <p title="<?= $hostname ?>" class="copy flex align-item-center min-width-0">
+                                                                        <a href="/host/<?= $id ?>" class="text-ellipsis min-width-0" target="_blank" rel="noopener noreferrer">
+                                                                            <b><?= $hostname ?></b>
+                                                                        </a>
+                                                                    </p>
+
+                                                                    <?php
+                                                                    include(ROOT . '/views/includes/host/description-tags-btns.inc.php'); ?>
+                                                                </div>
                                                                 <p class="font-size-12 mediumopacity-cst copy" title="IP address"><?= $ip ?></p>
+                                                                <?php
+                                                                if (!empty($publicIp)) : ?>
+                                                                    <p class="font-size-12 mediumopacity-cst copy" title="Public IP address"><?= $publicIp ?></p>
+                                                                    <?php
+                                                                endif ?>
                                                             </div>
                                                         </div>
 
@@ -324,12 +344,22 @@ use \Controllers\Host\Package\Package; ?>
                                                     <div class="flex align-item-center column-gap-10 margin-bottom-15">
                                                         <?= Icon::os($os); ?>
                                                         <div>
-                                                            <p class="copy">
-                                                                <a href="/host/<?= $id ?>" class="wordbreakall" target="_blank" rel="noopener noreferrer">
-                                                                    <b><?= $hostname ?></b>
-                                                                </a>
-                                                            </p>
-                                                            <p class="font-size-12 mediumopacity-cst copy"><?= $ip ?></p>
+                                                            <div class="flex flex-wrap align-item-center column-gap-10">
+                                                                <p class="copy">
+                                                                    <a href="/host/<?= $id ?>" class="wordbreakall" target="_blank" rel="noopener noreferrer">
+                                                                        <b><?= $hostname ?></b>
+                                                                    </a>
+                                                                </p>
+
+                                                                <?php
+                                                                include(ROOT . '/views/includes/host/description-tags-btns.inc.php'); ?>
+                                                            </div>
+                                                            <p class="font-size-12 mediumopacity-cst copy" title="IP address"><?= $ip ?></p>
+                                                            <?php
+                                                            if (!empty($publicIp)) : ?>
+                                                                <p class="font-size-12 mediumopacity-cst copy" title="Public IP address"><?= $publicIp ?></p>
+                                                                <?php
+                                                            endif ?>
                                                         </div>
                                                     </div>
 
@@ -554,6 +584,16 @@ use \Controllers\Host\Package\Package; ?>
                                                         endif ?>
                                                     </div>
                                                     <?php
+                                                endif;
+
+                                                // Description (one line, full text in tooltip) and tags, same place in compact and full views
+                                                // Always present for users allowed to edit them, hidden while the host has none
+                                                if ($canEditHost or !empty($description) or !empty($tags)) : ?>
+                                                    <div class="host-line-meta<?= empty($description) && empty($tags) ? ' hide' : '' ?>">
+                                                        <?php
+                                                        include(ROOT . '/views/includes/host/description-tags.inc.php'); ?>
+                                                    </div>
+                                                    <?php
                                                 endif ?>
 
                                                 <div class="host-additionnal-info"></div>
@@ -563,6 +603,13 @@ use \Controllers\Host\Package\Package; ?>
                                         </div>
                                         <?php
                                     endforeach; ?>
+                                    </div>
+                                </div>
+                                <?php
+                            else : ?>
+                                <div class="hosts-group-content">
+                                    <div class="empty-state hosts-table-empty">
+                                        <p class="empty-state-title">No host in this group yet!</p>
                                     </div>
                                 </div>
                                 <?php

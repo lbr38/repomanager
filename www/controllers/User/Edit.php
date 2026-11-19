@@ -4,6 +4,7 @@ namespace Controllers\User;
 use Exception;
 use Controllers\App\Session;
 use Controllers\History\Save as History;
+use Controllers\History\Details;
 use Controllers\Utils\Validate;
 
 class Edit extends User
@@ -46,10 +47,25 @@ class Edit extends User
             throw new Exception('User does not exist');
         }
 
+        // Current informations, for history
+        $before = $this->get($id);
+
         /**
          *  Update informations in database
          */
         $this->model->edit($id, $firstName, $lastName, $email);
+
+        // SSO accounts informations are updated by the identity provider at each login, only log the changes made by local users
+        if ($type == 'local') {
+            $changes = Details::diff(
+                ['first_name' => $before['First_name'] ?? '', 'last_name' => $before['Last_name'] ?? '', 'email' => $before['Email'] ?? ''],
+                ['first_name' => $firstName, 'last_name' => $lastName, 'email' => $email]
+            );
+
+            if (!empty($changes)) {
+                History::set('Personal informations modification', category: 'user', changes: $changes);
+            }
+        }
 
         /**
          *  Update sessions variables with new values
@@ -132,7 +148,7 @@ class Edit extends User
          */
         $this->updatePassword($id, $newPasswordHashed);
 
-        History::set('Password modification');
+        History::set('Password modification', category: 'user');
     }
 
     /**
@@ -197,7 +213,7 @@ class Edit extends User
          */
         $this->updatePassword($id, $hashedPassword);
 
-        History::set('Reseted password of user <code>' . $username . '</code>');
+        History::set('Reseted password of user <span class="label-white">' . $username . '</span>', category: 'user');
 
         /**
          *  Return new password

@@ -18,7 +18,7 @@
     env:
       FQDN: "{{ repomanager_fqdn }}"
       MAX_UPLOAD_SIZE: "{{ repomanager_vhost_max_upload_size | default('32') }}M"
-      NGINX_LISTEN_PORT: "{{ repomanager_listen_port | default('8080') }}"
+      NGINX_LISTEN_PORT: "{{ repomanager_listen_port | default('8080') | string }}"
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/lib/docker/volumes/repomanager-data:/var/lib/repomanager

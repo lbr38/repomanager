@@ -190,6 +190,36 @@ class Host extends \Models\Model
     }
 
     /**
+     *  Update the description of a host
+     */
+    public function updateDescription(int $id, string $description): void
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE hosts SET Description = :description WHERE Id = :id");
+            $stmt->bindValue(':description', $description);
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+    }
+
+    /**
+     *  Update the tags (comma-separated) of a host
+     */
+    public function updateTags(int $id, string $tags): void
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE hosts SET Tags = :tags WHERE Id = :id");
+            $stmt->bindValue(':tags', $tags);
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+    }
+
+    /**
      *  Return true if the Id/token pair is valid
      */
     public function checkIdToken(string $authId, string $token): bool

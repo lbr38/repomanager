@@ -162,17 +162,22 @@ class ScheduledTask extends \Controllers\Service\Service
          *  Execute scheduled tasks
          */
         if (!empty($taskToExec)) {
-            foreach ($taskToExec as $taskId) {
-                parent::log('Launching scheduled task #' . $taskId . '...');
+            try {
+                foreach ($taskToExec as $taskId) {
+                    parent::log('Launching scheduled task #' . $taskId . '...');
 
-                try {
-                    $this->dispatch($taskId, $tasksRawParams[$taskId] ?? []);
-                } catch (Exception $e) {
-                    throw new Exception('Error while executing scheduled task #' . $taskId . ': ' . $e->getMessage());
+                    try {
+                        $this->dispatch($taskId, $tasksRawParams[$taskId] ?? []);
+                    } catch (Exception $e) {
+                        throw new Exception('Error while executing scheduled task #' . $taskId . ': ' . $e->getMessage());
+                    }
                 }
-
-                // Let some time between each task, to make sure the queue system works properly
-                sleep(1);
+            } finally {
+                /**
+                 *  The queued tasks are started once all scheduled tasks are queued: starting them after each one
+                 *  would start the same first tasks again and again, until their processes have claimed them
+                 */
+                (new \Controllers\Task\Queue())->dispatch();
             }
         }
     }
@@ -225,10 +230,9 @@ class ScheduledTask extends \Controllers\Service\Service
         $this->taskController->updateDate($taskId, date('Y-m-d'));
         $this->taskController->updateTime($taskId, date('H:i:s'));
 
-        // A task without sub-task is queued and executed on its own
+        // A task without sub-task is queued and executed on its own, as soon as a slot is available (see execute())
         if (!$grouped) {
             $this->taskController->updateStatus($taskId, 'queued');
-            $this->taskController->executeId($taskId);
 
             return;
         }
@@ -252,7 +256,8 @@ class ScheduledTask extends \Controllers\Service\Service
          */
         $this->taskController->updateStatus($taskId, 'running');
 
-        $this->taskController->execute($tasksParams, $taskId);
+        // Sub-tasks are started with the other scheduled tasks (see execute())
+        $this->taskController->execute($tasksParams, $taskId, false);
     }
 
     /**

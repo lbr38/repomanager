@@ -8,6 +8,9 @@ use Controllers\Group\Host as HostGroup;
 use Controllers\Layout\ContainerReload;
 use Controllers\Filesystem\Directory;
 use Controllers\Utils\Validate;
+use Controllers\Repo\Repo;
+use Controllers\History\Save as History;
+use Controllers\History\Details;
 use JsonException;
 use Exception;
 
@@ -202,6 +205,62 @@ class Host
     public function existsHostname(string $hostname): bool
     {
         return $this->model->existsHostname($hostname);
+    }
+
+    /**
+     *  Edit the description and / or the tags (list) of a host
+     *  Only the specified properties are edited, all of them are validated before any of them is saved
+     */
+    public function edit(int $id, array $params): void
+    {
+        if (!HostPermission::allowedAction('edit')) {
+            throw new Exception('You are not allowed to perform this action');
+        }
+
+        if (!$this->existsId($id)) {
+            throw new Exception('Host Id #' . $id . ' does not exist');
+        }
+
+        if (isset($params['description'])) {
+            if (!is_string($params['description'])) {
+                throw new Exception('Invalid description');
+            }
+
+            Repo::checkDescription($params['description']);
+        }
+
+        if (isset($params['tags'])) {
+            if (!is_array($params['tags'])) {
+                throw new Exception('Invalid tags');
+            }
+
+            $tags = Repo::cleanTags($params['tags']);
+        }
+
+        $host = $this->get($id);
+
+        // Values before and after the edition, for history (description is stored escaped)
+        $before = [
+            'description' => $host['Description'] ?? '',
+            'tags'        => !empty($host['Tags']) ? explode(',', $host['Tags']) : []
+        ];
+        $after = [];
+
+        if (isset($params['description'])) {
+            $after['description'] = Validate::string($params['description']);
+            $this->model->updateDescription($id, $after['description']);
+        }
+
+        if (isset($tags)) {
+            $after['tags'] = $tags;
+            $this->model->updateTags($id, implode(',', $tags));
+        }
+
+        $changes = Details::diff($before, $after);
+
+        if (!empty($changes)) {
+            History::set('Editing <span class="label-white">' . $host['Hostname'] . '</span> host properties', category: 'host', changes: $changes);
+        }
     }
 
     /**

@@ -8,7 +8,7 @@
     }
 
     if (!empty($reloadableTableContent)) : ?>
-        <div class="margin-top-15">
+        <div class="flex flex-direction-column row-gap-10 margin-top-15">
             <?php
             foreach ($reloadableTableContent as $item) :
                 /**
@@ -24,9 +24,10 @@
                  *  It retrieves only an occurence composed of letters, numbers and some special characters like - _ . and %
                  */
                 preg_match('#/[a-zA-Z0-9\%_\.-]+[[:space:]]#i', $item['Request'], $accessTarget);
-                $accessTarget[0] = str_replace('/', '', $accessTarget[0] ?? ''); ?>
+                $accessTarget[0] = str_replace('/', '', $accessTarget[0] ?? '');
+                $accent = in_array($item['Request_result'], ['200', '304']) ? 'access-accent-green' : 'access-accent-red'; ?>
 
-                <div class="table-container grid-rfr-1-2 bck-blue-alt column-gap-15 row-gap-15 stats-access-request">
+                <div class="stats-access-item grid-rfr-1-2 column-gap-15 row-gap-15 <?= $accent ?>">
                     <div class="flex flex-wrap align-item-center column-gap-100 row-gap-15">
                         <div class="flex column-gap-15 align-item-center">
                             <div>

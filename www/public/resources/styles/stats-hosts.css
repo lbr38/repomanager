@@ -20,6 +20,79 @@
     column-gap: 15px;
 }
 
+/* Description and tags of a host, at the bottom of the host line (compact and full views) */
+.host-line-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 20px;
+    row-gap: 4px;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(30, 58, 84, 0.5);
+}
+
+/* The description takes the space left by the tags, cut with an ellipsis
+   Below 180px the tags go to the next line instead of squeezing it */
+.host-line-meta .host-description-container {
+    flex: 1 1 180px;
+    min-width: 0;
+    margin-top: 0;
+}
+
+.host-line-meta .host-description-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin-bottom: 0;
+    font-size: 12.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Tags keep their width, on the right of the description */
+.host-line-meta .host-tags-container {
+    flex: 0 1 auto;
+    margin-top: 0;
+    margin-left: auto;
+}
+
+.host-line-meta .host-tags-display {
+    justify-content: flex-end;
+    column-gap: 12px;
+    row-gap: 4px;
+    font-size: 12px;
+}
+
+.host-line-meta .host-tag-item {
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.host-line-meta .host-tag-item:hover {
+    opacity: 1;
+}
+
+/* "Add a description" / "Add tags" buttons of a host line, only revealed when hovering it */
+.host-line .host-add-description-btn,
+.host-line .host-add-tags-btn {
+    display: none;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.host-line:hover .host-add-description-btn:not(.hide),
+.host-line:hover .host-add-tags-btn:not(.hide) {
+    display: inline-flex;
+}
+
+/* Clickable icons ('icon-np' icons have no pointer by default) */
+.host-add-description-btn img,
+.host-add-tags-btn img,
+.host-line-meta .host-tag-item img {
+    cursor: pointer;
+}
+
 .host-additionnal-info {
     display: none;
     flex-direction: column;
@@ -27,8 +100,60 @@
     padding-top: 5px;
 }
 
-.stats-access-request {
-    grid-template-columns: 1% 15% 20% auto;
+/* Search input with a clear button */
+.search-host-input-container {
+    position: relative;
+}
+
+.search-host-input-container input {
+    padding-right: 35px;
+}
+
+#search-host-clear {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+}
+
+/* Search input suggestions */
+.search-host-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    background-color: #22384F;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+}
+
+.search-host-suggestion {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    column-gap: 15px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.search-host-suggestion:hover, .search-host-suggestion.active {
+    background-color: #2e4a68;
+}
+
+/* Clickable filters in the search host tooltip */
+.search-host-filter {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.search-host-filter:hover {
+    background-color: #3d7aab;
 }
 
 .chart-loading {

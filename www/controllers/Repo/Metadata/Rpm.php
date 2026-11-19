@@ -73,9 +73,6 @@ class Rpm extends Metadata
         $process->setBackground(true);
         $process->execute();
 
-        // Add PID to main PID file
-        $this->taskController->addsubpid($process->getPid());
-
         // Retrieve output from process
         $this->taskLogSubStepController->output($process->getOutput(), 'pre');
 
@@ -108,9 +105,6 @@ class Rpm extends Metadata
             );
             $process->setBackground(true);
             $process->execute();
-
-            // Retrieve PID of the launched process then write PID to main PID file
-            $this->taskController->addsubpid($process->getPid());
 
             // Retrieve output from process
             $this->taskLogSubStepController->output($process->getOutput(), 'pre');

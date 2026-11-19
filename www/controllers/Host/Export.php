@@ -47,6 +47,8 @@ class Export extends Host
             'Agent status time',
             'Agent version',
             'Reboot required',
+            'Description',
+            'Tags',
         ];
 
         // For each host, get its information and add it to the CSV array
@@ -70,6 +72,9 @@ class Export extends Host
                 $data['Online_status_time'],
                 $data['Agent_version'],
                 $data['Reboot_required'],
+                htmlspecialchars_decode($data['Description'] ?? ''),
+                // Tags are separated by spaces as commas separate the CSV fields
+                str_replace(',', ' ', $data['Tags'] ?? ''),
             ];
         }
 

@@ -22,6 +22,14 @@ class Environment
     }
 
     /**
+     *  Return all environments associated to a snapshot Id, as an array environment name => environment Id
+     */
+    public function getIdsBySnapId(int $snapId): array
+    {
+        return $this->model->getIdsBySnapId($snapId);
+    }
+
+    /**
      *  Associate a new environment to a snapshot
      */
     public function add(int $snapId, string $env) : void

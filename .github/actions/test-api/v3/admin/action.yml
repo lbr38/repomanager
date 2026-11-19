@@ -1,0 +1,168 @@
+name: API v3 - admin tests
+description: Run API v3 tests as admin user
+
+inputs:
+  api-host:
+    description: API test host URL
+    required: true
+  api-key:
+    description: Admin API key
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: (admin) Status and errors
+      shell: bash
+      env:
+        API_HOST: ${{ inputs.api-host }}
+        API_KEY: ${{ inputs.api-key }}
+      run: |
+        source ${{ github.action_path }}/../api.sh
+
+        must_pass GET /status
+        must_fail 404 not_found GET /unknown-route
+        must_fail 405 method_not_allowed DELETE /status
+        # Invalid API key
+        CODE=$(curl -L -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer invalid" "$API_HOST/api/v3/repositories")
+        if [ "$CODE" != "401" ]; then
+            echo "An invalid API key must be refused (HTTP $CODE)"
+            exit 1
+        fi
+
+    - name: (admin) Repositories
+      shell: bash
+      env:
+        API_HOST: ${{ inputs.api-host }}
+        API_KEY: ${{ inputs.api-key }}
+      run: |
+        source ${{ github.action_path }}/../api.sh
+
+        must_pass GET /repositories
+        must_pass GET /repositories/mirror
+        must_pass GET "/repositories?package_type=deb"
+
+        # Repository #1 is the local deb repository of the admin
+        RESULT=$(api GET /repositories/local)
+        check "$RESULT" '.data | map(select(.name == "local-deb-for-admin")) | length == 1'
+
+        RESULT=$(api GET /repositories/local/1)
+        check "$RESULT" '.data.name == "local-deb-for-admin" and .data.type == "local"'
+
+        must_pass GET /repositories/local/1/snapshots
+        must_pass GET /repositories/local/1/snapshots/1
+        must_pass GET "/repositories/local/1/snapshots/1/diff/3?other_repository=local/3"
+
+        # Repository #1 is not a curated repository, snapshot #2 belongs to repository #2
+        must_fail 404 not_found GET /repositories/curated/1
+        must_fail 404 not_found GET /repositories/local/1/snapshots/2
+
+        # Edit repository properties
+        RESULT=$(api PATCH /repositories/local/1 -H "Content-Type: application/json" -d '{"description":"CI - test API v3 - local deb repo for admin","tags":["ci","api-v3"]}')
+        check "$RESULT" '.data.tags == ["ci", "api-v3"]'
+
+        # Unknown parameters are rejected
+        must_fail 400 invalid_parameter PATCH /repositories/local/1 -H "Content-Type: application/json" -d '{"descripton":"typo"}'
+
+    - name: (admin) Packages upload and snapshot rebuild
+      shell: bash
+      env:
+        API_HOST: ${{ inputs.api-host }}
+        API_KEY: ${{ inputs.api-key }}
+      run: |
+        source ${{ github.action_path }}/../api.sh
+        prepare_packages
+
+        must_pass GET /repositories/local/1/snapshots/1/packages
+
+        must_pass POST /repositories/local/1/snapshots/1/packages -F "file=@${DEB_PACKAGE}"
+        must_pass POST /repositories/local/2/snapshots/2/packages -F "file=@${RPM_PACKAGE}"
+
+        # Packages already uploaded
+        must_fail 400 operation_refused POST /repositories/local/1/snapshots/1/packages -F "file=@${DEB_PACKAGE}"
+        must_pass POST /repositories/local/1/snapshots/1/packages -F "file=@${DEB_PACKAGE}" -F "overwrite=true"
+        RESULT=$(api POST /repositories/local/1/snapshots/1/packages -F "file=@${DEB_PACKAGE}" -F "ignore_if_exists=true")
+        check "$RESULT" '.data.ignored | length == 1'
+
+        # Packages cannot be uploaded to a mirror
+        must_fail 404 not_found POST /repositories/mirror/1/snapshots/1/packages -F "file=@${DEB_PACKAGE}"
+
+        RESULT=$(api POST /repositories/local/1/snapshots/1/rebuild -H "Content-Type: application/json" -d '{"gpg_sign":true}')
+        check "$RESULT" '.data.id | type == "number"'
+        echo "TASK_ID=$(echo "$RESULT" | jq -r '.data.id')" >> $GITHUB_ENV
+
+        must_pass POST /repositories/local/2/snapshots/2/rebuild -H "Content-Type: application/json" -d '{"gpg_sign":true}'
+
+    - name: (admin) Environments and tasks
+      shell: bash
+      env:
+        API_HOST: ${{ inputs.api-host }}
+        API_KEY: ${{ inputs.api-key }}
+      run: |
+        source ${{ github.action_path }}/../api.sh
+
+        must_pass GET /environments
+        must_pass POST /repositories/local/1/snapshots/1/environments -H "Content-Type: application/json" -d '{"environments":["prod"]}'
+
+        must_pass GET /tasks
+        must_pass GET "/tasks?status=running"
+        must_pass GET "/tasks?status=queued"
+        must_pass GET "/tasks?status=scheduled"
+        must_pass GET "/tasks?status=done"
+        must_pass GET /tasks/${TASK_ID}
+        must_fail 400 invalid_parameter GET "/tasks?status=unknown"
+
+        # A repository cannot be created on a recurring basis
+        must_fail 400 operation_refused POST /repositories/local -H "Content-Type: application/json" -d '{"package_type":"deb","name":"ci-recurring","dist":"bookworm","section":"main","schedule":{"type":"recurring","frequency":"daily","time":"03:00"}}'
+
+    - name: (admin) Source repositories and profiles
+      shell: bash
+      env:
+        API_HOST: ${{ inputs.api-host }}
+        API_KEY: ${{ inputs.api-key }}
+      run: |
+        source ${{ github.action_path }}/../api.sh
+
+        must_pass POST /sources/import -F "template=@${{ github.workspace }}/www/templates/source-repositories/deb/nginx.yml"
+        must_pass GET /sources
+        must_pass GET "/sources?package_type=deb"
+        must_pass GET /sources/deb/nginx
+        must_fail 404 not_found GET /sources/deb/does-not-exist
+
+        must_pass GET /profiles
+
+    - name: (admin) Hosts
+      shell: bash
+      env:
+        API_HOST: ${{ inputs.api-host }}
+        API_KEY: ${{ inputs.api-key }}
+      run: |
+        source ${{ github.action_path }}/../api.sh
+
+        must_pass GET /hosts
+        must_pass GET "/hosts?os=ubuntu&os_version=22.04"
+        must_pass GET "/hosts?kernel=5.15.0-89-generic&arch=x86_64"
+        must_pass GET "/hosts?profile=app_server&env=prod"
+        must_pass GET "/hosts?package=nginx"
+        must_pass GET "/hosts?package=nginx&version=1.24.0-1&strict"
+        must_pass GET "/hosts?status=uptodate"
+        must_pass GET "/hosts?status=outdated&packages"
+
+        # Register a host, then act as the host
+        RESULT=$(api POST /hosts -H "Content-Type: application/json" -d '{"hostname":"test-v3.local","ip":"1.2.3.5"}')
+        check "$RESULT" '(.data.id | type == "string") and (.data.token | type == "string")'
+        HOST_AUTH="Host $(echo "$RESULT" | jq -r '.data.id'):$(echo "$RESULT" | jq -r '.data.token')"
+
+        RESULT=$(curl --fail-with-body -L -s -X PUT -H "Authorization: $HOST_AUTH" -H "Content-Type: application/json" -d '{"hostname":"test-v3.local","os":"ubuntu","os_version":"24.04"}' "$API_HOST/api/v3/hosts/me/status")
+        check "$RESULT" '.data.updated == ["hostname", "os", "os_version"]'
+
+        curl --fail-with-body -L -s -X PUT -H "Authorization: $HOST_AUTH" -H "Content-Type: application/json" -d '{"installed_packages":[]}' "$API_HOST/api/v3/hosts/me/packages/installed" | jq .
+
+        # A host cannot use the users routes
+        CODE=$(curl -L -s -o /dev/null -w '%{http_code}' -H "Authorization: $HOST_AUTH" "$API_HOST/api/v3/repositories")
+        if [ "$CODE" != "401" ]; then
+            echo "A host must not access the repositories (HTTP $CODE)"
+            exit 1
+        fi
+
+        curl --fail-with-body -L -s -X DELETE -H "Authorization: $HOST_AUTH" "$API_HOST/api/v3/hosts/me" | jq .

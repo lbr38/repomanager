@@ -241,6 +241,26 @@ class Group extends \Models\Model
     }
 
     /**
+     *  Return the group Ids of all the repos member of a group, as an array repo Id => list of group Ids
+     */
+    public function getReposGroupsIds(): array
+    {
+        $data = [];
+
+        try {
+            $result = $this->db->query("SELECT Id_repo, Id_group FROM group_members");
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[$row['Id_repo']][] = $row['Id_group'];
+        }
+
+        return $data;
+    }
+
+    /**
      *  Return the list of repos not in any group
      */
     public function getReposNotMembers()

@@ -12,11 +12,6 @@ class Mirror extends \Controllers\Api\Controller
     {
         $mirrorController = new MirrorController();
 
-        // Mirrors permissions are users permissions: an API key is required (hosts authenticate with their Id and token)
-        if (!IS_ADMIN and !defined('USER_PERMISSIONS')) {
-            throw new Exception('You must authenticate with an API key');
-        }
-
         /**
          *  List all mirrors the user is allowed to view
          *  https://repomanager.mydomain.net/api/v2/mirror/
@@ -97,9 +92,7 @@ class Mirror extends \Controllers\Api\Controller
         $params['domain'] = 'mirror';
         $params['schedule'] = ['scheduled' => 'false'];
 
-        (new \Controllers\Task\Form\Form())->validate([$params]);
-
-        return (new \Controllers\Task\Task())->execute([$params]);
+        return (new \Controllers\Task\Launcher())->launch([$params]);
     }
 
     /**

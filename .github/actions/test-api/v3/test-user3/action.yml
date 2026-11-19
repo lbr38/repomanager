@@ -1,0 +1,56 @@
+name: API v3 - test-user3 tests
+description: Run API v3 tests as test-user3 user (browse permission, only repository #5 is granted individually)
+
+inputs:
+  api-host:
+    description: API test host URL
+    required: true
+  api-key:
+    description: test-user3 API key
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: (test-user3) Only the granted repository is visible
+      shell: bash
+      env:
+        API_HOST: ${{ inputs.api-host }}
+        API_KEY: ${{ inputs.api-key }}
+      run: |
+        source ${{ github.action_path }}/../api.sh
+
+        RESULT=$(api GET /repositories)
+        check "$RESULT" '(.data | map(.id) | sort) == [5]'
+
+        RESULT=$(api GET /repositories/local/5)
+        check "$RESULT" '.data.name == "local-deb-for-test-user2"'
+        must_pass GET /repositories/local/5/snapshots
+
+        # Repositories not granted are not found
+        must_fail 404 not_found GET /repositories/local/3
+        must_fail 404 not_found GET /repositories/local/6/snapshots
+
+    - name: (test-user3) Browse packages of the granted repository only
+      shell: bash
+      env:
+        API_HOST: ${{ inputs.api-host }}
+        API_KEY: ${{ inputs.api-key }}
+      run: |
+        source ${{ github.action_path }}/../api.sh
+
+        must_pass GET /repositories/local/5/snapshots/5/packages
+        must_fail 404 not_found GET /repositories/local/3/snapshots/3/packages
+
+    - name: (test-user3) Actions without permission are refused
+      shell: bash
+      env:
+        API_HOST: ${{ inputs.api-host }}
+        API_KEY: ${{ inputs.api-key }}
+      run: |
+        source ${{ github.action_path }}/../api.sh
+        prepare_packages
+
+        must_fail 403 forbidden POST /repositories/local/5/snapshots/5/packages -F "file=@${DEB_PACKAGE}"
+        must_fail 403 forbidden POST /repositories/local/5/snapshots/5/rebuild -H "Content-Type: application/json" -d '{"gpg_sign":true}'
+        must_fail 403 forbidden DELETE /repositories/local/5

@@ -77,13 +77,13 @@ class Main
         if (!defined('DB_UPDATE_DONE_DIR')) {
             define('DB_UPDATE_DONE_DIR', DATA_DIR . '/update');
         }
-        // PIDs
-        if (!defined('PID_DIR')) {
-            define('PID_DIR', DATA_DIR . "/tasks/pid");
-        }
         // Temp dir
         if (!defined('TEMP_DIR')) {
             define('TEMP_DIR', DATA_DIR . "/.temp");
+        }
+        // Locks dir (lock files shared between processes, never cleaned as the temp dir is)
+        if (!defined('LOCKS_DIR')) {
+            define('LOCKS_DIR', DATA_DIR . '/locks');
         }
         // Hosts databases dir
         if (!defined('HOSTS_DIR')) {

@@ -4,6 +4,14 @@
 websocket_client();
 
 /**
+ *  Add a red dot on the favicon if tasks are running
+ *  (on document ready, as mylayout is instantiated after this file is loaded)
+ */
+$(document).ready(function () {
+    mylayout.updateFavicon();
+});
+
+/**
  *  Event: get panel
  */
 $(document).on('click','.get-panel-btn',function () {
@@ -129,9 +137,10 @@ $(document).on('click','.reloadable-table-page-btn',function () {
     var page = $(this).attr('page');
 
     /**
-     *  Calculate offset (page * 10 - 10)
+     *  Calculate offset from the number of items per page (10 by default)
      */
-    offset = parseInt(page) * 10 - 10;
+    var perPage = parseInt($(this).parents('.reloadable-table').attr('per-page')) || 10;
+    offset = parseInt(page) * perPage - perPage;
 
     /**
      *  If offset is negative, set it to 0

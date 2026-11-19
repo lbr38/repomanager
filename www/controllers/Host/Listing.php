@@ -83,7 +83,7 @@ class Listing
         $hosts = $this->get();
 
         // Check if the package name is valid
-        if (!Validate::alphaNumericHyphen($name, ['*'])) {
+        if (!Validate::alphaNumericHyphen($name, ['*', '.', '+'])) {
             throw new Exception('Package name contains invalid characters');
         }
 
@@ -251,6 +251,7 @@ class Listing
                 'Id' => $host['Id'],
                 'Hostname' => $host['Hostname'],
                 'Ip' => $host['Ip'],
+                'Public_ip' => $host['Public_ip'],
                 'Os' => $host['Os'],
                 'Os_version' => $host['Os_version'],
                 'Os_family' => $host['Os_family'],
@@ -299,6 +300,7 @@ class Listing
                 'Id' => $host['Id'],
                 'Hostname' => $host['Hostname'],
                 'Ip' => $host['Ip'],
+                'Public_ip' => $host['Public_ip'],
                 'Os' => $host['Os'],
                 'Os_version' => $host['Os_version'],
                 'Os_family' => $host['Os_family'],

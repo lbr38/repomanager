@@ -14,7 +14,7 @@ use \Controllers\Repo\Source\Rpm as RpmSourceRepo;
 /**
  *  Add a new release version
  */
-if ($_POST['action'] == 'add' and !empty($_POST['id']) and !empty($_POST['name'])) {
+if ($_POST['action'] == 'add' and !empty($_POST['id']) and isset($_POST['name'])) {
     $rpmSourceController = new RpmSourceRepo($_POST['id']);
 
     try {

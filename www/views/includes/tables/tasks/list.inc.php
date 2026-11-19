@@ -303,9 +303,12 @@ use \Controllers\Task\Task; ?>
                         }
 
                         if ($item['Status'] == 'running' or $item['Status'] == 'queued') {
-                            // If the task has no running process and is not a parent task, display a warning icon (only if the task is not a parent task itself)
-                            if (!$hasSubTasks and !Task::processRunning($item['Id'])) {
-                                echo '<img src="/assets/icons/warning-red.svg" class="icon-np" task-id="' . $item['Id'] . '" title="No running process found for this task, the process might have crashed, you should stop this task" />';
+                            /**
+                             *  If the task is running without process and is not a parent task, display a warning icon
+                             *  A queued task never has a process, it is started by the queue when a slot is available
+                             */
+                            if ($item['Status'] == 'running' and !$hasSubTasks and !Task::processRunning($item['Id'])) {
+                                echo '<img src="/assets/icons/warning-red.svg" class="icon-np" task-id="' . $item['Id'] . '" title="No running process found for this task, the process might have crashed, the task will be marked as failed shortly" />';
                             }
 
                             if (TaskPermission::allowedAction('stop')) {
@@ -389,9 +392,9 @@ use \Controllers\Task\Task; ?>
                                 <div class="task-item-status">
                                     <?php
                                     if ($subTask['Status'] == 'running' or $subTask['Status'] == 'queued') {
-                                        // If the task has no running process, display a warning icon
-                                        if (!Task::processRunning($subTask['Id'])) {
-                                            echo '<img src="/assets/icons/warning-red.svg" class="icon-np" task-id="' . $subTask['Id'] . '" title="No running process found for this task, the process might have crashed, you should stop this task" />';
+                                        // If the task is running without process, display a warning icon (a queued task never has a process)
+                                        if ($subTask['Status'] == 'running' and !Task::processRunning($subTask['Id'])) {
+                                            echo '<img src="/assets/icons/warning-red.svg" class="icon-np" task-id="' . $subTask['Id'] . '" title="No running process found for this task, the process might have crashed, the task will be marked as failed shortly" />';
                                         }
 
                                         if (TaskPermission::allowedAction('stop')) {
@@ -413,12 +416,28 @@ use \Controllers\Task\Task; ?>
                 elseif (!empty($taskRawParams['tasks'])) : ?>
                     <div class="task-item-children" task-id="<?= $item['Id'] ?>">
                         <?php
-                        foreach ($taskRawParams['tasks'] as $subTaskParams) : ?>
+                        $subTasksCount = count($taskRawParams['tasks']);
+
+                        foreach ($taskRawParams['tasks'] as $subTaskIndex => $subTaskParams) :
+                            // Sub-task does not exist yet, it is only described by the parent task parameters
+                            $subTaskRepo = $taskController->getRepoFromParams($subTaskParams, false);
+                            $subTaskRepoLabel = is_array($subTaskRepo) ? ($subTaskRepo['label'] ?? $subTaskRepo['name']) : $subTaskRepo;
+                            $subTaskSnapshotDate = is_array($subTaskRepo) ? ($subTaskRepo['snapshot-date'] ?? '') : ''; ?>
+
                             <div class="task-item-child div-generic-blue accent-orange">
-                                <div></div>
+                                <div class="flex align-item-center column-gap-6">
+                                    <img src="/assets/icons/time.svg" class="icon-small mediumopacity-cst" title="Pending, will be executed with the parent task" />
+                                    <span class="task-item-id mediumopacity-cst"><?= ($subTaskIndex + 1) . '/' . $subTasksCount ?></span>
+                                    <?php
+                                    if (!empty($subTaskSnapshotDate)) : ?>
+                                        <span class="dot mediumopacity-cst">●</span>
+                                        <span class="task-item-date mediumopacity-cst" title="Date of the targeted snapshot"><?= ($subTaskParams['action'] ?? $taskRawParams['action']) == 'update' ? 'Current snapshot: ' : 'Snapshot: ' ?><?= DateTime::createFromFormat('Y-m-d', $subTaskSnapshotDate)->format('d-m-Y') ?></span>
+                                        <?php
+                                    endif ?>
+                                </div>
 
                                 <div class="task-item-repo">
-                                    <span class="label-white"><?= $taskController->getRepoFromParams($subTaskParams) ?></span>
+                                    <span class="label-white"><?= $subTaskRepoLabel ?></span>
                                     <?php
                                     if (in_array($taskRawParams['action'], ['env', 'removeEnv'])) {
                                         foreach ((array) ($subTaskParams['env'] ?? []) as $env) {

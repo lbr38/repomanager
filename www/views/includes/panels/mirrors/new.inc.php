@@ -4,21 +4,28 @@
     <div class="task-form-params form-block" domain="mirror" action="create">
         <h6 class="required">PACKAGE TYPE</h6>
         <div class="switch-field">
-            <input type="radio" id="mirror-package-type-rpm" class="task-param" param-name="package-type" name="mirror-package-type" value="rpm" <?= RPM_REPO == 'true' ? 'checked' : '' ?> />
-            <label for="mirror-package-type-rpm">rpm</label>
-            <input type="radio" id="mirror-package-type-deb" class="task-param" param-name="package-type" name="mirror-package-type" value="deb" <?= RPM_REPO != 'true' ? 'checked' : '' ?> />
-            <label for="mirror-package-type-deb">deb</label>
-            <input type="radio" id="mirror-package-type-arch" class="task-param" param-name="package-type" name="mirror-package-type" value="arch" />
-            <label for="mirror-package-type-arch">arch</label>
+            <?php
+            // Only package types enabled in settings are available
+            $packageTypes = \Controllers\Task\Form\Param\PackageType::enabled();
+
+            foreach ($packageTypes as $index => $packageType) : ?>
+                <input type="radio" id="mirror-package-type-<?= $packageType ?>" class="task-param" param-name="package-type" name="mirror-package-type" value="<?= $packageType ?>" <?= $index == 0 ? 'checked' : '' ?> />
+                <label for="mirror-package-type-<?= $packageType ?>"><?= $packageType ?></label>
+                <?php
+            endforeach ?>
         </div>
 
         <div class="flex align-item-center column-gap-5 margin-top-20">
             <h6 class="required margin-top-0">REPOSITORY TYPE</h6>
-            <a href="https://docs.repomanager.net/usage/operations/#repository-types" target="_blank" rel="noopener noreferrer" title="Curated, local and mirror repositories: see documentation">
+            <a href="https://docs.repomanager.net/latest/usage/repository-types/" target="_blank" rel="noopener noreferrer" title="Curated, local and mirror repositories: see documentation">
                 <img src="/assets/icons/question.svg" class="icon-small icon-lowopacity" />
             </a>
         </div>
-        <p class="note" mirror-field="arch">Arch Linux repositories can only be mirrored.</p>
+        <div class="switch-field" mirror-field="arch">
+            <input type="radio" id="mirror-repo-type-mirror-arch" name="mirror-repo-type-arch" value="mirror" checked />
+            <label for="mirror-repo-type-mirror-arch">Mirror</label>
+        </div>
+        <p class="note margin-top-10" mirror-field="arch">Arch Linux repositories can only be mirrored.</p>
         <div class="switch-field" mirror-field="rpm deb">
             <?php
             // Curated and local repositories have their own form, selecting these types opens it (see events/mirror/actions.js)

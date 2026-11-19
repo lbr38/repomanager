@@ -13,6 +13,7 @@ use Controllers\Repo\Repo;
 use Controllers\Process;
 use JsonException;
 use Exception;
+use Error;
 use DateTime;
 
 class Task
@@ -138,6 +139,15 @@ class Task
     public function updateStatus(int $id, string $status) : void
     {
         $this->model->updateStatus($id, $status);
+    }
+
+    /**
+     *  Update status in database only if the task currently has the expected status
+     *  Return true if the status has been updated
+     */
+    public function updateStatusIf(int $id, string $from, string $to) : bool
+    {
+        return $this->model->updateStatusIf($id, $from, $to);
     }
 
     /**
@@ -310,7 +320,9 @@ class Task
                     }
                 } else if (!empty($taskRawParams['repo-id'])) {
                     if (is_numeric($taskRawParams['repo-id'])) {
-                        $repoController->getAllById($taskRawParams['repo-id'], '', '');
+                        // Also load the targeted snapshot if any (e.g. snapshot to update), to retrieve its date
+                        $snapId = (!empty($taskRawParams['snap-id']) and is_numeric($taskRawParams['snap-id'])) ? $taskRawParams['snap-id'] : '';
+                        $repoController->getAllById($taskRawParams['repo-id'], $snapId, '');
                     }
                 } else if (!empty($taskRawParams['snap-id'])) {
                     if (is_numeric($taskRawParams['snap-id'])) {
@@ -323,6 +335,9 @@ class Task
 
             // Repository details from the database, or from the info stored in the task parameters (repository to create, or deleted since)
             $repoInfo = $repoController->getTaskInfo();
+
+            // Current date of the targeted snapshot, only when it comes from the database (the snapshot still exists)
+            $snapshotDate = $repoInfo['date'] ?? '';
 
             if (empty($repoInfo['name']) and !empty($taskRawParams['repo-info'])) {
                 $repoInfo = $taskRawParams['repo-info'];
@@ -347,11 +362,13 @@ class Task
                     'type' => 'deb',
                     'name' => $name,
                     'dist' => $dist,
-                    'component' => $component
+                    'component' => $component,
+                    'label' => $name . ' ❯ ' . $dist . ' ❯ ' . $component,
+                    'snapshot-date' => $snapshotDate
                 ];
 
                 if ($string) {
-                    return $name . ' ❯ ' . $dist . ' ❯ ' . $component;
+                    return $repo['label'];
                 }
             }
 
@@ -359,11 +376,13 @@ class Task
                 $repo = [
                     'type' => 'rpm',
                     'name' => $name,
-                    'releasever' => $releasever
+                    'releasever' => $releasever,
+                    'label' => $name . ' ❯ ' . $releasever,
+                    'snapshot-date' => $snapshotDate
                 ];
 
                 if ($string) {
-                    return $name . ' ❯ ' . $releasever;
+                    return $repo['label'];
                 }
             }
 
@@ -381,8 +400,9 @@ class Task
      *  Add a new task in database
      *  @param array $params
      *  @param int|null $parentTaskId Id of the task that generated this task, if any (e.g. a scheduled task targeting a group of repositories)
+     *  @param bool $started Insert an immediate task as already running, so that it never goes through the queue (a parent task, which only dispatches sub-tasks)
      */
-    private function new(array $params, int|null $parentTaskId = null) : int
+    private function new(array $params, int|null $parentTaskId = null, bool $started = false) : int
     {
         /**
          *  Default values
@@ -390,6 +410,8 @@ class Task
          */
         $type = 'immediate';
         $status = 'queued';
+        $date = null;
+        $time = null;
 
         /**
          *  If task is scheduled then overwrite the type and status
@@ -398,6 +420,10 @@ class Task
         if ($params['schedule']['scheduled'] == 'true') {
             $type = 'scheduled';
             $status = 'scheduled';
+        } elseif ($started) {
+            $status = 'running';
+            $date = date('Y-m-d');
+            $time = date('H:i:s');
         }
 
         // Clean the schedule parameters (remove unnecessary parameters depending on the schedule type)
@@ -422,7 +448,7 @@ class Task
         /**
          *  Add the task in database
          */
-        $taskId = $this->model->new($type, $paramsJson, $status, $parentTaskId, $launchedBy);
+        $taskId = $this->model->new($type, $paramsJson, $status, $parentTaskId, $launchedBy, $date, $time);
 
         return $taskId;
     }
@@ -430,8 +456,9 @@ class Task
     /**
      *  Execute one or more tasks
      *  @param int|null $parentTaskId Id of the task that generated these tasks, if any (e.g. a scheduled task targeting a group of repositories)
+     *  @param bool $dispatch Start the queued tasks right away, the caller does it otherwise (e.g. once for many scheduled tasks)
      */
-    public function execute(array $tasksParams, int|null $parentTaskId = null): int|array
+    public function execute(array $tasksParams, int|null $parentTaskId = null, bool $dispatch = true): int|array
     {
         $tasks = [];
         $tasksToExecute = [];
@@ -457,7 +484,11 @@ class Task
                 $parentTaskParams['domain'] = $tasksParams[0]['domain'];
             }
 
-            $parentTaskId = $this->new($parentTaskParams);
+            /**
+             *  An immediate parent task stays running as long as one of its sub-tasks is. It is inserted as
+             *  running, as a queued task without sub-task yet could be started by the queue as a task of its own.
+             */
+            $parentTaskId = $this->new($parentTaskParams, null, true);
 
             /**
              *  A scheduled parent task only creates its sub-tasks when it reaches its execution time,
@@ -466,32 +497,34 @@ class Task
             if ($tasksParams[0]['schedule']['scheduled'] == 'true') {
                 return $parentTaskId;
             }
-
-            // The parent task stays running as long as one of its sub-tasks is
-            $this->updateDate($parentTaskId, date('Y-m-d'));
-            $this->updateTime($parentTaskId, date('H:i:s'));
-            $this->updateStatus($parentTaskId, 'running');
-        }
-
-        foreach ($tasksParams as $taskParams) {
-            // Generate a new task containing all the parameters needed to execute the task retrieve its Id
-            $taskId = $this->new($taskParams, $parentTaskId);
-
-            // Execute the task now if it is not scheduled
-            if ($taskParams['schedule']['scheduled'] != 'true') {
-                $tasksToExecute[] = $taskId;
-            }
-
-            // Add task Id to the list of executed tasks
-            $tasks[] = $taskId;
         }
 
         /**
-         *  All the tasks are created before any of them is executed, so that a parent task cannot be
-         *  closed by one of its sub-tasks while the remaining ones are still being created
+         *  Sub-tasks are created while holding the queue lock, so that none of them can be started (and close
+         *  the parent task when it ends) while the remaining ones are still being created
          */
-        foreach ($tasksToExecute as $taskId) {
-            $this->executeId($taskId);
+        $lock = !empty($parentTaskId) ? Queue::lock() : null;
+
+        try {
+            foreach ($tasksParams as $taskParams) {
+                // Generate a new task containing all the parameters needed to execute the task retrieve its Id
+                $taskId = $this->new($taskParams, $parentTaskId);
+
+                // Execute the task now if it is not scheduled
+                if ($taskParams['schedule']['scheduled'] != 'true') {
+                    $tasksToExecute[] = $taskId;
+                }
+
+                // Add task Id to the list of executed tasks
+                $tasks[] = $taskId;
+            }
+        } finally {
+            $lock?->release();
+        }
+
+        // Start the queued tasks for which a slot is available, the others are started as slots are freed
+        if ($dispatch and !empty($tasksToExecute)) {
+            (new Queue())->dispatch();
         }
 
         // The parent task is the entry point of the whole operation
@@ -640,16 +673,6 @@ class Task
     }
 
     /**
-     *  Execute a task in background from its task Id
-     */
-    public function executeId(int $id) : void
-    {
-        $myprocess = new Process('/usr/bin/php ' . ROOT . '/tasks/execute.php --id="' . $id . '" > ' . MAIN_LOGS_DIR . '/repomanager-task-' . $id . '-log.process 2>&1 &');
-        $myprocess->execute();
-        $myprocess->close();
-    }
-
-    /**
      *  Close the parent task of a sub-task that has just ended
      *  A parent task has no execution of its own, it only dispatches sub-tasks, so it is closed as
      *  soon as none of them is left running, with a status summarizing their results
@@ -752,8 +775,8 @@ class Task
             }
         }
 
-        // Execute task
-        $this->executeId($newTaskId);
+        // Execute task as soon as a slot is available
+        (new Queue())->dispatch();
 
         $this->layoutContainerReloadController->reload('tasks/log');
         $this->layoutContainerReloadController->reload('tasks/tasks');
@@ -782,6 +805,15 @@ class Task
      */
     public function stop(int $taskId): void
     {
+        $this->stopTask($taskId, false);
+    }
+
+    /**
+     *  Stop a task
+     *  @param bool $fromParent The task is a sub-task stopped by its parent task, which closes itself and frees the queue once all its sub-tasks are stopped
+     */
+    private function stopTask(int $taskId, bool $fromParent): void
+    {
         if (!TaskPermission::allowedAction('stop')) {
             throw new Exception('You are not allowed to stop a task');
         }
@@ -800,20 +832,29 @@ class Task
         }
 
         /**
-         *  A task still waiting in the queue has no process and no log to stop, and the process
-         *  waiting to run it exits on its own as soon as it leaves the queue
+         *  A task still waiting in the queue has no process and no log to stop
+         *  It is stopped only if it is still queued at this very moment: otherwise it has just been started by
+         *  the queue, and is stopped below as a running task
          */
         if ($taskInfo['Status'] == 'queued') {
-            $this->updateStatus($taskId, 'stopped');
+            if ($this->model->updateStatusIf($taskId, 'queued', 'stopped')) {
+                // Update layout containers states
+                $this->layoutContainerReloadController->reload('tasks/tasks');
+                $this->layoutContainerReloadController->reload('tasks/log');
 
-            // Update layout containers states
-            $this->layoutContainerReloadController->reload('tasks/tasks');
-            $this->layoutContainerReloadController->reload('tasks/log');
+                // Save history
+                History::set('Stopped task #' . $taskId, category: 'task');
 
-            // Save history
-            History::set('Stopped task #' . $taskId);
+                $this->afterStop($taskInfo, $fromParent);
 
-            return;
+                return;
+            }
+
+            $taskInfo = $this->getById($taskId);
+
+            if (($taskInfo['Status'] ?? '') != 'running') {
+                throw new Exception('Task #' . $taskId . ' is not running');
+            }
         }
 
         $taskListingController = new Listing();
@@ -824,17 +865,20 @@ class Task
          *  sub-tasks it launched. They cannot close it once killed, so it is closed here.
          */
         if (!empty($subTasks)) {
+            /**
+             *  The sub-tasks still waiting in the queue are stopped first, so that none of them is started while
+             *  the running ones are being stopped
+             */
             foreach ($subTasks as $subTask) {
-                if ($subTask['Status'] == 'running') {
-                    $this->stop((int) $subTask['Id']);
-                }
-
-                /**
-                 *  A sub-task still waiting in the queue has no process to kill, and would otherwise
-                 *  be started later on, once its parent has already been closed
-                 */
                 if ($subTask['Status'] == 'queued') {
-                    $this->updateStatus((int) $subTask['Id'], 'stopped');
+                    $this->model->updateStatusIf((int) $subTask['Id'], 'queued', 'stopped');
+                }
+            }
+
+            // Then the running sub-tasks are stopped, including those that have just been started by the queue
+            foreach ($taskListingController->getByParentId($taskId) as $subTask) {
+                if ($subTask['Status'] == 'running') {
+                    $this->stopTask((int) $subTask['Id'], true);
                 }
             }
 
@@ -845,78 +889,28 @@ class Task
             $this->layoutContainerReloadController->reload('tasks/log');
 
             // Save history
-            History::set('Stopped task #' . $taskId);
+            History::set('Stopped task #' . $taskId, category: 'task');
+
+            $this->afterStop($taskInfo, $fromParent);
 
             return;
         }
 
-        if (file_exists(PID_DIR . '/' . $taskId . '.pid')) {
-            // Getting PID file content
-            $content = file_get_contents(PID_DIR . '/' . $taskId . '.pid');
-
-            // Getting sub PIDs
-            preg_match_all('/(?<=SUBPID=).*/', $content, $subpids);
-
-            // Killing sub PIDs
-            if (!empty($subpids[0])) {
-                $killError = '';
-
-                foreach ($subpids[0] as $subpid) {
-                    $subpid = trim(str_replace('"', '', $subpid));
-
-                    // A PID must be a positive integer
-                    if (!ctype_digit($subpid)) {
-                        continue;
-                    }
-
-                    // Check if the PID is still running
-                    $myprocess = new Process('/usr/bin/ps --pid ' . $subpid);
-                    $myprocess->execute();
-                    $content = $myprocess->getOutput();
-                    $myprocess->close();
-
-                    if ($myprocess->getExitCode() != 0) {
-                        continue;
-                    }
-
-                    // Kill the process
-                    $myprocess = new Process('/usr/bin/kill -9 ' . $subpid);
-                    $myprocess->execute();
-                    $content = $myprocess->getOutput();
-                    $myprocess->close();
-
-                    if ($myprocess->getExitCode() != 0) {
-                        $killError .= 'Could not kill PID ' . $subpid . ': ' . $content. '<br>';
-                    }
-                }
-            }
-
-            // Delete PID file
-            if (!unlink(PID_DIR . '/' . $taskId . '.pid')) {
-                throw new Exception('Error while deleting PID file');
-            }
-        }
+        $killError = $this->killProcesses($taskId);
 
         // Update task in database, set status to 'stopped'
         $this->updateStatus($taskId, 'stopped');
 
-        /**
-         *  A killed rebuild task cannot reset the snapshot rebuild state itself, which would stay
-         *  'running' forever and block any further rebuild or package upload on the snapshot
-         */
-        $taskRawParams = json_decode($taskInfo['Raw_params'], true);
+        // A killed rebuild task cannot reset the snapshot rebuild state itself
+        $this->resetRebuild($taskInfo);
 
-        if (!empty($taskRawParams['action']) and $taskRawParams['action'] == 'rebuild' and !empty($taskRawParams['snap-id']) and is_numeric($taskRawParams['snap-id'])) {
-            $repoSnapshotController = new \Controllers\Repo\Snapshot\Snapshot();
-            $repoSnapshotController->updateRebuild((int) $taskRawParams['snap-id'], 'needed');
+        // Set latest step and substep as stopped, the task may have been stopped before writing any log step
+        try {
+            (new Step($taskId))->stopped();
+            (new SubStep($taskId))->stopped();
+        } catch (Exception | Error $e) {
+            // Nothing to mark as stopped in the task log
         }
-
-        $taskLogStepController = new Step($taskId);
-        $taskLogSubStepController = new SubStep($taskId);
-
-        // Set latest step and substep as stopped
-        $taskLogStepController->stopped();
-        $taskLogSubStepController->stopped();
 
         // Update layout containers states
         $this->layoutContainerReloadController->reload('header/menu');
@@ -926,7 +920,9 @@ class Task
         $this->layoutContainerReloadController->reload('tasks/log');
 
         // Save history
-        History::set('Stopped task #' . $taskId);
+        History::set('Stopped task #' . $taskId, category: 'task');
+
+        $this->afterStop($taskInfo, $fromParent);
 
         if (!empty($killError)) {
             throw new Exception($killError);
@@ -934,65 +930,94 @@ class Task
     }
 
     /**
-     *  Add subpid to main PID file
+     *  Once a task is stopped, close its parent task if it was its last ongoing sub-task, and give the slots
+     *  freed to the next queued tasks
      */
-    public function addsubpid(int $pid) : void
+    private function afterStop(array $taskInfo, bool $fromParent): void
     {
-        // Add specified PID to the main PID file
-        if (!file_put_contents(PID_DIR . '/' . $this->id . '.pid', 'SUBPID="' . $pid . '"' . PHP_EOL, FILE_APPEND)) {
-            throw new Exception('could not add sub PID to ' . PID_DIR . '/' . $this->id . '.pid file');
+        // A sub-task stopped by its parent task leaves it to the parent task
+        if ($fromParent) {
+            return;
         }
 
-        // Also add children PID to the main PID file
-        $childrenPid = self::getChildrenPid($pid);
+        if (!empty($taskInfo['Parent_task_id'])) {
+            $this->closeParent((int) $taskInfo['Parent_task_id']);
+        }
 
-        if ($childrenPid !== false) {
-            // Add children PID to the main PID file
-            foreach ($childrenPid as $childPid) {
-                if (is_numeric($childPid)) {
-                    if (!file_put_contents(PID_DIR . '/' . $this->id . '.pid', 'SUBPID="' . $childPid . '"' . PHP_EOL, FILE_APPEND)) {
-                        throw new Exception('could not add sub PID to ' . PID_DIR . '/' . $this->id . '.pid file');
-                    }
-                }
+        (new Queue())->dispatch();
+    }
 
-                // If the child PID has children PID, then add them too
-                $grandChildrenPid = self::getChildrenPid($childPid);
+    /**
+     *  Mark a running task as failed when its process could not end it (uncaught error, crash, killed process...)
+     *  Return false if the task was not running anymore
+     */
+    public function abort(int $taskId, string $error): bool
+    {
+        // Only the process of the task or this method can end a running task, never both
+        if (!$this->model->updateStatusIf($taskId, 'running', 'error')) {
+            return false;
+        }
 
-                if ($grandChildrenPid !== false) {
-                    foreach ($grandChildrenPid as $grandChildPid) {
-                        if (is_numeric($grandChildPid)) {
-                            if (!file_put_contents(PID_DIR . '/' . $this->id . '.pid', 'SUBPID="' . $grandChildPid . '"' . PHP_EOL, FILE_APPEND)) {
-                                throw new Exception('could not add sub PID to ' . PID_DIR . '/' . $this->id . '.pid file');
-                            }
-                        }
-                    }
-                }
-            }
+        $taskInfo = $this->getById($taskId);
+
+        // The task may have failed before writing any log step
+        try {
+            (new SubStep($taskId))->error($error);
+            (new Step($taskId))->error();
+        } catch (Exception | Error $e) {
+            // Nothing to mark as failed in the task log
+        }
+
+        // A task that failed this way could not reset the snapshot rebuild state itself
+        $this->resetRebuild($taskInfo);
+
+        (new \Controllers\Log\Log())->log('error', 'Task', 'Task #' . $taskId . ' has been marked as failed', $error);
+
+        if (!empty($taskInfo['Parent_task_id'])) {
+            $this->closeParent((int) $taskInfo['Parent_task_id']);
+        }
+
+        // Update layout containers states
+        $this->layoutContainerReloadController->reload('header/menu');
+        $this->layoutContainerReloadController->reload('header/general-log-messages');
+        $this->layoutContainerReloadController->reload('repos/list');
+        $this->layoutContainerReloadController->reload('tasks/tasks');
+        $this->layoutContainerReloadController->reload('tasks/log');
+
+        return true;
+    }
+
+    /**
+     *  Reset the rebuild state of the snapshot of a rebuild task that has not ended by itself, which would
+     *  otherwise stay 'running' forever and block any further rebuild or package upload on the snapshot
+     */
+    private function resetRebuild(array $taskInfo): void
+    {
+        $taskRawParams = json_decode($taskInfo['Raw_params'] ?? '', true);
+
+        if (!empty($taskRawParams['action']) and $taskRawParams['action'] == 'rebuild' and !empty($taskRawParams['snap-id']) and is_numeric($taskRawParams['snap-id'])) {
+            $repoSnapshotController = new \Controllers\Repo\Snapshot\Snapshot();
+            $repoSnapshotController->updateRebuild((int) $taskRawParams['snap-id'], 'needed');
         }
     }
 
     /**
-     *  Return an array with all children PID of the specified PID or false if no children PID
+     *  Return the PID of the repomanager.task-run process of the specified task, or null if it is not running
+     *  The process title is set by Queue::claim() before the task is marked as running
      */
-    public static function getChildrenPid(int $pid) : array|bool
+    public static function getProcessPid(int $id): int|null
     {
-        // Specified PID could have children PID, we need to get them all
-        $processController = new Process('/usr/bin/pgrep -P ' . $pid);
-        $processController->execute();
+        $process = new Process('/usr/bin/pgrep -f -x "repomanager[.]task-run[.]' . $id . '"');
+        $process->execute();
+        $output = $process->getOutput();
+        $process->close();
 
-        // If exit code is 0, then the PID has children
-        if ($processController->getExitCode() == 0) {
-            // Get children PID from output
-            $childrenPid = $processController->getOutput();
-            $processController->close();
-
-            $childrenPid = explode(PHP_EOL, $childrenPid);
-
-            // Return children PID
-            return $childrenPid;
+        // pgrep exits with 1 when no process matches
+        if ($process->getExitCode() != 0 or !ctype_digit($output)) {
+            return null;
         }
 
-        return false;
+        return (int) $output;
     }
 
     /**
@@ -1000,11 +1025,69 @@ class Task
      */
     public static function processRunning(int $id): bool
     {
-        $processController = new Process('/usr/bin/pgrep -f -x "repomanager[.]task-run[.]' . $id . '"');
-        $processController->execute();
-        $processController->close();
+        return self::getProcessPid($id) !== null;
+    }
 
-        return $processController->getExitCode() == 0;
+    /**
+     *  Return the PIDs of the direct children of the specified PID
+     */
+    private function getChildPids(int $pid): array
+    {
+        $process = new Process('/usr/bin/pgrep -P ' . $pid);
+        $process->execute();
+        $output = $process->getOutput();
+        $process->close();
+
+        // pgrep exits with 1 when no process matches
+        if ($process->getExitCode() != 0) {
+            return [];
+        }
+
+        return array_map('intval', array_filter(explode(PHP_EOL, $output), 'ctype_digit'));
+    }
+
+    /**
+     *  Suspend the specified process, then its descendants, and return all their PIDs
+     *  A suspended process cannot start new children, so the whole tree is caught before being killed.
+     *  Signal numbers are used because the pcntl extension (SIGSTOP constant) is not loaded in php-fpm.
+     */
+    private function suspendProcessTree(int $pid): array
+    {
+        // The process has already ended (19 = SIGSTOP)
+        if (!posix_kill($pid, 19)) {
+            return [];
+        }
+
+        $pids = [$pid];
+
+        foreach ($this->getChildPids($pid) as $childPid) {
+            $pids = array_merge($pids, $this->suspendProcessTree($childPid));
+        }
+
+        return $pids;
+    }
+
+    /**
+     *  Kill the process of the specified task and all its descendants (every command run by the task is one of them)
+     *  Return the kill errors, if any
+     */
+    private function killProcesses(int $taskId): string
+    {
+        $pid = self::getProcessPid($taskId);
+        $error = '';
+
+        if ($pid === null) {
+            return $error;
+        }
+
+        foreach ($this->suspendProcessTree($pid) as $processPid) {
+            // Ignore processes that have ended in the meantime (9 = SIGKILL, 3 = ESRCH)
+            if (!posix_kill($processPid, 9) and posix_get_last_error() != 3) {
+                $error .= 'Could not kill PID ' . $processPid . ': ' . posix_strerror(posix_get_last_error()) . '<br>';
+            }
+        }
+
+        return $error;
     }
 
     /**
@@ -1038,7 +1121,12 @@ class Task
 
             // Do nothing if task is already enabled
             if ($task['Status'] == 'scheduled') {
-                return;
+                continue;
+            }
+
+            // Only a disabled task can be enabled, a task already executed cannot
+            if ($task['Status'] != 'disabled') {
+                $this->refuseExecuted($id, 'enabled');
             }
 
             // Enable task
@@ -1077,12 +1165,33 @@ class Task
 
             // Do nothing if task is already disabled
             if ($task['Status'] == 'disabled') {
-                return;
+                continue;
+            }
+
+            // Only a task waiting for its execution can be disabled, a task already executed cannot
+            if ($task['Status'] != 'scheduled') {
+                $this->refuseExecuted($id, 'disabled');
             }
 
             // Disable task
             $this->model->disable($id);
         }
+    }
+
+    /**
+     *  Refuse to enable or disable a scheduled task already executed
+     *  A recurring task is scheduled again under a new Id at each execution: point to its next occurrence
+     */
+    private function refuseExecuted(int $id, string $action) : void
+    {
+        $message = 'Task #' . $id . ' has already been executed and cannot be ' . $action;
+        $nextId = $this->model->getNextOccurrence($id);
+
+        if (!empty($nextId)) {
+            $message .= ', its next occurrence is task #' . $nextId;
+        }
+
+        throw new Exception($message);
     }
 
     /**
@@ -1112,6 +1221,25 @@ class Task
             // Check if task is a scheduled task or a queued task, only these types of tasks can be deleted
             if ($taskRawParams['schedule']['scheduled'] != 'true' and $task['Status'] != 'queued') {
                 throw new Exception('Task #' . $id . ' is not a scheduled task and cannot be deleted');
+            }
+
+            /**
+             *  A queued task is deleted only if it is still queued at this very moment, it may have just been
+             *  started by the queue. Its parent task is closed if it was its last ongoing sub-task.
+             */
+            if ($task['Status'] == 'queued') {
+                if (!$this->model->deleteIfStatus($id, 'queued')) {
+                    throw new Exception('Task #' . $id . ' has just been started and cannot be deleted anymore');
+                }
+
+                if (!empty($task['Parent_task_id'])) {
+                    $this->closeParent((int) $task['Parent_task_id']);
+                }
+
+                // The task may have been one of the next tasks to start
+                (new Queue())->dispatch();
+
+                continue;
             }
 
             // Delete task

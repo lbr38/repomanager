@@ -62,25 +62,19 @@ jobs:
         if: matrix.type != 'deb'
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/mirror/${{ matrix.type }}/source'" www-data
 
-      # Create mirror tasks jobs in database
-      - name: Create mirror tasks jobs
-        run: |
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/mirror/${{ matrix.type }}/create'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/mirror/update'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/mirror/env'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/mirror/remove-env'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/mirror/delete-snapshot'" www-data
-          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/mirror/delete'" www-data
-
       # Create some environments for the tasks to run
       - name: Set basic configuration
         run: |
           sqlite3 $DB "INSERT INTO env ('Name') VALUES ('pprd');"
           sqlite3 $DB "INSERT INTO env ('Name') VALUES ('prod');"
 
+      # Each task is created right before being run: a task that ends starts the tasks left in the queue,
+      # so tasks created all at once would be run in background instead of by the following steps
       # Run mirror tasks
       - name: Run job - Create mirror
-        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='1'" www-data
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/mirror/${{ matrix.type }}/create'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='1'" www-data
 
       - name: Check mirror content
         run: |
@@ -94,6 +88,7 @@ jobs:
       - name: Run job - Sync mirror
         run: |
           sleep 1
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/mirror/update'" www-data
           /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='2'" www-data
 
       # Snapshots directories are named after their date and time (e.g. 2026-11-05_093012)
@@ -113,7 +108,9 @@ jobs:
           test "$LINKED" -gt 0
 
       - name: Run job - Point environment to mirror snapshot
-        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='3'" www-data
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/mirror/env'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='3'" www-data
 
       - name: Check environment
         run: |
@@ -122,7 +119,9 @@ jobs:
           test -f ${{ matrix.dir }}/prod/${{ matrix.metadata }}
 
       - name: Run job - Remove mirror environment
-        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='4'" www-data
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/mirror/remove-env'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='4'" www-data
 
       - name: Check environment removal
         run: |
@@ -131,7 +130,9 @@ jobs:
           test "$(sqlite3 -noheader -list $DB "SELECT COUNT(*) FROM mirrors_env WHERE Env = 'prod'")" = "0"
 
       - name: Run job - Delete mirror snapshot
-        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='5'" www-data
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/mirror/delete-snapshot'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='5'" www-data
 
       - name: Check snapshot deletion
         run: |
@@ -141,7 +142,9 @@ jobs:
           test "$(sqlite3 -noheader -list $DB "SELECT COUNT(*) FROM mirrors_snap")" = "1"
 
       - name: Run job - Delete mirror
-        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='6'" www-data
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/mirror/delete'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='6'" www-data
 
       - name: Check mirror deletion
         run: |

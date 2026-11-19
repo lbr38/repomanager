@@ -14,7 +14,7 @@ use \Controllers\Repo\Source\Arch as ArchSourceRepo;
 /**
  *  Add a repository or an architecture
  */
-if ($_POST['action'] == 'add' and !empty($_POST['id']) and !empty($_POST['field']) and !empty($_POST['name'])) {
+if ($_POST['action'] == 'add' and !empty($_POST['id']) and !empty($_POST['field']) and isset($_POST['name'])) {
     try {
         $archSourceController = new ArchSourceRepo($_POST['id']);
         $archSourceController->addItem($_POST['field'], $_POST['name']);
@@ -23,6 +23,20 @@ if ($_POST['action'] == 'add' and !empty($_POST['id']) and !empty($_POST['field'
     }
 
     response(HTTP_OK, ($_POST['field'] == 'archs' ? 'Architecture' : 'Repository') . ' added');
+}
+
+/**
+ *  Edit a repository or an architecture
+ */
+if ($_POST['action'] == 'edit' and !empty($_POST['id']) and !empty($_POST['field']) and isset($_POST['itemId']) and is_numeric($_POST['itemId']) and isset($_POST['name']) and isset($_POST['description'])) {
+    try {
+        $archSourceController = new ArchSourceRepo($_POST['id']);
+        $archSourceController->editItem($_POST['field'], (int) $_POST['itemId'], $_POST['name'], $_POST['description']);
+    } catch (Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, ($_POST['field'] == 'archs' ? 'Architecture' : 'Repository') . ' edited');
 }
 
 /**

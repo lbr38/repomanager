@@ -14,7 +14,7 @@ use \Controllers\Repo\Source\Deb as DebSourceRepo;
 /**
  *  Add a new distribution
  */
-if ($_POST['action'] == 'add' and !empty($_POST['id']) and !empty($_POST['name'])) {
+if ($_POST['action'] == 'add' and !empty($_POST['id']) and isset($_POST['name'])) {
     $debSourceController = new DebSourceRepo($_POST['id']);
 
     try {

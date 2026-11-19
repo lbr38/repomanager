@@ -37,9 +37,12 @@
         <h6>PACKAGE TYPE</h6>
         <select id="scheduled-task-target-package-type" class="scheduled-task-target-param" param-name="package-type">
             <option value="">No package type filter</option>
-            <option value="deb">deb</option>
-            <option value="rpm">rpm</option>
-            <option value="arch">arch (mirrors only)</option>
+            <?php
+            // Only package types enabled in settings are available
+            foreach (\Controllers\Task\Form\Param\PackageType::enabled() as $packageType) : ?>
+                <option value="<?= $packageType ?>"><?= $packageType ?><?= $packageType == 'arch' ? ' (mirrors only)' : '' ?></option>
+                <?php
+            endforeach ?>
         </select>
 
         <div class="note-info">

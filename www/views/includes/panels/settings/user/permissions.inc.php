@@ -126,6 +126,7 @@
         <option value="update-packages" <?= isset($permissions['hosts']['allowed-actions']) && in_array('update-packages', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Update packages on hosts</option>
         <option value="reset" <?= isset($permissions['hosts']['allowed-actions']) && in_array('reset', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Reset hosts</option>
         <option value="delete" <?= isset($permissions['hosts']['allowed-actions']) && in_array('delete', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Delete hosts</option>
+        <option value="edit" <?= isset($permissions['hosts']['allowed-actions']) && in_array('edit', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Edit hosts description and tags</option>
         <option value="edit-profiles" <?= isset($permissions['hosts']['allowed-actions']) && in_array('edit-profiles', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Edit host profiles</option>
         <option value="edit-groups" <?= isset($permissions['hosts']['allowed-actions']) && in_array('edit-groups', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Edit host groups</option>
         <option value="edit-settings" <?= isset($permissions['hosts']['allowed-actions']) && in_array('edit-settings', $permissions['hosts']['allowed-actions']) ? 'selected' : '' ?>>Edit display settings</option>
