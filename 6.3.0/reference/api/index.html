@@ -2109,7 +2109,7 @@
 </tr>
 <tr>
 <td><code>GET /repositories/&lt;TYPE&gt;/&lt;ID&gt;/snapshots/&lt;SNAPSHOT_ID&gt;/diff/&lt;OTHER_SNAPSHOT_ID&gt;</code></td>
-<td>Packages added and removed between two snapshots of the repository (curated and local repositories). Add <code>?other_repository=&lt;TYPE&gt;/&lt;ID&gt;</code> to compare with a snapshot of another repository</td>
+<td>Packages added and removed in the snapshot compared to the other snapshot, e.g. a new snapshot compared to the previous one (curated and local repositories): <code>added</code> lists the packages of the snapshot missing from the other one, <code>removed</code> the packages of the other snapshot missing from the snapshot. Add <code>?other_repository=&lt;TYPE&gt;/&lt;ID&gt;</code> to compare with a snapshot of another repository</td>
 </tr>
 </tbody>
 </table>
@@ -2235,11 +2235,11 @@
 </tr>
 <tr>
 <td><code>POST /tasks/&lt;TASK_ID&gt;/enable</code></td>
-<td>Enable a scheduled task</td>
+<td>Enable a disabled scheduled task</td>
 </tr>
 <tr>
 <td><code>POST /tasks/&lt;TASK_ID&gt;/disable</code></td>
-<td>Disable a scheduled task</td>
+<td>Disable a scheduled task not executed yet. A recurring task gets a new Id at each execution: the error returned for an executed task gives the Id of its next occurrence</td>
 </tr>
 <tr>
 <td><code>POST /tasks/&lt;TASK_ID&gt;/stop</code></td>
@@ -2394,7 +2394,7 @@
 </tr>
 <tr>
 <td><code>GET /snapshot/&lt;SNAPSHOT_ID&gt;/diff/&lt;SNAPSHOT_ID&gt;</code></td>
-<td><code>GET /repositories/&lt;TYPE&gt;/&lt;ID&gt;/snapshots/&lt;SNAPSHOT_ID&gt;/diff/&lt;SNAPSHOT_ID&gt;</code></td>
+<td><code>GET /repositories/&lt;TYPE&gt;/&lt;ID&gt;/snapshots/&lt;SNAPSHOT_ID&gt;/diff/&lt;SNAPSHOT_ID&gt;</code> (the comparison is reversed: the second snapshot is now the reference)</td>
 </tr>
 <tr>
 <td><code>POST /snapshot/&lt;SNAPSHOT_ID&gt;/upload</code></td>
