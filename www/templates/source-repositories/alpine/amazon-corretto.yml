@@ -1,0 +1,14 @@
+---
+description: Amazon Corretto repository (OpenJDK distribution)
+type: alpine
+repositories:
+  # Amazon Corretto, a single repository without branch: the URL does not contain $branch nor $repo
+  - name: amazon-corretto
+    type: alpine
+    description: Amazon Corretto (OpenJDK distribution)
+    url: https://apk.corretto.aws
+    archs:
+      - name: x86_64
+      - name: aarch64
+    keys:
+      - link: https://apk.corretto.aws/amazoncorretto.rsa.pub

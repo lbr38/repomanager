@@ -3,6 +3,7 @@
 namespace Controllers\Host\Package;
 
 use Exception;
+use Controllers\Utils\Validate;
 
 class Event
 {
@@ -64,7 +65,30 @@ class Event
          *  ]
          */
 
+        // Map the keys sent by the host to the package states stored in database
+        $states = [
+            'installed'     => 'installed',
+            'dep_installed' => 'dep-installed',
+            'upgraded'      => 'upgraded',
+            'removed'       => 'removed',
+            'downgraded'    => 'downgraded',
+            'reinstalled'   => 'reinstalled',
+            'purged'        => 'purged'
+        ];
+
         foreach ($events as $event) {
+            // Check the event date and time format, they are stored and printed as is
+            Validate::date($event['date_start'] ?? '', 'Y-m-d');
+            Validate::date($event['time_start'] ?? '', 'H:i:s');
+
+            if (!empty($event['date_end'])) {
+                Validate::date($event['date_end'], 'Y-m-d');
+            }
+
+            if (!empty($event['time_end'])) {
+                Validate::date($event['time_end'], 'H:i:s');
+            }
+
             // Check if an event with the same date and time does not already exist, otherwise ignore it and move to the next one
             if ($this->existsByDateTime($event['date_start'], $event['time_start'])) {
                 continue;
@@ -76,52 +100,18 @@ class Event
             // Retrieving the Id inserted in the database
             $eventId = $this->model->getHostLastInsertRowID();
 
-            // If the event has installed packages
-            if (!empty($event['installed'])) {
-                foreach ($event['installed'] as $package_installed) {
-                    $packageController->setPackageState($package_installed['name'], $package_installed['version'], 'installed', $event['date_start'], $event['time_start'], $eventId);
+            // Add each package of the event with its state (installed, upgraded, removed...)
+            foreach ($states as $key => $state) {
+                if (empty($event[$key])) {
+                    continue;
                 }
-            }
 
-            // If the event has installed dependencies
-            if (!empty($event['dep_installed'])) {
-                foreach ($event['dep_installed'] as $dep_installed) {
-                    $packageController->setPackageState($dep_installed['name'], $dep_installed['version'], 'dep-installed', $event['date_start'], $event['time_start'], $eventId);
-                }
-            }
+                foreach ($event[$key] as $package) {
+                    // Sanitize package name and version, as done in setPackagesInventory() and setPackagesAvailable()
+                    $name    = Validate::string($package['name']);
+                    $version = Validate::string($package['version']);
 
-            // If the event has updated packages
-            if (!empty($event['upgraded'])) {
-                foreach ($event['upgraded'] as $package_upgraded) {
-                    $packageController->setPackageState($package_upgraded['name'], $package_upgraded['version'], 'upgraded', $event['date_start'], $event['time_start'], $eventId);
-                }
-            }
-
-            // If the event has uninstalled packages
-            if (!empty($event['removed'])) {
-                foreach ($event['removed'] as $package_removed) {
-                    $packageController->setPackageState($package_removed['name'], $package_removed['version'], 'removed', $event['date_start'], $event['time_start'], $eventId);
-                }
-            }
-
-            // If the event has downgraded packages
-            if (!empty($event['downgraded'])) {
-                foreach ($event['downgraded'] as $package_downgraded) {
-                    $packageController->setPackageState($package_downgraded['name'], $package_downgraded['version'], 'downgraded', $event['date_start'], $event['time_start'], $eventId);
-                }
-            }
-
-            // If the event has reinstalled packages
-            if (!empty($event['reinstalled'])) {
-                foreach ($event['reinstalled'] as $package_reinstalled) {
-                    $packageController->setPackageState($package_reinstalled['name'], $package_reinstalled['version'], 'reinstalled', $event['date_start'], $event['time_start'], $eventId);
-                }
-            }
-
-            // If the event has purged packages
-            if (!empty($event['purged'])) {
-                foreach ($event['purged'] as $package_purged) {
-                    $packageController->setPackageState($package_purged['name'], $package_purged['version'], 'purged', $event['date_start'], $event['time_start'], $eventId);
+                    $packageController->setPackageState($name, $version, $state, $event['date_start'], $event['time_start'], $eventId);
                 }
             }
         }

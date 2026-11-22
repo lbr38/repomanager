@@ -1,0 +1,16 @@
+---
+description: Eclipse Temurin repository (Adoptium OpenJDK distribution)
+type: alpine
+repositories:
+  # Eclipse Temurin, a single repository without branch: the URL does not contain $branch nor $repo
+  - name: adoptium
+    type: alpine
+    description: Eclipse Temurin (Adoptium OpenJDK distribution)
+    url: https://packages.adoptium.net/artifactory/apk/alpine/main
+    archs:
+      - name: x86_64
+      - name: aarch64
+    keys:
+        # The key is not published under its name: the name referenced by the index signature must be specified
+      - link: https://packages.adoptium.net/artifactory/api/security/keypair/public/repositories/apk
+        name: adoptium.rsa.pub

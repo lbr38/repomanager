@@ -2,7 +2,9 @@
 
 namespace Controllers\Task;
 
+use Controllers\Repo\Lock as RepoLock;
 use Controllers\Utils\Convert;
+use Controllers\Utils\Generate\Html\Label;
 use Exception;
 use JsonException;
 
@@ -32,6 +34,8 @@ class Execution
     // Snapshot selected by the user, before it is replaced by the latest snapshot of the repository (see 'use-latest-snapshot')
     // Not set for recurring tasks, which always update the latest snapshot whatever the snapshot selected when they were created
     protected int|null $requestedSnapId = null;
+    // Locks of the repositories modified by the task (see lockRepositories())
+    private array $repositoryLocks = [];
 
     public function __construct(int $taskId, string $action)
     {
@@ -77,6 +81,15 @@ class Execution
             } catch (JsonException $e) {
                 throw new Exception('could not decode task #' . $taskId . ' parameters JSON: ' . $e->getMessage());
             }
+
+            // The task duration includes the time spent waiting for another task to release a repository
+            $this->timeStart = microtime(true);
+
+            /**
+             *  Lock the repositories modified by the task, waiting for the task currently modifying one of them to end
+             *  Done before anything is read from the repositories (e.g. the latest snapshot), as the other task may change them
+             */
+            $this->lockRepositories();
 
             // Retrieve the latest snapshot Id for the repository, if needed
             // This requires 'repo-id' to be defined in params and to be numeric
@@ -236,6 +249,139 @@ class Execution
     }
 
     /**
+     *  Lock the repositories modified by the task, so that only one task at a time can modify a repository
+     *  If another task is modifying one of them, wait for it to end
+     *  Locks are always acquired in the same order, so that two tasks modifying the same repositories never wait for each other
+     */
+    private function lockRepositories(): void
+    {
+        $locks = [];
+        $waiting = false;
+
+        foreach ($this->getModifiedRepositories() as $repo) {
+            $lock = new RepoLock($repo);
+            $locks[$lock->getKey()] = $lock;
+        }
+
+        ksort($locks, SORT_STRING);
+
+        foreach ($locks as $lock) {
+            if (!$lock->tryAcquire($this->taskId)) {
+                if (!$waiting) {
+                    $this->taskLogStepController->new('waiting', 'WAITING FOR ANOTHER TASK');
+                    $waiting = true;
+                }
+
+                $holder = $lock->getHolder();
+                $label = Label::white(htmlspecialchars($lock->getLabel()));
+
+                if (!empty($holder)) {
+                    $this->taskLogSubStepController->new('waiting-' . count($this->repositoryLocks), 'WAITING FOR TASK #' . $holder . ' TO END', 'Repository ' . $label . ' is being modified by task #' . $holder . ', only one task at a time can modify a repository');
+                } else {
+                    $this->taskLogSubStepController->new('waiting-' . count($this->repositoryLocks), 'WAITING FOR ANOTHER TASK TO END', 'Repository ' . $label . ' is being modified by another task, only one task at a time can modify a repository');
+                }
+
+                $lock->acquire($this->taskId);
+
+                $this->taskLogSubStepController->completed();
+            }
+
+            $this->repositoryLocks[] = $lock;
+        }
+
+        if ($waiting) {
+            $this->taskLogStepController->completed();
+        }
+    }
+
+    /**
+     *  Return the repositories modified by the task, with their details as returned by Repo::getTaskInfo()
+     *  A repository that cannot be found is ignored: the task fails by itself when it does not find it
+     */
+    private function getModifiedRepositories(): array
+    {
+        // The repository to create is described by the task parameters, its name is the alias if set, otherwise the source repository name (see Create task)
+        if ($this->action == 'create') {
+            $repo = [
+                'package-type' => $this->params['package-type'] ?? '',
+                'name'         => !empty($this->params['alias']) ? $this->params['alias'] : ($this->params['source'] ?? ''),
+                'releasever'   => $this->params['releasever'] ?? '',
+                'dist'         => $this->params['dist'] ?? '',
+                'section'      => $this->params['section'] ?? ''
+            ];
+
+            // Parameters of a task to create several repositories are split into one task per repository (see Task::execute())
+            foreach ($repo as $key => $value) {
+                if (!is_scalar($value)) {
+                    return [];
+                }
+
+                $repo[$key] = (string) $value;
+            }
+
+            // Invalid parameters, the task fails by itself when checking them
+            if (empty($repo['package-type']) or empty($repo['name'])) {
+                return [];
+            }
+
+            return [$repo];
+        }
+
+        /**
+         *  The repository is retrieved the same way the task retrieves it: from its Id for the tasks working on the repository
+         *  (an update applies to its latest snapshot), from the snapshot Id otherwise
+         */
+        $repoController = new \Controllers\Repo\Repo();
+        $byRepoId = in_array($this->action, ['update', 'rename']) || empty($this->params['snap-id']);
+
+        try {
+            if ($byRepoId and !empty($this->params['repo-id']) and is_numeric($this->params['repo-id'])) {
+                $repoController->getAllById($this->params['repo-id']);
+            } elseif (!empty($this->params['snap-id']) and is_numeric($this->params['snap-id'])) {
+                $repoController->getAllById(null, $this->params['snap-id']);
+            }
+        } catch (Exception $e) {
+            return [];
+        }
+
+        $repo = $repoController->getTaskInfo();
+
+        if (empty($repo['name']) or empty($repo['package-type'])) {
+            return [];
+        }
+
+        $repos = [$repo];
+
+        // A duplicated repository is created under its new name, and its new release version (rpm) or distribution (deb) if specified (see Duplicate task)
+        if ($this->action == 'duplicate' and !empty($this->params['name']) and is_scalar($this->params['name'])) {
+            $repos[] = array_merge($repo, array_filter([
+                'name'       => (string) $this->params['name'],
+                'releasever' => is_scalar($this->params['releasever'] ?? null) ? (string) $this->params['releasever'] : '',
+                'dist'       => is_scalar($this->params['dist'] ?? null) ? (string) $this->params['dist'] : ''
+            ]));
+        }
+
+        // A renamed repository is moved under its new name (see Rename task)
+        if ($this->action == 'rename' and !empty($this->params['name']) and is_scalar($this->params['name'])) {
+            $repos[] = array_merge($repo, ['name' => (string) $this->params['name']]);
+        }
+
+        return $repos;
+    }
+
+    /**
+     *  Release the locks of the repositories modified by the task
+     */
+    private function releaseRepositories(): void
+    {
+        foreach ($this->repositoryLocks as $lock) {
+            $lock->release();
+        }
+
+        $this->repositoryLocks = [];
+    }
+
+    /**
      *  Check that required parameters are defined and not empty
      */
     public function paramsCheck($requiredParams)
@@ -303,8 +449,10 @@ class Execution
      */
     public function start() : void
     {
-        // Generate time start
-        $this->timeStart = microtime(true);
+        // Generate time start, if not already set before waiting for a repository (see __construct())
+        if (!isset($this->timeStart)) {
+            $this->timeStart = microtime(true);
+        }
 
         // Set status as 'running' in database
         $this->taskController->updateStatus($this->taskId, 'running');
@@ -323,6 +471,9 @@ class Execution
      */
     public function end() : void
     {
+        // The repositories are no longer modified, the tasks waiting for them can start
+        $this->releaseRepositories();
+
         /**
          *  Set task status
          */

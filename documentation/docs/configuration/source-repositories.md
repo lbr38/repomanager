@@ -1,4 +1,4 @@
-A **source repository** is a remote repository of packages (``deb``, ``rpm`` or ``arch``) from a third-party publisher (e.g. **Debian official repos**). ``arch`` (Arch Linux / pacman) source repositories can only be used by [mirrors](/usage/repository-types/#mirrors).
+A **source repository** is a remote repository of packages (``deb``, ``rpm``, ``arch``, ``alpine`` or ``openbsd``) from a third-party publisher (e.g. **Debian official repos**). ``arch`` (Arch Linux / pacman), ``alpine`` (Alpine Linux / apk) and ``openbsd`` (OpenBSD) source repositories can only be used by [mirrors](/usage/repository-types/#mirrors).
 
 Typically, this is the repository from which you will create a curated repository or a mirror.
 
@@ -21,7 +21,7 @@ From the **REPOSITORIES** tab:
 
 **Step 4:** Click the `Add` button to add the source repository to the list of available source repositories.
 
-**Step 5:** You should now edit the source repository to add more information like distributions and components or release version and import its GPG signing key if any. It is recommended to add as much information as you can as this is used for suggestions when creating a curated repository or a mirror. See [Edit a source repository](#edit-a-source-repository).
+**Step 5:** You should now edit the source repository to add more information like distributions and components or release version and import its signing keys if any (GPG keys, RSA keys for an alpine source repository, signify keys for an openbsd one). It is recommended to add as much information as you can as this is used for suggestions when creating a curated repository or a mirror. See [Edit a source repository](#edit-a-source-repository).
 
 !!! info "RPM repositories URLs information"
 
@@ -48,6 +48,30 @@ From the **REPOSITORIES** tab:
         `http://mirror.archlinuxarm.org/$arch/$repo`
 
     - Edit the source repository to define its repositories and architectures, they are used for suggestions when creating a mirror.
+    - Arch Linux official databases are not signed (packages are signed and checked by pacman on clients). If the source repository signs its databases, import its GPG keys when editing it to verify them during the sync, see [Import a source repository GPG signing key](#import-a-source-repository-gpg-signing-key).
+
+
+!!! info "ALPINE repositories URLs information"
+
+    - Use the repository URL of `/etc/apk/repositories`. ``$branch`` and ``$repo`` variables inside URLs **are supported**, they are replaced during the sync by the **Branch** of the mirror (e.g. ``v3.24``, ``edge``) and each selected **Repository** (e.g. ``main``, ``community``). As apk does, the **Architecture** is appended to the URL: the URL must contain the ``<arch>/APKINDEX.tar.gz`` index.
+    - Examples of supported URLs:
+
+        `https://dl-cdn.alpinelinux.org/alpine/$branch/$repo`
+
+    - A third-party repository with a single branch or a single repository can omit the variables (e.g. `https://apk.corretto.aws`): the branch or the repositories are then not needed, a repository without branch is published under `https://<FQDN>/mirror/alpine/<name>/`, and without repositories it is mirrored as a single repository.
+    - Edit the source repository to define its branches, repositories and architectures, they are used for suggestions when creating a mirror.
+    - Alpine Linux indexes are signed with RSA keys, not GPG keys. Import the public keys of the source repository from their URL or their content when editing it (see [Import an alpine or openbsd source repository key](#import-an-alpine-or-openbsd-source-repository-key)), or with the ``keys`` field of the lists to import (see the `alpine-repository.yml.template` template). The name of a key must be the name of the key file on clients (``/etc/apk/keys/<name>``), as the signature references it: it is the file name of the URL by default. Only the keys of the source repository are used to verify its indexes.
+
+
+!!! info "OPENBSD repositories URLs information"
+
+    - Use the root of an OpenBSD mirror, as in `/etc/installurl`: the URL must contain the `<version>/`, `<version>/packages/<arch>/` and `syspatch/<version>/` directories. Variables are not used.
+    - Examples of supported URLs:
+
+        `https://cdn.openbsd.org/pub/OpenBSD`
+
+    - Edit the source repository to define its versions (e.g. ``8.0``) and architectures (platforms, as named by OpenBSD, e.g. ``amd64``, ``arm64``), they are used for suggestions when creating a mirror. Snapshots are not supported.
+    - OpenBSD releases, packages and binary patches are signed with signify keys, not GPG keys: each directory contains the list of its files with their checksum, signed in `SHA256.sig`. Import the public keys of the source repository from their URL or their content when editing it (see [Import an alpine or openbsd source repository key](#import-an-alpine-or-openbsd-source-repository-key)), or with the ``keys`` field of the lists to import (see the `openbsd.yml` list): the base, pkg and syspatch keys of each version (e.g. ``openbsd-80-pkg.pub``), as installed in `/etc/signify/` on clients. Only the keys of the source repository are used to verify its signatures.
 
 
 ## Import source repositories from predefined or custom lists
@@ -143,11 +167,13 @@ From the **REPOSITORIES** tab:
 
 **Step 2:** Click a source repository to edit it.
 
+Source repositories are listed by type, one tab per type (``RPM``, ``DEB``, ``Arch``, ``Alpine``, ``OpenBSD``) with its number of source repositories. Use the search field to find a source repository by name, URL or description: the tabs then show the number of matching source repositories.
+
 [![Edit a source repository](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/edit-source-repository-1.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/edit-source-repository-1.png)
 
 **Step 3:** Update the source repository information, like distributions and components or release version.
 
-Import their GPG signing key if any.
+Import their signing keys if any, see [Import a source repository GPG signing key](#import-a-source-repository-gpg-signing-key) and [Import an alpine or openbsd source repository key](#import-an-alpine-or-openbsd-source-repository-key).
 
 It is recommended to add as much information as you can as this is used for suggestions when creating a curated repository or a mirror.
 
@@ -174,7 +200,7 @@ From the **REPOSITORIES** tab:
 
 !!! info "Notes"
 
-    GPG signing key(s) related to the source repository will not be deleted.
+    GPG signing key(s) related to the source repository will not be deleted: they stay in Repomanager keyring, see [Manage signing keys](#manage-signing-keys) to delete them. The RSA and signify keys of an alpine or openbsd source repository are deleted with it.
 
 
 ## Import a source repository GPG signing key
@@ -189,12 +215,62 @@ From the **REPOSITORIES** tab:
 
 - If it is a `deb` repository, click the distribution you want to import the GPG signing key for.
 - If it is a `rpm` repository, click the release version you want to import the GPG key for.
+- If it is an `arch` repository, the GPG keys are in the source repository form.
 
 **Step 3:** Scroll down to **IMPORT GPG KEY** then paste the GPG key **URL**, **fingerprint** or **plain text**.
 
 [![Import a GPG key](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/import-gpg-key.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/import-gpg-key.png)
 
 **Step 4:** Click the `Import` button to import the GPG key.
+
+!!! info "Notes"
+
+    GPG keys are imported in Repomanager keyring, which is shared by all the deb, rpm and arch source repositories: a key verifies the signature of any of them. Removing a GPG key from a distribution, a release version or an arch source repository keeps it in the keyring, see [Manage signing keys](#manage-signing-keys) to delete it.
+
+
+## Import an alpine or openbsd source repository key
+
+Alpine Linux indexes are signed with RSA keys and OpenBSD files lists with signify keys. These keys are stored in each source repository: only its own keys verify its signatures.
+
+From the **REPOSITORIES** tab:
+
+**Step 1:** Use the `Source repositories` button to show the **SOURCE REPOSITORIES** panel.
+
+[![Source repositories button](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/source-repositories-btn.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/source-repositories-btn.png)
+
+**Step 2:** Click the alpine or openbsd source repository to edit it.
+
+**Step 3:** Scroll down to **IMPORT RSA KEY** (alpine) or **IMPORT SIGNIFY KEY** (openbsd) then paste the key **URL** or its content (**plain text**).
+
+The **KEY NAME** is the name of the key file on clients (e.g. ``alpine-devel@lists.alpinelinux.org-6165ee59.rsa.pub`` in ``/etc/apk/keys/``, ``openbsd-80-pkg.pub`` in ``/etc/signify/``). It is required when importing from plain text, and it is the name of the downloaded file by default when importing from URL.
+
+**Step 4:** Click the `Import` button to import the key.
+
+
+## Manage signing keys
+
+The **SIGNING KEYS** panel lists all the public keys used to verify the signature of the source repositories.
+
+From the **REPOSITORIES** tab:
+
+**Step 1:** Use the `Source repositories` button to show the **SOURCE REPOSITORIES** panel.
+
+[![Source repositories button](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/source-repositories-btn.png)](https://assets.repomanager.net/repomanager/6.0.0/configuration/source-repositories/source-repositories-btn.png)
+
+**Step 2:** Click the `Manage keys` button, at the bottom of the panel, to show the **SIGNING KEYS** panel.
+
+**Step 3:** Select the type of keys, then click a key to show its details:
+
+- **GPG**: the keys of Repomanager keyring, with their fingerprint, user IDs, status, algorithm, creation and expiration dates, subkeys and the source repositories referencing them (deb distributions, rpm release versions and arch source repositories). Expired or revoked keys and keys expiring within 90 days are labeled. A key that no source repository references is labeled `Not referenced`: it is still trusted to verify signatures.
+- **RSA** (alpine) and **Signify** (openbsd): the keys of each source repository, with their size and SHA256 fingerprint (RSA) or their key number and comment (signify), their link and their content.
+
+Use the search field to find keys (by name, user ID, fingerprint, link or source repository). GPG keys can also be filtered by status.
+
+**Step 4:** To delete keys, select them then click the `Delete` button (GPG keys, deleted from Repomanager keyring) or the `Remove` button (RSA and signify keys, removed from their source repository).
+
+!!! warning
+
+    A deleted key can no longer verify signatures: syncing a mirror whose source repository is signed with this key fails if the signature check is enabled. The details of a GPG key list the source repositories referencing it, and the confirmation message gives how many of the selected keys are referenced.
 
 
 ## Non-compliant deb source repositories

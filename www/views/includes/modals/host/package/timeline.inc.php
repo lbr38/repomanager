@@ -19,12 +19,12 @@ use \Controllers\Utils\Generate\Html\Label; ?>
                     <span class="timeline-pointer"></span>
                     <div class="timeline-date">
                         <p><?= DateTime::createFromFormat('Y-m-d', $event['Date'])->format('d-m-Y') ?></p>
-                        <p class="lowopacity-cst"><?= $event['Time'] ?></p>
+                        <p class="lowopacity-cst"><?= htmlspecialchars($event['Time'], ENT_QUOTES) ?></p>
                     </div>
 
                     <div class="flex align-item-center column-gap-10" title="<?= $securityUpdate ? 'Security update' : 'Regular update' ?>">
                         <p class="copy">
-                            <span class="label-<?= $securityUpdate ? 'yellow' : 'white' ?>"><?= $event['Version'] ?></span>
+                            <span class="label-<?= $securityUpdate ? 'yellow' : 'white' ?>"><?= htmlspecialchars($event['Version'], ENT_QUOTES) ?></span>
                         </p>
                     </div>
 

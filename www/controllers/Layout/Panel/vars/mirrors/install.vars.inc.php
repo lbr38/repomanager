@@ -125,6 +125,35 @@ foreach ($mirrorSnapshotController->getSelection($item['snapshots'] ?? '') as $s
         $commands = ['arch' => trim($pacman)];
     }
 
+    if ($mirror['Package_type'] == 'alpine') {
+        // Each repository is a line of /etc/apk/repositories, apk appends the architecture to it
+        // A mirror without repositories is a single repository, at the root of the snapshot
+        $apk = 'cat << EOF > /etc/apk/repositories' . PHP_EOL;
+        foreach (!empty($params['repos']) ? $params['repos'] : [''] as $repo) {
+            $apk .= $url . ($repo === '' ? '' : '/' . $repo) . PHP_EOL;
+        }
+        $apk .= 'EOF';
+
+        // Indexes are signed with RSA keys, installed on clients as /etc/apk/keys/<key name>
+        $keys = '';
+        foreach ($definition['keys'] ?? [] as $key) {
+            if (!empty($key['name']) and !empty($key['link'])) {
+                $keys .= 'wget -q -O ' . escapeshellarg('/etc/apk/keys/' . $key['name']) . ' ' . escapeshellarg($key['link']) . PHP_EOL;
+            }
+        }
+
+        $commands = ['alpine' => $apk, 'keys' => trim($keys)];
+    }
+
+    if ($mirror['Package_type'] == 'openbsd') {
+        // The mirror URL is the root of the OpenBSD tree, as for an official mirror: pkg_add, syspatch and sysupgrade find their directories in it
+        $commands = ['openbsd' => 'echo ' . escapeshellarg($url) . ' > /etc/installurl'];
+
+        // Client tools that can use the mirror, according to its contents
+        $tools = ['packages' => 'pkg_add', 'syspatch' => 'syspatch', 'sets' => 'sysupgrade'];
+        $commands['tools'] = array_values(array_intersect_key($tools, array_flip($params['content'] ?? [])));
+    }
+
     $installs[$mirror['Id']] = [
         'mirror'       => $mirror,
         'dates'        => [$date],

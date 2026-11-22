@@ -279,7 +279,7 @@ class Connection extends SQLite3
         $this->exec("CREATE TABLE IF NOT EXISTS mirrors (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Name VARCHAR(255) NOT NULL,
-        Releasever VARCHAR(255) NOT NULL DEFAULT '', /* rpm only */
+        Releasever VARCHAR(255) NOT NULL DEFAULT '', /* rpm release version, alpine branch, empty otherwise */
         Package_type VARCHAR(10) NOT NULL,
         Source VARCHAR(255) NOT NULL,
         Params TEXT, /* JSON */
@@ -551,6 +551,10 @@ class Connection extends SQLite3
         DEB_INVALID_SIGNATURE VARCHAR(255), /* ignore, error */
         /* ARCH */
         ARCH_REPO CHAR(5),
+        /* ALPINE */
+        ALPINE_REPO CHAR(5),
+        /* OPENBSD */
+        OPENBSD_REPO CHAR(5),
         /* GPG signing key */
         GPG_SIGNING_KEYID VARCHAR(255),
         /* Scheduled tasks settings */
@@ -647,6 +651,8 @@ class Connection extends SQLite3
                 DEB_ALLOW_EMPTY_REPO,
                 DEB_INVALID_SIGNATURE,
                 ARCH_REPO,
+                ALPINE_REPO,
+                OPENBSD_REPO,
                 GPG_SIGNING_KEYID,
                 SCHEDULED_TASKS_REMINDERS,
                 RETENTION,
@@ -700,6 +706,8 @@ class Connection extends SQLite3
                 'amd64',
                 'false',
                 'error',
+                'true',
+                'true',
                 'true',
                 '$gpgKeyId',
                 'true',

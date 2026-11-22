@@ -127,13 +127,23 @@ class Params
 
     /**
      *  Duplicate a snapshot into a new repository
-     *  Accepted values: name, env, description, tags and group
-     *  The new repository has the same architectures and signature as the snapshot
+     *  Accepted values: name, releasever (rpm), dist (deb), env, description, tags and group
+     *  The new repository has the same architectures and signature as the snapshot, and the same release version (rpm)
+     *  or distribution (deb) if not specified. The component (deb) is always the same
      */
     public static function duplicate(Repo $repo, array $values, array $schedule = self::NOW): array
     {
         $params = self::target($repo, 'duplicate', $schedule);
         $params['name'] = $values['name'] ?? '';
+
+        if ($repo->getPackageType() == 'rpm') {
+            $params['releasever'] = $values['releasever'] ?? $repo->getReleasever();
+        }
+
+        if ($repo->getPackageType() == 'deb') {
+            $params['dist'] = $values['dist'] ?? $repo->getDist();
+        }
+
         $params['env'] = $values['env'] ?? [];
         $params['description'] = $values['description'] ?? '';
         $params['tags'] = $values['tags'] ?? [];

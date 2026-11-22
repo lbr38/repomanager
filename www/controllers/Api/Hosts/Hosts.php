@@ -10,6 +10,11 @@ class Hosts extends \Controllers\Api\Controller
 {
     public function execute(): array
     {
+        // Hosts cannot be listed while hosts management is disabled
+        if (MANAGE_HOSTS != 'true') {
+            throw new Exception('Hosts management is disabled');
+        }
+
         $hostListingController = new Listing();
 
         // Only users with permissions on hosts can list hosts (API key authentication)

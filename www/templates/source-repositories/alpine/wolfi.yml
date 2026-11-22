@@ -1,0 +1,15 @@
+---
+description: Wolfi repository (glibc based, not compatible with Alpine Linux)
+type: alpine
+repositories:
+  # Wolfi uses the apk format but is a distinct distribution (glibc based): its packages are not compatible with Alpine Linux
+  # A single repository without branch, it contains all the versions of the packages (very large)
+  - name: wolfi
+    type: alpine
+    description: Wolfi (glibc based, not compatible with Alpine Linux)
+    url: https://packages.wolfi.dev/os
+    archs:
+      - name: x86_64
+      - name: aarch64
+    keys:
+      - link: https://packages.wolfi.dev/os/wolfi-signing.rsa.pub

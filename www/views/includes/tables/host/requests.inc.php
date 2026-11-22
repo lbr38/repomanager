@@ -148,8 +148,8 @@ use \Controllers\Utils\Convert; ?>
                          *  If there was packages to update, retrieve the number of packages updated
                          */
                         if ($responseJson['update']['status'] == 'done' or $responseJson['update']['status'] == 'failed') {
-                            $successCount = $responseJson['update']['success']['count'];
-                            $failedCount  = $responseJson['update']['failed']['count'];
+                            $successCount = (int) $responseJson['update']['success']['count'];
+                            $failedCount  = (int) $responseJson['update']['failed']['count'];
 
                             // If the update was successful
                             if ($responseJson['update']['status'] == 'done') {
@@ -203,8 +203,8 @@ use \Controllers\Utils\Convert; ?>
                          *  If there was packages to update, retrieve the number of packages updated
                          */
                         if ($responseJson['update']['status'] == 'done' or $responseJson['update']['status'] == 'failed') {
-                            $successCount = $responseJson['update']['success']['count'];
-                            $failedCount  = $responseJson['update']['failed']['count'];
+                            $successCount = (int) $responseJson['update']['success']['count'];
+                            $failedCount  = (int) $responseJson['update']['failed']['count'];
 
                             // If the update was successful
                             if ($responseJson['update']['status'] == 'done') {
@@ -285,7 +285,7 @@ use \Controllers\Utils\Convert; ?>
                             echo $requestStatus;
 
                             if (!empty($requestInfo)) {
-                                echo ' - ' . $requestInfo;
+                                echo ' - ' . htmlspecialchars($requestInfo, ENT_QUOTES);
                             }
 
                             if (!empty($responseDetails)) {
@@ -382,18 +382,19 @@ use \Controllers\Utils\Convert; ?>
                         <div class="grid grid-3 row-gap-10 justify-space-between margin-top-15 margin-bottom-15 margin-left-10">
                             <?php
                             // Print each package with its version and log
-                            foreach ($successPackages as $package => $details) : ?>
+                            foreach ($successPackages as $package => $details) :
+                                $packageName = htmlspecialchars($package, ENT_QUOTES); ?>
                                 <div class="flex align-flex-start column-gap-5">
                                     <?= Icon::product($package) ?>
-                                    <p class="get-package-timeline pointer wordbreakall copy" hostid="<?= $id ?>" packagename="<?= $package ?>" title="See package timeline"><?= $package ?></p>
+                                    <p class="get-package-timeline pointer wordbreakall copy" hostid="<?= $id ?>" packagename="<?= $packageName ?>" title="See package timeline"><?= $packageName ?></p>
                                 </div>
 
-                                <p class="wordbreakall copy"><?= $details['version'] ?></p>
+                                <p class="wordbreakall copy"><?= htmlspecialchars($details['version'], ENT_QUOTES) ?></p>
 
                                 <p class="text-right">
                                     <?php
                                     if (!empty($details['log'])) : ?>
-                                        <img class="icon-lowopacity request-show-package-log-btn" request-id="<?= $item['Id'] ?>" package="<?= $package ?>" status="success" src="/assets/icons/view.svg" title="Show package log" />
+                                        <img class="icon-lowopacity request-show-package-log-btn" request-id="<?= $item['Id'] ?>" package="<?= $packageName ?>" status="success" src="/assets/icons/view.svg" title="Show package log" />
                                         <?php
                                     endif ?>
                                 </p>
@@ -414,18 +415,19 @@ use \Controllers\Utils\Convert; ?>
                         <div class="grid grid-3 row-gap-10 justify-space-between margin-top-15 margin-bottom-15 margin-left-10">
                             <?php
                             // Print each package with its version and log
-                            foreach ($failedPackages as $package => $details) : ?>
+                            foreach ($failedPackages as $package => $details) :
+                                $packageName = htmlspecialchars($package, ENT_QUOTES); ?>
                                 <div class="flex align-flex-start column-gap-5">
                                     <?= Icon::product($package) ?>
-                                    <p class="get-package-timeline pointer wordbreakall copy" hostid="<?= $id ?>" packagename="<?= $package ?>" title="See package timeline"><?= $package ?></p>
+                                    <p class="get-package-timeline pointer wordbreakall copy" hostid="<?= $id ?>" packagename="<?= $packageName ?>" title="See package timeline"><?= $packageName ?></p>
                                 </div>
 
-                                <p class="wordbreakall copy"><?= $details['version'] ?></p>
+                                <p class="wordbreakall copy"><?= htmlspecialchars($details['version'], ENT_QUOTES) ?></p>
 
                                 <p class="text-right">
                                     <?php
                                     if (!empty($details['log'])) : ?>
-                                        <img class="icon-lowopacity request-show-package-log-btn" request-id="<?= $item['Id'] ?>" package="<?= $package ?>" status="failed" src="/assets/icons/view.svg" title="Show package log" />
+                                        <img class="icon-lowopacity request-show-package-log-btn" request-id="<?= $item['Id'] ?>" package="<?= $packageName ?>" status="failed" src="/assets/icons/view.svg" title="Show package log" />
                                         <?php
                                     endif ?>
                                 </p>

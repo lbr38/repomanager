@@ -1,67 +1,69 @@
 /**
- *  Event: print/hide all repos groups
+ *  Event: show / hide all repos groups
  */
 $(document).on('click','#hide-all-repo-groups',function () {
-    var state = $(this).attr('state');
+    var hide = $(this).attr('state') == 'visible';
 
-    // If actual state is 'visible' then hide all groups
-    if (state == 'visible') {
-        // Change state to 'hidden'
-        $(this).attr('state', 'hidden');
-        $(this).find('img').attr('src', 'assets/icons/view-off.svg');
+    myrepo.setHideAllGroupsBtn(hide);
 
-        // Retrieve all groups and hide them if they are visible
-        $('.repos-list-group').each(function () {
-            var content = $(this).children('.group-content');
-
-            // If the group content is visible then hide it, else do nothing
-            if (content.is(":visible")) {
-                content.slideUp(200);
-            }
-        });
-
-        // Change all up/down icons to 'down'
-        $('img.hide-repo-group').attr('src', 'assets/icons/view-off.svg');
-        $('img.hide-repo-group').attr('state', 'hidden');
-    }
-
-    // If actual state is 'hidden' then show all groups
-    if (state == 'hidden') {
-        // Change state to 'visible'
-        $(this).attr('state', 'visible');
-        $(this).find('img').attr('src', 'assets/icons/view.svg');
-
-        // Retrieve all groups and show them if they are hidden
-        $('.repos-list-group').each(function () {
-            var content = $(this).children('.group-content');
-
-            // If the group content is hidden then show it, else do nothing
-            if (content.is(":hidden")) {
-                content.slideDown(200);
-            }
-        });
-
-        // Change all up/down icons to 'up'
-        $('img.hide-repo-group').attr('src', 'assets/icons/view.svg');
-        $('img.hide-repo-group').attr('state', 'visible');
-    }
+    $('.repos-list-group').each(function () {
+        myrepo.toggleGroup($(this), hide);
+    });
 });
 
 /**
  *  Event: show / hide repos group content
  */
 $(document).on('click','.hide-repo-group',function () {
-    var state = $(this).attr('state');
+    myrepo.toggleGroup($(this).closest('.repos-list-group'), $(this).attr('state') == 'visible');
+});
 
-    if (state == 'visible') {
-        $(this).attr('state', 'hidden');
-        $(this).attr('src', 'assets/icons/view-off.svg');
-    }
+/**
+ *  Collapse the groups that were collapsed during the session, on page load
+ */
+myrepo.restoreGroups();
 
-    if (state == 'hidden') {
-        $(this).attr('state', 'visible');
-        $(this).attr('src', 'assets/icons/view.svg');
-    }
+/**
+ *  Search input events, restore the search from the page URL (?search=...) on page load
+ */
+RepoSearch.init();
 
-    $(this).closest('.repos-list-group').children('.group-content').slideToggle(200);
+/**
+ *  Event: print help tooltip for search input
+ */
+$(document).on('mouseenter', '.search-repo-tooltip', function () {
+    let content = '<p>Syntax</p>';
+    content += '<p><code>search</code> <code>filter=value</code></p>';
+
+    content += '<p class="margin-top-10">Filters <span class="note">(click to add)</span></p>';
+    content += RepoSearch.filtersList([
+        'name=NAME',
+        'dist=DISTRIBUTION',
+        'component=COMPONENT',
+        'releasever=VERSION',
+        'type=TYPE',
+        'package-type=TYPE',
+        'description=DESCRIPTION',
+        'env=ENVIRONMENT',
+        'tag=TAG'
+    ]);
+
+    content += '<p class="note margin-top-10">Example: deb repositories of the bookworm distribution</p>';
+    content += '<p><code>package-type=deb dist=bookworm</code></p>';
+    content += '<p class="note margin-top-5">Example: repositories with a snapshot in prod, except mirrors</p>';
+    content += '<p><code>env=prod type!=mirror</code></p>';
+
+    content += '<div class="flex flex-direction-column row-gap-5 margin-top-10">';
+    content += '<p>• Free text is searched in all fields, each word must match</p>';
+    content += '<p>• Filters can be combined, repositories must match all of them</p>';
+    content += '<p>• Use <code>!=</code> to exclude, e.g. <code>env!=prod</code></p>';
+    content += '<p>• <code>tag=</code> and <code>env=</code> must match exactly</p>';
+    content += '<p>• Type a filter name or <code>filter=</code> to get suggestions, pick one with Tab, Enter or a click</p>';
+    content += '<p>• The search is kept in the page URL, it can be bookmarked or shared</p>';
+    content += '<p>• Use quotes when a value contains spaces, e.g description="Debian main"</p>';
+    content += '<p>• Search is case-insensitive, press Escape to clear it</p>';
+    content += '</div>';
+
+    // Print tooltip
+    mytooltip.show(this, content);
 });

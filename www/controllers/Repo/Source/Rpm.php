@@ -143,8 +143,9 @@ class Rpm extends \Controllers\Repo\Source\Source
             throw new Exception('GPG key Id does not exist');
         }
 
-        // Remove the gpg key from the release version
+        // Remove the gpg key from the release version, then reindex the keys so that they are still saved as a JSON array
         unset($this->currentDefinition['releasever'][$releaseverId]['gpgkeys'][$gpgKeyId]);
+        $this->currentDefinition['releasever'][$releaseverId]['gpgkeys'] = array_values($this->currentDefinition['releasever'][$releaseverId]['gpgkeys']);
 
         // Save the updated source repository definition
         $this->editDefinition($this->id, $this->currentDefinition);

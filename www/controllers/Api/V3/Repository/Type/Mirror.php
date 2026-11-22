@@ -94,7 +94,7 @@ class Mirror extends Type
         }
 
         $keys = ['package_type', 'name', 'source', 'arch', 'gpg_check', 'environments', 'description', 'tags', 'group', 'retention', 'retention_keep_all', 'schedule'];
-        $keys = array_merge($keys, ['rpm' => ['releasever'], 'deb' => ['dists', 'components'], 'arch' => ['repos']][$packageType]);
+        $keys = array_merge($keys, ['rpm' => ['releasever'], 'deb' => ['dists', 'components'], 'arch' => ['repos'], 'alpine' => ['branch', 'repos'], 'openbsd' => ['versions', 'content']][$packageType]);
 
         $request->allow($keys);
 
@@ -125,6 +125,18 @@ class Mirror extends Type
             $values['repos'] = $request->list('repos');
         }
 
+        // The branch and repositories are optional if the source repository URL does not contain $branch and $repo
+        if ($packageType == 'alpine') {
+            $values['branch'] = $request->string('branch', '');
+            $values['repos'] = $request->list('repos', []);
+        }
+
+        // All contents are mirrored by default
+        if ($packageType == 'openbsd') {
+            $values['versions'] = $request->list('versions');
+            $values['content'] = $request->list('content', \Controllers\Mirror\Sync\Openbsd::CONTENTS);
+        }
+
         return Params::create(array_merge($values, self::retentionParams($request)), $schedule);
     }
 
@@ -136,9 +148,16 @@ class Mirror extends Type
             throw new HttpException(403, 'You are not allowed to edit mirrors');
         }
 
-        $request->allow(self::EDIT_KEYS);
+        // The versions, content and architectures can be edited for an openbsd mirror only (checked by the edit controller)
+        $request->allow(array_merge(self::EDIT_KEYS, ['versions', 'content', 'arch']));
 
         $params = self::editParams($request);
+
+        foreach (['versions', 'content', 'arch'] as $key) {
+            if ($request->has($key)) {
+                $params[$key] = $request->list($key, []);
+            }
+        }
 
         self::checkNotEmpty($params);
 
@@ -216,9 +235,12 @@ class Mirror extends Type
             'package_type' => $packageType,
             'name'         => $mirror['Name'],
             'releasever'   => $packageType == 'rpm' ? $mirror['Releasever'] : null,
+            'branch'       => ($packageType == 'alpine' and $mirror['Releasever'] !== '') ? $mirror['Releasever'] : null,
             'dists'        => $packageType == 'deb' ? array_values($params['dists'] ?? []) : null,
             'components'   => $packageType == 'deb' ? array_values($params['components'] ?? []) : null,
-            'repos'        => $packageType == 'arch' ? array_values($params['repos'] ?? []) : null,
+            'repos'        => in_array($packageType, ['arch', 'alpine']) ? array_values($params['repos'] ?? []) : null,
+            'versions'     => $packageType == 'openbsd' ? array_values($params['versions'] ?? []) : null,
+            'content'      => $packageType == 'openbsd' ? array_values($params['content'] ?? []) : null,
             'arch'         => array_values($params['arch'] ?? []),
             'gpg_check'    => ($params['gpg-check'] ?? 'true') == 'true',
             'source'       => $mirror['Source'],

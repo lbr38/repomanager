@@ -30,6 +30,16 @@ jobs:
             dir: /home/mirror/arch/archlinux
             metadata: multilib/os/x86_64/multilib.db
             packages: '*.pkg.tar.zst'
+          # Alpine Linux 3.3 community repository (branch that does not change anymore), x86, published per branch
+          - type: alpine
+            dir: /home/mirror/alpine/alpine/v3.3
+            metadata: community/x86/APKINDEX.tar.gz
+            packages: '*.apk'
+          # OpenBSD 7.9 binary patches (syspatch), amd64, all versions in the same tree as upstream
+          - type: openbsd
+            dir: /home/mirror/openbsd/openbsd
+            metadata: syspatch/7.9/amd64/SHA256.sig
+            packages: 'syspatch*.tgz'
     # Queries returning a value use 'sqlite3 -noheader -list': the image sqlite3 configuration (/root/.sqliterc) prints headers and columns
     env:
       DB: /var/lib/repomanager/db/repomanager.db
@@ -153,3 +163,65 @@ jobs:
           test "$(sqlite3 -noheader -list $DB "SELECT COUNT(*) FROM mirrors")" = "0"
           test "$(sqlite3 -noheader -list $DB "SELECT COUNT(*) FROM mirrors_snap")" = "0"
           test "$(sqlite3 -noheader -list $DB "SELECT COUNT(*) FROM mirrors_env")" = "0"
+
+      # Alpine Linux indexes are signed with RSA keys stored in the source repository: without them, the signature cannot be verified
+      - name: Run job - Create mirror without signing key
+        if: matrix.type == 'alpine'
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/mirror/alpine/create-nokey'" www-data
+          if /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='7'" www-data; then
+              echo "The task should have failed: the index signature cannot be verified without the signing key"
+              exit 1
+          fi
+
+      # The task fails on the index, before retrieving any package, and no mirror is created
+      - name: Check signature verification failure
+        if: matrix.type == 'alpine'
+        run: |
+          test "$(sqlite3 -noheader -list $DB "SELECT Status FROM tasks WHERE Id = 7")" = "error"
+          sqlite3 -readonly -noheader -list /var/lib/repomanager/logs/main/repomanager-task-7-log.db "SELECT Output FROM substeps WHERE Status = 'error' AND Title LIKE 'RETRIEVING INDEX%'" | grep 'No key of the source repository could verify the signature'
+          test "$(sqlite3 -noheader -list $DB "SELECT COUNT(*) FROM mirrors")" = "0"
+          test "$(find /home/mirror/alpine -name '*.apk' | wc -l)" = "0"
+
+      # OpenBSD files lists are signed with signify keys stored in the source repository: without them, the signature cannot be verified
+      - name: Run job - Create mirror without signing key
+        if: matrix.type == 'openbsd'
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/mirror/openbsd/create-nokey'" www-data
+          if /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='7'" www-data; then
+              echo "The task should have failed: the files list signature cannot be verified without the signing key"
+              exit 1
+          fi
+
+      # The task fails on the files list, before retrieving any file, and no mirror is created
+      - name: Check signature verification failure
+        if: matrix.type == 'openbsd'
+        run: |
+          test "$(sqlite3 -noheader -list $DB "SELECT Status FROM tasks WHERE Id = 7")" = "error"
+          sqlite3 -readonly -noheader -list /var/lib/repomanager/logs/main/repomanager-task-7-log.db "SELECT Output FROM substeps WHERE Status = 'error' AND Title LIKE 'RETRIEVING FILES LIST%'" | grep 'No public key of the source repository matches the signature'
+          test "$(sqlite3 -noheader -list $DB "SELECT COUNT(*) FROM mirrors")" = "0"
+          test "$(find /home/mirror/openbsd -name '*.tgz' | wc -l)" = "0"
+
+      # The versions of an openbsd mirror can be edited (e.g. to add the next OpenBSD version for sysupgrade): the next sync uses them
+      - name: Run job - Create mirror to edit
+        if: matrix.type == 'openbsd'
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/mirror/openbsd/create-to-edit'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='8'" www-data
+          test -f ${{ matrix.dir }}/pprd/syspatch/7.9/amd64/SHA256.sig
+
+      - name: Run job - Edit mirror versions and sync mirror
+        if: matrix.type == 'openbsd'
+        run: |
+          sleep 1
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/database/update.php --release='ci/mirror/openbsd/edit'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='9'" www-data
+
+      # The new snapshot only contains the new version, the previous snapshot is not modified
+      - name: Check edited mirror
+        if: matrix.type == 'openbsd'
+        run: |
+          ls -l ${{ matrix.dir }}
+          test -f ${{ matrix.dir }}/pprd/syspatch/8.0/amd64/SHA256.sig
+          test ! -e ${{ matrix.dir }}/pprd/syspatch/7.9
+          test "$(find ${{ matrix.dir }} -mindepth 3 -maxdepth 3 -type d -path '*/syspatch/7.9' | wc -l)" = "1"

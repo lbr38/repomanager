@@ -15,7 +15,10 @@ $taskConfig = [
     ],
 
     // Optional params
+    // releasever (rpm) and dist (deb) of the new repository, the same as the source snapshot if not specified
     'optional-params' => [
+        'releasever',
+        'dist',
         'env',
         'group',
         'description',

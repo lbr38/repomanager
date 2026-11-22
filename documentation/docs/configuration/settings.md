@@ -1,13 +1,33 @@
-## Main configuration
+The **SETTINGS** tab is split into sections: **General**, **Tasks**, **Repositories**, **Package formats**, **Environments**, **Hosts**, **SSO**, **Users** and **Debug mode** (administrators only). Select a section with the buttons at the top of the page, or use the search field to find a setting in all the sections.
+
+The `Save` button saves the settings of all the sections at once. The number of unsaved changes is displayed next to the `Save` button and on each section button. Environments, users and debug mode are applied immediately, without the `Save` button.
+
+
+## General
+
+### Instance
 
 | Parameter | Description |
 |---|---|
 | `HOSTNAME` | Repomanager FQDN, defined when pulling the Docker image. |
 | `TIMEZONE` | Specify your timezone. This is especially useful to ensure that scheduled tasks run at the specified time. |
-| `DEFAULT CONTACT` | Default contact for receiving emails. Currently, only scheduled tasks and their reminders send emails. You can specify multiple recipients. |
 | `SESSION TIMEOUT` | User session timeout in seconds. After this time of inactivity, the user will be logged out and will have to log in again to access the web interface. |
-| `USE A PROXY` | Specify the proxy URL to use to access the internet. e.g. `https://myproxy.com:8080` |
 | `LOGIN PAGE BANNER` | Add a banner on the login page (e.g. system use notification). |
+
+### Network
+
+| Parameter | Description |
+|---|---|
+| `USE A PROXY` | Specify the proxy URL to use to access the internet. e.g. `https://myproxy.com:8080` |
+
+### Email
+
+| Parameter | Description |
+|---|---|
+| `DEFAULT CONTACT` | Default contact for receiving emails. Currently, only scheduled tasks and their reminders send emails. You can specify multiple recipients. |
+
+
+## Tasks
 
 ### Task execution
 
@@ -22,6 +42,12 @@
 | Parameter | Description |
 |---|---|
 | `CLEAN TASKS OLDER THAN (in days)` | Tasks and their logs older than this value will be permanently deleted. This helps free up disk space. |
+
+### Scheduled tasks
+
+| Parameter | Description |
+|---|---|
+| `ENABLE SCHEDULED TASKS REMINDERS` | Enable reminders for scheduled tasks. Reminders are sent via email to the recipients defined when adding a new scheduled task. |
 
 
 ## Repositories
@@ -43,6 +69,17 @@
 | `PACKAGE DOWNLOAD TIMEOUT (in seconds)` | Maximum time allowed to download a package during a sync (curated repositories and mirrors). |
 | `PACKAGE DOWNLOAD RETRIES` | Number of retries to download a package during a curated repository sync in case of failure. |
 | `PACKAGE CHECKSUM MATCH FAILURE` | If a package checksum does not match the expected checksum, this parameter allows you to choose what to do in this case. |
+
+### Statistics
+
+| Parameter | Description |
+|---|---|
+| `ENABLE REPOSITORIES STATISTICS` | Enable logging and statistics on repositories access. |
+
+
+## Package formats
+
+A package type disabled here is no longer offered when creating repositories, mirrors and source repositories.
 
 ### Rpm
 
@@ -77,6 +114,24 @@
 | `ALLOW SYNC OF EMPTY REPOSITORIES` | Allow the sync of empty source repositories (repositories with empty `Packages` indices file). |
 | `WHEN RELEASE FILE SIGNATURE IS INVALID` | The `InRelease` / `Release` file retrieved from a remote repository may have an invalid signature (because the GPG key used to sign the file was not imported, or because the publisher signed the file with a different GPG key, or because the file's signature is corrupted or somehow broken). This parameter allows you to choose what to do in this case. |
 
+### Arch
+
+| Parameter | Description |
+|---|---|
+| `ENABLE ARCH LINUX REPOSITORIES` | Enable Arch Linux package repositories (mirrors only). Enabled by default. |
+
+### Alpine
+
+| Parameter | Description |
+|---|---|
+| `ENABLE ALPINE LINUX REPOSITORIES` | Enable Alpine Linux package repositories (mirrors only). Enabled by default. |
+
+### OpenBSD
+
+| Parameter | Description |
+|---|---|
+| `ENABLE OPENBSD REPOSITORIES` | Enable OpenBSD repositories: packages, binary patches, install sets and sources (mirrors only). Enabled by default. |
+
 ### Gpg signing key
 
 | Parameter | Description |
@@ -106,23 +161,9 @@ rm /var/lib/repomanager/.gnupg/pubring.* /var/lib/repomanager/.rpm/.mcs /home/re
 Be aware that packages and repositories signed with the old key will no longer be valid. You must re-sign them with the new key (rebuild repository metadata).
 
 
-### Environments
+## Environments
 
 See [Environments](/configuration/environments/)
-
-
-### Statistics
-
-| Parameter | Description |
-|---|---|
-| `ENABLE REPOSITORIES STATISTICS` | Enable logging and statistics on repositories access. |
-
-
-## Scheduled tasks
-
-| Parameter | Description |
-|---|---|
-| `ENABLE SCHEDULED TASKS REMINDERS` | Enable reminders for scheduled tasks. Reminders are sent via email to the recipients defined when adding a new scheduled task. |
 
 
 ## Hosts

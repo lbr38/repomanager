@@ -155,7 +155,7 @@ class Delete extends Execution
             throw new Exception('Could not delete mirror directory ' . Mirror::getPath($dir));
         }
 
-        // rpm mirrors are stored in rpm/<name>/<releasever>, delete rpm/<name> if no other release version remains
+        // rpm and alpine mirrors are stored in <type>/<name>/<releasever>, delete <type>/<name> if no other release version remains
         $parentDir = dirname(Mirror::getPath($dir));
 
         if (!empty($mirror['Releasever']) and is_dir($parentDir) and Directory::isEmpty($parentDir)) {

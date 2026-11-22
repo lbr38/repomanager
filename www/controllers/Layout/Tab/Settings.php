@@ -14,6 +14,7 @@ class Settings
             exit;
         }
 
+        Render::render('settings/header');
         Render::render('settings/settings');
         Render::render('settings/right-section');
     }

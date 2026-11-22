@@ -333,6 +333,24 @@ class Settings
             }
         }
 
+        // ALPINE
+        if (!defined('ALPINE_REPO')) {
+            if (!empty($settings['ALPINE_REPO'])) {
+                define('ALPINE_REPO', $settings['ALPINE_REPO']);
+            } else {
+                define('ALPINE_REPO', 'false');
+            }
+        }
+
+        // OPENBSD
+        if (!defined('OPENBSD_REPO')) {
+            if (!empty($settings['OPENBSD_REPO'])) {
+                define('OPENBSD_REPO', $settings['OPENBSD_REPO']);
+            } else {
+                define('OPENBSD_REPO', 'false');
+            }
+        }
+
         //  GPG signing key
         if (!defined('GPG_SIGNING_KEYID')) {
             if (!empty($settings['GPG_SIGNING_KEYID'])) {

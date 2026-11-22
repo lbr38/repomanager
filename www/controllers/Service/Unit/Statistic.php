@@ -207,8 +207,9 @@ class Statistic extends \Controllers\Service\Service
                     // Get line from access log file
                     $line = fgets($file);
 
-                    // Skip line if it does not contain a repo access (pacman is used by Arch Linux mirrors clients)
-                    if (!preg_match('/urlgrabber|libdnf|APT-CURL|APT-HTTP|pacman\//', $line)) {
+                    // Skip line if it does not contain a repo access (pacman is used by Arch Linux mirrors clients, apk by Alpine Linux ones, with the libfetch user agent,
+                    // pkg_add, syspatch and sysupgrade by OpenBSD ones, with the ftp(1) user agent)
+                    if (!preg_match('/urlgrabber|libdnf|APT-CURL|APT-HTTP|pacman\/|libfetch\/|OpenBSD ftp/', $line)) {
                         continue;
                     }
 

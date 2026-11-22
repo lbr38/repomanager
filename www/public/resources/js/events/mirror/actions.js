@@ -7,9 +7,9 @@ function mirrorFormPrintFields()
     const form = $('.task-form-params[domain="mirror"][action="create"]');
     const packageType = form.find('input:radio[name="mirror-package-type"]:checked').val();
 
-    const accents = { 'deb': 'form-block-accent-red', 'rpm': 'form-block-accent-blue', 'arch': 'form-block-accent-cyan' };
+    const accents = { 'deb': 'form-block-accent-red', 'rpm': 'form-block-accent-blue', 'arch': 'form-block-accent-cyan', 'alpine': 'form-block-accent-violet', 'openbsd': 'form-block-accent-yellow' };
 
-    form.removeClass('form-block-accent-blue form-block-accent-red form-block-accent-cyan').addClass(accents[packageType]);
+    form.removeClass(Object.values(accents).join(' ')).addClass(accents[packageType]);
     form.find('[mirror-field]').hide();
     form.find('[mirror-field~="' + packageType + '"]').show();
 }
@@ -126,19 +126,33 @@ $(document).on('change', '.task-form-params[domain="mirror"] select[param-name="
 });
 
 /**
- *  Event: on arch source selection, populate repositories and architectures with the values of the source
+ *  Event: on arch, alpine or openbsd source selection, populate repositories (or versions for openbsd), architectures (and branches for alpine)
+ *  with the values of the source
  */
-$(document).on('change', '.task-form-params[domain="mirror"] select[param-name="source"][package-type="arch"]', function () {
+$(document).on('change', '.task-form-params[domain="mirror"] select[param-name="source"][package-type="arch"], .task-form-params[domain="mirror"] select[param-name="source"][package-type="alpine"], .task-form-params[domain="mirror"] select[param-name="source"][package-type="openbsd"]', function () {
     const source = $(this).val();
+    const packageType = $(this).attr('package-type');
 
     if (!source) {
         return;
     }
 
+    // Source definition field: [form parameter, placeholder]
     const fields = {
-        'repos': ['repos', 'Select or type repository(ies)'],
         'archs': ['arch', 'Select or type architecture(s)']
     };
+
+    if (packageType == 'arch' || packageType == 'alpine') {
+        fields['repos'] = ['repos', 'Select or type repository(ies)'];
+    }
+
+    if (packageType == 'alpine') {
+        fields['branches'] = ['branch', 'Select or type a branch'];
+    }
+
+    if (packageType == 'openbsd') {
+        fields['versions'] = ['versions', 'Select or type version(s)'];
+    }
 
     $.each(fields, function (field, [paramName, placeholder]) {
         ajaxRequest(
@@ -148,6 +162,7 @@ $(document).on('change', '.task-form-params[domain="mirror"] select[param-name="
             'get-predefined',
             // Data:
             {
+                type: packageType,
                 field: field,
                 source: source
             },
@@ -156,7 +171,7 @@ $(document).on('change', '.task-form-params[domain="mirror"] select[param-name="
             // Print error alert:
             true
         ).then(function () {
-            myselect2.update('.task-form-params[domain="mirror"] select[param-name="' + paramName + '"][package-type="arch"]', jsonValue.message, placeholder, true);
+            myselect2.update('.task-form-params[domain="mirror"] select[param-name="' + paramName + '"][package-type="' + packageType + '"]', jsonValue.message, placeholder, true);
         });
     });
 });
@@ -242,11 +257,14 @@ $(document).on('change', 'input:radio[name="repo-type"][value="mirror"]', functi
 });
 
 /**
- *  Event: Arch Linux repositories can only be mirrors, the 'arch' package type of the new repository form opens the mirror creation form
+ *  Event: Arch Linux, Alpine Linux and OpenBSD repositories can only be mirrors, the 'arch', 'alpine' and 'openbsd' package types of the new
+ *  repository form open the mirror creation form
  */
-$(document).on('change', 'input:radio[name="package-type"][value="arch"]', function () {
+$(document).on('change', 'input:radio[name="package-type"][value="arch"], input:radio[name="package-type"][value="alpine"], input:radio[name="package-type"][value="openbsd"]', function () {
+    const packageType = $(this).val();
+
     mypanel.replace('repos/new', 'mirrors/new').then(function () {
-        $('.slide-panel-container[slide-panel="mirrors/new"] input:radio[name="mirror-package-type"][value="arch"]').prop('checked', true).trigger('change');
+        $('.slide-panel-container[slide-panel="mirrors/new"] input:radio[name="mirror-package-type"][value="' + packageType + '"]').prop('checked', true).trigger('change');
     });
 });
 
@@ -260,7 +278,7 @@ $(document).on('change', 'input:radio[name="mirror-repo-type"]', function () {
         return;
     }
 
-    // Keep the package type already selected in the mirror form (arch has no curated / local repositories)
+    // Keep the package type already selected in the mirror form (arch, alpine and openbsd have no curated / local repositories)
     const packageType = $('.slide-panel-container[slide-panel="mirrors/new"] input:radio[name="mirror-package-type"]:checked').val();
 
     mypanel.replace('mirrors/new', 'repos/new').then(function () {
@@ -583,17 +601,29 @@ $(document).on('submit', '#mirror-edit-form', function (e) {
     e.preventDefault();
 
     const form = $(this);
+    const params = {
+        'retention': form.find('.mirror-edit-param[param-name="retention"]').val(),
+        'retention-keep-all': form.find('.mirror-edit-param[param-name="retention-keep-all"]').is(':checked') ? 'true' : 'false'
+    };
+
+    // Versions, contents and architectures of an openbsd mirror, an emptied list is sent to be rejected
+    ['versions', 'content', 'arch'].forEach(function (name) {
+        const field = form.find('select.mirror-edit-param[param-name="' + name + '"]');
+
+        if (field.length) {
+            params[name] = field.val() || [];
+        }
+    });
 
     ajaxRequest(
         // Controller:
         'repo/edit',
         // Action:
-        'retention',
+        'mirror-properties',
         // Data:
         {
-            repoId: 'mirror-' + form.attr('mirror-id'),
-            retention: form.find('.mirror-edit-param[param-name="retention"]').val(),
-            keepAll: form.find('.mirror-edit-param[param-name="retention-keep-all"]').is(':checked') ? 'true' : 'false'
+            mirrorId: form.attr('mirror-id'),
+            params: JSON.stringify(params)
         },
         // Print success alert:
         true,

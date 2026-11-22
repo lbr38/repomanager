@@ -1,0 +1,59 @@
+---
+description: Alpine Linux official repositories
+type: alpine
+repositories:
+  # Alpine Linux official repositories, from the Alpine Linux CDN
+  - name: alpine
+    type: alpine
+    description: Alpine Linux official repositories
+    url: https://dl-cdn.alpinelinux.org/alpine/$branch/$repo
+    branches:
+      - name: edge
+        description: Alpine Linux development branch
+      - name: v3.24
+        description: Alpine Linux 3.24
+        eol: 2028-06-01
+      - name: v3.23
+        description: Alpine Linux 3.23
+        eol: 2027-11-01
+      - name: v3.22
+        description: Alpine Linux 3.22
+        eol: 2027-05-01
+    repos:
+      - name: main
+        description: Alpine Linux main
+      - name: community
+        description: Alpine Linux community
+      - name: testing
+        description: Alpine Linux testing (edge only)
+    archs:
+      - name: x86_64
+      - name: aarch64
+      - name: armhf
+      - name: armv7
+      - name: x86
+      - name: ppc64le
+      - name: s390x
+      - name: riscv64
+      - name: loongarch64
+    # Alpine Linux signing keys, as installed by the alpine-keys package (each architecture is signed with its own keys)
+    # They are downloaded from the aports repository: some of them are not published on https://alpinelinux.org/keys/
+    keys:
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-4a6a0840.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-5243ef4b.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-524d27bb.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-5261cecb.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-58199dcc.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-58cbb476.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-58e4f17d.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-5e69ca50.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-60ac2099.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-6165ee59.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-61666e3f.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-616a9724.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-616abc23.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-616ac3bc.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-616adfeb.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-616ae350.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-616db30d.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-66ba20fe.rsa.pub

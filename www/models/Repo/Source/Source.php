@@ -85,17 +85,35 @@ class Source extends \Models\Model
     }
 
     /**
-     *  List all source repositories
+     *  SQL condition matching the source repositories whose name, URL or description contains the searched text (case insensitive)
      */
-    public function listAll(string|null $type, bool $withOffset, int $offset): array
+    private const SEARCH_CONDITION = "(json_extract(COALESCE(Definition, '{}'), '$.name') LIKE :search ESCAPE '\\'"
+        . " OR json_extract(COALESCE(Definition, '{}'), '$.url') LIKE :search ESCAPE '\\'"
+        . " OR json_extract(COALESCE(Definition, '{}'), '$.description') LIKE :search ESCAPE '\\')";
+
+    /**
+     *  List all source repositories
+     *  Optionally only the ones of a type, and the ones matching a search (see SEARCH_CONDITION)
+     */
+    public function listAll(string|null $type, bool $withOffset, int $offset, string $search = ''): array
     {
         $data = [];
+        $conditions = [];
 
         $query = "SELECT * FROM sources";
 
         // If a source type has been specified
         if (!empty($type)) {
-            $query .= " WHERE json_extract(COALESCE(Definition, '{}'), '$.type') = :type";
+            $conditions[] = "json_extract(COALESCE(Definition, '{}'), '$.type') = :type";
+        }
+
+        // If a search has been specified
+        if ($search !== '') {
+            $conditions[] = self::SEARCH_CONDITION;
+        }
+
+        if (!empty($conditions)) {
+            $query .= " WHERE " . implode(' AND ', $conditions);
         }
 
         $query .= " ORDER BY json_extract(COALESCE(Definition, '{}'), '$.type') ASC, json_extract(COALESCE(Definition, '{}'), '$.name') ASC";
@@ -110,10 +128,43 @@ class Source extends \Models\Model
         if (!empty($type)) {
             $stmt->bindValue(':type', $type);
         }
+        if ($search !== '') {
+            $stmt->bindValue(':search', '%' . addcslashes($search, '%_\\') . '%');
+        }
         $result = $stmt->execute();
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $data[] = $row;
+        }
+
+        return $data;
+    }
+
+    /**
+     *  Count source repositories by type, optionally only the ones matching a search (see SEARCH_CONDITION)
+     */
+    public function countByType(string $search = ''): array
+    {
+        $data = [];
+
+        $query = "SELECT json_extract(COALESCE(Definition, '{}'), '$.type') AS Type, COUNT(*) AS Count FROM sources";
+
+        if ($search !== '') {
+            $query .= " WHERE " . self::SEARCH_CONDITION;
+        }
+
+        $query .= " GROUP BY Type";
+
+        $stmt = $this->db->prepare($query);
+        if ($search !== '') {
+            $stmt->bindValue(':search', '%' . addcslashes($search, '%_\\') . '%');
+        }
+        $result = $stmt->execute();
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            if (!empty($row['Type'])) {
+                $data[$row['Type']] = $row['Count'];
+            }
         }
 
         return $data;

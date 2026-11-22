@@ -203,8 +203,9 @@ class Deb extends \Controllers\Repo\Source\Source
             throw new Exception('GPG key does not exist');
         }
 
-        // Remove the gpg key from the distribution
+        // Remove the gpg key from the distribution, then reindex the keys so that they are still saved as a JSON array
         unset($this->currentDefinition['distributions'][$distributionId]['gpgkeys'][$gpgKeyId]);
+        $this->currentDefinition['distributions'][$distributionId]['gpgkeys'] = array_values($this->currentDefinition['distributions'][$distributionId]['gpgkeys']);
 
         // Save the updated source repository definition
         $this->editDefinition($this->id, $this->currentDefinition);

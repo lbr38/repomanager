@@ -144,6 +144,64 @@ class Directory
     }
 
     /**
+     *  Move a directory to the target path, replacing the directory that may already be there
+     *  The existing directory is first moved to $backupPath: the target path is then missing only between two moves (instead
+     *  of during the whole deletion of the existing directory), and the existing directory is restored if the directory cannot
+     *  be moved. Deleting the backup is left to the caller. The paths must be on the same filesystem.
+     *  Return true if an existing directory has been moved to $backupPath
+     */
+    public static function replace(string $source, string $target, string $backupPath): bool
+    {
+        $replaced = false;
+
+        // The result of a previous is_dir() on the target may be cached by PHP
+        clearstatcache(true, $target);
+
+        if (is_dir($target)) {
+            // Backup left by a previous attempt
+            if (file_exists($backupPath) and !self::deleteRecursive($backupPath)) {
+                throw new Exception('Cannot delete directory: ' . $backupPath);
+            }
+
+            error_clear_last();
+
+            if (!rename($target, $backupPath)) {
+                throw new Exception('Could not move directory ' . $target . ' to ' . $backupPath . ': ' . self::lastError());
+            }
+
+            $replaced = true;
+        }
+
+        error_clear_last();
+
+        if (!rename($source, $target)) {
+            $error = self::lastError();
+
+            // Restore the existing directory
+            if ($replaced and !rename($backupPath, $target)) {
+                throw new Exception('Could not move directory ' . $source . ' to ' . $target . ': ' . $error . ' (the previous directory could not be restored from ' . $backupPath . ')');
+            }
+
+            throw new Exception('Could not move directory ' . $source . ' to ' . $target . ': ' . $error);
+        }
+
+        return $replaced;
+    }
+
+    /**
+     *  Return the reason why the last filesystem function failed, from the PHP warning it raised (e.g. 'Directory not empty')
+     */
+    private static function lastError(): string
+    {
+        $message = error_get_last()['message'] ?? '';
+
+        // The warning starts with the function and its arguments: rename(/source,/target): Directory not empty
+        $message = preg_replace('/^\w+\(.*\): /U', '', $message);
+
+        return !empty($message) ? $message : 'unknown error';
+    }
+
+    /**
      *  Delete specified directory if empty
      */
     public static function deleteIfEmpty(array $directories) : void

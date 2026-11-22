@@ -9,8 +9,8 @@ class Hosts
 {
     public static function render()
     {
-        // If user is not allowed to see hosts, redirect to home page
-        if (!HostPermission::allowed()) {
+        // If hosts management is disabled or user is not allowed to see hosts, redirect to home page
+        if (MANAGE_HOSTS != 'true' or !HostPermission::allowed()) {
             header('Location: /');
             exit;
         }

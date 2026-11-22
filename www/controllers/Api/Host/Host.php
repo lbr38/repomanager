@@ -13,6 +13,11 @@ class Host extends \Controllers\Api\Controller
 {
     public function execute(): array
     {
+        // Hosts cannot register, send their data nor be read while hosts management is disabled
+        if (MANAGE_HOSTS != 'true') {
+            throw new Exception('Hosts management is disabled');
+        }
+
         $hostController = new HostController();
         $hostRegisteringController = new HostRegistering();
         $hostUpdateController = new HostUpdate();

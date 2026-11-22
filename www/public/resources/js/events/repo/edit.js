@@ -196,7 +196,7 @@ $(document).on('click', '.repo-tag-item', function (e) {
     const tag = $(this).find('p').text().trim();
 
     if (tag) {
-        myrepo.searchByTag(tag);
+        RepoSearch.addFilterValue('tag', tag);
     }
 });
 

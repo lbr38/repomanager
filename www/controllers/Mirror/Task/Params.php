@@ -13,7 +13,8 @@ class Params
 
     /**
      *  Create a new mirror
-     *  Accepted values: package-type, name, source, releasever (rpm), dist and components (deb), repos (arch),
+     *  Accepted values: package-type, name, source, releasever (rpm), dist and components (deb), repos (arch, alpine), branch (alpine),
+     *  versions and content (openbsd),
      *  arch, gpg-check, env, description, tags, group (group Id), retention and retention-keep-all
      */
     public static function create(array $values, array $schedule = self::NOW): array
@@ -49,6 +50,17 @@ class Params
 
         if ($packageType == 'arch') {
             $params['repos'] = $values['repos'] ?? [];
+        }
+
+        if ($packageType == 'alpine') {
+            $params['branch'] = $values['branch'] ?? '';
+            $params['repos'] = $values['repos'] ?? [];
+        }
+
+        // All contents are mirrored by default
+        if ($packageType == 'openbsd') {
+            $params['versions'] = $values['versions'] ?? [];
+            $params['content'] = $values['content'] ?? \Controllers\Mirror\Sync\Openbsd::CONTENTS;
         }
 
         return $params;
