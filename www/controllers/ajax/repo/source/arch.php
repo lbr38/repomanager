@@ -9,56 +9,60 @@ if (!str_starts_with($action, 'get-predefined') and !RepoPermission::allowedActi
     response(HTTP_BAD_REQUEST, 'You are not allowed to perform this action');
 }
 
-use \Controllers\Repo\Source\Arch as ArchSourceRepo;
+use \Controllers\Repo\Source\Items as ItemsSourceRepo;
 
 /**
- *  Add a repository or an architecture
+ *  Items (repositories, architectures, branches, versions) of the arch, alpine and openbsd source repositories
+ */
+
+/**
+ *  Add an item
  */
 if ($_POST['action'] == 'add' and !empty($_POST['id']) and !empty($_POST['field']) and isset($_POST['name'])) {
     try {
-        $archSourceController = new ArchSourceRepo($_POST['id']);
-        $archSourceController->addItem($_POST['field'], $_POST['name']);
+        $sourceController = ItemsSourceRepo::fromId((int) $_POST['id']);
+        $sourceController->addItem($_POST['field'], $_POST['name']);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, ($_POST['field'] == 'archs' ? 'Architecture' : 'Repository') . ' added');
+    response(HTTP_OK, $sourceController::getItemLabel($_POST['field']) . ' added');
 }
 
 /**
- *  Edit a repository or an architecture
+ *  Edit an item
  */
 if ($_POST['action'] == 'edit' and !empty($_POST['id']) and !empty($_POST['field']) and isset($_POST['itemId']) and is_numeric($_POST['itemId']) and isset($_POST['name']) and isset($_POST['description'])) {
     try {
-        $archSourceController = new ArchSourceRepo($_POST['id']);
-        $archSourceController->editItem($_POST['field'], (int) $_POST['itemId'], $_POST['name'], $_POST['description']);
+        $sourceController = ItemsSourceRepo::fromId((int) $_POST['id']);
+        $sourceController->editItem($_POST['field'], (int) $_POST['itemId'], $_POST['name'], $_POST['description']);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, ($_POST['field'] == 'archs' ? 'Architecture' : 'Repository') . ' edited');
+    response(HTTP_OK, $sourceController::getItemLabel($_POST['field']) . ' edited');
 }
 
 /**
- *  Remove a repository or an architecture
+ *  Remove an item
  */
 if ($_POST['action'] == 'remove' and !empty($_POST['id']) and !empty($_POST['field']) and isset($_POST['itemId']) and is_numeric($_POST['itemId'])) {
     try {
-        $archSourceController = new ArchSourceRepo($_POST['id']);
-        $archSourceController->removeItem($_POST['field'], (int) $_POST['itemId']);
+        $sourceController = ItemsSourceRepo::fromId((int) $_POST['id']);
+        $sourceController->removeItem($_POST['field'], (int) $_POST['itemId']);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, ($_POST['field'] == 'archs' ? 'Architecture' : 'Repository') . ' removed');
+    response(HTTP_OK, $sourceController::getItemLabel($_POST['field']) . ' removed');
 }
 
 /**
- *  Get predefined repositories or architectures values for a task
+ *  Get predefined items for a task (source repositories names are unique per package type, arch by default)
  */
 if ($_POST['action'] == 'get-predefined' and !empty($_POST['field']) and !empty($_POST['source'])) {
     try {
-        $content = (new ArchSourceRepo())->getPredefined($_POST['field'], $_POST['source']);
+        $content = ItemsSourceRepo::fromType($_POST['type'] ?? 'arch')->getPredefined($_POST['field'], $_POST['source']);
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }

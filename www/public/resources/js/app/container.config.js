@@ -55,9 +55,11 @@ const postReloadFunctions = {
         HostSearch.restore();
     },
 
-    // Re-apply the current search filter on the repositories that have just been refreshed
+    // Re-apply the current search on the repositories that have just been refreshed (restored from the URL if the input has been reset)
     'repos/list': function () {
-        myrepo.search();
+        RepoSearch.restore();
+        // Collapse again the groups that were collapsed before the reload
+        myrepo.restoreGroups();
     },
 
     // Restore the expanded look of sub-tasks toggle buttons whose sub-tasks were left unfolded before the reload

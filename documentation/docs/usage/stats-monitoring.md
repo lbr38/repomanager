@@ -10,6 +10,6 @@ From the **REPOSITORIES** tab:
 
 [![Repository statistics](https://assets.repomanager.net/repomanager/6.2.0/usage/stats-monitoring/view-stats.png)](https://assets.repomanager.net/repomanager/6.2.0/usage/stats-monitoring/view-stats.png)
 
-For mirrors, the accesses of apt, dnf/yum and pacman clients to the environments of the mirror are counted. As mirrors may be public and heavily used, keep in mind that each access request is stored in the statistics database (requests older than one year are deleted).
+For mirrors, the accesses of apt, dnf/yum, pacman, apk and OpenBSD (`pkg_add`, `syspatch`, `sysupgrade`) clients to the environments of the mirror are counted. As mirrors may be public and heavily used, keep in mind that each access request is stored in the statistics database (requests older than one year are deleted).
 
 <script data-goatcounter="https://repomanager.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>

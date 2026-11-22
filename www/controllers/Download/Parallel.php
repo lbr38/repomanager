@@ -282,6 +282,15 @@ class Parallel
         }
 
         if (!empty($hash) and !empty($algo)) {
+            // Alpine packages are identified by the checksum of their control stream, not of the whole file
+            if ($algo == \Controllers\Utils\Apk::IDENTITY_ALGO) {
+                try {
+                    return hash_equals($hash, \Controllers\Utils\Apk::identity($path));
+                } catch (Exception $e) {
+                    return false;
+                }
+            }
+
             return hash_equals(strtolower($hash), hash_file($algo, $path));
         }
 

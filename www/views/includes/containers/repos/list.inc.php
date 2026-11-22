@@ -54,10 +54,10 @@ use \Controllers\User\Permission\Mirror as MirrorPermission; ?>
                     <?php
                     /**
                      *  The repositories creation form also offers mirrors, the mirrors creation form is opened directly if the user can only create mirrors
-                     *  or if only Arch Linux repositories are enabled (they can only be mirrors)
+                     *  or if only Arch Linux, Alpine Linux or OpenBSD repositories are enabled (they can only be mirrors)
                      */
                     $canCreateRepo = (RepoPermission::allowedAction('create') and (RPM_REPO == 'true' or DEB_REPO == 'true'));
-                    $canCreateMirror = (MirrorPermission::allowedAction('create') and (RPM_REPO == 'true' or DEB_REPO == 'true' or ARCH_REPO == 'true'));
+                    $canCreateMirror = (MirrorPermission::allowedAction('create') and (RPM_REPO == 'true' or DEB_REPO == 'true' or ARCH_REPO == 'true' or ALPINE_REPO == 'true' or OPENBSD_REPO == 'true'));
 
                     if ($canCreateRepo or $canCreateMirror) : ?>
                         <div class="slide-btn slide-btn-green get-panel-btn" panel="<?= $canCreateRepo ? 'repos/new' : 'mirrors/new' ?>" title="Create a new curated repository, local repository or mirror">
@@ -68,7 +68,15 @@ use \Controllers\User\Permission\Mirror as MirrorPermission; ?>
                     endif ?>
                 </div>
 
-                <input id="repo-search-input" type="text" placeholder="Search repositories, snapshots, environments..." onkeyup="myrepo.search()" title="Search by repository name, distribution, component or release version" />
+                <div class="search-input-container">
+                    <input type="text" id="search-repo-input" autocomplete="off" spellcheck="false" placeholder="Search repositories, snapshots, environments... or env=prod" title="Search repositories by any field, or filter by repository attributes (name=, dist=, env=, tag=, ...)" />
+                    <div class="search-input-actions">
+                        <p id="search-repo-count" class="note hide"></p>
+                        <img id="search-repo-clear" src="/assets/icons/close.svg" class="icon-small pointer lowopacity hide" title="Clear search" />
+                        <img src="/assets/icons/info.svg" class="icon-small icon-np lowopacity search-repo-tooltip" />
+                    </div>
+                    <div id="search-repo-suggestions" class="search-suggestions hide"></div>
+                </div>
             </div>
 
             <div id="repos-list-container">

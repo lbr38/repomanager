@@ -1,0 +1,41 @@
+---
+description: OpenBSD official mirror
+type: openbsd
+repositories:
+  # Root of the OpenBSD tree, from the OpenBSD CDN: packages, binary patches (syspatch), install sets and sources of each version
+  - name: openbsd
+    type: openbsd
+    description: OpenBSD releases, packages and binary patches
+    url: https://cdn.openbsd.org/pub/OpenBSD
+    versions:
+      - name: '8.0'
+        description: OpenBSD 8.0
+      - name: '7.9'
+        description: OpenBSD 7.9
+    # Platforms, as named by OpenBSD: packages directories are named after their architecture (e.g. aarch64 for arm64)
+    archs:
+      - name: amd64
+      - name: arm64
+      - name: i386
+      - name: riscv64
+      - name: powerpc64
+      - name: sparc64
+      - name: armv7
+      - name: octeon
+      - name: macppc
+      - name: alpha
+      - name: hppa
+      - name: landisk
+      - name: luna88k
+    # Signify keys of each version (base: releases and sources, pkg: packages, syspatch: binary patches), as installed in /etc/signify/
+    # on clients. The keys of the next version are included, to mirror it as soon as it is released (sysupgrade looks for it)
+    keys:
+      - link: https://raw.githubusercontent.com/openbsd/src/master/etc/signify/openbsd-79-base.pub
+      - link: https://raw.githubusercontent.com/openbsd/src/master/etc/signify/openbsd-79-pkg.pub
+      - link: https://raw.githubusercontent.com/openbsd/src/master/etc/signify/openbsd-79-syspatch.pub
+      - link: https://raw.githubusercontent.com/openbsd/src/master/etc/signify/openbsd-80-base.pub
+      - link: https://raw.githubusercontent.com/openbsd/src/master/etc/signify/openbsd-80-pkg.pub
+      - link: https://raw.githubusercontent.com/openbsd/src/master/etc/signify/openbsd-80-syspatch.pub
+      - link: https://raw.githubusercontent.com/openbsd/src/master/etc/signify/openbsd-81-base.pub
+      - link: https://raw.githubusercontent.com/openbsd/src/master/etc/signify/openbsd-81-pkg.pub
+      - link: https://raw.githubusercontent.com/openbsd/src/master/etc/signify/openbsd-81-syspatch.pub

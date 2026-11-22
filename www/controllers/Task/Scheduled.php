@@ -33,6 +33,11 @@ class Scheduled extends Task
                 throw new Exception('Cannot decode scheduled task #' . $scheduledTask['Id'] . ' parameters: ' . $e->getMessage());
             }
 
+            // A recurring update does not depend on the snapshot selected when it was created
+            if ($this->isRecurringUpdate($taskParams)) {
+                continue;
+            }
+
             // A scheduled task grouping several tasks is using this snapshot if one of its sub-tasks is using it
             $tasksParams = !empty($taskParams['tasks']) ? $taskParams['tasks'] : [$taskParams];
 
@@ -49,11 +54,22 @@ class Scheduled extends Task
 
     /**
      *  Delete scheduled tasks by snapshot Id
+     *  Recurring updates are kept, as they do not depend on the snapshot selected when they were created
      */
     public function deleteBySnapId(int $id) : void
     {
         $this->deleteMatching(function (array $taskParams) use ($id): bool {
             return !empty($taskParams['snap-id']) and $taskParams['snap-id'] == $id;
+        }, true);
+    }
+
+    /**
+     *  Delete scheduled tasks of a repository
+     */
+    public function deleteByRepoId(int $id) : void
+    {
+        $this->deleteMatching(function (array $taskParams) use ($id): bool {
+            return !empty($taskParams['repo-id']) and $taskParams['repo-id'] == $id;
         });
     }
 
@@ -81,14 +97,19 @@ class Scheduled extends Task
      *  Delete the scheduled tasks matching the specified condition
      *  A scheduled task grouping several tasks (e.g. several snapshots to update or environments to point) only loses
      *  its matching sub-tasks, it is deleted if no sub-task remains
+     *  @param bool $keepRecurringUpdates Keep the recurring updates whatever the condition (see isRecurringUpdate())
      */
-    private function deleteMatching(callable $matches) : void
+    private function deleteMatching(callable $matches, bool $keepRecurringUpdates = false) : void
     {
         foreach ($this->taskListingController->getScheduled() as $scheduledTask) {
             try {
                 $taskParams = json_decode($scheduledTask['Raw_params'], true, 512, JSON_THROW_ON_ERROR);
             } catch (JsonException $e) {
                 throw new Exception('Cannot decode scheduled task #' . $scheduledTask['Id'] . ' parameters: ' . $e->getMessage());
+            }
+
+            if ($keepRecurringUpdates and $this->isRecurringUpdate($taskParams)) {
+                continue;
             }
 
             if (empty($taskParams['tasks'])) {
@@ -121,6 +142,15 @@ class Scheduled extends Task
                 throw new Exception('Could not encode scheduled task #' . $scheduledTask['Id'] . ' parameters: ' . $e->getMessage());
             }
         }
+    }
+
+    /**
+     *  Return true if the scheduled task is a recurring update
+     *  A recurring update always updates the latest snapshot of its repository, whatever the snapshot selected when it was created
+     */
+    private function isRecurringUpdate(array $taskParams) : bool
+    {
+        return ($taskParams['action'] ?? '') == 'update' and ($taskParams['schedule']['schedule-type'] ?? '') == 'recurring';
     }
 
     /**

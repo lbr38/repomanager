@@ -117,7 +117,7 @@ class Target
 
         // Check package type, if any
         if (!empty($target['package-type'])) {
-            if (!in_array($target['package-type'], ['deb', 'rpm', 'arch'])) {
+            if (!in_array($target['package-type'], ['deb', 'rpm', 'arch', 'alpine', 'openbsd'])) {
                 throw new Exception('Invalid target package type');
             }
 

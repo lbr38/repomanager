@@ -188,6 +188,10 @@ runs:
         # Packages are managed by the source repository only
         must_fail 404 not_found GET /repositories/mirror/$ID/snapshots/$FIRST_SNAP_ID/packages
 
+        # Only the versions, content and architectures of an openbsd mirror can be edited
+        must_fail 400 operation_refused PATCH /repositories/mirror/$ID -H "Content-Type: application/json" -d '{"versions": ["8.0"]}'
+        must_fail 400 operation_refused PATCH /repositories/mirror/$ID -H "Content-Type: application/json" -d '{"arch": ["i386"]}'
+
         # Sync into a new snapshot
         run_task 900 POST /repositories/mirror/$ID/snapshots -H "Content-Type: application/json" -d '{}'
         RESULT=$(api GET /repositories/mirror/$ID/snapshots)
@@ -217,6 +221,68 @@ runs:
         # Delete the mirror
         run_task 300 DELETE /repositories/mirror/$ID
         must_fail 404 not_found GET /repositories/mirror/$ID
+
+    # Alpine Linux mirrors are too large to be synced here (see the mirror tasks workflow): only the source import and the parameters checks are tested
+    - name: (admin) Alpine mirror parameters
+      shell: bash
+      env:
+        API_HOST: ${{ inputs.api-host }}
+        API_KEY: ${{ inputs.api-key }}
+        NAME: ci-v3-alpine-${{ github.run_id }}
+      run: |
+        source ${{ github.action_path }}/../api.sh
+
+        # The indexes are signed with RSA keys: they are downloaded on import and stored in the source repository definition
+        must_pass POST /sources/import -F "template=@${{ github.workspace }}/www/templates/source-repositories/alpine/alpine.yml"
+        RESULT=$(api GET "/sources?package_type=alpine")
+        check "$RESULT" '[.data[].name] | index("alpine") != null'
+        RESULT=$(api GET /sources/alpine/alpine)
+        check "$RESULT" '.data.type == "alpine" and (.data.keys | length > 0) and all(.data.keys[]; .name != "" and (.content | startswith("-----BEGIN PUBLIC KEY-----")))'
+
+        # The source URL contains $branch and $repo: the branch and the repositories are required
+        must_fail 400 operation_refused POST /repositories/mirror -H "Content-Type: application/json" \
+            -d "$(jq -nc --arg name "$NAME" '{package_type:"alpine", name:$name, source:"alpine", repos:["main"], arch:["x86_64"]}')"
+        must_fail 400 operation_refused POST /repositories/mirror -H "Content-Type: application/json" \
+            -d "$(jq -nc --arg name "$NAME" '{package_type:"alpine", name:$name, source:"alpine", branch:"v3.24", arch:["x86_64"]}')"
+
+        # The branch replaces the rpm release version
+        must_fail 400 invalid_parameter POST /repositories/mirror -H "Content-Type: application/json" \
+            -d "$(jq -nc --arg name "$NAME" '{package_type:"alpine", name:$name, source:"alpine", releasever:"v3.24", repos:["main"], arch:["x86_64"]}')"
+
+        # No mirror was created
+        RESULT=$(api GET /repositories/mirror)
+        check "$RESULT" "[.data[].name] | index(\"$NAME\") == null"
+
+    # OpenBSD mirrors are too large to be synced here (see the mirror tasks workflow): only the source import and the parameters checks are tested
+    - name: (admin) OpenBSD mirror parameters
+      shell: bash
+      env:
+        API_HOST: ${{ inputs.api-host }}
+        API_KEY: ${{ inputs.api-key }}
+        NAME: ci-v3-openbsd-${{ github.run_id }}
+      run: |
+        source ${{ github.action_path }}/../api.sh
+
+        # The files lists are signed with signify keys: they are downloaded on import and stored in the source repository definition
+        must_pass POST /sources/import -F "template=@${{ github.workspace }}/www/templates/source-repositories/openbsd/openbsd.yml"
+        RESULT=$(api GET "/sources?package_type=openbsd")
+        check "$RESULT" '[.data[].name] | index("openbsd") != null'
+        RESULT=$(api GET /sources/openbsd/openbsd)
+        check "$RESULT" '.data.type == "openbsd" and (.data.keys | length > 0) and all(.data.keys[]; .name != "" and (.content | startswith("untrusted comment: ")))'
+
+        # At least one version is required, snapshots are not supported
+        must_fail 400 missing_parameter POST /repositories/mirror -H "Content-Type: application/json" \
+            -d "$(jq -nc --arg name "$NAME" '{package_type:"openbsd", name:$name, source:"openbsd", arch:["amd64"]}')"
+        must_fail 400 operation_refused POST /repositories/mirror -H "Content-Type: application/json" \
+            -d "$(jq -nc --arg name "$NAME" '{package_type:"openbsd", name:$name, source:"openbsd", versions:["snapshots"], arch:["amd64"]}')"
+
+        # The content must be packages, syspatch, sets and/or sources
+        must_fail 400 operation_refused POST /repositories/mirror -H "Content-Type: application/json" \
+            -d "$(jq -nc --arg name "$NAME" '{package_type:"openbsd", name:$name, source:"openbsd", versions:["8.0"], content:["firmware"], arch:["amd64"]}')"
+
+        # No mirror was created
+        RESULT=$(api GET /repositories/mirror)
+        check "$RESULT" "[.data[].name] | index(\"$NAME\") == null"
 
     - name: (admin) Clean up repositories
       if: always()

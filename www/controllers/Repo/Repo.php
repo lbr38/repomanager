@@ -523,6 +523,9 @@ class Repo
         $this->model->removeFromGroup($repoId);
         (new \Controllers\Profile())->removeRepoMemberId($repoId);
         $this->model->delete($repoId);
+
+        // Delete the scheduled tasks left on the repository (recurring updates are not deleted with their snapshot)
+        (new \Controllers\Task\Scheduled())->deleteByRepoId($repoId);
     }
 
     /**

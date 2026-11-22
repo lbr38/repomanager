@@ -70,7 +70,7 @@ class Routes
             // Source repositories
             ['GET', '/sources', Sources::class, 'list', 'user'],
             ['POST', '/sources/import', Sources::class, 'import', 'user'],
-            ['GET', '/sources/{package_type:deb|rpm|arch}/{name}', Sources::class, 'get', 'user'],
+            ['GET', '/sources/{package_type:deb|rpm|arch|alpine|openbsd}/{name}', Sources::class, 'get', 'user'],
 
             // Tasks
             ['GET', '/tasks', Tasks::class, 'list', 'user'],

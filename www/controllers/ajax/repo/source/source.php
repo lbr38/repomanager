@@ -70,7 +70,7 @@ if ($_POST['action'] == 'import' and !empty($_POST['list'])) {
 }
 
 /**
- *  Delete a GPG key
+ *  Delete GPG keys from the trusted keyring (signing keys panel)
  */
 if ($_POST['action'] == 'delete-gpgkey' and !empty($_POST['id'])) {
     $myGpg = new \Controllers\Gpg();
@@ -82,21 +82,6 @@ if ($_POST['action'] == 'delete-gpgkey' and !empty($_POST['id'])) {
     }
 
     response(HTTP_OK, 'GPG key(s) deleted');
-}
-
-/**
- *  Import a new GPG key
- */
-if ($_POST['action'] == 'import-gpgkey' and isset($_POST['gpgKeyUrl']) and isset($_POST['gpgKeyFingerprint']) and isset($_POST['gpgKeyPlainText'])) {
-    $myGpg = new \Controllers\Gpg();
-
-    try {
-        $myGpg->import($_POST['gpgKeyUrl'], $_POST['gpgKeyFingerprint'], $_POST['gpgKeyPlainText']);
-    } catch (Exception $e) {
-        response(HTTP_BAD_REQUEST, $e->getMessage());
-    }
-
-    response(HTTP_OK, "GPG key has been imported");
 }
 
 response(HTTP_BAD_REQUEST, 'Invalid action');

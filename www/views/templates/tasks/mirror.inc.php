@@ -5,7 +5,7 @@ use \Controllers\Utils\Generate\Html\Label;
 $storedInfo = $rawParams['repo-info'] ?? [];
 $mirrorInfo = [
     'Name'         => $storedInfo['name'] ?? '',
-    'Releasever'   => ($storedInfo['package-type'] ?? '') == 'rpm' ? ($storedInfo['releasever'] ?? '') : '',
+    'Releasever'   => in_array($storedInfo['package-type'] ?? '', \Controllers\Mirror\Mirror::RELEASEVER_TYPES) ? ($storedInfo['releasever'] ?? '') : '',
     'Package_type' => $storedInfo['package-type'] ?? '',
     'Source'       => $storedInfo['source'] ?? ''
 ];
@@ -86,6 +86,40 @@ if (!empty($rawParams['mirror-id']) and is_numeric($rawParams['mirror-id'])) {
             <?php
         endif;
 
+        if (!empty($mirrorParams['branch'])) : ?>
+            <div>
+                <h6>BRANCH</h6>
+                <?= Label::white(htmlspecialchars($mirrorParams['branch'])) ?>
+            </div>
+            <?php
+        endif;
+
+        if (!empty($mirrorParams['versions'])) : ?>
+            <div>
+                <h6>VERSION(S)</h6>
+                <div class="flex column-gap-5 row-gap-5 flex-wrap">
+                    <?php
+                    foreach ((array) $mirrorParams['versions'] as $version) {
+                        echo Label::white(htmlspecialchars($version));
+                    } ?>
+                </div>
+            </div>
+            <?php
+        endif;
+
+        if (!empty($mirrorParams['content'])) : ?>
+            <div>
+                <h6>CONTENT</h6>
+                <div class="flex column-gap-5 row-gap-5 flex-wrap">
+                    <?php
+                    foreach ((array) $mirrorParams['content'] as $mirrorContent) {
+                        echo Label::white(htmlspecialchars($mirrorContent));
+                    } ?>
+                </div>
+            </div>
+            <?php
+        endif;
+
         if (!empty($mirrorParams['arch'])) : ?>
             <div>
                 <h6>ARCHITECTURE</h6>
@@ -126,7 +160,7 @@ if (!empty($rawParams['mirror-id']) and is_numeric($rawParams['mirror-id'])) {
 
         if (!empty($mirrorParams['gpg-check'])) : ?>
             <div>
-                <h6>CHECK GPG SIGNATURES</h6>
+                <h6><?= \Controllers\Mirror\Mirror::getSignatureType($mirrorInfo['Package_type'] ?? '') == 'GPG' ? 'CHECK GPG SIGNATURES' : 'CHECK SIGNATURES' ?></h6>
                 <div class="flex column-gap-5">
                     <img src="/assets/icons/<?= $mirrorParams['gpg-check'] == 'true' ? 'check' : 'error' ?>.svg" class="icon" />
                     <span><?= $mirrorParams['gpg-check'] == 'true' ? 'Enabled' : 'Disabled' ?></span>

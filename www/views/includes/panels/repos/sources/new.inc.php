@@ -9,11 +9,11 @@
             <h3>ADD SOURCE REPOSITORY</h3>
 
             <?php
-            // Only repository types enabled in settings are available (Arch Linux source repositories are only used by mirrors)
+            // Only repository types enabled in settings are available (Arch Linux, Alpine Linux and OpenBSD source repositories are only used by mirrors)
             $sourceTypes = \Controllers\Task\Form\Param\PackageType::enabled();
 
             if (empty($sourceTypes)) : ?>
-                <div class="note-warning margin-top-10"><img src="/assets/icons/warning.svg" /><p>No repository type is enabled. Enable rpm, deb or arch repositories in settings first.</p></div>
+                <div class="note-warning margin-top-10"><img src="/assets/icons/warning.svg" /><p>No repository type is enabled. Enable rpm, deb, arch, alpine or openbsd repositories in settings first.</p></div>
                 <?php
             else : ?>
                 <form id="add-source-repo-form" autocomplete="off">
@@ -32,7 +32,7 @@
                     <input type="text" name="addSourceName" placeholder="e.g. nginx" required />
 
                     <h6 class="required">URL</h6>
-                    <p class="note">URL to the root of the repository. For arch, use the <code>Server</code> URL of a pacman mirrorlist, e.g. <code>https://geo.mirror.pkgbuild.com/$repo/os/$arch</code>. Variables are supported, please check the notes in <a href="https://docs.repomanager.net/configuration/source-repositories/#add-a-source-repository-manually" class="note-link" target="_blank" rel="noopener noreferrer">Add a source repository manually</a> for more information.</p>
+                    <p class="note">URL to the root of the repository. For arch, use the <code>Server</code> URL of a pacman mirrorlist, e.g. <code>https://geo.mirror.pkgbuild.com/$repo/os/$arch</code>. For alpine, use the repository URL of <code>/etc/apk/repositories</code>, e.g. <code>https://dl-cdn.alpinelinux.org/alpine/$branch/$repo</code>. For openbsd, use the root of an OpenBSD mirror, as in <code>/etc/installurl</code>, e.g. <code>https://cdn.openbsd.org/pub/OpenBSD</code>. Variables are supported, please check the notes in <a href="https://docs.repomanager.net/configuration/source-repositories/#add-a-source-repository-manually" class="note-link" target="_blank" rel="noopener noreferrer">Add a source repository manually</a> for more information.</p>
                     <input type="text" name="addSourceUrl" placeholder="e.g. http://nginx.org/packages/debian" required />
 
                     <br><br>

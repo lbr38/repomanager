@@ -77,39 +77,6 @@ const checkboxesCallback = {
         });
     },
 
-    // Checkboxes with checkbox-id 'gpg-key'
-    'gpg-key': function (id, count) {
-        myconfirmbox.print(
-        {
-            'title': 'GPG keys',
-            'message': count.length + ' GPG key' + (count.length > 1 ? 's' : '') + ' selected',
-            'id': 'gpgkey-confirm-box',
-            'buttons': [
-            {
-                'text': 'Delete',
-                'color': 'red',
-                'callback': function () {
-                    ajaxRequest(
-                        // Controller:
-                        'repo/source/source',
-                        // Action:
-                        'delete-gpgkey',
-                        // Data:
-                        {
-                            id: id
-                        },
-                        // Print success alert:
-                        true,
-                        // Print error alert:
-                        true                        
-                    ).finally(function () {
-                        mypanel.reload('repos/sources/list');
-                    });
-                }
-            }]
-        });
-    },
-
     // Checkboxes with checkbox-id 'host-group'
     'host-group': function (id, count) {
         myconfirmbox.print(

@@ -40,7 +40,7 @@
             <?php
             // Only package types enabled in settings are available
             foreach (\Controllers\Task\Form\Param\PackageType::enabled() as $packageType) : ?>
-                <option value="<?= $packageType ?>"><?= $packageType ?><?= $packageType == 'arch' ? ' (mirrors only)' : '' ?></option>
+                <option value="<?= $packageType ?>"><?= $packageType ?><?= in_array($packageType, ['arch', 'alpine', 'openbsd']) ? ' (mirrors only)' : '' ?></option>
                 <?php
             endforeach ?>
         </select>

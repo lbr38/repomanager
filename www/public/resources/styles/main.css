@@ -617,6 +617,23 @@ a.task-item-child:hover {
     overflow-x: auto;
 }
 
+/**
+ *  Slide panels tabs (source repositories types, signing keys types): same navigation as the settings sections, without icon,
+ *  so the title is always displayed (also on mobile), followed by a count label
+ */
+.panel-tab-btn {
+    max-width: 100%;
+}
+
+/* Count label closer to the title */
+.panel-tab-btn span {
+    padding-right: 0;
+}
+
+.panel-tab-btn.panel-tab-inactive {
+    opacity: 0.4;
+}
+
 /* Mobile / tablet: keep each snapshot on a single line and scroll them horizontally rather than squeezing them */
 @media (max-width: 1024px) {
     .repo-item-header {

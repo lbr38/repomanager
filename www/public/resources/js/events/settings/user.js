@@ -1,4 +1,20 @@
 /**
+ *  Return a box printing a generated password, only one generated password is displayed at a time
+ */
+function userGeneratedPasswordBox(message, username, password)
+{
+    $('.user-generated-passwd').remove();
+
+    return $('<div class="note-info user-generated-passwd">')
+        .append('<img src="/assets/icons/info.svg" />')
+        .append(
+            $('<div>')
+                .append($('<p>').text(message + ' ').append($('<b>').text(username)).append(':'))
+                .append($('<p>').append($('<span class="greentext copy">').text(password)))
+        );
+}
+
+/**
  *  Event: Open user permission panel
  */
 $(document).on('click','.user-permissions-edit-btn',function () {
@@ -34,8 +50,8 @@ $(document).on('submit','#new-user-form',function () {
         // Reload current users div
         mylayout.reloadContentById('current-users');
 
-        // Print generated password for the new user
-        $('#users-settings-container').find('#user-settings-generated-passwd').html('<p>Temporary password generated for <b>' + username + '</b>:<br><span class="greentext copy">' + jsonValue.message.password + '</span></p>');
+        // Print generated password for the new user, below the creation form
+        $('#users-settings-container').find('#user-settings-generated-passwd').html(userGeneratedPasswordBox('Temporary password generated for', username, jsonValue.message.password));
     });
 
     return false;
@@ -47,6 +63,7 @@ $(document).on('submit','#new-user-form',function () {
 $(document).on('click','.reset-password-btn',function () {
     var username = $(this).attr('username');
     var id = $(this).attr('user-id');
+    var userLine = $(this).closest('.table-container');
 
     myconfirmbox.print(
         {
@@ -71,8 +88,8 @@ $(document).on('click','.reset-password-btn',function () {
                         // Print error alert:
                         true
                     ).then(function () {
-                        // Print new generated password
-                        $('#users-settings-container').find('#user-settings-generated-passwd').html('<p>New password generated for <b>' + username + '</b>:<br><span class="greentext copy">' + jsonValue.message.password + '</span></p>');
+                        // Print new generated password, below the user line
+                        userLine.after(userGeneratedPasswordBox('New password generated for', username, jsonValue.message.password));
                     });
                 }
             }]

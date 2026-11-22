@@ -19,10 +19,15 @@ use \Controllers\Layout\Table\Render as TableRender; ?>
 
             <?php
             // Print current sources repositories
-            TableRender::render('repos/sources/list');
+            TableRender::render('repos/sources/list'); ?>
 
-            // Print imported GPG signing keys
-            TableRender::render('repos/sources/gpgkeys'); ?>
+            <!-- Keys used to verify the source repositories signature, after the source repositories list -->
+            <h6 class="margin-top-40">SIGNING KEYS</h6>
+            <p class="note">GPG, RSA and signify public keys used to verify the signature of the source repositories.</p>
+
+            <div class="flex column-gap-10 margin-top-5">
+                <button type="button" class="btn-medium-tr get-panel-btn" panel="repos/sources/keys">Manage keys</button>
+            </div>
 
             <br><br>
         </div>

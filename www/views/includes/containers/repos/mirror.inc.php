@@ -29,7 +29,7 @@ $nowrapList = function (array $values): string {
 
 <!-- repo-id is used as a unique key by the repositories list partial reload, it must not collide with repositories Ids -->
 <div class="repo-item-wrapper <?= !empty($expandAlone) ? 'repo-span-full' : '' ?> <?= !empty($userPreferences['repositories']['list']['expand']) ? 'height-100' : '' ?>" repo-id="mirror-<?= $mirror['Id'] ?>" mirror-id="<?= $mirror['Id'] ?>">
-    <div class="div-generic-blue margin-0 repo-item accent-<?= $accent ?> overflowx-auto" data-name="<?= htmlspecialchars($mirror['Name']) ?>" data-dist="<?= htmlspecialchars(implode(' ', array_merge($mirror['params']['dists'] ?? [], $mirror['params']['repos'] ?? []))) ?>" data-section="<?= htmlspecialchars(implode(' ', $mirror['params']['components'] ?? [])) ?>" data-releasever="<?= htmlspecialchars($mirror['Releasever']) ?>" data-type="mirror" data-package-type="<?= $mirror['Package_type'] ?>" data-description="<?= htmlspecialchars($mirror['Description'] ?? '') ?>" data-tags="<?= htmlspecialchars($mirror['Tags'] ?? '') ?>">
+    <div class="div-generic-blue margin-0 repo-item accent-<?= $accent ?> overflowx-auto" data-name="<?= htmlspecialchars($mirror['Name']) ?>" data-dist="<?= htmlspecialchars(implode(' ', array_merge($mirror['params']['dists'] ?? [], $mirror['params']['repos'] ?? [], $mirror['params']['versions'] ?? []))) ?>" data-section="<?= htmlspecialchars(implode(' ', $mirror['params']['components'] ?? [])) ?>" data-releasever="<?= htmlspecialchars($mirror['Releasever']) ?>" data-type="mirror" data-package-type="<?= $mirror['Package_type'] ?>" data-description="<?= htmlspecialchars($mirror['Description'] ?? '') ?>" data-tags="<?= htmlspecialchars($mirror['Tags'] ?? '') ?>">
         <div class="repo-item-header flex flex-wrap row-gap-10 column-gap-20 justify-space-between">
             <div class="flex flex-1 flex-wrap align-item-center row-gap-15 column-gap-15">
                 <p class="font-size-16 mediumopacity-cst">
@@ -48,8 +48,19 @@ $nowrapList = function (array $values): string {
                             <?php
                         endif;
 
+                        if (!empty($mirror['params']['branch'])) : ?>
+                            <span class="flex align-item-center column-gap-5"><span class="dot">●</span><span title="Branch"><?= htmlspecialchars($mirror['params']['branch']) ?></span></span>
+                            <?php
+                        endif;
+
                         if (!empty($mirror['params']['repos'])) : ?>
                             <span class="flex align-item-center column-gap-5"><span class="dot">●</span><span title="Repositories"><?= $nowrapList($mirror['params']['repos']) ?></span></span>
+                            <?php
+                        endif;
+
+                        if (!empty($mirror['params']['versions'])) : ?>
+                            <span class="flex align-item-center column-gap-5"><span class="dot">●</span><span title="Versions"><?= $nowrapList($mirror['params']['versions']) ?></span></span>
+                            <span class="flex align-item-center column-gap-5"><span class="dot">●</span><span title="Content"><?= $nowrapList($mirror['params']['content'] ?? []) ?></span></span>
                             <?php
                         endif ?>
                     </a>
@@ -80,7 +91,7 @@ $nowrapList = function (array $values): string {
 
             <div class="flex flex-wrap justify-end align-item-start row-gap-5 column-gap-15 margin-left-auto mediumopacity-cst nowrap">
                 <!-- Source repository, followed by the repository type in a discreet way -->
-                <div class="flex flex-wrap justify-end align-item-center column-gap-5" title="Mirror of the <?= htmlspecialchars($mirror['Source']) ?> source repository: upstream metadata and signatures are copied as is, clients use the upstream GPG key.">
+                <div class="flex flex-wrap justify-end align-item-center column-gap-5" title="Mirror of the <?= htmlspecialchars($mirror['Source']) ?> source repository: upstream metadata and signatures are copied as is, clients use the upstream <?= Mirror::getSignatureType($mirror['Package_type']) ?> key.">
                     <img src="/assets/icons/internet.svg" class="icon-np icon-medium" />
                     <span class="font-size-13"><?= htmlspecialchars($mirror['Source']) ?></span>
                     <span class="font-size-13 lowopacity-cst">● mirror</span>
@@ -131,17 +142,19 @@ $nowrapList = function (array $values): string {
                                 $archRepoDir = $mirror['Package_type'] == 'arch' ? ($mirror['params']['repos'][0] ?? '') . '/os/' . ($mirror['params']['arch'][0] ?? '') . '/' . ($mirror['params']['repos'][0] ?? '') : '';
                                 $unsignedArchDb = $mirror['Package_type'] == 'arch' && !is_file(Mirror::getPath(Mirror::getDirOf($mirror)) . '/' . $snapshot['dirName'] . '/' . $archRepoDir . '.db.sig');
 
+                                $signatureType = Mirror::getSignatureType($mirror['Package_type']);
+
                                 if (($mirror['params']['gpg-check'] ?? 'true') == 'true' && $unsignedArchDb) : ?>
                                     <img src="/assets/icons/key.svg" class="icon-medium icon-np mediumopacity-cst" />
                                     <span class="snap-signed mediumopacity-cst" title="The database is not signed by the source repository (as for Arch Linux official repositories): packages signatures are mirrored and checked by pacman on clients">Unsigned database</span>
                                     <?php
                                 elseif (($mirror['params']['gpg-check'] ?? 'true') == 'true') : ?>
                                     <img src="/assets/icons/check.svg" class="icon-medium icon-np" />
-                                    <span class="snap-signed mediumopacity-cst" title="Upstream GPG signature was verified during sync">Verified</span>
+                                    <span class="snap-signed mediumopacity-cst" title="Upstream <?= $signatureType ?> signature was verified during sync">Verified</span>
                                     <?php
                                 else : ?>
                                     <img src="/assets/icons/error.svg" class="icon-medium icon-np" />
-                                    <span class="snap-signed mediumopacity-cst" title="Upstream GPG signature was not verified during sync">Unverified</span>
+                                    <span class="snap-signed mediumopacity-cst" title="Upstream <?= $signatureType ?> signature was not verified during sync">Unverified</span>
                                     <?php
                                 endif ?>
                             </div>

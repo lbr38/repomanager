@@ -15,7 +15,7 @@ use Controllers\User\Permission\Repo as RepoPermission;
  */
 class Sources extends Controller
 {
-    private const PACKAGE_TYPES = ['deb', 'rpm', 'arch'];
+    private const PACKAGE_TYPES = ['deb', 'rpm', 'arch', 'alpine', 'openbsd'];
 
     public function __construct(\Controllers\Api\V3\Request $request)
     {

@@ -128,6 +128,21 @@ class Mirror extends \Models\Model
     }
 
     /**
+     *  Update mirror parameters (JSON), used by the next syncs
+     */
+    public function updateParams(int $id, string $params): void
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE mirrors SET Params = :params WHERE Id = :id");
+            $stmt->bindValue(':params', $params);
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+    }
+
+    /**
      *  Update mirror tags (comma-separated)
      */
     public function updateTags(int $id, string $tags): void

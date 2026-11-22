@@ -183,3 +183,79 @@ textarea:focus {
 .form-block-accent-cyan {
     border-left-color: #4fc3f7;
 }
+
+.form-block-accent-violet {
+    border-left-color: #a78bfa;
+}
+
+.form-block-accent-yellow {
+    border-left-color: #ffb536;
+}
+
+/* Search input with a clear button */
+.search-input-container {
+    position: relative;
+}
+
+.search-input-container input {
+    padding-right: 35px;
+}
+
+.search-input-clear {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+}
+
+/* Results count, clear button and help icon printed over the right side of the search input */
+.search-input-actions {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    column-gap: 10px;
+    white-space: nowrap;
+}
+
+/* Search input suggestions */
+.search-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    background-color: #22384F;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+}
+
+.search-suggestion {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    column-gap: 15px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.search-suggestion:hover, .search-suggestion.active {
+    background-color: #2e4a68;
+}
+
+/* Clickable filters in the search help tooltip */
+.search-filter {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.search-filter:hover {
+    background-color: #3d7aab;
+}

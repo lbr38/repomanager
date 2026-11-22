@@ -7,7 +7,7 @@ use Exception;
 class PackageType
 {
     /**
-     *  Check the package type of a curated or local repository (arch repositories can only be mirrors)
+     *  Check the package type of a curated or local repository (arch, alpine and openbsd repositories can only be mirrors)
      */
     public static function check(string $type) : void
     {
@@ -32,7 +32,9 @@ class PackageType
         return array_merge(
             RPM_REPO == 'true' ? ['rpm'] : [],
             DEB_REPO == 'true' ? ['deb'] : [],
-            ARCH_REPO == 'true' ? ['arch'] : []
+            ARCH_REPO == 'true' ? ['arch'] : [],
+            ALPINE_REPO == 'true' ? ['alpine'] : [],
+            OPENBSD_REPO == 'true' ? ['openbsd'] : []
         );
     }
 

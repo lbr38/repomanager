@@ -91,7 +91,7 @@ $rpmParamsTemplate = [
     ],
 ];
 
-// Mirrors: arch source repositories can only be used by mirrors, some deb and rpm source repositories are also tested as mirrors
+// Mirrors: arch, alpine and openbsd source repositories can only be used by mirrors, some deb and rpm source repositories are also tested as mirrors
 $mirrorParamsTemplate = [
     'action' => 'create',
     'domain' => 'mirror',
@@ -135,6 +135,17 @@ $ignoreRpmRepositories = [
 
 // Arch repositories to ignore from import / test
 $ignoreArchRepositories = [];
+
+// Alpine repositories to ignore from import / test
+$ignoreAlpineRepositories = [];
+
+// OpenBSD repositories to ignore from import / test
+$ignoreOpenbsdRepositories = [];
+
+// Alpine repositories of which only the first architecture is tested (older branches do not have all the architectures)
+$firstArchOnlyAlpineRepositories = [
+    'alpine-archive'
+];
 
 /**
  *  Deb and rpm mirrors to test, each one covering a different case (all deb and rpm source repositories are tested above as curated repositories)
@@ -231,6 +242,8 @@ $sourceController->import($templates);
 $debSources = $sourceController->listAll('deb');
 $rpmSources = $sourceController->listAll('rpm');
 $archSources = $sourceController->listAll('arch');
+$alpineSources = $sourceController->listAll('alpine');
+$openbsdSources = $sourceController->listAll('openbsd');
 
 // For each deb source, create a task
 foreach ($debSources as $source) {
@@ -334,6 +347,88 @@ foreach ($archSources as $source) {
         // Create a mirror task for the arch source architecture
         $taskController->execute([$params]);
     }
+}
+
+// For each alpine source, create a mirror task per branch and architecture, containing all the repositories of the source
+foreach ($alpineSources as $source) {
+    $id = $source['Id'];
+
+    try {
+        $source = json_decode($source['Definition'], true, 512, JSON_THROW_ON_ERROR);
+    } catch (JsonException $e) {
+        throw new Exception('failed to decode JSON for source #' . $id);
+    }
+
+    // Skip repos that are in the ignore list
+    if (in_array($source['name'], $ignoreAlpineRepositories)) {
+        continue;
+    }
+
+    // Use predefined architectures if defined, otherwise default to 'x86_64'
+    $archs = !empty($source['archs']) ? array_column($source['archs'], 'name') : ['x86_64'];
+
+    if (in_array($source['name'], $firstArchOnlyAlpineRepositories)) {
+        $archs = array_slice($archs, 0, 1);
+    }
+
+    // Sources without $branch in their URL (single branch) have no branch
+    $branches = !empty($source['branches']) ? array_column($source['branches'], 'name') : [''];
+
+    foreach ($branches as $branch) {
+        // The Alpine Linux testing repository only exists in the edge branch, sources without $repo in their URL have no repository
+        $repos = array_values(array_filter(array_column($source['repos'] ?? [], 'name'), function ($repo) use ($branch) {
+            return $repo != 'testing' or $branch == 'edge';
+        }));
+
+        foreach ($archs as $arch) {
+            $params = $mirrorParamsTemplate;
+            $params['package-type'] = 'alpine';
+            $params['name']   = $source['name'] . '-' . $arch; // Mirrors names are unique per branch, one mirror per architecture
+            $params['source'] = $source['name'];
+            $params['branch'] = $branch;
+            $params['repos']  = $repos;
+            $params['arch'][] = $arch;
+            $params['schedule']['schedule-date'] = date('Y-m-d');
+            $params['schedule']['schedule-time'] = date('H:i', strtotime('+' . strval($minutesSchedule) . ' minutes')); // Now +$minutesSchedule minutes
+
+            // Create a mirror task for the alpine source branch and architecture
+            $taskController->execute([$params]);
+        }
+    }
+}
+
+// For each openbsd source, create a mirror task containing all the versions and contents of the source, for its first architecture
+// (the signatures of all the directories are verified, only the metadata are retrieved)
+foreach ($openbsdSources as $source) {
+    $id = $source['Id'];
+
+    try {
+        $source = json_decode($source['Definition'], true, 512, JSON_THROW_ON_ERROR);
+    } catch (JsonException $e) {
+        throw new Exception('failed to decode JSON for source #' . $id);
+    }
+
+    // Skip repos that are in the ignore list
+    if (in_array($source['name'], $ignoreOpenbsdRepositories)) {
+        continue;
+    }
+
+    if (empty($source['versions'])) {
+        throw new Exception('Source #' . $id . ' has no versions, skipping.');
+    }
+
+    $params = $mirrorParamsTemplate;
+    $params['package-type'] = 'openbsd';
+    $params['name']     = $source['name'];
+    $params['source']   = $source['name'];
+    $params['versions'] = array_column($source['versions'], 'name');
+    $params['content']  = \Controllers\Mirror\Sync\Openbsd::CONTENTS;
+    $params['arch'][]   = !empty($source['archs']) ? $source['archs'][0]['name'] : 'amd64';
+    $params['schedule']['schedule-date'] = date('Y-m-d');
+    $params['schedule']['schedule-time'] = date('H:i', strtotime('+' . strval($minutesSchedule) . ' minutes')); // Now +$minutesSchedule minutes
+
+    // Create a mirror task for the openbsd source
+    $taskController->execute([$params]);
 }
 
 // For each deb and rpm mirror case, create a mirror task

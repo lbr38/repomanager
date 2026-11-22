@@ -49,8 +49,8 @@ class Create extends Execution
 
         $mirrorParams = $this->getMirrorParams($packageType);
 
-        // rpm mirrors are unique by name and release version, deb and arch mirrors by name
-        $releasever = $mirrorParams['releasever'] ?? '';
+        // rpm mirrors are unique by name and release version, alpine mirrors by name and branch, deb, arch and openbsd mirrors by name
+        $releasever = Mirror::getReleaseverParam($packageType, $mirrorParams);
         $dir = Mirror::getDir($packageType, $name, $releasever);
 
         $this->mirrorController->checkAvailable($name, $releasever, $packageType);

@@ -8,7 +8,7 @@
 
 <br><br>
 
-**Repomanager** is a web tool to mirror, curate and distribute `rpm`, `deb` and `arch` (Arch Linux) package repositories.
+**Repomanager** is a web tool to mirror, curate and distribute `rpm`, `deb`, `arch` (Arch Linux), `alpine` (Alpine Linux) and `openbsd` (OpenBSD) package repositories.
 
 
 ## Main features

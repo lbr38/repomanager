@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 from pathlib import Path
+from urllib.parse import urlparse
+import posixpath
+import re
 import sys
 
 import yaml
@@ -7,7 +10,16 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 TEMPLATES_DIR = ROOT / "www" / "templates" / "source-repositories"
-VALID_TYPES = {"deb", "rpm", "arch"}
+VALID_TYPES = {"deb", "rpm", "arch", "alpine", "openbsd"}
+
+# Name of an Alpine Linux key file on clients (/etc/apk/keys/<name>), referenced by the index signature (see Controllers\Utils\Apk::checkKeyName())
+ALPINE_KEY_NAME = re.compile(r"^[A-Za-z0-9_@+\-][A-Za-z0-9_.@+\-]*$")
+
+# Name of an OpenBSD signify key file (e.g. openbsd-80-pkg.pub, see Controllers\Utils\Signify::checkKeyName())
+OPENBSD_KEY_NAME = re.compile(r"^[A-Za-z0-9_\-][A-Za-z0-9_.\-]*$")
+
+# OpenBSD release version (e.g. 8.0), snapshots are not supported (see Controllers\Mirror\Mirror::checkOpenbsdParams())
+OPENBSD_VERSION = re.compile(r"^[0-9]+\.[0-9]+$")
 
 
 def error(errors, path, message):
@@ -100,6 +112,43 @@ def validate_arch_items(errors, path, items, context, require_description):
             require_non_empty_string(errors, path, item.get("description"), f"{item_context}.description")
 
 
+def validate_keys(errors, path, keys, context, key_name_pattern):
+    if not require_list(errors, path, keys, f"{context}.keys"):
+        return
+
+    names = set()
+
+    for index, key in enumerate(keys):
+        key_context = f"{context}.keys[{index}]"
+
+        if not isinstance(key, dict):
+            error(errors, path, f"`{key_context}` must be a mapping")
+            continue
+
+        link = key.get("link")
+        name = key.get("name")
+
+        # A key is downloaded from its link, or defined by its content and its name
+        if is_non_empty_string(key.get("content")):
+            if not is_non_empty_string(name):
+                error(errors, path, f"`{key_context}` must define `name` with `content`")
+                continue
+        elif not is_non_empty_string(link) or not re.match(r"^https?://", link):
+            error(errors, path, f"`{key_context}` must define a http(s) `link` or `content`")
+            continue
+
+        # Without name, the key is named after the file name of its link
+        if not is_non_empty_string(name):
+            name = posixpath.basename(urlparse(link).path)
+
+        if not key_name_pattern.match(name):
+            error(errors, path, f"`{key_context}` has an invalid key name `{name}`, it must be the name of the key file on clients (set `name` if the link file name is not)")
+        elif name in names:
+            error(errors, path, f"`{key_context}` duplicate key name `{name}`")
+
+        names.add(name)
+
+
 def validate_repository(errors, path, repository, index, expected_type):
     context = f"repositories[{index}]"
 
@@ -129,6 +178,50 @@ def validate_repository(errors, path, repository, index, expected_type):
         if "gpgkeys" in repository:
             validate_gpgkeys(errors, path, repository.get("gpgkeys"), context)
 
+    # Alpine Linux branches (v3.24, edge...) and repositories (main, community...) replace $branch and $repo in the URL:
+    # required if the URL contains them, meaningless otherwise (single repository, e.g. https://apk.corretto.aws)
+    if expected_type == "alpine":
+        url = repository.get("url") if is_non_empty_string(repository.get("url")) else ""
+
+        for field, variable in (("branches", "$branch"), ("repos", "$repo")):
+            if variable in url:
+                validate_arch_items(errors, path, repository.get(field), f"{context}.{field}", True)
+            elif field in repository:
+                error(errors, path, f"`{context}.{field}` is defined but `{context}.url` does not contain `{variable}`")
+
+        validate_arch_items(errors, path, repository.get("archs"), f"{context}.archs", False)
+
+        # RSA keys are optional: an unsigned repository is mirrored with the signature check disabled
+        if "keys" in repository:
+            validate_keys(errors, path, repository.get("keys"), context, ALPINE_KEY_NAME)
+
+        if "gpgkeys" in repository:
+            error(errors, path, f"`{context}.gpgkeys` is not used by alpine repositories, signing keys are RSA keys defined in `{context}.keys`")
+
+    # OpenBSD versions (8.0, 7.9...) and platforms (amd64, arm64...) of the tree of an OpenBSD mirror, signed with signify keys
+    if expected_type == "openbsd":
+        versions = repository.get("versions")
+        validate_arch_items(errors, path, versions, f"{context}.versions", True)
+
+        for version_index, version in enumerate(versions if isinstance(versions, list) else []):
+            if not isinstance(version, dict):
+                continue
+
+            # Unquoted, a version is parsed as a number (8.0 would become 8)
+            if not isinstance(version.get("name"), str):
+                error(errors, path, f"`{context}.versions[{version_index}].name` must be a quoted string (e.g. '8.0')")
+            elif not OPENBSD_VERSION.match(version.get("name")):
+                error(errors, path, f"`{context}.versions[{version_index}].name` must be a release version (e.g. 8.0), snapshots are not supported")
+
+        validate_arch_items(errors, path, repository.get("archs"), f"{context}.archs", False)
+
+        # Signify keys are optional: files lists are then mirrored with the signature check disabled
+        if "keys" in repository:
+            validate_keys(errors, path, repository.get("keys"), context, OPENBSD_KEY_NAME)
+
+        if "gpgkeys" in repository:
+            error(errors, path, f"`{context}.gpgkeys` is not used by openbsd repositories, signing keys are signify keys defined in `{context}.keys`")
+
     if expected_type == "rpm":
         releasevers = repository.get("releasever")
         if require_list(errors, path, releasevers, f"{context}.releasever"):
@@ -154,7 +247,7 @@ def validate_file(path):
 
     template_type = data.get("type")
     if template_type not in VALID_TYPES:
-        error(errors, path, "`type` must be `deb`, `rpm` or `arch`")
+        error(errors, path, "`type` must be `deb`, `rpm`, `arch`, `alpine` or `openbsd`")
 
     repositories = data.get("repositories")
     if require_list(errors, path, repositories, "repositories") and template_type in VALID_TYPES:

@@ -34,117 +34,19 @@ $(document).on('click','#compact-view-btn',function () {
 });
 
 /**
- *  Restore the search from the page URL (?search=...) on page load
+ *  Search input events, restore the search from the page URL (?search=...) on page load
  */
-$(document).ready(function () {
-    HostSearch.restore();
-});
-
-/**
- *  Event: search hosts and print suggestions while typing
- */
-$(document).on('input', '#search-host-input', function () {
-    HostSearch.updateSuggestions();
-    HostSearch.search();
-});
-
-/**
- *  Event: print suggestions when the cursor moves in the search input
- */
-$(document).on('click focus', '#search-host-input', function () {
-    HostSearch.updateSuggestions();
-});
-
-$(document).on('keyup', '#search-host-input', function (e) {
-    if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) {
-        HostSearch.updateSuggestions();
-    }
-});
-
-/**
- *  Event: hide suggestions when leaving the search input
- */
-$(document).on('blur', '#search-host-input', function () {
-    HostSearch.hideSuggestions();
-});
-
-/**
- *  Event: keyboard navigation in the suggestions, Enter searches immediately, Escape clears the search
- */
-$(document).on('keydown', '#search-host-input', function (e) {
-    if (HostSearch.hasSuggestions()) {
-        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-            e.preventDefault();
-            HostSearch.moveSuggestion(e.key === 'ArrowDown' ? 1 : -1);
-            return;
-        }
-
-        // Tab picks the highlighted suggestion, or the first one
-        if (e.key === 'Tab') {
-            e.preventDefault();
-            HostSearch.pickSuggestion(Math.max(HostSearch.suggestionIndex, 0));
-            return;
-        }
-
-        // Enter picks the highlighted suggestion, if any
-        if (e.key === 'Enter' && HostSearch.suggestionIndex > -1) {
-            e.preventDefault();
-            HostSearch.pickSuggestion(HostSearch.suggestionIndex);
-            return;
-        }
-
-        // First Escape only hides the suggestions
-        if (e.key === 'Escape') {
-            HostSearch.hideSuggestions();
-            return;
-        }
-    }
-
-    if (e.key === 'Enter') {
-        HostSearch.hideSuggestions();
-        HostSearch.search(true);
-    }
-    if (e.key === 'Escape') {
-        HostSearch.clear();
-    }
-});
-
-/**
- *  Event: pick a suggestion (mousedown to keep the focus in the search input)
- */
-$(document).on('mousedown', '.search-host-suggestion', function (e) {
-    e.preventDefault();
-    HostSearch.pickSuggestion(parseInt($(this).attr('index')));
-});
-
-/**
- *  Event: clear the search
- */
-$(document).on('click', '#search-host-clear', function () {
-    HostSearch.clear();
-    $('#search-host-input').trigger('focus');
-});
+HostSearch.init();
 
 /**
  *  Event: print help tooltip for search input
  */
 $(document).on('mouseenter', '.search-host-tooltip', function () {
-    // Print a list of clickable filters
-    const filtersList = function (filters) {
-        let html = '<div class="flex align-item-center flex-wrap column-gap-5 row-gap-8 max-width-500">';
-
-        filters.forEach(function (filter) {
-            html += '<code class="search-host-filter" filter="' + filter.split('=')[0] + '" title="Add this filter to the search">' + filter + '</code>';
-        });
-
-        return html + '</div>';
-    };
-
     content  = '<p>Syntax</p>';
     content += '<p><code>search</code> <code>filter=value</code></p>';
 
     content += '<p class="margin-top-10">Host filters <span class="note">(click to add)</span></p>';
-    content += filtersList([
+    content += HostSearch.filtersList([
         'hostname=HOSTNAME',
         'os=OS',
         'os-version=VERSION',
@@ -162,7 +64,7 @@ $(document).on('mouseenter', '.search-host-tooltip', function () {
     ]);
 
     content += '<p class="margin-top-10">Package filters <span class="note">(click to add)</span></p>';
-    content += filtersList([
+    content += HostSearch.filtersList([
         'package=NAME',
         'version=VERSION',
         'strict',
@@ -193,16 +95,6 @@ $(document).on('mouseenter', '.search-host-tooltip', function () {
 
     // Print tooltip
     mytooltip.show(this, content);
-});
-
-/**
- *  Event: click on a filter in the search tooltip, add the filter to the search input
- */
-$(document).on('click', '.search-host-filter', function () {
-    HostSearch.addFilter($(this).attr('filter'));
-
-    // Hide the tooltip so that the search input is visible
-    mytooltip.hide();
 });
 
 /**

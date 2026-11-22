@@ -4,6 +4,7 @@ namespace Controllers\Repo\Task;
 
 use Exception;
 use Controllers\Utils\Generate\Html\Label;
+use Controllers\Repo\Metadata\Deb as DebMetadata;
 
 class Env extends \Controllers\Task\Execution
 {
@@ -60,6 +61,25 @@ class Env extends \Controllers\Task\Execution
             }
 
             $this->taskLogSubStepController->completed();
+
+            /**
+             *  deb: set the date of the snapshot Release file to now, before the environment points to it
+             *  apt clients ignore a Release file older than the one they already have: when an environment is pointed
+             *  back to an older snapshot, they would keep the packages lists of the previous snapshot.
+             *  This is done every time an environment is pointed, otherwise the next snapshot pointed could in turn be
+             *  older than the date set here.
+             */
+            if ($this->repoController->getPackageType() == 'deb') {
+                $this->taskLogSubStepController->new('update-release-' . $env, 'UPDATING RELEASE FILE DATE');
+
+                $debMetadata = new DebMetadata($this->taskId);
+                $debMetadata->setRoot($snapshotPath);
+                $debMetadata->setDist($this->repoController->getDist());
+                $debMetadata->refreshReleaseDate();
+
+                $this->taskLogSubStepController->completed();
+            }
+
             $this->taskLogSubStepController->new('create-symlink-' . $env, 'CREATING SYMLINK');
 
             if ($this->repoController->getPackageType() == 'rpm') {

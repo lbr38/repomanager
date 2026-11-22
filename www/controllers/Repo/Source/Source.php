@@ -61,9 +61,17 @@ class Source
     /**
      *  List all source repositories
      */
-    public function listAll(string|null $type = null, bool $withOffset = false, int $offset = 0): array
+    public function listAll(string|null $type = null, bool $withOffset = false, int $offset = 0, string $search = ''): array
     {
-        return $this->model->listAll($type, $withOffset, $offset);
+        return $this->model->listAll($type, $withOffset, $offset, $search);
+    }
+
+    /**
+     *  Count source repositories by type (e.g. ['deb' => 3, 'rpm' => 5]), optionally only the ones matching a search
+     */
+    public function countByType(string $search = ''): array
+    {
+        return $this->model->countByType($search);
     }
 
     /**
@@ -99,7 +107,7 @@ class Source
         }
 
         // Check that type is valid
-        if (!in_array($type, ['deb', 'rpm', 'arch'])) {
+        if (!in_array($type, ['deb', 'rpm', 'arch', 'alpine', 'openbsd'])) {
             throw new Exception('Invalid source repository type');
         }
 
@@ -260,6 +268,16 @@ class Source
             $params['gpgkeys'] = array_values($gpgKeys);
         }
 
+        // Case it is an alpine source repository, its indexes are signed with RSA keys (not GPG keys): they are stored in its definition
+        if (preg_match('#^import-#', $method) and $type == 'alpine' and !empty($params['keys'])) {
+            $params['keys'] = \Controllers\Repo\Source\Alpine::importKeys((array) $params['keys']);
+        }
+
+        // Case it is an openbsd source repository, its files lists are signed with signify keys: they are stored in its definition
+        if (preg_match('#^import-#', $method) and $type == 'openbsd' and !empty($params['keys'])) {
+            $params['keys'] = \Controllers\Repo\Source\Openbsd::importKeys((array) $params['keys']);
+        }
+
         // Add source repository in database
         try {
             $this->model->new(json_encode($params, JSON_THROW_ON_ERROR), $method);
@@ -297,7 +315,7 @@ class Source
             throw new Exception('Source repository type is empty');
         }
 
-        if (!in_array($params['type'], ['deb', 'rpm', 'arch'])) {
+        if (!in_array($params['type'], ['deb', 'rpm', 'arch', 'alpine', 'openbsd'])) {
             throw new Exception('Invalid source repository type');
         }
 
@@ -484,7 +502,7 @@ class Source
             if (empty($repo['type'])) {
                 throw new Exception('source repository type is empty');
             }
-            if (!in_array($repo['type'], ['deb', 'rpm', 'arch'])) {
+            if (!in_array($repo['type'], ['deb', 'rpm', 'arch', 'alpine', 'openbsd'])) {
                 throw new Exception('invalid source repository type');
             }
 
@@ -513,6 +531,24 @@ class Source
             if ($repo['type'] == 'arch') {
                 if (empty($repo['repos'])) {
                     throw new Exception('source repository repos is empty');
+                }
+            }
+
+            // Case it is an alpine source repository: branches and repos are required if the URL contains $branch and $repo
+            if ($repo['type'] == 'alpine') {
+                if (empty($repo['branches']) and str_contains($repo['url'], '$branch')) {
+                    throw new Exception('source repository branches is empty');
+                }
+
+                if (empty($repo['repos']) and str_contains($repo['url'], '$repo')) {
+                    throw new Exception('source repository repos is empty');
+                }
+            }
+
+            // Case it is an openbsd source repository
+            if ($repo['type'] == 'openbsd') {
+                if (empty($repo['versions'])) {
+                    throw new Exception('source repository versions is empty');
                 }
             }
 
@@ -643,6 +679,33 @@ class Source
                 'repos' => [],
                 // Same structure as repositories, so that architectures can be described and edited the same way
                 'archs' => [['name' => 'x86_64', 'description' => '']]
+            ];
+        }
+
+        if ($type == 'alpine') {
+            $template = [
+                'name' => '',
+                'type' => 'alpine',
+                'url' => '',
+                'description' => '',
+                'branches' => [],
+                'repos' => [],
+                'archs' => [['name' => 'x86_64', 'description' => '']],
+                // RSA public keys used to verify the indexes signature (name, content and link)
+                'keys' => []
+            ];
+        }
+
+        if ($type == 'openbsd') {
+            $template = [
+                'name' => '',
+                'type' => 'openbsd',
+                'url' => '',
+                'description' => '',
+                'versions' => [],
+                'archs' => [['name' => 'amd64', 'description' => '']],
+                // Signify public keys used to verify the files lists signature (name, content and link)
+                'keys' => []
             ];
         }
 

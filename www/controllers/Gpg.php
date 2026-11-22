@@ -155,6 +155,116 @@ class Gpg
     }
 
     /**
+     *  Return the keys of the trusted keyring with their details, one entry per primary key (sorted by name):
+     *  name (first user Id), user Ids, fingerprint, algorithm, creation and expiration dates (timestamps), validity and subkeys
+     *  Validity is the one of the gpg colon listing: 'e' (expired), 'r' (revoked), 'd' (disabled), 'i' (invalid), otherwise valid
+     */
+    public static function getTrustedKeysDetails(): array
+    {
+        $keys = [];
+        $key = null;
+        $current = null;
+
+        $myprocess = new Process('/usr/bin/gpg --homedir ' . GPGHOME . ' --no-default-keyring --keyring ' . GPGHOME . '/trustedkeys.gpg --list-keys --with-colons --with-fingerprint');
+        $myprocess->execute();
+        $content = trim($myprocess->getOutput());
+        $myprocess->close();
+
+        foreach (explode(PHP_EOL, $content) as $line) {
+            $fields = explode(':', $line);
+
+            // Primary key (pub) or subkey (sub): validity, length, algorithm, key Id, creation and expiration dates, capabilities, curve
+            if ($fields[0] == 'pub' or $fields[0] == 'sub') {
+                $details = [
+                    'keyid'        => $fields[4] ?? '',
+                    'fingerprint'  => '',
+                    'validity'     => $fields[1] ?? '',
+                    'algo'         => self::getAlgoName($fields[3] ?? '', $fields[2] ?? '', $fields[16] ?? ''),
+                    'created'      => (int) ($fields[5] ?? 0),
+                    'expires'      => (int) ($fields[6] ?? 0),
+                    'capabilities' => $fields[11] ?? ''
+                ];
+
+                if ($fields[0] == 'pub') {
+                    if ($key !== null) {
+                        $keys[] = $key;
+                    }
+
+                    $key = $details + ['name' => '', 'uids' => [], 'subkeys' => []];
+                    $current = 'pub';
+                } elseif ($key !== null) {
+                    $key['subkeys'][] = $details;
+                    $current = 'sub';
+                }
+
+                continue;
+            }
+
+            // Fingerprint of the previous primary key or subkey
+            if ($fields[0] == 'fpr' and $key !== null) {
+                if ($current == 'pub' and empty($key['fingerprint'])) {
+                    $key['fingerprint'] = $fields[9] ?? '';
+                }
+
+                if ($current == 'sub' and !empty($key['subkeys']) and empty($key['subkeys'][array_key_last($key['subkeys'])]['fingerprint'])) {
+                    $key['subkeys'][array_key_last($key['subkeys'])]['fingerprint'] = $fields[9] ?? '';
+                }
+
+                continue;
+            }
+
+            // User Id (special characters such as ':' are escaped as \xHH)
+            if ($fields[0] == 'uid' and $key !== null) {
+                $uid = preg_replace_callback('/\\\\x([0-9a-fA-F]{2})/', function ($matches) {
+                    return chr(hexdec($matches[1]));
+                }, $fields[9] ?? '');
+
+                $key['uids'][] = ['uid' => $uid, 'validity' => $fields[1] ?? ''];
+
+                if (empty($key['name'])) {
+                    $key['name'] = $uid;
+                }
+            }
+        }
+
+        if ($key !== null) {
+            $keys[] = $key;
+        }
+
+        usort($keys, function ($a, $b) {
+            return strnatcasecmp($a['name'], $b['name']);
+        });
+
+        return $keys;
+    }
+
+    /**
+     *  Return a readable name of a public key algorithm (gpg colon listing algorithm number, key length and curve name)
+     */
+    private static function getAlgoName(string $algo, string $length, string $curve): string
+    {
+        $names = [
+            '1'  => 'RSA',
+            '2'  => 'RSA',
+            '3'  => 'RSA',
+            '16' => 'Elgamal',
+            '17' => 'DSA',
+            '18' => 'ECDH',
+            '19' => 'ECDSA',
+            '20' => 'Elgamal',
+            '22' => 'EdDSA'
+        ];
+
+        $name = $names[$algo] ?? 'Algorithm ' . $algo;
+
+        if (!empty($curve)) {
+            return $name . ' (' . $curve . ')';
+        }
+
+        return $name . ' ' . $length . ' bits';
+    }
+
+    /**
      *  Generate GPG signing key
      */
     private function generateSigningKey()
