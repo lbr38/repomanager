@@ -1466,7 +1466,7 @@
 
   <h1>Source repositories</h1>
 
-<p>A <strong>source repository</strong> is a remote repository of packages (<code>deb</code>, <code>rpm</code>, <code>arch</code> or <code>alpine</code>) from a third-party publisher (e.g. <strong>Debian official repos</strong>). <code>arch</code> (Arch Linux / pacman) and <code>alpine</code> (Alpine Linux / apk) source repositories can only be used by <a href="/usage/repository-types/#mirrors">mirrors</a>.</p>
+<p>A <strong>source repository</strong> is a remote repository of packages (<code>deb</code>, <code>rpm</code>, <code>arch</code>, <code>alpine</code> or <code>openbsd</code>) from a third-party publisher (e.g. <strong>Debian official repos</strong>). <code>arch</code> (Arch Linux / pacman), <code>alpine</code> (Alpine Linux / apk) and <code>openbsd</code> (OpenBSD) source repositories can only be used by <a href="/usage/repository-types/#mirrors">mirrors</a>.</p>
 <p>Typically, this is the repository from which you will create a curated repository or a mirror.</p>
 <h2 id="add-a-source-repository-manually">Add a source repository manually<a class="headerlink" href="#add-a-source-repository-manually" title="Permanent link">&para;</a></h2>
 <p>From the <strong>REPOSITORIES</strong> tab:</p>
@@ -1523,6 +1523,20 @@
 </li>
 <li>Edit the source repository to define its branches, repositories and architectures, they are used for suggestions when creating a mirror.</li>
 <li>Alpine Linux indexes are signed with RSA keys, not GPG keys. Add the public keys of the source repository from their URL when editing it (<code>keys</code> field of the lists to import, see the <code>alpine-repository.yml.template</code> template). The name of a key must be the name of the key file on clients (<code>/etc/apk/keys/&lt;name&gt;</code>), as the signature references it: it is the file name of the URL by default. Only the keys of the source repository are used to verify its indexes.</li>
+</ul>
+</div>
+<div class="admonition info">
+<p class="admonition-title">OPENBSD repositories URLs information</p>
+<ul>
+<li>Use the root of an OpenBSD mirror, as in <code>/etc/installurl</code>: the URL must contain the <code>&lt;version&gt;/</code>, <code>&lt;version&gt;/packages/&lt;arch&gt;/</code> and <code>syspatch/&lt;version&gt;/</code> directories. Variables are not used.</li>
+<li>
+<p>Examples of supported URLs:</p>
+<p><code>https://cdn.openbsd.org/pub/OpenBSD</code></p>
+</li>
+<li>
+<p>Edit the source repository to define its versions (e.g. <code>8.0</code>) and architectures (platforms, as named by OpenBSD, e.g. <code>amd64</code>, <code>arm64</code>), they are used for suggestions when creating a mirror. Snapshots are not supported.</p>
+</li>
+<li>OpenBSD releases, packages and binary patches are signed with signify keys, not GPG keys: each directory contains the list of its files with their checksum, signed in <code>SHA256.sig</code>. Add the public keys of the source repository from their URL when editing it (<code>keys</code> field of the lists to import, see the <code>openbsd.yml</code> list): the base, pkg and syspatch keys of each version (e.g. <code>openbsd-80-pkg.pub</code>), as installed in <code>/etc/signify/</code> on clients. Only the keys of the source repository are used to verify its signatures.</li>
 </ul>
 </div>
 <h2 id="import-source-repositories-from-predefined-or-custom-lists">Import source repositories from predefined or custom lists<a class="headerlink" href="#import-source-repositories-from-predefined-or-custom-lists" title="Permanent link">&para;</a></h2>

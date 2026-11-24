@@ -2032,7 +2032,7 @@
 <tbody>
 <tr>
 <td><code>package_type</code></td>
-<td><code>rpm</code>, <code>deb</code>, <code>arch</code> or <code>alpine</code> (required)</td>
+<td><code>rpm</code>, <code>deb</code>, <code>arch</code>, <code>alpine</code> or <code>openbsd</code> (required)</td>
 </tr>
 <tr>
 <td><code>source</code></td>
@@ -2063,8 +2063,16 @@
 <td>Repositories (<code>arch</code>, e.g. <code>core</code>, <code>extra</code>, or <code>alpine</code>, e.g. <code>main</code>, <code>community</code>, required if the source repository URL contains <code>$repo</code>)</td>
 </tr>
 <tr>
+<td><code>versions</code></td>
+<td>Versions (<code>openbsd</code>, e.g. <code>7.9</code>, <code>8.0</code>, required)</td>
+</tr>
+<tr>
+<td><code>content</code></td>
+<td>Content of each version (<code>openbsd</code>): <code>packages</code>, <code>syspatch</code>, <code>sets</code> and/or <code>sources</code>, all by default</td>
+</tr>
+<tr>
 <td><code>gpg_check</code></td>
-<td>Check the GPG signatures of the source repository, the RSA signatures for <code>alpine</code> (default <code>true</code>)</td>
+<td>Check the GPG signatures of the source repository, the RSA signatures for <code>alpine</code>, the signify signatures for <code>openbsd</code> (default <code>true</code>)</td>
 </tr>
 <tr>
 <td><code>environments</code>, <code>description</code>, <code>tags</code>, <code>group</code>, <code>retention</code>, <code>retention_keep_all</code>, <code>schedule</code></td>
@@ -2077,7 +2085,7 @@
 </span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;description&quot;: &quot;Debian main repository&quot;, &quot;tags&quot;: [&quot;debian&quot;, &quot;prod&quot;], &quot;retention&quot;: 5}&#39;</span><span class="w"> </span><span class="se">\</span>
 </span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span>https://repomanager.mydomain.net/api/v3/repositories/curated/&lt;ID&gt;
 </span></code></pre></div>
-<p>Only the specified properties are edited: <code>description</code>, <code>tags</code>, <code>retention</code>, <code>retention_keep_all</code>, and <code>source</code> for curated repositories. The edited repository is returned.</p>
+<p>Only the specified properties are edited: <code>description</code>, <code>tags</code>, <code>retention</code>, <code>retention_keep_all</code>, <code>source</code> for curated repositories, and <code>versions</code>, <code>content</code>, <code>arch</code> for openbsd mirrors (used by the next syncs). The edited repository is returned.</p>
 <h2 id="snapshots">Snapshots<a class="headerlink" href="#snapshots" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -2205,7 +2213,7 @@
 <tbody>
 <tr>
 <td><code>GET /sources</code></td>
-<td>List the source repositories. Optional filter: <code>?package_type=deb</code> (<code>deb</code>, <code>rpm</code>, <code>arch</code> or <code>alpine</code>)</td>
+<td>List the source repositories. Optional filter: <code>?package_type=deb</code> (<code>deb</code>, <code>rpm</code>, <code>arch</code>, <code>alpine</code> or <code>openbsd</code>)</td>
 </tr>
 <tr>
 <td><code>GET /sources/&lt;PACKAGE_TYPE&gt;/&lt;NAME&gt;</code></td>

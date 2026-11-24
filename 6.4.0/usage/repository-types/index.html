@@ -1421,13 +1421,13 @@
 <td><strong>Package types</strong></td>
 <td><code>deb</code>, <code>rpm</code></td>
 <td><code>deb</code>, <code>rpm</code></td>
-<td><code>deb</code>, <code>rpm</code>, <code>arch</code>, <code>alpine</code></td>
+<td><code>deb</code>, <code>rpm</code>, <code>arch</code>, <code>alpine</code>, <code>openbsd</code></td>
 </tr>
 <tr>
 <td><strong>Content</strong></td>
 <td>All or selected packages from a <a href="/configuration/source-repositories/">source repository</a>: one distribution + one component (deb), one release version (rpm)</td>
 <td>Your own packages, uploaded manually</td>
-<td>All packages of a source repository, copied as is: one or several distributions with all their selected components, sharing the same pool as upstream (deb), one release version with all its architectures (rpm), one or several repositories such as <code>core</code> and <code>extra</code> (arch), one branch with one or several repositories such as <code>main</code> and <code>community</code> (alpine)</td>
+<td>All packages of a source repository, copied as is: one or several distributions with all their selected components, sharing the same pool as upstream (deb), one release version with all its architectures (rpm), one or several repositories such as <code>core</code> and <code>extra</code> (arch), one branch with one or several repositories such as <code>main</code> and <code>community</code> (alpine), one or several versions with their packages, binary patches, install sets and sources (openbsd)</td>
 </tr>
 <tr>
 <td><strong>Package filtering</strong> (include, exclude, keep latest versions)</td>
@@ -1436,7 +1436,7 @@
 <td>No, all packages are mirrored</td>
 </tr>
 <tr>
-<td><strong>Metadata</strong> (<code>Release</code>, <code>Packages</code>, <code>repomd.xml</code>, <code>core.db</code>, <code>APKINDEX.tar.gz</code>...)</td>
+<td><strong>Metadata</strong> (<code>Release</code>, <code>Packages</code>, <code>repomd.xml</code>, <code>core.db</code>, <code>APKINDEX.tar.gz</code>, <code>SHA256.sig</code>...)</td>
 <td>Rebuilt by Repomanager</td>
 <td>Rebuilt by Repomanager</td>
 <td>Upstream files, byte for byte</td>
@@ -1457,7 +1457,7 @@
 <td><strong>Published under</strong></td>
 <td><code>https://&lt;FQDN&gt;/repo/</code></td>
 <td><code>https://&lt;FQDN&gt;/repo/</code></td>
-<td><code>https://&lt;FQDN&gt;/mirror/deb/&lt;name&gt;/&lt;environment&gt;/</code><br><code>https://&lt;FQDN&gt;/mirror/rpm/&lt;name&gt;/&lt;release version&gt;/&lt;environment&gt;/</code><br><code>https://&lt;FQDN&gt;/mirror/arch/&lt;name&gt;/&lt;environment&gt;/</code><br><code>https://&lt;FQDN&gt;/mirror/alpine/&lt;name&gt;/&lt;branch&gt;/&lt;environment&gt;/</code></td>
+<td><code>https://&lt;FQDN&gt;/mirror/deb/&lt;name&gt;/&lt;environment&gt;/</code><br><code>https://&lt;FQDN&gt;/mirror/rpm/&lt;name&gt;/&lt;release version&gt;/&lt;environment&gt;/</code><br><code>https://&lt;FQDN&gt;/mirror/arch/&lt;name&gt;/&lt;environment&gt;/</code><br><code>https://&lt;FQDN&gt;/mirror/alpine/&lt;name&gt;/&lt;branch&gt;/&lt;environment&gt;/</code><br><code>https://&lt;FQDN&gt;/mirror/openbsd/&lt;name&gt;/&lt;environment&gt;/</code></td>
 </tr>
 <tr>
 <td><strong>Storage</strong></td>
@@ -1489,7 +1489,7 @@
 <p>Local repositories are stored in the <code>repomanager-repo</code> volume (<code>/home/repo</code> inside the container).</p>
 <h2 id="mirrors"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 21H8V7h11m0-2H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2m-3-4H4a2 2 0 0 0-2 2v14h2V3h12z"/></svg></span> Mirrors<a class="headerlink" href="#mirrors" title="Permanent link">&para;</a></h2>
 <p>Mirrors are meant to provide <strong>public or internal mirrors</strong> that clients use exactly as they would use the upstream repository. Nothing is rebuilt: metadata and signatures are the upstream ones, so clients keep checking packages with the <strong>upstream GPG key</strong>, not with the Repomanager signing key.</p>
-<p>A mirror can cover several distributions (deb) or repositories (arch, alpine) at once. Each sync creates a new snapshot, see <a href="/usage/operations/#sync-a-mirror">Sync a mirror</a>.</p>
+<p>A mirror can cover several distributions (deb), repositories (arch, alpine) or versions (openbsd) at once. Each sync creates a new snapshot, see <a href="/usage/operations/#sync-a-mirror">Sync a mirror</a>.</p>
 <p>Mirrors are stored in the <code>repomanager-mirror</code> volume (<code>/home/mirror</code> inside the container). See <a href="/getting-started/installation/">Standard installation</a> and <a href="/administration/backup-restore/#mirrors">Backup and restore</a>.</p>
 <h3 id="mirrors-limitations">Mirrors limitations<a class="headerlink" href="#mirrors-limitations" title="Permanent link">&para;</a></h3>
 <ul>
@@ -1502,6 +1502,9 @@
 <li>arch: the <code>&lt;repo&gt;.db.tar.gz</code> and <code>&lt;repo&gt;.files.tar.gz</code> aliases of upstream mirrors are not created, pacman only uses <code>&lt;repo&gt;.db</code> and <code>&lt;repo&gt;.files</code>.</li>
 <li>alpine: only the apk v2 index format (<code>APKINDEX.tar.gz</code>) is supported, as used by Alpine Linux up to now. The apk v3 index format (<code>Packages.adb</code>) is not supported yet.</li>
 <li>alpine: the indexes signature is verified during the sync with the RSA keys of the source repository. Packages are verified by their size and the checksum of their control part, as listed in the index; apk verifies the rest of the package on clients.</li>
+<li>openbsd: only releases are supported, not snapshots (their packages are rebuilt with the same file names).</li>
+<li>openbsd: firmwares are not part of OpenBSD mirrors, <code>fw_update</code> always retrieves them from <code>firmware.openbsd.org</code>.</li>
+<li>openbsd: <code>pkg_add</code> lists the packages from the directory page: an <code>index.html</code> listing the files is generated in each packages directory, whatever the directory listing setting below.</li>
 <li>Directory listing of <code>/mirror/</code> is disabled by default, see <a href="/reference/miscellaneous/#enable-repository-web-browsing">Enable repository web browsing</a>.</li>
 <li>Mirrors cannot be added to <a href="/usage/hosts/#profiles">host profiles</a>: hosts configured from a profile (e.g. with linupdate) do not get the mirrors configuration automatically, configure them with the commands of the <code>Install</code> button (see <a href="/usage/operations/#install-a-repository-on-a-client">Install a repository on a client</a>).</li>
 <li>As mirrors may be public and heavily used, keep in mind that each access request is stored in the statistics database when statistics are enabled (requests older than one year are deleted).</li>
