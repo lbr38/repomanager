@@ -2117,7 +2117,7 @@
 </tr>
 <tr>
 <td><code>POST /repositories/&lt;TYPE&gt;/&lt;ID&gt;/snapshots/&lt;SNAPSHOT_ID&gt;/duplicate</code></td>
-<td>Duplicate the snapshot into a new repository (task, curated and local repositories). Parameters: <code>name</code> (required), <code>environments</code>, <code>description</code>, <code>tags</code>, <code>group</code></td>
+<td>Duplicate the snapshot into a new repository (task, curated and local repositories). Parameters: <code>name</code> (required), <code>releasever</code> (rpm) or <code>dist</code> (deb) (same as the snapshot by default, the component cannot be changed), <code>environments</code>, <code>description</code>, <code>tags</code>, <code>group</code></td>
 </tr>
 <tr>
 <td><code>GET /repositories/&lt;TYPE&gt;/&lt;ID&gt;/snapshots/&lt;SNAPSHOT_ID&gt;/diff/&lt;OTHER_SNAPSHOT_ID&gt;</code></td>
