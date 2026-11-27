@@ -142,6 +142,24 @@ class Mirror
         if (!is_null($this->getId($packageType, $name, $releasever))) {
             throw new Exception(ucfirst($packageType) . ' mirror ' . htmlspecialchars(self::getLabel($name, $releasever)) . ' already exists');
         }
+
+        /**
+         *  A mirror without release version is stored in <type>/<name>, the mirrors of the same name with a release version in
+         *  <type>/<name>/<releasever> (see getDir()): they cannot have the same name, as deleting the first one would delete the others.
+         *  This concerns alpine mirrors, whose branch is optional (the release version of rpm mirrors is always required)
+         */
+        if (in_array($packageType, self::RELEASEVER_TYPES)) {
+            $word = $packageType == 'alpine' ? 'branch' : 'release version';
+            $releasevers = $this->model->getReleasevers($packageType, $name);
+
+            if ($releasever === '' and !empty($releasevers)) {
+                throw new Exception(ucfirst($packageType) . ' mirror ' . htmlspecialchars($name) . ' already exists with ' . $word . ' ' . htmlspecialchars(implode(', ', $releasevers)) . ', a mirror without ' . $word . ' cannot have the same name');
+            }
+
+            if ($releasever !== '' and in_array('', $releasevers, true)) {
+                throw new Exception(ucfirst($packageType) . ' mirror ' . htmlspecialchars($name) . ' already exists without ' . $word . ', a mirror with a ' . $word . ' cannot have the same name');
+            }
+        }
     }
 
     /**

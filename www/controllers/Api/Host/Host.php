@@ -13,6 +13,11 @@ class Host extends \Controllers\Api\Controller
 {
     public function execute(): array
     {
+        // Hosts cannot register, send their data nor be read while hosts management is disabled
+        if (MANAGE_HOSTS != 'true') {
+            throw new Exception('Hosts management is disabled');
+        }
+
         $hostController = new HostController();
         $hostRegisteringController = new HostRegistering();
         $hostUpdateController = new HostUpdate();
@@ -67,11 +72,6 @@ class Host extends \Controllers\Api\Controller
                 // Only administrators and users allowed to register hosts can register a host (API key authentication)
                 if (!defined('API_KEY') or !HostPermission::allowedAction('register')) {
                     throw new Exception('You are not allowed to register a host');
-                }
-
-                // New hosts cannot register while hosts management is disabled
-                if (MANAGE_HOSTS != 'true') {
-                    throw new Exception('Hosts management is disabled, new hosts cannot be registered');
                 }
 
                 // Try registering the host

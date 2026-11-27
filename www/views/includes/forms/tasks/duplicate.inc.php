@@ -37,6 +37,12 @@ if ($repoController->getPackageType() == 'deb') {
 $versionSuggestions = [];
 $versionCurrentListed = false;
 
+/**
+ *  Release versions (rpm) or distributions (deb) defined in the source repository of a curated repository:
+ *  a warning is printed if another value is selected, the updates of the new repository fail if the source repository does not provide it
+ */
+$versionSourceValues = [];
+
 if ($repoController->getType() == 'curated') {
     try {
         if ($repoController->getPackageType() == 'rpm') {
@@ -45,6 +51,10 @@ if ($repoController->getType() == 'curated') {
         if ($repoController->getPackageType() == 'deb') {
             $versionSuggestions = (new \Controllers\Repo\Source\Deb())->getPredefinedDistributions($repoController->getSource());
         }
+
+        $sourceController = new \Controllers\Repo\Source\Source();
+        $sourceDefinition = $sourceController->getDefinition($sourceController->getIdByTypeName($repoController->getPackageType(), $repoController->getSource()));
+        $versionSourceValues = array_values(array_filter(array_map('strval', array_column($sourceDefinition[$versionParam == 'releasever' ? 'releasever' : 'distributions'] ?? [], 'name'))));
     } catch (\Exception $e) {
         // The source repository may have been deleted since, the value can still be typed
     }
@@ -100,6 +110,14 @@ if ($repoController->getType() == 'curated') : ?>
         <p>The new repository will be updated from the same source repository, with its own <?= $repoController->getPackageType() == 'rpm' ? 'release version' : 'distribution' ?>.</p>
     </div>
     <?php
+    // Printed when the selected value is not defined in the source repository (only if the source repository defines some)
+    if (!empty($versionSourceValues)) : ?>
+        <div class="note-warning duplicate-version-warning hide" source-values="<?= htmlspecialchars(json_encode($versionSourceValues), ENT_QUOTES) ?>" current-value="<?= htmlspecialchars($versionCurrent, ENT_QUOTES) ?>">
+            <img src="/assets/icons/warning.svg" />
+            <p><?= $repoController->getPackageType() == 'rpm' ? 'Release version' : 'Distribution' ?> <b class="duplicate-version-value"></b> is not defined in the <b><?= htmlspecialchars($repoController->getSource()) ?></b> source repository: make sure the source repository provides it<?= $repoController->getPackageType() == 'deb' ? ' with the <b>' . htmlspecialchars($repoController->getSection()) . '</b> component' : '' ?>, otherwise the updates of the new repository will fail.</p>
+        </div>
+        <?php
+    endif;
 endif ?>
 
 <h6>POINT AN ENVIRONMENT</h6>
@@ -179,7 +197,19 @@ $scheduleForm['action'] = 'duplicate'; ?>
         });
 
         versionSelect.on('change', function () {
-            versionForm.find('.task-param[param-name="<?= $versionParam ?>"]').val(($(this).val() || [])[0] || '');
+            const value = ($(this).val() || [])[0] || '';
+
+            versionForm.find('.task-param[param-name="<?= $versionParam ?>"]').val(value);
+
+            // Warn if the value is not defined in the source repository (curated repository), the current value is not concerned
+            const warning = versionForm.find('.duplicate-version-warning');
+
+            if (warning.length) {
+                const unknown = value !== '' && value !== warning.attr('current-value') && !JSON.parse(warning.attr('source-values')).includes(value);
+
+                warning.find('.duplicate-version-value').text(value);
+                warning.toggleClass('hide', !unknown);
+            }
         });
     });
 </script>

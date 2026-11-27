@@ -79,6 +79,29 @@ class Mirror extends \Models\Model
     }
 
     /**
+     *  Return the release versions of the mirrors of the specified package type and name (empty string for a mirror without release version)
+     */
+    public function getReleasevers(string $packageType, string $name): array
+    {
+        $releasevers = [];
+
+        try {
+            $stmt = $this->db->prepare("SELECT Releasever FROM mirrors WHERE Package_type = :packageType AND Name = :name");
+            $stmt->bindValue(':packageType', $packageType);
+            $stmt->bindValue(':name', $name);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            DbLog::error($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $releasevers[] = (string) $row['Releasever'];
+        }
+
+        return $releasevers;
+    }
+
+    /**
      *  Add a new mirror in database
      */
     public function add(string $name, string $releasever, string $packageType, string $source, string $params, string $description): void

@@ -91,15 +91,9 @@ if ($repo['Package_type'] == 'rpm') {
                     <?php
                 endif ?>
 
-                <div class="flex align-item-center column-gap-5">
-                    <?php
-                    if ($repo['Package_type'] == 'deb') {
-                        echo '<img src="/assets/icons/package.svg" class="icon-np icon-medium" title="This is a deb repository." />';
-                        echo '<span class="font-size-13">deb</span>';
-                    } elseif ($repo['Package_type'] == 'rpm') {
-                        echo '<img src="/assets/icons/package.svg" class="icon-np icon-medium" title="This is a rpm repository." />';
-                        echo '<span class="font-size-13">rpm</span>';
-                    } ?>
+                <div class="flex align-item-center column-gap-5" title="This is a <?= $repo['Package_type'] ?> repository.">
+                    <img src="/assets/icons/package.svg" class="icon-np icon-medium" />
+                    <span class="font-size-13"><?= $repo['Package_type'] ?></span>
                 </div>
             </div>
         </div>
@@ -136,9 +130,20 @@ if ($repo['Package_type'] == 'rpm') {
                             <?php
                         endif ?>
 
-                        <div class="flex align-item-center column-gap-10" title="Snapshot created at <?= $date . ' ' . $snapshot['Time'] ?>. Click to browse content">
+                        <!-- empty title prevents the parent "Click to select" native tooltip from showing over the snapshot tooltip -->
+                        <div class="flex align-item-center column-gap-10" title="" data-tooltip-template>
                             <img src="/assets/icons/calendar.svg" class="snap-icon icon-np lowopacity-cst" />
-                            <a href="/snapshot/<?= $snapshot['Id'] ?>"><span class="snap-date lowopacity"><?= DateTime::createFromFormat('Y-m-d', $snapshot['Date'])->format('d-m-Y') ?></span></a>
+                            <a href="/snapshot/<?= $snapshot['Id'] ?>"><span class="snap-date lowopacity"><?= $date ?></span></a>
+                            <template>
+                                <p class="tooltip-title">Snapshot</p>
+                                <div class="tooltip-properties">
+                                    <span class="tooltip-property-label">Created</span>
+                                    <span class="tooltip-property-value"><?= $date . ' ' . $snapshot['Time'] ?></span>
+                                    <span class="tooltip-property-label">Architecture</span>
+                                    <span class="tooltip-property-value"><?= !empty($snapshot['Arch']) ? htmlspecialchars(str_replace(',', ', ', $snapshot['Arch'])) : '?' ?></span>
+                                </div>
+                                <p class="note margin-top-5">Click to browse content</p>
+                            </template>
                         </div>
 
                         <div class="snap-separator"></div>

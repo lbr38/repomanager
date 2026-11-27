@@ -4,6 +4,7 @@ define('ROOT', '/var/www/repomanager');
 
 const HTTP_OK = 200;
 const HTTP_BAD_REQUEST = 400;
+const HTTP_FORBIDDEN = 403;
 const HTTP_METHOD_NOT_ALLOWED = 405;
 
 function response($responseCode, $message)
@@ -46,6 +47,14 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and strtolower($_SERVER['HTTP_X_REQ
      */
     if (!is_string($controller) or !preg_match('#^[a-z0-9-]+(/[a-z0-9-]+)*$#', $controller)) {
         response(HTTP_BAD_REQUEST, 'Bad controller.');
+    }
+
+    /**
+     *  The hosts controllers (hosts pages) are refused while hosts management is disabled, as the hosts pages
+     *  The hosts profiles controller is not concerned, the profiles are used by linupdate to configure the hosts repositories
+     */
+    if (MANAGE_HOSTS != 'true' and preg_match('#^hosts?(/|$)#', $controller)) {
+        response(HTTP_FORBIDDEN, 'Hosts management is disabled');
     }
 
     /**

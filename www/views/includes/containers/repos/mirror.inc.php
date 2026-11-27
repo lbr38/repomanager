@@ -97,7 +97,7 @@ $nowrapList = function (array $values): string {
                     <span class="font-size-13 lowopacity-cst">● mirror</span>
                 </div>
 
-                <div class="flex align-item-center column-gap-5" title="This is a <?= $mirror['Package_type'] ?> mirror. Architectures: <?= htmlspecialchars(implode(', ', $mirror['params']['arch'] ?? [])) ?>">
+                <div class="flex align-item-center column-gap-5" title="This is a <?= $mirror['Package_type'] ?> mirror.">
                     <img src="/assets/icons/package.svg" class="icon-np icon-medium" />
                     <span class="font-size-13"><?= $mirror['Package_type'] ?></span>
                 </div>
@@ -122,10 +122,21 @@ $nowrapList = function (array $values): string {
                 <div class="snap-container mirror-snap-container grid-rfr-1-2 pointer" mirror-id="<?= $mirror['Id'] ?>" mirror-snap-id="<?= $snapshot['Id'] ?>" snap-label="<?= $date . ' ' . $snapshot['Time'] ?>" title="Click to select">
                     <input type="checkbox" class="snap-checkbox-input mirror-snap-checkbox" />
                     <div class="flex align-item-center column-gap-20">
-                        <div class="flex align-item-center column-gap-10" title="Snapshot created at <?= $date . ' ' . $snapshot['Time'] ?>. Click to browse content">
+                        <!-- empty title prevents the parent "Click to select" native tooltip from showing over the snapshot tooltip -->
+                        <div class="flex align-item-center column-gap-10" title="" data-tooltip-template>
                             <img src="/assets/icons/calendar.svg" class="snap-icon icon-np lowopacity-cst" />
                             <a href="/snapshot/mirror/<?= $snapshot['Id'] ?>"><span class="snap-date lowopacity"><?= $date ?></span></a>
                             <span class="snap-size lowopacity-cst"><?= $time ?></span>
+                            <template>
+                                <p class="tooltip-title">Snapshot</p>
+                                <div class="tooltip-properties">
+                                    <span class="tooltip-property-label">Created</span>
+                                    <span class="tooltip-property-value"><?= $date . ' ' . $time ?></span>
+                                    <span class="tooltip-property-label">Architecture</span>
+                                    <span class="tooltip-property-value"><?= !empty($mirror['params']['arch']) ? htmlspecialchars(implode(', ', $mirror['params']['arch'])) : '?' ?></span>
+                                </div>
+                                <p class="note margin-top-5">Click to browse content</p>
+                            </template>
                         </div>
 
                         <div class="snap-separator"></div>

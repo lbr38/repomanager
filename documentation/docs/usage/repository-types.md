@@ -14,7 +14,7 @@ When creating a new repository from the **REPOSITORIES** tab, you must choose be
 
 All types share the same features: snapshots, environments, groups, description and tags, scheduled tasks, statistics and permissions. They are listed together in the **REPOSITORIES** tab, the type is displayed on the right of each repository card (`local`, `curated` or `mirror`, next to the source repository).
 
-Arch Linux and Alpine Linux repositories can only be mirrored.
+Arch Linux, Alpine Linux and OpenBSD repositories can only be mirrored.
 
 To create a repository of each type, see [Operations on repositories](/usage/operations/).
 

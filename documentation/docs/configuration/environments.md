@@ -24,7 +24,7 @@ This is what the environments have been designed for: to test package updates on
 
 ## Create an environment
 
-From the **SETTINGS** tab and the **REPOSITORIES** > **ENVIRONMENTS** section:
+From the **SETTINGS** tab and the **ENVIRONMENTS** section:
 
 **Step 1:** Create a new environment by specifying its name and color.
 
@@ -33,7 +33,7 @@ From the **SETTINGS** tab and the **REPOSITORIES** > **ENVIRONMENTS** section:
 
 ## Protect an environment
 
-From the **SETTINGS** tab and the **REPOSITORIES** > **ENVIRONMENTS** section:
+From the **SETTINGS** tab and the **ENVIRONMENTS** section:
 
 **Step 1:** Use the `Protect` icon to protect an environment.
 
@@ -54,7 +54,7 @@ From the **SETTINGS** tab and the **REPOSITORIES** > **ENVIRONMENTS** section:
 
 ## Delete an environment
 
-From the **SETTINGS** tab and the **REPOSITORIES** > **ENVIRONMENTS** section:
+From the **SETTINGS** tab and the **ENVIRONMENTS** section:
 
 **Step 1:** Use the `Delete` icon to delete an environment.
 

@@ -19,6 +19,17 @@ abstract class Controller
     }
 
     /**
+     *  Throw a 403 error if hosts management is disabled (MANAGE HOSTS setting): the hosts routes are refused, as the hosts pages
+     *  The profiles routes are not concerned, they are used by linupdate to configure the hosts repositories
+     */
+    protected static function checkHostsManagement(): void
+    {
+        if (MANAGE_HOSTS != 'true') {
+            throw new HttpException(403, 'Hosts management is disabled');
+        }
+    }
+
+    /**
      *  Throw a 403 error if the user is not allowed to perform the action
      */
     protected static function checkPermission(bool $allowed, string $message = 'You are not allowed to perform this action'): void

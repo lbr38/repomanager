@@ -68,16 +68,23 @@ class Env extends \Controllers\Task\Execution
              *  back to an older snapshot, they would keep the packages lists of the previous snapshot.
              *  This is done every time an environment is pointed, otherwise the next snapshot pointed could in turn be
              *  older than the date set here.
+             *  A snapshot used by a protected environment cannot be modified: its Release file is left as is (date and signature)
              */
             if ($this->repoController->getPackageType() == 'deb') {
                 $this->taskLogSubStepController->new('update-release-' . $env, 'UPDATING RELEASE FILE DATE');
 
-                $debMetadata = new DebMetadata($this->taskId);
-                $debMetadata->setRoot($snapshotPath);
-                $debMetadata->setDist($this->repoController->getDist());
-                $debMetadata->refreshReleaseDate();
+                $protectedEnvs = $this->repoSnapshotController->getProtectedEnvs((int) $this->repoController->getSnapId());
 
-                $this->taskLogSubStepController->completed();
+                if (!empty($protectedEnvs)) {
+                    $this->taskLogSubStepController->warning('Snapshot is used by ' . \Controllers\Environment::nameList($protectedEnvs, 'protected') . ' and cannot be modified: the date of its Release file is not updated. apt clients of the ' . Label::envtag($env) . ' environment that already have a more recent Release file keep their packages lists until the environment points to a more recent snapshot');
+                } else {
+                    $debMetadata = new DebMetadata($this->taskId);
+                    $debMetadata->setRoot($snapshotPath);
+                    $debMetadata->setDist($this->repoController->getDist());
+                    $debMetadata->refreshReleaseDate();
+
+                    $this->taskLogSubStepController->completed();
+                }
             }
 
             $this->taskLogSubStepController->new('create-symlink-' . $env, 'CREATING SYMLINK');

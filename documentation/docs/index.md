@@ -14,7 +14,7 @@
 ## Main features
 
 - Create `deb` and `rpm` curated repositories (all or selected packages from a source repository, rebuilt and signed with your own GPG key)
-- Create `deb`, `rpm` and `arch` mirrors (upstream repositories copied as is)
+- Create `deb`, `rpm`, `arch`, `alpine` and `openbsd` mirrors (upstream repositories copied as is)
 - Sign packages and repositories with GPG
 - Upload packages into repositories
 - Create environments (e.g., `preprod`, `prod`) and make repositories available only for specific environments

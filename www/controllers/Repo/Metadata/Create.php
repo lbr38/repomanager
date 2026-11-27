@@ -57,14 +57,7 @@ trait Create
         $this->taskLogSubStepController->completed();
 
         if ($this->action == 'create' or $this->action == 'update') {
-            // Rename temporary working dir to the final path
-
-            // Delete the target snapshot directory if it already exists
-            if (is_dir($snapshotPath)) {
-                if (!Directory::deleteRecursive($snapshotPath)) {
-                    throw new Exception('Cannot delete existing directory: ' . $snapshotPath);
-                }
-            }
+            $this->taskLogSubStepController->new('moving-temp-dir', 'MOVING TEMPORARY DIRECTORY');
 
             // Create parent directory if not exists
             if (!is_dir($parentDir)) {
@@ -73,10 +66,19 @@ trait Create
                 }
             }
 
-            // Rename temporary working directory to the final snapshot path
-            if (!rename($workingDir, $snapshotPath)) {
-                throw new Exception('Could not rename working directory ' . $workingDir);
+            /**
+             *  Move the temporary working directory to the final snapshot path
+             *  A snapshot updated on the same day already exists: it is replaced, then deleted once the new one is in place
+             */
+            $previousSnapshotPath = $workingDir . '-previous';
+
+            if (Directory::replace($workingDir, $snapshotPath, $previousSnapshotPath)) {
+                if (!Directory::deleteRecursive($previousSnapshotPath)) {
+                    $this->taskLogSubStepController->warning('Could not delete previous snapshot directory ' . $previousSnapshotPath);
+                }
             }
+
+            $this->taskLogSubStepController->completed();
 
             /**
              *  Create symbolic link (environment)
