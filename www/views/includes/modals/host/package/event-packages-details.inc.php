@@ -30,19 +30,21 @@ foreach ($packages as $package) {
             $firstRow = true;
 
             foreach ($timePackages as $package) :
-                $securityUpdate = Convert::toBool($package['Security'] ?? false); ?>
+                $securityUpdate = Convert::toBool($package['Security'] ?? false);
+                $packageName    = htmlspecialchars($package['Name'], ENT_QUOTES);
+                $packageVersion = htmlspecialchars($package['Version'], ENT_QUOTES); ?>
 
                 <div class="event-packages-row">
-                    <p class="event-packages-time"><?= $firstRow ? $time : '' ?></p>
+                    <p class="event-packages-time"><?= $firstRow ? htmlspecialchars($time, ENT_QUOTES) : '' ?></p>
 
-                    <div class="flex align-item-center column-gap-5 min-width-200 pointer get-package-timeline" hostid="<?= $this->hostId ?>" packagename="<?= $package['Name'] ?>" title="See package history">
+                    <div class="flex align-item-center column-gap-5 min-width-200 pointer get-package-timeline" hostid="<?= $this->hostId ?>" packagename="<?= $packageName ?>" title="See package history">
                         <?= Icon::product($package['Name']) ?>
-                        <p class="copy"><?= $package['Name'] ?></p>
+                        <p class="copy"><?= $packageName ?></p>
                     </div>
 
                     <div class="flex align-item-center column-gap-10" title="<?= $securityUpdate ? 'Security update' : 'Regular update' ?>">
                         <p class="copy">
-                            <span class="label-<?= $securityUpdate ? 'yellow' : 'white' ?>"><?= $package['Version'] ?></span>
+                            <span class="label-<?= $securityUpdate ? 'yellow' : 'white' ?>"><?= $packageVersion ?></span>
                         </p>
                     </div>
 

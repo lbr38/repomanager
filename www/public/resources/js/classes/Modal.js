@@ -23,6 +23,15 @@ class Modal
     }
 
     /**
+     * Escape HTML special characters of the given string
+     * @param {*} string
+     */
+    escape(string)
+    {
+        return String(string).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    /**
      * Print a modal window with the given content and title.
      * @param {*} content
      * @param {*} title
@@ -42,7 +51,7 @@ class Modal
         var html = '<div class="modal-window-container" modal="' + id + '">'
             + '<div class="modal-window">'
             + '<div class="modal-window-title">'
-            + '<h4 class="margin-0">' + title + '</h4>'
+            + '<h4 class="margin-0">' + this.escape(title) + '</h4>'
             + '<span class="modal-window-close-btn" modal="' + id + '"><img title="Close" class="close-btn lowopacity" src="/assets/icons/close.svg" /></span>'
             + '</div>'
             + '<div class="modal-window-content">';
@@ -51,8 +60,8 @@ class Modal
         if (inPre) {
             // Escape HTML entities first to prevent XML/HTML tags from being interpreted by the browser,
             // then apply [ERR]/[WRN] coloring
-            content = content.split('\n').map(function(line) {
-                const escaped = line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+            content = content.split('\n').map((line) => {
+                const escaped = this.escape(line);
                 if (escaped.includes('[ERR]')) {
                     return '<span class="redtext font-size-12">' + escaped + '</span>';
                 }

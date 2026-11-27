@@ -291,7 +291,7 @@ Only the specified properties are edited: ``description``, ``tags``, ``retention
 | ``GET /repositories/<TYPE>/<ID>/snapshots/<SNAPSHOT_ID>`` | Snapshot details, with the environments pointing to it and their URL |
 | ``DELETE /repositories/<TYPE>/<ID>/snapshots/<SNAPSHOT_ID>`` | Delete the snapshot (task). A curated or local repository is deleted with its last snapshot |
 | ``POST /repositories/<TYPE>/<ID>/snapshots/<SNAPSHOT_ID>/rebuild`` | Rebuild the snapshot metadata (task, curated and local repositories). Parameter: ``gpg_sign`` (current signature by default) |
-| ``POST /repositories/<TYPE>/<ID>/snapshots/<SNAPSHOT_ID>/duplicate`` | Duplicate the snapshot into a new repository (task, curated and local repositories). Parameters: ``name`` (required), ``environments``, ``description``, ``tags``, ``group`` |
+| ``POST /repositories/<TYPE>/<ID>/snapshots/<SNAPSHOT_ID>/duplicate`` | Duplicate the snapshot into a new repository (task, curated and local repositories). Parameters: ``name`` (required), ``releasever`` (rpm) or ``dist`` (deb) (same as the snapshot by default, the component cannot be changed), ``environments``, ``description``, ``tags``, ``group`` |
 | ``GET /repositories/<TYPE>/<ID>/snapshots/<SNAPSHOT_ID>/diff/<OTHER_SNAPSHOT_ID>`` | Packages added and removed in the snapshot compared to the other snapshot, e.g. a new snapshot compared to the previous one (curated and local repositories): ``added`` lists the packages of the snapshot missing from the other one, ``removed`` the packages of the other snapshot missing from the snapshot. Add ``?other_repository=<TYPE>/<ID>`` to compare with a snapshot of another repository |
 
 Parameters of a new snapshot (all optional):

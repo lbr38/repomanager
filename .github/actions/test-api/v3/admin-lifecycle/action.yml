@@ -85,6 +85,19 @@ runs:
         run_task 300 DELETE /repositories/local/$DUPLICATE_ID/snapshots/$DUPLICATE_SNAP_ID
         must_fail 404 not_found GET /repositories/local/$DUPLICATE_ID
 
+        # Duplicate the snapshot into a repository with the same name and another distribution, the component cannot be changed
+        must_fail 400 invalid_parameter POST /repositories/local/$ID/snapshots/$SNAP_ID/duplicate -H "Content-Type: application/json" \
+            -d "$(jq -nc --arg name "$NAME" '{name:$name, dist:"trixie", section:"contrib"}')"
+        run_task 300 POST /repositories/local/$ID/snapshots/$SNAP_ID/duplicate -H "Content-Type: application/json" \
+            -d "$(jq -nc --arg name "$NAME" '{name:$name, dist:"trixie"}')"
+        DUPLICATE_ID=$(api GET /repositories/local | jq -r --arg name "$NAME" '[.data[] | select(.name == $name and .dist == "trixie")][0].id // empty')
+        RESULT=$(api GET /repositories/local/$DUPLICATE_ID)
+        check "$RESULT" '.data.dist == "trixie" and .data.section == "main" and (.data.snapshots | length == 1)'
+        must_fail 400 operation_refused POST /repositories/local/$ID/snapshots/$SNAP_ID/duplicate -H "Content-Type: application/json" \
+            -d "$(jq -nc --arg name "$NAME" '{name:$name, dist:"trixie"}')"
+        run_task 300 DELETE /repositories/local/$DUPLICATE_ID/snapshots/$(echo "$RESULT" | jq -r '.data.snapshots[0].id')
+        must_fail 404 not_found GET /repositories/local/$DUPLICATE_ID
+
         # Rename
         run_task 300 POST /repositories/local/$ID/rename -H "Content-Type: application/json" \
             -d "$(jq -nc --arg name "$RENAMED" '{name:$name}')"

@@ -238,6 +238,8 @@ From the **REPOSITORIES** tab:
 
 **Step 3:** Specify the name of the new repository that will be created from the selected repository snapshot.
 
+The release version (rpm) or the distribution (deb) of the new repository can also be changed, e.g. to duplicate a ``9`` repository into a ``9.9`` one with the same name. The component (deb) stays the same. A curated repository is then updated from the same source repository, with its own release version or distribution.
+
 [![Duplicate a repository](https://assets.repomanager.net/repomanager/6.0.0/usage/operations/duplicate-repository.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/operations/duplicate-repository.png)
 
 **Step 4:** Click the `Execute now` button to launch the duplication task.
