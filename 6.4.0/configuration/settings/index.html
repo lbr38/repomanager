@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#main-configuration" class="md-skip">
+        <a href="#general" class="md-skip">
           Skip to content
         </a>
       
@@ -773,15 +773,65 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#main-configuration" class="md-nav__link">
+  <a href="#general" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Main configuration
+        General
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Main configuration">
+    <nav class="md-nav" aria-label="General">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#instance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Instance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#network" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Network
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#email" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Email
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tasks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tasks">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -800,6 +850,17 @@
     <span class="md-ellipsis">
       
         Task cleanup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scheduled-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scheduled tasks
       
     </span>
   </a>
@@ -844,6 +905,34 @@
   </a>
   
 </li>
+        
+          <li class="md-nav__item">
+  <a href="#statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Statistics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#package-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Package formats
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Package formats">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#rpm" class="md-nav__link">
@@ -902,32 +991,43 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#arch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arch
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#alpine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alpine
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openbsd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OpenBSD
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#gpg-signing-key" class="md-nav__link">
     <span class="md-ellipsis">
       
         Gpg signing key
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#environments" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Environments
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#statistics" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Statistics
       
     </span>
   </a>
@@ -940,10 +1040,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#scheduled-tasks" class="md-nav__link">
+  <a href="#environments" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Scheduled tasks
+        Environments
       
     </span>
   </a>
@@ -1645,7 +1745,10 @@
 
   <h1>Settings</h1>
 
-<h2 id="main-configuration">Main configuration<a class="headerlink" href="#main-configuration" title="Permanent link">&para;</a></h2>
+<p>The <strong>SETTINGS</strong> tab is split into sections: <strong>General</strong>, <strong>Tasks</strong>, <strong>Repositories</strong>, <strong>Package formats</strong>, <strong>Environments</strong>, <strong>Hosts</strong>, <strong>SSO</strong>, <strong>Users</strong> and <strong>Debug mode</strong> (administrators only). Select a section with the buttons at the top of the page, or use the search field to find a setting in all the sections.</p>
+<p>The <code>Save</code> button saves the settings of all the sections at once. The number of unsaved changes is displayed next to the <code>Save</code> button and on each section button. Environments, users and debug mode are applied immediately, without the <code>Save</code> button.</p>
+<h2 id="general">General<a class="headerlink" href="#general" title="Permanent link">&para;</a></h2>
+<h3 id="instance">Instance<a class="headerlink" href="#instance" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
@@ -1663,16 +1766,8 @@
 <td>Specify your timezone. This is especially useful to ensure that scheduled tasks run at the specified time.</td>
 </tr>
 <tr>
-<td><code>DEFAULT CONTACT</code></td>
-<td>Default contact for receiving emails. Currently, only scheduled tasks and their reminders send emails. You can specify multiple recipients.</td>
-</tr>
-<tr>
 <td><code>SESSION TIMEOUT</code></td>
 <td>User session timeout in seconds. After this time of inactivity, the user will be logged out and will have to log in again to access the web interface.</td>
-</tr>
-<tr>
-<td><code>USE A PROXY</code></td>
-<td>Specify the proxy URL to use to access the internet. e.g. <code>https://myproxy.com:8080</code></td>
 </tr>
 <tr>
 <td><code>LOGIN PAGE BANNER</code></td>
@@ -1680,6 +1775,37 @@
 </tr>
 </tbody>
 </table>
+<h3 id="network">Network<a class="headerlink" href="#network" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>USE A PROXY</code></td>
+<td>Specify the proxy URL to use to access the internet. e.g. <code>https://myproxy.com:8080</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="email">Email<a class="headerlink" href="#email" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DEFAULT CONTACT</code></td>
+<td>Default contact for receiving emails. Currently, only scheduled tasks and their reminders send emails. You can specify multiple recipients.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tasks">Tasks<a class="headerlink" href="#tasks" title="Permanent link">&para;</a></h2>
 <h3 id="task-execution">Task execution<a class="headerlink" href="#task-execution" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -1715,6 +1841,21 @@
 <tr>
 <td><code>CLEAN TASKS OLDER THAN (in days)</code></td>
 <td>Tasks and their logs older than this value will be permanently deleted. This helps free up disk space.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="scheduled-tasks">Scheduled tasks<a class="headerlink" href="#scheduled-tasks" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ENABLE SCHEDULED TASKS REMINDERS</code></td>
+<td>Enable reminders for scheduled tasks. Reminders are sent via email to the recipients defined when adding a new scheduled task.</td>
 </tr>
 </tbody>
 </table>
@@ -1769,6 +1910,23 @@
 </tr>
 </tbody>
 </table>
+<h3 id="statistics">Statistics<a class="headerlink" href="#statistics" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ENABLE REPOSITORIES STATISTICS</code></td>
+<td>Enable logging and statistics on repositories access.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="package-formats">Package formats<a class="headerlink" href="#package-formats" title="Permanent link">&para;</a></h2>
+<p>A package type disabled here is no longer offered when creating repositories, mirrors and source repositories.</p>
 <h3 id="rpm">Rpm<a class="headerlink" href="#rpm" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -1861,6 +2019,51 @@
 </tr>
 </tbody>
 </table>
+<h3 id="arch">Arch<a class="headerlink" href="#arch" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ENABLE ARCH LINUX REPOSITORIES</code></td>
+<td>Enable Arch Linux package repositories (mirrors only). Enabled by default.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="alpine">Alpine<a class="headerlink" href="#alpine" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ENABLE ALPINE LINUX REPOSITORIES</code></td>
+<td>Enable Alpine Linux package repositories (mirrors only). Enabled by default.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="openbsd">OpenBSD<a class="headerlink" href="#openbsd" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ENABLE OPENBSD REPOSITORIES</code></td>
+<td>Enable OpenBSD repositories: packages, binary patches, install sets and sources (mirrors only). Enabled by default.</td>
+</tr>
+</tbody>
+</table>
 <h3 id="gpg-signing-key">Gpg signing key<a class="headerlink" href="#gpg-signing-key" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -1887,38 +2090,8 @@
 </span></code></pre></div>
 <p><strong>Step 4:</strong> Refresh Repomanager (F5) and test.</p>
 <p>Be aware that packages and repositories signed with the old key will no longer be valid. You must re-sign them with the new key (rebuild repository metadata).</p>
-<h3 id="environments">Environments<a class="headerlink" href="#environments" title="Permanent link">&para;</a></h3>
+<h2 id="environments">Environments<a class="headerlink" href="#environments" title="Permanent link">&para;</a></h2>
 <p>See <a href="/configuration/environments/">Environments</a></p>
-<h3 id="statistics">Statistics<a class="headerlink" href="#statistics" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>ENABLE REPOSITORIES STATISTICS</code></td>
-<td>Enable logging and statistics on repositories access.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="scheduled-tasks">Scheduled tasks<a class="headerlink" href="#scheduled-tasks" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>ENABLE SCHEDULED TASKS REMINDERS</code></td>
-<td>Enable reminders for scheduled tasks. Reminders are sent via email to the recipients defined when adding a new scheduled task.</td>
-</tr>
-</tbody>
-</table>
 <h2 id="hosts">Hosts<a class="headerlink" href="#hosts" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
