@@ -24,27 +24,21 @@ if (!empty($profiles)) :
         $profileReposMembersIds = $myprofile->reposMembersIdList($profile['Id']);
 
         /**
-         *  Retrieve hosts count using this profile, if any, and if hosts management is enabled
+         *  Retrieve hosts count using this profile
          */
-        if (MANAGE_HOSTS == 'true') {
-            $hostsCount = count($hostListingController->getByProfile($profile['Name']));
+        $hostsCount = count($hostListingController->getByProfile($profile['Name']));
+
+        if ($hostsCount <= 1) {
+            $hostsCount = $hostsCount . ' host';
+        } else {
+            $hostsCount = $hostsCount . ' hosts';
         } ?>
 
         <div>
             <div class="table-container bck-blue-alt grid-fr-2-1 justify-space-between profile-config-btn pointer" profile-id="<?= $profile['Id'] ?>" title="<?= $profile['Name'] ?> configuration">
                 <div>
                     <p><?= $profile['Name'] ?></p>
-
-                    <?php
-                    if (MANAGE_HOSTS == 'true') :
-                        if ($hostsCount <= 1) {
-                            $hostsCount = $hostsCount . ' host';
-                        } else {
-                            $hostsCount = $hostsCount . ' hosts';
-                        } ?>
-                        <p class="lowopacity-cst" title="<?= $hostsCount ?> using this profile"><?= $hostsCount ?> using this profile</p>
-                        <?php
-                    endif ?>
+                    <p class="lowopacity-cst" title="<?= $hostsCount ?> using this profile"><?= $hostsCount ?> using this profile</p>
                 </div>
 
                 <div class="flex column-gap-15 justify-end">
@@ -87,7 +81,7 @@ if (!empty($profiles)) :
                     <h6>PACKAGE EXCLUSION</h6>
                     
                     <h6>EXCLUDE MAJOR VERSION</h6>
-                    <p class="note">Specify which packages the host should exclude from updates if the update is a major version change. You can use <code>.*</code> as a wildcard.<br>For example: <code>mysql.*</code></p>
+                    <p class="note">Specify which packages the host should exclude from updates if the update is a major version change. The pattern must match the whole package name, you can use <code>*</code> as a wildcard.<br>For example: <code>mysql*</code></p>
                     <select name="profile-exclude-major" multiple>
                         <?php
                         /**
@@ -101,18 +95,25 @@ if (!empty($profiles)) :
                             }
 
                             /**
-                             *  Do the same thing for this same package followed by a wildcard (ex: apache.*)
+                             *  Do the same thing for this same package followed by a wildcard (ex: apache*)
+                             */
+                            if (in_array($package . '*', $packageExcludeMajor)) {
+                                echo '<option value="' . $package . '*" selected>' . $package . '*</option>';
+                            } else {
+                                echo '<option value="' . $package . '*">' . $package . '*</option>';
+                            }
+
+                            /**
+                             *  Legacy wildcard (ex: apache.*), only displayed if already selected
                              */
                             if (in_array($package . '.*', $packageExcludeMajor)) {
                                 echo '<option value="' . $package . '.*" selected>' . $package . '.*</option>';
-                            } else {
-                                echo '<option value="' . $package . '.*">' . $package . '.*</option>';
                             }
                         } ?>
                     </select>
                     
                     <h6>ALWAYS EXCLUDE</h6>
-                    <p class="note">Specify which packages the host should exclude from updates (no matter the version). You can use <code>.*</code> as a wildcard.<br>For example: <code>mysql.*</code></p>
+                    <p class="note">Specify which packages the host should exclude from updates (no matter the version). The pattern must match the whole package name, you can use <code>*</code> as a wildcard.<br>For example: <code>mysql*</code></p>
                     <select name="profile-exclude" multiple>
                         <?php
                         foreach ($listPackages as $package) {
@@ -123,12 +124,19 @@ if (!empty($profiles)) :
                             }
 
                             /**
-                             *  Do the same thing for this same package followed by a wildcard (ex: apache.*)
+                             *  Do the same thing for this same package followed by a wildcard (ex: apache*)
+                             */
+                            if (in_array($package . '*', $packageExclude)) {
+                                echo '<option value="' . $package . '*" selected>' . $package . '*</option>';
+                            } else {
+                                echo '<option value="' . $package . '*">' . $package . '*</option>';
+                            }
+
+                            /**
+                             *  Legacy wildcard (ex: apache.*), only displayed if already selected
                              */
                             if (in_array($package . '.*', $packageExclude)) {
                                 echo '<option value="' . $package . '.*" selected>' . $package . '.*</option>';
-                            } else {
-                                echo '<option value="' . $package . '.*">' . $package . '.*</option>';
                             }
                         } ?>
                     </select>
@@ -136,7 +144,7 @@ if (!empty($profiles)) :
                     <h6>RELOAD SERVICES</h6>
                     <p class="note">Specify what services the host should reload after updates.</p>
                     <p class="note">You can conditionally reload a service from a package update by using the following syntax: <code>service_name:package_name</code></p>
-                    <p class="note">e.g: reload httpd if any php package is updated: <code>httpd:php.*</code></p>
+                    <p class="note">e.g: reload httpd if any php package is updated: <code>httpd:php*</code></p>
 
                     <?php
                     /**
@@ -161,7 +169,7 @@ if (!empty($profiles)) :
                     <h6>RESTART SERVICES</h6>
                     <p class="note">Specify what services the host should restart after updates.</p>
                     <p class="note">You can conditionally restart a service from a package update by using the following syntax: <code>service_name:package_name</code></p>
-                    <p class="note">e.g: restart httpd if any php package is updated: <code>httpd:php.*</code></p>
+                    <p class="note">e.g: restart httpd if any php package is updated: <code>httpd:php*</code></p>
 
                     <?php
                     /**

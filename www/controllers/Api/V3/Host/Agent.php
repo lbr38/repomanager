@@ -25,6 +25,11 @@ class Agent extends Controller
             throw new HttpException(403, 'You are not allowed to register a host');
         }
 
+        // New hosts cannot register while hosts management is disabled
+        if (MANAGE_HOSTS != 'true') {
+            throw new HttpException(403, 'Hosts management is disabled, new hosts cannot be registered');
+        }
+
         $this->request->allow(['ip', 'hostname']);
 
         $result = (new \Controllers\Host\Registering())->register($this->request->string('ip'), $this->request->string('hostname'));

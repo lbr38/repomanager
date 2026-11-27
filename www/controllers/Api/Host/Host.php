@@ -69,6 +69,11 @@ class Host extends \Controllers\Api\Controller
                     throw new Exception('You are not allowed to register a host');
                 }
 
+                // New hosts cannot register while hosts management is disabled
+                if (MANAGE_HOSTS != 'true') {
+                    throw new Exception('Hosts management is disabled, new hosts cannot be registered');
+                }
+
                 // Try registering the host
                 $result = $hostRegisteringController->register($this->data['ip'], $this->data['hostname']);
 

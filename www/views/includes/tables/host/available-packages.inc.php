@@ -1,7 +1,8 @@
 <?php
 use \Controllers\Layout\Table\Render as TableRender;
 use \Controllers\Utils\Generate\Html\Icon;
-use \Controllers\Utils\Convert; ?>
+use \Controllers\Utils\Convert;
+use \Controllers\Profile; ?>
 
 <div class="reloadable-table" table="<?= $table ?>" offset="<?= $reloadableTableOffset ?>">
     <?php
@@ -59,24 +60,21 @@ use \Controllers\Utils\Convert; ?>
 
 
 
-                // If the package is in the "exclude on major update" list
-                foreach ($packageExcludedMajor as $package) {
-                    if (preg_match('#' . $package . '#', $item['Name'])) {
-                        $excluded = true;
-                        $class .= ' host-package-excluded';
-                        $title = 'This package is marked as excluded on major update in the profile configuration, click to select anyway';
-                        break;
-                    }
+                /**
+                 *  If the package is in the "exclude on major update" list and the update is a major version change
+                 *  Same rule as linupdate: the update is major if the first part of the version (before the first dot, epoch included) differs
+                 */
+                if (explode('.', $item['Current_version'])[0] !== explode('.', $item['Version'])[0] and Profile::matchExclusion($item['Name'], $packageExcludedMajor)) {
+                    $excluded = true;
+                    $class .= ' host-package-excluded';
+                    $title = 'This package is marked as excluded on major update in the profile configuration, click to select anyway';
                 }
 
                 // If the package is in the "always exclude" list
-                foreach ($packageExcluded as $package) {
-                    if (preg_match('#' . $package . '#', $item['Name'])) {
-                        $excluded = true;
-                        $class .= ' host-package-excluded';
-                        $title = 'This package is marked as excluded in the profile configuration, click to select anyway';
-                        break;
-                    }
+                if (Profile::matchExclusion($item['Name'], $packageExcluded)) {
+                    $excluded = true;
+                    $class .= ' host-package-excluded';
+                    $title = 'This package is marked as excluded in the profile configuration, click to select anyway';
                 }
 
                 if ($packageUpdateRunning) {
