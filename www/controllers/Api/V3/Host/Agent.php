@@ -15,6 +15,14 @@ use Controllers\User\Permission\Host as HostPermission;
  */
 class Agent extends Controller
 {
+    public function __construct(\Controllers\Api\V3\Request $request)
+    {
+        parent::__construct($request);
+
+        // Hosts cannot register nor send their data while hosts management is disabled
+        self::checkHostsManagement();
+    }
+
     /**
      *  Register a new host: {"ip": "...", "hostname": "..."}
      *  Return the Id and token the host must use to authenticate

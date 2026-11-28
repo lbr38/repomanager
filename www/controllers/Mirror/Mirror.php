@@ -13,7 +13,13 @@ class Mirror
     /**
      *  Package types supported by mirrors
      */
-    public const PACKAGE_TYPES = ['deb', 'rpm', 'arch'];
+    public const PACKAGE_TYPES = ['deb', 'rpm', 'arch', 'alpine', 'openbsd'];
+
+    /**
+     *  Package types whose mirrors are qualified by a release version, stored in the Releasever column:
+     *  the rpm release version ($releasever) or the alpine branch (e.g. v3.24, edge)
+     */
+    public const RELEASEVER_TYPES = ['rpm', 'alpine'];
 
     /**
      *  URL path under which mirrors are published (see nginx configuration)
@@ -64,7 +70,7 @@ class Mirror
     }
 
     /**
-     *  Return mirror Id by package type, name and release version (rpm only, empty for deb), or null if it does not exist
+     *  Return mirror Id by package type, name and release version (rpm release version or alpine branch, empty otherwise), or null if it does not exist
      */
     public function getId(string $packageType, string $name, string $releasever = ''): int|null
     {
@@ -85,6 +91,23 @@ class Mirror
         } catch (JsonException $e) {
             throw new Exception('Could not decode mirror parameters: ' . $e->getMessage());
         }
+    }
+
+    /**
+     *  Return the release version of a mirror from its task or mirror parameters, stored in the Releasever column:
+     *  'releasever' parameter of a rpm mirror, 'branch' parameter of an alpine mirror, empty for other package types
+     */
+    public static function getReleaseverParam(string $packageType, array $params): string
+    {
+        if ($packageType == 'rpm') {
+            return (string) ($params['releasever'] ?? '');
+        }
+
+        if ($packageType == 'alpine') {
+            return (string) ($params['branch'] ?? '');
+        }
+
+        return '';
     }
 
     /**
@@ -119,6 +142,24 @@ class Mirror
         if (!is_null($this->getId($packageType, $name, $releasever))) {
             throw new Exception(ucfirst($packageType) . ' mirror ' . htmlspecialchars(self::getLabel($name, $releasever)) . ' already exists');
         }
+
+        /**
+         *  A mirror without release version is stored in <type>/<name>, the mirrors of the same name with a release version in
+         *  <type>/<name>/<releasever> (see getDir()): they cannot have the same name, as deleting the first one would delete the others.
+         *  This concerns alpine mirrors, whose branch is optional (the release version of rpm mirrors is always required)
+         */
+        if (in_array($packageType, self::RELEASEVER_TYPES)) {
+            $word = $packageType == 'alpine' ? 'branch' : 'release version';
+            $releasevers = $this->model->getReleasevers($packageType, $name);
+
+            if ($releasever === '' and !empty($releasevers)) {
+                throw new Exception(ucfirst($packageType) . ' mirror ' . htmlspecialchars($name) . ' already exists with ' . $word . ' ' . htmlspecialchars(implode(', ', $releasevers)) . ', a mirror without ' . $word . ' cannot have the same name');
+            }
+
+            if ($releasever !== '' and in_array('', $releasevers, true)) {
+                throw new Exception(ucfirst($packageType) . ' mirror ' . htmlspecialchars($name) . ' already exists without ' . $word . ', a mirror with a ' . $word . ' cannot have the same name');
+            }
+        }
     }
 
     /**
@@ -137,6 +178,20 @@ class Mirror
     public function updateRetention(int $id, int|null $retention): void
     {
         $this->model->updateRetention($id, $retention);
+    }
+
+    /**
+     *  Update mirror parameters, used by the next syncs (existing snapshots are not modified)
+     */
+    public function updateParams(int $id, array $params): void
+    {
+        try {
+            $params = json_encode($params, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            throw new Exception('Could not encode mirror parameters: ' . $e->getMessage());
+        }
+
+        $this->model->updateParams($id, $params);
     }
 
     /**
@@ -216,13 +271,69 @@ class Mirror
     }
 
     /**
-     *  Check that a release version is valid and safe to use as a directory name
+     *  Check that a release version (or an alpine branch) is valid and safe to use as a directory name
      */
-    public static function checkReleasever(string $releasever): void
+    public static function checkReleasever(string $releasever, string $label = 'Release version'): void
     {
         if (empty($releasever) or !Validate::alphaNumericHyphen($releasever, ['.']) or str_starts_with($releasever, '.')) {
-            throw new Exception('Release version must be specified and contain only alphanumeric characters');
+            throw new Exception($label . ' must be specified and contain only alphanumeric characters');
         }
+    }
+
+    /**
+     *  Check the branch and repositories of an alpine mirror
+     *  They are required if the source repository URL contains the $branch and $repo variables, otherwise they are optional:
+     *  a source repository without branch is mirrored in alpine/<name>, without repositories it is mirrored at the root of the snapshot
+     */
+    public static function checkAlpineParams(string $sourceUrl, string $branch, array $repos): void
+    {
+        if ($branch !== '' or str_contains($sourceUrl, '$branch')) {
+            self::checkReleasever($branch, 'Branch');
+        }
+
+        if (!empty($repos) or str_contains($sourceUrl, '$repo')) {
+            self::checkRepos($repos);
+        }
+    }
+
+    /**
+     *  Check the versions and contents of an openbsd mirror
+     *  Versions are releases (e.g. 8.0), snapshots are not supported: their packages are rebuilt with the same file names
+     */
+    public static function checkOpenbsdParams(mixed $versions, mixed $contents): void
+    {
+        if (empty($versions) or !is_array($versions)) {
+            throw new Exception('At least one version must be specified');
+        }
+
+        foreach ($versions as $version) {
+            if (!is_string($version) or !preg_match('/^[0-9]+\.[0-9]+$/', $version)) {
+                throw new Exception('Version ' . htmlspecialchars((string) $version) . ' is invalid, a release version is expected (e.g. 8.0). Snapshots are not supported');
+            }
+        }
+
+        if (empty($contents) or !is_array($contents)) {
+            throw new Exception('At least one content must be specified');
+        }
+
+        foreach ($contents as $content) {
+            if (!in_array($content, \Controllers\Mirror\Sync\Openbsd::CONTENTS, true)) {
+                throw new Exception('Content ' . htmlspecialchars((string) $content) . ' is invalid (' . implode(', ', \Controllers\Mirror\Sync\Openbsd::CONTENTS) . ')');
+            }
+        }
+    }
+
+    /**
+     *  Check the versions and contents of an openbsd mirror, return them normalized: versions without duplicate,
+     *  contents in the order of Sync\Openbsd::CONTENTS
+     */
+    public static function normalizeOpenbsdParams(mixed $versions, mixed $contents): array
+    {
+        $versions = is_array($versions) ? array_values(array_filter($versions, fn ($version) => $version !== '')) : $versions;
+
+        self::checkOpenbsdParams($versions, $contents);
+
+        return [array_values(array_unique($versions)), array_values(array_intersect(\Controllers\Mirror\Sync\Openbsd::CONTENTS, $contents))];
     }
 
     /**
@@ -254,9 +365,9 @@ class Mirror
     }
 
     /**
-     *  Check that Arch Linux repositories names (core, extra...) are valid and safe to use as directory names
+     *  Check that Arch Linux (core, extra...) or Alpine Linux (main, community...) repositories names are valid and safe to use as directory names
      */
-    public static function checkArchRepos(array $repos): void
+    public static function checkRepos(array $repos): void
     {
         if (empty($repos)) {
             throw new Exception('At least one repository must be specified');
@@ -275,6 +386,8 @@ class Mirror
      *  rpm mirrors are published per release version (e.g. rpm/nginx/10), so that clients can use $releasever in their URL
      *  deb mirrors contain all their distributions in the same tree (e.g. deb/debian), as upstream
      *  arch mirrors contain all their repositories in the same tree (e.g. arch/archlinux/<env>/core/os/x86_64)
+     *  alpine mirrors are published per branch, with all their repositories (e.g. alpine/alpine/v3.24/<env>/main/x86_64)
+     *  openbsd mirrors contain all their versions in the same tree, as upstream (e.g. openbsd/openbsd/<env>/8.0/packages/amd64)
      */
     public static function getDir(string $packageType, string $name, string $releasever = ''): string
     {
@@ -298,14 +411,15 @@ class Mirror
     }
 
     /**
-     *  Return mirror label with its content: name, release version (rpm), then distributions (deb) or repositories (arch)
-     *  e.g. 'debian ❯ bookworm, trixie', 'nginx ❯ 10', 'archlinux ❯ core, extra'
+     *  Return mirror label with its content: name, release version (rpm) or branch (alpine), then distributions (deb), repositories (arch, alpine)
+     *  or versions (openbsd), e.g. 'debian ❯ bookworm, trixie', 'nginx ❯ 10', 'archlinux ❯ core, extra', 'alpine ❯ v3.24 ❯ main, community',
+     *  'openbsd ❯ 7.9, 8.0'
      */
     public static function getFullLabel(array $mirror): string
     {
         $params = self::getParams($mirror);
         $label = self::getLabel($mirror['Name'], $mirror['Releasever'] ?? '');
-        $content = !empty($params['dists']) ? $params['dists'] : ($params['repos'] ?? []);
+        $content = !empty($params['dists']) ? $params['dists'] : (!empty($params['repos']) ? $params['repos'] : ($params['versions'] ?? []));
 
         return empty($content) ? $label : $label . ' ❯ ' . implode(', ', $content);
     }
@@ -315,7 +429,16 @@ class Mirror
      */
     public static function getAccent(string $packageType): string
     {
-        return ['deb' => 'red', 'rpm' => 'blue', 'arch' => 'cyan'][$packageType] ?? 'blue';
+        return ['deb' => 'red', 'rpm' => 'blue', 'arch' => 'cyan', 'alpine' => 'violet', 'openbsd' => 'yellow'][$packageType] ?? 'blue';
+    }
+
+    /**
+     *  Return the type of the upstream signature verified by the mirrors of a package type: RSA keys for Alpine Linux indexes,
+     *  signify keys for OpenBSD files lists, GPG keys for the other repositories
+     */
+    public static function getSignatureType(string $packageType): string
+    {
+        return ['alpine' => 'RSA', 'openbsd' => 'signify'][$packageType] ?? 'GPG';
     }
 
     /**

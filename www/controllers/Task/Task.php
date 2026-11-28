@@ -253,7 +253,7 @@ class Task
                 $info = $taskRawParams['repo-info'] ?? [];
                 $mirror = [
                     'Name' => $info['name'] ?? '',
-                    'Releasever' => ($info['package-type'] ?? '') == 'rpm' ? ($info['releasever'] ?? '') : '',
+                    'Releasever' => in_array($info['package-type'] ?? '', \Controllers\Mirror\Mirror::RELEASEVER_TYPES) ? ($info['releasever'] ?? '') : '',
                     'Package_type' => $info['package-type'] ?? ''
                 ];
 
@@ -598,7 +598,7 @@ class Task
             $mirror = [
                 'Name'         => $taskParams['name'] ?? '',
                 'Package_type' => $taskParams['package-type'] ?? '',
-                'Releasever'   => $taskParams['releasever'] ?? '',
+                'Releasever'   => \Controllers\Mirror\Mirror::getReleaseverParam($taskParams['package-type'] ?? '', $taskParams),
                 'Source'       => $taskParams['source'] ?? ''
             ];
         } else {
@@ -617,7 +617,7 @@ class Task
         $taskParams['repo-info'] = array_filter([
             'name'         => $mirror['Name'],
             'package-type' => $mirror['Package_type'],
-            'releasever'   => $mirror['Package_type'] == 'rpm' ? $mirror['Releasever'] : '',
+            'releasever'   => in_array($mirror['Package_type'], \Controllers\Mirror\Mirror::RELEASEVER_TYPES) ? $mirror['Releasever'] : '',
             'source'       => $mirror['Source']
         ]);
 

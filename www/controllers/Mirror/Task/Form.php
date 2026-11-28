@@ -73,12 +73,16 @@ class Form
 
         Param\PackageType::checkEnabled($packageType);
 
-        // rpm mirrors are unique by name and release version, deb mirrors by name
-        $releasever = '';
+        // rpm mirrors are unique by name and release version, alpine mirrors by name and branch, deb, arch and openbsd mirrors by name
+        $releasever = Mirror::getReleaseverParam($packageType, $task);
 
         if ($packageType == 'rpm') {
-            Mirror::checkReleasever($task['releasever'] ?? '');
-            $releasever = $task['releasever'];
+            Mirror::checkReleasever($releasever);
+        }
+
+        // The branch of an alpine mirror is optional if the source repository URL does not contain $branch (checked below)
+        if ($packageType == 'alpine' and $releasever !== '') {
+            Mirror::checkReleasever($releasever, 'Branch');
         }
 
         $mirrorController->checkAvailable($name, $releasever, $packageType);
@@ -114,7 +118,19 @@ class Form
         }
 
         if ($packageType == 'arch') {
-            Mirror::checkArchRepos(array_values(array_filter((array) ($task['repos'] ?? []))));
+            Mirror::checkRepos(array_values(array_filter((array) ($task['repos'] ?? []))));
+        }
+
+        // The branch and repositories of an alpine mirror are required if the source repository URL contains $branch and $repo
+        if ($packageType == 'alpine') {
+            $definition = json_decode($sourceController->get('alpine', $source)['Definition'] ?? '', true) ?: [];
+
+            Mirror::checkAlpineParams($definition['url'] ?? '', $releasever, array_values(array_filter((array) ($task['repos'] ?? []))));
+        }
+
+        // An openbsd mirror contains one or several versions, and at least one content
+        if ($packageType == 'openbsd') {
+            Mirror::checkOpenbsdParams(array_values(array_filter((array) ($task['versions'] ?? []))), $task['content'] ?? null);
         }
 
         Param\Description::check($task['description'] ?? '');

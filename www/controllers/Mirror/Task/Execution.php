@@ -230,7 +230,22 @@ class Execution extends \Controllers\Task\Execution
         if ($packageType == 'arch') {
             $params['repos'] = array_values(array_filter((array) ($this->params['repos'] ?? [])));
 
-            Mirror::checkArchRepos($params['repos']);
+            Mirror::checkRepos($params['repos']);
+        }
+
+        // An Alpine Linux mirror contains one branch (e.g. v3.24, edge) and can contain several repositories (main, community...)
+        // They are optional if the source repository URL does not contain $branch and $repo (repository with a single branch or repository)
+        if ($packageType == 'alpine') {
+            $params['branch'] = (string) ($this->params['branch'] ?? '');
+            $params['repos'] = array_values(array_filter((array) ($this->params['repos'] ?? [])));
+
+            Mirror::checkAlpineParams($this->getSourceDefinition('alpine', $this->params['source'] ?? '')['url'] ?? '', $params['branch'], $params['repos']);
+        }
+
+        // An OpenBSD mirror contains several versions (e.g. 7.9, 8.0) in the same tree, as upstream, and the selected contents of each one
+        // (packages, syspatch, sets, sources): sysupgrade looks for the next version under the same URL
+        if ($packageType == 'openbsd') {
+            [$params['versions'], $params['content']] = Mirror::normalizeOpenbsdParams($this->params['versions'] ?? null, $this->params['content'] ?? null);
         }
 
         // Only retrieve the metadata, used to test the source repository templates (not available from the interface)
@@ -249,7 +264,9 @@ class Execution extends \Controllers\Task\Execution
         $controllers = [
             'deb' => \Controllers\Mirror\Sync\Deb::class,
             'rpm' => \Controllers\Mirror\Sync\Rpm::class,
-            'arch' => \Controllers\Mirror\Sync\Arch::class
+            'arch' => \Controllers\Mirror\Sync\Arch::class,
+            'alpine' => \Controllers\Mirror\Sync\Alpine::class,
+            'openbsd' => \Controllers\Mirror\Sync\Openbsd::class
         ];
 
         if (!isset($controllers[$packageType])) {

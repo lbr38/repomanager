@@ -99,14 +99,14 @@ class Notify extends Task
             if ($taskRawParams['action'] == 'duplicate') {
                 $targetRepo = $taskRawParams['name'];
 
-                // Case it's deb, add dist and section
+                // Case it's deb, add dist and section (the dist of the new repository, if specified)
                 if ($repoController->getPackageType() == 'deb') {
-                    $targetRepo .= ' ❯ ' . $repoController->getDist() . ' ❯ ' . $repoController->getSection();
+                    $targetRepo .= ' ❯ ' . ($taskRawParams['dist'] ?? $repoController->getDist()) . ' ❯ ' . $repoController->getSection();
                 }
 
-                // Case it's rpm, add releasever
+                // Case it's rpm, add releasever (the releasever of the new repository, if specified)
                 if ($repoController->getPackageType() == 'rpm') {
-                    $targetRepo .= ' ❯ ' . $repoController->getReleasever();
+                    $targetRepo .= ' ❯ ' . ($taskRawParams['releasever'] ?? $repoController->getReleasever());
                 }
 
                 return [

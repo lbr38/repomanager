@@ -258,14 +258,17 @@ curl --fail-with-body -L -s -X POST -H "Authorization: Bearer <APIKEY>" -H "Cont
 
 | Parameter | Description |
 |---|---|
-| ``package_type`` | ``rpm``, ``deb`` or ``arch`` (required) |
+| ``package_type`` | ``rpm``, ``deb``, ``arch``, ``alpine`` or ``openbsd`` (required) |
 | ``source`` | Source repository name (required) |
 | ``arch`` | Architectures (required) |
 | ``name`` | Mirror name, the source repository name by default |
 | ``releasever`` | Release version (``rpm``, required) |
+| ``branch`` | Branch (``alpine``, e.g. ``v3.24``, required if the source repository URL contains ``$branch``) |
 | ``dists``, ``components`` | Distributions and components (``deb``, not needed for flat repositories) |
-| ``repos`` | Repositories (``arch``, e.g. ``core``, ``extra``) |
-| ``gpg_check`` | Check the GPG signatures of the source repository (default ``true``) |
+| ``repos`` | Repositories (``arch``, e.g. ``core``, ``extra``, or ``alpine``, e.g. ``main``, ``community``, required if the source repository URL contains ``$repo``) |
+| ``versions`` | Versions (``openbsd``, e.g. ``7.9``, ``8.0``, required) |
+| ``content`` | Content of each version (``openbsd``): ``packages``, ``syspatch``, ``sets`` and/or ``sources``, all by default |
+| ``gpg_check`` | Check the GPG signatures of the source repository, the RSA signatures for ``alpine``, the signify signatures for ``openbsd`` (default ``true``) |
 | ``environments``, ``description``, ``tags``, ``group``, ``retention``, ``retention_keep_all``, ``schedule`` | Same as curated repositories |
 
 ### Edit a repository
@@ -276,7 +279,7 @@ curl --fail-with-body -L -s -X PATCH -H "Authorization: Bearer <APIKEY>" -H "Con
   https://repomanager.mydomain.net/api/v3/repositories/curated/<ID>
 ```
 
-Only the specified properties are edited: ``description``, ``tags``, ``retention``, ``retention_keep_all``, and ``source`` for curated repositories. The edited repository is returned.
+Only the specified properties are edited: ``description``, ``tags``, ``retention``, ``retention_keep_all``, ``source`` for curated repositories, and ``versions``, ``content``, ``arch`` for openbsd mirrors (used by the next syncs). The edited repository is returned.
 
 
 ## Snapshots
@@ -288,7 +291,7 @@ Only the specified properties are edited: ``description``, ``tags``, ``retention
 | ``GET /repositories/<TYPE>/<ID>/snapshots/<SNAPSHOT_ID>`` | Snapshot details, with the environments pointing to it and their URL |
 | ``DELETE /repositories/<TYPE>/<ID>/snapshots/<SNAPSHOT_ID>`` | Delete the snapshot (task). A curated or local repository is deleted with its last snapshot |
 | ``POST /repositories/<TYPE>/<ID>/snapshots/<SNAPSHOT_ID>/rebuild`` | Rebuild the snapshot metadata (task, curated and local repositories). Parameter: ``gpg_sign`` (current signature by default) |
-| ``POST /repositories/<TYPE>/<ID>/snapshots/<SNAPSHOT_ID>/duplicate`` | Duplicate the snapshot into a new repository (task, curated and local repositories). Parameters: ``name`` (required), ``environments``, ``description``, ``tags``, ``group`` |
+| ``POST /repositories/<TYPE>/<ID>/snapshots/<SNAPSHOT_ID>/duplicate`` | Duplicate the snapshot into a new repository (task, curated and local repositories). Parameters: ``name`` (required), ``releasever`` (rpm) or ``dist`` (deb) (same as the snapshot by default, the component cannot be changed), ``environments``, ``description``, ``tags``, ``group`` |
 | ``GET /repositories/<TYPE>/<ID>/snapshots/<SNAPSHOT_ID>/diff/<OTHER_SNAPSHOT_ID>`` | Packages added and removed in the snapshot compared to the other snapshot, e.g. a new snapshot compared to the previous one (curated and local repositories): ``added`` lists the packages of the snapshot missing from the other one, ``removed`` the packages of the other snapshot missing from the snapshot. Add ``?other_repository=<TYPE>/<ID>`` to compare with a snapshot of another repository |
 
 Parameters of a new snapshot (all optional):
@@ -354,7 +357,7 @@ These endpoints require the permission to edit source repositories, as their def
 
 | Endpoint | Description |
 |---|---|
-| ``GET /sources`` | List the source repositories. Optional filter: ``?package_type=deb`` (``deb``, ``rpm`` or ``arch``) |
+| ``GET /sources`` | List the source repositories. Optional filter: ``?package_type=deb`` (``deb``, ``rpm``, ``arch``, ``alpine`` or ``openbsd``) |
 | ``GET /sources/<PACKAGE_TYPE>/<NAME>`` | Source repository details |
 | ``POST /sources/import`` | Import source repositories from a template file (multipart request, file field ``template``) |
 

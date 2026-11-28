@@ -292,15 +292,25 @@ class Repo extends Type
      */
     public function duplicateParams(int $snapId, Request $request, array $schedule): array
     {
-        $request->allow(['name', 'environments', 'description', 'tags', 'group', 'schedule']);
+        // The release version (rpm) or the distribution (deb) of the new repository can be changed, the component (deb) cannot
+        $versionKey = $this->row['Package_type'] == 'rpm' ? 'releasever' : 'dist';
 
-        return Params::duplicate($this->getController($snapId), [
+        $request->allow(['name', $versionKey, 'environments', 'description', 'tags', 'group', 'schedule']);
+
+        $values = [
             'name'        => $request->string('name'),
             'env'         => $request->list('environments', []),
             'description' => $request->string('description', ''),
             'tags'        => $request->list('tags', []),
             'group'       => $request->string('group', '')
-        ], $schedule);
+        ];
+
+        // Same release version or distribution as the snapshot if not specified
+        if ($request->has($versionKey)) {
+            $values[$versionKey] = $request->string($versionKey);
+        }
+
+        return Params::duplicate($this->getController($snapId), $values, $schedule);
     }
 
     /**

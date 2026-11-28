@@ -14,6 +14,13 @@
                 <h6>DESCRIPTION</h6>
                 <input type="text" class="arch-item-param" param-name="description" value="<?= htmlspecialchars($description) ?>" placeholder="Description" />
 
+                <?php
+                if ($hasEol) : ?>
+                    <h6>END OF LIFE DATE</h6>
+                    <input type="date" class="arch-item-param" param-name="eol" value="<?= htmlspecialchars($eol) ?>" placeholder="EOL Date" />
+                    <?php
+                endif ?>
+
                 <br><br>
                 <button type="submit" class="btn-medium-green">Save</button>
             </form>

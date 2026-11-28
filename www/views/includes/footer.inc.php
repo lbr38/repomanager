@@ -104,6 +104,8 @@ if (!empty(ENVS)) {
 if (__ACTUAL_URI__[1] == '') {
     $jsClasses = [
         'Repo',
+        'Search',
+        'Repo/RepoSearch',
         'ScheduledTask'
     ];
 
@@ -115,6 +117,8 @@ if (__ACTUAL_URI__[1] == '') {
         'events/repo/source/component',
         'events/repo/source/releasever',
         'events/repo/source/arch',
+        'events/repo/source/keys',
+        'events/repo/source/signing-keys',
         'events/repo/source/source',
         'events/repo/list',
         'events/repo/preferences',
@@ -130,6 +134,7 @@ if (__ACTUAL_URI__[1] == '') {
 if (__ACTUAL_URI__[1] == 'hosts' or __ACTUAL_URI__[1] == 'host') {
     $jsClasses = [
         'Host',
+        'Search',
         'Host/HostSearch'
     ];
 

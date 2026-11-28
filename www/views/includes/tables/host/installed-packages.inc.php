@@ -24,8 +24,10 @@ use \Controllers\Utils\Generate\Html\Icon; ?>
     else : ?>
         <div class="flex flex-direction-column row-gap-10">
             <?php
-            foreach ($reloadableTableContent as $item) : ?>
-                <div class="host-package-item host-package-item-installed get-package-timeline pointer" hostid="<?= $id ?>" packagename="<?= $item['Name'] ?>" packageversion="<?= $item['Version'] ?>" title="See package history">
+            foreach ($reloadableTableContent as $item) :
+                $packageName    = htmlspecialchars($item['Name'], ENT_QUOTES);
+                $packageVersion = htmlspecialchars($item['Version'], ENT_QUOTES); ?>
+                <div class="host-package-item host-package-item-installed get-package-timeline pointer" hostid="<?= $id ?>" packagename="<?= $packageName ?>" packageversion="<?= $packageVersion ?>" title="See package history">
                     <div class="flex align-item-center column-gap-10">
                         <?= Icon::product($item['Name']); ?>
 
@@ -33,12 +35,12 @@ use \Controllers\Utils\Generate\Html\Icon; ?>
                             <p class="copy">
                                 <?php
                                 if ($item['State'] == 'removed' or $item['State'] == 'purged') {
-                                    echo '<span class="redtext">' . $item['Name'] . ' (uninstalled)</span>';
+                                    echo '<span class="redtext">' . $packageName . ' (uninstalled)</span>';
                                 } else {
-                                    echo $item['Name'];
+                                    echo $packageName;
                                 } ?>
                             </p>
-                            <p class="font-size-12 lowopacity-cst copy"><?= $item['Version'] ?></p>
+                            <p class="font-size-12 lowopacity-cst copy"><?= $packageVersion ?></p>
                         </div>
                     </div>
                 </div>

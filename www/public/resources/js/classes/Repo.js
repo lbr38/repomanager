@@ -1,104 +1,55 @@
 class Repo {
     /**
-     *  Search for repositories (search input)
+     *  Collapse or expand a repositories group, the state is kept in sessionStorage so that it survives a container reload
+     *  @param {object} group .repos-list-group element
+     *  @param {boolean} hide
+     *  @param {boolean} animate
      */
-    search()
+    toggleGroup(group, hide, animate = true)
     {
-        // If input is empty, then show all repos and quit
-        if (!$("#repo-search-input").val()) {
-            $('.repos-list-group, .repos-row, .repo-item-wrapper, .repo-item, .group-repo-name').show();
-            return;
+        const content = group.children('.group-content');
+        const name = group.children('.group-header').find('.hide-repo-group');
+
+        if (hide) {
+            animate ? content.slideUp(200) : content.hide();
+        } else {
+            animate ? content.slideDown(200) : content.show();
         }
 
-        mylayout.printLoading();
+        name.attr('state', hide ? 'hidden' : 'visible');
+        name.attr('title', (hide ? 'Expand group ' : 'Collapse group ') + name.text());
 
-        /**
-         *  Retrieve search input value
-         *  Split into individual terms for multi-word search
-         */
-        const terms = $("#repo-search-input").val().toUpperCase().trim().split(/\s+/);
-
-        // First, hide all groups and repo items (hide the wrapper too, otherwise
-        // it stays in the grid flow as an empty cell and shifts the visible cards)
-        $('.repos-list-group, .repos-row, .repo-item-wrapper, .repo-item, .group-repo-name').hide();
-
-        // Search through all repo items using their data attributes and visible text
-        $('.repo-item').each(function () {
-            const name = ($(this).attr('data-name') || '').toUpperCase();
-            const dist = ($(this).attr('data-dist') || '').toUpperCase();
-            const section = ($(this).attr('data-section') || '').toUpperCase();
-            const releasever = ($(this).attr('data-releasever') || '').toUpperCase();
-            const type = ($(this).attr('data-type') || '').toUpperCase();
-            const packageType = ($(this).attr('data-package-type') || '').toUpperCase();
-            const description = ($(this).attr('data-description') || '').toUpperCase();
-            const tags = ($(this).attr('data-tags') || '').toUpperCase();
-
-            // Individual tags of this repo, used for exact 'tag:' matching
-            const tagsList = tags.split(',').map(function (t) {
-                return t.trim();
-            }).filter(function (t) {
-                return t.length > 0;
-            });
-
-            // Also include the whole visible text of the repo card (header line with
-            // name/distribution/section, snapshot dates, environments, tags...) so the
-            // search keeps working even if a data attribute is missing
-            const visibleText = ($(this).text() || '').toUpperCase();
-
-            // All searchable content for this repo
-            const searchable = name + ' ' + dist + ' ' + section + ' ' + releasever + ' ' + type + ' ' + packageType + ' ' + description + ' ' + tags + ' ' + visibleText;
-
-            // Check that ALL terms match somewhere in the searchable content
-            // A 'TAG:xxx' term must match one of this repo's tags exactly, instead of
-            // matching anywhere in the searchable content (name, description, etc.)
-            const allMatch = terms.every(function (term) {
-                if (term.indexOf('TAG:') === 0) {
-                    return tagsList.indexOf(term.substring(4)) > -1;
-                }
-
-                return searchable.indexOf(term) > -1;
-            });
-
-            if (allMatch) {
-                $(this).show();
-                $(this).closest('.repo-item-wrapper').show();
-                $(this).closest('.repos-row').show();
-                $(this).closest('.repos-row').prev('.group-repo-name').show();
-                // Reveal ALL ancestor groups (they can be nested), not just the closest one
-                $(this).parents('.repos-list-group').show();
-            }
-        });
-
-        mylayout.hideLoading();
+        sessionStorage.setItem('repos/list/group/' + group.attr('group-id') + '/collapsed', hide);
     }
 
     /**
-     *  Add a tag to the search input and filter repositories by it
-     * @param {string} tag
+     *  Collapse again the repositories groups that were collapsed before the container reload
      */
-    searchByTag(tag)
+    restoreGroups()
     {
-        const input = $('#repo-search-input');
+        $('.repos-list-group').each(function () {
+            if (sessionStorage.getItem('repos/list/group/' + $(this).attr('group-id') + '/collapsed') == 'true') {
+                myrepo.toggleGroup($(this), true, false);
+            }
+        });
 
-        // Retrieve the terms already present in the search input
-        const current = input.val().trim();
-        const terms = current.length > 0 ? current.split(/\s+/) : [];
+        // Keep the "Collapse all" button consistent with the groups state
+        const allHidden = $('.repos-list-group').length > 0 && $('.repos-list-group .group-header .hide-repo-group[state="visible"]').length == 0;
+        myrepo.setHideAllGroupsBtn(allHidden);
+    }
 
-        // Use a 'tag:' prefix so the search only matches this exact tag,
-        // instead of matching the tag name anywhere (e.g. in a repo name)
-        const searchTerm = 'tag:' + tag;
+    /**
+     *  Set the "Collapse all" / "Expand all" button state
+     *  @param {boolean} hidden
+     */
+    setHideAllGroupsBtn(hidden)
+    {
+        const btn = $('#hide-all-repo-groups');
 
-        // Add the tag only if it is not already present (case-insensitive)
-        if (!terms.some(function (term) {
-            return term.toUpperCase() === searchTerm.toUpperCase();
-        })) {
-            terms.push(searchTerm);
-        }
-
-        input.val(terms.join(' '));
-
-        // Filter the repositories with the updated search terms
-        this.search();
+        btn.attr('state', hidden ? 'hidden' : 'visible');
+        btn.attr('title', hidden ? 'Show all repository groups' : 'Hide all repository groups');
+        btn.find('img').attr('src', hidden ? '/assets/icons/view-off.svg' : '/assets/icons/view.svg');
+        btn.find('span').text(hidden ? 'Expand all' : 'Collapse all');
     }
 
     /**

@@ -29,7 +29,7 @@ $nowrapList = function (array $values): string {
 
 <!-- repo-id is used as a unique key by the repositories list partial reload, it must not collide with repositories Ids -->
 <div class="repo-item-wrapper <?= !empty($expandAlone) ? 'repo-span-full' : '' ?> <?= !empty($userPreferences['repositories']['list']['expand']) ? 'height-100' : '' ?>" repo-id="mirror-<?= $mirror['Id'] ?>" mirror-id="<?= $mirror['Id'] ?>">
-    <div class="div-generic-blue margin-0 repo-item accent-<?= $accent ?> overflowx-auto" data-name="<?= htmlspecialchars($mirror['Name']) ?>" data-dist="<?= htmlspecialchars(implode(' ', array_merge($mirror['params']['dists'] ?? [], $mirror['params']['repos'] ?? []))) ?>" data-section="<?= htmlspecialchars(implode(' ', $mirror['params']['components'] ?? [])) ?>" data-releasever="<?= htmlspecialchars($mirror['Releasever']) ?>" data-type="mirror" data-package-type="<?= $mirror['Package_type'] ?>" data-description="<?= htmlspecialchars($mirror['Description'] ?? '') ?>" data-tags="<?= htmlspecialchars($mirror['Tags'] ?? '') ?>">
+    <div class="div-generic-blue margin-0 repo-item accent-<?= $accent ?> overflowx-auto" data-name="<?= htmlspecialchars($mirror['Name']) ?>" data-dist="<?= htmlspecialchars(implode(' ', array_merge($mirror['params']['dists'] ?? [], $mirror['params']['repos'] ?? [], $mirror['params']['versions'] ?? []))) ?>" data-section="<?= htmlspecialchars(implode(' ', $mirror['params']['components'] ?? [])) ?>" data-releasever="<?= htmlspecialchars($mirror['Releasever']) ?>" data-type="mirror" data-package-type="<?= $mirror['Package_type'] ?>" data-description="<?= htmlspecialchars($mirror['Description'] ?? '') ?>" data-tags="<?= htmlspecialchars($mirror['Tags'] ?? '') ?>">
         <div class="repo-item-header flex flex-wrap row-gap-10 column-gap-20 justify-space-between">
             <div class="flex flex-1 flex-wrap align-item-center row-gap-15 column-gap-15">
                 <p class="font-size-16 mediumopacity-cst">
@@ -48,8 +48,19 @@ $nowrapList = function (array $values): string {
                             <?php
                         endif;
 
+                        if (!empty($mirror['params']['branch'])) : ?>
+                            <span class="flex align-item-center column-gap-5"><span class="dot">●</span><span title="Branch"><?= htmlspecialchars($mirror['params']['branch']) ?></span></span>
+                            <?php
+                        endif;
+
                         if (!empty($mirror['params']['repos'])) : ?>
                             <span class="flex align-item-center column-gap-5"><span class="dot">●</span><span title="Repositories"><?= $nowrapList($mirror['params']['repos']) ?></span></span>
+                            <?php
+                        endif;
+
+                        if (!empty($mirror['params']['versions'])) : ?>
+                            <span class="flex align-item-center column-gap-5"><span class="dot">●</span><span title="Versions"><?= $nowrapList($mirror['params']['versions']) ?></span></span>
+                            <span class="flex align-item-center column-gap-5"><span class="dot">●</span><span title="Content"><?= $nowrapList($mirror['params']['content'] ?? []) ?></span></span>
                             <?php
                         endif ?>
                     </a>
@@ -80,13 +91,13 @@ $nowrapList = function (array $values): string {
 
             <div class="flex flex-wrap justify-end align-item-start row-gap-5 column-gap-15 margin-left-auto mediumopacity-cst nowrap">
                 <!-- Source repository, followed by the repository type in a discreet way -->
-                <div class="flex flex-wrap justify-end align-item-center column-gap-5" title="Mirror of the <?= htmlspecialchars($mirror['Source']) ?> source repository: upstream metadata and signatures are copied as is, clients use the upstream GPG key.">
+                <div class="flex flex-wrap justify-end align-item-center column-gap-5" title="Mirror of the <?= htmlspecialchars($mirror['Source']) ?> source repository: upstream metadata and signatures are copied as is, clients use the upstream <?= Mirror::getSignatureType($mirror['Package_type']) ?> key.">
                     <img src="/assets/icons/internet.svg" class="icon-np icon-medium" />
                     <span class="font-size-13"><?= htmlspecialchars($mirror['Source']) ?></span>
                     <span class="font-size-13 lowopacity-cst">● mirror</span>
                 </div>
 
-                <div class="flex align-item-center column-gap-5" title="This is a <?= $mirror['Package_type'] ?> mirror. Architectures: <?= htmlspecialchars(implode(', ', $mirror['params']['arch'] ?? [])) ?>">
+                <div class="flex align-item-center column-gap-5" title="This is a <?= $mirror['Package_type'] ?> mirror.">
                     <img src="/assets/icons/package.svg" class="icon-np icon-medium" />
                     <span class="font-size-13"><?= $mirror['Package_type'] ?></span>
                 </div>
@@ -111,10 +122,21 @@ $nowrapList = function (array $values): string {
                 <div class="snap-container mirror-snap-container grid-rfr-1-2 pointer" mirror-id="<?= $mirror['Id'] ?>" mirror-snap-id="<?= $snapshot['Id'] ?>" snap-label="<?= $date . ' ' . $snapshot['Time'] ?>" title="Click to select">
                     <input type="checkbox" class="snap-checkbox-input mirror-snap-checkbox" />
                     <div class="flex align-item-center column-gap-20">
-                        <div class="flex align-item-center column-gap-10" title="Snapshot created at <?= $date . ' ' . $snapshot['Time'] ?>. Click to browse content">
+                        <!-- empty title prevents the parent "Click to select" native tooltip from showing over the snapshot tooltip -->
+                        <div class="flex align-item-center column-gap-10" title="" data-tooltip-template>
                             <img src="/assets/icons/calendar.svg" class="snap-icon icon-np lowopacity-cst" />
                             <a href="/snapshot/mirror/<?= $snapshot['Id'] ?>"><span class="snap-date lowopacity"><?= $date ?></span></a>
                             <span class="snap-size lowopacity-cst"><?= $time ?></span>
+                            <template>
+                                <p class="tooltip-title">Snapshot</p>
+                                <div class="tooltip-properties">
+                                    <span class="tooltip-property-label">Created</span>
+                                    <span class="tooltip-property-value"><?= $date . ' ' . $time ?></span>
+                                    <span class="tooltip-property-label">Architecture</span>
+                                    <span class="tooltip-property-value"><?= !empty($mirror['params']['arch']) ? htmlspecialchars(implode(', ', $mirror['params']['arch'])) : '?' ?></span>
+                                </div>
+                                <p class="note margin-top-5">Click to browse content</p>
+                            </template>
                         </div>
 
                         <div class="snap-separator"></div>
@@ -131,17 +153,19 @@ $nowrapList = function (array $values): string {
                                 $archRepoDir = $mirror['Package_type'] == 'arch' ? ($mirror['params']['repos'][0] ?? '') . '/os/' . ($mirror['params']['arch'][0] ?? '') . '/' . ($mirror['params']['repos'][0] ?? '') : '';
                                 $unsignedArchDb = $mirror['Package_type'] == 'arch' && !is_file(Mirror::getPath(Mirror::getDirOf($mirror)) . '/' . $snapshot['dirName'] . '/' . $archRepoDir . '.db.sig');
 
+                                $signatureType = Mirror::getSignatureType($mirror['Package_type']);
+
                                 if (($mirror['params']['gpg-check'] ?? 'true') == 'true' && $unsignedArchDb) : ?>
                                     <img src="/assets/icons/key.svg" class="icon-medium icon-np mediumopacity-cst" />
                                     <span class="snap-signed mediumopacity-cst" title="The database is not signed by the source repository (as for Arch Linux official repositories): packages signatures are mirrored and checked by pacman on clients">Unsigned database</span>
                                     <?php
                                 elseif (($mirror['params']['gpg-check'] ?? 'true') == 'true') : ?>
                                     <img src="/assets/icons/check.svg" class="icon-medium icon-np" />
-                                    <span class="snap-signed mediumopacity-cst" title="Upstream GPG signature was verified during sync">Verified</span>
+                                    <span class="snap-signed mediumopacity-cst" title="Upstream <?= $signatureType ?> signature was verified during sync">Verified</span>
                                     <?php
                                 else : ?>
                                     <img src="/assets/icons/error.svg" class="icon-medium icon-np" />
-                                    <span class="snap-signed mediumopacity-cst" title="Upstream GPG signature was not verified during sync">Unverified</span>
+                                    <span class="snap-signed mediumopacity-cst" title="Upstream <?= $signatureType ?> signature was not verified during sync">Unverified</span>
                                     <?php
                                 endif ?>
                             </div>

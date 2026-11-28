@@ -277,6 +277,28 @@ class Settings
         }
 
         /**
+         *  Repositories / ALPINE
+         */
+        if (!empty($sendSettings['alpineRepo'])) {
+            if ($sendSettings['alpineRepo'] == 'true') {
+                $settingsToApply['ALPINE_REPO'] = 'true';
+            } else {
+                $settingsToApply['ALPINE_REPO'] = 'false';
+            }
+        }
+
+        /**
+         *  Repositories / OPENBSD
+         */
+        if (!empty($sendSettings['openbsdRepo'])) {
+            if ($sendSettings['openbsdRepo'] == 'true') {
+                $settingsToApply['OPENBSD_REPO'] = 'true';
+            } else {
+                $settingsToApply['OPENBSD_REPO'] = 'false';
+            }
+        }
+
+        /**
          *  Repositories / GPG signing key
          */
         if (!empty($sendSettings['gpgKeyID'])) {

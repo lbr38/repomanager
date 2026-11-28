@@ -70,7 +70,7 @@ if (defined('__ACTUAL_URI__') && !empty(__ACTUAL_URI__[1])) {
 
             <!-- Hosts tab -->
             <?php
-            if (HostPermission::allowed()) : ?>
+            if (MANAGE_HOSTS == 'true' and HostPermission::allowed()) : ?>
                 <div class="menu-item <?= in_array($currentSection, ['hosts', 'host']) ? 'menu-item-active' : '' ?>">
                     <a href="/hosts">
                         <img src="/assets/icons/server.svg" class="icon" title="Hosts" />

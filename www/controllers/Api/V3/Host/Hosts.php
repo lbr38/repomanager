@@ -31,6 +31,14 @@ class Hosts extends Controller
     // Hosts statuses that can be filtered
     private const STATUSES = ['uptodate', 'outdated', 'compliant', 'non-compliant'];
 
+    public function __construct(\Controllers\Api\V3\Request $request)
+    {
+        parent::__construct($request);
+
+        // Hosts cannot be listed, read nor deleted while hosts management is disabled
+        self::checkHostsManagement();
+    }
+
     /**
      *  List hosts, with optional filters that can be combined:
      *  - properties: ?os=debian&os_version=12&kernel=...&arch=...&type=...&profile=...&env=...

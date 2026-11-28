@@ -84,7 +84,15 @@ class Snapshot
         }
 
         // Packages files extensions, Arch Linux packages are .pkg.tar.zst (or .pkg.tar.xz for older ones)
-        $extensions = ['deb' => ['deb'], 'rpm' => ['rpm'], 'arch' => ['zst', 'xz']][$mirror['Package_type']] ?? [];
+        $extensions = ['deb' => ['deb'], 'rpm' => ['rpm'], 'arch' => ['zst', 'xz'], 'alpine' => ['apk'], 'openbsd' => ['tgz']][$mirror['Package_type']] ?? [];
+        $packages = \Controllers\Filesystem\File::findRecursive($path, [], $extensions);
+
+        // OpenBSD install sets and binary patches are .tgz files too, only the files of the packages directories are packages
+        if ($mirror['Package_type'] == 'openbsd') {
+            $packages = array_filter($packages, function ($package) {
+                return preg_match('#/packages(-stable)?/[^/]+/[^/]+$#', $package);
+            });
+        }
 
         return [
             'mirror'        => $mirror,
@@ -94,7 +102,7 @@ class Snapshot
             'accent'        => $mirror['accent'],
             'date'          => \DateTime::createFromFormat('Y-m-d', $snapshot['Date'])->format('d-m-Y') . ' ' . substr($snapshot['Time'], 0, 5),
             'size'          => (int) $snapshot['Size'],
-            'packagesCount' => count(\Controllers\Filesystem\File::findRecursive($path, [], $extensions))
+            'packagesCount' => count($packages)
         ];
     }
 

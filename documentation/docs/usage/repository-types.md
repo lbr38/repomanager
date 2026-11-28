@@ -2,19 +2,19 @@ When creating a new repository from the **REPOSITORIES** tab, you must choose be
 
 | | Curated repository | Local repository | Mirror |
 |---|---|---|---|
-| **Package types** | `deb`, `rpm` | `deb`, `rpm` | `deb`, `rpm`, `arch` |
-| **Content** | All or selected packages from a [source repository](/configuration/source-repositories/): one distribution + one component (deb), one release version (rpm) | Your own packages, uploaded manually | All packages of a source repository, copied as is: one or several distributions with all their selected components, sharing the same pool as upstream (deb), one release version with all its architectures (rpm), one or several repositories such as `core` and `extra` (arch) |
+| **Package types** | `deb`, `rpm` | `deb`, `rpm` | `deb`, `rpm`, `arch`, `alpine`, `openbsd` |
+| **Content** | All or selected packages from a [source repository](/configuration/source-repositories/): one distribution + one component (deb), one release version (rpm) | Your own packages, uploaded manually | All packages of a source repository, copied as is: one or several distributions with all their selected components, sharing the same pool as upstream (deb), one release version with all its architectures (rpm), one or several repositories such as `core` and `extra` (arch), one branch with one or several repositories such as `main` and `community` (alpine), one or several versions with their packages, binary patches, install sets and sources (openbsd) |
 | **Package filtering** (include, exclude, keep latest versions) | Yes | No | No, all packages are mirrored |
-| **Metadata** (`Release`, `Packages`, `repomd.xml`, `core.db`...) | Rebuilt by Repomanager | Rebuilt by Repomanager | Upstream files, byte for byte |
+| **Metadata** (`Release`, `Packages`, `repomd.xml`, `core.db`, `APKINDEX.tar.gz`, `SHA256.sig`...) | Rebuilt by Repomanager | Rebuilt by Repomanager | Upstream files, byte for byte |
 | **GPG key checked by clients** | Repomanager signing key | Repomanager signing key | **Upstream key** (e.g. Debian, Rocky Linux, nginx...) |
 | **Packages upload, deletion, metadata rebuild** | Yes | Yes | No, snapshots are read-only |
-| **Published under** | `https://<FQDN>/repo/` | `https://<FQDN>/repo/` | `https://<FQDN>/mirror/deb/<name>/<environment>/`<br>`https://<FQDN>/mirror/rpm/<name>/<release version>/<environment>/`<br>`https://<FQDN>/mirror/arch/<name>/<environment>/` |
+| **Published under** | `https://<FQDN>/repo/` | `https://<FQDN>/repo/` | `https://<FQDN>/mirror/deb/<name>/<environment>/`<br>`https://<FQDN>/mirror/rpm/<name>/<release version>/<environment>/`<br>`https://<FQDN>/mirror/arch/<name>/<environment>/`<br>`https://<FQDN>/mirror/alpine/<name>/<branch>/<environment>/`<br>`https://<FQDN>/mirror/openbsd/<name>/<environment>/` |
 | **Storage** | `repomanager-repo` volume | `repomanager-repo` volume | `repomanager-mirror` volume |
 | **Use case** | Provide a controlled copy of an upstream repository: selected architectures and packages, signed with your own GPG key | Distribute internal or custom packages | Provide a public or internal mirror that clients use exactly as the upstream repository, with the upstream GPG key |
 
 All types share the same features: snapshots, environments, groups, description and tags, scheduled tasks, statistics and permissions. They are listed together in the **REPOSITORIES** tab, the type is displayed on the right of each repository card (`local`, `curated` or `mirror`, next to the source repository).
 
-Arch Linux repositories can only be mirrored.
+Arch Linux, Alpine Linux and OpenBSD repositories can only be mirrored.
 
 To create a repository of each type, see [Operations on repositories](/usage/operations/).
 
@@ -42,7 +42,7 @@ Local repositories are stored in the `repomanager-repo` volume (`/home/repo` ins
 
 Mirrors are meant to provide **public or internal mirrors** that clients use exactly as they would use the upstream repository. Nothing is rebuilt: metadata and signatures are the upstream ones, so clients keep checking packages with the **upstream GPG key**, not with the Repomanager signing key.
 
-A mirror can cover several distributions (deb) or repositories (arch) at once. Each sync creates a new snapshot, see [Sync a mirror](/usage/operations/#sync-a-mirror).
+A mirror can cover several distributions (deb), repositories (arch, alpine) or versions (openbsd) at once. Each sync creates a new snapshot, see [Sync a mirror](/usage/operations/#sync-a-mirror).
 
 Mirrors are stored in the `repomanager-mirror` volume (`/home/mirror` inside the container). See [Standard installation](/getting-started/installation/) and [Backup and restore](/administration/backup-restore/#mirrors).
 
@@ -55,6 +55,11 @@ Mirrors are stored in the `repomanager-mirror` volume (`/home/mirror` inside the
 - rpm: packages declared with a `xml:base` attribute in the upstream metadata are downloaded by clients from that URL, not from the mirror. The sync prints a warning in this case.
 - arch: most repositories, including Arch Linux official ones, do not sign their database (`<repo>.db.sig`). In this case the sync prints a note, the snapshot is labelled `Unsigned database`, and packages signatures (`.sig` files, mirrored with the packages) are checked by pacman on clients.
 - arch: the `<repo>.db.tar.gz` and `<repo>.files.tar.gz` aliases of upstream mirrors are not created, pacman only uses `<repo>.db` and `<repo>.files`.
+- alpine: only the apk v2 index format (`APKINDEX.tar.gz`) is supported, as used by Alpine Linux up to now. The apk v3 index format (`Packages.adb`) is not supported yet.
+- alpine: the indexes signature is verified during the sync with the RSA keys of the source repository. Packages are verified by their size and the checksum of their control part, as listed in the index; apk verifies the rest of the package on clients.
+- openbsd: only releases are supported, not snapshots (their packages are rebuilt with the same file names).
+- openbsd: firmwares are not part of OpenBSD mirrors, `fw_update` always retrieves them from `firmware.openbsd.org`.
+- openbsd: `pkg_add` lists the packages from the directory page: an `index.html` listing the files is generated in each packages directory, whatever the directory listing setting below.
 - Directory listing of `/mirror/` is disabled by default, see [Enable repository web browsing](/reference/miscellaneous/#enable-repository-web-browsing).
 - Mirrors cannot be added to [host profiles](/usage/hosts/#profiles): hosts configured from a profile (e.g. with linupdate) do not get the mirrors configuration automatically, configure them with the commands of the `Install` button (see [Install a repository on a client](/usage/operations/#install-a-repository-on-a-client)).
 - As mirrors may be public and heavily used, keep in mind that each access request is stored in the statistics database when statistics are enabled (requests older than one year are deleted).

@@ -198,10 +198,91 @@ class Deb extends Metadata
         }
 
         // Sign Release file with GPG key
+        $distDir = $this->root . '/dists/' . $this->dist;
+        $this->sign($distDir . '/Release', $distDir . '/Release.gpg', $distDir . '/InRelease');
+
+        $this->taskLogSubStepController->completed();
+    }
+
+    /**
+     *  Set the Date field of the Release file to the current date, and sign it again if it is signed
+     *
+     *  apt ignores a Release file older than the one it already has for the same URL: without this, clients would
+     *  keep the packages lists of the previous snapshot when an environment is pointed back to an older snapshot.
+     *  The indices referenced by the Release file are left untouched, up to date clients only download it again.
+     */
+    public function refreshReleaseDate(): void
+    {
+        $distDir = $this->root . '/dists/' . $this->dist;
+
+        if (!file_exists($distDir . '/Release')) {
+            throw new Exception('Could not find Release metadata file in ' . $distDir);
+        }
+
+        $content = file_get_contents($distDir . '/Release');
+
+        if ($content === false) {
+            throw new Exception('Failed to read Release metadata file');
+        }
+
+        // Same format as apt-ftparchive (RFC 1123, UTC)
+        $content = preg_replace('/^Date: .*$/m', 'Date: ' . gmdate('D, d M Y H:i:s') . ' UTC', $content, 1, $count);
+
+        if ($content === null or $count != 1) {
+            throw new Exception('Could not find Date field in Release metadata file');
+        }
+
+        /**
+         *  New files are written under a temporary name then moved, so that clients never get a partially written file
+         *  The Release file is signed again only if it was signed (InRelease and/or Release.gpg file)
+         */
+        $files = ['Release' => $this->root . '/Release.tmp'];
+
+        if (file_exists($distDir . '/InRelease') or file_exists($distDir . '/Release.gpg')) {
+            $files['Release.gpg'] = $this->root . '/Release.gpg.tmp';
+            $files['InRelease'] = $this->root . '/InRelease.tmp';
+        }
+
+        try {
+            // Remove temporary files that may remain from a previous failure (gpg does not overwrite existing files)
+            foreach ($files as $tmpFile) {
+                if (file_exists($tmpFile) and !unlink($tmpFile)) {
+                    throw new Exception('Failed to remove temporary file ' . $tmpFile);
+                }
+            }
+
+            if (file_put_contents($files['Release'], $content) === false) {
+                throw new Exception('Failed to write Release metadata file');
+            }
+
+            if (isset($files['InRelease'])) {
+                $this->sign($files['Release'], $files['Release.gpg'], $files['InRelease']);
+            }
+
+            // InRelease, used first by apt, is replaced last
+            foreach (['Release.gpg', 'Release', 'InRelease'] as $name) {
+                if (isset($files[$name]) and !rename($files[$name], $distDir . '/' . $name)) {
+                    throw new Exception('Failed to move ' . $name . ' metadata file to ' . $distDir);
+                }
+            }
+        } finally {
+            foreach ($files as $tmpFile) {
+                if (file_exists($tmpFile)) {
+                    unlink($tmpFile);
+                }
+            }
+        }
+    }
+
+    /**
+     *  Sign a Release file with the GPG signing key: detached signature (Release.gpg) and clearsigned file (InRelease)
+     */
+    private function sign(string $release, string $releaseGpg, string $inRelease): void
+    {
         $myprocess = new Process(
             '/usr/bin/gpg --homedir ' . escapeshellarg(GPGHOME) . ' -u ' . escapeshellarg(GPG_SIGNING_KEYID)
-            . ' --output ' . escapeshellarg($this->root . '/dists/' . $this->dist . '/Release.gpg')
-            . ' -ba ' . escapeshellarg($this->root . '/dists/' . $this->dist . '/Release')
+            . ' --output ' . escapeshellarg($releaseGpg)
+            . ' -ba ' . escapeshellarg($release)
         );
         $myprocess->execute();
 
@@ -214,8 +295,8 @@ class Deb extends Metadata
         // Generate InRelease file (clearsigned Release file), preferred by apt over Release + Release.gpg
         $myprocess = new Process(
             '/usr/bin/gpg --homedir ' . escapeshellarg(GPGHOME) . ' -u ' . escapeshellarg(GPG_SIGNING_KEYID)
-            . ' --output ' . escapeshellarg($this->root . '/dists/' . $this->dist . '/InRelease')
-            . ' --clearsign ' . escapeshellarg($this->root . '/dists/' . $this->dist . '/Release')
+            . ' --output ' . escapeshellarg($inRelease)
+            . ' --clearsign ' . escapeshellarg($release)
         );
         $myprocess->execute();
 
@@ -224,8 +305,6 @@ class Deb extends Metadata
         }
 
         $myprocess->close();
-
-        $this->taskLogSubStepController->completed();
     }
 
     /**

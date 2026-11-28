@@ -58,17 +58,19 @@ From the **REPOSITORIES** tab:
 
 From the **REPOSITORIES** tab:
 
-**Step 1:** Add the source repository to mirror from, if not already done. See [Source repositories](/configuration/source-repositories/). Import its GPG key if you want the upstream signature to be checked during the sync.
+**Step 1:** Add the source repository to mirror from, if not already done. See [Source repositories](/configuration/source-repositories/). Import its GPG key (or its RSA keys for an alpine source repository, its signify keys for an openbsd one) if you want the upstream signature to be checked during the sync.
 
-**Step 2:** Click the ``Create a new repository`` button, select ``Mirror`` as the repository type (Arch Linux repositories can only be mirrored, selecting the `arch` package type opens the mirror form directly) and fill in the form:
+**Step 2:** Click the ``Create a new repository`` button, select ``Mirror`` as the repository type (Arch Linux, Alpine Linux and OpenBSD repositories can only be mirrored, selecting the `arch`, `alpine` or `openbsd` package type opens the mirror form directly) and fill in the form:
 
-- **Name**: deb, rpm and arch mirrors are separated, mirrors of different package types can have the same name.
+- **Name**: deb, rpm, arch, alpine and openbsd mirrors are separated, mirrors of different package types can have the same name.
 - **Source repository**.
 - deb: the **distribution(s)** and the **components** to mirror. All selected distributions are mirrored together in the same tree and share the same `pool`, as upstream: clients select the distribution in their `sources.list` (see [Install a repository on a client](#install-a-repository-on-a-client)). The selected components are mirrored for each distribution. To manage distributions separately (different environments or sync schedules), create one mirror per distribution.
 - rpm: the **release version**, which replaces `$releasever` in the source repository URL. Several mirrors can have the same name with different release versions (e.g. `nginx` for release versions `9` and `10`), they are published under `https://<FQDN>/mirror/rpm/<name>/<release version>/`.
 - arch: the **repositories** to mirror (e.g. `core`, `extra`), which replace `$repo` in the source repository URL. All selected repositories are mirrored together, each one under `<repository>/os/<architecture>/`, as on Arch Linux mirrors.
+- alpine: the **branch** (e.g. `v3.24`, `edge`), which replaces `$branch` in the source repository URL, and the **repositories** to mirror (e.g. `main`, `community`), which replace `$repo`. A mirror contains one branch: several mirrors can have the same name with different branches, they are published under `https://<FQDN>/mirror/alpine/<name>/<branch>/`. All selected repositories are mirrored together, each one under `<repository>/<architecture>/`. The branch and the repositories are only required if the source repository URL contains `$branch` and `$repo`: a source repository without them (e.g. Amazon Corretto) is mirrored as a single repository, clients use the mirror URL directly. A mirror without branch cannot have the same name as a mirror with a branch.
+- openbsd: the **version(s)** to mirror (e.g. `7.9`, `8.0`) and the **content** of each version: packages and their updates (`pkg_add`), binary patches (`syspatch`), install sets (`sysupgrade`, network installs) and sources, all selected by default. All selected versions are mirrored together in the same tree, as on the official mirrors: clients set the mirror URL in `/etc/installurl`, and `sysupgrade` finds the next version in it. A client tool can only use the mirror if its content is mirrored. Versions, content and architectures can be edited later, see [Edit repository properties](#edit-repository-properties).
 - **Architecture(s)** to mirror.
-- **Check GPG signatures**: check the upstream signature with the GPG keys imported in Repomanager (recommended).
+- **Check GPG signatures**: check the upstream signature with the GPG keys imported in Repomanager (recommended). For alpine mirrors, the indexes signature is checked with the RSA keys of the source repository. For openbsd mirrors, the files lists signature (`SHA256.sig`) is checked with the signify keys of the source repository.
 - **Environment(s)**: optional, environments make the snapshot available to clients.
 - **Description**, **tags**, **snapshots retention** and **group**: optional, as for other repository types. See [Edit repository properties](#edit-repository-properties).
 
@@ -79,6 +81,8 @@ From the **REPOSITORIES** tab:
 ??? note "How architectures are handled"
     - **deb**: only the indices and packages of the selected architectures are retrieved. `all` packages are always included. Select `src` to also mirror source packages.
     - **arch**: each selected architecture replaces `$arch` in the source repository URL. `any` packages are included in each architecture repository, as upstream.
+    - **alpine**: each selected architecture is appended to the source repository URL, as apk does. Packages are retrieved from the directory of their own architecture, as apk clients do (official indexes only contain packages of the index architecture).
+    - **openbsd**: architectures are platforms, as named by OpenBSD (e.g. `amd64`, `arm64`). Install sets and binary patches are mirrored under the platform name, packages under the architecture name of the platform, as upstream (e.g. `packages/aarch64/` for `arm64`). Not all platforms have packages, packages updates or binary patches: the sync prints a note for each missing directory.
     - **rpm**: if the source URL contains `$basearch`, one repository per selected architecture is mirrored under `<snapshot>/<arch>/` (`src` is mirrored under `SRPMS/`). There is no `noarch` repository: `noarch` packages are included in each architecture repository. If the source URL does not contain `$basearch`, the repository is mirrored as a whole, whatever the selected architectures.
 
 
@@ -142,6 +146,7 @@ From the **REPOSITORIES** tab, click the `Edit` button on the repository card to
 [![Edit button](https://assets.repomanager.net/repomanager/6.2.0/usage/operations/edit-repository-btn.png)](https://assets.repomanager.net/repomanager/6.2.0/usage/operations/edit-repository-btn.png)
 
 - **Source repository** (curated repositories only): the source repository used by the next updates.
+- **Versions**, **content** and **architectures** (openbsd mirrors only): used by the next syncs, existing snapshots are not modified. Add the next OpenBSD version to the mirror before running `sysupgrade` on clients, so that they find it under the same URL, and remove the versions that are no longer used.
 - **Snapshots retention**: see [Snapshots retention](#snapshots-retention).
 
 [![Edit repository properties](https://assets.repomanager.net/repomanager/6.2.0/usage/operations/edit-repository.png)](https://assets.repomanager.net/repomanager/6.2.0/usage/operations/edit-repository.png)
@@ -232,6 +237,8 @@ From the **REPOSITORIES** tab:
 **Step 2:** Click the ``Duplicate`` button.
 
 **Step 3:** Specify the name of the new repository that will be created from the selected repository snapshot.
+
+The release version (rpm) or the distribution (deb) of the new repository can also be changed, e.g. to duplicate a ``9`` repository into a ``9.9`` one with the same name. The component (deb) stays the same. A curated repository is then updated from the same source repository, with its own release version or distribution: the panel warns if the selected value is not defined in the source repository, as the updates of the new repository fail if the source repository does not provide it.
 
 [![Duplicate a repository](https://assets.repomanager.net/repomanager/6.0.0/usage/operations/duplicate-repository.png)](https://assets.repomanager.net/repomanager/6.0.0/usage/operations/duplicate-repository.png)
 
@@ -426,6 +433,27 @@ Clients use the mirror URL of an environment, and the **upstream GPG key** (not 
     ```
 
     Packages are checked by pacman with the upstream keyring, as usual (e.g. `archlinux-keyring`, `chaotic-keyring`).
+
+=== "alpine"
+
+    Example for an `alpine` mirror of the `v3.24` branch, `main` and `community` repositories, on the `prod` environment. Each repository is a line of `/etc/apk/repositories`, apk appends the architecture of the host to it:
+
+    ```
+    https://<FQDN>/mirror/alpine/alpine/v3.24/prod/main
+    https://<FQDN>/mirror/alpine/alpine/v3.24/prod/community
+    ```
+
+    The indexes are checked by apk with the upstream RSA keys, installed in `/etc/apk/keys/` (the official Alpine Linux keys are installed by the `alpine-keys` package). The `Install` button also gives the commands to install the keys of the source repository.
+
+=== "openbsd"
+
+    Example for an `openbsd` mirror on the `prod` environment. The mirror URL replaces the one of `/etc/installurl`, as for an official mirror:
+
+    ```
+    echo 'https://<FQDN>/mirror/openbsd/openbsd/prod' > /etc/installurl
+    ```
+
+    `pkg_add`, `syspatch` and `sysupgrade` then use the mirror, according to its content. `sysupgrade` looks for the next OpenBSD version in the mirror: add it to the mirror versions beforehand (see [Edit repository properties](#edit-repository-properties)), `/etc/installurl` does not change. Packages, binary patches and install sets are checked with the upstream signify keys, installed in `/etc/signify/` by the base system. Firmwares are not part of OpenBSD mirrors: `fw_update` retrieves them from `firmware.openbsd.org`.
 
 Mirrors cannot be added to [host profiles](/usage/hosts/#profiles), see [Mirrors limitations](/usage/repository-types/#mirrors-limitations).
 

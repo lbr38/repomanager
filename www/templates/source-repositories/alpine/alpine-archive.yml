@@ -1,0 +1,110 @@
+---
+description: Alpine Linux archived repositories (end of support branches)
+type: alpine
+repositories:
+  # Alpine Linux branches that reached their end of support, still available on the Alpine Linux CDN
+  # Older branches do not have all the architectures, and the community repository exists since v3.3
+  - name: alpine-archive
+    type: alpine
+    description: Alpine Linux archived repositories (EOL)
+    url: https://dl-cdn.alpinelinux.org/alpine/$branch/$repo
+    branches:
+      - name: v3.21
+        description: Alpine Linux 3.21
+        eol: 2026-11-01
+      - name: v3.20
+        description: Alpine Linux 3.20
+        eol: 2026-04-01
+      - name: v3.19
+        description: Alpine Linux 3.19
+        eol: 2025-11-01
+      - name: v3.18
+        description: Alpine Linux 3.18
+        eol: 2025-05-09
+      - name: v3.17
+        description: Alpine Linux 3.17
+        eol: 2024-11-22
+      - name: v3.16
+        description: Alpine Linux 3.16
+        eol: 2024-05-23
+      - name: v3.15
+        description: Alpine Linux 3.15
+        eol: 2023-11-01
+      - name: v3.14
+        description: Alpine Linux 3.14
+        eol: 2023-05-01
+      - name: v3.13
+        description: Alpine Linux 3.13
+        eol: 2022-11-01
+      - name: v3.12
+        description: Alpine Linux 3.12
+        eol: 2022-05-01
+      - name: v3.11
+        description: Alpine Linux 3.11
+        eol: 2021-11-01
+      - name: v3.10
+        description: Alpine Linux 3.10
+        eol: 2021-05-01
+      - name: v3.9
+        description: Alpine Linux 3.9
+        eol: 2020-11-01
+      - name: v3.8
+        description: Alpine Linux 3.8
+        eol: 2020-05-01
+      - name: v3.7
+        description: Alpine Linux 3.7
+        eol: 2019-11-01
+      - name: v3.6
+        description: Alpine Linux 3.6
+        eol: 2019-05-01
+      - name: v3.5
+        description: Alpine Linux 3.5
+        eol: 2018-11-01
+      - name: v3.4
+        description: Alpine Linux 3.4
+        eol: 2018-05-01
+      - name: v3.3
+        description: Alpine Linux 3.3
+        eol: 2017-11-01
+    repos:
+      - name: main
+        description: Alpine Linux main
+      - name: community
+        description: Alpine Linux community (since v3.3)
+    archs:
+      - name: x86_64
+      - name: x86
+      - name: aarch64
+        description: since v3.5
+      - name: armhf
+      - name: armv7
+        description: since v3.9
+      - name: ppc64le
+        description: since v3.6
+      - name: s390x
+        description: since v3.6
+      - name: riscv64
+        description: since v3.20
+      - name: loongarch64
+        description: since v3.21
+      - name: mips64
+        description: v3.12 and v3.13 only
+    keys:
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-4a6a0840.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-5243ef4b.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-524d27bb.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-5261cecb.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-58199dcc.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-58cbb476.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-58e4f17d.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-5e69ca50.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-60ac2099.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-6165ee59.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-61666e3f.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-616a9724.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-616abc23.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-616ac3bc.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-616adfeb.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-616ae350.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-616db30d.rsa.pub
+      - link: https://raw.githubusercontent.com/alpinelinux/aports/master/main/alpine-keys/alpine-devel@lists.alpinelinux.org-66ba20fe.rsa.pub

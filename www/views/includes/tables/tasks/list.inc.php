@@ -507,7 +507,18 @@ use \Controllers\Task\Task; ?>
                         <?php
                         if ($taskRawParams['action'] == 'duplicate') : ?>
                             <h6>DUPLICATE TO</h6>
-                            <p><?= $taskRawParams['name'] ?></p>
+                            <p>
+                                <?php
+                                // Release version (rpm) or distribution (deb) of the new repository (tasks created before they could be changed only have a name)
+                                echo $taskRawParams['name'];
+
+                                if (!empty($taskRawParams['releasever'])) {
+                                    echo ' ❯ ' . $taskRawParams['releasever'];
+                                }
+                                if (!empty($taskRawParams['dist'])) {
+                                    echo ' ❯ ' . $taskRawParams['dist'] . ' ❯ ' . ($taskRawParams['repo-info']['section'] ?? '');
+                                } ?>
+                            </p>
                             <?php
                         endif;
 

@@ -269,7 +269,7 @@ class Browse
                 $class .= ' view-file pointer';
             }
 
-            if (in_array($extension, ['deb', 'rpm', 'xz', 'gz', 'dsc', 'zst'])) {
+            if (in_array($extension, ['deb', 'rpm', 'xz', 'gz', 'dsc', 'zst', 'apk', 'tgz'])) {
                 $title = 'Package file';
                 $icon = 'package';
             }
@@ -323,7 +323,7 @@ class Browse
                 $class .= ' view-file pointer';
             }
 
-            if (in_array($extension, ['deb', 'rpm', 'xz', 'gz', 'dsc', 'zst'])) {
+            if (in_array($extension, ['deb', 'rpm', 'xz', 'gz', 'dsc', 'zst', 'apk', 'tgz'])) {
                 $title = 'Package file';
                 $icon = 'package';
             }

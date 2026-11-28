@@ -91,10 +91,10 @@ $hostLine = true; ?>
                     <p id="search-host-count" class="note hide"></p>
                 </div>
 
-                <div class="search-host-input-container">
+                <div class="search-input-container">
                     <input type="text" id="search-host-input" autocomplete="off" spellcheck="false" placeholder="Hostname, IP, OS... or package=nginx" title="Search hosts by any field, filter by host attributes (os=, env=, ...) or by installed package (package=)" />
-                    <img id="search-host-clear" src="/assets/icons/close.svg" class="icon-small pointer lowopacity hide" title="Clear search" />
-                    <div id="search-host-suggestions" class="search-host-suggestions hide"></div>
+                    <img id="search-host-clear" src="/assets/icons/close.svg" class="search-input-clear icon-small pointer lowopacity hide" title="Clear search" />
+                    <div id="search-host-suggestions" class="search-suggestions hide"></div>
                 </div>
             </div>
 

@@ -5,7 +5,7 @@
         <h6 class="required">PACKAGE TYPE</h6>
         <div class="switch-field">
             <?php
-            // Arch Linux repositories can only be mirrors, selecting this type opens the mirror form (see events/mirror/actions.js)
+            // Arch Linux, Alpine Linux and OpenBSD repositories can only be mirrors, selecting these types opens the mirror form (see events/mirror/actions.js)
             $packageTypes = array_merge(RPM_REPO == 'true' ? ['rpm'] : [], DEB_REPO == 'true' ? ['deb'] : []);
 
             foreach ($packageTypes as $index => $packageType) : ?>
@@ -17,6 +17,18 @@
             if (ARCH_REPO == 'true' and $canCreateMirror) : ?>
                 <input type="radio" id="package-type-arch" name="package-type" value="arch" />
                 <label for="package-type-arch">arch</label>
+                <?php
+            endif;
+
+            if (ALPINE_REPO == 'true' and $canCreateMirror) : ?>
+                <input type="radio" id="package-type-alpine" name="package-type" value="alpine" />
+                <label for="package-type-alpine">alpine</label>
+                <?php
+            endif;
+
+            if (OPENBSD_REPO == 'true' and $canCreateMirror) : ?>
+                <input type="radio" id="package-type-openbsd" name="package-type" value="openbsd" />
+                <label for="package-type-openbsd">openbsd</label>
                 <?php
             endif ?>
         </div>

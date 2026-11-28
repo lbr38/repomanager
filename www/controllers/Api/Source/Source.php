@@ -33,12 +33,12 @@ class Source extends \Controllers\Api\Controller
         }
 
         /**
-         *  If a source type is specified (deb, rpm, arch)
+         *  If a source type is specified (deb, rpm, arch, alpine, openbsd)
          *  https://repomanager.mydomain.net/api/v2/source/{type}/
          */
         if (!empty($this->uri[4])) {
-            if (!in_array($this->uri[4], array('deb', 'rpm', 'arch'))) {
-                throw new Exception('Invalid source repository type (deb, rpm or arch)');
+            if (!in_array($this->uri[4], array('deb', 'rpm', 'arch', 'alpine', 'openbsd'))) {
+                throw new Exception('Invalid source repository type (deb, rpm, arch, alpine or openbsd)');
             }
 
             // If no source name or action is specified, then list all sources of the specified type

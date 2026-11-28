@@ -88,6 +88,25 @@ class Profile
     }
 
     /**
+     *  Return true if the package name matches one of the exclusion patterns
+     *  Same rule as linupdate: the pattern must match the whole package name (e.g. 'nginx' does not match 'nginx-common')
+     *  The wildcard '*' matches any characters, the legacy wildcard '.*' is still supported
+     */
+    public static function matchExclusion(string $packageName, array $patterns): bool
+    {
+        foreach ($patterns as $pattern) {
+            // Convert the wildcard '*' to the regex '.*', unless it is already preceded by a dot (legacy syntax)
+            $regex = preg_replace('/(?<!\.)\*/', '.*', $pattern);
+
+            if (preg_match('#^(?:' . $regex . ')$#', $packageName)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      *  Return an array containing repos members of a profile
      *  TODO later: delete older format (for linupdate < 3.17.0) and only keep new format (for linupdate >= 3.17.0), then remove $newFormat parameter
      */
@@ -392,16 +411,16 @@ class Profile
             foreach ($packagesMajorExcluded as $packageName) {
                 $packageName = Validate::string($packageName);
 
-                if (!Validate::alphaNumericHyphen($packageName, ['.*'])) {
+                if (!Validate::alphaNumericHyphen($packageName, ['.*', '*'])) {
                     throw new Exception('Package ' . $packageName . ' contains invalid characters');
                 }
 
                 /**
                  *  For each package, we check its syntax then we add it to database if it does not already exist
-                 *  If package contains a wildcard .* then we remove it before testing
+                 *  If package ends with a wildcard (* or legacy .*) then we remove it before testing
                  */
-                if (substr($packageName, -2) == ".*") {
-                    $packageNameFormatted = rtrim($packageName, ".*");
+                if (substr($packageName, -1) == '*') {
+                    $packageNameFormatted = rtrim($packageName, '.*');
                 } else {
                     $packageNameFormatted = $packageName;
                 }
@@ -416,16 +435,16 @@ class Profile
             foreach ($packagesExcluded as $packageName) {
                 $packageName = Validate::string($packageName);
 
-                if (!Validate::alphaNumericHyphen($packageName, ['.*'])) {
+                if (!Validate::alphaNumericHyphen($packageName, ['.*', '*'])) {
                     throw new Exception('Package ' . $packageName . ' contains invalid characters');
                 }
 
                 /**
                  *  For each package, we check its syntax then we add it to database if it does not already exist
-                 *  If package contains a wildcard .* then we remove it before testing
+                 *  If package ends with a wildcard (* or legacy .*) then we remove it before testing
                  */
-                if (substr($packageName, -2) == ".*") {
-                    $packageNameFormatted = rtrim($packageName, ".*");
+                if (substr($packageName, -1) == '*') {
+                    $packageNameFormatted = rtrim($packageName, '.*');
                 } else {
                     $packageNameFormatted = $packageName;
                 }
@@ -435,13 +454,25 @@ class Profile
             }
         }
 
+        // Services to reload
+        if (!empty($serviceNeedReload)) {
+            foreach ($serviceNeedReload as $serviceName) {
+                $serviceName = Validate::string($serviceName);
+
+                // Check that service name does not contain invalid characters (e.g. php8.2-fpm, a conditional package can contain a wildcard * or legacy .*)
+                if (!Validate::alphaNumericHyphen($serviceName, ['@', ':', '.', '*'])) {
+                    throw new Exception('Service ' . $serviceName . ' contains invalid characters');
+                }
+            }
+        }
+
         // Services to restart
         if (!empty($serviceNeedRestart)) {
             foreach ($serviceNeedRestart as $serviceName) {
                 $serviceName = Validate::string($serviceName);
 
-                // Check that service name does not contain invalid characters
-                if (!Validate::alphaNumericHyphen($serviceName, ['@', ':', '.*'])) {
+                // Check that service name does not contain invalid characters (e.g. php8.2-fpm, a conditional package can contain a wildcard * or legacy .*)
+                if (!Validate::alphaNumericHyphen($serviceName, ['@', ':', '.', '*'])) {
                     throw new Exception('Service ' . $serviceName . ' contains invalid characters');
                 }
 

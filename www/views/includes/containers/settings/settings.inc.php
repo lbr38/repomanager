@@ -1,450 +1,712 @@
-<section class="section-left reloadable-container" container="settings/settings">
+<section class="section-main reloadable-container" container="settings/settings">
+    <?php
+    /**
+     *  Each settings section is displayed one at a time (see settings.js)
+     *  All sections stay in the DOM: the save handler sends every .settings-param of this container
+     */ ?>
 
-    <h3>MAIN CONFIGURATION</h3>
+    <div class="settings-section" section="general" save="true">
+        <div class="group-header hide">
+            <div class="flex align-item-center column-gap-10">
+                <img src="/assets/icons/cog.svg" class="group-header-icon lowopacity-cst" />
+                <span class="group-header-name">General</span>
+                <span class="label-count settings-search-count hide"></span>
+            </div>
+        </div>
 
-    <div class="div-generic-blue">
-        <form class="settings-form" autocomplete="off">
-            <h6 class="margin-top-0">HOSTNAME</h6>
-            <p class="note">Repomanager FQDN, defined when pulling the Docker image.</p>
-            <input type="text" value="<?= WWW_HOSTNAME ?>" readonly />
-    
-            <h6 class="required">TIMEZONE</h6>
-            <p class="note">Specify your timezone. This is especially useful to ensure that scheduled tasks run at the specified time.</p>
-            <select class="settings-param" param-name="timezone">
-                <?php
-                $tzlist = DateTimeZone::listIdentifiers(DateTimeZone::ALL);
-                foreach ($tzlist as $timezone) {
-                    if ($timezone == TIMEZONE) {
-                        echo '<option value="' . $timezone . '" selected>' . $timezone . '</option>';
-                    } else {
-                        echo '<option value="' . $timezone . '">' . $timezone . '</option>';
-                    }
-                } ?>
-            </select>
+        <div class="settings-columns">
+            <div class="settings-column">
+                <div class="div-generic-blue">
+                    <form class="settings-form" autocomplete="off">
+                        <h5 class="margin-top-0">INSTANCE</h5>
 
-            <h6>DEFAULT CONTACT</h6>
-            <p class="note">Default contact for receiving emails. Currently, only scheduled tasks and their reminders send emails. You can specify multiple recipients.</p>
-            <select id="emailRecipientSelect" class="settings-param" param-name="emailRecipient" multiple>
-                <?php
-                if (!empty(EMAIL_RECIPIENT)) {
-                    foreach (EMAIL_RECIPIENT as $email) {
-                        echo '<option value="' . $email . '" selected>' . $email . '</option>';
-                    }
-                }
-                if (!empty($usersEmail)) {
-                    foreach ($usersEmail as $email) {
-                        if (!in_array($email, EMAIL_RECIPIENT)) {
-                            echo '<option value="' . $email . '">' . $email . '</option>';
-                        }
-                    }
-                } ?>
-            </select>
-            
-            <?php
-            if (!empty(EMAIL_RECIPIENT)) {
-                echo '<button type="button" id="send-test-email-btn" class="btn-medium-green margin-top-5" title="Send a test email">Send a test email</button>';
-            } ?>
+                        <div class="settings-field">
+                            <h6>HOSTNAME</h6>
+                            <p class="note">Repomanager FQDN, defined when pulling the Docker image.</p>
+                            <input type="text" value="<?= WWW_HOSTNAME ?>" readonly />
+                        </div>
 
-            <h6>SESSION TIMEOUT</h6>
-            <p class="note">User session timeout in seconds. After this time of inactivity, the user will be logged out and will have to log in again to access the web interface.</p>
-            <input class="settings-param" param-name="session-timeout" type="number" min="15" value="<?= SESSION_TIMEOUT ?>" placeholder="Default is 3600 (1 hour)">
+                        <div class="settings-field">
+                            <h6 class="required">TIMEZONE</h6>
+                            <p class="note">Specify your timezone. This is especially useful to ensure that scheduled tasks run at the specified time.</p>
+                            <select class="settings-param" param-name="timezone">
+                                <?php
+                                $tzlist = DateTimeZone::listIdentifiers(DateTimeZone::ALL);
+                                foreach ($tzlist as $timezone) {
+                                    if ($timezone == TIMEZONE) {
+                                        echo '<option value="' . $timezone . '" selected>' . $timezone . '</option>';
+                                    } else {
+                                        echo '<option value="' . $timezone . '">' . $timezone . '</option>';
+                                    }
+                                } ?>
+                            </select>
+                        </div>
 
-            <h6>USE A PROXY</h6>
-            <p class="note">Specify the proxy URL to use to access the internet. e.g. https://myproxy.com:8080</p>
-            <input class="settings-param" param-name="proxy" type="text" value="<?= PROXY ?>" placeholder="https://">
+                        <div class="settings-field">
+                            <h6>SESSION TIMEOUT</h6>
+                            <p class="note">User session timeout in seconds. After this time of inactivity, the user will be logged out and will have to log in again to access the web interface.</p>
+                            <input class="settings-param" param-name="session-timeout" type="number" min="15" value="<?= SESSION_TIMEOUT ?>" placeholder="Default is 3600 (1 hour)">
+                        </div>
 
-            <h6>LOGIN PAGE BANNER</h6>
-            <p class="note">Add a banner on the login page (e.g. system use notification).</p>
-            <input class="settings-param" param-name="login-banner" type="text" value="<?= LOGIN_BANNER ?>">
+                        <div class="settings-field">
+                            <h6>LOGIN PAGE BANNER</h6>
+                            <p class="note">Add a banner on the login page (e.g. system use notification).</p>
+                            <input class="settings-param" param-name="login-banner" type="text" value="<?= LOGIN_BANNER ?>">
+                        </div>
 
-            <hr class="margin-top-20 margin-bottom-20">
-
-            <h5>TASK EXECUTION</h5>
-
-            <h6>TASK QUEUING</h6>
-            <p class="note">Enable or disable the task queuing.</p>
-            <label class="onoff-switch-label">
-                <input class="settings-param onoff-switch-input" param-name="task-queuing" type="checkbox" value="true" <?php echo (TASK_QUEUING == "true") ? 'checked' : ''; ?>>
-                <span class="onoff-switch-slider"></span>
-            </label>
-
-            <?php
-            if (TASK_QUEUING == 'true') : ?>
-                <h6>MAXIMUM NUMBER OF SIMULTANEOUS TASKS</h6>
-                <p class="note">Maximum number of tasks that can run simultaneously. The other tasks will be queued.</p>
-                <input class="settings-param" param-name="task-queuing-max-simultaneous" type="number" min="1" value="<?= TASK_QUEUING_MAX_SIMULTANEOUS ?>" placeholder="Default is 3">
-                <?php
-            endif ?>
-
-            <h6 class="required">TASK EXECUTION MEMORY LIMIT (in MB)</h6>
-            <p class="note">Set PHP memory limit for task execution. It is recommended to set this value to a higher value when syncing large repositories.</p>
-            <input class="settings-param" param-name="task-execution-memory-limit" type="number" min="2" value="<?= TASK_EXECUTION_MEMORY_LIMIT ?>" placeholder="Default is 512">
-
-            <br><br>
-            <h5>TASK CLEANUP</h5>
-
-            <h6 class="required">CLEAN TASKS OLDER THAN (in days)</h6>
-            <p class="note">Tasks and their logs older than this value will be permanently deleted. This helps free up disk space.</p>
-            <input class="settings-param" param-name="task-clean-older-than" type="number" min="1" value="<?= TASK_CLEAN_OLDER_THAN ?>" placeholder="Default is 730 (2 years)">
-
-            <button class="hide" type="submit"></button>
-        </form>
-    </div>
-
-    <h3>REPOSITORIES</h3>
-
-    <div class="div-generic-blue">
-        <form class="settings-form" autocomplete="off">
-            <h5>GLOBAL SETTINGS</h5>
-
-            <h6>REPOSITORIES URL</h6>
-            <p class="note">Root URL for accessing repositories. This URL is not browsable for security reasons. To explore the content of a repository snapshot, use the snapshot browsing system.</p>
-            <input type="text" value="<?= WWW_REPOS_DIR_URL ?>" readonly />
-
-            <h6 class="required">DEDUPLICATION</h6>
-            <p class="note">Enable or disable deduplication of packages in snapshots. When enabled, identical packages in snapshots will be stored only once, saving disk space. Default: enabled.</p>
-            <p class="note">Note: deduplication uses hard links. Disable this feature if your repositories are stored on a filesystem that does not support hard links (e.g. S3 buckets).</p>
-            <label class="onoff-switch-label">
-                <input class="settings-param onoff-switch-input" param-name="repo-deduplication" type="checkbox" value="true" <?php echo (REPO_DEDUPLICATION) ? 'checked' : ''; ?>>
-                <span class="onoff-switch-slider"></span>
-            </label>
-
-            <h6 class="required">RETENTION</h6>
-            <p class="note">Maximum number of unused snapshots (not used by any environment) to keep per repository, older ones are deleted after each task. Set to 0 to delete all unused snapshots. Can be overridden per repository or mirror from its edit form.</p>
-            <input class="settings-param" param-name="retention" type="number" min="0" value="<?= RETENTION ?>">
-            <?php
-            if (RETENTION == 0) {
-                echo '<div class="note-warning margin-top-10"><img src="/assets/icons/warning.svg" /><p>No retention is set. All unused snapshots will be deleted.</p></div>';
-            } ?>
-
-            <h6>REPOSITORY CONFIGURATION FILE NAME PREFIX</h6>
-            <p class="note">Prefix added to repository configuration files when installing on client hosts. Leave empty if you want no prefix.</p>
-            <input class="settings-param" param-name="repoConfFilesPrefix" type="text" value="<?= REPO_CONF_FILES_PREFIX ?>">
-
-            <div class="flex column-gap-15 margin-top-5">
-                <p class="note">e.g.</p>
-                <div class="flex align-item-center column-gap-5">
-                    <span class="label-pkg-rpm" title="This repository contains deb packages">RPM</span>
-                    <code><?= REPO_CONF_FILES_PREFIX ?>almalinux-baseos.repo</code>
-                </div>
-                <div class="flex align-item-center column-gap-5">
-                    <span class="label-pkg-deb" title="This repository contains deb packages">DEB</span>
-                    <code><?= REPO_CONF_FILES_PREFIX ?>ubuntu-noble-main.list</code>
+                        <button class="hide" type="submit"></button>
+                    </form>
                 </div>
             </div>
 
-            <hr class="margin-top-20 margin-bottom-20">
+            <div class="settings-column">
+                <div class="div-generic-blue">
+                    <form class="settings-form" autocomplete="off">
+                        <h5 class="margin-top-0">NETWORK</h5>
 
-            <h5>GLOBAL SYNC SETTINGS</h5>
+                        <div class="settings-field">
+                            <h6>USE A PROXY</h6>
+                            <p class="note">Specify the proxy URL to use to access the internet. e.g. https://myproxy.com:8080</p>
+                            <input class="settings-param" param-name="proxy" type="text" value="<?= PROXY ?>" placeholder="https://">
+                        </div>
 
-            <h6 class="required">PACKAGE DOWNLOAD TIMEOUT (in seconds)</h6>
-            <p class="note">Maximum time allowed to download a package during a sync (curated repositories and mirrors).</p>
-            <input class="settings-param" param-name="mirrorPackageDownloadTimeout" min="1" type="number" value="<?= MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT ?>" placeholder="Default is 300">
+                        <button class="hide" type="submit"></button>
+                    </form>
+                </div>
 
-            <h6 class="required">PACKAGE DOWNLOAD RETRIES</h6>
-            <p class="note">Number of retries to download a package during a curated repository sync in case of failure.</p>
-            <input class="settings-param" param-name="mirror-package-download-retries" min="0" type="number" value="<?= MIRRORING_PACKAGE_DOWNLOAD_RETRIES ?>" placeholder="Default is 3">
+                <div class="div-generic-blue">
+                    <form class="settings-form" autocomplete="off">
+                        <h5 class="margin-top-0">EMAIL</h5>
 
-            <h6 class="required">PACKAGE CHECKSUM MATCH FAILURE</h6>
-            <p class="note">If a package checksum does not match the expected checksum, this parameter allows you to choose what to do in this case.</p>
-            <select class="settings-param" param-name="mirrorPackageChecksumFailure">
-                <option value="error" <?php echo (MIRRORING_PACKAGE_CHECKSUM_FAILURE == 'error') ? 'selected' : '' ?>>End sync task with error</option>
-                <option value="ignore" <?php echo (MIRRORING_PACKAGE_CHECKSUM_FAILURE == 'ignore') ? 'selected' : '' ?>>Ignore package (delete it) and continue</option>
-                <option value="keep" <?php echo (MIRRORING_PACKAGE_CHECKSUM_FAILURE == 'keep') ? 'selected' : '' ?>>Keep the package anyway (not recommended)</option>
-            </select>            
+                        <div class="settings-field">
+                            <h6>DEFAULT CONTACT</h6>
+                            <p class="note">Default contact for receiving emails. Currently, only scheduled tasks and their reminders send emails. You can specify multiple recipients.</p>
+                            <select id="emailRecipientSelect" class="settings-param" param-name="emailRecipient" multiple>
+                                <?php
+                                if (!empty(EMAIL_RECIPIENT)) {
+                                    foreach (EMAIL_RECIPIENT as $email) {
+                                        echo '<option value="' . $email . '" selected>' . $email . '</option>';
+                                    }
+                                }
+                                if (!empty($usersEmail)) {
+                                    foreach ($usersEmail as $email) {
+                                        if (!in_array($email, EMAIL_RECIPIENT)) {
+                                            echo '<option value="' . $email . '">' . $email . '</option>';
+                                        }
+                                    }
+                                } ?>
+                            </select>
 
-            <hr class="margin-top-20 margin-bottom-20">
+                            <?php
+                            if (!empty(EMAIL_RECIPIENT)) {
+                                echo '<button type="button" id="send-test-email-btn" class="btn-medium-green margin-top-5" title="Send a test email">Send a test email</button>';
+                            } ?>
+                        </div>
 
-            <h5>RPM</h5>
+                        <button class="hide" type="submit"></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            <h6>ENABLE RPM REPOSITORIES</h6>
-            <p class="note">Enable RPM package repositories.</p>        
-            <label class="onoff-switch-label">
-                <input class="settings-param onoff-switch-input" param-name="rpmRepo" type="checkbox" value="true" <?php echo (RPM_REPO == 'true') ? 'checked' : ''; ?>>
-                <span class="onoff-switch-slider"></span>
-            </label>
+    <div class="settings-section hide" section="tasks" save="true">
+        <div class="group-header hide">
+            <div class="flex align-item-center column-gap-10">
+                <img src="/assets/icons/rocket.svg" class="group-header-icon lowopacity-cst" />
+                <span class="group-header-name">Tasks</span>
+                <span class="label-count settings-search-count hide"></span>
+            </div>
+        </div>
 
-            <?php
-            if (RPM_REPO == 'true') : ?>
-                <h6>SIGN PACKAGES WITH GPG</h6>
-                <p class="note">Enable the signing of RPM packages when creating a RPM package repository (curated or local repository). Packages will be signed using the GPG signing key specified by the <code>GPG KEY ID</code> parameter.</p>
-                <label class="onoff-switch-label">
-                    <input class="settings-param onoff-switch-input" param-name="rpmSignPackages" type="checkbox" value="true" <?php echo (RPM_SIGN_PACKAGES == "true") ? 'checked' : ''; ?>>
-                    <span class="onoff-switch-slider"></span>
-                </label>
-                <?php
-                if (empty(RPM_SIGN_PACKAGES)) {
-                    echo '<div class="note-warning margin-top-10"><img src="/assets/icons/warning.svg" /><p>This parameter must be specified.</p></div>';
-                } ?>
+        <div class="settings-columns">
+            <div class="settings-column">
+                <div class="div-generic-blue">
+                    <form class="settings-form" autocomplete="off">
+                        <h5 class="margin-top-0">TASK EXECUTION</h5>
 
-                <h6 class="required">DEFAULT RELEASE VERSION</h6>
-                <p class="note">Default release version to use when creating RPM repositories.</p>
-                <select class="settings-param" param-name="releasever">
-                    <option value="7" <?php echo (RELEASEVER == 7) ? 'selected' : '' ?>>7 (Redhat 7 and derivatives)</option>
-                    <option value="8" <?php echo (RELEASEVER == 8) ? 'selected' : '' ?>>8 (Redhat 8 and derivatives)</option>
-                    <option value="9" <?php echo (RELEASEVER == 9) ? 'selected' : '' ?>>9 (Redhat 9 and derivatives)</option>
-                    <option value="10" <?php echo (RELEASEVER == 10) ? 'selected' : '' ?>>10 (Redhat 10 and derivatives)</option>
-                </select>
-                <?php
-                if (empty(RELEASEVER)) {
-                    echo '<div class="note-warning margin-top-10"><img src="/assets/icons/warning.svg" /><p>This parameter must be specified.</p></div>';
-                } ?>
+                        <div class="settings-field">
+                            <h6>TASK QUEUING</h6>
+                            <p class="note">Enable or disable the task queuing.</p>
+                            <label class="onoff-switch-label">
+                                <input class="settings-param onoff-switch-input" param-name="task-queuing" type="checkbox" value="true" <?php echo (TASK_QUEUING == "true") ? 'checked' : ''; ?>>
+                                <span class="onoff-switch-slider"></span>
+                            </label>
+                        </div>
 
-                <h6 class="required">DEFAULT PACKAGE ARCHITECTURE</h6>
-                <p class="note">Default package architecture to use when creating RPM repositories.</p>
-                <select id="rpmArchitectureSelect" class="settings-param" param-name="rpmDefaultArch" multiple>
-                    <?php
-                    foreach (RPM_ARCHS as $arch) {
-                        if (in_array($arch, RPM_DEFAULT_ARCH)) {
-                            echo '<option value="' . $arch . '" selected>' . $arch . '</option>';
-                        } else {
-                            echo '<option value="' . $arch . '">' . $arch . '</option>';
-                        }
-                    } ?>
-                </select>
+                        <?php
+                        if (TASK_QUEUING == 'true') : ?>
+                            <div class="settings-field">
+                                <h6>MAXIMUM NUMBER OF SIMULTANEOUS TASKS</h6>
+                                <p class="note">Maximum number of tasks that can run simultaneously. The other tasks will be queued.</p>
+                                <input class="settings-param" param-name="task-queuing-max-simultaneous" type="number" min="1" value="<?= TASK_QUEUING_MAX_SIMULTANEOUS ?>" placeholder="Default is 3">
+                            </div>
+                            <?php
+                        endif ?>
 
-                <hr class="margin-top-20 margin-bottom-20">
+                        <div class="settings-field">
+                            <h6 class="required">TASK EXECUTION MEMORY LIMIT (in MB)</h6>
+                            <p class="note">Set PHP memory limit for task execution. It is recommended to set this value to a higher value when syncing large repositories.</p>
+                            <input class="settings-param" param-name="task-execution-memory-limit" type="number" min="2" value="<?= TASK_EXECUTION_MEMORY_LIMIT ?>" placeholder="Default is 512">
+                        </div>
 
-                <h5 title="RPM curated repositories settings">RPM CURATED REPOSITORIES SETTINGS</h5>
+                        <button class="hide" type="submit"></button>
+                    </form>
+                </div>
+            </div>
 
-                <h6 class="required">WHEN PACKAGE SIGNATURE IS MISSING</h6>
-                <p class="note">A package retrieved from a remote repository may not be signed at all (for example, the publisher released the package forgetting to sign it). This parameter allows you to choose what to do in this case.</p>
-                <select class="settings-param" param-name="rpm-missing-signature">
-                    <option value="download" <?php echo (RPM_MISSING_SIGNATURE == 'download') ? 'selected' : '' ?>>Download package anyway</option>
-                    <option value="ignore" <?php echo (RPM_MISSING_SIGNATURE == 'ignore') ? 'selected' : '' ?>>Ignore package (do not download)</option>
-                    <option value="error" <?php echo (RPM_MISSING_SIGNATURE == 'error') ? 'selected' : '' ?>>End sync task with error</option>
-                </select>
+            <div class="settings-column">
+                <div class="div-generic-blue">
+                    <form class="settings-form" autocomplete="off">
+                        <h5 class="margin-top-0">TASK CLEANUP</h5>
 
-                <h6 class="required">WHEN PACKAGE SIGNATURE IS INVALID</h6>
-                <p class="note">A package retrieved from a remote repository may have an invalid signature (because the GPG key used to sign the package was not imported, or because the publisher signed the package with a different GPG key, or because the package's signature is corrupted or somehow broken). This parameter allows you to choose what to do in this case.</p>
-                <select class="settings-param" param-name="rpm-invalid-signature">
-                    <option value="download" <?php echo (RPM_INVALID_SIGNATURE == 'download') ? 'selected' : '' ?>>Download package anyway</option>
-                    <option value="ignore" <?php echo (RPM_INVALID_SIGNATURE == 'ignore') ? 'selected' : '' ?>>Ignore package (do not download)</option>
-                    <option value="error" <?php echo (RPM_INVALID_SIGNATURE == 'error') ? 'selected' : '' ?>>End sync task with error</option>
-                </select>
+                        <div class="settings-field">
+                            <h6 class="required">CLEAN TASKS OLDER THAN (in days)</h6>
+                            <p class="note">Tasks and their logs older than this value will be permanently deleted. This helps free up disk space.</p>
+                            <input class="settings-param" param-name="task-clean-older-than" type="number" min="1" value="<?= TASK_CLEAN_OLDER_THAN ?>" placeholder="Default is 730 (2 years)">
+                        </div>
 
-                <h6 class="required">WHEN PACKAGE SIGNATURE FAILS</h6>
-                <p class="note">A package retrieved from a remote repository may fail to be processed for signing (for example, the package is not a valid RPM package or it is corrupted). This parameter allows you to choose what to do in this case.</p>
-                <select class="settings-param" param-name="rpm-signature-fail">
-                    <option value="keep" <?php echo (RPM_SIGNATURE_FAIL == 'keep') ? 'selected' : '' ?>>Keep the package anyway (not recommended)</option>
-                    <option value="ignore" <?php echo (RPM_SIGNATURE_FAIL == 'ignore') ? 'selected' : '' ?>>Ignore package (delete it) and continue</option>
-                    <option value="error" <?php echo (RPM_SIGNATURE_FAIL == 'error') ? 'selected' : '' ?>>End signing task with error</option>
-                </select>
-                <?php
-            endif ?>
+                        <button class="hide" type="submit"></button>
+                    </form>
+                </div>
 
-            <hr class="margin-top-20 margin-bottom-20">
+                <div class="div-generic-blue">
+                    <form class="settings-form" autocomplete="off">
+                        <h5 class="margin-top-0">SCHEDULED TASKS</h5>
 
-            <h5>DEB</h5>
+                        <div class="settings-field">
+                            <h6>ENABLE SCHEDULED TASKS REMINDERS</h6>
+                            <p class="note">Enable reminders for scheduled tasks. Reminders are sent via email to the recipients defined when adding a new scheduled task.</p>
+                            <label class="onoff-switch-label">
+                                <input class="settings-param onoff-switch-input" param-name="scheduled-tasks-reminders" type="checkbox" value="true" <?php echo (SCHEDULED_TASKS_REMINDERS == "true") ? 'checked' : ''; ?>>
+                                <span class="onoff-switch-slider"></span>
+                            </label>
+                            <?php
+                            if (empty(SCHEDULED_TASKS_REMINDERS)) {
+                                echo '<div class="note-warning margin-top-10"><img src="/assets/icons/warning.svg" /><p>This parameter must be specified.</p></div>';
+                            } ?>
+                        </div>
 
-            <h6>ENABLE DEB REPOSITORIES</h6>
-            <p class="note">Enable DEB package repositories.</p>
-            <label class="onoff-switch-label">
-                <input class="settings-param onoff-switch-input" param-name="debRepo" type="checkbox" value="true" <?php echo (DEB_REPO == 'true') ? 'checked' : ''; ?>>
-                <span class="onoff-switch-slider"></span>
-            </label>
+                        <button class="hide" type="submit"></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            <?php
-            if (DEB_REPO == 'true') : ?>
-                <h6>SIGN REPOSITORIES WITH GPG</h6>
-                <p class="note">Enable the signing of DEB repositories when creating a DEB package repository (curated or local repository). The repository metadata will be signed using the GPG signing key specified by the <code>GPG KEY ID</code> parameter.</p>
-                <label class="onoff-switch-label">
-                    <input class="settings-param onoff-switch-input" param-name="debSignRepo" type="checkbox" value="true" <?php echo (DEB_SIGN_REPO == 'true') ? 'checked' : ''; ?>>
-                    <span class="onoff-switch-slider"></span>
-                </label>
-                <?php
-                if (empty(DEB_SIGN_REPO)) {
-                    echo '<div class="note-warning margin-top-10"><img src="/assets/icons/warning.svg" /><p>This parameter must be specified.</p></div>';
-                } ?>
+    <div class="settings-section hide" section="repositories" save="true">
+        <div class="group-header hide">
+            <div class="flex align-item-center column-gap-10">
+                <img src="/assets/icons/package.svg" class="group-header-icon lowopacity-cst" />
+                <span class="group-header-name">Repositories</span>
+                <span class="label-count settings-search-count hide"></span>
+            </div>
+        </div>
 
-                <h6 class="required">DEFAULT PACKAGE ARCHITECTURE</h6>
-                <p class="note">Default package architecture to use when creating DEB repositories.</p>
-                <select id="debArchitectureSelect" class="settings-param" param-name="debDefaultArch" multiple>
-                    <?php
-                    foreach (DEB_ARCHS as $arch) {
-                        if (in_array($arch, DEB_DEFAULT_ARCH)) {
-                            echo '<option value="' . $arch . '" selected>' . $arch . '</option>';
-                        } else {
-                            echo '<option value="' . $arch . '">' . $arch . '</option>';
-                        }
-                    } ?>
-                </select>
+        <div class="settings-columns">
+            <div class="settings-column">
+                <div class="div-generic-blue">
+                    <form class="settings-form" autocomplete="off">
+                        <h5 class="margin-top-0">GLOBAL SETTINGS</h5>
 
-                <hr class="margin-top-20 margin-bottom-20">
+                        <div class="settings-field">
+                            <h6>REPOSITORIES URL</h6>
+                            <p class="note">Root URL for accessing repositories. This URL is not browsable for security reasons. To explore the content of a repository snapshot, use the snapshot browsing system.</p>
+                            <input type="text" value="<?= WWW_REPOS_DIR_URL ?>" readonly />
+                        </div>
 
-                <h5 title="DEB curated repositories settings">DEB CURATED REPOSITORIES SETTINGS</h5>
+                        <div class="settings-field">
+                            <h6 class="required">DEDUPLICATION</h6>
+                            <p class="note">Enable or disable deduplication of packages in snapshots. When enabled, identical packages in snapshots will be stored only once, saving disk space. Default: enabled.</p>
+                            <p class="note">Note: deduplication uses hard links. Disable this feature if your repositories are stored on a filesystem that does not support hard links (e.g. S3 buckets).</p>
+                            <label class="onoff-switch-label">
+                                <input class="settings-param onoff-switch-input" param-name="repo-deduplication" type="checkbox" value="true" <?php echo (REPO_DEDUPLICATION) ? 'checked' : ''; ?>>
+                                <span class="onoff-switch-slider"></span>
+                            </label>
+                        </div>
 
-                <h6 class="required">ALLOW SYNC OF EMPTY REPOSITORIES</h6>
-                <p class="note">Allow the sync of empty source repositories (repositories with empty <code>Packages</code> indices file).</p>
-                <label class="onoff-switch-label">
-                    <input class="settings-param onoff-switch-input" param-name="deb-allow-empty-repo" type="checkbox" value="true" <?php echo (DEB_ALLOW_EMPTY_REPO == 'true') ? 'checked' : ''; ?>>
-                    <span class="onoff-switch-slider"></span>
-                </label>
+                        <div class="settings-field">
+                            <h6 class="required">RETENTION</h6>
+                            <p class="note">Maximum number of unused snapshots (not used by any environment) to keep per repository, older ones are deleted after each task. Set to 0 to delete all unused snapshots. Can be overridden per repository or mirror from its edit form.</p>
+                            <input class="settings-param" param-name="retention" type="number" min="0" value="<?= RETENTION ?>">
+                            <?php
+                            if (RETENTION == 0) {
+                                echo '<div class="note-warning margin-top-10"><img src="/assets/icons/warning.svg" /><p>No retention is set. All unused snapshots will be deleted.</p></div>';
+                            } ?>
+                        </div>
 
-                <h6 class="required">WHEN RELEASE FILE SIGNATURE IS INVALID</h6>
-                <p class="note">The InRelease / Release file retrieved from a remote repository may have an invalid signature (because the GPG key used to sign the file was not imported, or because the publisher signed the file with a different GPG key, or because the file's signature is corrupted or somehow broken). This parameter allows you to choose what to do in this case.</p>
-                <select class="settings-param" param-name="deb-invalid-signature">
-                    <option value="ignore" <?php echo (DEB_INVALID_SIGNATURE == 'ignore') ? 'selected' : '' ?>>Ignore and try another Release file if possible</option>
-                    <option value="error" <?php echo (DEB_INVALID_SIGNATURE == 'error') ? 'selected' : '' ?>>End sync task with error</option>
-                </select>
-                <?php
-            endif ?>
+                        <div class="settings-field">
+                            <h6>REPOSITORY CONFIGURATION FILE NAME PREFIX</h6>
+                            <p class="note">Prefix added to repository configuration files when installing on client hosts. Leave empty if you want no prefix.</p>
+                            <input class="settings-param" param-name="repoConfFilesPrefix" type="text" value="<?= REPO_CONF_FILES_PREFIX ?>">
 
-            <hr class="margin-top-20 margin-bottom-20">
-
-            <h5>ARCH</h5>
-
-            <h6>ENABLE ARCH LINUX REPOSITORIES</h6>
-            <p class="note">Enable Arch Linux package repositories (mirrors only).</p>
-            <label class="onoff-switch-label">
-                <input class="settings-param onoff-switch-input" param-name="archRepo" type="checkbox" value="true" <?php echo (ARCH_REPO == 'true') ? 'checked' : ''; ?>>
-                <span class="onoff-switch-slider"></span>
-            </label>
-
-            <?php
-            if (RPM_SIGN_PACKAGES == 'true' or DEB_SIGN_REPO == 'true') : ?>
-                <hr class="margin-top-20 margin-bottom-20">
-
-                <h5>GPG SIGNING KEY</h5>
-
-                <h6 class="required">GPG KEY ID</h6>
-                <p class="note">GPG key for signing packages and repositories, identified by its email address. This key is randomly generated upon Repomanager's first startup (4096 bits RSA key).</p>
-                <input class="settings-param" param-name="gpgKeyID" type="email" value="<?= GPG_SIGNING_KEYID ?>">
-                <?php
-            endif ?>
-
-            <button class="hide" type="submit"></button>
-        </form>
-
-        <hr class="margin-top-20 margin-bottom-20">
-
-        <h5>ENVIRONMENTS</h5>
-
-        <h6>CURRENT ENVIRONMENTS</h6>
-        <p class="note">You can edit environments names and colors. The default environment is the first one in the list, it will be pre-selected in tasks forms.</p>
-        <p class="note">Renaming an environment here will not rename it in repositories, this to prevent breaking existing configurations.</p>
-
-        <div id="envs-container">
-            <div id="current-envs">
-                <?php
-                if (empty(ENVS)) {
-                    echo '<div class="note-warning margin-top-10"><img src="/assets/icons/warning.svg" /><p>At least one environment should be configured</p></div>';
-                }
-
-                if (!empty(ENVS)) :
-                    foreach (ENVS as $env) :
-                        if (empty($env['Color'])) {
-                            $color = '#ffffff';
-                        } else {
-                            $color = $env['Color'];
-                        }
-
-                        if ($env['Protected'] == 'true') {
-                            $protected = 'true';
-                            $protectionIcon = 'locked-red';
-                            $protectedClass = 'icon';
-                            $title = 'Unprotect environment';
-                        } else {
-                            $protected = 'false';
-                            $protectionIcon = 'unlocked';
-                            $protectedClass = 'icon-lowopacity';
-                            $title = 'Protect environment';
-                        } ?>
-
-                        <div class="env-line flex align-item-center column-gap-15" env-id="<?= $env['Id'] ?>">
-                            <div>
-                                <div class="input-color-wrapper">
-                                    <input type="color" name="env-color" value="<?= $color ?>" /> 
+                            <div class="flex column-gap-15 margin-top-5">
+                                <p class="note">e.g.</p>
+                                <div class="flex align-item-center column-gap-5">
+                                    <span class="label-pkg-rpm" title="This repository contains deb packages">RPM</span>
+                                    <code><?= REPO_CONF_FILES_PREFIX ?>almalinux-baseos.repo</code>
+                                </div>
+                                <div class="flex align-item-center column-gap-5">
+                                    <span class="label-pkg-deb" title="This repository contains deb packages">DEB</span>
+                                    <code><?= REPO_CONF_FILES_PREFIX ?>ubuntu-noble-main.list</code>
                                 </div>
                             </div>
-
-                            <input type="text" name="env-name" value="<?= $env['Name'] ?>" autocomplete="off" />
-
-                            <img src="/assets/icons/<?= $protectionIcon ?>.svg" class="<?= $protectedClass ?> env-protection" env-id="<?= $env['Id'] ?>" env-name="<?= $env['Name'] ?>" title="<?= $title ?>" protected="<?= $protected ?>" />
-                            
-                            <img src="/assets/icons/trash.svg" class="icon-lowopacity pointer delete-env-btn" env-id="<?= $env['Id'] ?>" env-name="<?= $env['Name'] ?>" title="Delete <?= $env['Name'] ?> environment" />
                         </div>
-                        <?php
-                    endforeach ?>
 
-                    <br>
-                    <button id="edit-env-btn" type="button" class="btn-small-green">Save</button>
+                        <button class="hide" type="submit"></button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="settings-column">
+                <div class="div-generic-blue">
+                    <form class="settings-form" autocomplete="off">
+                        <h5 class="margin-top-0">GLOBAL SYNC SETTINGS</h5>
+
+                        <div class="settings-field">
+                            <h6 class="required">PACKAGE DOWNLOAD TIMEOUT (in seconds)</h6>
+                            <p class="note">Maximum time allowed to download a package during a sync (curated repositories and mirrors).</p>
+                            <input class="settings-param" param-name="mirrorPackageDownloadTimeout" min="1" type="number" value="<?= MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT ?>" placeholder="Default is 300">
+                        </div>
+
+                        <div class="settings-field">
+                            <h6 class="required">PACKAGE DOWNLOAD RETRIES</h6>
+                            <p class="note">Number of retries to download a package during a curated repository sync in case of failure.</p>
+                            <input class="settings-param" param-name="mirror-package-download-retries" min="0" type="number" value="<?= MIRRORING_PACKAGE_DOWNLOAD_RETRIES ?>" placeholder="Default is 3">
+                        </div>
+
+                        <div class="settings-field">
+                            <h6 class="required">PACKAGE CHECKSUM MATCH FAILURE</h6>
+                            <p class="note">If a package checksum does not match the expected checksum, this parameter allows you to choose what to do in this case.</p>
+                            <select class="settings-param" param-name="mirrorPackageChecksumFailure">
+                                <option value="error" <?php echo (MIRRORING_PACKAGE_CHECKSUM_FAILURE == 'error') ? 'selected' : '' ?>>End sync task with error</option>
+                                <option value="ignore" <?php echo (MIRRORING_PACKAGE_CHECKSUM_FAILURE == 'ignore') ? 'selected' : '' ?>>Ignore package (delete it) and continue</option>
+                                <option value="keep" <?php echo (MIRRORING_PACKAGE_CHECKSUM_FAILURE == 'keep') ? 'selected' : '' ?>>Keep the package anyway (not recommended)</option>
+                            </select>
+                        </div>
+
+                        <button class="hide" type="submit"></button>
+                    </form>
+                </div>
+
+                <div class="div-generic-blue">
+                    <form class="settings-form" autocomplete="off">
+                        <h5 class="margin-top-0">STATISTICS</h5>
+
+                        <div class="settings-field">
+                            <h6>ENABLE REPOSITORIES STATISTICS</h6>
+                            <p class="note">Enable logging and statistics on repositories access.</p>
+                            <label class="onoff-switch-label">
+                                <input class="settings-param onoff-switch-input" param-name="statsEnable" type="checkbox" value="true" <?php echo (STATS_ENABLED == "true") ? 'checked' : ''; ?>>
+                                <span class="onoff-switch-slider"></span>
+                            </label>
+                            <?php
+                            if (empty(STATS_ENABLED)) {
+                                echo '<div class="note-warning margin-top-10"><img src="/assets/icons/warning.svg" /><p>This parameter must be specified.</p></div>';
+                            } ?>
+                        </div>
+
+                        <button class="hide" type="submit"></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-section hide" section="package-formats" save="true">
+        <div class="group-header hide">
+            <div class="flex align-item-center column-gap-10">
+                <img src="/assets/icons/stack.svg" class="group-header-icon lowopacity-cst" />
+                <span class="group-header-name">Package formats</span>
+                <span class="label-count settings-search-count hide"></span>
+            </div>
+        </div>
+
+        <div class="settings-columns">
+            <div class="settings-column">
+                <div class="div-generic-blue accent-<?= \Controllers\Mirror\Mirror::getAccent('rpm') ?>">
+                    <form class="settings-form" autocomplete="off">
+                        <h5 class="margin-top-0">RPM</h5>
+
+                        <div class="settings-field">
+                            <h6>ENABLE RPM REPOSITORIES</h6>
+                            <p class="note">Enable RPM package repositories.</p>
+                            <label class="onoff-switch-label">
+                                <input class="settings-param onoff-switch-input" param-name="rpmRepo" type="checkbox" value="true" <?php echo (RPM_REPO == 'true') ? 'checked' : ''; ?>>
+                                <span class="onoff-switch-slider"></span>
+                            </label>
+                        </div>
+
+                        <?php
+                        if (RPM_REPO == 'true') : ?>
+                            <div class="settings-field">
+                                <h6>SIGN PACKAGES WITH GPG</h6>
+                                <p class="note">Enable the signing of RPM packages when creating a RPM package repository (curated or local repository). Packages will be signed using the GPG signing key specified by the <code>GPG KEY ID</code> parameter.</p>
+                                <label class="onoff-switch-label">
+                                    <input class="settings-param onoff-switch-input" param-name="rpmSignPackages" type="checkbox" value="true" <?php echo (RPM_SIGN_PACKAGES == "true") ? 'checked' : ''; ?>>
+                                    <span class="onoff-switch-slider"></span>
+                                </label>
+                                <?php
+                                if (empty(RPM_SIGN_PACKAGES)) {
+                                    echo '<div class="note-warning margin-top-10"><img src="/assets/icons/warning.svg" /><p>This parameter must be specified.</p></div>';
+                                } ?>
+                            </div>
+
+                            <div class="settings-field">
+                                <h6 class="required">DEFAULT RELEASE VERSION</h6>
+                                <p class="note">Default release version to use when creating RPM repositories.</p>
+                                <select class="settings-param" param-name="releasever">
+                                    <option value="7" <?php echo (RELEASEVER == 7) ? 'selected' : '' ?>>7 (Redhat 7 and derivatives)</option>
+                                    <option value="8" <?php echo (RELEASEVER == 8) ? 'selected' : '' ?>>8 (Redhat 8 and derivatives)</option>
+                                    <option value="9" <?php echo (RELEASEVER == 9) ? 'selected' : '' ?>>9 (Redhat 9 and derivatives)</option>
+                                    <option value="10" <?php echo (RELEASEVER == 10) ? 'selected' : '' ?>>10 (Redhat 10 and derivatives)</option>
+                                </select>
+                                <?php
+                                if (empty(RELEASEVER)) {
+                                    echo '<div class="note-warning margin-top-10"><img src="/assets/icons/warning.svg" /><p>This parameter must be specified.</p></div>';
+                                } ?>
+                            </div>
+
+                            <div class="settings-field">
+                                <h6 class="required">DEFAULT PACKAGE ARCHITECTURE</h6>
+                                <p class="note">Default package architecture to use when creating RPM repositories.</p>
+                                <select id="rpmArchitectureSelect" class="settings-param" param-name="rpmDefaultArch" multiple>
+                                    <?php
+                                    foreach (RPM_ARCHS as $arch) {
+                                        if (in_array($arch, RPM_DEFAULT_ARCH)) {
+                                            echo '<option value="' . $arch . '" selected>' . $arch . '</option>';
+                                        } else {
+                                            echo '<option value="' . $arch . '">' . $arch . '</option>';
+                                        }
+                                    } ?>
+                                </select>
+                            </div>
+                            <?php
+                        endif ?>
+
+                        <button class="hide" type="submit"></button>
+                    </form>
+                </div>
+
+                <?php
+                if (RPM_REPO == 'true') : ?>
+                    <div class="div-generic-blue accent-<?= \Controllers\Mirror\Mirror::getAccent('rpm') ?>">
+                        <form class="settings-form" autocomplete="off">
+                            <h5 class="margin-top-0" title="RPM curated repositories settings">RPM CURATED REPOSITORIES SETTINGS</h5>
+
+                            <div class="settings-field">
+                                <h6 class="required">WHEN PACKAGE SIGNATURE IS MISSING</h6>
+                                <p class="note">A package retrieved from a remote repository may not be signed at all (for example, the publisher released the package forgetting to sign it). This parameter allows you to choose what to do in this case.</p>
+                                <select class="settings-param" param-name="rpm-missing-signature">
+                                    <option value="download" <?php echo (RPM_MISSING_SIGNATURE == 'download') ? 'selected' : '' ?>>Download package anyway</option>
+                                    <option value="ignore" <?php echo (RPM_MISSING_SIGNATURE == 'ignore') ? 'selected' : '' ?>>Ignore package (do not download)</option>
+                                    <option value="error" <?php echo (RPM_MISSING_SIGNATURE == 'error') ? 'selected' : '' ?>>End sync task with error</option>
+                                </select>
+                            </div>
+
+                            <div class="settings-field">
+                                <h6 class="required">WHEN PACKAGE SIGNATURE IS INVALID</h6>
+                                <p class="note">A package retrieved from a remote repository may have an invalid signature (because the GPG key used to sign the package was not imported, or because the publisher signed the package with a different GPG key, or because the package's signature is corrupted or somehow broken). This parameter allows you to choose what to do in this case.</p>
+                                <select class="settings-param" param-name="rpm-invalid-signature">
+                                    <option value="download" <?php echo (RPM_INVALID_SIGNATURE == 'download') ? 'selected' : '' ?>>Download package anyway</option>
+                                    <option value="ignore" <?php echo (RPM_INVALID_SIGNATURE == 'ignore') ? 'selected' : '' ?>>Ignore package (do not download)</option>
+                                    <option value="error" <?php echo (RPM_INVALID_SIGNATURE == 'error') ? 'selected' : '' ?>>End sync task with error</option>
+                                </select>
+                            </div>
+
+                            <div class="settings-field">
+                                <h6 class="required">WHEN PACKAGE SIGNATURE FAILS</h6>
+                                <p class="note">A package retrieved from a remote repository may fail to be processed for signing (for example, the package is not a valid RPM package or it is corrupted). This parameter allows you to choose what to do in this case.</p>
+                                <select class="settings-param" param-name="rpm-signature-fail">
+                                    <option value="keep" <?php echo (RPM_SIGNATURE_FAIL == 'keep') ? 'selected' : '' ?>>Keep the package anyway (not recommended)</option>
+                                    <option value="ignore" <?php echo (RPM_SIGNATURE_FAIL == 'ignore') ? 'selected' : '' ?>>Ignore package (delete it) and continue</option>
+                                    <option value="error" <?php echo (RPM_SIGNATURE_FAIL == 'error') ? 'selected' : '' ?>>End signing task with error</option>
+                                </select>
+                            </div>
+
+                            <button class="hide" type="submit"></button>
+                        </form>
+                    </div>
+                    <?php
+                endif;
+
+                // GPG key used by both RPM and DEB signing
+                if (RPM_SIGN_PACKAGES == 'true' or DEB_SIGN_REPO == 'true') : ?>
+                    <div class="div-generic-blue">
+                        <form class="settings-form" autocomplete="off">
+                            <h5 class="margin-top-0">GPG SIGNING KEY</h5>
+
+                            <div class="settings-field">
+                                <h6 class="required">GPG KEY ID</h6>
+                                <p class="note">GPG key for signing packages and repositories, identified by its email address. This key is randomly generated upon Repomanager's first startup (4096 bits RSA key).</p>
+                                <input class="settings-param" param-name="gpgKeyID" type="email" value="<?= GPG_SIGNING_KEYID ?>">
+                            </div>
+
+                            <button class="hide" type="submit"></button>
+                        </form>
+                    </div>
                     <?php
                 endif ?>
             </div>
 
-            <h6>ADD A NEW ENVIRONMENT</h6>
-            <p class="note">Choose a color and a name for the new environment.</p>
-            <div class="flex align-item-center column-gap-15">
-                <div>
-                    <div class="input-color-wrapper">
-                        <input type="color" name="add-env-color" class="color-xsmall" value="#F32F63" /> 
-                    </div>
+            <div class="settings-column">
+                <div class="div-generic-blue accent-<?= \Controllers\Mirror\Mirror::getAccent('deb') ?>">
+                    <form class="settings-form" autocomplete="off">
+                        <h5 class="margin-top-0">DEB</h5>
+
+                        <div class="settings-field">
+                            <h6>ENABLE DEB REPOSITORIES</h6>
+                            <p class="note">Enable DEB package repositories.</p>
+                            <label class="onoff-switch-label">
+                                <input class="settings-param onoff-switch-input" param-name="debRepo" type="checkbox" value="true" <?php echo (DEB_REPO == 'true') ? 'checked' : ''; ?>>
+                                <span class="onoff-switch-slider"></span>
+                            </label>
+                        </div>
+
+                        <?php
+                        if (DEB_REPO == 'true') : ?>
+                            <div class="settings-field">
+                                <h6>SIGN REPOSITORIES WITH GPG</h6>
+                                <p class="note">Enable the signing of DEB repositories when creating a DEB package repository (curated or local repository). The repository metadata will be signed using the GPG signing key specified by the <code>GPG KEY ID</code> parameter.</p>
+                                <label class="onoff-switch-label">
+                                    <input class="settings-param onoff-switch-input" param-name="debSignRepo" type="checkbox" value="true" <?php echo (DEB_SIGN_REPO == 'true') ? 'checked' : ''; ?>>
+                                    <span class="onoff-switch-slider"></span>
+                                </label>
+                                <?php
+                                if (empty(DEB_SIGN_REPO)) {
+                                    echo '<div class="note-warning margin-top-10"><img src="/assets/icons/warning.svg" /><p>This parameter must be specified.</p></div>';
+                                } ?>
+                            </div>
+
+                            <div class="settings-field">
+                                <h6 class="required">DEFAULT PACKAGE ARCHITECTURE</h6>
+                                <p class="note">Default package architecture to use when creating DEB repositories.</p>
+                                <select id="debArchitectureSelect" class="settings-param" param-name="debDefaultArch" multiple>
+                                    <?php
+                                    foreach (DEB_ARCHS as $arch) {
+                                        if (in_array($arch, DEB_DEFAULT_ARCH)) {
+                                            echo '<option value="' . $arch . '" selected>' . $arch . '</option>';
+                                        } else {
+                                            echo '<option value="' . $arch . '">' . $arch . '</option>';
+                                        }
+                                    } ?>
+                                </select>
+                            </div>
+                            <?php
+                        endif ?>
+
+                        <button class="hide" type="submit"></button>
+                    </form>
                 </div>
 
-                <input type="text" name="add-env-name" placeholder="Name" autocomplete="off" />
-            </div>
+                <?php
+                if (DEB_REPO == 'true') : ?>
+                    <div class="div-generic-blue accent-<?= \Controllers\Mirror\Mirror::getAccent('deb') ?>">
+                        <form class="settings-form" autocomplete="off">
+                            <h5 class="margin-top-0" title="DEB curated repositories settings">DEB CURATED REPOSITORIES SETTINGS</h5>
 
-            <br>
-            <button type="button" id="add-env-btn" class="btn-small-green">Add</button>
+                            <div class="settings-field">
+                                <h6 class="required">ALLOW SYNC OF EMPTY REPOSITORIES</h6>
+                                <p class="note">Allow the sync of empty source repositories (repositories with empty <code>Packages</code> indices file).</p>
+                                <label class="onoff-switch-label">
+                                    <input class="settings-param onoff-switch-input" param-name="deb-allow-empty-repo" type="checkbox" value="true" <?php echo (DEB_ALLOW_EMPTY_REPO == 'true') ? 'checked' : ''; ?>>
+                                    <span class="onoff-switch-slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="settings-field">
+                                <h6 class="required">WHEN RELEASE FILE SIGNATURE IS INVALID</h6>
+                                <p class="note">The InRelease / Release file retrieved from a remote repository may have an invalid signature (because the GPG key used to sign the file was not imported, or because the publisher signed the file with a different GPG key, or because the file's signature is corrupted or somehow broken). This parameter allows you to choose what to do in this case.</p>
+                                <select class="settings-param" param-name="deb-invalid-signature">
+                                    <option value="ignore" <?php echo (DEB_INVALID_SIGNATURE == 'ignore') ? 'selected' : '' ?>>Ignore and try another Release file if possible</option>
+                                    <option value="error" <?php echo (DEB_INVALID_SIGNATURE == 'error') ? 'selected' : '' ?>>End sync task with error</option>
+                                </select>
+                            </div>
+
+                            <button class="hide" type="submit"></button>
+                        </form>
+                    </div>
+                    <?php
+                endif ?>
+
+                <div class="div-generic-blue accent-<?= \Controllers\Mirror\Mirror::getAccent('arch') ?>">
+                    <form class="settings-form" autocomplete="off">
+                        <h5 class="margin-top-0">ARCH</h5>
+
+                        <div class="settings-field">
+                            <h6>ENABLE ARCH LINUX REPOSITORIES</h6>
+                            <p class="note">Enable Arch Linux package repositories (mirrors only).</p>
+                            <label class="onoff-switch-label">
+                                <input class="settings-param onoff-switch-input" param-name="archRepo" type="checkbox" value="true" <?php echo (ARCH_REPO == 'true') ? 'checked' : ''; ?>>
+                                <span class="onoff-switch-slider"></span>
+                            </label>
+                        </div>
+
+                        <button class="hide" type="submit"></button>
+                    </form>
+                </div>
+
+                <div class="div-generic-blue accent-<?= \Controllers\Mirror\Mirror::getAccent('alpine') ?>">
+                    <form class="settings-form" autocomplete="off">
+                        <h5 class="margin-top-0">ALPINE</h5>
+
+                        <div class="settings-field">
+                            <h6>ENABLE ALPINE LINUX REPOSITORIES</h6>
+                            <p class="note">Enable Alpine Linux package repositories (mirrors only).</p>
+                            <label class="onoff-switch-label">
+                                <input class="settings-param onoff-switch-input" param-name="alpineRepo" type="checkbox" value="true" <?php echo (ALPINE_REPO == 'true') ? 'checked' : ''; ?>>
+                                <span class="onoff-switch-slider"></span>
+                            </label>
+                        </div>
+
+                        <button class="hide" type="submit"></button>
+                    </form>
+                </div>
+
+                <div class="div-generic-blue accent-<?= \Controllers\Mirror\Mirror::getAccent('openbsd') ?>">
+                    <form class="settings-form" autocomplete="off">
+                        <h5 class="margin-top-0">OPENBSD</h5>
+
+                        <div class="settings-field">
+                            <h6>ENABLE OPENBSD REPOSITORIES</h6>
+                            <p class="note">Enable OpenBSD repositories: packages, binary patches, install sets and sources (mirrors only).</p>
+                            <label class="onoff-switch-label">
+                                <input class="settings-param onoff-switch-input" param-name="openbsdRepo" type="checkbox" value="true" <?php echo (OPENBSD_REPO == 'true') ? 'checked' : ''; ?>>
+                                <span class="onoff-switch-slider"></span>
+                            </label>
+                        </div>
+
+                        <button class="hide" type="submit"></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-section hide" section="environments" save="false">
+        <div class="group-header hide">
+            <div class="flex align-item-center column-gap-10">
+                <img src="/assets/icons/tag.svg" class="group-header-icon lowopacity-cst" />
+                <span class="group-header-name">Environments</span>
+                <span class="label-count settings-search-count hide"></span>
+            </div>
         </div>
 
-        <hr class="margin-top-20 margin-bottom-20">
+        <p class="note settings-section-note">Environments are saved with the buttons of this section, not with the main Save button.</p>
 
-        <h5>STATISTICS</h5>
+        <div id="envs-container" class="settings-columns">
+            <div class="settings-column">
+                <div class="div-generic-blue settings-field">
+                    <h5 class="margin-top-0">CURRENT ENVIRONMENTS</h5>
+                    <p class="note">You can edit environments names and colors. The default environment is the first one in the list, it will be pre-selected in tasks forms.</p>
+                    <p class="note">Renaming an environment here will not rename it in repositories, this to prevent breaking existing configurations.</p>
 
-        <form class="settings-form" autocomplete="off">
-            <h6>ENABLE REPOSITORIES STATISTICS</h6>
-            <p class="note">Enable logging and statistics on repositories access.</p>
-            <label class="onoff-switch-label">
-                <input class="settings-param onoff-switch-input" param-name="statsEnable" type="checkbox" value="true" <?php echo (STATS_ENABLED == "true") ? 'checked' : ''; ?>>
-                <span class="onoff-switch-slider"></span>
-            </label>
-            <?php
-            if (empty(STATS_ENABLED)) {
-                echo '<div class="note-warning margin-top-10"><img src="/assets/icons/warning.svg" /><p>This parameter must be specified.</p></div>';
-            } ?>
+                    <div id="current-envs">
+                        <?php
+                        if (empty(ENVS)) {
+                            echo '<div class="note-warning margin-top-10"><img src="/assets/icons/warning.svg" /><p>At least one environment should be configured</p></div>';
+                        }
 
-            <button class="hide" type="submit"></button>
-        </form>
+                        if (!empty(ENVS)) :
+                            foreach (ENVS as $env) :
+                                if (empty($env['Color'])) {
+                                    $color = '#ffffff';
+                                } else {
+                                    $color = $env['Color'];
+                                }
+
+                                if ($env['Protected'] == 'true') {
+                                    $protected = 'true';
+                                    $protectionIcon = 'locked-red';
+                                    $protectedClass = 'icon';
+                                    $title = 'Unprotect environment';
+                                } else {
+                                    $protected = 'false';
+                                    $protectionIcon = 'unlocked';
+                                    $protectedClass = 'icon-lowopacity';
+                                    $title = 'Protect environment';
+                                } ?>
+
+                                <div class="env-line flex align-item-center column-gap-15 margin-top-10" env-id="<?= $env['Id'] ?>">
+                                    <div>
+                                        <div class="input-color-wrapper">
+                                            <input type="color" name="env-color" value="<?= $color ?>" />
+                                        </div>
+                                    </div>
+
+                                    <input type="text" name="env-name" value="<?= $env['Name'] ?>" autocomplete="off" />
+
+                                    <img src="/assets/icons/<?= $protectionIcon ?>.svg" class="<?= $protectedClass ?> env-protection" env-id="<?= $env['Id'] ?>" env-name="<?= $env['Name'] ?>" title="<?= $title ?>" protected="<?= $protected ?>" />
+
+                                    <img src="/assets/icons/trash.svg" class="icon-lowopacity pointer delete-env-btn" env-id="<?= $env['Id'] ?>" env-name="<?= $env['Name'] ?>" title="Delete <?= $env['Name'] ?> environment" />
+                                </div>
+                                <?php
+                            endforeach ?>
+
+                            <br>
+                            <button id="edit-env-btn" type="button" class="btn-small-green">Save</button>
+                            <?php
+                        endif ?>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-column">
+                <div class="div-generic-blue settings-field">
+                    <h5 class="margin-top-0">ADD A NEW ENVIRONMENT</h5>
+                    <p class="note">Choose a color and a name for the new environment.</p>
+                    <div class="flex align-item-center column-gap-15 margin-top-10">
+                        <div>
+                            <div class="input-color-wrapper">
+                                <input type="color" name="add-env-color" class="color-xsmall" value="#F32F63" />
+                            </div>
+                        </div>
+
+                        <input type="text" name="add-env-name" placeholder="Name" autocomplete="off" />
+                    </div>
+
+                    <br>
+                    <button type="button" id="add-env-btn" class="btn-small-green">Add</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <h3>SCHEDULED TASKS</h3>
+    <div class="settings-section hide" section="hosts" save="true">
+        <div class="group-header hide">
+            <div class="flex align-item-center column-gap-10">
+                <img src="/assets/icons/server.svg" class="group-header-icon lowopacity-cst" />
+                <span class="group-header-name">Hosts</span>
+                <span class="label-count settings-search-count hide"></span>
+            </div>
+        </div>
 
-    <div class="div-generic-blue">
-        <form class="settings-form" autocomplete="off">
-            <h6 class="margin-top-0">ENABLE SCHEDULED TASKS REMINDERS</h6>
-            <p class="note">Enable reminders for scheduled tasks. Reminders are sent via email to the recipients defined when adding a new scheduled task.</p>
-            <label class="onoff-switch-label">
-                <input class="settings-param onoff-switch-input" param-name="scheduled-tasks-reminders" type="checkbox" value="true" <?php echo (SCHEDULED_TASKS_REMINDERS == "true") ? 'checked' : ''; ?>>
-                <span class="onoff-switch-slider"></span>
-            </label>
-            <?php
-            if (empty(SCHEDULED_TASKS_REMINDERS)) {
-                echo '<div class="note-warning margin-top-10"><img src="/assets/icons/warning.svg" /><p>This parameter must be specified.</p></div>';
-            } ?>
+        <div class="settings-columns">
+            <div class="settings-column">
+                <div class="div-generic-blue">
+                    <form class="settings-form" autocomplete="off">
+                        <h5 class="margin-top-0">HOSTS</h5>
 
-            <button class="hide" type="submit"></button>
-        </form>
-    </div>
+                        <div class="settings-field">
+                            <h6>MANAGE HOSTS</h6>
+                            <p class="note">Enable the management of client hosts. These hosts can register to Repomanager using linupdate.</p>
+                            <label class="onoff-switch-label">
+                                <input class="settings-param onoff-switch-input" param-name="manageHosts" type="checkbox" value="true" <?php echo (MANAGE_HOSTS == "true") ? 'checked' : ''; ?>>
+                                <span class="onoff-switch-slider"></span>
+                            </label>
+                            <?php
+                            if (empty(MANAGE_HOSTS)) {
+                                echo '<div class="note-warning margin-top-10"><img src="/assets/icons/warning.svg" /><p>This parameter must be specified.</p></div>';
+                            } ?>
+                        </div>
 
-    <h3>HOSTS</h3>
+                        <button class="hide" type="submit"></button>
+                    </form>
+                </div>
+            </div>
 
-    <div class="div-generic-blue">
-        <form class="settings-form" autocomplete="off">
-            <h6 class="margin-top-0">MANAGE HOSTS</h6>
-            <p class="note">Enable the management of client hosts. These hosts can register to Repomanager using linupdate.</p>
-            <label class="onoff-switch-label">
-                <input class="settings-param onoff-switch-input" param-name="manageHosts" type="checkbox" value="true" <?php echo (MANAGE_HOSTS == "true") ? 'checked' : ''; ?>>
-                <span class="onoff-switch-slider"></span>
-            </label>
-            <?php
-            if (empty(MANAGE_HOSTS)) {
-                echo '<div class="note-warning margin-top-10"><img src="/assets/icons/warning.svg" /><p>This parameter must be specified.</p></div>';
-            } ?>
-
-            <button class="hide" type="submit"></button>
-        </form>
+            <div class="settings-column"></div>
+        </div>
     </div>
 
     <!-- <h3>CVE</h3>
@@ -496,107 +758,198 @@
 
     <?php
     if (IS_ADMIN) : ?>
-        <h3>SSO (OpenID Connect)</h3>
+        <div class="settings-section hide" section="sso" save="true">
+            <div class="group-header hide">
+                <div class="flex align-item-center column-gap-10">
+                    <img src="/assets/icons/sso.svg" class="group-header-icon lowopacity-cst" />
+                    <span class="group-header-name">SSO (OpenID Connect)</span>
+                    <span class="label-count settings-search-count hide"></span>
+                </div>
+            </div>
 
-        <div class="div-generic-blue">
-            <form class="settings-form" autocomplete="off">
-                <h6 class="margin-top-0">ENABLE SSO</h6>
-                <p class="note">Enable SSO login via OpenID Connect.</p>
-                <label class="onoff-switch-label">
-                    <input class="settings-param onoff-switch-input" param-name="oidcEnable" type="checkbox" value="true" <?php echo (OIDC_ENABLED == "true") ? 'checked' : ''; ?>>
-                    <span class="onoff-switch-slider"></span>
-                </label>
+            <div class="settings-columns">
+                <div class="settings-column">
+                    <div class="div-generic-blue">
+                        <form class="settings-form" autocomplete="off">
+                            <h5 class="margin-top-0">SSO</h5>
 
-                <?php
-                if (OIDC_ENABLED == 'true') : ?>
-                    <h6>SSO ONLY</h6>
-                    <p class="note">Only allow login via OpenID Connect. This will disable local login.</p>
-                    <label class="onoff-switch-label">
-                        <input class="settings-param onoff-switch-input" param-name="ssoOidcOnly" type="checkbox" value="true" <?php echo (SSO_OIDC_ONLY == "true") ? 'checked' : ''; ?>>
-                        <span class="onoff-switch-slider"></span>
-                    </label>
+                            <div class="settings-field">
+                                <h6>ENABLE SSO</h6>
+                                <p class="note">Enable SSO login via OpenID Connect.</p>
+                                <label class="onoff-switch-label">
+                                    <input class="settings-param onoff-switch-input" param-name="oidcEnable" type="checkbox" value="true" <?php echo (OIDC_ENABLED == "true") ? 'checked' : ''; ?>>
+                                    <span class="onoff-switch-slider"></span>
+                                </label>
+                            </div>
 
-                    <h6>PROVIDER URL</h6>
-                    <p class="note">Provider URL, used for Autodiscovery.</p>
-                    <input class="settings-param" param-name="oidcProviderUrl" type="text" value="<?= OIDC_PROVIDER_URL ?>">
+                            <?php
+                            if (OIDC_ENABLED == 'true') : ?>
+                                <div class="settings-field">
+                                    <h6>SSO ONLY</h6>
+                                    <p class="note">Only allow login via OpenID Connect. This will disable local login.</p>
+                                    <label class="onoff-switch-label">
+                                        <input class="settings-param onoff-switch-input" param-name="ssoOidcOnly" type="checkbox" value="true" <?php echo (SSO_OIDC_ONLY == "true") ? 'checked' : ''; ?>>
+                                        <span class="onoff-switch-slider"></span>
+                                    </label>
+                                </div>
+                                <?php
+                            endif ?>
 
-                    <h6>AUTHORIZATION ENDPOINT</h6>
-                    <p class="note">Override Authorization Endpoint (leave empty for Autodiscovery).</p>
-                    <input class="settings-param" param-name="oidcAuthorizationEndpoint" type="text" value="<?= OIDC_AUTHORIZATION_ENDPOINT ?>">
+                            <button class="hide" type="submit"></button>
+                        </form>
+                    </div>
 
-                    <h6>TOKEN ENDPOINT</h6>
-                    <p class="note">Override Token Endpoint (leave empty for Autodiscovery).</p>
-                    <input class="settings-param" param-name="oidcTokenEndpoint" type="text" value="<?= OIDC_TOKEN_ENDPOINT ?>">
-
-                    <h6>USERINFO ENDPOINT</h6>
-                    <p class="note">Override Userinfo Endpoint (leave empty for Autodiscovery).</p>
-                    <input class="settings-param" param-name="oidcUserinfoEndpoint" type="text" value="<?= OIDC_USERINFO_ENDPOINT ?>">
-
-                    <h6>SCOPES</h6>
-                    <p class="note">Additional OIDC Scopes (openid already present).</p>
-                    <input class="settings-param" param-name="oidcScopes" type="text" value="<?= OIDC_SCOPES ?>">
-
-                    <h6>CLIENT ID</h6>
-                    <p class="note">Client ID.</p>
-                    <input class="settings-param" param-name="oidcClientId" type="text" value="<?= OIDC_CLIENT_ID ?>">
-
-                    <h6>CLIENT SECRET</h6>
-                    <p class="note">Client Secret.</p>
-                    <input class="settings-param" param-name="oidcClientSecret" type="password" value="<?= OIDC_CLIENT_SECRET ?>">
-
-                    <h6>USERNAME CLAIM</h6>
-                    <p class="note">OIDC Claim for username.</p>
-                    <input class="settings-param" param-name="oidcUsername" type="text" value="<?= OIDC_USERNAME ?>">
-
-                    <h6>FIRST NAME</h6>
-                    <p class="note">OIDC Claim for First Name.</p>
-                    <input class="settings-param" param-name="oidcFirstName" type="text" value="<?= OIDC_FIRST_NAME ?>">
-
-                    <h6>LAST NAME</h6>
-                    <p class="note">OIDC Claim for Last Name.</p>
-                    <input class="settings-param" param-name="oidcLastName" type="text" value="<?= OIDC_LAST_NAME ?>">
-
-                    <h6>EMAIL</h6>
-                    <p class="note">OIDC Claim for Email.</p>
-                    <input class="settings-param" param-name="oidcEmail" type="text" value="<?= OIDC_EMAIL ?>">
-
-                    <h6>GROUPS</h6>
-                    <p class="note">OIDC Claim for Groups / Roles.</p>
-                    <input class="settings-param" param-name="oidcGroups" type="text" value="<?= OIDC_GROUPS ?>">
-
-                    <h6>GROUP ADMINISTRATOR</h6>
-                    <p class="note">Groups value for Administrator.</p>
-                    <input class="settings-param" param-name="oidcGroupAdministrator" type="text" value="<?= OIDC_GROUP_ADMINISTRATOR ?>">
-
-                    <!-- <h6>GROUP SUPER ADMINISTRATOR</h6>
-                    <p class="note">Groups value for Super Administrator.</p>
-                    <input class="settings-param" param-name="oidcGroupSuperAdministrator" type="text" value="<?= OIDC_GROUP_SUPER_ADMINISTRATOR ?>"> -->
-
-                    <h6>HTTP PROXY</h6>
-                    <p class="note">HTTP proxy.</p>
-                    <input class="settings-param" param-name="oidcHttpProxy" type="text" value="<?= OIDC_HTTP_PROXY ?>">
-
-                    <h6>CERTIFICATE FILE</h6>
-                    <p class="note">Path to certificate file. The certificate file must be stored under Repomanager's data directory to be valid.</p>
-                    <input class="settings-param" param-name="oidcCertPath" type="text" value="<?= OIDC_CERT_PATH ?>">
                     <?php
-                endif; ?>
+                    if (OIDC_ENABLED == 'true') : ?>
+                        <div class="div-generic-blue">
+                            <form class="settings-form" autocomplete="off">
+                                <h5 class="margin-top-0">PROVIDER</h5>
 
-                <button class="hide" type="submit"></button>
-            </form>
+                                <div class="settings-field">
+                                    <h6>PROVIDER URL</h6>
+                                    <p class="note">Provider URL, used for Autodiscovery.</p>
+                                    <input class="settings-param" param-name="oidcProviderUrl" type="text" value="<?= OIDC_PROVIDER_URL ?>">
+                                </div>
+
+                                <div class="settings-field">
+                                    <h6>AUTHORIZATION ENDPOINT</h6>
+                                    <p class="note">Override Authorization Endpoint (leave empty for Autodiscovery).</p>
+                                    <input class="settings-param" param-name="oidcAuthorizationEndpoint" type="text" value="<?= OIDC_AUTHORIZATION_ENDPOINT ?>">
+                                </div>
+
+                                <div class="settings-field">
+                                    <h6>TOKEN ENDPOINT</h6>
+                                    <p class="note">Override Token Endpoint (leave empty for Autodiscovery).</p>
+                                    <input class="settings-param" param-name="oidcTokenEndpoint" type="text" value="<?= OIDC_TOKEN_ENDPOINT ?>">
+                                </div>
+
+                                <div class="settings-field">
+                                    <h6>USERINFO ENDPOINT</h6>
+                                    <p class="note">Override Userinfo Endpoint (leave empty for Autodiscovery).</p>
+                                    <input class="settings-param" param-name="oidcUserinfoEndpoint" type="text" value="<?= OIDC_USERINFO_ENDPOINT ?>">
+                                </div>
+
+                                <button class="hide" type="submit"></button>
+                            </form>
+                        </div>
+
+                        <div class="div-generic-blue">
+                            <form class="settings-form" autocomplete="off">
+                                <h5 class="margin-top-0">CLIENT</h5>
+
+                                <div class="settings-field">
+                                    <h6>CLIENT ID</h6>
+                                    <p class="note">Client ID.</p>
+                                    <input class="settings-param" param-name="oidcClientId" type="text" value="<?= OIDC_CLIENT_ID ?>">
+                                </div>
+
+                                <div class="settings-field">
+                                    <h6>CLIENT SECRET</h6>
+                                    <p class="note">Client Secret.</p>
+                                    <input class="settings-param" param-name="oidcClientSecret" type="password" value="<?= OIDC_CLIENT_SECRET ?>">
+                                </div>
+
+                                <div class="settings-field">
+                                    <h6>SCOPES</h6>
+                                    <p class="note">Additional OIDC Scopes (openid already present).</p>
+                                    <input class="settings-param" param-name="oidcScopes" type="text" value="<?= OIDC_SCOPES ?>">
+                                </div>
+
+                                <button class="hide" type="submit"></button>
+                            </form>
+                        </div>
+                        <?php
+                    endif ?>
+                </div>
+
+                <div class="settings-column">
+                    <?php
+                    if (OIDC_ENABLED == 'true') : ?>
+                        <div class="div-generic-blue">
+                            <form class="settings-form" autocomplete="off">
+                                <h5 class="margin-top-0">CLAIMS</h5>
+
+                                <div class="settings-field">
+                                    <h6>USERNAME CLAIM</h6>
+                                    <p class="note">OIDC Claim for username.</p>
+                                    <input class="settings-param" param-name="oidcUsername" type="text" value="<?= OIDC_USERNAME ?>">
+                                </div>
+
+                                <div class="settings-field">
+                                    <h6>FIRST NAME</h6>
+                                    <p class="note">OIDC Claim for First Name.</p>
+                                    <input class="settings-param" param-name="oidcFirstName" type="text" value="<?= OIDC_FIRST_NAME ?>">
+                                </div>
+
+                                <div class="settings-field">
+                                    <h6>LAST NAME</h6>
+                                    <p class="note">OIDC Claim for Last Name.</p>
+                                    <input class="settings-param" param-name="oidcLastName" type="text" value="<?= OIDC_LAST_NAME ?>">
+                                </div>
+
+                                <div class="settings-field">
+                                    <h6>EMAIL</h6>
+                                    <p class="note">OIDC Claim for Email.</p>
+                                    <input class="settings-param" param-name="oidcEmail" type="text" value="<?= OIDC_EMAIL ?>">
+                                </div>
+
+                                <div class="settings-field">
+                                    <h6>GROUPS</h6>
+                                    <p class="note">OIDC Claim for Groups / Roles.</p>
+                                    <input class="settings-param" param-name="oidcGroups" type="text" value="<?= OIDC_GROUPS ?>">
+                                </div>
+
+                                <div class="settings-field">
+                                    <h6>GROUP ADMINISTRATOR</h6>
+                                    <p class="note">Groups value for Administrator.</p>
+                                    <input class="settings-param" param-name="oidcGroupAdministrator" type="text" value="<?= OIDC_GROUP_ADMINISTRATOR ?>">
+                                </div>
+
+                                <!-- <h6>GROUP SUPER ADMINISTRATOR</h6>
+                                <p class="note">Groups value for Super Administrator.</p>
+                                <input class="settings-param" param-name="oidcGroupSuperAdministrator" type="text" value="<?= OIDC_GROUP_SUPER_ADMINISTRATOR ?>"> -->
+
+                                <button class="hide" type="submit"></button>
+                            </form>
+                        </div>
+
+                        <div class="div-generic-blue">
+                            <form class="settings-form" autocomplete="off">
+                                <h5 class="margin-top-0">CONNECTION</h5>
+
+                                <div class="settings-field">
+                                    <h6>HTTP PROXY</h6>
+                                    <p class="note">HTTP proxy.</p>
+                                    <input class="settings-param" param-name="oidcHttpProxy" type="text" value="<?= OIDC_HTTP_PROXY ?>">
+                                </div>
+
+                                <div class="settings-field">
+                                    <h6>CERTIFICATE FILE</h6>
+                                    <p class="note">Path to certificate file. The certificate file must be stored under Repomanager's data directory to be valid.</p>
+                                    <input class="settings-param" param-name="oidcCertPath" type="text" value="<?= OIDC_CERT_PATH ?>">
+                                </div>
+
+                                <button class="hide" type="submit"></button>
+                            </form>
+                        </div>
+                        <?php
+                    endif; ?>
+                </div>
+            </div>
         </div>
         <?php
     endif; ?>
-
-    <form class="settings-form" autocomplete="off">
-        <button type="submit" class="btn-medium-green">Save</button>
-    </form>
 
     <script>
         $(document).ready(function(){
             myselect2.convert('#emailRecipientSelect', 'Select recipients...', true);
             myselect2.convert('#debArchitectureSelect', 'Select architectures...');
             myselect2.convert('#rpmArchitectureSelect', 'Select architectures...');
+
+            // Show the active section, rebuild the search index and the unsaved changes state
+            if (typeof settingsLayout !== 'undefined') {
+                settingsLayout.refresh();
+            }
         });
     </script>
 </section>

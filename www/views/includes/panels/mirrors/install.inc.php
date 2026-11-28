@@ -36,8 +36,25 @@
                 </div>
             </div>
 
-            <h6>GPG KEY</h6>
-            <p class="note">The upstream GPG key(s) must be trusted on the host.</p>
+            <?php
+            if ($install['mirror']['Package_type'] == 'alpine') : ?>
+                <h6>SIGNING KEYS</h6>
+                <p class="note">The upstream RSA key(s) must be installed in <code>/etc/apk/keys/</code> on the host. The official Alpine Linux keys are installed by the <code>alpine-keys</code> package.</p>
+                <?php
+                if (!empty($install['commands']['keys'])) : ?>
+                    <p class="note margin-bottom-5">Keys of the source repository, if they are not already installed:</p>
+                    <pre class="mirror-install-commands codeblock margin-top-10 margin-bottom-10 copy" template="<?= htmlspecialchars($install['commands']['keys']) ?>"></pre>
+                    <?php
+                endif;
+            elseif ($install['mirror']['Package_type'] == 'openbsd') : ?>
+                <h6>SIGNING KEYS</h6>
+                <p class="note">The signify keys of the current and next OpenBSD versions are installed in <code>/etc/signify/</code> by the base system, nothing to install.</p>
+                <?php
+            else : ?>
+                <h6>GPG KEY</h6>
+                <p class="note">The upstream GPG key(s) must be trusted on the host.</p>
+                <?php
+            endif ?>
 
             <h6>INSTALLATION</h6>
 
@@ -69,6 +86,30 @@
 
                 <p class="note margin-bottom-5">Otherwise, add the following sections to <code>/etc/pacman.conf</code>:</p>
                 <pre class="mirror-install-commands codeblock margin-top-10 margin-bottom-10 copy" template="<?= htmlspecialchars($install['commands']['arch']) ?>"></pre>
+                <?php
+            endif;
+
+            if ($install['mirror']['Package_type'] == 'alpine') : ?>
+                <p class="note margin-bottom-5">Copy and paste the following commands in the shell of the target host. The mirror repositories replace the ones declared in <code>/etc/apk/repositories</code>.</p>
+                <pre class="mirror-install-commands codeblock margin-top-10 margin-bottom-10 copy" template="<?= htmlspecialchars($install['commands']['alpine']) ?>"></pre>
+                <?php
+            endif;
+
+            if ($install['mirror']['Package_type'] == 'openbsd') : ?>
+                <p class="note margin-bottom-5">Copy and paste the following command in the shell of the target host. The mirror replaces the one declared in <code>/etc/installurl</code>.</p>
+                <pre class="mirror-install-commands codeblock margin-top-10 margin-bottom-10 copy" template="<?= htmlspecialchars($install['commands']['openbsd']) ?>"></pre>
+
+                <p class="note">
+                    <?php
+                    if (!empty($install['commands']['tools'])) {
+                        echo 'This mirror can be used by <code>' . implode('</code>, <code>', $install['commands']['tools']) . '</code>. ';
+                    }
+
+                    if (in_array('sysupgrade', $install['commands']['tools'])) {
+                        echo '<code>sysupgrade</code> looks for the next OpenBSD version in the mirror: add it to the mirror versions beforehand (<code>Edit</code> button of the mirror). ';
+                    } ?>
+                    Firmwares are not part of OpenBSD mirrors: <code>fw_update</code> retrieves them from <code>firmware.openbsd.org</code>.
+                </p>
                 <?php
             endif ?>
         </div>

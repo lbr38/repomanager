@@ -13,7 +13,8 @@ class Releasever
         }
 
         foreach ($releasevers as $releasever) {
-            if (!is_numeric($releasever)) {
+            // is_numeric() accepts leading and trailing whitespaces, which cannot be part of the repository path
+            if (!is_numeric($releasever) or preg_match('/\s/', strval($releasever))) {
                 throw new Exception('Release version must be numeric');
             }
         }

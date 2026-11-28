@@ -510,7 +510,26 @@ $(document).on('click','#host-delete-btn',function () {
                 'text': 'Delete',
                 'color': 'red',
                 'callback': function () {
-                    executeAction('delete', [id]);
+                    ajaxRequest(
+                        // Controller:
+                        'host/execute',
+                        // Action:
+                        'action',
+                        // Data:
+                        {
+                            exec: 'delete',
+                            hosts: [id]
+                        },
+                        // Print success alert:
+                        true,
+                        // Print error alert:
+                        true
+                    ).then(function () {
+                        // The host no longer exists, redirect to the hosts list
+                        setTimeout(function () {
+                            window.location.href = '/hosts';
+                        }, 1500);
+                    });
                 }
             }]
         }

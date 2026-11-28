@@ -11,6 +11,8 @@ $userController = new \Controllers\User\User();
 $rpmSourcesList = $sourceController->listAll('rpm');
 $debSourcesList = $sourceController->listAll('deb');
 $archSourcesList = $sourceController->listAll('arch');
+$alpineSourcesList = $sourceController->listAll('alpine');
+$openbsdSourcesList = $sourceController->listAll('openbsd');
 
 // Existing tags (repositories and mirrors) and groups, as in the new repository form
 $tags = (new \Controllers\Mirror\Mirror())->listAllTags();

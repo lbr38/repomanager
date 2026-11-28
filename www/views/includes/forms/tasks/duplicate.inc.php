@@ -16,8 +16,109 @@ use \Controllers\Group\Repo as RepoGroup; ?>
 </div>
   
 <h6 class="required">NEW REPOSITORY NAME</h6>
-<p class="note">The name of the new repository.</p>
-<input type="text" class="task-param" param-name="name" required />
+<p class="note">The name of the new repository. It can be the same name with another <?= $repoController->getPackageType() == 'rpm' ? 'release version' : 'distribution' ?>.</p>
+<input type="text" class="task-param" param-name="name" value="<?= htmlspecialchars($repoController->getName(), ENT_QUOTES) ?>" required />
+
+<?php
+/**
+ *  The release version (rpm) or the distribution (deb) of the new repository can be changed, the component (deb) cannot
+ *  Only one value can be selected. The suggestions are the ones of the new repository form: values of the source repository
+ *  of a curated repository, then the possible values. None for a local repository (the value is typed)
+ */
+if ($repoController->getPackageType() == 'rpm') {
+    $versionParam = 'releasever';
+    $versionCurrent = $repoController->getReleasever();
+}
+if ($repoController->getPackageType() == 'deb') {
+    $versionParam = 'dist';
+    $versionCurrent = $repoController->getDist();
+}
+
+$versionSuggestions = [];
+$versionCurrentListed = false;
+
+/**
+ *  Release versions (rpm) or distributions (deb) defined in the source repository of a curated repository:
+ *  a warning is printed if another value is selected, the updates of the new repository fail if the source repository does not provide it
+ */
+$versionSourceValues = [];
+
+if ($repoController->getType() == 'curated') {
+    try {
+        if ($repoController->getPackageType() == 'rpm') {
+            $versionSuggestions = (new \Controllers\Repo\Source\Rpm())->getPredefinedReleasever($repoController->getSource());
+        }
+        if ($repoController->getPackageType() == 'deb') {
+            $versionSuggestions = (new \Controllers\Repo\Source\Deb())->getPredefinedDistributions($repoController->getSource());
+        }
+
+        $sourceController = new \Controllers\Repo\Source\Source();
+        $sourceDefinition = $sourceController->getDefinition($sourceController->getIdByTypeName($repoController->getPackageType(), $repoController->getSource()));
+        $versionSourceValues = array_values(array_filter(array_map('strval', array_column($sourceDefinition[$versionParam == 'releasever' ? 'releasever' : 'distributions'] ?? [], 'name'))));
+    } catch (\Exception $e) {
+        // The source repository may have been deleted since, the value can still be typed
+    }
+}
+
+foreach ($versionSuggestions as $suggestionGroup) {
+    if (in_array($versionCurrent, array_column($suggestionGroup['children'], 'id'))) {
+        $versionCurrentListed = true;
+    }
+}
+
+if ($repoController->getPackageType() == 'rpm') : ?>
+    <h6 class="required">RELEASE VERSION</h6>
+    <p class="note">Select or enter the release version of the new repository, e.g. to duplicate a <b>9</b> repository into a <b>9.9</b> one.</p>
+    <?php
+endif;
+
+if ($repoController->getPackageType() == 'deb') : ?>
+    <h6 class="required">DISTRIBUTION</h6>
+    <p class="note">Select or enter the distribution of the new repository. The component <b><?= htmlspecialchars($repoController->getSection()) ?></b> stays the same.</p>
+    <?php
+endif ?>
+
+<?php
+/**
+ *  Same select2 as the new repository form (value typed in the field, no dropdown search field), limited to one value:
+ *  the select is multiple only for its look, the value sent is the one of the hidden task parameter below
+ */ ?>
+<select class="duplicate-version-select" multiple>
+    <?php
+    // Current value of the snapshot, selected by default
+    if (!$versionCurrentListed) {
+        echo '<option value="' . htmlspecialchars($versionCurrent, ENT_QUOTES) . '" selected>' . htmlspecialchars($versionCurrent) . '</option>';
+    }
+
+    foreach ($versionSuggestions as $suggestionGroup) {
+        echo '<optgroup label="' . htmlspecialchars($suggestionGroup['text'], ENT_QUOTES) . '">';
+
+        foreach ($suggestionGroup['children'] as $suggestion) {
+            echo '<option value="' . htmlspecialchars($suggestion['id'], ENT_QUOTES) . '" ' . ($suggestion['id'] == $versionCurrent ? 'selected' : '') . '>' . htmlspecialchars(trim($suggestion['text'])) . '</option>';
+        }
+
+        echo '</optgroup>';
+    } ?>
+</select>
+<input type="hidden" class="task-param" param-name="<?= $versionParam ?>" value="<?= htmlspecialchars($versionCurrent, ENT_QUOTES) ?>" />
+<?php
+
+// A curated repository is updated from its source repository, with its own release version or distribution
+if ($repoController->getType() == 'curated') : ?>
+    <div class="note-info">
+        <img src="/assets/icons/info.svg" />
+        <p>The new repository will be updated from the same source repository, with its own <?= $repoController->getPackageType() == 'rpm' ? 'release version' : 'distribution' ?>.</p>
+    </div>
+    <?php
+    // Printed when the selected value is not defined in the source repository (only if the source repository defines some)
+    if (!empty($versionSourceValues)) : ?>
+        <div class="note-warning duplicate-version-warning hide" source-values="<?= htmlspecialchars(json_encode($versionSourceValues), ENT_QUOTES) ?>" current-value="<?= htmlspecialchars($versionCurrent, ENT_QUOTES) ?>">
+            <img src="/assets/icons/warning.svg" />
+            <p><?= $repoController->getPackageType() == 'rpm' ? 'Release version' : 'Distribution' ?> <b class="duplicate-version-value"></b> is not defined in the <b><?= htmlspecialchars($repoController->getSource()) ?></b> source repository: make sure the source repository provides it<?= $repoController->getPackageType() == 'deb' ? ' with the <b>' . htmlspecialchars($repoController->getSection()) . '</b> component' : '' ?>, otherwise the updates of the new repository will fail.</p>
+        </div>
+        <?php
+    endif;
+endif ?>
 
 <h6>POINT AN ENVIRONMENT</h6>
 <p class="note">Select one or multiple environments to point to the new repository snapshot.</p>
@@ -84,5 +185,31 @@ $scheduleForm['action'] = 'duplicate'; ?>
     $(document).ready(function(){
         myselect2.convert('select.task-param[param-name="env"]', 'Select environment(s)', true);
         myselect2.convert('select.task-param[param-name="tags"]', 'Specify tags', true);
+
+        // Release version or distribution: only one value, a selected or typed value replaces the previous one
+        const versionForm = $('.task-form-params[snap-id="<?= $repoController->getSnapId() ?>"]');
+        const versionSelect = versionForm.find('select.duplicate-version-select');
+
+        versionSelect.select2(Object.assign(myselect2.options('<?= $versionParam == 'releasever' ? 'Select or enter release version' : 'Select or enter distribution' ?>', true), { closeOnSelect: true }));
+
+        versionSelect.on('select2:select', function (e) {
+            $(this).val([e.params.data.id]).trigger('change');
+        });
+
+        versionSelect.on('change', function () {
+            const value = ($(this).val() || [])[0] || '';
+
+            versionForm.find('.task-param[param-name="<?= $versionParam ?>"]').val(value);
+
+            // Warn if the value is not defined in the source repository (curated repository), the current value is not concerned
+            const warning = versionForm.find('.duplicate-version-warning');
+
+            if (warning.length) {
+                const unknown = value !== '' && value !== warning.attr('current-value') && !JSON.parse(warning.attr('source-values')).includes(value);
+
+                warning.find('.duplicate-version-value').text(value);
+                warning.toggleClass('hide', !unknown);
+            }
+        });
     });
 </script>

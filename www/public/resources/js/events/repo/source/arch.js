@@ -58,7 +58,9 @@ $(document).on('submit','form.source-repo-edit-arch-item',function (e) {
             field: field,
             itemId: itemId,
             name: $(this).find('.arch-item-param[param-name="name"]').val(),
-            description: $(this).find('.arch-item-param[param-name="description"]').val()
+            description: $(this).find('.arch-item-param[param-name="description"]').val(),
+            // Only alpine branches and openbsd versions have an end of life date
+            eol: $(this).find('.arch-item-param[param-name="eol"]').val() ?? ''
         },
         // Print success alert:
         true,
